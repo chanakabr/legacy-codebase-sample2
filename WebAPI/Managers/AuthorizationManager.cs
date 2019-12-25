@@ -689,19 +689,23 @@ namespace WebAPI.Managers
             if (group.EnforceGroupsSecret)
             {
                 var signature = KSUtils.ExtractKSPayload(ks).Signature;
-                var index = 0;
-                foreach (var secret in group.GroupSecrets)
+
+                //No group secrets
+                if (group.GroupSecrets == null)
+                    return false;
+
+                for (int i = group.GroupSecrets.Count - 1; i >= 0; i--) //LIFO
                 {
-                    var concat = string.Format(group.SignatureFormat, ks.Random, secret);
+                    var concat = string.Format(group.SignatureFormat, ks.Random, group.GroupSecrets[i]);
                     var encryptedValue = Encoding.Default.GetString(EncryptionUtils.HashSHA1(concat));
                     if (encryptedValue == signature)
                     {
-                        log.Debug($"Matching signature was received by {ks.UserId}, index: {index}");
+                        log.Debug($"Matching signature was received by {ks.UserId}, index: {i}");
                         return true;
                     }
-                    log.Info($"Signature validation failed for group: {ks.GroupId}, iteration: {index}");
-                    ++index;
+                    log.Info($"Signature validation failed for group: {ks.GroupId}, index: {i}");
                 }
+
                 return false;
             }
             return true;
