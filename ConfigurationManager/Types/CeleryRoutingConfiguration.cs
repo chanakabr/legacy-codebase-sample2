@@ -6,12 +6,13 @@ namespace ConfigurationManager
 {
     public class CeleryRoutingConfiguration : BaseConfig<CeleryRoutingConfiguration>
     {
+        private static readonly char[] dot = new char[] { '.' };
         public override string TcmKey => TcmObjectKeys.CeleryRoutingConfiguration;
 
         public override string[] TcmPath => new string[] { TcmKey };
 
 
-        private static readonly Dictionary<string, string> handlerDefaultDic = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> distributedTaskshandlerDefaultMapping = new Dictionary<string, string>()
         {
             {"resize_image"                , "ImageResizeHandler"},
             {"upload_image"                , "FileUploadHandler"},
@@ -43,16 +44,35 @@ namespace ConfigurationManager
             {"ps_events"                   , "ProfessionalServicesHandler"},
             {"asset_inheritance"           , "AssetInheritanceHandler"},
             {"geo_rule_update"             , "GeoRuleUpdateHandler"},
-            { "bulk_upload_live_asset"     , "LiveAssetBulkUploadHandler" }
+            {"bulk_upload_live_asset"     , "LiveAssetBulkUploadHandler" }
         };
 
-        public BaseValue<Dictionary<string, string>> distributedTasks = new BaseValue<Dictionary<string, string>>(TcmObjectKeys.DistributedTasks, handlerDefaultDic);
+        public BaseValue<Dictionary<string, string>> distributedTasks = new BaseValue<Dictionary<string, string>>(TcmObjectKeys.DistributedTasks, distributedTaskshandlerDefaultMapping);
 
         public string GetHandler(string key)
         {
-            string result = string.Empty;
+            string result = string.Empty, location = string.Empty, keyToFind = null;
+            string[] splitedHandler = key.Split(dot, System.StringSplitOptions.RemoveEmptyEntries);
+            if (splitedHandler.Length > 1)
+            {
+                location = splitedHandler[0];
+                keyToFind = splitedHandler[1];
+            }
+            else if (splitedHandler.Length > 0)
+            {
+                keyToFind = splitedHandler[0];
+            }
 
-            distributedTasks.ActualValue.TryGetValue(key, out result);
+            if (!string.IsNullOrEmpty(keyToFind))
+            {
+                switch (location)
+                {
+                    case TcmObjectKeys.DistributedTasks:
+                    default:
+                        distributedTasks.ActualValue.TryGetValue(keyToFind, out result);
+                        break;
+                }
+            }
 
             return result;
         }
