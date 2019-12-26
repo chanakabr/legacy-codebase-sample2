@@ -92,6 +92,7 @@ namespace ApiLogic.Users.Managers
                 if (!householdSegment.Delete())
                 {
                     log.Error($"Error while delete HouseholdSegment. contextData: {contextData.ToString()}.");
+                    response.Set(eResponseStatus.Error);
                     return response;
                 }
 
@@ -100,6 +101,7 @@ namespace ApiLogic.Users.Managers
             catch (Exception ex)
             {
                 log.Error($"Error while Delete HouseholdSegment. contextData: {contextData.ToString()}. ex: {ex}");
+                response.Set(eResponseStatus.Error);
             }
 
             return response;
