@@ -32,7 +32,7 @@ namespace TVinciShared
             GetConfigurationValues(specificConfiguration, 
                 out enabledSslProtocols, out enabledDecompressionMethod, out maxConnectionsPerServer, out checkCertificateRevocationList, out timeout);
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
             SocketsHttpHandler httpHandler = new SocketsHttpHandler() { SslOptions = new System.Net.Security.SslClientAuthenticationOptions() };
             foreach (SslProtocols sslProtocols in enabledSslProtocols)
             {

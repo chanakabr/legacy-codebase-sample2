@@ -97,7 +97,7 @@ namespace Core.Notification
             #if NETFRAMEWORK
             return HttpServerUtility.UrlTokenEncode(encbuff);
             #endif
-            #if NETCOREAPP3_0
+            #if NETCOREAPP3_1
             return Microsoft.AspNetCore.WebUtilities.WebEncoders.Base64UrlEncode(encbuff);
             #endif
 

@@ -67,6 +67,7 @@ namespace APILogic
             if ((ids == null || ids.Count == 0) &&
                 (unactiveAssets == null || unactiveAssets.Tables == null || unactiveAssets.Tables.Count == 0 || unactiveAssets.Tables[0] == null || unactiveAssets.Tables[0].Rows == null || unactiveAssets.Tables[0].Rows.Count == 0))
             {
+                log.Debug($"No ids returned from search.");
                 return true;
             }
 

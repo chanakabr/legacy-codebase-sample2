@@ -14,7 +14,7 @@ using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 #endif
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
 using Microsoft.AspNetCore.Http;
 #endif
 
@@ -140,7 +140,7 @@ namespace TVinciShared
 
 
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
         public static bool SetCookie(string cookiename, string cookievalue, int iMinToExpire)
         {
             try

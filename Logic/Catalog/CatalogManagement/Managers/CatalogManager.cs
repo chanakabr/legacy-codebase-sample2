@@ -1,14 +1,11 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.Catalog;
-using ApiObjects.EventBus;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
 using Core.Catalog.Response;
 using DAL;
-using EventBus.RabbitMQ;
-using GroupsCacheManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using QueueWrapper;
@@ -2097,6 +2094,16 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result = new Status((int)eResponseStatus.CanNotDeletePredefinedMeta, eResponseStatus.CanNotDeletePredefinedMeta.ToString());
                     return result;
+                }
+
+                var objectVirtualAssetPartnerConfig = PartnerConfigurationManager.GetObjectVirtualAssetPartnerConfiguration(groupId);
+                if (objectVirtualAssetPartnerConfig.HasObjects())
+                {
+                    if (objectVirtualAssetPartnerConfig.Objects.Any(x => x.ObjectVirtualAssets.Any(y => y.MetaId == id)))
+                    {
+                        result = new Status((int)eResponseStatus.CanNotDeleteObjectVirtualAssetMeta, eResponseStatus.CanNotDeleteObjectVirtualAssetMeta.ToString());
+                        return result;
+                    }
                 }
 
                 bool haveConnection = catalogGroupCache.AssetStructsMapById.Any

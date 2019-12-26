@@ -10,7 +10,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Reflection;
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
 using Microsoft.AspNetCore.Mvc;
 #endif
 #if NET48

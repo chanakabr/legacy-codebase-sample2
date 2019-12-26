@@ -1819,7 +1819,7 @@ namespace Core.Catalog
                     else
                     {
                         List<int> missingIds = assets.Select(x => int.Parse(x.AssetId)).Except(ids).ToList();
-                        log.DebugFormat("Missing media ids: {0}", missingIds);
+                        log.DebugFormat("Missing media ids: {0}", string.Join(",", missingIds));
                     }
                 }
             }
@@ -1903,7 +1903,7 @@ namespace Core.Catalog
                     else
                     {
                         List<long> missingIds = programs.Select(x => long.Parse(x.AssetId)).Except(ids).ToList();
-                        log.DebugFormat("Missing media ids: {0}", missingIds);
+                        log.DebugFormat("Missing program ids: {0}", string.Join(",", missingIds));
                     }
                 }
             }
