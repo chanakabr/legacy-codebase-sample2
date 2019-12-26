@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ConfigurationManager;
+using Core.Middleware;
 using KLogMonitor;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -14,19 +15,18 @@ namespace TVPApi.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            string apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
-            var defaultLogDir = $@"C:\log\tvpapi\{apiVersion}";
-            KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
-            ConfigurationManager.ApplicationConfiguration.Initialize(shouldLoadDefaults: true, silent: true);
-            CreateWebHostBuilder(args).Build().Run();
-        }
+            var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
+            var defaultLogDir = $@"/var/log/tvpapi/{apiVersion}";
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .ConfigureLogging((context, logging) => { logging.ClearProviders(); })
-                .ConfigureKestrel(o => o.AllowSynchronousIO = false)
-                .UseStartup<Startup>();
+            await KalturaWebHostBuilder.RunWebServerAsync<Startup>(new WebServerConfiguration
+            {
+                CommandlineArgs = args,
+                AllowSynchronousIO = true,
+                DefaultLogDirectoryPath = defaultLogDir,
+            });
+
+        }
     }
 }
