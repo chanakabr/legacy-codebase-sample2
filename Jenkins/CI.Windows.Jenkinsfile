@@ -74,7 +74,7 @@ pipeline {
             steps { 
                 dir("tvpapi_rest/Generator"){
                     bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
-                    dir("bin/Release/netcoreapp3.0"){
+                    dir("bin/Release/netcoreapp3.1"){
                         bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
                         bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
                     }
@@ -101,7 +101,7 @@ pipeline {
         stage("Publish Kaltura Clients"){
             // Generate only when release branch
             when {
-                expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ || BRANCH_NAME == 'master' }        
+                expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ || BRANCH_NAME == 'master' || params.publish == true }     
             }
             steps{
                 dir("clients-generator"){

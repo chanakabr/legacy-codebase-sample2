@@ -14,7 +14,7 @@ RUN dotnet publish -c Release "./Phoenix.Rest/Phoenix.Rest.csproj" -o /src/publi
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
 # Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.0
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /opt
 
 ARG API_LOG_DIR=/var/log/phoenix/
