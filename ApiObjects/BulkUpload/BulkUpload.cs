@@ -67,6 +67,19 @@ namespace ApiObjects.BulkUpload
                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<BulkUploadResult> Results { get; set; }
 
+        
+        
+        /// <summary>
+        /// This list of results that are additional to the source input
+        /// i.e. side affects of epg ingest may cause existing programs to update.
+        /// When they overlap each other the exsistin program migth have to be cut in time to fit the new one
+        /// </summary>
+        [JsonProperty(PropertyName = "SideEffects",
+                     TypeNameHandling = TypeNameHandling.Auto,
+                     ItemTypeNameHandling = TypeNameHandling.Auto,
+                     ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
+        public List<IAffectedObject> AffectedObjects { get; set; }
+
         [JsonProperty("JobData")]
         public BulkUploadJobData JobData { get; set; }
 
