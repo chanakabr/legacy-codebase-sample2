@@ -36,6 +36,12 @@ namespace IngestValidtionHandler
         private readonly CouchbaseManager.CouchbaseManager _CouchbaseManager = null;
 
         private BulkUpload _BulkUploadObject = null;
+
+        /// <summary>
+        /// This list contains all existing affected programs that were updated due
+        /// to overlap policy and were cut to fit the new ingested programs
+        /// </summary>
+        private List<EpgProgramBulkUploadObject> _AffectedPrograms;
         private TvinciEpgBL _EpgBL;
 
         public BulkUploadIngestValidationHandler()
@@ -53,6 +59,7 @@ namespace IngestValidtionHandler
                 _EventData = eventData;
                 _EpgBL = new TvinciEpgBL(eventData.GroupId);
                 _BulkUploadObject = BulkUploadMethods.GetBulkUploadData(eventData.GroupId, eventData.BulkUploadId);
+                _AffectedPrograms = _BulkUploadObject.AffectedObjects?.Cast<EpgProgramBulkUploadObject>()?.ToList();
 
                 var indexIsValid = ValidateClonedIndex(eventData);
                 _Logger.Debug($"Index validation done with result:[{indexIsValid}]");
@@ -66,11 +73,11 @@ namespace IngestValidtionHandler
                     UpdateBulkUploadStatus(_BulkUploadObject, newStatus);
 
                     // Update edgs if there are any updates to be made due to overlap
-                    if (eventData.EdgeProgramsToUpdate.Any())
+                    if (_AffectedPrograms.Any())
                     {
-                        await BulkUploadMethods.UpdateCouchbase(eventData.EdgeProgramsToUpdate, eventData.GroupId);
+                        await BulkUploadMethods.UpdateCouchbase(_AffectedPrograms, eventData.GroupId);
                         var updater = new UpdateClonedIndex(eventData.GroupId, eventData.BulkUploadId, eventData.DateOfProgramsToIngest, eventData.Languages);
-                        updater.Update(eventData.EdgeProgramsToUpdate, new List<EpgProgramBulkUploadObject>());
+                        updater.Update(_AffectedPrograms, new List<EpgProgramBulkUploadObject>());
                     }
 
                 }
@@ -79,7 +86,7 @@ namespace IngestValidtionHandler
                     BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus tmp);
                     bulkUploadResultAfterUpdate = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
                 }
-                
+
                 // All seperated jobs of bulkUpload were completed, we are the last one, we need to switch the alias and commit the chanages.
                 if (_BulkUploadObject.IsProcessCompleted)
                 {
@@ -181,11 +188,9 @@ namespace IngestValidtionHandler
 
         public void InvalidateEpgAssets()
         {
-            // TODO: the exsisting programs that were updated due to edges overlap are not included in the results of the bulk upload
-            // need to find a way to persist them as part of the updated programs so that when we invalidate we can have the list of exsistin programs
-            // that were updated as well
-            var programIds = _BulkUploadObject.Results.Where(r=>r.ObjectId.HasValue).Select(r=>r.ObjectId.Value);
-            foreach (var progId in programIds)
+            var affectedProgramIds = _AffectedPrograms.Select(p => (long)p.EpgId);
+            var programIds = _BulkUploadObject.Results.Where(r => r.ObjectId.HasValue).Select(r => r.ObjectId.Value);
+            foreach (var progId in programIds.Concat(affectedProgramIds))
             {
                 string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), progId);
 
@@ -250,7 +255,7 @@ namespace IngestValidtionHandler
         {
             // Get list of all indices of current bulk upload
             var allindicesOfCurrentBulk = _ElasticSearchClient.ListIndices($"{_BulkUploadObject.GroupId}_epg_v2_*_{_BulkUploadObject.Id}");
-            
+
             foreach (var newIndex in allindicesOfCurrentBulk)
             {
                 // remove the bulkUploadId suffix from the index

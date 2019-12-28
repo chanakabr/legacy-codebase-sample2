@@ -50,6 +50,12 @@ namespace IngestHandler
         private Dictionary<string, ImageType> _GroupRatioNamesToImageTypes;
         private LanguageObj _DefaultLanguage;
         private bool _IsOpc;
+
+        /// <summary>
+        /// Programs By ExternalId wrapped in a dictionary by ChannelId 
+        /// int - ChannelId
+        /// Dictionary<string,ProgramAssetResult> - results by externalId
+        /// </summary>
         private Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> _ResultsDictionary;
 
         public BulkUploadIngestHandler()
@@ -97,6 +103,7 @@ namespace IngestHandler
                 {
                     _Logger.Debug($"Overlaps or gaps are not valid by ingest profile");
                     BulkUploadManager.UpdateBulkUploadResults(_ResultsDictionary.Values.SelectMany(r => r.Values), out BulkUploadJobStatus jobStatus);
+                    BulkUploadManager.UpdateOrAddBulkUploadAffectedObjects(_BulkUploadObject.Id, edgeProgramsToUpdate);
                     BulkUploadManager.UpdateBulkUpload(_BulkUploadObject, jobStatus);
 
                     return;
@@ -124,7 +131,6 @@ namespace IngestHandler
                     RequestId = KLogger.GetRequestId(),
                     DateOfProgramsToIngest = serviceEvent.DateOfProgramsToIngest,
                     EPGs = finalEpgState.Where(epg => !errorProgramExternalIds.ContainsKey(GetEPGKey(epg))).ToList(),
-                    EdgeProgramsToUpdate = edgeProgramsToUpdate,
                     Languages = _Languages,
                     Results = _ResultsDictionary
                 };
