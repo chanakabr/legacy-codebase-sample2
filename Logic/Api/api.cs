@@ -11947,7 +11947,7 @@ namespace Core.Api
                         var meta = virtualAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
                         if (meta != null && long.TryParse(meta.m_sValue, out objectId))
                         {
-                            if (objectIds?.Count == 0 || objectIds.Contains(objectId))
+                            if (objectIds == null || objectIds.Count == 0 || objectIds.Contains(objectId))
                             {
                                 objectVirtualAssetFilter.ObjectIds.Add(objectId);
                             }
