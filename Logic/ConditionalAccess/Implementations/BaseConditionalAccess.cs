@@ -9992,7 +9992,7 @@ namespace Core.ConditionalAccess
                     string billingGuid = string.Empty;
 
                     // Check if cancellation allowed for subscription
-                    if (!isForce && transactionType == eTransactionType.Subscription)
+                    if (transactionType == eTransactionType.Subscription)
                     {
                         Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false, domain.m_masterGUIDs[0].ToString());
 
@@ -10003,18 +10003,21 @@ namespace Core.ConditionalAccess
                             return result;
                         }
 
-                        if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                        if (!isForce)
                         {
-                            result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
-                            result.Message = "Cancellation is blocked for this subscription";
-                            return result;
-                        }
+                            if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                            {
+                                result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                                result.Message = "Cancellation is blocked for this subscription";
+                                return result;
+                            }
 
-                        if (subscriptionToCancel.PreSaleDate.HasValue)
-                        {
-                            result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
-                            result.Message = "Cancellation is blocked for this seasonal-pass subscription";
-                            return result;
+                            if (subscriptionToCancel.PreSaleDate.HasValue)
+                            {
+                                result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                                result.Message = "Cancellation is blocked for this seasonal-pass subscription";
+                                return result;
+                            }
                         }
                     }
 
