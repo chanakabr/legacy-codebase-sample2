@@ -6,6 +6,8 @@ using ApiObjects.Segmentation;
 using Core.Api;
 using KLogMonitor;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace ApiLogic.Users.Managers
@@ -33,7 +35,14 @@ namespace ApiLogic.Users.Managers
                 objectToAdd.GroupId = contextData.GroupId;
                 var assetSearchDefinition = new AssetSearchDefinition() { UserId = contextData.UserId.Value };
 
-                var filter = api.GetObjectVirtualAssetObjectIds(objectToAdd.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { objectToAdd.SegmentId });
+                long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(objectToAdd.SegmentId);
+                if (segmentationTypeId == 0)
+                {
+                    response.SetStatus(eResponseStatus.ObjectNotExist, "Segment not exist");
+                    return response;
+                }
+
+                var filter = api.GetObjectVirtualAssetObjectIds(objectToAdd.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
                 if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                 {
                     response.SetStatus(filter.Status);
@@ -81,6 +90,28 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
+                long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(segmentId);
+                if (segmentationTypeId == 0)
+                {
+                    response.Set(eResponseStatus.ObjectNotExist, "Segment not exist");
+                    return response;
+                }
+
+                var filter = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, new AssetSearchDefinition() { UserId = contextData.UserId.Value }, 
+                                            ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    response.Set(filter.Status);
+                    return response;
+                }
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                {
+                    response.Set(new Status((int)eResponseStatus.ObjectNotExist, "Object Not Exist"));
+                    return response;
+                }
+
                 HouseholdSegment householdSegment = new HouseholdSegment()
                 {
                     HouseholdId = contextData.DomainId.Value,
@@ -123,22 +154,43 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition() { UserId = contextData.UserId.Value, Filter = filter.Ksql };
+                var householdSegments = HouseholdSegment.List(contextData.GroupId, contextData.DomainId.Value, out int totalCount);
 
-                var filtered = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment);
-                if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                if (totalCount > 0)
                 {
-                    response.SetStatus(filtered.Status);
-                    return response;
+                    var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(householdSegments.Select( x =>x.SegmentId).ToList());
+                    if (segmentTypeIds?.Count > 0)
+                    {
+                        AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition() { UserId = contextData.UserId.Value, Filter = filter.Ksql };
+
+                        var filtered = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>( segmentTypeIds));
+                        if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                        {
+                            response.SetStatus(filtered.Status);
+                            return response;
+                        }
+
+                        if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                        {
+                            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                            return response;
+                        }
+
+                        if (filtered.ObjectIds?.Count > 0)
+                        {
+                            response.Objects = new List<HouseholdSegment>();
+
+                            foreach (var item in householdSegments)
+                            {
+                                if(filtered.ObjectIds.Contains(item.SegmentId))
+                                {
+                                    response.Objects.Add(item);
+                                }
+                            }
+                        }
+                    }
                 }
 
-                if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.None)
-                {
-                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    return response;
-                }
-
-                response.Objects = HouseholdSegment.List(contextData.GroupId, contextData.DomainId.Value, out int totalCount, filtered.ObjectIds);
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)

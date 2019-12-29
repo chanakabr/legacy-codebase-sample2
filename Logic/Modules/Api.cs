@@ -2191,20 +2191,41 @@ namespace Core.Api
 
             try
             {
-                var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, null, pageIndex, pageSize);
-                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
-                {
-                    result.SetStatus(filter.Status);
-                    return result;
-                }
+                var userSegments = UserSegment.List(groupId, userId, out int totalCount);
 
-                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                if (totalCount > 0)
                 {
-                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    return result;
-                }
+                    var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(userSegments.Select(x => x.SegmentId).ToList());
+                    if (segmentTypeIds?.Count > 0)
+                    {
+                        var filtered = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>(segmentTypeIds));
+                        if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                        {
+                            result.SetStatus(filtered.Status);
+                            return result;
+                        }
 
-                result.Objects = UserSegment.List(groupId, userId, out int totalCount, filter.ObjectIds.ToList(), pageIndex, pageSize);
+                        if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                        {
+                            result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                            return result;
+                        }
+
+                        if (filtered.ObjectIds?.Count > 0)
+                        {
+                            result.Objects = new List<UserSegment>();
+
+                            foreach (var item in userSegments)
+                            {
+                                if (filtered.ObjectIds.Contains(item.SegmentId))
+                                {
+                                    result.Objects.Add(item);
+                                }
+                            }
+                        }
+                    }
+                }                
+
                 result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
@@ -2232,6 +2253,28 @@ namespace Core.Api
                 else
                 {
                     userSegment.GroupId = groupId;
+                    
+                    long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(userSegment.SegmentId);
+                    if (segmentationTypeId == 0)
+                    {
+                        response.SetStatus(eResponseStatus.ObjectNotExist, "Segment not exist");
+                        return response;
+                    }
+
+                    var filter = api.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition() { UserId = long.Parse(userSegment.UserId) }, 
+                        ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
+
+                    if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                    {
+                        response.SetStatus(filter.Status);
+                        return response;
+                    }
+
+                    if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                    {
+                        response.SetStatus(new Status((int)eResponseStatus.ObjectNotExist, "Object Not Exist"));
+                        return response;
+                    }
 
                     if (!userSegment.Insert())
                     {
@@ -2259,6 +2302,25 @@ namespace Core.Api
             bool deleteResult = false;
             try
             {
+                long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(segmentId);
+                if (segmentationTypeId == 0)
+                {
+                    return new Status(eResponseStatus.ObjectNotExist, "Segment not exist" );
+                }
+
+                var filter = api.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition() { UserId = long.Parse(userId) },
+                    ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    return filter.Status;
+                }
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                {
+                    return new Status(eResponseStatus.ObjectNotExist, "Object Not Exist");
+                }
+
                 UserSegment segmentationType = new UserSegment()
                 {
                     GroupId = groupId,
