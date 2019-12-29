@@ -133,7 +133,7 @@ namespace TVPApi.Common
                     json.Remove("password");
 
                     // log request body
-                    #if !NETCOREAPP3_0
+                    #if !NETCOREAPP3_1
                     logger.DebugFormat("API Request - \n{0}", json.ToString(Formatting.Indented));
                     #endif
                 }
