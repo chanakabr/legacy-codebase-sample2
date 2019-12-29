@@ -71,15 +71,6 @@ namespace IngestValidtionHandler
                     UpdateBulkUploadResults(eventData.Results, eventData.EPGs);
                     BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus newStatus);
                     UpdateBulkUploadStatus(_BulkUploadObject, newStatus);
-
-                    // Update edgs if there are any updates to be made due to overlap
-                    if (_AffectedPrograms?.Any() == true)
-                    {
-                        await BulkUploadMethods.UpdateCouchbase(_AffectedPrograms, eventData.GroupId);
-                        var updater = new UpdateClonedIndex(eventData.GroupId, eventData.BulkUploadId, eventData.DateOfProgramsToIngest, eventData.Languages);
-                        updater.Update(_AffectedPrograms, new List<EpgProgramBulkUploadObject>());
-                    }
-
                 }
                 else
                 {

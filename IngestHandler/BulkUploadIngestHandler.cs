@@ -57,6 +57,8 @@ namespace IngestHandler
         /// Dictionary<string,ProgramAssetResult> - results by externalId
         /// </summary>
         private Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> _ResultsDictionary;
+        private DateTime _MinStartDate;
+        private DateTime _MaxEndDate;
 
         public BulkUploadIngestHandler()
         {
@@ -89,27 +91,32 @@ namespace IngestHandler
                 var programsToIngest = _ResultsDictionary.Values.SelectMany(r => r.Values).Select(r => r.Object).Cast<EpgProgramBulkUploadObject>().ToList();
                 await UploadEpgImages(programsToIngest);
 
-                var minStartDate = programsToIngest.Min(p => p.StartDate);
-                var maxEndDate = programsToIngest.Max(p => p.EndDate);
-                var currentPrograms = GetCurrentProgramsByDate(minStartDate, maxEndDate);
+                _MinStartDate = programsToIngest.Min(p => p.StartDate);
+                _MaxEndDate = programsToIngest.Max(p => p.EndDate);
+                var currentPrograms = GetCurrentProgramsByDate(_MinStartDate, _MaxEndDate);
 
                 var crudOperations = CalculateCRUDOperations(currentPrograms, programsToIngest);
 
                 var edgeProgramsToUpdate = CalculateRequiredUpdatesToEdgesDueToOverlap(currentPrograms, crudOperations);
-
+                crudOperations.ItemsToUpdate.AddRange(edgeProgramsToUpdate);
+                
                 bool isOverlapsAndGapsValid = HandleOverlapsAndGaps(crudOperations, _ResultsDictionary);
 
                 if (!isOverlapsAndGapsValid)
                 {
                     _Logger.Debug($"Overlaps or gaps are not valid by ingest profile");
                     BulkUploadManager.UpdateBulkUploadResults(_ResultsDictionary.Values.SelectMany(r => r.Values), out BulkUploadJobStatus jobStatus);
-                    BulkUploadManager.UpdateOrAddBulkUploadAffectedObjects(_BulkUploadObject.Id, edgeProgramsToUpdate);
                     BulkUploadManager.UpdateBulkUpload(_BulkUploadObject, jobStatus);
 
                     return;
                 }
 
                 var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
+
+                if (edgeProgramsToUpdate?.Any() == true)
+                {
+                    BulkUploadManager.UpdateOrAddBulkUploadAffectedObjects(_BulkUploadObject.Id, edgeProgramsToUpdate);
+                }
 
                 await BulkUploadMethods.UpdateCouchbase(finalEpgState, serviceEvent.GroupId);
 
@@ -424,10 +431,17 @@ namespace IngestHandler
 
         private CRUDOperations<EpgProgramBulkUploadObject> CalculateCRUDOperations(IList<EpgProgramBulkUploadObject> currentPrograms, IList<EpgProgramBulkUploadObject> programsToIngest)
         {
+            // TODO: query elastic according to all externalIds of programs to ingest to get the exsiting programs. 
+            // this is in case the exsisting program should be updated but actually moved from a different day or is out of the ingest time range
+            // also there is an issue with the program beeing updated should be deleted \ moved from existing date .. this is a whole other can of worms :\
+            // for now we will handle this by passing currentPrograms for the whole day
+            // note we will add a filter for epg.StartDate >= _MinStartDate && epg.EndDate <= _MaxEndDate  before returning programs to dlete 
+
+
             _Logger.Debug($"CalculateCRUDOperations > currentPrograms.count:[{currentPrograms.Count}] programsToIngest.count:[{programsToIngest.Count}]");
             var crudOperations = new CRUDOperations<EpgProgramBulkUploadObject>();
 
-            crudOperations.ItemsToDelete = currentPrograms.Where(epg => epg.IsAutoFill).ToList();
+            crudOperations.ItemsToDelete = currentPrograms.Where(epg => epg.StartDate >= _MinStartDate && epg.EndDate <= _MaxEndDate && epg.IsAutoFill).ToList();
 
             var currentProgramsDictionary = currentPrograms.Where(epg => !epg.IsAutoFill).ToDictionary(epg => GetEPGKey(epg));
             _Logger.Debug($"CalculateCRUDOperations > currentProgramsDictionary.Count:[{currentProgramsDictionary.Count}], programsToIngest:[{programsToIngest.Count}]");
@@ -457,7 +471,7 @@ namespace IngestHandler
             }
 
             // all update or add programs were removed form list so we left with items to delete
-            crudOperations.ItemsToDelete.AddRange(currentProgramsDictionary.Values.ToList());
+            crudOperations.ItemsToDelete.AddRange(currentProgramsDictionary.Values.Where(epg => epg.StartDate >= _MinStartDate && epg.EndDate <= _MaxEndDate).ToList());
 
             _Logger.Debug($"CalculateCRUDOperations > add:[{crudOperations.ItemsToAdd.Count}], update:[{crudOperations.ItemsToUpdate.Count}], delete:[{crudOperations.ItemsToDelete.Count}]");
 
@@ -509,7 +523,7 @@ namespace IngestHandler
             var orderedProgramsToIngest = programsToIngest.OrderBy(p => p.StartDate);
             var firstCurrentProgram = currentPrograms.FirstOrDefault();
             var firstProgramToIngest = orderedProgramsToIngest.FirstOrDefault(p => p.EpgId != firstCurrentProgram?.EpgId);
-            var lastCurrentProgram = orderedCurrentPrograms.LastOrDefault();
+            var lastCurrentProgram = orderedCurrentPrograms.LastOrDefault(p=> p.EpgId != firstCurrentProgram?.EpgId);
             var lastProgramToIngest = orderedProgramsToIngest.LastOrDefault(p => p.EpgId != lastCurrentProgram?.EpgId);
 
             _Logger.Debug($"CutSourceOrTargetOverlappingDates > firstCurrentProgram:[{firstCurrentProgram}],lastCurrentProgram:[{lastCurrentProgram}],firstProgramToIngest:[{firstProgramToIngest}],lastProgramToIngest:[{lastProgramToIngest}]");
