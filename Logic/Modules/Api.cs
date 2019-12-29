@@ -2143,7 +2143,7 @@ namespace Core.Api
 
             try
             {
-                var filter = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, ids);
+                var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, ids, pageIndex, pageSize);
                 if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                 {
                     result.SetStatus(filter.Status);
@@ -2191,7 +2191,7 @@ namespace Core.Api
 
             try
             {
-                var filter = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, null);
+                var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, null, pageIndex, pageSize);
                 if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                 {
                     result.SetStatus(filter.Status);
@@ -2204,7 +2204,7 @@ namespace Core.Api
                     return result;
                 }
 
-                result.Objects = UserSegment.List(groupId, userId, filter.ObjectIds.ToList(), pageIndex, pageSize, out int totalCount);
+                result.Objects = UserSegment.List(groupId, userId, out int totalCount, filter.ObjectIds.ToList(), pageIndex, pageSize);
                 result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
@@ -2482,7 +2482,7 @@ namespace Core.Api
 
             try
             {
-                result = UserSegment.List(groupId, userId, null, 0, 0, out int totalCount).Select( x =>x.SegmentId).ToList();
+                result = UserSegment.List(groupId, userId, out int totalCount).Select( x =>x.SegmentId).ToList();
 
                 if ( householdId == -1)
                 {
@@ -2495,7 +2495,7 @@ namespace Core.Api
 
                 if (householdId > 0)
                 {
-                    result.AddRange(HouseholdSegment.List(groupId, householdId, null, 0, 0, out totalCount).Select( x => x.SegmentId));                    
+                    result.AddRange(HouseholdSegment.List(groupId, householdId, out totalCount).Select( x => x.SegmentId));                    
                 }
             }
             catch (Exception ex)

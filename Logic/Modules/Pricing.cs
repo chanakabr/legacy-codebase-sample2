@@ -701,7 +701,7 @@ namespace Core.Pricing
             {
                 try
                 {
-                    var filter = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Subscription, subscriptionIds);
+                    var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Subscription, subscriptionIds, pageIndex, pageSize);
                     if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                     {
                         response.Status = filter.Status;

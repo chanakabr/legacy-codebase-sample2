@@ -34,6 +34,23 @@ namespace ApiObjects.Segmentation
             return couchbaseManager.Get<long>(string.Format(SegmentToSegmentationTypeDocumentKeyFormat, segmentId));
         }
 
+        public static List<long> GetSegmentationTypeOfSegmentIds(List<long> segmentIds)
+        {
+            List<string> keys = new List<string>();
+            foreach (long segmentId in segmentIds)
+            {
+                keys.Add(string.Format(SegmentToSegmentationTypeDocumentKeyFormat, segmentId));
+            }
+
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
+            var resultDictionary = couchbaseManager.GetValues<long>(keys, true, true);
+
+            if (resultDictionary?.Count == 0)
+                return null;
+
+            return resultDictionary.Values.ToList();
+        }
+
         #endregion
 
         #region Virtual Methods

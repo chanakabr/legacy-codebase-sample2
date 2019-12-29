@@ -11872,8 +11872,8 @@ namespace Core.Api
             AssetManager.UpdateVirtualAsset(groupId, virtualAssetInfo);
         }
 
-        internal static ObjectVirtualAssetFilter GetObjectVirtualAssetObjectIds(int groupId, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition,
-            ObjectVirtualAssetInfoType objectVirtualAssetInfoType, HashSet<long> objectIds)
+        internal static ObjectVirtualAssetFilter GetObjectVirtualAssetObjectIds(int groupId, AssetSearchDefinition assetSearchDefinition,
+            ObjectVirtualAssetInfoType objectVirtualAssetInfoType, HashSet<long> objectIds = null, int pageIndex = 0, int pageSize = 0)
         {
             var objectVirtualAssetFilter = new ObjectVirtualAssetFilter();
             var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType);
@@ -11975,12 +11975,7 @@ namespace Core.Api
                 if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
                 {
                     // Get User segmentations 
-                    var segmentationsWithBlockActions = UserSegment.ListUserSegmentationActionsOfType<T>(groupId, userId);
-                    var user = Users.Module.GetUserData(groupId, userId, string.Empty);
-                    if (user != null && user.m_user != null && user.m_user.m_domianID > 0)
-                    {
-                        segmentationsWithBlockActions.AddRange(HouseholdSegment.ListHouseholdSegmentationActionsOfType<T>(groupId, user.m_user.m_domianID));
-                    }
+                    var segmentationsWithBlockActions = GetUserAndDomainSegmentationActionsOfType<T>(groupId, userId);
 
                     if (segmentationsWithBlockActions.Any())
                     {
@@ -12006,6 +12001,41 @@ namespace Core.Api
             return Status.Ok;
         }
 
+        private static List<SegmentationType> GetUserAndDomainSegmentationActionsOfType<T>(int groupId, string userId)
+        {
+            List<SegmentationType> segmentations = new List<SegmentationType>();
+
+            List<long> segmentsIds = new List<long>();
+            var userSegments = UserSegment.List(groupId, userId, out int totalCount);
+            if (totalCount > 0)
+            {
+                segmentsIds.AddRange(userSegments.Select(x => x.SegmentId).ToList());
+            }
+            
+            var user = Users.Module.GetUserData(groupId, userId, string.Empty);            
+            
+            if (user != null && user.m_user != null && user.m_user.m_domianID > 0)
+            {
+                var householdSegments = HouseholdSegment.List(groupId, user.m_user.m_domianID, out totalCount);
+                if (totalCount > 0)
+                {
+                    segmentsIds.AddRange(householdSegments.Select(x => x.SegmentId).ToList());
+                }
+            }
+
+            if (segmentsIds?.Count > 0)
+            {
+                List<long> segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(segmentsIds);
+
+                if (segmentTypeIds?.Count > 0)
+                {
+                    segmentations = SegmentationType.ListOfType<T>(groupId, segmentTypeIds);
+                }
+            }
+
+            return segmentations;
+        }
+
         private static string GetObjectVirtualAssetsFilters(int groupId, AssetSearchDefinition assetSearchDefinition, ObjectVirtualAssetInfo objectVirtualAssetInfo)
         {
             if(assetSearchDefinition == null || assetSearchDefinition.UserId == 0)
@@ -12014,13 +12044,7 @@ namespace Core.Api
             }
 
             // Get User segmentations 
-            var segmentationTypes = UserSegment.ListUserSegmentationActionsOfType<SegmentActionObjectVirtualFilterAsset>(groupId, assetSearchDefinition.UserId.ToString());
-
-            var user = Users.Module.GetUserData(groupId, assetSearchDefinition.UserId.ToString(), string.Empty);
-            if (user != null && user.m_user != null && user.m_user.m_domianID > 0)
-            {
-                segmentationTypes.AddRange(HouseholdSegment.ListHouseholdSegmentationActionsOfType<SegmentActionObjectVirtualFilterAsset>(groupId, user.m_user.m_domianID));
-            }
+            var segmentationTypes = GetUserAndDomainSegmentationActionsOfType<SegmentActionObjectVirtualFilterAsset>(groupId, assetSearchDefinition.UserId.ToString());
 
             List<string> ksqls = new List<string>();
 
@@ -12036,7 +12060,7 @@ namespace Core.Api
                     }
                 }
             }
-            // (and )
+            
             return ksqls.Count > 0 ? $" (or {string.Join(" ", ksqls)})" : string.Empty;
         }
 

@@ -24,21 +24,6 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-
-                //TODO ANAT !!!
-                // validate 
-                //if (!contextData.DomainId.HasValue)
-                //{
-                //    response.SetStatus(eResponseStatus.HouseholdRequired, "Household required");
-                //    return response;
-                //}
-
-                //if (contextData.DomainId.Value != objectToAdd.HouseholdId)
-                //{
-                //    response.SetStatus(eResponseStatus.HouseholdRequired, "Household required"); //TODO: Anat cgange status
-                //    return response;
-                //}
-
                 if (objectToAdd.HouseholdId == 0)
                 {
                     response.SetStatus(eResponseStatus.HouseholdRequired, "Household required");
@@ -46,6 +31,20 @@ namespace ApiLogic.Users.Managers
                 }
 
                 objectToAdd.GroupId = contextData.GroupId;
+                var assetSearchDefinition = new AssetSearchDefinition() { UserId = contextData.UserId.Value };
+
+                var filter = api.GetObjectVirtualAssetObjectIds(objectToAdd.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { objectToAdd.SegmentId });
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    response.SetStatus(filter.Status);
+                    return response;
+                }
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                {
+                    response.SetStatus(new Status((int)eResponseStatus.ObjectNotExist, "Object Not Exist"));
+                    return response;
+                }
 
                 if (!objectToAdd.Insert())
                 {
@@ -126,7 +125,7 @@ namespace ApiLogic.Users.Managers
 
                 AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition() { UserId = contextData.UserId.Value, Filter = filter.Ksql };
 
-                var filtered = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, 0, 0, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, null);
+                var filtered = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment);
                 if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                 {
                     response.SetStatus(filtered.Status);
@@ -139,7 +138,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                response.Objects = HouseholdSegment.List(contextData.GroupId, contextData.DomainId.Value, filtered.ObjectIds, 0, 0, out int totalCount);
+                response.Objects = HouseholdSegment.List(contextData.GroupId, contextData.DomainId.Value, out int totalCount, filtered.ObjectIds);
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)

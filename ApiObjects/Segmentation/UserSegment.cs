@@ -195,7 +195,7 @@ namespace ApiObjects.Segmentation
 
         #region Public methods
 
-        public static List<UserSegment> List(int groupId, string userId, List<long> segmentsIds, int pageIndex, int pageSize, out int totalCount)
+        public static List<UserSegment> List(int groupId, string userId, out int totalCount, List<long> segmentsIds = null , int pageIndex = 0, int pageSize = 0)
         {
             List<UserSegment> result = new List<UserSegment>();
             totalCount = 0;           
@@ -404,33 +404,6 @@ namespace ApiObjects.Segmentation
             {
                 log.ErrorFormat("Error at UserSegments remove, userSegmentsKey for user : {0} not exist", userId);
             }
-        }
-
-        public static List<SegmentationType> ListUserSegmentationActionsOfType<T>(int groupId, string userId)
-        {
-            List<SegmentationType> res = new List<SegmentationType>();
-
-            var segmentation = List(groupId, userId, null, 0, 0, out int totalCount);
-            if (segmentation?.Count > 0)
-            {
-                List<long> segments = new List<long>();
-                foreach (var item in segmentation)
-                {
-                    long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(item.SegmentId);
-                    if (segmentationTypeId > 0)
-                    {
-                        segments.Add(segmentationTypeId);
-                    }
-                }
-
-                if (segments.Count > 0)
-                {
-                    var segmentations = SegmentationType.List(groupId, segments, 0, 1000, out totalCount);
-                    res = segmentations.Where(s => s.Actions != null && s.Actions.Any(y => y is T)).ToList();
-                }
-            }
-
-            return res;
         }
 
         #endregion

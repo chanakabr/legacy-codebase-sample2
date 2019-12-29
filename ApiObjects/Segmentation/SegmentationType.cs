@@ -326,11 +326,13 @@ namespace ApiObjects.Segmentation
             }
 
             // get only Ids on current page
-            var pagedKeys = keys.Skip(pageIndex * pageSize).Take(pageSize);
+            if (pageSize > 0)
+            {
+                keys = keys.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+            }
 
             // get all segmentation types from CB
             var segmentationTypes = couchbaseManager.GetValues<SegmentationType>(keys, true, true);
-
 
             DateTime now = DateTime.UtcNow;
 
@@ -342,6 +344,25 @@ namespace ApiObjects.Segmentation
             result = segmentationTypes.Values.ToList();
 
             return result;
+        }
+
+        public static List<SegmentationType> ListOfType<T>(int groupId, List<long> ids = null)
+        {
+            List<SegmentationType> segmentations = new List<SegmentationType>();
+            try
+            {
+                segmentations = List(groupId, ids, 0, 0, out int totalCount);
+                if (totalCount > 0)
+                {
+                    segmentations = segmentations.Where(s => s.Actions != null && s.Actions.Any(y => y is T)).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return segmentations;
         }
 
         public static List<SegmentationType> GetSegmentationTypesBySegmentIds(int groupId, IEnumerable<long> segmentIds)
