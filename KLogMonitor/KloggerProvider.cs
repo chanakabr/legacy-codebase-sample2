@@ -9,9 +9,25 @@ namespace KLogMonitor
 {
     public class KLoggerProvider : ILoggerProvider
     {
+        public IDictionary<string, ILogger> _LoggersRepo { get; set; }
+
+        public KLoggerProvider()
+        {
+            _LoggersRepo = new Dictionary<string, ILogger>();
+        }
+
         public ILogger CreateLogger(string categoryName)
         {
-            return new KLogger(categoryName);
+            if (_LoggersRepo.TryGetValue(categoryName, out var existingLogger))
+            {
+                return existingLogger;
+            }
+            else
+            {
+                var logger = new KLogger(categoryName);
+                _LoggersRepo[categoryName] = logger;
+                return logger;
+            }
         }
 
         public void Dispose()
