@@ -18,7 +18,7 @@ namespace IngetsNetCore
             string apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             var defaultLogDir = $@"C:\log\ws-ingest\{apiVersion}";
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
-            ApplicationConfiguration.Init();
+            ConfigurationManager.ApplicationConfiguration.Init();
 
             await CreateWebHostBuilder(args).Build().RunAsync();
         }
