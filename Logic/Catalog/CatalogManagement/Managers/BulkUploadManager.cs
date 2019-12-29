@@ -158,7 +158,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL))
                 {
-                    log.ErrorFormat("Error while saving BulkUpload to CB. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);                    
+                    log.ErrorFormat("Error while saving BulkUpload to CB. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
                     return response;
                 }
 
@@ -364,7 +364,7 @@ namespace Core.Catalog.CatalogManagement
         public static Status UpdateOrAddBulkUploadAffectedObjects(long bulkUploadId, IEnumerable<IAffectedObject> affectedObject)
         {
             var response = new Status((int)eResponseStatus.Error);
-                 
+
             try
             {
                 var isSuccess = CatalogDAL.UpdateOrAddBulkUploadAffectedObjectsToCB(bulkUploadId, affectedObject, BULK_UPLOAD_CB_TTL);
@@ -563,6 +563,7 @@ namespace Core.Catalog.CatalogManagement
                             bulkUpload.JobData = bulkUploadWithResults.JobData;
                             bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
                             bulkUpload.Results = bulkUploadWithResults.Results ?? new List<BulkUploadResult>();
+                            bulkUpload.AffectedObjects = bulkUploadWithResults.AffectedObjects ?? new List<IAffectedObject>();
                             bulkUpload.Errors = bulkUploadWithResults.Errors;
                         }
                     }

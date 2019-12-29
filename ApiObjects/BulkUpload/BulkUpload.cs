@@ -74,7 +74,7 @@ namespace ApiObjects.BulkUpload
         /// i.e. side affects of epg ingest may cause existing programs to update.
         /// When they overlap each other the exsistin program migth have to be cut in time to fit the new one
         /// </summary>
-        [JsonProperty(PropertyName = "SideEffects",
+        [JsonProperty(PropertyName = "AffectedObjects",
                      TypeNameHandling = TypeNameHandling.Auto,
                      ItemTypeNameHandling = TypeNameHandling.Auto,
                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
