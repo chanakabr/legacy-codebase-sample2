@@ -2291,7 +2291,7 @@ namespace Core.ConditionalAccess
                 DateTime dPurchaseDate = DateTime.MinValue;
                 int ppvID = StringUtils.ConvertTo<int>(ppvModule.m_sObjectCode);
 
-                if (allUserIDsInDomain?.Count == 0)
+                if (allUserIDsInDomain == null || allUserIDsInDomain.Count == 0)
                 {
                     allUserIDsInDomain = GetAllUsersDomainBySiteGUID(sSiteGUID, groupID, ref domainID);
                 }

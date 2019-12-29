@@ -463,7 +463,7 @@ namespace Core.ConditionalAccess
                     return entitlementsResponse;
                 }
 
-                if (result.ResultStatus == ObjectVirtualAssetFilterStatus.None || result.ObjectIds?.Count == 0)
+                if (result.ResultStatus == ObjectVirtualAssetFilterStatus.None || result.ObjectIds == null || result.ObjectIds.Count == 0)
                 {
                     entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
                     return entitlementsResponse;

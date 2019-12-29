@@ -5564,8 +5564,8 @@ namespace DAL
             sp.AddParameter("@dateFormat", partnerConfig.DateFormat);            
             if (partnerConfig.HouseholdLimitationModule.HasValue)
                 sp.AddParameter("@domainLimitionModule", partnerConfig.HouseholdLimitationModule);
-            sp.AddParameter("@shouldDeleteSecondaryLanguages", partnerConfig.SecondaryLanguages?.Count == 0 ? 1 : 0);
-            sp.AddParameter("@shouldDeleteSecondaryCurrencies", partnerConfig.SecondaryCurrencies?.Count == 0 ? 1 : 0);
+            sp.AddParameter("@shouldDeleteSecondaryLanguages", partnerConfig.SecondaryLanguages?.Count > 0 ? 0: 1);
+            sp.AddParameter("@shouldDeleteSecondaryCurrencies", partnerConfig.SecondaryCurrencies?.Count > 0 ? 0 : 1);
 
             if (partnerConfig.EnableRegionFiltering.HasValue)
             {

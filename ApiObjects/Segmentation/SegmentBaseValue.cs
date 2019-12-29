@@ -45,7 +45,7 @@ namespace ApiObjects.Segmentation
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
             var resultDictionary = couchbaseManager.GetValues<long>(keys, true, true);
 
-            if (resultDictionary?.Count == 0)
+            if (resultDictionary == null || resultDictionary.Count == 0)
                 return null;
 
             return resultDictionary.Values.ToList();
