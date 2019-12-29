@@ -73,7 +73,7 @@ namespace IngestValidtionHandler
                     UpdateBulkUploadStatus(_BulkUploadObject, newStatus);
 
                     // Update edgs if there are any updates to be made due to overlap
-                    if (_AffectedPrograms.Any())
+                    if (_AffectedPrograms?.Any() == true)
                     {
                         await BulkUploadMethods.UpdateCouchbase(_AffectedPrograms, eventData.GroupId);
                         var updater = new UpdateClonedIndex(eventData.GroupId, eventData.BulkUploadId, eventData.DateOfProgramsToIngest, eventData.Languages);
@@ -188,9 +188,14 @@ namespace IngestValidtionHandler
 
         public void InvalidateEpgAssets()
         {
-            var affectedProgramIds = _AffectedPrograms.Select(p => (long)p.EpgId);
-            var programIds = _BulkUploadObject.Results.Where(r => r.ObjectId.HasValue).Select(r => r.ObjectId.Value);
-            foreach (var progId in programIds.Concat(affectedProgramIds))
+            var affectedProgramIds = _AffectedPrograms?.Select(p => (long)p.EpgId);
+            var ingestedProgramIds = _BulkUploadObject.Results.Where(r => r.ObjectId.HasValue).Select(r => r.ObjectId.Value);
+            var programIdsToInvalidate = affectedProgramIds?.Any() == true
+                ? ingestedProgramIds.Concat(affectedProgramIds)
+                : ingestedProgramIds;
+
+
+            foreach (var progId in programIdsToInvalidate)
             {
                 string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), progId);
 
