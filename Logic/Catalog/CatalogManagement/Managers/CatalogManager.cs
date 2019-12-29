@@ -17,6 +17,7 @@ using System.Reflection;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
+using ConfigurationManager;
 
 namespace Core.Catalog.CatalogManagement
 {
