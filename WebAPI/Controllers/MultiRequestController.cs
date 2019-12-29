@@ -15,7 +15,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
 using WebAPI.Utils;
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
 using Microsoft.AspNetCore.Mvc;
 #endif
 #if NET48
