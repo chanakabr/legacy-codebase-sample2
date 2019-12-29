@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using ConfigurationManager;
 using System.Text;
+using ConfigurationManager.Types;
 
 namespace Tests.ConfigTest
 {
@@ -36,6 +37,21 @@ namespace Tests.ConfigTest
             TestStubKey(type, configuration);
         }
 
+        [TestMethod]
+        public void TestValidation_ElasticSearchHttpClientConfiguration()
+        {
+            ElasticSearchHttpClientConfiguration bb = new ElasticSearchHttpClientConfiguration();
+            var res = bb.Validate();
+            Assert.IsTrue(res);
+        }
+
+        [TestMethod]
+        public void TestValidation_HttpClientConfiguration()
+        {
+            HttpClientConfiguration bb = new HttpClientConfiguration();
+            var res = bb.Validate();
+            Assert.IsTrue(res);
+        }
 
 
         [TestMethod]

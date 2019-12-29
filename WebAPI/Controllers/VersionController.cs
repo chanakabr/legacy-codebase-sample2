@@ -2,7 +2,7 @@
 using System.Reflection;
 using WebAPI.Managers.Scheme;
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
 using Microsoft.AspNetCore.Mvc;
 #endif
 #if NET48

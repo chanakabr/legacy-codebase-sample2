@@ -5631,7 +5631,7 @@ namespace TvinciImporter
                         isUpdateIndexSucceeded = Core.Catalog.Module.UpdateIndex(lMediaIds, nParentGroupID, eAction);
 
                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                        log.DebugFormat("Update index {0} in catalog '{1}'", sInfo);
+                        log.DebugFormat("Update index {0}", sInfo);
                     }
                     catch (Exception ex)
                     {
