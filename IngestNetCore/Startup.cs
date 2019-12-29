@@ -28,7 +28,8 @@ namespace IngetsNetCore
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseSoapEndpoint<IService>("/Service.svc", new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
+            BasicHttpBinding ingestBinding = new BasicHttpBinding() { ReaderQuotas = new System.Xml.XmlDictionaryReaderQuotas() { MaxStringContentLength = int.MaxValue } };
+            app.UseSoapEndpoint<IService>("/Service.svc", ingestBinding, SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
             app.UseMvc();
 
             app.MapEndpoint("GetVersion", versionApp =>
