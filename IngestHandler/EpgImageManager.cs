@@ -420,7 +420,9 @@ namespace IngestHandler
                     sourcePath = ImageUtils.getRemotePicsURL(groupId) + sourcePath;
                 }
 
-                ImageUploadData data = new ImageUploadData(parentGroupId, picId.ToString(), version, sourcePath, picId, imageServerUrl, mediaType);
+                var fileName = Path.GetFileNameWithoutExtension(Path.GetFileName(new Uri(sourcePath).LocalPath));
+
+                ImageUploadData data = new ImageUploadData(parentGroupId, fileName, version, sourcePath, picId, imageServerUrl, mediaType);
 
                 var queue = new ImageUploadQueue();
 
