@@ -21,11 +21,11 @@ namespace Core.Middleware
         /// <param name="app"></param>
         public static void UsePhoenixLocalFileSystem(this IApplicationBuilder app)
         {
-            if (ApplicationConfiguration.FileUpload.UploadType != ConfigurationManager.Types.FileUploadConfiguration.eFileUploadType.FileSystem)
+            if (ApplicationConfiguration.Current.FileUpload.Type.Value != ConfigurationManager.Types.eFileUploadType.FileSystem)
                 return;
 
-            string destinationPath = ApplicationConfiguration.FileUpload?.FileSystem?.DestPath.Value;
-            string requestPath = ApplicationConfiguration.FileUpload?.FileSystem?.PublicUrl.Value;
+            string destinationPath = ApplicationConfiguration.Current.FileUpload.FileSystem.DestPath.Value;
+            string requestPath = ApplicationConfiguration.Current.FileUpload.FileSystem.PublicUrl.Value;
 
             log.Debug($"Setting local file system to {destinationPath} on {requestPath}");
 
