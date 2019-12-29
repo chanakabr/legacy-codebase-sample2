@@ -48,11 +48,11 @@ namespace ConfigurationManager
 
         public BaseValue<Dictionary<string, string>> distributedTasks = new BaseValue<Dictionary<string, string>>(TcmObjectKeys.DistributedTasks, handlerDefaultDic);
 
-        public string GetHandler(string key)
+        public string GetHandler(string keyPath)
         {
             string result = string.Empty;
-
-            distributedTasks.ActualValue.TryGetValue(key, out result);
+            var key = keyPath.Substring(keyPath.LastIndexOf('.') + 1);
+            distributedTasks.Value.TryGetValue(key, out result);
 
             return result;
         }
