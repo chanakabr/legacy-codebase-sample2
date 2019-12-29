@@ -686,17 +686,14 @@ namespace WebAPI.Managers
         public static bool ValidateKsSignature(KS ks)
         {
             var group = GroupsManager.GetGroup(ks.GroupId);
-            if (group.EnforceGroupsSecret)
+            var signature = KSUtils.ExtractKSPayload(ks).Signature;
+            var groupSecrets = ApplicationConfiguration.RequestParserConfiguration.KsSecrets;
+
+            if (!string.IsNullOrEmpty(signature) && group.EnforceGroupsSecret)//supply signature to every ks even if enforcement is false
             {
-                var signature = KSUtils.ExtractKSPayload(ks).Signature;
-
-                //No group secrets
-                if (group.GroupSecrets == null)
-                    return false;
-
-                for (int i = group.GroupSecrets.Count - 1; i >= 0; i--) //LIFO
+                for (int i = groupSecrets.Count - 1; i >= 0; i--) //LIFO
                 {
-                    var concat = string.Format(group.SignatureFormat, ks.Random, group.GroupSecrets[i]);
+                    var concat = string.Format(EncryptionUtils.SignatureFormat, ks.Random, groupSecrets[i]);
                     var encryptedValue = Encoding.Default.GetString(EncryptionUtils.HashSHA1(concat));
                     if (encryptedValue == signature)
                     {

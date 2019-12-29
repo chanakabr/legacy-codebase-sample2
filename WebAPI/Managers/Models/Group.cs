@@ -132,12 +132,6 @@ namespace WebAPI.Managers.Models
         [JsonProperty("enforce_groups_secret")]
         public bool EnforceGroupsSecret { get; set; }
 
-        [JsonProperty("groups_secrets")]
-        public List<string> GroupSecrets { get; set; }
-
-        [JsonProperty("signature_format")]
-        public string SignatureFormat { get; set; } = "{0}:{1}";
-
         /// <summary>
         /// Obsolete - should be taken directly from catalog group object!
         /// </summary>

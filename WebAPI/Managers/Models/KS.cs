@@ -11,6 +11,8 @@ using ApiObjects.Base;
 using WebAPI.Utils;
 using System.Text.RegularExpressions;
 using WebAPI.ClientManagers;
+using ConfigurationManager;
+using Newtonsoft.Json;
 
 namespace WebAPI.Managers.Models
 {
@@ -48,13 +50,14 @@ namespace WebAPI.Managers.Models
             {
             }
 
-            public KSData(string udid, int createDate, int regionId, List<long> userSegments, List<long> userRoles)
+            public KSData(string udid, int createDate, int regionId, List<long> userSegments, List<long> userRoles, string signature = "")
             {
                 this.UDID = udid;
                 this.CreateDate = createDate;
                 this.RegionId = regionId;
                 this.UserSegments = userSegments;
                 this.UserRoles = userRoles;
+                this.Signature = signature;
             }
 
             public KSData(KSData payload, int createDate)
@@ -129,20 +132,12 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        private string ConvertSignature(byte[] randomBytes, int groupID)
+        private string ConvertSignature(byte[] randomBytes)
         {
-            var group = GroupsManager.GetGroup(groupID);
-            if (!group.EnforceGroupsSecret)
-            {
-                return string.Empty;
-            }
-            var secret = group.GroupSecrets?.LastOrDefault();
-            if (string.IsNullOrEmpty(secret))
-            {
-                return string.Empty;
-            }
+            var secrets = ApplicationConfiguration.RequestParserConfiguration.KsSecrets;
+            var secret = secrets.FirstOrDefault();
             var random = Encoding.Default.GetString(randomBytes);
-            var concat = string.Format(group.SignatureFormat, random, secret);
+            var concat = string.Format(EncryptionUtils.SignatureFormat, random, secret);
             return Encoding.Default.GetString(EncryptionUtils.HashSHA1(concat));
         }
 
@@ -155,7 +150,7 @@ namespace WebAPI.Managers.Models
             var payload = string.Empty;
             if (data != null)
             {
-                data.Signature = ConvertSignature(randomBytes, Convert.ToInt32(groupID));
+                data.Signature = ConvertSignature(randomBytes);
                 payload = KSUtils.PrepareKSPayload(data);
                 encodedData = payload.Replace("_", REPLACE_UNDERSCORE);
                 encodedData = HttpUtility.UrlEncode(encodedData);

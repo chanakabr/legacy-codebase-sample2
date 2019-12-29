@@ -89,7 +89,7 @@ namespace WebAPI.Managers.Models
                 signature = pl[PAYLOAD_SIGNATURE];
             }
 
-            return new KS.KSData(udid, createDate, regionId, userSegments, userRoles);
+            return new KS.KSData(udid, createDate, regionId, userSegments, userRoles, signature);
         }
 
         internal static KS.KSData ExtractKSPayload()
