@@ -47,7 +47,7 @@ namespace Mailer
                 string json = JsonConvert.SerializeObject(mcObj);
                 //log.DebugFormat("SendMailTemplate: mcObj={0} ", json);
                 string mcURL = ApplicationConfiguration.MailerConfiguration.MCURL.Value;
-                string sResp = Utils.SendXMLHttpReq(mcURL, json, null);
+                string sResp = Utils.SendPostHttpReq(mcURL, json);
                 log.DebugFormat("mailurl={0} response={1} ", mcURL + " key:" + mcObj.key, sResp);
                 if (sResp.Contains("sent"))
                 {
@@ -61,7 +61,7 @@ namespace Mailer
                         {
                             mcObj.message.to[0].email = mcObj.message.bcc_address;
                             json = JsonConvert.SerializeObject(mcObj);
-                            sResp = Utils.SendXMLHttpReq(mcURL, json, null);
+                            sResp = Utils.SendPostHttpReq(mcURL, json);
                             if (sResp.Contains("sent"))
                             {
                                 retVal = true;
