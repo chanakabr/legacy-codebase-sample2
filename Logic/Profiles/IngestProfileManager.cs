@@ -54,16 +54,22 @@ namespace Core.Profiles
                     response.Object = profileToAdd;
                     response.SetStatus(eResponseStatus.OK, "New ingest profile was successfully created");
 
-                    if (!string.IsNullOrEmpty(profileToAdd.TransformationAdapterUrl))
+                    try
                     {
-                        var transformationAdptr = new IngestTransformationAdapterClient(profileToAdd);
-                        var status = transformationAdptr.SetConfiguration();
-                        if (status != RestAdaptersCommon.eAdapterStatus.OK)
+                        if (!string.IsNullOrEmpty(profileToAdd.TransformationAdapterUrl))
                         {
-                            response.SetStatus((int)eResponseStatus.Error, "failed to call transformation adapter client");
+                            var transformationAdptr = new IngestTransformationAdapterClient(profileToAdd);
+                            var status = transformationAdptr.SetConfiguration();
+                            if (status != RestAdaptersCommon.eAdapterStatus.OK)
+                            {
+                                response.SetStatus((int)eResponseStatus.Error, "failed to call transformation adapter client");
+                            }
                         }
                     }
-
+                    catch (Exception ex)
+                    {
+                        response.SetStatus((int)eResponseStatus.Error, $" new ingest profile {id} created, but failed to update adapter with error: {ex.Message}");
+                    }
                 }
                 else
                 {
