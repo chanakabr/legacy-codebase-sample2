@@ -64,9 +64,12 @@ namespace TVinciShared
                 httpHandler.SslProtocols = sslProtocols | httpHandler.SslProtocols;
             }
 
-            foreach (DecompressionMethods decompressionMethod in enabledDecompressionMethod)
+            if (shouldDecompress)
             {
-                httpHandler.AutomaticDecompression = decompressionMethod | httpHandler.AutomaticDecompression;
+                foreach (DecompressionMethods decompressionMethod in enabledDecompressionMethod)
+                {
+                    httpHandler.AutomaticDecompression = decompressionMethod | httpHandler.AutomaticDecompression;
+                }
             }
 
             httpHandler.MaxConnectionsPerServer = maxConnectionsPerServer;
