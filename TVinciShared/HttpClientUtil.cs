@@ -86,7 +86,7 @@ namespace TVinciShared
 
         private static void GetConfigurationValues(HttpClientConfiguration specificConfiguration, out List<SslProtocols> enabledSslProtocols, out List<DecompressionMethods> enabledDecompressionMethod, out int maxConnectionsPerServer, out bool checkCertificateRevocationList, out System.TimeSpan timeout)
         {
-            bool shouldTakeSpecificConfiguration = specificConfiguration != null && !specificConfiguration.IsEmpty;
+            bool shouldTakeSpecificConfiguration = specificConfiguration != null;
 
             // enabled ssl protocols
             enabledSslProtocols = shouldTakeSpecificConfiguration ?

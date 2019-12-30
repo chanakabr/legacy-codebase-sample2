@@ -41,7 +41,7 @@ namespace Mailer
 
         public static string SendPostHttpReq(string url, string body)
         {
-            string responseFromServer = null;
+            string responseFromServer = string.Empty;
             try
             {
                 using (var postData = new StringContent(body, Encoding.UTF8, "application/json"))

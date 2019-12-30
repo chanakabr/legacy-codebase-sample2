@@ -8,7 +8,6 @@ namespace ConfigurationManager.Types
 {
     public class HttpClientConfiguration : ConfigurationValue
     {
-        public bool IsEmpty = false;
         public NumericConfigurationValue MaxConnectionsPerServer;
         public BooleanConfigurationValue CheckCertificateRevocationList;
         public StringConfigurationValue EnabledSslProtocols;
@@ -51,16 +50,6 @@ namespace ConfigurationManager.Types
                 ShouldAllowEmpty = true,
                 Description = "The timeout in milliseconds for the HttpClient"
             };
-        }
-
-        public override void LoadDefault()
-        {
-            if (this.ObjectValue == null)
-            {
-                this.IsEmpty = true;
-            }
-
-            base.LoadDefault();
         }
 
         internal override bool Validate()
