@@ -163,7 +163,7 @@ namespace ApiLogic.Users.Managers
                     {
                         AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition() { UserId = contextData.UserId.Value, Filter = filter.Ksql };
 
-                        var filtered = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>( segmentTypeIds));
+                        var filtered = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>( segmentTypeIds.Values.ToList()));
                         if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                         {
                             response.SetStatus(filtered.Status);

@@ -34,21 +34,30 @@ namespace ApiObjects.Segmentation
             return couchbaseManager.Get<long>(string.Format(SegmentToSegmentationTypeDocumentKeyFormat, segmentId));
         }
 
-        public static List<long> GetSegmentationTypeOfSegmentIds(List<long> segmentIds)
+        public static Dictionary<long, long> GetSegmentationTypeOfSegmentIds(List<long> segmentIds)
         {
-            List<string> keys = new List<string>();
+            Dictionary<long, long> result = new Dictionary<long, long>();
+            Dictionary<string, long> keyToIds = new Dictionary<string, long>();
             foreach (long segmentId in segmentIds)
             {
-                keys.Add(string.Format(SegmentToSegmentationTypeDocumentKeyFormat, segmentId));
+                string key = string.Format(SegmentToSegmentationTypeDocumentKeyFormat, segmentId);
+                keyToIds.Add(key, segmentId);
             }
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
-            var resultDictionary = couchbaseManager.GetValues<long>(keys, true, true);
+            var resultDictionary = couchbaseManager.GetValues<long>(keyToIds.Keys.ToList(), true, true);
 
             if (resultDictionary == null || resultDictionary.Count == 0)
-                return null;
+            {
+                return result;
+            }
 
-            return resultDictionary.Values.ToList();
+            foreach (var item in resultDictionary)
+            {
+                result.Add(keyToIds[item.Key], item.Value);
+            }
+
+            return result;
         }
 
         #endregion
@@ -99,7 +108,7 @@ namespace ApiObjects.Segmentation
             bool result = false;
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
-            
+
             this.Id = (long)couchbaseManager.Increment(SegmentationType.GetSegmentSequenceDocument(), 1);
 
             if (this.Id == 0)
@@ -112,7 +121,7 @@ namespace ApiObjects.Segmentation
             }
 
             result &= SetSegmentationTypeIdToSegmentId(this.Id, segmentationTypeId);
-            
+
             return result;
         }
 

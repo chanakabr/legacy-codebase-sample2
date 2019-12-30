@@ -12025,11 +12025,11 @@ namespace Core.Api
 
             if (segmentsIds?.Count > 0)
             {
-                List<long> segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(segmentsIds);
+                var  segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(segmentsIds);
 
                 if (segmentTypeIds?.Count > 0)
                 {
-                    segmentations = SegmentationType.ListOfType<T>(groupId, segmentTypeIds);
+                    segmentations = SegmentationType.ListOfType<T>(groupId, segmentTypeIds.Values.ToList());
                 }
             }
 

@@ -49,7 +49,7 @@ namespace Core.Api
                 throw ex;
             }
         }
-        
+
         public static ChannelObject TVAPI_GetMedias(int groupId, InitializationObject oInitObj, Int32[] nMediaIDs, MediaInfoStructObject theInfoStruct)
         {
             try
@@ -72,7 +72,7 @@ namespace Core.Api
         }
 
         public static RolesResponse GetUserRoles(int groupId, string userId)
-        {            
+        {
             return Core.Api.api.GetUserRoles(groupId, userId);
         }
 
@@ -825,7 +825,7 @@ namespace Core.Api
         {
             return Core.Api.api.GetGroupLanguages(groupId);
         }
-        
+
         #region Parental Rules
 
         /// <summary>
@@ -836,7 +836,7 @@ namespace Core.Api
         /// <param name="password"></param>
         /// <returns></returns>
         public static ParentalRulesResponse GetParentalRules(int groupId, bool isAllowedToViewInactiveAssets = false)
-        {            
+        {
             return Core.Api.api.GetParentalRules(groupId, !isAllowedToViewInactiveAssets);
         }
 
@@ -1486,7 +1486,7 @@ namespace Core.Api
         public static PermissionsResponse GetUserPermissions(int groupId, string userId)
         {
             return Core.Api.api.GetUserPermissions(groupId, userId);
-        }      
+        }
 
         public static Status AddPermissionToRole(int groupId, long roleId, long permissionId)
         {
@@ -1861,7 +1861,7 @@ namespace Core.Api
             return Core.Api.api.SendDrmConfigurationToAdapter(groupId, adapterID);
         }
 
-        public static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, 
+        public static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId,
             string externalFileId, string ip, string udid, PlayContextType contextType, string recordingId)
         {
             return Core.Api.api.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid, contextType, recordingId);
@@ -1920,32 +1920,32 @@ namespace Core.Api
         }
 
         #region AssetUserRule
-        
+
         public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, RuleActionType? ruleActionType, bool returnConfigError)
         {
             return AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, ruleActionType, returnConfigError);
         }
-        
+
         public static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)
         {
             return AssetUserRuleManager.AddAssetUserRule(groupId, assetUserRuleToAdd);
         }
-        
+
         public static GenericResponse<AssetUserRule> UpdateAssetUserRule(int groupId, long assetUserRuleId, AssetUserRule assetUserRuleToUpdate, long userId)
         {
             return AssetUserRuleManager.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate, userId);
         }
-        
+
         public static Status DeleteAssetUserRule(int groupId, long assetUserRuleId, long userId)
         {
             return AssetUserRuleManager.DeleteAssetUserRule(groupId, assetUserRuleId, userId);
         }
-        
+
         public static Status AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
         {
             return AssetUserRuleManager.AddAssetUserRuleToUser(userId, ruleId, groupId);
         }
-        
+
         public static Status DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
         {
             return AssetUserRuleManager.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
@@ -2198,7 +2198,7 @@ namespace Core.Api
                     var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(userSegments.Select(x => x.SegmentId).ToList());
                     if (segmentTypeIds?.Count > 0)
                     {
-                        var filtered = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>(segmentTypeIds));
+                        var filtered = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>(segmentTypeIds.Values.ToList()));
                         if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                         {
                             result.SetStatus(filtered.Status);
@@ -2217,16 +2217,17 @@ namespace Core.Api
 
                             foreach (var item in userSegments)
                             {
-                                if (filtered.ObjectIds.Contains(item.SegmentId))
+                                if (segmentTypeIds.ContainsKey(item.SegmentId) && filtered.ObjectIds.Contains(segmentTypeIds[item.SegmentId]))
                                 {
                                     result.Objects.Add(item);
                                 }
                             }
+
+                            result.TotalItems = result.Objects.Count;
                         }
                     }
-                }                
+                }
 
-                result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -2253,7 +2254,7 @@ namespace Core.Api
                 else
                 {
                     userSegment.GroupId = groupId;
-                    
+
                     long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(userSegment.SegmentId);
                     if (segmentationTypeId == 0)
                     {
@@ -2261,7 +2262,7 @@ namespace Core.Api
                         return response;
                     }
 
-                    var filter = api.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition() { UserId = long.Parse(userSegment.UserId) }, 
+                    var filter = api.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition() { UserId = long.Parse(userSegment.UserId) },
                         ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
 
                     if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
@@ -2305,7 +2306,7 @@ namespace Core.Api
                 long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(segmentId);
                 if (segmentationTypeId == 0)
                 {
-                    return new Status(eResponseStatus.ObjectNotExist, "Segment not exist" );
+                    return new Status(eResponseStatus.ObjectNotExist, "Segment not exist");
                 }
 
                 var filter = api.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition() { UserId = long.Parse(userId) },
@@ -2403,7 +2404,7 @@ namespace Core.Api
             return Core.Api.api.UpdatePlaybackAdapter(groupId, userId, playbackAdapterToUpdate);
         }
 
-        public static Status DeletePlaybackAdapter(int groupId, string userId , int id)
+        public static Status DeletePlaybackAdapter(int groupId, string userId, int id)
         {
             return Core.Api.api.DeletePlaybackAdapter(groupId, userId, id);
         }
@@ -2493,7 +2494,7 @@ namespace Core.Api
         public static List<string> GetGroupFeatures(int groupId)
         {
             Dictionary<string, Permission> groupfeatures = api.GetGroupFeatures(groupId);
-            if(groupfeatures?.Count > 0)
+            if (groupfeatures?.Count > 0)
             {
                 return api.GetGroupFeatures(groupId).Keys.ToList();
             }
@@ -2544,9 +2545,9 @@ namespace Core.Api
 
             try
             {
-                result = UserSegment.List(groupId, userId, out int totalCount).Select( x =>x.SegmentId).ToList();
+                result = UserSegment.List(groupId, userId, out int totalCount).Select(x => x.SegmentId).ToList();
 
-                if ( householdId == -1)
+                if (householdId == -1)
                 {
                     var user = Users.Module.GetUserData(groupId, userId, string.Empty);
                     if (user != null && user.m_user != null && user.m_user.m_domianID > 0)
@@ -2557,7 +2558,7 @@ namespace Core.Api
 
                 if (householdId > 0)
                 {
-                    result.AddRange(HouseholdSegment.List(groupId, householdId, out totalCount).Select( x => x.SegmentId));                    
+                    result.AddRange(HouseholdSegment.List(groupId, householdId, out totalCount).Select(x => x.SegmentId));
                 }
             }
             catch (Exception ex)
