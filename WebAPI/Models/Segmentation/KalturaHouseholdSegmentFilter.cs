@@ -2,7 +2,6 @@
 using ApiLogic.Users.Managers;
 using ApiObjects.Segmentation;
 using Newtonsoft.Json;
-using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
@@ -31,12 +30,11 @@ namespace WebAPI.Models.Segmentation
 
         public override KalturaHouseholdSegmentOrderBy GetDefaultOrderByValue()
         {
-            throw new NotImplementedException();
+            return KalturaHouseholdSegmentOrderBy.NONE;
         }
 
         public override void Validate()
         {
-            throw new NotImplementedException();
         }
 
         public KalturaHouseholdSegmentFilter() : base()
