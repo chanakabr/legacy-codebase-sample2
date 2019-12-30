@@ -13,7 +13,7 @@ namespace Mailer
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(null, false);
         private static object lck = new object();
 
         public static string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader)
@@ -33,6 +33,26 @@ namespace Mailer
             catch (Exception ex)
             {
                 log.Error($"SendXMLHttpReq > Error issuing POST:{sUrl}, data:{sToSend}", ex);
+            }
+
+            return responseFromServer;
+        }
+
+        public static string SendPostHttpReq(string url, string body)
+        {
+            string responseFromServer = null;
+            try
+            {
+                using (var postData = new StringContent(body, Encoding.UTF8, "application/json"))
+                using (var response = httpClient.PostAsync(url, postData).ExecuteAndWait())
+                {
+                    response.EnsureSuccessStatusCode();
+                    responseFromServer = response.Content.ReadAsStringAsync().ExecuteAndWait();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"SendPostHttpReq > Error issuing POST:{url}, data:{body}", ex);
             }
 
             return responseFromServer;

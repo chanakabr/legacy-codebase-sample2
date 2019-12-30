@@ -16,7 +16,13 @@ namespace TVinciShared
         static readonly bool defaultCheckCertificateRevocationList = ApplicationConfiguration.HttpClientConfiguration.CheckCertificateRevocationList.Value;
         static readonly System.TimeSpan defaultTimeout = System.TimeSpan.FromMilliseconds(ApplicationConfiguration.HttpClientConfiguration.TimeOutInMiliSeconds.DoubleValue);
 
-        public static HttpClient GetHttpClient(HttpClientConfiguration specificConfiguration = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="specificConfiguration"></param>
+        /// <param name="shouldDecompress">Should the http client be configured with decompression method from TCM or not.</param>
+        /// <returns></returns>
+        public static HttpClient GetHttpClient(HttpClientConfiguration specificConfiguration = null, bool shouldDecompress = true)
         {
             List<SslProtocols> enabledSslProtocols;
             List<DecompressionMethods> enabledDecompressionMethod;
@@ -34,9 +40,12 @@ namespace TVinciShared
                 httpHandler.SslOptions.EnabledSslProtocols = sslProtocols | httpHandler.SslOptions.EnabledSslProtocols;
             }
 
-            foreach (DecompressionMethods decompressionMethod in enabledDecompressionMethod)
+            if (shouldDecompress)
             {
-                httpHandler.AutomaticDecompression = decompressionMethod | httpHandler.AutomaticDecompression;
+                foreach (DecompressionMethods decompressionMethod in enabledDecompressionMethod)
+                {
+                    httpHandler.AutomaticDecompression = decompressionMethod | httpHandler.AutomaticDecompression;
+                }
             }
 
             httpHandler.MaxConnectionsPerServer = maxConnectionsPerServer;
