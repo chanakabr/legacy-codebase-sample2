@@ -248,6 +248,13 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                if (epgAssetToUpdate.CreateDate == null)
+                {
+                    log.Error($"Failed UpdateEpgAsset for groupId: {groupId}, epgAsset.Id: {epgAssetToUpdate.Id}, because create date is empty");
+                    result.SetStatus(eResponseStatus.Error);
+                    return result;
+                }
+
                 // update Epg_channels_schedule table (basic data)
                 epgCBToUpdate = CreateEpgCbFromEpgAsset(epgAssetToUpdate, groupId, epgAssetToUpdate.CreateDate.Value, updateDate);
 
@@ -336,7 +343,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.ErrorFormat(string.Format("Failed UpdateEpgAsset for groupId: {0}, epgAsset.Id: {1}", groupId, epgAssetToUpdate.Id), ex);
+                log.Error($"Failed UpdateEpgAsset for groupId: {groupId}, epgAsset.Id: {epgAssetToUpdate.Id}", ex);
             }
 
             return result;
