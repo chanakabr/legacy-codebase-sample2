@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
@@ -128,6 +129,15 @@ namespace ApiObjects.Segmentation
                 log.ErrorFormat("Error updating list of segment types in group.");
                 return false;
             }
+            else
+            {
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypesInvalidationKey(this.GroupId));
+
+                if (this.Actions?.Count > 0)
+                {
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(this.GroupId));
+                }
+            }
 
             string newDocumentKey = GetSegmentationTypeDocumentKey(this.GroupId, this.Id);
 
@@ -211,6 +221,14 @@ namespace ApiObjects.Segmentation
             {
                 log.ErrorFormat("Error updating existing segment type in Couchbase.");
             }
+            else
+            {
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSegmentationTypeInvalidationKey(this.GroupId, this.Id));
+                if (this.Actions?.Count > 0)
+                {
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(this.GroupId));
+                }
+            }
 
             result = setResult;
 
@@ -261,6 +279,11 @@ namespace ApiObjects.Segmentation
             {
                 log.ErrorFormat("Error deleting segments from segment type in Couchbase.");
             }
+            else
+            {
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypesInvalidationKey(this.GroupId));
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(this.GroupId));
+            }
 
             result = setResult;
 
@@ -296,12 +319,9 @@ namespace ApiObjects.Segmentation
         {
             List<SegmentationType> result = new List<SegmentationType>();
             totalCount = 0;
-            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-
-            string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(groupId);
 
             // get list of Ids of segmentaiton types in group
-            GroupSegmentationTypes groupSegmentationTypes = couchbaseManager.Get<GroupSegmentationTypes>(segmentationTypesKey);
+            GroupSegmentationTypes groupSegmentationTypes = GetGroupSegmentationTypes(groupId);
 
             if (groupSegmentationTypes == null || groupSegmentationTypes.segmentationTypes == null)
             {
@@ -310,51 +330,65 @@ namespace ApiObjects.Segmentation
             }
 
             totalCount = groupSegmentationTypes.segmentationTypes.Count;
-            List<string> keys = null;
+
+            if (totalCount == 0)
+            {
+                return result;
+            }
 
             if (ids?.Count > 0)
             {
                 // ignore segmentation types that are not part of this group's segmentation types
                 ids.RemoveAll(id => !groupSegmentationTypes.segmentationTypes.Exists(id2 => id == id2));                
-                keys = ids.Select(id => GetSegmentationTypeDocumentKey(groupId, id)).ToList();
-                totalCount = keys.Count;
+                totalCount = ids.Count;
             }
             else
             {
-                // transform objects to document keys
-                keys = groupSegmentationTypes.segmentationTypes.Select(id => GetSegmentationTypeDocumentKey(groupId, id)).ToList();
+                ids = groupSegmentationTypes.segmentationTypes;
             }
 
             // get only Ids on current page
             if (pageSize > 0)
             {
-                keys = keys.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                ids = ids.Skip(pageIndex * pageSize).Take(pageSize).ToList();
             }
 
-            // get all segmentation types from CB
-            var segmentationTypes = couchbaseManager.GetValues<SegmentationType>(keys, true, true);
+            if (ids == null || ids.Count == 0)
+            {
+                return result;
+            }
+
+            // get all segmentation types from Cache
+            result = GetSegmentationTypes(groupId, ids);
 
             DateTime now = DateTime.UtcNow;
 
-            if (segmentationTypes == null)
+            if (result == null)
             {
                 throw new Exception("Failed getting list of segmentation types from Couchbase");
             }
 
-            result = segmentationTypes.Values.ToList();
-
             return result;
         }
 
-        public static List<SegmentationType> ListOfType<T>(int groupId, List<long> ids = null)
+        public static List<SegmentationType> ListActionOfType<T>(int groupId, List<long> ids) where T : SegmentAction
         {
             List<SegmentationType> segmentations = new List<SegmentationType>();
+            
             try
             {
-                segmentations = List(groupId, ids, 0, 0, out int totalCount);
-                if (totalCount > 0)
+                string actionKey = typeof(T).Name;
+
+                var groupSegmentationTypes = GetSegmentationTypeIdsOfAction<T>(groupId, actionKey);
+
+                if (groupSegmentationTypes != null && groupSegmentationTypes.segmentationTypes?.Count > 0)
                 {
-                    segmentations = segmentations.Where(s => s.Actions != null && s.Actions.Any(y => y is T)).ToList();
+                    var intersact = ids.Intersect(groupSegmentationTypes.segmentationTypes).ToList();
+
+                    if (intersact?.Count > 0)
+                    {
+                        segmentations = GetSegmentationTypes(groupId, intersact);
+                    }
                 }
             }
             catch (Exception ex)
@@ -434,6 +468,185 @@ namespace ApiObjects.Segmentation
 
             return true;
         }
+
+        private static GroupSegmentationTypes GetGroupSegmentationTypes(int groupId)
+        {
+            GroupSegmentationTypes groupSegmentationTypes = null;
+
+            try
+            {
+                string key = LayeredCacheKeys.GetGroupSegmentationTypesKey(groupId);
+                List<string> segmentsInvalidationKey = new List<string>() { LayeredCacheKeys.GetGroupSegmentationTypesInvalidationKey(groupId) };
+                if (!LayeredCache.Instance.Get<GroupSegmentationTypes>(key,
+                                                          ref groupSegmentationTypes,
+                                                          GetGroupSegmentationTypes,
+                                                          new Dictionary<string, object>() { { "groupId", groupId } },
+                                                          groupId,
+                                                          LayeredCacheConfigNames.GET_GROUP_SEGMENTATION_TYPES,
+                                                          segmentsInvalidationKey))
+                {
+                    log.ErrorFormat("Failed getting GetGroupSegmentationTypes from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupSegmentationTypes for groupId: {0}", groupId), ex);
+            }
+
+            return groupSegmentationTypes;
+        }
+
+        private static Tuple<GroupSegmentationTypes, bool> GetGroupSegmentationTypes(Dictionary<string, object> funcParams)
+        {
+            GroupSegmentationTypes result = new GroupSegmentationTypes();
+
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue)
+                {
+                    string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(groupId.Value);
+
+                    CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+                    // get list of Ids of segmentaiton types in group
+                    result = couchbaseManager.Get<GroupSegmentationTypes>(segmentationTypesKey);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupSegmentationTypes failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<GroupSegmentationTypes, bool>(result, result != null);
+        }
+
+        private static List<SegmentationType> GetSegmentationTypes(int groupId, List<long> segmentIds)
+        {
+            List<SegmentationType> resopnse = new List<SegmentationType>();
+            
+            try
+            {
+                Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
+                Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
+
+                foreach (long segmentId in segmentIds)
+                {
+                    string key = LayeredCacheKeys.GetSegmentationTypeKey(groupId, segmentId);
+                    keysToOriginalValueMap.Add(key, segmentId.ToString());
+                    invalidationKeysMap.Add(key, new List<string>() { LayeredCacheKeys.GetSegmentationTypeInvalidationKey(groupId, segmentId) });
+                }
+
+                Dictionary<string, SegmentationType> segmentationTypes = null;
+
+                // try to get full AssetUserRules from cache            
+                if (LayeredCache.Instance.GetValues<SegmentationType>(keysToOriginalValueMap,
+                                                                   ref segmentationTypes,
+                                                                   GetSegmentationTypes,
+                                                                   new Dictionary<string, object>() { { "segmentationTypeIds", keysToOriginalValueMap.Values.ToList() } },
+                                                                   groupId,
+                                                                   LayeredCacheConfigNames.GET_SEGMENTATION_TYPE,
+                                                                   invalidationKeysMap))
+                {
+                    if (segmentationTypes?.Count > 0)
+                    {
+                        resopnse = segmentationTypes.Values.ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //Log
+            }
+
+            return resopnse;
+        }
+
+        private static Tuple<Dictionary<string, SegmentationType>, bool> GetSegmentationTypes(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, SegmentationType> result = new Dictionary<string, SegmentationType>();
+
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("segmentationTypeKeys"))
+                {
+                    List<string> segmentationTypeKeys = funcParams["segmentationTypeKeys"] != null ? funcParams["segmentationTypeKeys"] as List<string> : null;
+
+                    if (segmentationTypeKeys?.Count > 0)
+                    {
+                        CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+                        var segmentationTypes = couchbaseManager.GetValues<SegmentationType>(segmentationTypeKeys, true, true);
+
+                        res = result.Count == segmentationTypes.Count();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetSegmentationTypes failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, SegmentationType>, bool>(result, res);
+        }
+
+        private static GroupSegmentationTypes GetSegmentationTypeIdsOfAction<T>(int groupId, string actionKey) where T : SegmentAction
+        {
+            GroupSegmentationTypes groupSegmentationTypes = null;
+
+            try
+            {
+                string key = LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionKey(groupId, actionKey);
+                List<string> segmentsInvalidationKey = new List<string>() { LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(groupId) };
+                if (!LayeredCache.Instance.Get<GroupSegmentationTypes>(key,
+                                                          ref groupSegmentationTypes,
+                                                          GetSegmentationTypeIdsOfAction<T>,
+                                                          new Dictionary<string, object>() { { "groupId", groupId }, { "actionKey", actionKey } },
+                                                          groupId,
+                                                          LayeredCacheConfigNames.GET_GROUP_SEGMENTATION_TYPES_OF_ACTION,
+                                                          segmentsInvalidationKey))
+                {
+                    log.ErrorFormat("Failed getting GetSegmentationTypeIdsOfAction from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetSegmentationTypeIdsOfAction for groupId: {0}", groupId), ex);
+            }
+
+            return groupSegmentationTypes;
+        }
+
+        private static Tuple<GroupSegmentationTypes, bool> GetSegmentationTypeIdsOfAction<T>(Dictionary<string, object> funcParams) where T : SegmentAction
+        {
+            GroupSegmentationTypes result = new GroupSegmentationTypes();
+
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                
+                if (groupId.HasValue)
+                {
+                    var groupSegmentationTypes = GetGroupSegmentationTypes(groupId.Value);
+
+                    if (groupSegmentationTypes != null && groupSegmentationTypes.segmentationTypes?.Count > 0)
+                    {
+                        var segmentationTypes = GetSegmentationTypes(groupId.Value, groupSegmentationTypes.segmentationTypes);
+
+                        if (segmentationTypes?.Count > 0)
+                        {
+                            result.segmentationTypes = segmentationTypes.Where(s => s.Actions != null && s.Actions.Any(y => y is T)).Select(z => z.Id).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetSegmentationTypeIdsOfAction failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<GroupSegmentationTypes, bool>(result, result != null);
+        }
+
     }
     
     public class GroupSegmentationTypes

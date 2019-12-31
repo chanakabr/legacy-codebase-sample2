@@ -115,6 +115,9 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_COLLECTIONS = "GetCollectionsIds";
         public const string GET_GROUP_SUBSCRIPTION = "GetSubscriptionIds";
         public const string GET_OBJECT_VIRTUAL_ASSET_PARTNER_CONFIG = "GetObjectVirtualAssetPartnerConfig";
+        public const string GET_GROUP_SEGMENTATION_TYPES = "GetGroupSegmentationTypes";
+        public const string GET_SEGMENTATION_TYPE = "GetSegmentationType";
+        public const string GET_GROUP_SEGMENTATION_TYPES_OF_ACTION = "GetGroupSegmentationTypesOfAction";
 
         #endregion
 

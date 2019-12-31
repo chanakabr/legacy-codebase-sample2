@@ -12007,7 +12007,7 @@ namespace Core.Api
             return Status.Ok;
         }
 
-        private static List<SegmentationType> GetUserAndDomainSegmentationActionsOfType<T>(int groupId, string userId)
+        private static List<SegmentationType> GetUserAndDomainSegmentationActionsOfType<T>(int groupId, string userId) where T : SegmentAction
         {
             List<SegmentationType> segmentations = new List<SegmentationType>();
 
@@ -12040,7 +12040,7 @@ namespace Core.Api
 
                 if (segmentTypeIds?.Count > 0)
                 {
-                    segmentations = SegmentationType.ListOfType<T>(groupId, segmentTypeIds.Values.ToList());
+                    segmentations = SegmentationType.ListActionOfType<T>(groupId, segmentTypeIds.Values.ToList());
                 }
             }
 

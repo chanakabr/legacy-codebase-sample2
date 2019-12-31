@@ -107,7 +107,7 @@ namespace ApiObjects.Segmentation
 
             long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(this.SegmentId);
 
-            var segmentationTypesList = SegmentationType.List(this.GroupId, new List<long>() { segmentationTypeId }, 0, 1000, out int totalCount);
+            var segmentationTypesList = SegmentationType.List(this.GroupId, new List<long>() { segmentationTypeId }, 0, 0, out int totalCount);
 
             SegmentationType segmentationType = null;
 
