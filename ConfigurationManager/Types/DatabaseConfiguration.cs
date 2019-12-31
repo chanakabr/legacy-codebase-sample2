@@ -13,7 +13,7 @@ namespace ConfigurationManager
 
         public BaseValue<uint> WriteLockTTL = new BaseValue<uint>("WriteLock_TTL", 1);
 
-        public BaseValue<int> ODBCCacheSeconds = new BaseValue<int>("ODBC_CACH_SEC", 60);
+        public BaseValue<int> ODBCCacheSeconds = new BaseValue<int>("odbc_cach_sec", 60);
         public BaseValue<int> DbCommandExecuteTimeoutSec = new BaseValue<int>("DbCommandExecuteTimeoutSec", 1800);
 
         public BaseValue<string> BillingConnectionString = new BaseValue<string>("BILLING_CONNECTION_STRING", TcmObjectKeys.Stub, true, "Still not in use, requires massive amount of code refactoring.");
