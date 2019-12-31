@@ -1768,7 +1768,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // check if cancellation is allowed
-                    Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, string.Empty, string.Empty, string.Empty, false);
+                    Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, string.Empty, string.Empty, string.Empty, false, userId);
 
                     if (subscriptionToCancel == null)
                     {

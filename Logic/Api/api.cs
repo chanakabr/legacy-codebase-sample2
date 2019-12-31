@@ -11901,7 +11901,7 @@ namespace Core.Api
                 assetSearchDefinition.Filter = string.Empty;
             }
 
-            long originalUserId = GetOriginalUserId();
+            long originalUserId = RequestContextUtils.GetOriginalUserId();
             if (originalUserId > 0)
             {
                 assetSearchDefinition.UserId = originalUserId;
@@ -11962,6 +11962,12 @@ namespace Core.Api
         public static Status HandleBlockingSegment<T>(int groupId, string userId, string udid, string ip, int domainId,
             ObjectVirtualAssetInfoType virtualAssetInfoType, string objectId) where T : SegmentActionObjectVirtualAssetBlockAction
         {
+            long originalUserId = RequestContextUtils.GetOriginalUserId();
+            if (originalUserId > 0)
+            {
+                userId = originalUserId.ToString();
+            }
+
             var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, virtualAssetInfoType);
 
             if (objectVirtualAssetInfo != null)
@@ -12004,6 +12010,11 @@ namespace Core.Api
         private static List<SegmentationType> GetUserAndDomainSegmentationActionsOfType<T>(int groupId, string userId)
         {
             List<SegmentationType> segmentations = new List<SegmentationType>();
+
+            if (!long.TryParse(userId, out long nUserId) || nUserId <= 0)
+            {
+                return segmentations;
+            }
 
             List<long> segmentsIds = new List<long>();
             var userSegments = UserSegment.List(groupId, userId, out int totalCount);
@@ -12062,13 +12073,6 @@ namespace Core.Api
             }
             
             return ksqls.Count > 0 ? $" (or {string.Join(" ", ksqls)})" : string.Empty;
-        }
-
-        private static long GetOriginalUserId()
-        {
-            RequestContextUtils.GetRequestContextValue<long>(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID, out long originalUserId);
-            
-            return originalUserId;
         }
     }
 }

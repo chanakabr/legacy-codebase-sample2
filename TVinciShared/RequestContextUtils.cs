@@ -40,11 +40,17 @@ namespace TVinciShared
             bool res = false;
             if (System.Web.HttpContext.Current != null && System.Web.HttpContext.Current.Items != null && System.Web.HttpContext.Current.Items.ContainsKey(key))
             {
-                //long.TryParse((string)System.Web.HttpContext.Current.Items[key], out originalUserId);
                 value = (T)System.Web.HttpContext.Current.Items[key];
                 res = true;
             }
             return res;
+        }
+
+        public static long GetOriginalUserId()
+        {
+            GetRequestContextValue<long>(REQUEST_KS_ORIGINAL_USER_ID, out long originalUserId);
+
+            return originalUserId;
         }
     }
 }

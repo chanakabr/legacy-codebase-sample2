@@ -182,9 +182,12 @@ namespace ApiLogic.Users.Managers
 
                             foreach (var item in householdSegments)
                             {
-                                if(filtered.ObjectIds.Contains(item.SegmentId))
+                                if (segmentTypeIds.ContainsKey(item.SegmentId))
                                 {
-                                    response.Objects.Add(item);
+                                    if (filtered.ObjectIds.Contains(segmentTypeIds[item.SegmentId]))
+                                    {
+                                        response.Objects.Add(item);
+                                    }
                                 }
                             }
                         }

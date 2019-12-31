@@ -2217,9 +2217,12 @@ namespace Core.Api
 
                             foreach (var item in userSegments)
                             {
-                                if (segmentTypeIds.ContainsKey(item.SegmentId) && filtered.ObjectIds.Contains(segmentTypeIds[item.SegmentId]))
+                                if (segmentTypeIds.ContainsKey(item.SegmentId))
                                 {
-                                    result.Objects.Add(item);
+                                    if (filtered.ObjectIds.Contains(segmentTypeIds[item.SegmentId]))
+                                    {
+                                        result.Objects.Add(item);
+                                    }
                                 }
                             }
 

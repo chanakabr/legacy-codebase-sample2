@@ -17,7 +17,7 @@ namespace ApiObjects.Segmentation
 
         #region Members
 
-        [JsonIgnore()]
+        [JsonProperty()]
         public long HouseholdId { get; set; }
 
         [JsonProperty()]
