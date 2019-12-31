@@ -395,13 +395,17 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="groupId"></param>
         /// <param name="epgIds"></param>
         /// <param name="action"></param>
-        private static void SendActionEvent(int groupId, long[] epgIds, eAction action)
+        internal static void SendActionEvent(int groupId, long[] epgIds, eAction action)
         {
+            if (epgIds == null || epgIds.Count() == 0)
+                return;
+
             var epgsString = epgIds.Count() > 1 ? string.Join(", ", epgIds) : epgIds.FirstOrDefault().ToString();
             log.Debug($"calling ConditionalAccess.IngestRecording: action: [{action.ToString()}], epg: [{epgsString}]");
-            var ingestRecordingAsync = Task.Factory.StartNew(() =>
+            
+            Task.Factory.StartNew(() =>
             {
-                Core.ConditionalAccess.Module.IngestRecording(groupId, epgIds, action);
+                ConditionalAccess.Module.IngestRecording(groupId, epgIds, action);
             });
         }
 
