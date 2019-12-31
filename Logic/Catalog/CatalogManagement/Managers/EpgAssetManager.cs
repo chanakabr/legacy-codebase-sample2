@@ -2,19 +2,16 @@
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
-using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Core.GroupManagers;
-using ElasticSearch.Common;
-using ElasticSearch.Searcher;
 using EpgBL;
 using KLogMonitor;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
@@ -331,6 +328,8 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", epgAssetToUpdate.Id, groupId);
                 }
 
+                SendActionEvent(groupId, new long[] { oldEpgAsset.Id }, eAction.Update);
+
                 // get updated epgAsset
                 result = AssetManager.GetAsset(groupId, epgAssetToUpdate.Id, eAssetTypes.EPG, true);
             }
@@ -379,6 +378,8 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("Failed to delete epg index for assetId: {0}, groupId: {1} after DeleteEpgAsset", epgId, groupId);
                 }
+
+                SendActionEvent(groupId, new long[] { epgId }, eAction.Delete);
             }
             else
             {
@@ -386,6 +387,22 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Send an event to perform the requested action with the given action
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="epgIds"></param>
+        /// <param name="action"></param>
+        private static void SendActionEvent(int groupId, long[] epgIds, eAction action)
+        {
+            var epgsString = epgIds.Count() > 1 ? string.Join(", ", epgIds) : epgIds.FirstOrDefault().ToString();
+            log.Debug($"calling ConditionalAccess.IngestRecording: action: [{action.ToString()}], epg: [{epgsString}]");
+            var ingestRecordingAsync = Task.Factory.StartNew(() =>
+            {
+                Core.ConditionalAccess.Module.IngestRecording(groupId, epgIds, action);
+            });
         }
 
         internal static Status RemoveTopicsFromProgram(int groupId, HashSet<long> topicIds, long userId, CatalogGroupCache catalogGroupCache, Asset asset)
@@ -756,7 +773,7 @@ namespace Core.Catalog.CatalogManagement
                                                             catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas
                                                                 .ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
                                                             !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList();
-            
+
             if (excluded.Count > 0)
             {
                 // get all program asset struct topic systemNames and types mapping
@@ -781,12 +798,12 @@ namespace Core.Catalog.CatalogManagement
             {
                 epgTagsToUpdate = new List<Tags>();
             }
-            
+
             if (catalogGroupCache.ProgramAssetStructId == 0 || oldTagsAsset == null || oldTagsAsset.Count == 0)
             {
                 return epgTagsToUpdate;
             }
-            
+
             List<Tags> excluded = oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
                                                           catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
                                                           catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas
@@ -864,7 +881,7 @@ namespace Core.Catalog.CatalogManagement
             Status status = null;
             epgMetas = null;
             epgTagsIds = null;
-            
+
             if (catalogGroupCache.ProgramAssetStructId == 0)
             {
                 return new Status((int)eResponseStatus.AssetStructDoesNotExist, "Program AssetStruct does not exist");
