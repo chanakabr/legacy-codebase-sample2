@@ -10,8 +10,8 @@ namespace ConfigurationManager
         public StringConfigurationValue AccessTokenKeyFormat;
         public NumericConfigurationValue AccessTokenLength;
         public StringConfigurationValue TempUploadFolder;
-        public StringConfigurationValue KsSecretsPrimary;
-        public StringConfigurationValue KsSecretSecondary;
+        private StringConfigurationValue KsSecretsPrimary;
+        private StringConfigurationValue KsSecretSecondary;
         public List<string> KsSecrets { get; private set; }
 
         public RequestParserConfiguration(string key) : base(key)
