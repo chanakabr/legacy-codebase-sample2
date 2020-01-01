@@ -21,6 +21,8 @@ namespace IngetsNetCore
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
+            services.AddStaticHttpContextAccessor();
             services.TryAddSingleton<IService, IngestService>();            
             services.AddMvc(x => x.EnableEndpointRouting = false);
         }
@@ -30,6 +32,8 @@ namespace IngetsNetCore
         {
             // see explanation inside class regarding BOM
             app.UseBomKiller();
+			app.UseKloggerSessionIdBuilder();
+            app.UseRequestLogger();
 
             BasicHttpBinding ingestBinding = new BasicHttpBinding() { ReaderQuotas = new System.Xml.XmlDictionaryReaderQuotas() { MaxStringContentLength = int.MaxValue } };
             app.UseSoapEndpoint<IService>("/Service.svc", ingestBinding, SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
