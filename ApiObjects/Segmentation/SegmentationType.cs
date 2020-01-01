@@ -393,7 +393,7 @@ namespace ApiObjects.Segmentation
             }
             catch (Exception ex)
             {
-
+                log.Error($"Failed ListActionOfType for groupId: {groupId}, ex : {ex}");
             }
 
             return segmentations;
@@ -526,48 +526,37 @@ namespace ApiObjects.Segmentation
 
             try
             {
-                List<string> keys = new List<string>();
-                CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                
-                foreach (var item in segmentIds)
+                Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
+                Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
+
+                foreach (long segmentId in segmentIds)
                 {
-                    keys.Add(GetSegmentationTypeDocumentKey(groupId, item));
+                    string key = LayeredCacheKeys.GetSegmentationTypeKey(groupId, segmentId);
+                    keysToOriginalValueMap.Add(key, GetSegmentationTypeDocumentKey(groupId, segmentId));
+                    invalidationKeysMap.Add(key, new List<string>() { LayeredCacheKeys.GetSegmentationTypeInvalidationKey(groupId, segmentId) });
                 }
 
-                return couchbaseManager.GetValues<SegmentationType>(keys, true, true).Values.ToList();
+                Dictionary<string, SegmentationType> segmentationTypes = null;
 
-
-                //Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
-                //Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
-
-                //foreach (long segmentId in segmentIds)
-                //{
-                //    string key = LayeredCacheKeys.GetSegmentationTypeKey(groupId, segmentId);
-                //    keysToOriginalValueMap.Add(key, segmentId.ToString());
-                //    invalidationKeysMap.Add(key, new List<string>() { LayeredCacheKeys.GetSegmentationTypeInvalidationKey(groupId, segmentId) });
-                //}
-
-                //Dictionary<string, SegmentationType> segmentationTypes = null;
-
-                //// try to get full AssetUserRules from cache            
-                //if (LayeredCache.Instance.GetValues<SegmentationType>(keysToOriginalValueMap,
-                //                                                   ref segmentationTypes,
-                //                                                   GetSegmentationTypes,
-                //                                                   new Dictionary<string, object>() { { "segmentationTypeKeys", keysToOriginalValueMap.Values.ToList() },
-                //                                                    { "groupId",groupId }},
-                //                                                   groupId,
-                //                                                   LayeredCacheConfigNames.GET_SEGMENTATION_TYPE,
-                //                                                   invalidationKeysMap))
-                //{
-                //    if (segmentationTypes?.Count > 0)
-                //    {
-                //        resopnse = segmentationTypes.Values.ToList();
-                //    }
-                //}
+                // try to get full AssetUserRules from cache            
+                if (LayeredCache.Instance.GetValues<SegmentationType>(keysToOriginalValueMap,
+                                                                   ref segmentationTypes,
+                                                                   GetSegmentationTypes,
+                                                                   new Dictionary<string, object>() { { "segmentationTypeKeys", keysToOriginalValueMap.Values.ToList() },
+                                                                    { "groupId",groupId }},
+                                                                   groupId,
+                                                                   LayeredCacheConfigNames.GET_SEGMENTATION_TYPE,
+                                                                   invalidationKeysMap))
+                {
+                    if (segmentationTypes?.Count > 0)
+                    {
+                        resopnse = segmentationTypes.Values.ToList();
+                    }
+                }
             }
             catch (Exception ex)
             {
-                //Log
+                log.Error($"GetSegmentationTypes failed params : {string.Join(";", segmentIds)}, ex: {ex}");
             }
 
             return resopnse;
@@ -583,22 +572,21 @@ namespace ApiObjects.Segmentation
                 if (funcParams != null && funcParams.ContainsKey("segmentationTypeKeys"))
                 {
                     List<string> segmentationTypeKeys = funcParams["segmentationTypeKeys"] != null ? funcParams["segmentationTypeKeys"] as List<string> : null;
-                    int? groupId = funcParams["groupId"] as int?;
-                    List<string> keys = new List<string>();
+                    int? groupId = funcParams["groupId"] as int?;                    
+
                     if (segmentationTypeKeys?.Count > 0)
                     {
-                        string key = string.Empty;
-
-                        foreach (var item in segmentationTypeKeys)
-                        {
-                            keys.Add(GetSegmentationTypeDocumentKey(groupId.Value, long.Parse(item)));
-                        }
-
                         CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                        var segmentationTypes = couchbaseManager.GetValues<SegmentationType>(keys, true, true);
-                        result = new Dictionary<string, SegmentationType>(segmentationTypes);
+                        var segmentationTypes = couchbaseManager.GetValues<SegmentationType>(segmentationTypeKeys, true, true);
 
-                        res = result.Count == segmentationTypes.Count();
+                        string key = string.Empty;
+                        foreach (var item in segmentationTypes)
+                        {
+                            key = LayeredCacheKeys.GetSegmentationTypeKey(groupId.Value, item.Value.Id);
+                            result.Add(key, item.Value);
+                        }
+                        
+                        res = result.Count == segmentationTypeKeys.Count();
                     }
                 }
             }
