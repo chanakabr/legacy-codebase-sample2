@@ -522,36 +522,48 @@ namespace ApiObjects.Segmentation
 
         private static List<SegmentationType> GetSegmentationTypes(int groupId, List<long> segmentIds)
         {
-            List<SegmentationType> resopnse = new List<SegmentationType>();
-            
+            List<SegmentationType> resopnse = new List<SegmentationType>();         
+
             try
             {
-                Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
-                Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
-
-                foreach (long segmentId in segmentIds)
+                List<string> keys = new List<string>();
+                CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+                
+                foreach (var item in segmentIds)
                 {
-                    string key = LayeredCacheKeys.GetSegmentationTypeKey(groupId, segmentId);
-                    keysToOriginalValueMap.Add(key, segmentId.ToString());
-                    invalidationKeysMap.Add(key, new List<string>() { LayeredCacheKeys.GetSegmentationTypeInvalidationKey(groupId, segmentId) });
+                    keys.Add(GetSegmentationTypeDocumentKey(groupId, item));
                 }
 
-                Dictionary<string, SegmentationType> segmentationTypes = null;
+                return couchbaseManager.GetValues<SegmentationType>(keys, true, true).Values.ToList();
 
-                // try to get full AssetUserRules from cache            
-                if (LayeredCache.Instance.GetValues<SegmentationType>(keysToOriginalValueMap,
-                                                                   ref segmentationTypes,
-                                                                   GetSegmentationTypes,
-                                                                   new Dictionary<string, object>() { { "segmentationTypeIds", keysToOriginalValueMap.Values.ToList() } },
-                                                                   groupId,
-                                                                   LayeredCacheConfigNames.GET_SEGMENTATION_TYPE,
-                                                                   invalidationKeysMap))
-                {
-                    if (segmentationTypes?.Count > 0)
-                    {
-                        resopnse = segmentationTypes.Values.ToList();
-                    }
-                }
+
+                //Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
+                //Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
+
+                //foreach (long segmentId in segmentIds)
+                //{
+                //    string key = LayeredCacheKeys.GetSegmentationTypeKey(groupId, segmentId);
+                //    keysToOriginalValueMap.Add(key, segmentId.ToString());
+                //    invalidationKeysMap.Add(key, new List<string>() { LayeredCacheKeys.GetSegmentationTypeInvalidationKey(groupId, segmentId) });
+                //}
+
+                //Dictionary<string, SegmentationType> segmentationTypes = null;
+
+                //// try to get full AssetUserRules from cache            
+                //if (LayeredCache.Instance.GetValues<SegmentationType>(keysToOriginalValueMap,
+                //                                                   ref segmentationTypes,
+                //                                                   GetSegmentationTypes,
+                //                                                   new Dictionary<string, object>() { { "segmentationTypeKeys", keysToOriginalValueMap.Values.ToList() },
+                //                                                    { "groupId",groupId }},
+                //                                                   groupId,
+                //                                                   LayeredCacheConfigNames.GET_SEGMENTATION_TYPE,
+                //                                                   invalidationKeysMap))
+                //{
+                //    if (segmentationTypes?.Count > 0)
+                //    {
+                //        resopnse = segmentationTypes.Values.ToList();
+                //    }
+                //}
             }
             catch (Exception ex)
             {
@@ -571,11 +583,20 @@ namespace ApiObjects.Segmentation
                 if (funcParams != null && funcParams.ContainsKey("segmentationTypeKeys"))
                 {
                     List<string> segmentationTypeKeys = funcParams["segmentationTypeKeys"] != null ? funcParams["segmentationTypeKeys"] as List<string> : null;
-
+                    int? groupId = funcParams["groupId"] as int?;
+                    List<string> keys = new List<string>();
                     if (segmentationTypeKeys?.Count > 0)
                     {
+                        string key = string.Empty;
+
+                        foreach (var item in segmentationTypeKeys)
+                        {
+                            keys.Add(GetSegmentationTypeDocumentKey(groupId.Value, long.Parse(item)));
+                        }
+
                         CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-                        var segmentationTypes = couchbaseManager.GetValues<SegmentationType>(segmentationTypeKeys, true, true);
+                        var segmentationTypes = couchbaseManager.GetValues<SegmentationType>(keys, true, true);
+                        result = new Dictionary<string, SegmentationType>(segmentationTypes);
 
                         res = result.Count == segmentationTypes.Count();
                     }
