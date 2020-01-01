@@ -16,6 +16,7 @@ RUN dotnet publish -c Release "./IngestNetCore/IngestNetCore.csproj" -o /src/pub
 # Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /opt
+RUN apt update && apt install -y libc6-dev libgdiplus 
 
 ARG API_LOG_DIR=/var/log/ws-ingest/
 ENV API_LOG_DIR ${API_LOG_DIR}
