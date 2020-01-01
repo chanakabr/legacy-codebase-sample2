@@ -15,6 +15,7 @@ using System.Runtime.CompilerServices;
 using System.Xml;
 using System.IO;
 using Microsoft.Extensions.Logging;
+using System.Web;
 
 namespace KLogMonitor
 {
@@ -532,7 +533,13 @@ namespace KLogMonitor
 		{
 			LogContextData[Constants.CLASS_NAME] = this.ClassName;
 			LogContextData[Constants.SERVER] = this.Server;
-			LogContextData[Constants.TOPIC] = this.Topic;
+			LogContextData[Constants.CLIENT_TAG] = HttpContext.Current?.Items[Constants.CLIENT_TAG];
+			LogContextData[Constants.HOST_IP] = HttpContext.Current?.Items[Constants.HOST_IP];
+			LogContextData[Constants.REQUEST_ID_KEY] = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY];
+			LogContextData[Constants.GROUP_ID] = HttpContext.Current?.Items[Constants.GROUP_ID];
+			LogContextData[Constants.ACTION] = HttpContext.Current?.Items[Constants.ACTION];
+			LogContextData[Constants.USER_ID] = HttpContext.Current?.Items[Constants.USER_ID];
+			LogContextData[Constants.TOPIC] = HttpContext.Current?.Items[Constants.TOPIC];
 
 			var msg = formatter(state, exception);
 			switch(logLevel)
