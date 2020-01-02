@@ -4,7 +4,6 @@ using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
-using ODBCWrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,11 +22,11 @@ namespace ApiObjects.Segmentation
 
         [JsonProperty()]
         public string Name;
-        
+
         [JsonProperty()]
         public string Description;
-        
-        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)] 
+
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
         public List<SegmentCondition> Conditions;
 
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
@@ -136,6 +135,8 @@ namespace ApiObjects.Segmentation
                 if (this.Actions?.Count > 0)
                 {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(this.GroupId));
+
+                    GroupSegmentationTypesWithActions.Update(this.GroupId, this.Id, true);
                 }
             }
 
@@ -228,6 +229,8 @@ namespace ApiObjects.Segmentation
                 {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(this.GroupId));
                 }
+
+                GroupSegmentationTypesWithActions.Update(this.GroupId, this.Id, this.Actions?.Count > 0);
             }
 
             result = setResult;
@@ -283,6 +286,8 @@ namespace ApiObjects.Segmentation
             {
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypesInvalidationKey(this.GroupId));
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(this.GroupId));
+
+                GroupSegmentationTypesWithActions.Update(this.GroupId, this.Id, false);
             }
 
             result = setResult;
@@ -294,7 +299,7 @@ namespace ApiObjects.Segmentation
         {
             return this.MemberwiseClone() as CoreObject;
         }
-        
+
         public static string GetSegmentationTypeDocumentKey(int groupId, long id)
         {
             return string.Format("segment_type_{0}_{1}", groupId, id);
@@ -339,7 +344,7 @@ namespace ApiObjects.Segmentation
             if (ids?.Count > 0)
             {
                 // ignore segmentation types that are not part of this group's segmentation types
-                ids.RemoveAll(id => !groupSegmentationTypes.segmentationTypes.Exists(id2 => id == id2));                
+                ids.RemoveAll(id => !groupSegmentationTypes.segmentationTypes.Exists(id2 => id == id2));
                 totalCount = ids.Count;
             }
             else
@@ -374,7 +379,7 @@ namespace ApiObjects.Segmentation
         public static List<SegmentationType> ListActionOfType<T>(int groupId, List<long> ids) where T : SegmentAction
         {
             List<SegmentationType> segmentations = new List<SegmentationType>();
-            
+
             try
             {
                 string actionKey = typeof(T).Name;
@@ -520,9 +525,9 @@ namespace ApiObjects.Segmentation
             return new Tuple<GroupSegmentationTypes, bool>(result, result != null);
         }
 
-        private static List<SegmentationType> GetSegmentationTypes(int groupId, List<long> segmentIds)
+        private static List<SegmentationType> GetSegmentationTypesPaged(int groupId, List<long> segmentIds)
         {
-            List<SegmentationType> resopnse = new List<SegmentationType>();         
+            List<SegmentationType> resopnse = new List<SegmentationType>();
 
             try
             {
@@ -556,7 +561,39 @@ namespace ApiObjects.Segmentation
             }
             catch (Exception ex)
             {
-                log.Error($"GetSegmentationTypes failed params : {string.Join(";", segmentIds)}, ex: {ex}");
+                log.Error($"GetSegmentationTypesPaged failed params : {string.Join(";", segmentIds)}, ex: {ex}");
+            }
+
+            return resopnse;
+        }
+
+        private static List<SegmentationType> GetSegmentationTypes(int groupId, List<long> segmentIds)
+        {
+            List<SegmentationType> resopnse = new List<SegmentationType>();
+
+            try
+            {
+                int index = 0;
+                int size = 30;
+
+                var ids = segmentIds.Skip(index * size).Take(size).ToList();
+                while (ids?.Count > 0)
+                {
+
+                    var seg = GetSegmentationTypesPaged(groupId, ids);
+                    if (seg == null || seg.Count == 0)
+                    {
+                        break;
+                    }
+
+                    resopnse.AddRange(seg);
+                    index++;
+                    ids = segmentIds.Skip(index * size).Take(size).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"GetSegmentationTypes failed ex: {ex}");
             }
 
             return resopnse;
@@ -572,7 +609,7 @@ namespace ApiObjects.Segmentation
                 if (funcParams != null && funcParams.ContainsKey("segmentationTypeKeys"))
                 {
                     List<string> segmentationTypeKeys = funcParams["segmentationTypeKeys"] != null ? funcParams["segmentationTypeKeys"] as List<string> : null;
-                    int? groupId = funcParams["groupId"] as int?;                    
+                    int? groupId = funcParams["groupId"] as int?;
 
                     if (segmentationTypeKeys?.Count > 0)
                     {
@@ -585,7 +622,7 @@ namespace ApiObjects.Segmentation
                             key = LayeredCacheKeys.GetSegmentationTypeKey(groupId.Value, item.Value.Id);
                             result.Add(key, item.Value);
                         }
-                        
+
                         res = result.Count == segmentationTypeKeys.Count();
                     }
                 }
@@ -632,14 +669,14 @@ namespace ApiObjects.Segmentation
             try
             {
                 int? groupId = funcParams["groupId"] as int?;
-                
+
                 if (groupId.HasValue)
                 {
-                    var groupSegmentationTypes = GetGroupSegmentationTypes(groupId.Value);
+                    var segmentationTypeIds = GroupSegmentationTypesWithActions.Get(groupId.Value);
 
-                    if (groupSegmentationTypes != null && groupSegmentationTypes.segmentationTypes?.Count > 0)
+                    if (segmentationTypeIds != null && segmentationTypeIds.Count > 0)
                     {
-                        var segmentationTypes = GetSegmentationTypes(groupId.Value, groupSegmentationTypes.segmentationTypes);
+                        var segmentationTypes = GetSegmentationTypes(groupId.Value, segmentationTypeIds.ToList());
 
                         if (segmentationTypes?.Count > 0)
                         {
@@ -657,10 +694,10 @@ namespace ApiObjects.Segmentation
         }
 
     }
-    
+
     public class GroupSegmentationTypes
     {
-        [JsonProperty(PropertyName ="segmentationTypes")]
+        [JsonProperty(PropertyName = "segmentationTypes")]
         public List<long> segmentationTypes;
     }
 
@@ -674,7 +711,7 @@ namespace ApiObjects.Segmentation
         recording,
         social_action
     }
-    
+
     public enum MonetizationType
     {
         ppv,
@@ -693,5 +730,78 @@ namespace ApiObjects.Segmentation
     {
         minutes,
         percentage
+    }
+
+    public class GroupSegmentationTypesWithActions
+    {
+        public static string GetKey(int groupId)
+        {
+            return $"GroupSegmentationTypesWithActions_{groupId}";
+        }
+
+        private static bool Set(int groupId, HashSet<long> segmentationTypeIds)
+        {
+            string key = GetKey(groupId);
+
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            bool setResult = couchbaseManager.Set<HashSet<long>>(key, segmentationTypeIds);
+            return setResult;
+        }
+
+        public static HashSet<long> Get(int groupId)
+        {
+            string key = GetKey(groupId);
+
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            return couchbaseManager.Get<HashSet<long>>(key);
+        }
+
+        public static bool Update(int groupId, long segmentTypeId, bool add = true)
+        {
+            string key = GetKey(groupId);
+
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            var segmentationTypeIds = couchbaseManager.Get<HashSet<long>>(key);
+
+            if (segmentationTypeIds != null)
+            {
+                bool exist = segmentationTypeIds.Contains(segmentTypeId);
+                if (add && !exist)
+                {
+                    segmentationTypeIds.Add(segmentTypeId);
+                    return Set(groupId, segmentationTypeIds);
+                }
+                if (!add && exist)
+                {
+                    segmentationTypeIds.Remove(segmentTypeId);
+                    return Set(groupId, segmentationTypeIds);
+                }
+            }
+            else
+            {
+                return Init(groupId);
+            }
+
+            return true;
+        }
+
+        public static bool Init(int groupId)
+        {
+            HashSet<long> ids = new HashSet<long>();
+
+            var segments = SegmentationType.List(groupId, null, 0, 0, out int totalCount);
+            if (totalCount > 0)
+            {
+                foreach (var segment in segments)
+                {
+                    if (segment.Actions?.Count > 0)
+                    {
+                        ids.Add(segment.Id);
+                    }
+                }
+            }
+
+            return Set(groupId, ids);
+        }
     }
 }
