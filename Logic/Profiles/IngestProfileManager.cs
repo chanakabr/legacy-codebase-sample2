@@ -52,6 +52,23 @@ namespace Core.Profiles
 
                     response.Object = profileToAdd;
                     response.SetStatus(eResponseStatus.OK, "New ingest profile was successfully created");
+
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(profileToAdd.TransformationAdapterUrl))
+                        {
+                            var transformationAdptr = new IngestTransformationAdapterClient(profileToAdd);
+                            var status = transformationAdptr.SetConfiguration();
+                            if (status != RestAdaptersCommon.eAdapterStatus.OK)
+                            {
+                                response.SetStatus((int)eResponseStatus.Error, "failed to call transformation adapter client");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        response.SetStatus((int)eResponseStatus.Error, $"new ingest profile {id} created, but failed to update adapter with error: {ex.Message}");
+                    }
                 }
                 else
                 {
@@ -199,6 +216,23 @@ namespace Core.Profiles
                     profileToUpdate.Id = ingestProfileId;
                     response.Object = profileToUpdate;
                     response.SetStatus(eResponseStatus.OK, " ingest profile was successfully updated");
+
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(profileToUpdate.TransformationAdapterUrl))
+                        {
+                            var transformationAdptr = new IngestTransformationAdapterClient(profileToUpdate);
+                            var status = transformationAdptr.SetConfiguration();
+                            if (status != RestAdaptersCommon.eAdapterStatus.OK)
+                            {
+                                response.SetStatus((int)eResponseStatus.Error, "failed to call transformation adapter client");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        response.SetStatus((int)eResponseStatus.Error, $"ingest profile {ingestProfileId} updated, but failed to update adapter with error: {ex.Message}");
+                    }
                 }
                 else
                 {
