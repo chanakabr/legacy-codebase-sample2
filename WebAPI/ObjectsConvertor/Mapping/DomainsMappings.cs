@@ -24,8 +24,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertDeviceStatus(src.m_state)))
                 .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertDeviceState(src.m_state)))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID))
-                .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.LicenseData) ? 
-                    new KalturaCustomDrmPlaybackPluginData(null) { Data = src.LicenseData, Scheme = KalturaDrmSchemeName.CUSTOM_DRM } : null));
+                .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.LicenseData) ?
+                    new KalturaCustomDrmPlaybackPluginData(null) { Data = src.LicenseData, Scheme = KalturaDrmSchemeName.CUSTOM_DRM } : null))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId));
 
             cfg.CreateMap<Device, KalturaDevice>()
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.m_deviceUDID))
@@ -110,6 +111,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.DeviceBrandId))
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.ActivatedOn)))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
             ;
 
             //CouponWallet, KalturaHouseholdCoupon

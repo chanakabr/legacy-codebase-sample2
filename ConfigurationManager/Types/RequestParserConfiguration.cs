@@ -10,6 +10,9 @@ namespace ConfigurationManager
         public StringConfigurationValue AccessTokenKeyFormat;
         public NumericConfigurationValue AccessTokenLength;
         public StringConfigurationValue TempUploadFolder;
+        private StringConfigurationValue KsSecretsPrimary;
+        private StringConfigurationValue KsSecretSecondary;
+        public List<string> KsSecrets { get; private set; }
 
         public RequestParserConfiguration(string key) : base(key)
         {
@@ -28,6 +31,19 @@ namespace ConfigurationManager
                 DefaultValue = "c:\\tmp\\src",
                 ShouldAllowEmpty = false
             };
+            KsSecretsPrimary = new StringConfigurationValue("ks_secrets_primary", this)
+            {
+                DefaultValue = "528d222c-f124-4448-93ad-68ca2e4d706e",
+                ShouldAllowEmpty = true,
+                OriginalKey = "ks_secrets_primary"
+            };
+            KsSecretSecondary = new StringConfigurationValue("ks_secrets_secondary", this)
+            {
+                DefaultValue = string.Empty,
+                ShouldAllowEmpty = true,
+                OriginalKey = "ks_secrets_secondary"
+            };
+            KsSecrets = new List<string> { this.KsSecretsPrimary?.Value, this.KsSecretSecondary?.Value };
         }
     }
 }

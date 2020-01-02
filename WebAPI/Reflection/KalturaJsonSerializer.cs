@@ -26478,6 +26478,10 @@ namespace WebAPI.Models.Domains
                 propertyValue = Drm.ToJson(currentVersion, omitObsolete);
                 ret.Add("drm", "\"drm\": " + propertyValue);
             }
+            if(ExternalId != null)
+            {
+                ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
+            }
             ret.Add("householdId", "\"householdId\": " + HouseholdId);
             if(Name != null)
             {
@@ -26532,6 +26536,10 @@ namespace WebAPI.Models.Domains
             {
                 propertyValue = Drm.ToXml(currentVersion, omitObsolete);
                 ret.Add("drm", "<drm>" + propertyValue + "</drm>");
+            }
+            if(ExternalId != null)
+            {
+                ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
             }
             ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
             if(Name != null)
@@ -26626,6 +26634,10 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("deviceFamilyIdIn", "\"deviceFamilyIdIn\": " + "\"" + EscapeJson(DeviceFamilyIdIn) + "\"");
             }
+            if(ExternalIdEqual != null)
+            {
+                ret.Add("externalIdEqual", "\"externalIdEqual\": " + "\"" + EscapeJson(ExternalIdEqual) + "\"");
+            }
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdDeviceFilter", "HouseholdIdEqual", requestType.Value)))
             {
                 ret.Add("householdIdEqual", "\"householdIdEqual\": " + HouseholdIdEqual);
@@ -26643,6 +26655,10 @@ namespace WebAPI.Models.Domains
             if(DeviceFamilyIdIn != null)
             {
                 ret.Add("deviceFamilyIdIn", "<deviceFamilyIdIn>" + EscapeXml(DeviceFamilyIdIn) + "</deviceFamilyIdIn>");
+            }
+            if(ExternalIdEqual != null)
+            {
+                ret.Add("externalIdEqual", "<externalIdEqual>" + EscapeXml(ExternalIdEqual) + "</externalIdEqual>");
             }
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdDeviceFilter", "HouseholdIdEqual", requestType.Value)))
             {
