@@ -689,7 +689,7 @@ namespace WebAPI.Managers
             var signature = KSUtils.ExtractKSPayload(ks).Signature;
             var groupSecrets = ApplicationConfiguration.RequestParserConfiguration.KsSecrets;
 
-            if (!string.IsNullOrEmpty(signature) && group.EnforceGroupsSecret)//supply signature to every ks even if enforcement is false
+            if (!string.IsNullOrEmpty(signature) && group.EnforceGroupsSecret)
             {
                 for (int i = groupSecrets.Count - 1; i >= 0; i--) //LIFO
                 {
@@ -700,7 +700,7 @@ namespace WebAPI.Managers
                         log.Debug($"Matching signature was received by {ks.UserId}, index: {i}");
                         return true;
                     }
-                    log.Info($"Signature validation failed for group: {ks.GroupId}, index: {i}");
+                    log.Info($"Signature validation failed for user: {ks.UserId}, index: {i}");
                 }
 
                 return false;

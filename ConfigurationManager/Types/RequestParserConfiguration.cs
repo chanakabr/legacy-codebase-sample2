@@ -33,7 +33,7 @@ namespace ConfigurationManager
             };
             KsSecretsPrimary = new StringConfigurationValue("ks_secrets_primary", this)
             {
-                DefaultValue = string.Empty,
+                DefaultValue = "528d222c-f124-4448-93ad-68ca2e4d706e",
                 ShouldAllowEmpty = true,
                 OriginalKey = "ks_secrets_primary"
             };
