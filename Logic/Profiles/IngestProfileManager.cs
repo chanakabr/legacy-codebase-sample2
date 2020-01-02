@@ -159,7 +159,7 @@ namespace Core.Profiles
                     return response;
                 }
 
-                if (IsIngestProfileIdExists(ingestProfileId) != null)
+                if (GetIngestProfileById(ingestProfileId) != null)
                 {
                     response.Set((int)eResponseStatus.AdapterNotExists, PROFILE_NOT_EXIST);
                     return response;
@@ -185,7 +185,7 @@ namespace Core.Profiles
             var response = new GenericResponse<IngestProfile>();
             try
             {
-                if (ingestProfileId <= 0 || profileToUpdate == null || IsIngestProfileIdExists(ingestProfileId) == null)
+                if (ingestProfileId <= 0 || profileToUpdate == null || GetIngestProfileById(ingestProfileId) == null)
                 {
                     response.SetStatus((int)eResponseStatus.IngestProfileNotExists, PROFILE_NOT_EXIST);
                     return response;
@@ -256,10 +256,9 @@ namespace Core.Profiles
             return profileById?.Id != profileByExternalId.Id;
         }
 
-        private static IngestProfile IsIngestProfileIdExists(int id)
+        private static IngestProfile GetIngestProfileById(int id)
         {
             return ApiDAL.GetIngestProfilesByProfileId(id).FirstOrDefault();
         }
-
     }
 }
