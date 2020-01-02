@@ -113,9 +113,6 @@ namespace ApiObjects.BulkUpload
         public void AddWarning(int warnningCode, string msg = "")
         {
             var warnningStatus = new Status(warnningCode, msg);
-
-            this.Status = BulkUploadResultStatus.Error;
-
             if (warnningStatus != null)
             {
                 _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{warnningStatus.Message}]");
