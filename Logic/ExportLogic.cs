@@ -46,7 +46,8 @@ namespace APILogic
             DataSet unactiveAssets = null;
 
             // Get active media ids from catalog with consideration of the task filter KSSQL and the asset last update date.
-            ids = GetAssetsIdsByFilter(groupId, task.Filter, task.DataType, task.VodTypes, task.ExportType == eBulkExportExportType.Incremental ? task.LastProcess : null);
+            var truncFilter = ProtocolsFuncs.StripHTML(task.Filter);
+            ids = GetAssetsIdsByFilter(groupId, truncFilter, task.DataType, task.VodTypes, task.ExportType == eBulkExportExportType.Incremental ? task.LastProcess : null);
 
             // if export type is incremental - get all deleted / not active since the last task process
             if (task.ExportType == eBulkExportExportType.Incremental && task.LastProcess != null)
