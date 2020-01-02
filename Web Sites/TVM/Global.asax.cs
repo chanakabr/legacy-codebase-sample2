@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConfigurationManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,7 +12,7 @@ namespace TVM
     {
         protected void Application_Start(object sender, EventArgs e)
         {
-            TVinciShared.WS_Utils.InitTcmConfig();
+            ApplicationConfiguration.Initialize(true);
 
             // set monitor and log configuration files
             KLogMonitor.KMonitor.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
