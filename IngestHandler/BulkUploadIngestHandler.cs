@@ -17,6 +17,7 @@ using ElasticSearch.Searcher;
 using EpgBL;
 using EventBus.Abstraction;
 using EventBus.RabbitMQ;
+using GroupsCacheManager;
 using IngestHandler.Common;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
@@ -35,22 +36,6 @@ namespace IngestHandler
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public const string LOWERCASE_ANALYZER =
-            "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\"],\"char_filter\": [\"html_strip\"]}";
-
-        public const string PHRASE_STARTS_WITH_FILTER =
-            "\"edgengram_filter\": {\"type\":\"edgeNGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}";
-
-        public const string PHRASE_STARTS_WITH_ANALYZER =
-            "\"phrase_starts_with_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\",\"edgengram_filter\", \"icu_folding\",\"icu_normalizer\"]," +
-            "\"char_filter\":[\"html_strip\"]}";
-
-        public const string PHRASE_STARTS_WITH_SEARCH_ANALYZER =
-            "\"phrase_starts_with_search_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\", \"icu_folding\",\"icu_normalizer\"]," +
-            "\"char_filter\":[\"html_strip\"]}";
-
-        protected const string ANALYZER_VERSION = "2";
-
         private readonly ElasticSearchApi _ElasticSearchClient = null;
         private readonly CouchbaseManager.CouchbaseManager _CouchbaseManager = null;
 
@@ -65,7 +50,15 @@ namespace IngestHandler
         private Dictionary<string, ImageType> _GroupRatioNamesToImageTypes;
         private LanguageObj _DefaultLanguage;
         private bool _IsOpc;
-        private Dictionary<string, BulkUploadProgramAssetResult> _Results;
+
+        /// <summary>
+        /// Programs By ExternalId wrapped in a dictionary by ChannelId 
+        /// int - ChannelId
+        /// Dictionary<string,ProgramAssetResult> - results by externalId
+        /// </summary>
+        private Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> _ResultsDictionary;
+        private DateTime _MinStartDate;
+        private DateTime _MaxEndDate;
 
         public BulkUploadIngestHandler()
         {
@@ -92,22 +85,40 @@ namespace IngestHandler
 
                 ValidateServiceEvent();
 
-                _Results = GetProgramAssetResults();
-                AddEpgCBObjects(_Results);
+                _ResultsDictionary = GetProgramAssetResults();
+                AddEpgCBObjects(_ResultsDictionary);
 
-                var programsToIngest = _Results.Values.Select(r => r.Object).Cast<EpgProgramBulkUploadObject>().ToList();
+                var programsToIngest = _ResultsDictionary.Values.SelectMany(r => r.Values).Select(r => r.Object).Cast<EpgProgramBulkUploadObject>().ToList();
                 await UploadEpgImages(programsToIngest);
-                var minStartDate = programsToIngest.Min(p => p.StartDate);
-                var maxEndDate = programsToIngest.Max(p => p.EndDate);
-                var currentPrograms = GetCurrentProgramsByDate(minStartDate, maxEndDate);
+
+                _MinStartDate = programsToIngest.Min(p => p.StartDate);
+                _MaxEndDate = programsToIngest.Max(p => p.EndDate);
+                var currentPrograms = GetCurrentProgramsByDate(_MinStartDate, _MaxEndDate);
 
                 var crudOperations = CalculateCRUDOperations(currentPrograms, programsToIngest);
 
                 var edgeProgramsToUpdate = CalculateRequiredUpdatesToEdgesDueToOverlap(currentPrograms, crudOperations);
+                crudOperations.ItemsToUpdate.AddRange(edgeProgramsToUpdate);
 
-                HandleOverlapsAndGaps(crudOperations, _Results);
+                var existingEdgePrograms = CalculateExistingEdgePrograms(currentPrograms, _MinStartDate, _MaxEndDate);
+
+                bool isOverlapsAndGapsValid = HandleOverlapsAndGaps(crudOperations, _ResultsDictionary, existingEdgePrograms);
+
+                if (!isOverlapsAndGapsValid)
+                {
+                    _Logger.Debug($"Overlaps or gaps are not valid by ingest profile");
+                    BulkUploadManager.UpdateBulkUploadResults(_ResultsDictionary.Values.SelectMany(r => r.Values), out BulkUploadJobStatus jobStatus);
+                    BulkUploadManager.UpdateBulkUpload(_BulkUploadObject, jobStatus);
+
+                    return;
+                }
 
                 var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
+
+                if (edgeProgramsToUpdate?.Any() == true)
+                {
+                    BulkUploadManager.UpdateOrAddBulkUploadAffectedObjects(_BulkUploadObject.Id, edgeProgramsToUpdate);
+                }
 
                 await BulkUploadMethods.UpdateCouchbase(finalEpgState, serviceEvent.GroupId);
 
@@ -116,8 +127,8 @@ namespace IngestHandler
                 var updater = new UpdateClonedIndex(serviceEvent.GroupId, serviceEvent.BulkUploadId, serviceEvent.DateOfProgramsToIngest, _Languages);
                 updater.Update(finalEpgState, crudOperations.ItemsToDelete);
 
-                var errorProgramExternalIds = _Results.Values.Where(item => item.Status == BulkUploadResultStatus.Error)
-                    .Select(item => item.ProgramExternalId).ToDictionary(x=>x, null);
+                var errorProgramExternalIds = _ResultsDictionary.Values.SelectMany(r => r.Values).Where(item => item.Status == BulkUploadResultStatus.Error)
+                    .Select(item => GetEPGKey(item)).ToDictionary(x => x, null);
 
                 // publish using EventBus to a new consumer with a new event ValidateIngest
                 var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
@@ -128,10 +139,9 @@ namespace IngestHandler
                     GroupId = serviceEvent.GroupId,
                     RequestId = KLogger.GetRequestId(),
                     DateOfProgramsToIngest = serviceEvent.DateOfProgramsToIngest,
-                    EPGs = finalEpgState.Where(epg => !errorProgramExternalIds.ContainsKey(epg.EpgExternalId)).ToList(),
-                    EdgeProgramsToUpdate = edgeProgramsToUpdate,
+                    EPGs = finalEpgState.Where(epg => !errorProgramExternalIds.ContainsKey(GetEPGKey(epg))).ToList(),
                     Languages = _Languages,
-                    Results = _Results
+                    Results = _ResultsDictionary
                 };
 
                 publisher.Publish(bulkUploadIngestValidationEvent);
@@ -155,23 +165,46 @@ namespace IngestHandler
             return;
         }
 
+        private List<EpgProgramBulkUploadObject> CalculateExistingEdgePrograms(List<EpgProgramBulkUploadObject> currentPrograms, DateTime minStartDate, DateTime maxEndDate)
+        {
+            var res = new List<EpgProgramBulkUploadObject>();
+
+            var min = currentPrograms.Where(p => p.StartDate <= minStartDate && p.EndDate >= minStartDate).FirstOrDefault();
+            if (min != null)
+            {
+                res.Add(min);
+            }
+
+            var max = currentPrograms.Where(p => p.StartDate <= maxEndDate && p.EndDate >= maxEndDate).FirstOrDefault();
+            if (max != null)
+            {
+                res.Add(max);
+            }
+
+            return res;
+        }
+
         private async Task UploadEpgImages(List<EpgProgramBulkUploadObject> programsToIngest)
         {
             var pics = programsToIngest.SelectMany(p => p.EpgCbObjects).SelectMany(p => p.pictures);
             var results = await EpgImageManager.UploadEPGPictures(_EventData.GroupId, pics);
         }
 
-        private void AddEpgCBObjects(Dictionary<string, BulkUploadProgramAssetResult> results)
+        private void AddEpgCBObjects(Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> results)
         {
             _Logger.Debug($"Generating EpgCB translation object for every bulk request, with languages:[{string.Join(",", _Languages.Keys)}]");
-            foreach (var progResult in results.Values)
+
+            foreach (var item in results.Values)
             {
-                var programBulkUploadObject = progResult.Object as EpgProgramBulkUploadObject;
-                programBulkUploadObject.EpgCbObjects = new List<EpgCB>();
-                foreach (var lang in _Languages.Values)
+                foreach (var progResult in item.Values)
                 {
-                    var epgItem = GetEpgCBObject(lang.Code, _DefaultLanguage.Code, programBulkUploadObject, progResult);
-                    programBulkUploadObject.EpgCbObjects.Add(epgItem);
+                    var programBulkUploadObject = progResult.Object as EpgProgramBulkUploadObject;
+                    programBulkUploadObject.EpgCbObjects = new List<EpgCB>();
+                    foreach (var lang in _Languages.Values)
+                    {
+                        var epgItem = GetEpgCBObject(lang.Code, _DefaultLanguage.Code, programBulkUploadObject, progResult);
+                        programBulkUploadObject.EpgCbObjects.Add(epgItem);
+                    }
                 }
             }
         }
@@ -319,27 +352,30 @@ namespace IngestHandler
             }
         }
 
-        private Dictionary<string, BulkUploadProgramAssetResult> GetProgramAssetResults()
+        private Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> GetProgramAssetResults()
         {
-            var programsToIngest = _EventData.ProgramsToIngest;
-            _Logger.Debug($"Creating bulk results dictionary for:[{programsToIngest.Count}] programs to ingest");
+            var res = new Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>>();
 
-            var programAssetResultsDictionary = _BulkUploadObject.Results
-                .Cast<BulkUploadProgramAssetResult>()
-                .ToDictionary(program => program.ProgramExternalId);
+            _Logger.Debug($"Creating bulk results dictionary for:[{_EventData.ProgramsToIngest.Count}] programs to ingest");
 
-            foreach (var programToIngest in programsToIngest)
+            foreach (var bulkUploadProgram in _BulkUploadObject.Results.Cast<BulkUploadProgramAssetResult>())
             {
-                programAssetResultsDictionary[programToIngest.ParsedProgramObject.external_id].Object = programToIngest;
+                var program = _EventData.ProgramsToIngest.FirstOrDefault(p => p.EpgExternalId == bulkUploadProgram.ProgramExternalId
+                                                                    && p.LinearMediaId == bulkUploadProgram.LiveAssetId);
+
+                if (program != null)
+                {
+                    if (!res.ContainsKey(program.ChannelId))
+                    {
+                        res.Add(program.ChannelId, new Dictionary<string, BulkUploadProgramAssetResult>());
+                    }
+
+                    bulkUploadProgram.Object = program;
+                    res[program.ChannelId].Add(bulkUploadProgram.ProgramExternalId, bulkUploadProgram);
+                }
             }
 
-            // Select only results that have objects asspciated with them, 
-            // and ignore other results, theey should probably be handled by a different event
-            programAssetResultsDictionary = programAssetResultsDictionary
-                .Where(p => p.Value.Object != null)
-                .ToDictionary(k => k.Key, v => v.Value);
-
-            return programAssetResultsDictionary;
+            return res;
         }
 
         private List<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(DateTime minStartDate, DateTime maxEndDate)
@@ -361,9 +397,8 @@ namespace IngestHandler
 
             // Program end date > minimum start date
             // program start date < maximum end date
-            var minimumRange = new ESRange(false, "end_date", eRangeComp.GTE, minStartDate.ToString(ESUtils.ES_DATE_FORMAT));
-            var maximumRange = new ESRange(false, "start_date", eRangeComp.LTE, maxEndDate.ToString(ESUtils.ES_DATE_FORMAT));
-
+            var minimumRange = new ESRange(false, "start_date", eRangeComp.GTE, minStartDate.ToString(ESUtils.ES_DATEONLY_FORMAT) + "000000");
+            var maximumRange = new ESRange(false, "end_date", eRangeComp.LTE, maxEndDate.ToString(ESUtils.ES_DATEONLY_FORMAT) + "235959");
 
             var filterCompositeType = new FilterCompositeType(CutWith.AND);
             filterCompositeType.AddChild(minimumRange);
@@ -382,6 +417,7 @@ namespace IngestHandler
             query.AddReturnField("end_date");
             query.AddReturnField("epg_identifier");
             query.AddReturnField("is_auto_fill");
+            query.AddReturnField("epg_channel_id");
 
             // get the epg document ids from elasticsearch
             var searchQuery = query.ToString();
@@ -405,6 +441,7 @@ namespace IngestHandler
                     epgItem.EndDate = ESUtils.ExtractDateFromToken(hit["fields"], "end_date");
                     epgItem.EpgId = ESUtils.ExtractValueFromToken<ulong>(hitFields, "epg_id");
                     epgItem.IsAutoFill = ESUtils.ExtractValueFromToken<bool>(hitFields, "is_auto_fill");
+                    epgItem.ChannelId = ESUtils.ExtractValueFromToken<int>(hitFields, "epg_channel_id");
 
                     result.Add(epgItem);
                 }
@@ -415,23 +452,31 @@ namespace IngestHandler
 
         private CRUDOperations<EpgProgramBulkUploadObject> CalculateCRUDOperations(IList<EpgProgramBulkUploadObject> currentPrograms, IList<EpgProgramBulkUploadObject> programsToIngest)
         {
+            // TODO: query elastic according to all externalIds of programs to ingest to get the exsiting programs. 
+            // this is in case the exsisting program should be updated but actually moved from a different day or is out of the ingest time range
+            // also there is an issue with the program beeing updated should be deleted \ moved from existing date .. this is a whole other can of worms :\
+            // for now we will handle this by passing currentPrograms for the whole day
+            // note we will add a filter for epg.StartDate >= _MinStartDate && epg.EndDate <= _MaxEndDate  before returning programs to dlete 
+
+
             _Logger.Debug($"CalculateCRUDOperations > currentPrograms.count:[{currentPrograms.Count}] programsToIngest.count:[{programsToIngest.Count}]");
             var crudOperations = new CRUDOperations<EpgProgramBulkUploadObject>();
 
-            crudOperations.ItemsToDelete = currentPrograms.Where(epg => epg.IsAutoFill).ToList();
+            crudOperations.ItemsToDelete = currentPrograms.Where(epg => epg.StartDate >= _MinStartDate && epg.EndDate <= _MaxEndDate && epg.IsAutoFill).ToList();
 
-            var currentProgramsDictionary = currentPrograms.Where(epg => !epg.IsAutoFill).ToDictionary(epg => epg.EpgExternalId);
+            var currentProgramsDictionary = currentPrograms.Where(epg => !epg.IsAutoFill).ToDictionary(epg => GetEPGKey(epg));
             _Logger.Debug($"CalculateCRUDOperations > currentProgramsDictionary.Count:[{currentProgramsDictionary.Count}], programsToIngest:[{programsToIngest.Count}]");
 
             // we cannot use the programs to ingest as a dictioanry becuse there are multiple translation with same external id
             // var programsToIngestDictionary = programsToIngest.ToDictionary(epg => epg.EpgIdentifier);
             foreach (var programToIngest in programsToIngest)
             {
+                string key = GetEPGKey(programToIngest);
                 // if a program exists both on newly ingested epgs and in index - it's an update
-                if (currentProgramsDictionary.ContainsKey(programToIngest.EpgExternalId))
+                if (currentProgramsDictionary.ContainsKey(key))
                 {
                     // update the epg id of the ingested programs with their existing epg id from CB
-                    var idToUpdate = currentProgramsDictionary[programToIngest.EpgExternalId].EpgId;
+                    var idToUpdate = currentProgramsDictionary[key].EpgId;
                     programToIngest.EpgId = idToUpdate;
                     programToIngest.EpgCbObjects.ForEach(p => p.EpgID = idToUpdate);
                     crudOperations.ItemsToUpdate.Add(programToIngest);
@@ -443,15 +488,25 @@ namespace IngestHandler
                 }
 
                 // Remove programs that marked to add or update so that all that is left will be to delete
-                currentProgramsDictionary.Remove(programToIngest.EpgExternalId);
+                currentProgramsDictionary.Remove(key);
             }
 
             // all update or add programs were removed form list so we left with items to delete
-            crudOperations.ItemsToDelete.AddRange(currentProgramsDictionary.Values.ToList());
+            crudOperations.ItemsToDelete.AddRange(currentProgramsDictionary.Values.Where(epg => epg.StartDate >= _MinStartDate && epg.EndDate <= _MaxEndDate).ToList());
 
             _Logger.Debug($"CalculateCRUDOperations > add:[{crudOperations.ItemsToAdd.Count}], update:[{crudOperations.ItemsToUpdate.Count}], delete:[{crudOperations.ItemsToDelete.Count}]");
 
             return crudOperations;
+        }
+
+        private static string GetEPGKey(EpgProgramBulkUploadObject epg)
+        {
+            return $"{epg.ChannelId}_{epg.EpgExternalId}";
+        }
+
+        private static string GetEPGKey(BulkUploadProgramAssetResult epg)
+        {
+            return $"{((EpgProgramBulkUploadObject)epg.Object).ChannelId}_{epg.ProgramExternalId}";
         }
 
         private List<EpgProgramBulkUploadObject> CalculateRequiredUpdatesToEdgesDueToOverlap(IList<EpgProgramBulkUploadObject> currentPrograms, CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
@@ -463,8 +518,18 @@ namespace IngestHandler
             {
                 _Logger.Debug($"CalculateCRUDOperations > _IngestProfile.DefaultOverlapPolicy:[{_IngestProfile.DefaultOverlapPolicy}], calculating required update to edge programs");
 
-                result = CutSourceOrTargetOverlappingDates(currentPrograms.Except(crudOperations.ItemsToDelete),
-                    crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate));
+                var currentProgramsToCalc = currentPrograms.Except(crudOperations.ItemsToDelete);
+                var crudOperationsProgramsToCalc = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate);
+
+                var crudOperationsProgramsToCalcByDates = crudOperationsProgramsToCalc.GroupBy(p => p.ChannelId);
+
+                foreach (var item in currentProgramsToCalc.GroupBy(p => p.ChannelId))
+                {
+                    var res = CutSourceOrTargetOverlappingDates(item, crudOperationsProgramsToCalcByDates.Single(g => g.Key == item.Key));
+                    result.AddRange(res);
+                }
+
+                //result = CutSourceOrTargetOverlappingDates(currentProgramsToCalc, crudOperationsProgramsToCalc);
 
                 _Logger.Debug($"CalculateCRUDOperations > after edge overlap calculations add:[{crudOperations.ItemsToAdd.Count}], update:[{crudOperations.ItemsToUpdate.Count}], delete:[{crudOperations.ItemsToDelete.Count}]");
             }
@@ -479,7 +544,7 @@ namespace IngestHandler
             var orderedProgramsToIngest = programsToIngest.OrderBy(p => p.StartDate);
             var firstCurrentProgram = currentPrograms.FirstOrDefault();
             var firstProgramToIngest = orderedProgramsToIngest.FirstOrDefault(p => p.EpgId != firstCurrentProgram?.EpgId);
-            var lastCurrentProgram = orderedCurrentPrograms.LastOrDefault();
+            var lastCurrentProgram = orderedCurrentPrograms.LastOrDefault(p=> p.EpgId != firstCurrentProgram?.EpgId);
             var lastProgramToIngest = orderedProgramsToIngest.LastOrDefault(p => p.EpgId != lastCurrentProgram?.EpgId);
 
             _Logger.Debug($"CutSourceOrTargetOverlappingDates > firstCurrentProgram:[{firstCurrentProgram}],lastCurrentProgram:[{lastCurrentProgram}],firstProgramToIngest:[{firstProgramToIngest}],lastProgramToIngest:[{lastProgramToIngest}]");
@@ -490,7 +555,7 @@ namespace IngestHandler
                     if (_IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.CutTarget)
                     {
                         var msg = $"Program [{firstProgramToIngest.EpgExternalId}] overlapping [{firstCurrentProgram.EpgExternalId}, cutting current programs end date from [{firstCurrentProgram.EndDate}], to [{firstProgramToIngest.StartDate}]";
-                        _Results[firstProgramToIngest.EpgExternalId].AddWarning(eResponseStatus.EPGProgramOverlapFixed, msg);
+                        _ResultsDictionary[firstProgramToIngest.ChannelId][firstProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
                         _Logger.Debug(msg);
                         var firstCurrentProgramTranslations = GetAllProgramsTranslations(firstCurrentProgram.EpgId);
                         firstCurrentProgramTranslations.ForEach(p => p.EndDate = firstProgramToIngest.StartDate);
@@ -501,7 +566,7 @@ namespace IngestHandler
                     else
                     {
                         var msg = $"Program [{firstProgramToIngest.EpgExternalId}] overlapping [{firstCurrentProgram.EpgExternalId}, cutting program to ingest start date from [{firstProgramToIngest.StartDate}] to [{firstCurrentProgram.EndDate}]";
-                        _Results[firstProgramToIngest.EpgExternalId].AddWarning(eResponseStatus.EPGProgramOverlapFixed, msg);
+                        _ResultsDictionary[firstProgramToIngest.ChannelId][firstProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
                         _Logger.Debug(msg);
                         firstProgramToIngest.StartDate = firstCurrentProgram.EndDate;
                     }
@@ -515,7 +580,7 @@ namespace IngestHandler
                     if (_IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.CutTarget)
                     {
                         var msg = $"Program [{lastCurrentProgram.EpgExternalId}] overlapping [{lastProgramToIngest.EpgExternalId}, cutting current programs start date from [{lastCurrentProgram.StartDate}], to [{lastProgramToIngest.EndDate}]";
-                        _Results[lastProgramToIngest.EpgExternalId].AddWarning(eResponseStatus.EPGProgramOverlapFixed, msg);
+                        _ResultsDictionary[lastProgramToIngest.ChannelId][lastProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
                         _Logger.Debug(msg);
                         var lastCurrentProgramTranslations = GetAllProgramsTranslations(lastCurrentProgram.EpgId);
                         lastCurrentProgramTranslations.ForEach(p => p.StartDate = lastProgramToIngest.EndDate);
@@ -525,7 +590,7 @@ namespace IngestHandler
                     else
                     {
                         var msg = $"Program [{lastCurrentProgram.EpgExternalId}] overlapping [{lastProgramToIngest.EpgExternalId}, cutting program to ingest end date from [{lastProgramToIngest.EndDate}], to [{lastCurrentProgram.StartDate}]";
-                        _Results[lastProgramToIngest.EpgExternalId].AddWarning(eResponseStatus.EPGProgramOverlapFixed, msg);
+                        _ResultsDictionary[lastProgramToIngest.ChannelId][lastProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
                         _Logger.Debug(msg);
                         lastProgramToIngest.EndDate = lastCurrentProgram.StartDate;
                     }
@@ -566,24 +631,25 @@ namespace IngestHandler
             return result;
         }
 
-        private bool HandleOverlapsAndGaps(CRUDOperations<EpgProgramBulkUploadObject> crudOperations, Dictionary<string, BulkUploadProgramAssetResult> programAssetResultsDictionary)
+        private bool HandleOverlapsAndGaps(CRUDOperations<EpgProgramBulkUploadObject> crudOperations, Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> programAssetResultsDictionary, List<EpgProgramBulkUploadObject> existingEdgePrograms)
         {
             bool isValid = true;
 
-            List<EpgProgramBulkUploadObject> calculatedPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).ToList();
+            List<EpgProgramBulkUploadObject> calculatedPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).Concat(existingEdgePrograms).ToList();
+
             IDictionary<string, EpgCB> autoFillEpgsCB = null;
 
-            if (_Languages?.Keys.Count > 0)
+            if (_Languages?.Keys.Count > 0 && _IngestProfile.DefaultAutoFillPolicy == eIngestProfileAutofillPolicy.Autofill)
             {
                 string autoFillKey = GetAutoFillKey(_BulkUploadObject.GroupId);
                 // Get AutoFill default program
-                autoFillEpgsCB = _CouchbaseManager.Get<Dictionary<string,EpgCB>>(autoFillKey, true);
+                autoFillEpgsCB = _CouchbaseManager.Get<Dictionary<string, EpgCB>>(autoFillKey, true);
             }
 
             // split epgs by channel ids
             foreach (var channel in calculatedPrograms.GroupBy(epg => epg.ChannelId))
             {
-                var channelPrograms = channel.ToList();
+                var channelPrograms = channel.OrderBy(p => p.StartDate).ToList();
 
                 for (int programIndex = 0; programIndex < channelPrograms.Count - 1; programIndex++)
                 {
@@ -602,22 +668,45 @@ namespace IngestHandler
                             {
                                 if (_IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.Reject)
                                 {
-                                    programAssetResultsDictionary[currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
-                                    programAssetResultsDictionary[nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
+                                    if (programAssetResultsDictionary.ContainsKey(currentProgram.ChannelId))
+                                    {
+                                        if (programAssetResultsDictionary[currentProgram.ChannelId].ContainsKey(currentProgram.EpgExternalId))
+                                        {
+                                            programAssetResultsDictionary[currentProgram.ChannelId][currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
+                                        }
+
+                                        if (programAssetResultsDictionary[currentProgram.ChannelId].ContainsKey(nextProgram.EpgExternalId))
+                                        {
+                                            programAssetResultsDictionary[currentProgram.ChannelId][nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
+                                        }
+                                    }
 
                                     isValid = false;
                                 }
                             }
-                            // if the next program starts after the current ends, it means we have a gap
-                            else
+                            // if the next program starts after the current ends and the programs are adjacent, it means we have a gap
+                            else if (secondaryIndex - programIndex == 1)
                             {
                                 switch (_IngestProfile.DefaultAutoFillPolicy)
                                 {
                                     case eIngestProfileAutofillPolicy.Reject:
-                                        programAssetResultsDictionary[currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
-                                        programAssetResultsDictionary[nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
+                                        if (programAssetResultsDictionary.ContainsKey(currentProgram.ChannelId))
+                                        {
+                                            if (programAssetResultsDictionary[currentProgram.ChannelId].ContainsKey(currentProgram.EpgExternalId))
+                                            {
+                                                programAssetResultsDictionary[currentProgram.ChannelId][currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
+                                            }
+
+                                            if (programAssetResultsDictionary[currentProgram.ChannelId].ContainsKey(nextProgram.EpgExternalId))
+                                            {
+                                                programAssetResultsDictionary[currentProgram.ChannelId][nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
+                                            }
+                                        }
 
                                         isValid = false;
+
+                                        _Logger.Debug($"Rejecting due to GAP of (current) program {currentProgram.EpgExternalId} that start in {currentProgram.StartDate} and end in {currentProgram.EndDate}," +
+                                            $" and (next) program {nextProgram.EpgExternalId} that start in {nextProgram.StartDate} and end in {nextProgram.EndDate}");
                                         break;
                                     case eIngestProfileAutofillPolicy.Autofill:
 
@@ -749,61 +838,22 @@ namespace IngestHandler
 
         private bool BuildNewIndex(string newIndexName)
         {
-            GetAnalyzers(out var analyzers, out var filters, out var tokenizers);
-
-            var sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
-            if (sizeOfBulk == 0) { sizeOfBulk = 50; }
-
-            var maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
-            if (maxResults == 0) { maxResults = 100000; }
-
-            var success = _ElasticSearchClient.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers, maxResults);
-            return success;
-        }
-
-        private void GetAnalyzers(out List<string> analyzers, out List<string> filters, out List<string> tokenizers)
-        {
-            analyzers = new List<string>();
-            filters = new List<string>();
-            tokenizers = new List<string>();
-
-            if (_Languages?.Values != null)
+            try
             {
-                foreach (var language in _Languages.Values)
-                {
-                    string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, ANALYZER_VERSION));
-                    string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code, ANALYZER_VERSION));
-                    string tokenizer = ElasticSearchApi.GetTokenizerDefinition(ElasticSearch.Common.Utils.GetLangCodeTokenizerKey(language.Code, ANALYZER_VERSION));
-
-                    if (string.IsNullOrEmpty(analyzer))
-                    {
-                        _Logger.Error(string.Format("analyzer for language {0} doesn't exist", language.Code));
-                    }
-                    else
-                    {
-                        analyzers.Add(analyzer);
-                    }
-
-                    if (!string.IsNullOrEmpty(filter))
-                    {
-                        filters.Add(filter);
-                    }
-
-                    if (!string.IsNullOrEmpty(tokenizer))
-                    {
-                        tokenizers.Add(tokenizer);
-                    }
-                }
-
-                // we always want a lowercase analyzer
-                analyzers.Add(LOWERCASE_ANALYZER);
-
-                // we always want "autocomplete" ability
-                filters.Add(PHRASE_STARTS_WITH_FILTER);
-                analyzers.Add(PHRASE_STARTS_WITH_ANALYZER);
-                analyzers.Add(PHRASE_STARTS_WITH_SEARCH_ANALYZER);
-
+                CatalogManager.TryGetCatalogGroupCacheFromCache(_EventData.GroupId, out var catalogGroupCache);
+                var groupManager = new GroupManager();
+                groupManager.RemoveGroup(_EventData.GroupId);
+                var group = groupManager.GetGroup(_EventData.GroupId);
+                _ = IndexManager.CreateNewEpgIndex(_EventData.GroupId, catalogGroupCache, group, _Languages.Values, _DefaultLanguage, newIndexName);
             }
+            catch (Exception e)
+            {
+                _Logger.Error("Error while building new index. ", e);
+                _BulkUploadObject.AddError(eResponseStatus.Error, "Error while building new index. ");
+                return false;
+            }
+
+            return true;
         }
 
         private string GetAutoFillKey(object groupId)
