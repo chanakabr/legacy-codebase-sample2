@@ -29,10 +29,7 @@ namespace WebAPI.App_Start
     public class ExcelFormatter : BaseFormatter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-
-
-
+        
         public ExcelFormatter() : base(KalturaResponseType.EXCEL, ExcelFormatterConsts.EXCEL_CONTENT_TYPE)
         {
         }
@@ -198,7 +195,7 @@ namespace WebAPI.App_Start
                                         if (columns[excelValue.Key].Property.PropertyType.Equals(typeof(DateTime)) ||
                                             columns[excelValue.Key].Property.PropertyType.Equals(typeof(DateTime?)))
                                         {
-                                            value = (excelValue.Value as DateTime?).Value.ToString(ExcelManager.DATE_FORMAT);
+                                            value = (excelValue.Value as DateTime?).Value.ToString(DateUtils.MAIN_FORMAT);
                                         }
                                         else
                                         {
@@ -236,7 +233,7 @@ namespace WebAPI.App_Start
 
                     if (restResultWrapper != null && restResultWrapper.Result != null && !(restResultWrapper.Result is KalturaAPIExceptionWrapper))
                     {
-                        if (!(restResultWrapper.Result is IKalturaExcelStructure))
+                        if (!(restResultWrapper.Result is IKalturaExcelStructureManager))
                         {
                             throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, KalturaResponseType.EXCEL, (int)KalturaResponseType.EXCEL);
                         }
@@ -249,7 +246,7 @@ namespace WebAPI.App_Start
                             throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
                         }
 
-                        var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructure;
+                        var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructureManager;
                         if (kalturaExcelStructure == null)
                         {
                             throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");

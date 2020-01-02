@@ -164,7 +164,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // save the bulkUpload file to server (cut it from iis) and set fileURL
                 var fileInfo = new FileInfo(filePath);
-                var saveFileResponse = FileHandler.Instance.SaveFile(response.Object.Id, fileInfo, objectTypeName);
+                var saveFileResponse = FileHandler.Instance.SaveFile(response.Object.Id, fileInfo, "KalturaBulkUpload");
                 if (!saveFileResponse.HasObject())
                 {
                     log.ErrorFormat("Error while saving BulkUpload File to file server. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
@@ -209,17 +209,12 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("An Exception was occurred in AddBulkUpload. groupId:{0}, filePath:{1}, userId:{2}, action:{3}, objectType:{4}.",
-                                        groupId, filePath, userId, action, objectTypeName), ex);
+                log.Debug($"An Exception was occurred in AddBulkUpload. details:{ex.ToString()}.");
+                log.Error($"An Exception was occurred in AddBulkUpload. groupId:{groupId}, filePath:{filePath}, userId:{userId}, action:{action}, objectType:{objectTypeName}.", ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
             return response;
-        }
-
-        public static void AddBulkUpload(int groupID, string tempFileName, int v, string tempFilePath, Type type, BulkUploadJobAction upsert, BulkUploadIngestJobData jobData, object objectData)
-        {
-            throw new NotImplementedException();
         }
 
         private static GenericResponse<BulkUpload> SendTransformationEventToServiceEventBus(int groupId, long userId, GenericResponse<BulkUpload> response)
@@ -294,15 +289,16 @@ namespace Core.Catalog.CatalogManagement
                 bulkUploadResponse.Object.NumOfObjects = objectsListResponse.Objects.Count;
                 if (bulkUploadResponse.Object.NumOfObjects == 0)
                 {
-                    log.ErrorFormat("ProcessBulkUpload Deserialize file with no objects. groupId:{0}, bulkUploadId:{1}.", groupId, bulkUpload.Id);
+                    log.Error($"ProcessBulkUpload Deserialize file with no objects. groupId:{groupId}, bulkUploadId:{bulkUpload.Id}.");
                     bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Success);
                     return bulkUploadResponse.Status;
                 }
 
                 bulkUploadResponse.Object.Results = objectsListResponse.Objects;
-                var hasErrors = bulkUploadResponse.Object.Results.Any(o => o.Errors?.Any() == true);
+                var hasErrors = bulkUploadResponse.Object.Results.Any(o => o.Status == BulkUploadResultStatus.Error);
                 if (hasErrors)
                 {
+                    log.Debug($"ProcessBulkUpload some seserialize objects has errors therefor all bulk objects will not enqueue. groupId:{groupId}, bulkUploadId:{bulkUpload.Id}.");
                     bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Failed);
                 }
                 else
@@ -310,7 +306,10 @@ namespace Core.Catalog.CatalogManagement
                     bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processing);
                     bulkUploadResponse.Object.ObjectData.EnqueueObjects(bulkUploadResponse.Object, objectsListResponse.Objects);
                     bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Processed);
+                    log.Debug($"ProcessBulkUpload finish to Enqueue all BulkUpload Objects. groupId:{groupId}, bulkUploadId:{bulkUpload.Id}.");
                 }
+
+                log.Debug($"finish to ProcessBulkUpload. groupId:{groupId}, bulkUploadId:{bulkUpload.Id}.");
             }
             catch (Exception ex)
             {
@@ -412,7 +411,6 @@ namespace Core.Catalog.CatalogManagement
                 {
                     bulkUploadResponse.Object.Results[resultIndex].Warnings = warnings.ToArray();
                 }
-
 
                 BulkUploadJobStatus updatedStatus;
                 if (!CatalogDAL.SaveBulkUploadResultCB(bulkUploadResponse.Object, resultIndex, BULK_UPLOAD_CB_TTL, out updatedStatus))

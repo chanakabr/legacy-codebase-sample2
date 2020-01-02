@@ -20,7 +20,8 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class BulkUploadResult
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        protected static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        
         // can be assetId, userId etc
         [JsonProperty("ObjectId")]
         public long? ObjectId { get; set; }
@@ -87,11 +88,10 @@ namespace ApiObjects.BulkUpload
         /// <param name="errorStatus"></param>
         public void AddError(Status errorStatus)
         {
-            this.Status = BulkUploadResultStatus.Error;
-
             if (errorStatus != null)
             {
-                _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{errorStatus.Message}]");
+                this.Status = BulkUploadResultStatus.Error;
+                _Logger.Debug($"Adding Error to BulkUploadResult. Index:[{Index}], error:[{errorStatus.Message}]");
                 if (Errors == null)
                 {
                     Errors = new[] { errorStatus };
@@ -103,30 +103,41 @@ namespace ApiObjects.BulkUpload
             }
         }
 
-        public void AddError(eResponseStatus errorCode, string msg = "")
+        public void AddErrors(List<Status> errors)
         {
-            var errorStatus = new Status((int)errorCode, msg);
-
-            AddError(errorStatus);
-        }
-
-        public void AddWarning(int warnningCode, string msg = "")
-        {
-            var warnningStatus = new Status(warnningCode, msg);
-
-            this.Status = BulkUploadResultStatus.Error;
-
-            if (warnningStatus != null)
+            if (errors != null && errors.Count > 0)
             {
-                _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{warnningStatus.Message}]");
-                if (Warnings == null)
+                this.Status = BulkUploadResultStatus.Error;
+                _Logger.Debug($"Adding Error to BulkUploadResult. Index:[{Index}], errors:[{string.Join(";", errors)}]");
+                if (this.Errors == null)
                 {
-                    Warnings = new[] { warnningStatus };
+                    this.Errors = errors.ToArray();
                 }
                 else
                 {
-                    Warnings = Warnings.Concat(new[] { warnningStatus }).ToArray();
+                    this.Errors = Errors.Concat(errors).ToArray();
                 }
+            }
+        }
+
+        public void AddError(eResponseStatus errorCode, string msg = "")
+        {
+            var errorStatus = new Status(errorCode, msg);
+            AddError(errorStatus);
+        }
+
+        public void AddWarning(eResponseStatus warnningCode, string msg = "")
+        {
+            var warnningStatus = new Status(warnningCode, msg);
+            this.Status = BulkUploadResultStatus.Error;
+            _Logger.Debug($"Adding warning to BulkUploadResult. Index:[{Index}], warning:[{warnningStatus.ToString()}]");
+            if (Warnings == null)
+            {
+                Warnings = new[] { warnningStatus };
+            }
+            else
+            {
+                Warnings = Warnings.Concat(new[] { warnningStatus }).ToArray();
             }
         }
     }

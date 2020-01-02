@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ApiObjects.BulkUpload
 {
-    public interface IBulkUploadStructure
+    public interface IBulkUploadStructureManager
     {
     }
 
-    public interface IExcelStructure : IBulkUploadStructure
+    public interface IExcelStructureManager : IBulkUploadStructureManager
     {
         /// <summary>
         /// return the columns of the excel in their display order
@@ -14,6 +15,6 @@ namespace ApiObjects.BulkUpload
         /// <param name="groupId"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        ExcelStructure GetExcelStructure(int groupId, Dictionary<string, object> data = null);
+        ExcelStructure GetExcelStructure(int groupId, Type objectType = null);
     }
 }

@@ -15,7 +15,7 @@ namespace QueueWrapper
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
 
-        #if !NETCOREAPP3_0
+        #if !NETCOREAPP3_1
         // Only supported under windows, so only when not in net core we use this.
         internal static MutexSecurity CreateMutex()
         {

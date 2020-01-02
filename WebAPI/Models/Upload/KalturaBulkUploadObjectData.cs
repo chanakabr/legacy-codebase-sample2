@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Core.Catalog.CatalogManagement;
+using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
@@ -14,7 +15,7 @@ namespace WebAPI.Models.Upload
     public abstract partial class KalturaBulkUploadObjectData : KalturaOTTObject
     {
         internal abstract string GetBulkUploadObjectType();
-        internal abstract void Validate();
+        internal abstract void Validate(int groupId);
     }
 
     /// <summary>
@@ -39,12 +40,14 @@ namespace WebAPI.Models.Upload
     /// </summary>
     public partial class KalturaBulkUploadMediaAssetData : KalturaBulkUploadAssetData
     {
+        private static readonly string bulkUploadObjectType = typeof(KalturaMediaAsset).Name;
+
         internal override string GetBulkUploadObjectType()
         {
-            return typeof(KalturaMediaAsset).Name;
+            return bulkUploadObjectType;
         }
 
-        internal override void Validate()
+        internal override void Validate(int groupId)
         {
             if (this.TypeId < 1)
             {
@@ -58,14 +61,38 @@ namespace WebAPI.Models.Upload
     /// </summary>
     public partial class KalturaBulkUploadProgramAssetData : KalturaBulkUploadAssetData
     {
+        private static readonly string bulkUploadObjectType = typeof(KalturaProgramAsset).Name;
+
         internal override string GetBulkUploadObjectType()
         {
-            return typeof(KalturaProgramAsset).Name;
+            return bulkUploadObjectType;
         }
 
-        internal override void Validate()
+        internal override void Validate(int groupId)
         {
             if (this.TypeId != 0)
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "bulkUploadAssetData.typeId");
+            }
+        }
+    }
+
+    /// <summary>
+    /// indicates the media asset object type in the bulk file
+    /// </summary>
+    public partial class KalturaBulkUploadLiveAssetData : KalturaBulkUploadMediaAssetData
+    {
+        private static readonly string bulkUploadObjectType = typeof(KalturaLiveAsset).Name;
+
+        internal override string GetBulkUploadObjectType()
+        {
+            return bulkUploadObjectType;
+        }
+
+        internal override void Validate(int groupId)
+        {
+            var linearMediaTypeIds = CatalogManager.GetLinearMediaTypeIds(groupId);
+            if (!linearMediaTypeIds.Contains(this.TypeId))
             {
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "bulkUploadAssetData.typeId");
             }

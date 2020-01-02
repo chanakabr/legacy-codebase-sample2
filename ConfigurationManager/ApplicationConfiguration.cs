@@ -19,8 +19,6 @@ namespace ConfigurationManager
         public static ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration;
         public static BooleanConfigurationValue ShouldDistributeRecordingSynchronously;
         public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
-        public static BooleanConfigurationValue ShouldSupportCeleryMessages;
-        public static BooleanConfigurationValue ShouldSupportEventBusMessages;
         public static BooleanConfigurationValue ShouldRecoverSubscriptionRenewalToMessageBus;
 
         #endregion
@@ -153,6 +151,7 @@ namespace ConfigurationManager
         public static HttpClientConfiguration HttpClientConfiguration;
         public static HttpClientConfiguration NPVRHttpClientConfiguration;
         public static HttpClientConfiguration ElasticSearchHttpClientConfiguration;
+        public static HttpClientConfiguration MailerHttpClientConfiguration;
 
         #endregion
 
@@ -628,16 +627,6 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true
             };
-            ShouldSupportCeleryMessages = new BooleanConfigurationValue("should_support_celery_messages")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = true
-            };
-            ShouldSupportEventBusMessages = new BooleanConfigurationValue("should_support_event_bus_messages")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = false,
-            };
             ShouldRecoverSubscriptionRenewalToMessageBus = new BooleanConfigurationValue("should_recover_subscription_renewal_to_message_bus")
             {
                 ShouldAllowEmpty = true,
@@ -667,6 +656,12 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true
             };
+            MailerHttpClientConfiguration = new HttpClientConfiguration("mailer_http_client_configuration")
+            {
+                ShouldAllowEmpty = true
+            };
+            // Mailer doesn't use decompression methods by default
+            MailerHttpClientConfiguration.EnabledDecompressionMethods.DefaultValue = string.Empty;
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -781,13 +776,13 @@ namespace ConfigurationManager
                     EpgInitialId,
                     ShouldAddInvalidationKeysToHeader,
                     TVPApiConfiguration,
-                    ShouldSupportCeleryMessages,
-                    ShouldSupportEventBusMessages,
                     ShouldRecoverSubscriptionRenewalToMessageBus,
                     LogReloadInterval,
                     HttpClientConfiguration,
+                    FileUpload,
                     ElasticSearchHttpClientConfiguration,
-                    NPVRHttpClientConfiguration
+                    NPVRHttpClientConfiguration,
+                    MailerHttpClientConfiguration
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

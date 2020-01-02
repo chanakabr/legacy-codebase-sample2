@@ -588,79 +588,7 @@ namespace Core.Users
             return
                 (string.Format("{0:dd-MM-yyyy_hh-mm-ss}", dateTime));
         }
-
-        //// TODO SHIR - delete ConvertResponseStatus if there is no use for it
-        //public static eResponseStatus ConvertResponseStatus(ResponseStatus status)
-        //{
-        //    eResponseStatus result;
-
-        //    switch (status)
-        //    {
-        //        case ResponseStatus.OK:
-        //            result = eResponseStatus.OK;
-        //            break;
-        //        case ResponseStatus.UserExists:
-        //            result = eResponseStatus.UserExists;
-        //            break;
-        //        case ResponseStatus.UserDoesNotExist:
-        //            result = eResponseStatus.UserDoesNotExist;
-        //            break;
-        //        case ResponseStatus.WrongPasswordOrUserName:
-        //            result = eResponseStatus.WrongPasswordOrUserName;
-        //            break;
-        //        case ResponseStatus.InsideLockTime:
-        //            result = eResponseStatus.InsideLockTime;
-        //            break;
-        //        case ResponseStatus.UserNotActivated:
-        //            result = eResponseStatus.UserNotActivated;
-        //            break;
-        //        case ResponseStatus.UserAllreadyLoggedIn:
-        //            result = eResponseStatus.UserAllreadyLoggedIn;
-        //            break;
-        //        case ResponseStatus.UserDoubleLogIn:
-        //            result = eResponseStatus.UserDoubleLogIn;
-        //            break;
-        //        case ResponseStatus.DeviceNotRegistered:
-        //            result = eResponseStatus.DeviceNotRegistered;
-        //            break;
-        //        case ResponseStatus.UserNotMasterApproved:
-        //            result = eResponseStatus.UserNotMasterApproved;
-        //            break;
-        //        case ResponseStatus.ErrorOnInitUser:
-        //            result = eResponseStatus.ErrorOnInitUser;
-        //            break;
-        //        case ResponseStatus.UserNotIndDomain:
-        //            result = eResponseStatus.UserNotInDomain;
-        //            break;
-        //        case ResponseStatus.UserWithNoDomain:
-        //            result = eResponseStatus.UserWithNoDomain;
-        //            break;
-        //        case ResponseStatus.UserSuspended:
-        //            result = eResponseStatus.UserSuspended;
-        //            break;
-        //        case ResponseStatus.UserTypeNotExist:
-        //            result = eResponseStatus.UserTypeDoesNotExist;
-        //            break;
-        //        case ResponseStatus.TokenNotFound:
-        //            result = eResponseStatus.ActivationTokenNotFound;
-        //            break;
-        //        case ResponseStatus.UserAlreadyMasterApproved:
-        //            result = eResponseStatus.UserAlreadyMasterApproved;
-        //            break;
-        //        case ResponseStatus.LoginServerDown:
-        //            result = eResponseStatus.LoginServerDown;
-        //            break;
-        //        case ResponseStatus.ExternalIdAlreadyExists:
-        //            result = eResponseStatus.ExternalIdAlreadyExists;
-        //            break;
-        //        default:
-        //            result = eResponseStatus.Error;
-        //            break;
-        //    }
-
-        //    return result;
-        //}
-
+        
         public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus responseStatus, ApiObjects.Response.Status status = null, bool isLogin = false, int externalCode = 0, string externalMessage = null)
         {
             var result = new ApiObjects.Response.Status();
@@ -1047,18 +975,6 @@ namespace Core.Users
         {
             if (Notification.NotificationSettings.IsNotificationSettingsExistsForPartner(groupId))
             {
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new InitiateNotificationActionRequest()
-                {
-                    GroupId = groupId,
-                    pushToken = pushToken,
-                    Udid = udid,
-                    UserAction = userAction,
-                    UserId = userId
-                };
-
-                eventBus.Publish(serviceEvent);
-
                 InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
                 ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
 
