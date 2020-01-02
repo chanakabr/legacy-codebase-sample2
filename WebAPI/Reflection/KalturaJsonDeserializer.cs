@@ -26884,6 +26884,16 @@ namespace WebAPI.Models.Domains
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 6,
+            IsNullable = true,
+            MaxLength = 255,
+            MinLength = -1,
+        };
         public KalturaHouseholdDevice(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -26979,6 +26989,18 @@ namespace WebAPI.Models.Domains
                         Drm = (KalturaCustomDrmPlaybackPluginData) Deserializer.deserialize(typeof(KalturaCustomDrmPlaybackPluginData), (Dictionary<string, object>) parameters["drm"]);
                     }
                 }
+                if (parameters.ContainsKey("externalId__null") && parameters["externalId__null"] != null)
+                {
+                    AddNullableProperty("externalId");
+                }
+                if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
+                    }
+                    ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
+                }
             }
         }
     }
@@ -27042,6 +27064,10 @@ namespace WebAPI.Models.Domains
                 if (parameters.ContainsKey("deviceFamilyIdIn") && parameters["deviceFamilyIdIn"] != null)
                 {
                     DeviceFamilyIdIn = (String) Convert.ChangeType(parameters["deviceFamilyIdIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("externalIdEqual") && parameters["externalIdEqual"] != null)
+                {
+                    ExternalIdEqual = (String) Convert.ChangeType(parameters["externalIdEqual"], typeof(String));
                 }
             }
         }

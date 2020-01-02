@@ -151,6 +151,7 @@ namespace ConfigurationManager
         public static HttpClientConfiguration HttpClientConfiguration;
         public static HttpClientConfiguration NPVRHttpClientConfiguration;
         public static HttpClientConfiguration ElasticSearchHttpClientConfiguration;
+        public static HttpClientConfiguration MailerHttpClientConfiguration;
 
         #endregion
 
@@ -655,6 +656,12 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true
             };
+            MailerHttpClientConfiguration = new HttpClientConfiguration("mailer_http_client_configuration")
+            {
+                ShouldAllowEmpty = true
+            };
+            // Mailer doesn't use decompression methods by default
+            MailerHttpClientConfiguration.EnabledDecompressionMethods.DefaultValue = string.Empty;
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -774,7 +781,8 @@ namespace ConfigurationManager
                     HttpClientConfiguration,
                     FileUpload,
                     ElasticSearchHttpClientConfiguration,
-                    NPVRHttpClientConfiguration
+                    NPVRHttpClientConfiguration,
+                    MailerHttpClientConfiguration
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
