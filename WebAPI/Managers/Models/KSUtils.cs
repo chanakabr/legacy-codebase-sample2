@@ -1,6 +1,8 @@
-﻿using System;
+﻿using ConfigurationManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using TVinciShared;
 
 namespace WebAPI.Managers.Models
@@ -9,9 +11,10 @@ namespace WebAPI.Managers.Models
     {
         public const string PAYLOAD_UDID = "UDID";
         public const string PAYLOAD_CREATE_DATE = "CreateDate";
-        public const string PAYLOAD_REGION = "Region";
-        public const string PAYLOAD_USER_SEGMENTS = "UserSegments";
-        public const string PAYLOAD_USER_ROLES = "UserRoles";
+        public const string PAYLOAD_REGION = "r";
+        public const string PAYLOAD_USER_SEGMENTS = "us";
+        public const string PAYLOAD_USER_ROLES = "ur";
+        public const string PAYLOAD_SIGNATURE = "sig";
 
         public static string PrepareKSPayload(KS.KSData pl)
         {
@@ -19,7 +22,7 @@ namespace WebAPI.Managers.Models
             {
                 new KeyValuePair<string, string>(PAYLOAD_UDID, pl.UDID),
                 new KeyValuePair<string, string>(PAYLOAD_CREATE_DATE, pl.CreateDate.ToString()),
-                new KeyValuePair<string, string>(PAYLOAD_REGION, pl.RegionId.ToString()),
+                new KeyValuePair<string, string>(PAYLOAD_REGION, pl.RegionId.ToString())
             };
 
             if (pl.UserSegments != null)
@@ -30,6 +33,11 @@ namespace WebAPI.Managers.Models
             if (pl.UserRoles != null)
             {
                 ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_USER_ROLES, string.Join(",", pl.UserRoles.OrderBy(x => x))));
+            }
+
+            if (!string.IsNullOrEmpty(pl.Signature))
+            {
+                ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_SIGNATURE, pl.Signature));
             }
 
             var payload = KS.preparePayloadData(ksDataList);
@@ -74,8 +82,14 @@ namespace WebAPI.Managers.Models
             {
                 userRoles.AddRange(pl[PAYLOAD_USER_ROLES].GetItemsIn<List<long>, long>());
             }
-            
-            return new KS.KSData(udid, createDate, regionId, userSegments, userRoles);
+
+            var signature = string.Empty;
+            if (pl.ContainsKey(PAYLOAD_SIGNATURE))
+            {
+                signature = pl[PAYLOAD_SIGNATURE];
+            }
+
+            return new KS.KSData(udid, createDate, regionId, userSegments, userRoles, signature);
         }
 
         internal static KS.KSData ExtractKSPayload()
