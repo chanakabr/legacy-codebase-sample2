@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using AdapterClients.IngestTransformation;
 
 namespace Core.Profiles
 {
@@ -54,22 +55,16 @@ namespace Core.Profiles
                     response.Object = profileToAdd;
                     response.SetStatus(eResponseStatus.OK, "New ingest profile was successfully created");
 
-                    try
+                    if (!string.IsNullOrEmpty(profileToAdd.TransformationAdapterUrl))
                     {
-                        if (!string.IsNullOrEmpty(profileToAdd.TransformationAdapterUrl))
+                        var transformationAdptr = new IngestTransformationAdapterClient(profileToAdd);
+                        var status = transformationAdptr.SetConfiguration();
+                        if (status != RestAdaptersCommon.eAdapterStatus.OK)
                         {
-                            var transformationAdptr = new IngestTransformationAdapterClient(profileToAdd);
-                            var status = transformationAdptr.SetConfiguration();
-                            if (status != RestAdaptersCommon.eAdapterStatus.OK)
-                            {
-                                response.SetStatus((int)eResponseStatus.Error, "failed to call transformation adapter client");
-                            }
+                            response.SetStatus((int)eResponseStatus.Error, "failed to call transformation adapter client");
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        response.SetStatus((int)eResponseStatus.Error, $"new ingest profile {id} created, but failed to update adapter with error: {ex.Message}");
-                    }
+
                 }
                 else
                 {
@@ -164,7 +159,7 @@ namespace Core.Profiles
                     return response;
                 }
 
-                if (!IsIngestProfileIdExists(ingestProfileId))
+                if (IsIngestProfileIdExists(ingestProfileId) != null)
                 {
                     response.Set((int)eResponseStatus.AdapterNotExists, PROFILE_NOT_EXIST);
                     return response;
@@ -190,7 +185,7 @@ namespace Core.Profiles
             var response = new GenericResponse<IngestProfile>();
             try
             {
-                if (ingestProfileId <= 0 || profileToUpdate == null || !IsIngestProfileIdExists(ingestProfileId))
+                if (ingestProfileId <= 0 || profileToUpdate == null || IsIngestProfileIdExists(ingestProfileId) == null)
                 {
                     response.SetStatus((int)eResponseStatus.IngestProfileNotExists, PROFILE_NOT_EXIST);
                     return response;
@@ -218,21 +213,14 @@ namespace Core.Profiles
                     response.Object = profileToUpdate;
                     response.SetStatus(eResponseStatus.OK, " ingest profile was successfully updated");
 
-                    try
+                    if (!string.IsNullOrEmpty(profileToUpdate.TransformationAdapterUrl))
                     {
-                        if (!string.IsNullOrEmpty(profileToUpdate.TransformationAdapterUrl))
+                        var transformationAdptr = new IngestTransformationAdapterClient(profileToUpdate);
+                        var status = transformationAdptr.SetConfiguration();
+                        if (status != RestAdaptersCommon.eAdapterStatus.OK)
                         {
-                            var transformationAdptr = new IngestTransformationAdapterClient(profileToUpdate);
-                            var status = transformationAdptr.SetConfiguration();
-                            if (status != RestAdaptersCommon.eAdapterStatus.OK)
-                            {
-                                response.SetStatus((int)eResponseStatus.Error, "failed to call transformation adapter client");
-                            }
+                            response.SetStatus((int)eResponseStatus.Error, "failed to call transformation adapter client");
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        response.SetStatus((int)eResponseStatus.Error, $"ingest profile {ingestProfileId} updated, but failed to update adapter with error: {ex.Message}");
                     }
                 }
                 else
@@ -268,10 +256,9 @@ namespace Core.Profiles
             return profileById?.Id != profileByExternalId.Id;
         }
 
-        private static bool IsIngestProfileIdExists(int id)
+        private static IngestProfile IsIngestProfileIdExists(int id)
         {
-            var profile = ApiDAL.GetIngestProfilesByProfileId(id).FirstOrDefault();
-            return (profile != null);
+            return ApiDAL.GetIngestProfilesByProfileId(id).FirstOrDefault();
         }
 
     }
