@@ -134,8 +134,6 @@ namespace ApiObjects.Segmentation
 
                 if (this.Actions?.Count > 0)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(this.GroupId));
-
                     GroupSegmentationTypesWithActions.Update(this.GroupId, this.Id, true);
                 }
             }
@@ -225,11 +223,6 @@ namespace ApiObjects.Segmentation
             else
             {
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSegmentationTypeInvalidationKey(this.GroupId, this.Id));
-                if (this.Actions?.Count > 0)
-                {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(this.GroupId));
-                }
-
                 GroupSegmentationTypesWithActions.Update(this.GroupId, this.Id, this.Actions?.Count > 0);
             }
 
@@ -285,8 +278,6 @@ namespace ApiObjects.Segmentation
             else
             {
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypesInvalidationKey(this.GroupId));
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(this.GroupId));
-
                 GroupSegmentationTypesWithActions.Update(this.GroupId, this.Id, false);
             }
 
@@ -769,16 +760,19 @@ namespace ApiObjects.Segmentation
                 if (add && !exist)
                 {
                     segmentationTypeIds.Add(segmentTypeId);
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(groupId));
                     return Set(groupId, segmentationTypeIds);
                 }
                 if (!add && exist)
                 {
                     segmentationTypeIds.Remove(segmentTypeId);
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(groupId));
                     return Set(groupId, segmentationTypeIds);
                 }
             }
             else
             {
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupSegmentationTypeIdsOfActionInvalidationKey(groupId));
                 return Init(groupId);
             }
 
