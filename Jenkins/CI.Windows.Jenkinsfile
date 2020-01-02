@@ -17,6 +17,7 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
+                cleanWs()
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
                 dir('tvpapi_rest') { git(url: 'https://github.com/kaltura/Phoenix.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
@@ -73,7 +74,7 @@ pipeline {
             steps { 
                 dir("tvpapi_rest/Generator"){
                     bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
-                    dir("bin/Release/netcoreapp3.0"){
+                    dir("bin/Release/netcoreapp3.1"){
                         bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
                         bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
                     }
@@ -100,7 +101,7 @@ pipeline {
         stage("Publish Kaltura Clients"){
             // Generate only when release branch
             when {
-                expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ || BRANCH_NAME == 'master' || "${publish}" == "true" }        
+                expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ || BRANCH_NAME == 'master' || params.publish == true }     
             }
             steps{
                 dir("clients-generator"){
@@ -126,7 +127,9 @@ pipeline {
                     RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim();
             }
             steps{
-                dir("published"){  
+                dir("published"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > kaltura_ott_api/version.txt")
+                    sh (script: "cd ../tvpapi_rest && git rev-parse HEAD >> ../published/kaltura_ott_api/version.txt")
                     bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix.zip *")
                     sh (label:"upload to s3", script:"aws s3 cp phoenix.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix.zip")
                 }
