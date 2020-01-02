@@ -16,7 +16,7 @@ namespace ApiObjects.EventBus
 
         public override string ToString()
         {
-            return $"{{{nameof(EPGs)}={EPGs}, {nameof(EdgeProgramsToUpdate)}={EdgeProgramsToUpdate}, {nameof(DateOfProgramsToIngest)}={DateOfProgramsToIngest}, {nameof(Languages)}={Languages}, {nameof(Results)}={Results}, {nameof(BulkUploadId)}={BulkUploadId}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+            return $"{{{nameof(EPGs)}={EPGs}, {nameof(DateOfProgramsToIngest)}={DateOfProgramsToIngest}, {nameof(Languages)}={Languages}, {nameof(Results)}={Results}, {nameof(BulkUploadId)}={BulkUploadId}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
         }
     }
 }
