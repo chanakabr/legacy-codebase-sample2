@@ -36,14 +36,13 @@ namespace IngestValidtionHandler
         private readonly CouchbaseManager.CouchbaseManager _CouchbaseManager = null;
 
         private BulkUpload _BulkUploadObject = null;
-        private TvinciEpgBL _EpgBL;
 
-        private static readonly Policy _IndexCleanerRetryPolicy = Policy.Handle<Exception>()
-            .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
-            {
-                _Logger.Warn("Failed to clean indices of epg", ex);
-                _Logger.Warn($"Waiting for:[{time.TotalSeconds}] seconds until next publish retry");
-            });
+        /// <summary>
+        /// This list contains all existing affected programs that were updated due
+        /// to overlap policy and were cut to fit the new ingested programs
+        /// </summary>
+        private List<EpgProgramBulkUploadObject> _AffectedPrograms;
+        private TvinciEpgBL _EpgBL;
 
         public BulkUploadIngestValidationHandler()
         {
@@ -60,6 +59,7 @@ namespace IngestValidtionHandler
                 _EventData = eventData;
                 _EpgBL = new TvinciEpgBL(eventData.GroupId);
                 _BulkUploadObject = BulkUploadMethods.GetBulkUploadData(eventData.GroupId, eventData.BulkUploadId);
+                _AffectedPrograms = _BulkUploadObject.AffectedObjects?.Cast<EpgProgramBulkUploadObject>()?.ToList();
 
                 var indexIsValid = ValidateClonedIndex(eventData);
                 _Logger.Debug($"Index validation done with result:[{indexIsValid}]");
@@ -69,34 +69,37 @@ namespace IngestValidtionHandler
                 if (indexIsValid)
                 {
                     UpdateBulkUploadResults(eventData.Results, eventData.EPGs);
-                    SwitchAliases();
-                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values, out BulkUploadJobStatus newStatus);
-
-                    _BulkUploadObject.Status = newStatus;
-
-                    // Update edgs if there are any updates to be made dure to overlap
-                    if (eventData.EdgeProgramsToUpdate.Any())
-                    {
-                        await BulkUploadMethods.UpdateCouchbase(eventData.EdgeProgramsToUpdate, eventData.GroupId);
-                        var updater = new UpdateClonedIndex(eventData.GroupId, eventData.BulkUploadId, eventData.DateOfProgramsToIngest, eventData.Languages);
-                        updater.Update(eventData.EdgeProgramsToUpdate, new List<EpgProgramBulkUploadObject>());
-                    }
-
-                    InvalidateEpgAssets(eventData.EPGs.Concat(eventData.EdgeProgramsToUpdate));
+                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus newStatus);
+                    UpdateBulkUploadStatus(_BulkUploadObject, newStatus);
                 }
                 else
                 {
-                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values, out BulkUploadJobStatus tmp);
+                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus tmp);
                     bulkUploadResultAfterUpdate = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
                 }
 
+                // All seperated jobs of bulkUpload were completed, we are the last one, we need to switch the alias and commit the chanages.
+                if (_BulkUploadObject.IsProcessCompleted)
+                {
+                    SwitchAliases();
+                    InvalidateEpgAssets();
+                    EmmitPSEvent(_BulkUploadObject);
+                }
+
                 TriggerElasticIndexCleanerForPartner(_BulkUploadObject, eventData);
-                EmmitPSEvent(_BulkUploadObject);
             }
             catch (Exception ex)
             {
                 _Logger.Error($"An Exception occurred in BulkUploadIngestValidationHandler requestId:[{eventData.RequestId}], BulkUploadId:[{eventData.BulkUploadId}].", ex);
                 throw;
+            }
+        }
+
+        private void UpdateBulkUploadStatus(BulkUpload bulkUploadObject, BulkUploadJobStatus newStatus)
+        {
+            if (newStatus == BulkUploadJobStatus.Success)
+            {
+                BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, newStatus);
             }
         }
 
@@ -111,18 +114,18 @@ namespace IngestValidtionHandler
 
         private void EmmitPSEvent(BulkUpload bulkUploadResultAfterUpdate)
         {
-            if (bulkUploadResultAfterUpdate.IsProcessCompleted)
-            {
-                _Logger.DebugFormat($"Firing PS event: '{0}'", event_name);
-                _BulkUploadObject.Notify(eKalturaEventTime.After, event_name);
-            }
+            _Logger.DebugFormat($"Firing PS event: '{0}'", event_name);
+            _BulkUploadObject.Notify(eKalturaEventTime.After, event_name);
+
         }
 
         private bool ValidateClonedIndex(BulkUploadIngestValidationEvent eventDate)
         {
             // Wait time is 2 sec + 50ms for every program that was indexed
             // TODO: make configurable
-            var delayMsBeforeValidation = 2000 + (eventDate.EPGs.Count * 10);
+            var epgsCounts = eventDate.EPGs.Count;// + eventDate.EdgeProgramsToUpdate.Count;
+
+            var delayMsBeforeValidation = 2000 + (epgsCounts * 10);
             var result = false;
             int retryCount = 5; // TODO: Tcm configuration?
 
@@ -139,26 +142,33 @@ namespace IngestValidtionHandler
             // Checking all languages by searhcing for all types
             var type = string.Empty;
             var isValid = true;
+
             policy.Execute(() =>
             {
                 isValid = true;
-                var searchQuery = GetElasticsearchQueryForEpgIDs(eventDate.EPGs.Select(program => program.EpgId));
 
-                var searchResult = _ElasticSearchClient.Search(index, type, ref searchQuery);
+                var allEpgs = eventDate.EPGs;//.Concat(eventDate.EdgeProgramsToUpdate);
 
-                var jsonResult = JObject.Parse(searchResult);
-                var tempToken = jsonResult.SelectToken("hits.total");
-                int totalItems = tempToken?.Value<int>() ?? 0;
-
-                if (totalItems != eventDate.EPGs.SelectMany(p => p.EpgCbObjects).Count())
+                if (allEpgs.Any())
                 {
-                    isValid = false;
-                }
+                    var searchQuery = GetElasticsearchQueryForEpgIDs(allEpgs.Select(program => program.EpgId));
 
-                if (!isValid)
-                {
-                    _Logger.Warn($"Missing program from ES index.");
-                    throw new Exception("Missing program from ES index");
+                    var searchResult = _ElasticSearchClient.Search(index, type, ref searchQuery);
+
+                    var jsonResult = JObject.Parse(searchResult);
+                    var tempToken = jsonResult.SelectToken("hits.total");
+                    int totalItems = tempToken?.Value<int>() ?? 0;
+
+                    if (totalItems != allEpgs.SelectMany(p => p.EpgCbObjects).Count())
+                    {
+                        isValid = false;
+                    }
+
+                    if (!isValid)
+                    {
+                        _Logger.Warn($"Missing program from ES index.");
+                        throw new Exception("Missing program from ES index");
+                    }
                 }
             });
 
@@ -167,15 +177,22 @@ namespace IngestValidtionHandler
             return result;
         }
 
-        public static void InvalidateEpgAssets(IEnumerable<EpgProgramBulkUploadObject> programs)
+        public void InvalidateEpgAssets()
         {
-            foreach (var prog in programs)
+            var affectedProgramIds = _AffectedPrograms?.Select(p => (long)p.EpgId);
+            var ingestedProgramIds = _BulkUploadObject.Results.Where(r => r.ObjectId.HasValue).Select(r => r.ObjectId.Value);
+            var programIdsToInvalidate = affectedProgramIds?.Any() == true
+                ? ingestedProgramIds.Concat(affectedProgramIds)
+                : ingestedProgramIds;
+
+
+            foreach (var progId in programIdsToInvalidate)
             {
-                string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), (long)prog.EpgId);
+                string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), progId);
 
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
-                    _Logger.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after EpgIngest", prog.EpgId, eAssetType.PROGRAM.ToString(), invalidationKey);
+                    _Logger.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after EpgIngest", progId, eAssetType.PROGRAM.ToString(), invalidationKey);
                 }
 
                 _Logger.Debug($"SetInvalidationKey done with result:[{invalidationKey}]");
@@ -206,13 +223,13 @@ namespace IngestValidtionHandler
             return searchQuery;
         }
 
-        private void UpdateBulkUploadResults(Dictionary<string, BulkUploadProgramAssetResult> results, List<EpgProgramBulkUploadObject> epgs)
+        private void UpdateBulkUploadResults(Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> results, List<EpgProgramBulkUploadObject> epgs)
         {
             foreach (var prog in epgs)
             {
-                if (prog.EpgExternalId != null && results.ContainsKey(prog.EpgExternalId))
+                if (prog.EpgExternalId != null && results.ContainsKey(prog.ChannelId) && results[prog.ChannelId].ContainsKey(prog.EpgExternalId))
                 {
-                    var resultObj = results[prog.EpgExternalId];
+                    var resultObj = results[prog.ChannelId][prog.EpgExternalId];
                     resultObj.ObjectId = (long)prog.EpgId;
                     resultObj.Status = BulkUploadResultStatus.Ok;
                     // TODO: allow updating results in bulk
@@ -222,6 +239,8 @@ namespace IngestValidtionHandler
         }
 
         /// <summary>
+        /// This method should be called only when the full bulk upload ingest was proccessed.
+        /// It will get all indices of current bulkUploadId and switch their respective aliase
         /// switch aliases - 
         /// delete epg_203_20190422 for epg_203_20190422_old_bulk_upload_id
         /// add epg_203_20190422 for epg_203_20190422_current_bulk_upload_id
@@ -230,23 +249,32 @@ namespace IngestValidtionHandler
         /// <param name="dateOfIngest"></param>
         private void SwitchAliases()
         {
-            string currentProgramsAlias = BulkUploadMethods.GetIngestCurrentProgramsAliasName(_EventData.GroupId, _EventData.DateOfProgramsToIngest);
-            string globalAlias = _EpgBL.GetProgramIndexAlias();
+            // Get list of all indices of current bulk upload
+            var allindicesOfCurrentBulk = _ElasticSearchClient.ListIndices($"{_BulkUploadObject.GroupId}_epg_v2_*_{_BulkUploadObject.Id}");
 
-
-            // Should only be one but we will loop anyway ...
-            var previousIndices = _ElasticSearchClient.GetAliases(currentProgramsAlias);
-            _Logger.Debug($"Removing alias:[{currentProgramsAlias}, {globalAlias}] from:[{string.Join(",", previousIndices)}].");
-            foreach (var index in previousIndices)
+            foreach (var newIndex in allindicesOfCurrentBulk)
             {
-                _ElasticSearchClient.RemoveAlias(index, globalAlias);
-                _ElasticSearchClient.RemoveAlias(index, currentProgramsAlias);
-            }
+                // remove the bulkUploadId suffix from the index
+                var dateAlias = newIndex.Name.Remove(newIndex.Name.Length - (_BulkUploadObject.Id.ToString().Length + 1));
+                var globalAlias = _EpgBL.GetProgramIndexAlias();
 
-            string newIndex = BulkUploadMethods.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
-            _Logger.Debug($"Adding alias:[{currentProgramsAlias}, {globalAlias}] To:[{string.Join(",", newIndex)}].");
-            _ElasticSearchClient.AddAlias(newIndex, currentProgramsAlias);
-            _ElasticSearchClient.AddAlias(newIndex, globalAlias);
+                // Should only be one but we will loop anyway ...
+                var previousIndices = _ElasticSearchClient.GetAliases(dateAlias);
+                if (previousIndices.Any())
+                {
+                    _Logger.Debug($"Removing alias:[{dateAlias}, {globalAlias}] from:[{string.Join(",", previousIndices)}].");
+                    foreach (var oldIndex in previousIndices)
+                    {
+                        _ElasticSearchClient.RemoveAlias(oldIndex, globalAlias);
+                        _ElasticSearchClient.RemoveAlias(oldIndex, dateAlias);
+                    }
+                }
+
+                _Logger.Debug($"Adding alias:[{dateAlias}, {globalAlias}] To:[{newIndex}].");
+
+                _ElasticSearchClient.AddAlias(newIndex.Name, dateAlias);
+                _ElasticSearchClient.AddAlias(newIndex.Name, globalAlias);
+            }
         }
     }
 }

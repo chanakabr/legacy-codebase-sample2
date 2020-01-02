@@ -5,9 +5,7 @@
     <Description>2019-05-16 18:23:45 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-101-g73e441e-dirty</Description>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-  </PropertyGroup>
+  <PropertyGroup />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -36,14 +34,28 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\..\Core\CachingProvider\CachingProvider.csproj" />
+    <ProjectReference Include="..\..\Core\CouchbaseManager\CouchbaseManager.csproj" />
+    <ProjectReference Include="..\..\Core\DAL\DAL.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj" />
-    <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\..\Core\ElasticSearch\ElasticSearch.csproj" />
     <ProjectReference Include="..\..\Core\EpgBL\EpgBL.csproj" />
+    <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\..\Core\FTPUploadQueue\UploadQueue.csproj" />
+    <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj" />
     <ProjectReference Include="..\..\Core\ImageManager\ImageManager.csproj" />
+    <ProjectReference Include="..\..\Core\KlogMonitorHelper\KlogMonitorHelper.csproj" />
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
+    <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj" />
+    <ProjectReference Include="..\..\Core\QueueWrapper\QueueWrapper.csproj" />
+    <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
     <ProjectReference Include="..\IngestHandler.Common\IngestHandler.Common.csproj" />
   </ItemGroup>
 
