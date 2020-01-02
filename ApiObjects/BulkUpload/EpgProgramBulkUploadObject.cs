@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace ApiObjects.BulkUpload
 {
-    // TODO ARTHUR: Move and merge with all other epg objects
-    public class EpgProgramBulkUploadObject : IBulkUploadObject
+    // TODO: Move and merge with all other epg objects
+    public class EpgProgramBulkUploadObject : IBulkUploadObject, IAffectedObject
     {
         public programme ParsedProgramObject { get; set; }
         public List<EpgCB> EpgCbObjects { get; set; }
@@ -19,6 +19,7 @@ namespace ApiObjects.BulkUpload
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool IsAutoFill { get; set; }
+        ulong IAffectedObject.ObjectId { get => EpgId; }
 
         public override string ToString()
         {
