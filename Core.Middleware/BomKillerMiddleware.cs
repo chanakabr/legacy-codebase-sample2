@@ -12,7 +12,10 @@ namespace Core.Middleware
     public static class BomKillerMiddleware
     {
         /// <summary>
-        /// LATERS
+        /// Please read this page: https://www.freecodecamp.org/news/a-quick-tale-about-feff-the-invisible-character-cd25cd4630e7/
+        /// SoapCore adds a hidden character to the response: FEFF, an invisible UTF-8 that ruins XML parsing. It causes several erros
+        /// and the only way we found to solve it is like this: rewriting the response to the stream with UTF8 encoding. This omits the hidden character
+        /// from the response.
         /// </summary>
         /// <param name="app"></param>
         /// <returns></returns>
