@@ -64,7 +64,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-        
+
         internal void EnrichHouseHold(List<KalturaHouseholdWithHolder> with, KalturaHousehold household, int groupId)
         {
             // get users ids lists
@@ -102,8 +102,8 @@ namespace WebAPI.Clients
                 {
                     household.Users = users.Where(u => userIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
                     household.MasterUsers = users.Where(u => masterUserIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
-                    household.DefaultUsers =users.Where(u => defaultUserIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
-                    household.PendingUsers =users.Where(u => pendingUserIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.DefaultUsers = users.Where(u => defaultUserIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.PendingUsers = users.Where(u => pendingUserIds.Contains(u.Id)).Select(usr => (KalturaBaseOTTUser)usr).ToList();
                 }
             }
         }
@@ -446,7 +446,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaHouseholdDevice AddDevice(int groupId, int domainId, string deviceName, string udid, int deviceBrandId)
+        internal KalturaHouseholdDevice AddDevice(int groupId, int domainId, string deviceName, string udid, int deviceBrandId, string externalId)
         {
             DeviceResponse response = null;
 
@@ -454,7 +454,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.AddDevice(groupId, domainId, udid, deviceName, deviceBrandId);
+                    response = Core.Domains.Module.AddDevice(groupId, domainId, udid, deviceName, deviceBrandId, externalId);
                 }
             }
             catch (Exception ex)
@@ -554,8 +554,6 @@ namespace WebAPI.Clients
             KalturaHousehold result;
             DomainStatusResponse response = null;
 
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -590,18 +588,16 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, string deviceName, string udid)
+        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, string deviceName, string udid, string externalId, bool allowNullExternalId = false)
         {
             KalturaHouseholdDevice result;
             DeviceResponse response = null;
-
-
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.SetDevice(groupId, udid, deviceName);
+                    response = Core.Domains.Module.SetDevice(groupId, udid, deviceName, externalId, allowNullExternalId);
                 }
             }
             catch (Exception ex)
@@ -993,17 +989,15 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaHouseholdDevice SubmitAddDeviceToDomain(int groupId, int domainId, string userId, string udid, string deviceName, int deviceBrandId)
+        internal KalturaHouseholdDevice SubmitAddDeviceToDomain(int groupId, int domainId, string userId, string udid, string deviceName, int deviceBrandId, string externalId)
         {
             DeviceResponse response = null;
-
-
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.SubmitAddDeviceToDomain(groupId, domainId, userId, udid, deviceName, deviceBrandId);
+                    response = Core.Domains.Module.SubmitAddDeviceToDomain(groupId, domainId, userId, udid, deviceName, deviceBrandId, externalId);
                 }
             }
             catch (Exception ex)
@@ -1148,9 +1142,11 @@ namespace WebAPI.Clients
             return response.Values.ToList();
         }
 
-        internal KalturaHouseholdDeviceListResponse GetHouseholdDevices(int groupId, KalturaHousehold household, List<long> deviceFamilyIds)
+        internal KalturaHouseholdDeviceListResponse GetHouseholdDevices(int groupId, KalturaHousehold household, List<long> deviceFamilyIds, string externalId)
         {
             KalturaHouseholdDeviceListResponse response = new KalturaHouseholdDeviceListResponse() { TotalCount = 0, Objects = new List<KalturaHouseholdDevice>() };
+            bool checkExternal = !string.IsNullOrEmpty(externalId);
+
             foreach (KalturaDeviceFamily family in household.DeviceFamilies)
             {
                 if (deviceFamilyIds == null || deviceFamilyIds.Contains(family.Id.Value))
@@ -1160,8 +1156,23 @@ namespace WebAPI.Clients
                     {
                         KalturaHouseholdDevice householdDevice = (KalturaHouseholdDevice)device;
                         householdDevice.DeviceFamilyId = family.Id;
-                        response.Objects.Add(householdDevice);
-                        response.TotalCount++;
+
+                        if (checkExternal)
+                        {
+                            if (device.ExternalId == externalId)
+                            {
+                                householdDevice.DeviceFamilyId = family.Id;
+                                response.Objects.Add(householdDevice);
+                                response.TotalCount = 1;
+
+                                return response;
+                            }
+                        }
+                        else
+                        {
+                            response.Objects.Add(householdDevice);
+                            response.TotalCount++;
+                        }
                     }
                 }
             }

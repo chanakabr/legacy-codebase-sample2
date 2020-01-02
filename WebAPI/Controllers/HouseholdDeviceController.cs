@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Response;
 using System;
+using System.Linq;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -116,15 +117,15 @@ namespace WebAPI.Controllers
             {
                 if (HouseholdUtils.IsUserMaster())
                 {
-                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId());
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId);
                 }
                 else if (device.HouseholdId != 0)
                 {
-                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device.Name, device.Udid, device.getBrandId());
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId);
                 }
                 else
                 {
-                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device.Udid, device.Name, device.getBrandId());
+                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device.Udid, device.Name, device.getBrandId(), device.ExternalId);
                 }
             }
             catch (ClientException ex)
@@ -194,7 +195,7 @@ namespace WebAPI.Controllers
             if (udid.IsNullOrEmptyOrWhiteSpace())
             {
                 udid = KSUtils.ExtractKSPayload().UDID;
-                householdId = (int) HouseholdUtils.GetHouseholdIDByKS(ks.GroupId);
+                householdId = (int)HouseholdUtils.GetHouseholdIDByKS(ks.GroupId);
             }
 
             if (string.IsNullOrEmpty(udid))
@@ -305,8 +306,10 @@ namespace WebAPI.Controllers
                     throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
 
+                var allowNullExternalId = device.NullableProperties != null && device.NullableProperties.Contains("externalid");
+
                 // call client
-                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid);
+                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.ExternalId, allowNullExternalId);
             }
             catch (ClientException ex)
             {
@@ -341,7 +344,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid);
+                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid, string.Empty);
             }
             catch (ClientException ex)
             {
@@ -429,8 +432,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.DomainsClient().GetHouseholdDevices(groupId, household, filter.ConvertDeviceFamilyIdIn());
-                                
+                response = ClientsManager.DomainsClient().GetHouseholdDevices(groupId, household, filter.ConvertDeviceFamilyIdIn(), filter.ExternalIdEqual);
             }
             catch (ClientException ex)
             {
@@ -480,7 +482,7 @@ namespace WebAPI.Controllers
         static public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null)
         {
             KalturaOTTUser response = null;
-            
+
             try
             {
                 // call client
@@ -490,7 +492,7 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
-            
+
             return new KalturaLoginResponse()
             {
                 LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), udid, response.GetRoleIds()),
