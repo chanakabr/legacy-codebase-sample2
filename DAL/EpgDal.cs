@@ -845,6 +845,10 @@ namespace Tvinci.Core.DAL
                         documentIds.Remove(epg.DocumentId);
                         resultEpgs.Add(epg);
                     }
+                    else
+                    {
+                        log.WarnFormat("GetEpgCBList - epg with key {0} from CB, returned with status {1}", epg.DocumentId, epg.Status);
+                    }
                 }
             }
 
