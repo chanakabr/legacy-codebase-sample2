@@ -235,7 +235,6 @@ namespace APILogic
         private static void ExportUnactiveMedia(DataSet unactiveAssets, string exportFullPath)
         {
             StringBuilder xml = new StringBuilder();
-
             DataTable table = unactiveAssets.Tables[0];
 
             // Run on first table and create initial list of parental rules, without tag values
@@ -246,17 +245,18 @@ namespace APILogic
                     long mediaId = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
                     if (mediaId > 0)
                     {
-
-                        xml.Append("<media ");
+                        var status = ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS");
+                        var isActive = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE");
+                        var action = status == 2 ? "delete" : isActive == 1 ? "expired" : "update";
+                        var coGuid = ProtocolsFuncs.XMLEncode(ODBCWrapper.Utils.GetSafeStr(row, "CO_GUID"), true);
+                        var entryId = ProtocolsFuncs.XMLEncode(ODBCWrapper.Utils.GetSafeStr(row, "ENTRY_ID"), true);
+                        var isActiveFromXml = ProtocolsFuncs.XMLEncode((isActive == 1 ? true : false).ToString(), true);
+                        var mediaIdFromXml = ProtocolsFuncs.XMLEncode(mediaId.ToString(), true);
 
                         // attributes
+                        xml.Append("<media ");
                         xml.AppendFormat("co_guid=\"{0}\" entry_id=\"{1}\" action=\"{2}\" is_active=\"{3}\" erase=\"false\" media_id=\"{4}\">",
-                             TVinciShared.ProtocolsFuncs.XMLEncode(ODBCWrapper.Utils.GetSafeStr(row, "CO_GUID"), true),                                             // {0} - co guid
-                             TVinciShared.ProtocolsFuncs.XMLEncode(ODBCWrapper.Utils.GetSafeStr(row, "ENTRY_ID"), true),                                            // {1} - entryId
-                             TVinciShared.ProtocolsFuncs.XMLEncode(ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS") == 2 ? "delete" : "update", true),                // {2} - action
-                             TVinciShared.ProtocolsFuncs.XMLEncode((ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE") == 1 ? true : false).ToString(), true),       // {3} - is active
-                             TVinciShared.ProtocolsFuncs.XMLEncode(mediaId.ToString(), true)                                                                        // {4} - media id
-                        );
+                                         coGuid, entryId, action, isActiveFromXml, mediaIdFromXml);
 
                         xml.Append("</media>");
                     }
