@@ -2061,6 +2061,20 @@ namespace Core.Api
 
             try
             {
+                var assetSearchDefinition = new AssetSearchDefinition() { UserId = userId };
+                var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>() { segmentationType.Id });
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    response.SetStatus(filter.Status);
+                    return response;
+                }
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                {
+                    response.SetStatus(filter.Status);
+                    return response;
+                }
+
                 segmentationType.GroupId = groupId;
 
                 if (!segmentationType.Update())
@@ -2095,10 +2109,23 @@ namespace Core.Api
 
         public static Status DeleteSegmentationType(int groupId, long id, long userId)
         {
-            Status result = null;
+            Status result = new Status();
             bool deleteResult = false;
             try
             {
+                var assetSearchDefinition = new AssetSearchDefinition() { UserId = userId };
+                var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>() { id });
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    return filter.Status;
+                }
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                {
+                    result.Set(eResponseStatus.ObjectNotExist, eResponseStatus.ObjectNotExist.ToString());
+                    return result;
+                }
+
                 SegmentationType segmentationType = new SegmentationType()
                 {
                     GroupId = groupId,
