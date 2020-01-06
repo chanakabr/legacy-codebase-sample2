@@ -119,6 +119,15 @@ namespace ApiLogic.Users.Managers
                     GroupId = contextData.GroupId
                 };
 
+                var status = householdSegment.IsSegmentExist();
+
+                if(status.Code != (int)eResponseStatus.OK)
+                {
+                    log.Error($"Error at delete HouseholdSegment. contextData: {contextData.ToString()}.");
+                    response.Set(status);
+                    return response;
+                }
+
                 if (!householdSegment.Delete())
                 {
                     log.Error($"Error while delete HouseholdSegment. contextData: {contextData.ToString()}.");

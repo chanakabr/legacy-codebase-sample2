@@ -52,21 +52,10 @@ namespace ApiObjects.Segmentation
 
             HouseholdSegments householdSegments = couchbaseManager.Get<HouseholdSegments>(householdSegmentsKey);
 
-            if (householdSegments == null)
-            {
-                this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "household has no segments");
-                return false;
-            }
+            this.ActionStatus = IsSegmentExist(householdSegments);
 
-            if (householdSegments.Segments == null)
+            if (this.ActionStatus.Code != (int)eResponseStatus.OK)
             {
-                this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "household has no segments");
-                return false;
-            }
-
-            if (!householdSegments.Segments.ContainsKey(SegmentId))
-            {
-                this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "household does not have given segment");
                 return false;
             }
 
@@ -209,9 +198,34 @@ namespace ApiObjects.Segmentation
             return string.Format("household_segments_{0}", householdId);
         }
 
-        private string GetHouseholdSegmentsSequenceDocument()
+        public Status IsSegmentExist(HouseholdSegments householdSegments = null)
         {
-            return "household_segment_sequence";
+            if (householdSegments == null)
+            {
+                CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+
+                string householdSegmentsKey = GetHouseholdSegmentsKey(this.HouseholdId);
+
+                householdSegments = couchbaseManager.Get<HouseholdSegments>(householdSegmentsKey);
+            }
+
+            if (householdSegments == null)
+            {
+                return new Status((int)eResponseStatus.ObjectNotExist, "household has no segments");                
+            }
+
+            if (householdSegments.Segments == null)
+            {
+                return new Status((int)eResponseStatus.ObjectNotExist, "household has no segments");                
+            }
+
+            if (!householdSegments.Segments.ContainsKey(SegmentId))
+            {
+                return new Status((int)eResponseStatus.ObjectNotExist, "household does not have given segment");                
+            }
+
+            return new Status((int)eResponseStatus.OK);
+
         }
     }
 
