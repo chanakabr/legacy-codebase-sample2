@@ -2071,7 +2071,7 @@ namespace Core.Api
 
                 if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
                 {
-                    response.SetStatus(filter.Status);
+                    response.SetStatus((int)eResponseStatus.ObjectNotExist, "Given Id does not exist for group");
                     return response;
                 }
 
