@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Core.Middleware;
 using KLogMonitor;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -12,15 +13,14 @@ namespace Phoenix.Rest
         {
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";
-            KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
-            ConfigurationManager.ApplicationConfiguration.Initialize(shouldLoadDefaults: true, silent: true);
-            await CreateWebHostBuilder(args).Build().RunAsync();
-        }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .ConfigureLogging((context, logging) => { logging.ClearProviders(); })
-                .ConfigureKestrel(o => o.AllowSynchronousIO = true)
-                .UseStartup<Startup>();
+            await KalturaWebHostBuilder.RunWebServerAsync<Startup>(new WebServerConfiguration
+            {
+                CommandlineArgs = args,
+                AllowSynchronousIO = true,
+                DefaultLogDirectoryPath = defaultLogDir,
+            });
+
+        }
     }
 }
