@@ -48,9 +48,10 @@ namespace Ingest.Importers
         public static string GetReportLogPath()
         {
             string path = System.Environment.GetEnvironmentVariable("INGEST_LOG_DIR");
-            if (path != null)
+
+            if (!string.IsNullOrEmpty(path))
             {
-                path = System.Environment.ExpandEnvironmentVariables(path) + "\\reports";
+                path = Path.Combine(System.Environment.ExpandEnvironmentVariables(path), "reports");
             }
             else
             {
@@ -189,7 +190,7 @@ namespace Ingest.Importers
             if (string.IsNullOrEmpty(report))
                 return;
 
-            var reportFullPath = string.Format("{0}/{1}/{2}", reportLogPath, groupId, reportId);
+            var reportFullPath = Path.Combine(reportLogPath, Convert.ToString(groupId), reportId);
 
             try
             {
