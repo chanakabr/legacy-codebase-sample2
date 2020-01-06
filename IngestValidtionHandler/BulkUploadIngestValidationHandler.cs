@@ -5,6 +5,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
+using Core.GroupManagers;
 using CouchbaseManager;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
@@ -57,32 +58,28 @@ namespace IngestValidtionHandler
                 _Logger.Debug($"Starting BulkUploadIngestValidationHandler  requestId:[{eventData.RequestId}], BulkUploadId:[{eventData.BulkUploadId}]");
 
                 _EventData = eventData;
-                _EpgBL = new TvinciEpgBL(eventData.GroupId);
-                _BulkUploadObject = BulkUploadMethods.GetBulkUploadData(eventData.GroupId, eventData.BulkUploadId);
+                _EpgBL = new TvinciEpgBL(_EventData.GroupId);
+                _BulkUploadObject = BulkUploadMethods.GetBulkUploadData(_EventData.GroupId, _EventData.BulkUploadId);
                 _AffectedPrograms = _BulkUploadObject.AffectedObjects?.Cast<EpgProgramBulkUploadObject>()?.ToList();
 
                 var indexIsValid = ValidateClonedIndex(eventData);
                 _Logger.Debug($"Index validation done with result:[{indexIsValid}]");
 
-                GenericResponse<BulkUpload> bulkUploadResultAfterUpdate = null;
+                UpdateBulkUploadObjectStatusAccordingToValidationResult(indexIsValid);
 
-                if (indexIsValid)
-                {
-                    UpdateBulkUploadResults(eventData.Results, eventData.EPGs);
-                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus newStatus);
-                    UpdateBulkUploadStatus(_BulkUploadObject, newStatus);
-                }
-                else
-                {
-                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus tmp);
-                    bulkUploadResultAfterUpdate = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
-                }
+                // Need to refresh the data from the bulk upload ibject after updating with the validation result
+                _BulkUploadObject = BulkUploadMethods.GetBulkUploadData(eventData.GroupId, eventData.BulkUploadId);
 
                 // All seperated jobs of bulkUpload were completed, we are the last one, we need to switch the alias and commit the chanages.
                 if (_BulkUploadObject.IsProcessCompleted)
                 {
-                    SwitchAliases();
-                    InvalidateEpgAssets();
+                    if (_BulkUploadObject.Status == BulkUploadJobStatus.Success)
+                    {
+                        SwitchAliases();
+                        InvalidateEpgAssets();
+
+                    }
+
                     EmmitPSEvent(_BulkUploadObject);
                 }
 
@@ -92,6 +89,22 @@ namespace IngestValidtionHandler
             {
                 _Logger.Error($"An Exception occurred in BulkUploadIngestValidationHandler requestId:[{eventData.RequestId}], BulkUploadId:[{eventData.BulkUploadId}].", ex);
                 throw;
+            }
+        }
+
+        private void UpdateBulkUploadObjectStatusAccordingToValidationResult(bool indexIsValid)
+        {
+            if (indexIsValid)
+            {
+                UpdateBulkUploadResults(_EventData.Results, _EventData.EPGs);
+                BulkUploadManager.UpdateBulkUploadResults(_EventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus newStatus);
+                UpdateBulkUploadStatus(_BulkUploadObject, newStatus);
+
+            }
+            else
+            {
+                BulkUploadManager.UpdateBulkUploadResults(_EventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus tmp);
+                _ = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
             }
         }
 
@@ -157,9 +170,9 @@ namespace IngestValidtionHandler
 
                     var jsonResult = JObject.Parse(searchResult);
                     var tempToken = jsonResult.SelectToken("hits.total");
-                    int totalItems = tempToken?.Value<int>() ?? 0;
-
-                    if (totalItems != allEpgs.SelectMany(p => p.EpgCbObjects).Count())
+                    var totalItems = tempToken?.Value<int>() ?? 0;
+                    var expectedCount = allEpgs.SelectMany(p => p.EpgCbObjects).Count();
+                    if (totalItems != expectedCount)
                     {
                         isValid = false;
                     }
@@ -185,17 +198,21 @@ namespace IngestValidtionHandler
                 ? ingestedProgramIds.Concat(affectedProgramIds)
                 : ingestedProgramIds;
 
-
+            var isOPC = GroupSettingsManager.IsOpc(_EventData.GroupId);
             foreach (var progId in programIdsToInvalidate)
             {
-                string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), progId);
+                
+                string invalidationKey = isOPC 
+                    ?LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), progId)
+                    :LayeredCacheKeys.GetEpgInvalidationKey(_EventData.GroupId, progId);
 
-                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                var invalidationResult = LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+                if (!invalidationResult)
                 {
                     _Logger.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after EpgIngest", progId, eAssetType.PROGRAM.ToString(), invalidationKey);
                 }
 
-                _Logger.Debug($"SetInvalidationKey done with result:[{invalidationKey}]");
+                _Logger.Debug($"SetInvalidationKey: [{invalidationKey}] done with result: [{invalidationResult}]");
             }
         }
 

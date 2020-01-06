@@ -97,17 +97,27 @@ namespace IngestHandler
 
                 var crudOperations = CalculateCRUDOperations(currentPrograms, programsToIngest);
 
+
+                #region section for futrue rewrite
+                // This section containes a lot of precedural logic and needs to be refactored
+                // to containe some sore of declerative code that wil calculate the overlaps \ gaps and updates to edges..
+
                 var edgeProgramsToUpdate = CalculateRequiredUpdatesToEdgesDueToOverlap(currentPrograms, crudOperations);
                 crudOperations.ItemsToUpdate.AddRange(edgeProgramsToUpdate);
 
                 var existingEdgePrograms = CalculateExistingEdgePrograms(currentPrograms, _MinStartDate, _MaxEndDate);
+                
+                // form existingEdgePrograms we need to remove items that we intend to update, because we are updating them anyway
+                var updatedEpgIds = crudOperations.ItemsToUpdate.Select(i=>i.EpgId);
+                existingEdgePrograms = existingEdgePrograms.Where(p=> !updatedEpgIds.Contains(p.EpgId)).ToList();
 
                 bool isOverlapsAndGapsValid = HandleOverlapsAndGaps(crudOperations, _ResultsDictionary, existingEdgePrograms);
+                #endregion
 
                 if (!isOverlapsAndGapsValid)
                 {
                     _Logger.Debug($"Overlaps or gaps are not valid by ingest profile");
-                    BulkUploadManager.UpdateBulkUploadResults(_ResultsDictionary.Values.SelectMany(r => r.Values), out BulkUploadJobStatus jobStatus);
+                    BulkUploadManager.UpdateBulkUploadResults(_ResultsDictionary.Values.SelectMany(r => r.Values), out var jobStatus);
                     BulkUploadManager.UpdateBulkUpload(_BulkUploadObject, jobStatus);
 
                     return;
@@ -168,14 +178,15 @@ namespace IngestHandler
         private List<EpgProgramBulkUploadObject> CalculateExistingEdgePrograms(List<EpgProgramBulkUploadObject> currentPrograms, DateTime minStartDate, DateTime maxEndDate)
         {
             var res = new List<EpgProgramBulkUploadObject>();
+            var orderedCurrentPrograms = currentPrograms.OrderBy(p=>p.StartDate);
 
-            var min = currentPrograms.Where(p => p.StartDate <= minStartDate && p.EndDate >= minStartDate).FirstOrDefault();
+            var min = orderedCurrentPrograms.Where(p => p.StartDate <= minStartDate).LastOrDefault();
             if (min != null)
             {
                 res.Add(min);
             }
 
-            var max = currentPrograms.Where(p => p.StartDate <= maxEndDate && p.EndDate >= maxEndDate).FirstOrDefault();
+            var max = orderedCurrentPrograms.Where(p => p.EpgId != min.EpgId && p.StartDate >= maxEndDate).FirstOrDefault();
             if (max != null)
             {
                 res.Add(max);
@@ -542,7 +553,7 @@ namespace IngestHandler
             var result = new List<EpgProgramBulkUploadObject>();
             var orderedCurrentPrograms = currentPrograms.OrderBy(p => p.StartDate);
             var orderedProgramsToIngest = programsToIngest.OrderBy(p => p.StartDate);
-            var firstCurrentProgram = currentPrograms.FirstOrDefault();
+            var firstCurrentProgram = orderedCurrentPrograms.FirstOrDefault();
             var firstProgramToIngest = orderedProgramsToIngest.FirstOrDefault(p => p.EpgId != firstCurrentProgram?.EpgId);
             var lastCurrentProgram = orderedCurrentPrograms.LastOrDefault(p=> p.EpgId != firstCurrentProgram?.EpgId);
             var lastProgramToIngest = orderedProgramsToIngest.LastOrDefault(p => p.EpgId != lastCurrentProgram?.EpgId);
@@ -634,8 +645,7 @@ namespace IngestHandler
         private bool HandleOverlapsAndGaps(CRUDOperations<EpgProgramBulkUploadObject> crudOperations, Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> programAssetResultsDictionary, List<EpgProgramBulkUploadObject> existingEdgePrograms)
         {
             bool isValid = true;
-
-            List<EpgProgramBulkUploadObject> calculatedPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).Concat(existingEdgePrograms).ToList();
+            var calculatedPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).Concat(existingEdgePrograms).ToList();
 
             IDictionary<string, EpgCB> autoFillEpgsCB = null;
 
