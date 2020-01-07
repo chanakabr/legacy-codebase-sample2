@@ -842,8 +842,18 @@ namespace Tvinci.Core.DAL
                 {
                     if (epg.Status == 1)
                     {
-                        documentIds.Remove(epg.DocumentId);
                         resultEpgs.Add(epg);
+
+                        if (!string.IsNullOrEmpty(epg.DocumentId))
+                        {
+                            documentIds.Remove(epg.DocumentId);
+                        }
+                        else
+                        {
+                            documentIds.Remove(epg.EpgID.ToString());
+                            string docId = string.Format("epg_{0}_lang_{1}", epg.EpgID, epg.Language.ToLower());
+                            documentIds.Remove(docId);
+                        }
                     }
                     else
                     {

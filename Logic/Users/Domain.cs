@@ -1945,7 +1945,7 @@ namespace Core.Users
                     eState = !bIsActiveInDevices ? DeviceState.Pending : bIsActiveInDomainsDevices ? DeviceState.Activated : DeviceState.UnActivated;
                     dtActivationDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["last_activation_date"]);
                     nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["device_id"]);
-                    externalId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["external_id"]);
+                    externalId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "external_id");
 
                     Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, sDeviceName, m_nDomainID, nDeviceID, nDeviceFamilyID, string.Empty, sPin,
                         dtActivationDate, eState);
