@@ -1274,13 +1274,13 @@ namespace Core.Catalog
             }
             return true;
         }
-        public static void BuildSearchGroupBy(SearchAggregationGroupBy searchGroupBy, Group group, UnifiedSearchDefinitions definitions, 
-                                              HashSet<string> reservedGroupByFields, int groupId)
+        
+        public static void BuildSearchGroupBy(SearchAggregationGroupBy searchGroupBy, Group group, UnifiedSearchDefinitions definitions, HashSet<string> reservedGroupByFields, int groupId)
         {
             if (searchGroupBy != null && searchGroupBy.groupBy != null && searchGroupBy.groupBy.Count > 0)
             {
-                HashSet<string> allMetas = new HashSet<string>();
-                HashSet<string> allTags = new HashSet<string>();
+                var allTags = new HashSet<string>();
+                var allMetas = new Dictionary<string, bool>();
                 bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
                 CatalogGroupCache catalogGroupCache = null;
 
@@ -1288,14 +1288,7 @@ namespace Core.Catalog
                 {
                     if (definitions.shouldSearchMedia)
                     {
-                        foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
-                        {
-                            foreach (var meta in metasInGroup)
-                            {
-                                allMetas.Add(meta.Value.ToLower());
-                            }
-                        }
-
+                        allMetas = group.MetaValueToTypesMapping;
                         foreach (var tagInGroup in group.m_oGroupTags.Values)
                         {
                             allTags.Add(tagInGroup.ToLower());
@@ -1304,9 +1297,19 @@ namespace Core.Catalog
 
                     if (definitions.shouldSearchEpg || definitions.shouldSearchRecordings)
                     {
-                        foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                        if (group.m_oEpgGroupSettings != null && group.m_oEpgGroupSettings.m_lMetasName != null)
                         {
-                            allMetas.Add(meta);
+                            foreach (var epgMetaName in group.m_oEpgGroupSettings.m_lMetasName)
+                            {
+                                if (!allMetas.ContainsKey(epgMetaName))
+                                {
+                                    allMetas.Add(epgMetaName, true);
+                                }
+                                else
+                                {
+                                    allMetas[epgMetaName] = true;
+                                }
+                            }
                         }
 
                         foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
@@ -1337,59 +1340,61 @@ namespace Core.Catalog
                 foreach (var groupBy in searchGroupBy.groupBy)
                 {
                     string lowered = groupBy.ToLower();
-                    string requestGroupBy = lowered;
-                    bool valid = false;
+                    string requestGroupBy = string.Empty;
 
                     if (reservedGroupByFields.Contains(lowered))
                     {
-                        valid = true;
+                        requestGroupBy = lowered;
                     }
                     else if (doesGroupUsesTemplates)
                     {
-                        if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(lowered) 
-                            && catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.Tag.ToString()))
+                        if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(lowered))
                         {
-                            valid = true;
-                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
-                        }
-                        else if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(lowered) 
-                            &&  (catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.String.ToString())
-                                    || catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.MultilingualString.ToString())
-                                    || catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.Number.ToString())
-                                    || catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.Bool.ToString())
-                                    || catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.DateTime.ToString())))
-                        {
-                            valid = true;
-                            requestGroupBy = string.Format("metas.{0}.lowercase", groupBy.ToLower());
+                            if (catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.Tag.ToString()))
+                            {
+                                requestGroupBy = $"tags.{lowered}.lowercase";
+                            }
+                            else if (catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.String.ToString()) ||
+                                     catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.MultilingualString.ToString()) ||
+                                     catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.ReleatedEntity.ToString()))
+                            {
+                                requestGroupBy = $"metas.{lowered}.lowercase";
+                            }
+                            else
+                            {
+                                requestGroupBy = $"metas.{lowered}";
+                            }
                         }
                     }
                     else
                     {
-                        if (allMetas.Contains(lowered))
+                        if (allMetas.ContainsKey(lowered))
                         {
-                            valid = true;
-                            requestGroupBy = string.Format("metas.{0}.lowercase", groupBy.ToLower());
+                            if (allMetas[lowered])
+                            {
+                                requestGroupBy = $"metas.{lowered}.lowercase";
+                            }
+                            else
+                            {
+                                requestGroupBy = $"metas.{lowered}";
+                            }
                         }
                         else if (allTags.Contains(lowered))
                         {
-                            valid = true;
-                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
+                            requestGroupBy = $"tags.{lowered}.lowercase";
                         }                        
                     }
                     
-                    if (!valid)
+                    if (string.IsNullOrEmpty(requestGroupBy))
                     {
-                        throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy), (int)eResponseStatus.BadSearchRequest);
+                        throw new KalturaException($"Invalid group by field was sent: {groupBy}", (int)eResponseStatus.BadSearchRequest);
                     }
-                    else
-                    {
-                        // Transform the list of group bys to metas/tags list
-                        definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
 
-                        if (groupBy == searchGroupBy.distinctGroup)
-                        {
-                            distinctGroupByFormatted = requestGroupBy;
-                        }
+                    // Transform the list of group bys to metas/tags list
+                    definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
+                    if (groupBy == searchGroupBy.distinctGroup)
+                    {
+                        distinctGroupByFormatted = requestGroupBy;
                     }
                 }
                 
@@ -1401,11 +1406,6 @@ namespace Core.Catalog
                 {
                     definitions.distinctGroup = new KeyValuePair<string, string>(searchGroupBy.distinctGroup, distinctGroupByFormatted);
                     definitions.extraReturnFields.Add(distinctGroupByFormatted);
-                }
-                else if (string.IsNullOrEmpty(searchGroupBy.distinctGroup))
-                {
-                    //definitions.distinctGroup = definitions.groupBy[0];
-                    //definitions.extraReturnFields.Add(definitions.distinctGroup.Value);
                 }
             }
         }
