@@ -15541,7 +15541,7 @@ namespace Core.ConditionalAccess
                     shouldGetDomainRecordings = false;
                 }
 
-                if (shouldGetDomainRecordings || (domainRecordingStatus.HasValue && domainRecordingStatus.Value == DomainRecordingStatus.OK))
+                if (shouldGetDomainRecordings)
                 {
                     int status = 1;
                     // Currently canceled can be only due to IngestRecording which Deletes EPG
@@ -15582,17 +15582,6 @@ namespace Core.ConditionalAccess
                                 {
                                     quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainUsedQuota(task.GroupId, domainId, recordingDuration);
                                 }
-
-                                // if old recording duration was sent use the difference, otherwise use the recording length  
-                                //int recordingDurationDif = task.OldRecordingDuration != 0 ? task.OldRecordingDuration - recordingDuration : recordingDuration;
-                                //if (recordingDurationDif > 0)
-                                //{
-                                //    quotaSuccessfullyUpdated = QuotaManager.Instance.IncreaseDomainUsedQuota(task.GroupId, domainId, recordingDurationDif, true);
-                                //}
-                                //else if (recordingDurationDif < 0)
-                                //{
-                                //    quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, -recordingDurationDif);
-                                //}
 
                                 if (quotaSuccessfullyUpdated)
                                 {
