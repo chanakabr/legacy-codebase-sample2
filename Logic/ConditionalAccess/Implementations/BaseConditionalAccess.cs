@@ -13620,8 +13620,9 @@ namespace Core.ConditionalAccess
                     log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                     recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, recording.Crid,
                                                                     new List<long>() { domainID }, out failedDomainIds);
+
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
-                        && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
+                        && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus, true))
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
                         log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
@@ -13648,6 +13649,7 @@ namespace Core.ConditionalAccess
                     {
                         log.DebugFormat("recording.Id = {0}, recording.Status = {1}, IsValidRecordingStatus ={2}",
                             recording != null ? recording.Id : 0, recording.Status != null ? recording.Status.Message.ToString() : "null", Utils.IsValidRecordingStatus(recording.RecordingStatus));
+
                         recording = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingFailed, eResponseStatus.RecordingFailed.ToString()) };
                     }
                 }
