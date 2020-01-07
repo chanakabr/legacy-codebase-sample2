@@ -1354,7 +1354,9 @@ namespace Core.Catalog
                             {
                                 requestGroupBy = $"tags.{lowered}.lowercase";
                             }
-                            else if (catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.String.ToString()) ||
+                            else if (definitions.shouldSearchEpg || 
+                                     definitions.shouldSearchRecordings ||
+                                     catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.String.ToString()) ||
                                      catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.MultilingualString.ToString()) ||
                                      catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.ReleatedEntity.ToString()))
                             {
@@ -1409,7 +1411,7 @@ namespace Core.Catalog
                 }
             }
         }
-        
+
         private static Tuple<List<int>, bool> GetMediaChannels(Dictionary<string, object> funcParams)
         {
             bool res = false;
