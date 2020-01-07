@@ -15529,7 +15529,7 @@ namespace Core.ConditionalAccess
                 if (task.Id > 0 && recording.RecordingStatus != TstvRecordingStatus.Recorded)
                 {
                     log.DebugFormat("Recording has already been deleted/canceled/failed, taskId: {0}, recordingId:{1}", task.Id, task.RecordingId);
-                    shouldGetDomainRecordings = false;
+                    shouldGetDomainRecordings = recording.RecordingStatus != TstvRecordingStatus.Failed;
                     result = true;
                 }
 
@@ -15590,6 +15590,7 @@ namespace Core.ConditionalAccess
                                     {
                                         log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", task.RecordingId, domainId);
                                     }
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
                                 }
                                 else
                                 {

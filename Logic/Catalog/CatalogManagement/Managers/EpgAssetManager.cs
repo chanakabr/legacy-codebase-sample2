@@ -389,12 +389,6 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        /// <summary>
-        /// Send an event to perform the requested action with the given action
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="epgIds"></param>
-        /// <param name="action"></param>
         internal static void SendActionEvent(int groupId, long[] epgIds, eAction action)
         {
             if (epgIds == null || epgIds.Count() == 0)
