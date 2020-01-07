@@ -11938,7 +11938,6 @@ namespace Core.Api
                     List<KeyValuePair<eAssetTypes, long>> kvp = assets.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
                     var virtualAssets = AssetManager.GetAssets(groupId, kvp, false);
 
-                    objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
                     objectVirtualAssetFilter.ObjectIds = new List<long>();
 
                     long objectId = 0;
@@ -11949,6 +11948,7 @@ namespace Core.Api
                         {
                             if (objectIds == null || objectIds.Count == 0 || objectIds.Contains(objectId))
                             {
+                                objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
                                 objectVirtualAssetFilter.ObjectIds.Add(objectId);
                             }
                         }
