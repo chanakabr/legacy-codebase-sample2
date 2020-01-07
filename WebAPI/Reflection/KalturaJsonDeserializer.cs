@@ -18876,7 +18876,6 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute PriceDetailsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCollection")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -18884,6 +18883,7 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaCollection(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -19020,7 +19020,6 @@ namespace WebAPI.Models.Pricing
         };
         private static RuntimeSchemePropertyAttribute CouponGroupIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCollectionFilter")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -19028,6 +19027,7 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaCollectionFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -19251,7 +19251,6 @@ namespace WebAPI.Models.Pricing
         };
         private static RuntimeSchemePropertyAttribute MaxUsesNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -19259,10 +19258,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute MaxUsesNumberOnRenewableSubSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
-            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -19270,10 +19269,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute MaxHouseholdUsesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
-            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -19281,10 +19280,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute DiscountCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -19292,10 +19291,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute DiscountIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
-            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -19303,6 +19302,7 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinInteger = 1,
         };
         public KalturaCouponsGroup(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -20490,12 +20490,12 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPricePlanFilter")
         {
-            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
+            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21099,12 +21099,12 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute BaseSubscriptionIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionDependencySetFilter")
         {
-            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
+            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -21129,12 +21129,12 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute SubscriptionIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionFilter")
         {
-            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
+            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -27447,10 +27447,10 @@ namespace WebAPI.Models.Billing
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentGateway")
         {
-            RequiresPermission = 0,
-            InsertOnly = false,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27513,30 +27513,30 @@ namespace WebAPI.Models.Billing
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentMethod")
         {
-            RequiresPermission = 0,
-            InsertOnly = false,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentMethod")
         {
-            RequiresPermission = 0,
-            InsertOnly = true,
             ReadOnly = false,
+            InsertOnly = true,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentMethod")
         {
-            RequiresPermission = 0,
-            InsertOnly = false,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27651,10 +27651,10 @@ namespace WebAPI.Models.Billing
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaymentGatewayBaseProfile")
         {
-            RequiresPermission = 0,
-            InsertOnly = false,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27951,10 +27951,10 @@ namespace WebAPI.Models.Billing
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaymentMethodProfile")
         {
-            RequiresPermission = 0,
-            InsertOnly = false,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -28043,40 +28043,40 @@ namespace WebAPI.Models.Api
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
         {
-            RequiresPermission = 0,
-            InsertOnly = false,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
         {
-            RequiresPermission = 0,
-            InsertOnly = false,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
         {
-            RequiresPermission = 0,
-            InsertOnly = false,
             ReadOnly = true,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute KsqlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
         {
-            RequiresPermission = 0,
-            InsertOnly = false,
             ReadOnly = false,
+            InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,

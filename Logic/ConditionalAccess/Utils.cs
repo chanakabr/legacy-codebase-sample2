@@ -6750,18 +6750,16 @@ namespace Core.ConditionalAccess
             TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
             int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
             DateTime? viewableUntilDate = null;
-            if (recordingLifetime.HasValue && recording.RecordingStatus != TstvRecordingStatus.Failed)
+
+            //BEO - 7188
+            if (recordingLifetime.HasValue)
             {
                 viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
-            }
-            else
-            {
-                viewableUntilDate = new DateTime(1970, 1, 1);
+                recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
+                return RecordingsDAL.UpdateRecording(recording, groupId, rowStatus, isActive, status, viewableUntilDate);
             }
 
-            recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
-
-            return RecordingsDAL.UpdateRecording(recording, groupId, rowStatus, isActive, status, viewableUntilDate);
+            return false;
         }
 
         internal static List<Recording> GetRecordings(int groupId, List<long> recordingIds)

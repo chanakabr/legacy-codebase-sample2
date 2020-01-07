@@ -123,7 +123,7 @@ namespace DalCB
         }
 
 
-        public bool InsertProgram(string sDocID, object epg, DateTime? dtExpiresAt, ulong cas)
+        public bool InsertProgram(string sDocID, EpgCB epg, DateTime? dtExpiresAt, ulong cas)
         {
             bool bRes = false;
 
@@ -131,6 +131,7 @@ namespace DalCB
             {
                 try
                 {
+                    epg.DocumentId = sDocID;
                     // TODO  : add here the json serialize 
                     bRes = (dtExpiresAt.HasValue) ?
                         cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
