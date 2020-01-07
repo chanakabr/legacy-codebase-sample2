@@ -2,9 +2,11 @@
 using ApiObjects.BulkUpload;
 using ApiObjects.SearchObjects;
 using ConfigurationManager;
+using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
+using GroupsCacheManager;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -20,10 +22,12 @@ namespace IngestHandler.Common
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private readonly ElasticSearchApi _ElasticSearchClient = null;
 
-        private DateTime _DateOfProgramsToIngest;
-        private int _GroupId;
-        private long _BulkUploadId;
-        private IDictionary<string, LanguageObj> _Languages;
+        private readonly DateTime _DateOfProgramsToIngest;
+        private readonly int _GroupId;
+        private readonly long _BulkUploadId;
+        private readonly IDictionary<string, LanguageObj> _Languages;
+        private readonly ESSerializerV2 _Serializer;
+        private readonly LanguageObj _DefaultLanguage;
 
         public UpdateClonedIndex(int groupId, long bulkUploadId, DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages)
         {
@@ -32,6 +36,8 @@ namespace IngestHandler.Common
             _BulkUploadId = bulkUploadId;
             _DateOfProgramsToIngest = dateOfProgramsToIngest;
             _Languages = languages;
+            _Serializer = new ESSerializerV2();
+            _DefaultLanguage = languages.Values.First(l => l.IsDefault);
         }
 
         public void Update(IList<EpgProgramBulkUploadObject> calculatedPrograms, IList<EpgProgramBulkUploadObject> programsToDelete)
@@ -39,19 +45,21 @@ namespace IngestHandler.Common
             var bulkSize = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
             var index = BulkUploadMethods.GetIngestDraftTargetIndexName(_GroupId, _BulkUploadId, _DateOfProgramsToIngest);
             var bulkRequests = new List<ESBulkRequestObj<string>>();
-            var serializer = new ESSerializerV2();
+
             var isOpc = GroupSettingsManager.IsOpc(_GroupId);
-            var metasToPad = GetMetasToPad(_GroupId);
+            var metasToPad = GetMetasToPad(_GroupId, isOpc);
+
+
 
             var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
             foreach (var program in programTranslationsToIndex)
             {
                 program.PadMetas(metasToPad);
-                var suffix = program.Language;
+                var suffix = program.Language == _DefaultLanguage.Code ? "" : program.Language;
                 var language = _Languages[program.Language];
 
                 // Serialize EPG object to string
-                var serializedEpg = serializer.SerializeEpgObject(program, suffix, isOpc);
+                var serializedEpg = _Serializer.SerializeEpgObject(program, suffix, isOpc);
                 var epgType = GetTanslationType(DEFAULT_INDEX_MAPPING_TYPE, language);
 
                 var totalMinutes = GetTTLMinutes(program);
@@ -119,9 +127,13 @@ namespace IngestHandler.Common
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        private HashSet<string> GetMetasToPad(int groupId)
+        private HashSet<string> GetMetasToPad(int groupId, bool isOpc)
         {
-            return new HashSet<string>();
+            CatalogManager.TryGetCatalogGroupCacheFromCache(_GroupId, out var catalogGroupCache);
+            var groupManager = new GroupManager();
+            var group = groupManager.GetGroup(_GroupId);
+            IndexManager.GetMetasAndTagsForMapping(_GroupId, isOpc, out var metas, out var tags, out var metasTopad, _Serializer, group, catalogGroupCache, isEpg: true);
+            return metasTopad;
         }
 
         private static string GetTanslationType(string type, LanguageObj language)

@@ -20,25 +20,10 @@ namespace ElasticSearchHandler.IndexBuilders
 {
     public class EpgIndexBuilderV2 : AbstractIndexBuilder
     {
-        private static readonly string EPG = "epg";
-        protected const string VERSION = "2";
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value> 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public const string LOWERCASE_ANALYZER =
-            "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\"],\"char_filter\": [\"html_strip\"]}";
-
-        public const string PHRASE_STARTS_WITH_FILTER =
-            "\"edgengram_filter\": {\"type\":\"edgeNGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}";
-
-        public const string PHRASE_STARTS_WITH_ANALYZER =
-            "\"phrase_starts_with_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\",\"edgengram_filter\", \"icu_folding\",\"icu_normalizer\"]," +
-            "\"char_filter\":[\"html_strip\"]}";
-
-        public const string PHRASE_STARTS_WITH_SEARCH_ANALYZER =
-            "\"phrase_starts_with_search_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\", \"icu_folding\",\"icu_normalizer\"]," +
-            "\"char_filter\":[\"html_strip\"]}";
 
         #region Data Members
 
@@ -59,44 +44,25 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #endregion
 
-        #region Override Methods
-
         public override bool BuildIndex()
         {
             bool success = false;
 
             ContextData cd = new ContextData();
-            CatalogGroupCache catalogGroupCache = null;
-            Group group = null;
-            List<ApiObjects.LanguageObj> languages = null;
-            GroupManager groupManager = new GroupManager();
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
-            ApiObjects.LanguageObj defaultLanguage = null;
-
-            if (doesGroupUsesTemplates)
+            CatalogGroupCache catalogGroupCache;
+            Group group;
+            List<LanguageObj> languages;
+            GroupManager groupManager;
+            bool doesGroupUsesTemplates;
+            LanguageObj defaultLanguage;
+            try
             {
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
-                    return false;
-                }
-
-                languages = catalogGroupCache.LanguageMapById.Values.ToList();
-                defaultLanguage = catalogGroupCache.DefaultLanguage;
+                GetGroupAndLanguages(out catalogGroupCache, out group, out languages, out groupManager, out doesGroupUsesTemplates, out defaultLanguage);
             }
-            else
+            catch (Exception e)
             {
-                groupManager.RemoveGroup(groupId);
-                group = groupManager.GetGroup(groupId);
-
-                if (group == null)
-                {
-                    log.ErrorFormat("Couldn't load group in cache when building index for group {0}", groupId);
-                    return success;
-                }
-
-                languages = group.GetLangauges();
-                defaultLanguage = group.GetGroupDefaultLanguage();
+                log.Error("Erorr while getting groups and languages", e);
+                return false;
             }
 
             // If request doesn't have start date, use [NOW - 7 days] as default
@@ -111,79 +77,18 @@ namespace ElasticSearchHandler.IndexBuilders
                 this.EndDate = DateTime.UtcNow.Date.AddDays(7);
             }
 
-            string groupAlias = GetAlias();
-            string newIndexName = GetNewIndexName();
-
-            List<string> analyzers;
-            List<string> filters;
-            List<string> tokenizers;
-
-            GetAnalyzers(languages, out analyzers, out filters, out tokenizers);
-
             sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+            sizeOfBulk = sizeOfBulk == 0 ? 50 : sizeOfBulk;
+            var newIndexName = GetNewIndexName();
 
-            if (sizeOfBulk == 0)
+            try
             {
-                sizeOfBulk = 50;
+                MetasToPad = IndexManager.CreateNewEpgIndex(groupId, catalogGroupCache, group, languages, defaultLanguage, newIndexName);
             }
-
-            int maxResults = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
-
-            if (maxResults == 0)
+            catch (Exception e)
             {
-                maxResults = 100000;
-            }
-
-            success = api.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers, maxResults);
-
-            if (!success)
-            {
-                log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
-                return success;
-            }
-
-            MappingAnalyzers defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage, VERSION);
-            Dictionary<string, KeyValuePair<eESFieldType, string>> metas = null;
-            List<string> tags = null;
-            HashSet<string> metasToPad = null;
-
-            if (!IndexManager.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas,
-                ref tags, ref metasToPad, serializer, group, catalogGroupCache, true))
-            {
-                log.Error("Failed GetMetasAndTagsForMapping as part of BuildIndex");
+                log.Error("Error while building new index", e);
                 return false;
-            }
-
-            MetasToPad = metasToPad;
-
-            #region create mapping
-            foreach (ApiObjects.LanguageObj language in languages)
-            {
-                MappingAnalyzers specificMappingAnalyzers = GetMappingAnalyzers(language, VERSION);
-                string specificType = GetIndexType(language);
-
-                #region Join tags and metas of EPG and media to same mapping
-
-                #endregion
-
-                string mappingString = serializer.CreateEpgMapping(metas, tags, metasToPad, specificMappingAnalyzers, defaultMappingAnalyzers, specificType, shouldAddRouting);
-                bool mappingResult = api.InsertMapping(newIndexName, specificType, mappingString.ToString());
-                
-                if (language.IsDefault && !mappingResult)
-                    success = false;
-
-                if (!mappingResult)
-                {
-                    log.Error(string.Concat("Could not create mapping of type epg for language ", language.Name));
-                }
-
-            }
-            #endregion
-
-            if (!success)
-            {
-                log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
-                return success;
             }
 
             log.DebugFormat("Start populating epg index = {0}", newIndexName);
@@ -214,6 +119,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
             if (this.SwitchIndexAlias || !indexExists)
             {
+
+                string groupAlias = GetAlias();
                 List<string> oldIndices = api.GetAliases(groupAlias);
 
                 success = api.SwitchIndex(newIndexName, groupAlias, oldIndices, null);
@@ -234,14 +141,50 @@ namespace ElasticSearchHandler.IndexBuilders
             return success;
         }
 
-        #endregion
+
+
+        private void GetGroupAndLanguages(out CatalogGroupCache catalogGroupCache, out Group group, out List<LanguageObj> languages, out GroupManager groupManager, out bool doesGroupUsesTemplates, out LanguageObj defaultLanguage)
+        {
+            catalogGroupCache = null;
+            group = null;
+            languages = null;
+            groupManager = new GroupManager();
+            doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            defaultLanguage = null;
+
+            if (doesGroupUsesTemplates)
+            {
+                // TODO: verify that we need or not to invalidate the group cache before we get the group to get the latest
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    throw new Exception($"failed to get catalogGroupCache for groupId: {groupId} when calling BuildIndex");
+                }
+
+                languages = catalogGroupCache.LanguageMapById.Values.ToList();
+                defaultLanguage = catalogGroupCache.DefaultLanguage;
+            }
+            else
+            {
+                groupManager.RemoveGroup(groupId);
+                group = groupManager.GetGroup(groupId);
+
+                if (group == null)
+                {
+                    throw new Exception($"failed to get group for groupId: {groupId} when calling BuildIndex");
+                }
+
+                languages = group.GetLangauges();
+                defaultLanguage = group.GetGroupDefaultLanguage();
+            }
+        }
+
 
         #region Private and protected Methods
 
         protected virtual void InsertChannelsQueries(GroupManager groupManager, Group group, string newIndexName, bool doesGroupUsesTemplates)
         {
             if (doesGroupUsesTemplates || group.channelIDs != null)
-            {            
+            {
                 List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
                 try
                 {
@@ -323,12 +266,12 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected virtual string GetIndexType()
         {
-            return EPG;
+            return IndexManager.EPG_INDEX_TYPE;
         }
 
         protected virtual string GetIndexType(ApiObjects.LanguageObj language)
         {
-            return (language.IsDefault) ? EPG : string.Concat(EPG, "_", language.Code);
+            return (language.IsDefault) ? IndexManager.EPG_INDEX_TYPE : string.Concat(IndexManager.EPG_INDEX_TYPE, "_", language.Code);
         }
 
         protected virtual string GetAlias()
@@ -342,7 +285,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             while (tempDate <= this.EndDate.Value)
             {
-                PopulateEpgIndex(newIndexName, EPG, tempDate, group);
+                PopulateEpgIndex(newIndexName, IndexManager.EPG_INDEX_TYPE, tempDate, group);
                 tempDate = tempDate.AddDays(1);
             }
         }
@@ -357,50 +300,7 @@ namespace ElasticSearchHandler.IndexBuilders
             return ElasticSearchTaskUtils.GetNewEpgIndexStr(groupId);
         }
 
-        private void GetAnalyzers(List<ApiObjects.LanguageObj> languages, out List<string> analyzers, out List<string> filters, out List<string> tokenizers)
-        {
-            analyzers = new List<string>();
-            filters = new List<string>();
-            tokenizers = new List<string>();
 
-            if (languages != null)
-            {
-                foreach (ApiObjects.LanguageObj language in languages)
-                {
-                    string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, VERSION));
-                    string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code, VERSION));
-                    string tokenizer = ElasticSearchApi.GetTokenizerDefinition(ElasticSearch.Common.Utils.GetLangCodeTokenizerKey(language.Code, VERSION));
-
-                    if (string.IsNullOrEmpty(analyzer))
-                    {
-                        log.Error(string.Format("analyzer for language {0} doesn't exist", language.Code));
-                    }
-                    else
-                    {
-                        analyzers.Add(analyzer);
-                    }
-
-                    if (!string.IsNullOrEmpty(filter))
-                    {
-                        filters.Add(filter);
-                    }
-
-                    if (!string.IsNullOrEmpty(tokenizer))
-                    {
-                        tokenizers.Add(tokenizer);
-                    }
-                }
-
-                // we always want a lowercase analyzer
-                analyzers.Add(LOWERCASE_ANALYZER);
-
-                // we always want "autocomplete" ability
-                filters.Add(PHRASE_STARTS_WITH_FILTER);
-                analyzers.Add(PHRASE_STARTS_WITH_ANALYZER);
-                analyzers.Add(PHRASE_STARTS_WITH_SEARCH_ANALYZER);
-                
-            }
-        }
 
         protected void PopulateEpgIndex(string index, string type, DateTime date, Group group)
         {
@@ -447,7 +347,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             // GetLinear Channel Values 
             var programsList = new List<EpgCB>();
-            
+
             foreach (Dictionary<string, EpgCB> programsValues in programs.Values)
             {
                 programsList.AddRange(programsValues.Values);
@@ -457,7 +357,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             // used only to support linear media id search on elastic search
             List<string> epgChannelIds = programsList.Select(item => item.ChannelID.ToString()).ToList<string>();
-            Dictionary<string, LinearChannelSettings>  linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
+            Dictionary<string, LinearChannelSettings> linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
 
             // Run on all programs
             foreach (ulong epgID in programs.Keys)
@@ -549,7 +449,7 @@ namespace ElasticSearchHandler.IndexBuilders
                             foreach (var item in invalidResults)
                             {
                                 log.ErrorFormat("Error - Could not add EPG to ES index. GroupID={0};Type={1};EPG_ID={2};error={3};",
-                                    groupId, EPG, item.Key, item.Value);
+                                    groupId, IndexManager.EPG_INDEX_TYPE, item.Key, item.Value);
                             }
                         }
 
@@ -568,7 +468,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     foreach (var item in invalidResults)
                     {
                         log.ErrorFormat("Error - Could not add EPG to ES index. GroupID={0};Type={1};EPG_ID={2};error={3};",
-                            groupId, EPG, item.Key, item.Value);
+                            groupId, IndexManager.EPG_INDEX_TYPE, item.Key, item.Value);
                     }
                 }
             }

@@ -38,7 +38,11 @@ namespace ElasticsearchIndexCleaner
                 var indicesByDate = new Dictionary<DateTime, List<string>>();
                 foreach (var item in indicesWithoutAliases)
                 {
-                    var date = GetDateTimeFromIndexName(item);
+                    // There migth be some old indices that are not in the new naming convention we need to be fault tolerent
+                    var dateResult = GetDateTimeFromIndexName(item);
+                    if (!dateResult.HasValue) { continue; }
+                    var date = dateResult.Value;
+
                     if (!indicesByDate.ContainsKey(date))
                     {
                         indicesByDate.Add(date, new List<string>());
@@ -79,9 +83,12 @@ namespace ElasticsearchIndexCleaner
             return true;
         }
 
-        private static DateTime GetDateTimeFromIndexName(string str)
+        private static DateTime? GetDateTimeFromIndexName(string str)
         {
-            var sDate = str.Split('_')[3];
+            var indexNameParts = str.Split('_');
+            if (indexNameParts.Length < 4) { return null; }
+
+            var sDate = indexNameParts[3];
 
             var year = int.Parse(sDate.Substring(0, 4));
             var month = int.Parse(sDate.Substring(4, 2));

@@ -20,7 +20,6 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.ServiceModel;
-using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -147,7 +146,7 @@ namespace IngestHandler
                 var pic = picResult.Object;
                 var picId = CatalogDAL.InsertEPGPic(groupID, pic.ProgramName, pic.PicName, pic.BaseUrl, pic.ImageTypeId);
                 pic.PicID = picId;
-                SendImageDataToImageUploadQueue(pic.Url, groupID, pic.Version, pic.PicID, pic.BaseUrl, eMediaType.EPG);
+                SendImageDataToImageUploadQueue(pic.Url, groupID, pic.Version, pic.PicID, eMediaType.EPG);
 
             }
 
@@ -359,7 +358,7 @@ namespace IngestHandler
 
                     if (isAsync)
                     {
-                        SendImageDataToImageUploadQueue(thumb, groupID, version, picId, sPicNewName, eMediaType.EPG);
+                        SendImageDataToImageUploadQueue(thumb, groupID, version, picId, eMediaType.EPG);
                     }
                     else
                     {
@@ -402,7 +401,7 @@ namespace IngestHandler
             return picId;
         }
 
-        private static void SendImageDataToImageUploadQueue(string sourcePath, int groupId, int version, int picId, string picNewName, eMediaType mediaType)
+        private static void SendImageDataToImageUploadQueue(string sourcePath, int groupId, int version, int picId, eMediaType mediaType)
         {
             try
             {
@@ -420,7 +419,9 @@ namespace IngestHandler
                     sourcePath = ImageUtils.getRemotePicsURL(groupId) + sourcePath;
                 }
 
-                ImageUploadData data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
+                var fileName = Path.GetFileNameWithoutExtension(Path.GetFileName(new Uri(sourcePath).LocalPath));
+
+                ImageUploadData data = new ImageUploadData(parentGroupId, fileName, version, sourcePath, picId, imageServerUrl, mediaType);
 
                 var queue = new ImageUploadQueue();
 
