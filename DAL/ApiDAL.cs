@@ -3187,7 +3187,7 @@ namespace DAL
                             };
                             break;
                         default:
-                            permission = null;
+                            permission = new Permission();
                             break;
                     }
                     if (permission != null)

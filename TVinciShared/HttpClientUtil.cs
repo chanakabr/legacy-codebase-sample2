@@ -13,15 +13,21 @@ namespace TVinciShared
 {
     public static class HttpClientUtil
     {
+        static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         static readonly List<SslProtocols> defaultEnabledSslProtocols = ApplicationConfiguration.Current.HttpClientConfiguration.GetSslProtocols();
         static readonly List<DecompressionMethods> defaultEnabledDecompressionMethod = ApplicationConfiguration.Current.HttpClientConfiguration.GetDecompressionMethods();
         static readonly int defaultMaxConnectionsPerServer = ApplicationConfiguration.Current.HttpClientConfiguration.MaxConnectionsPerServer.Value;
         static readonly bool defaultCheckCertificateRevocationList = ApplicationConfiguration.Current.HttpClientConfiguration.CheckCertificateRevocationList.Value;
         static readonly System.TimeSpan defaultTimeout = System.TimeSpan.FromMilliseconds(ApplicationConfiguration.Current.HttpClientConfiguration.TimeOutInMiliSeconds.Value);
 
-        static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public static HttpClient GetHttpClient(BaseHttpClientConfiguration specificConfiguration = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="specificConfiguration"></param>
+        /// <param name="shouldDecompress">Should the http client be configured with decompression method from TCM or not.</param>
+        /// <returns></returns>
+        public static HttpClient GetHttpClient(BaseHttpClientConfiguration specificConfiguration = null, bool shouldDecompress = true)
         {
             List<SslProtocols> enabledSslProtocols;
             List<DecompressionMethods> enabledDecompressionMethod;
@@ -39,9 +45,12 @@ namespace TVinciShared
                 httpHandler.SslOptions.EnabledSslProtocols = sslProtocols | httpHandler.SslOptions.EnabledSslProtocols;
             }
 
-            foreach (DecompressionMethods decompressionMethod in enabledDecompressionMethod)
+            if (shouldDecompress)
             {
-                httpHandler.AutomaticDecompression = decompressionMethod | httpHandler.AutomaticDecompression;
+                foreach (DecompressionMethods decompressionMethod in enabledDecompressionMethod)
+                {
+                    httpHandler.AutomaticDecompression = decompressionMethod | httpHandler.AutomaticDecompression;
+                }
             }
 
             httpHandler.MaxConnectionsPerServer = maxConnectionsPerServer;
@@ -65,9 +74,12 @@ namespace TVinciShared
                 }
             }*/
 
-            foreach (DecompressionMethods decompressionMethod in enabledDecompressionMethod)
+            if (shouldDecompress)
             {
-                httpHandler.AutomaticDecompression = decompressionMethod | httpHandler.AutomaticDecompression;
+                foreach (DecompressionMethods decompressionMethod in enabledDecompressionMethod)
+                {
+                    httpHandler.AutomaticDecompression = decompressionMethod | httpHandler.AutomaticDecompression;
+                }
             }
 
             httpHandler.MaxConnectionsPerServer = maxConnectionsPerServer;

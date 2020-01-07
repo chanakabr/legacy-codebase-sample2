@@ -146,6 +146,7 @@ namespace ConfigurationManager
         public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration();
         public NPVRHttpClientConfiguration NPVRHttpClientConfiguration = new NPVRHttpClientConfiguration();
         public ElasticSearchHttpClientConfiguration ElasticSearchHttpClientConfiguration = new ElasticSearchHttpClientConfiguration();
+        public MailerHttpClientConfiguration MailerHttpClientConfiguration = new MailerHttpClientConfiguration();
 
 
         public T GetValueByKey<T>(string key)

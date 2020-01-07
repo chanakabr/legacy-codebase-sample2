@@ -33,6 +33,8 @@ namespace Core.Users
 
         public DateTime ActivatedOn { get; set; }
 
+        public string ExternalId { get; set; }
+
         public long DeviceFamilyId
         {
             get;
