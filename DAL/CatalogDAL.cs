@@ -5815,6 +5815,27 @@ namespace Tvinci.Core.DAL
             return isUpdateSuccess;
         }
 
+        public static bool UpdateOrAddBulkUploadAffectedObjectsToCB(long bulkUploadId, IEnumerable<IAffectedObject> affectedObjects, uint ttl)
+        {
+            var bulkUploadKey = GetBulkUploadKey(bulkUploadId);
+            var isUpdateSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<BulkUpload>(ttl, eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUpload =>
+            {
+                var affectedObjectsDictionary = bulkUpload.AffectedObjects == null
+                                                ? new Dictionary<ulong, IAffectedObject>()
+                                                : bulkUpload.AffectedObjects.ToDictionary(o => o.ObjectId);
+                
+                foreach (var affectedObject in affectedObjects)
+                {
+                    affectedObjectsDictionary[affectedObject.ObjectId] = affectedObject;
+                }
+
+                bulkUpload.AffectedObjects = affectedObjectsDictionary.Values.ToList();
+
+            });
+
+            return isUpdateSuccess;
+        }
+
         public static bool SaveBulkUploadResultsCB(List<BulkUploadResult> resultsToSave, uint ttl, out BulkUploadJobStatus status)
         {
             status = BulkUploadJobStatus.Processing;
@@ -5880,6 +5901,12 @@ namespace Tvinci.Core.DAL
                 return newStatus;
             }
 
+            var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
+            if (isAnyInError)
+            {
+                return BulkUploadJobStatus.Failed;
+            }
+
             var isAnyInProgress = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.InProgress);
             if (isAnyInProgress)
             {
@@ -5887,8 +5914,6 @@ namespace Tvinci.Core.DAL
             }
 
             var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
-            var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
-
 
             if (!isAnyInError)
             {

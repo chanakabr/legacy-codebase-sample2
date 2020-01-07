@@ -99,7 +99,7 @@ namespace WebAPI.Managers.Models
 
         public ApiToken(string userId, int groupId, KS.KSData payload, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration, Dictionary<string, string> privileges = null)
         {
-            string ksPayload = KSUtils.PrepareKSPayload(new KS.KSData(payload, (int)DateUtils.GetUtcUnixTimestampNow()));
+            var ksData = new KS.KSData(payload, (int)DateUtils.GetUtcUnixTimestampNow());
             this.RefreshToken = Utils.Utils.Generate32LengthGuid();
             this.GroupID = groupId;
             this.UserId = userId;
@@ -138,7 +138,7 @@ namespace WebAPI.Managers.Models
                               userId,
                               (int)(AccessTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)), // relative
                               isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
-                              ksPayload,
+                              ksData,
                               privileges,
                               Models.KS.KSVersion.V2);
 
@@ -147,7 +147,7 @@ namespace WebAPI.Managers.Models
 
         public ApiToken(ApiToken token, Group groupConfig, string udid)
         {
-            string payload = KSUtils.PrepareKSPayload(new KS.KSData(token, (int)DateUtils.GetUtcUnixTimestampNow(), udid));
+            var ksData = new KS.KSData(token, (int)DateUtils.GetUtcUnixTimestampNow(), udid);
             this.RefreshToken = token.RefreshToken;
             this.GroupID = token.GroupID;
             this.UserId = token.UserId;
@@ -189,7 +189,7 @@ namespace WebAPI.Managers.Models
                               token.UserId,
                               (int)(AccessTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)),
                               token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
-                              payload,
+                              ksData,
                               null, 
                               Models.KS.KSVersion.V2);
             this.KS = KsObject.ToString();

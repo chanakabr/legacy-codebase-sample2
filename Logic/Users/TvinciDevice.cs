@@ -29,7 +29,7 @@ namespace Core.Users
             ApiObjects.Response.Status status = null;
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
             device.Initialize(sDeviceUDID);
-            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName);
+            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, "");
 
             // in case set device Succeeded
             // domain should be remove from the cache 
@@ -68,12 +68,31 @@ namespace Core.Users
             return status;
         }
 
-        public override DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName)
+        public override DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string externalId, bool allowNullExternalId)
         {
             DeviceResponseObject ret = new DeviceResponseObject();
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
             device.Initialize(sDeviceUDID);
-            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName);
+
+            //Check if external id already exists
+            var deviceId = Device.GetDeviceIDByExternalId(nGroupID, externalId);
+
+            //already exists
+            if (!string.IsNullOrEmpty(deviceId) && device?.m_id != deviceId)
+            {
+                ret.m_oDeviceResponseStatus = DeviceResponseStatus.Error;
+                if (device != null)
+                {
+                    ret.m_oDevice = device;
+                    if (device.m_state == DeviceState.Error)
+                    {
+                        ret.m_oDeviceResponseStatus = DeviceResponseStatus.ExternalIdAlreadyExists;
+                        return ret;
+                    }
+                }
+            }
+
+            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, externalId, allowNullExternalId);
 
             // in case set device Succeeded
             // domain should be remove from the cache 

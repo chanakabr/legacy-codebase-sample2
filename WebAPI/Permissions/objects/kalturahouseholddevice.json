@@ -10,6 +10,28 @@
       "parameter": "householdId",
       "action": "INSERT",
       "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaHouseholdDevice_ExternalId_Insert",
+      "object": "KalturaHouseholdDevice",
+      "parameter": "externalId",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaHouseholdDevice_ExternalId_Update",
+      "object": "KalturaHouseholdDevice",
+      "parameter": "externalId",
+      "action": "UPDATE",
+      "type": "Parameter"
     }
   ],
   "type": "Parameter"

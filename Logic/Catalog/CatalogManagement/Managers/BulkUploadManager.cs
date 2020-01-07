@@ -158,7 +158,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL))
                 {
-                    log.ErrorFormat("Error while saving BulkUpload to CB. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);                    
+                    log.ErrorFormat("Error while saving BulkUpload to CB. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
                     return response;
                 }
 
@@ -360,6 +360,31 @@ namespace Core.Catalog.CatalogManagement
             return objectsListResponse;
         }
 
+        public static Status UpdateOrAddBulkUploadAffectedObjects(long bulkUploadId, IEnumerable<IAffectedObject> affectedObject)
+        {
+            var response = new Status((int)eResponseStatus.Error);
+
+            try
+            {
+                var isSuccess = CatalogDAL.UpdateOrAddBulkUploadAffectedObjectsToCB(bulkUploadId, affectedObject, BULK_UPLOAD_CB_TTL);
+                if (!isSuccess)
+                {
+                    log.ErrorFormat("UpdateOrAddBulkUploadAffectedObjects - Error while saving to CB. affectedObject:[{0}]", string.Join(",", affectedObject));
+                    response.Set(eResponseStatus.Error);
+                }
+
+                response.Set(eResponseStatus.OK);
+            }
+            catch (Exception)
+            {
+
+                log.Error(string.Format("An Exception was occurred in UpdateBulkUploadResult. results:[{0}]", string.Join(",", affectedObject)));
+                response.Set(eResponseStatus.Error);
+            }
+
+            return response;
+        }
+
         public static Status UpdateBulkUploadResults(IEnumerable<BulkUploadResult> results, out BulkUploadJobStatus status)
         {
             status = BulkUploadJobStatus.Processing;
@@ -377,7 +402,6 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 response.Set(eResponseStatus.OK);
-
             }
             catch (Exception)
             {
@@ -458,6 +482,12 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        /// <summary>
+        /// Updates only BulkUpload status
+        /// </summary>
+        /// <param name="bulkUploadToUpdate"></param>
+        /// <param name="newStatus"></param>
+        /// <returns></returns>
         public static GenericResponse<BulkUpload> UpdateBulkUploadStatusWithVersionCheck(BulkUpload bulkUploadToUpdate, BulkUploadJobStatus newStatus)
         {
             var response = new GenericResponse<BulkUpload>();
@@ -531,6 +561,7 @@ namespace Core.Catalog.CatalogManagement
                             bulkUpload.JobData = bulkUploadWithResults.JobData;
                             bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
                             bulkUpload.Results = bulkUploadWithResults.Results ?? new List<BulkUploadResult>();
+                            bulkUpload.AffectedObjects = bulkUploadWithResults.AffectedObjects ?? new List<IAffectedObject>();
                             bulkUpload.Errors = bulkUploadWithResults.Errors;
                         }
                     }

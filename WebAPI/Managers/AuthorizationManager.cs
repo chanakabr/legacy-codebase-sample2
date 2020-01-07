@@ -17,6 +17,8 @@ using ApiObjects;
 using ConfigurationManager;
 using TVinciShared;
 using Core.Api;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace WebAPI.Managers
 {
@@ -383,7 +385,7 @@ namespace WebAPI.Managers
             {
                 userSegments.AddRange(userSegmentsResponse.Objects.Select(x => x.SegmentId));
             }
-            
+
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
             var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
             if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)sessionDuration))
@@ -393,8 +395,7 @@ namespace WebAPI.Managers
             }
 
             // 10. build the ks:
-            var payload = KSUtils.PrepareKSPayload(ksData);
-            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, payload, privilagesList, KS.KSVersion.V2);
+            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, ksData, privilagesList, KS.KSVersion.V2);
 
             // 11. build the response from the ks:
             response = new KalturaSessionInfo(ks);
@@ -625,7 +626,7 @@ namespace WebAPI.Managers
             string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
             if (ksRandomHeader == ks.Random)
             {
-                return true;
+                return ValidateKsSignature(ks);
             }
 
             if (validateExpiration && ks.Expiration < DateTime.UtcNow)
@@ -679,6 +680,31 @@ namespace WebAPI.Managers
                 }
             }
 
+            return true;
+        }
+
+        public static bool ValidateKsSignature(KS ks)
+        {
+            var group = GroupsManager.GetGroup(ks.GroupId);
+            var signature = KSUtils.ExtractKSPayload(ks).Signature;
+            var groupSecrets = ApplicationConfiguration.RequestParserConfiguration.KsSecrets;
+
+            if (!string.IsNullOrEmpty(signature) && group.EnforceGroupsSecret)
+            {
+                for (int i = groupSecrets.Count - 1; i >= 0; i--) //LIFO
+                {
+                    var concat = string.Format(EncryptionUtils.SignatureFormat, ks.Random, groupSecrets[i]);
+                    var encryptedValue = Encoding.Default.GetString(EncryptionUtils.HashSHA1(concat));
+                    if (encryptedValue == signature)
+                    {
+                        log.Debug($"Matching signature was received by {ks.UserId}, index: {i}");
+                        return true;
+                    }
+                    log.Info($"Signature validation failed for user: {ks.UserId}, index: {i}");
+                }
+
+                return false;
+            }
             return true;
         }
 
@@ -842,7 +868,7 @@ namespace WebAPI.Managers
                 string.Empty,
                 (int)(DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(expiration)) - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)),
                 KalturaSessionType.ADMIN,
-                string.Empty,
+                new KS.KSData(),
                 null,
                 Models.KS.KSVersion.V2);
 
