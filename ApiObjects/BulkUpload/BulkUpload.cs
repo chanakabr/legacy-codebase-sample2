@@ -32,6 +32,8 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUpload : CoreObject
     {
+        public const string NOTIFY_EVENT_NAME = "KalturaBulkUpload";
+
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [JsonProperty("FileURL")]
@@ -67,8 +69,8 @@ namespace ApiObjects.BulkUpload
                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<BulkUploadResult> Results { get; set; }
 
-        
-        
+
+
         /// <summary>
         /// This list of results that are additional to the source input
         /// i.e. side affects of epg ingest may cause existing programs to update.
