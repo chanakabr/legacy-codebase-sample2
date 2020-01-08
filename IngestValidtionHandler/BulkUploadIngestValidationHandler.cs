@@ -30,8 +30,6 @@ namespace IngestValidtionHandler
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly string event_name = "KalturaBulkUpload";
-
         private BulkUploadIngestValidationEvent _EventData;
 
         private readonly ElasticSearchApi _ElasticSearchClient = null;
@@ -64,9 +62,12 @@ namespace IngestValidtionHandler
                 _AffectedPrograms = _BulkUploadObject.AffectedObjects?.Cast<EpgProgramBulkUploadObject>()?.ToList();
 
                 var indexIsValid = ValidateClonedIndex(eventData);
-                _Logger.Debug($"Index validation done with result:[{indexIsValid}]");
+                var statusToSetForResults = indexIsValid? BulkUploadResultStatus.Ok: BulkUploadResultStatus.Error;
+                _Logger.Debug($"Index validation done with result:[{indexIsValid}], setting results status:[{statusToSetForResults}]");
+                SetStatusToAllCurrentResults(statusToSetForResults);
 
-                UpdateBulkUploadObjectStatusAccordingToValidationResult(indexIsValid);
+                BulkUploadManager.UpdateBulkUploadResults(_EventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus newStatus);
+                BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, newStatus);
 
                 // Need to refresh the data from the bulk upload ibject after updating with the validation result
                 _BulkUploadObject = BulkUploadMethods.GetBulkUploadData(eventData.GroupId, eventData.BulkUploadId);
@@ -92,8 +93,6 @@ namespace IngestValidtionHandler
                         });
 
                     }
-
-                    EmmitPSEvent(_BulkUploadObject);
                 }
 
                 TriggerElasticIndexCleanerForPartner(_BulkUploadObject, eventData);
@@ -105,30 +104,6 @@ namespace IngestValidtionHandler
             }
         }
 
-        private void UpdateBulkUploadObjectStatusAccordingToValidationResult(bool indexIsValid)
-        {
-            if (indexIsValid)
-            {
-                UpdateBulkUploadResults(_EventData.Results, _EventData.EPGs);
-                BulkUploadManager.UpdateBulkUploadResults(_EventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus newStatus);
-                UpdateBulkUploadStatus(_BulkUploadObject, newStatus);
-
-            }
-            else
-            {
-                BulkUploadManager.UpdateBulkUploadResults(_EventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus tmp);
-                _ = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
-            }
-        }
-
-        private void UpdateBulkUploadStatus(BulkUpload bulkUploadObject, BulkUploadJobStatus newStatus)
-        {
-            if (newStatus == BulkUploadJobStatus.Success)
-            {
-                BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, newStatus);
-            }
-        }
-
         private static void TriggerElasticIndexCleanerForPartner(BulkUpload bulkUploadResultAfterUpdate, BulkUploadIngestValidationEvent eventData)
         {
             if (bulkUploadResultAfterUpdate.IsProcessCompleted)
@@ -136,13 +111,6 @@ namespace IngestValidtionHandler
                 var cleaner = new ElasticsearchIndexCleaner.IndexCleaner();
                 cleaner.Clean(new[] { eventData.GroupId }, 1);
             }
-        }
-
-        private void EmmitPSEvent(BulkUpload bulkUploadResultAfterUpdate)
-        {
-            _Logger.DebugFormat($"Firing PS event: '{0}'", event_name);
-            _BulkUploadObject.Notify(eKalturaEventTime.After, event_name);
-
         }
 
         private bool ValidateClonedIndex(BulkUploadIngestValidationEvent eventDate)
@@ -254,17 +222,19 @@ namespace IngestValidtionHandler
             return searchQuery;
         }
 
-        private void UpdateBulkUploadResults(Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> results, List<EpgProgramBulkUploadObject> epgs)
+        private void SetStatusToAllCurrentResults(BulkUploadResultStatus statusToSet)
         {
-            foreach (var prog in epgs)
+            foreach (var prog in _EventData.EPGs)
             {
-                if (prog.EpgExternalId != null && results.ContainsKey(prog.ChannelId) && results[prog.ChannelId].ContainsKey(prog.EpgExternalId))
+                if (prog.EpgExternalId != null && _EventData.Results.ContainsKey(prog.ChannelId) && _EventData.Results[prog.ChannelId].ContainsKey(prog.EpgExternalId))
                 {
-                    var resultObj = results[prog.ChannelId][prog.EpgExternalId];
+                    var resultObj = _EventData.Results[prog.ChannelId][prog.EpgExternalId];
                     resultObj.ObjectId = (long)prog.EpgId;
-                    resultObj.Status = BulkUploadResultStatus.Ok;
-                    // TODO: allow updating results in bulk
-                    //BulkUploadManager.UpdateBulkUploadResult(_EventData.GroupId, _BulkUploadObject.Id, resultObj.Index, Status.Ok, resultObj.ObjectId, resultObj.Warnings);
+                    resultObj.Status = statusToSet;
+                    if (statusToSet != BulkUploadResultStatus.Ok)
+                    {
+                        resultObj.AddError(eResponseStatus.Error, "Failed elasticsearch index validation");
+                    }
                 }
             }
         }
