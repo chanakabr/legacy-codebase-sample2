@@ -57,6 +57,10 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("playCycleKey")]
         public string PlayCycleKey { get; set; }
 
+        // TODO SHIR - DONT FORGET TO ADD TO CC_PROXY
+        [JsonProperty("isBookmarkEventDispatched")]
+        public bool isBookmarkEventDispatched { get; set; }
+
         public DevicePlayData()
         {
             // default values to members from joker version

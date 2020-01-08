@@ -1,0 +1,61 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Models.API;
+using WebAPI.Models.Catalog;
+
+namespace WebAPI.Models.Notification
+{
+    [Serializable]
+    public partial class KalturaBookmarkEvent : KalturaEventObject
+    {
+        /// <summary>
+        /// User Id
+        /// </summary>
+        [DataMember(Name = "userId")]
+        [JsonProperty(PropertyName = "userId")]
+        [XmlElement(ElementName = "userId")]
+        public long UserId { get; set; }
+
+        /// <summary>
+        /// Household Id
+        /// </summary>
+        [DataMember(Name = "householdId")]
+        [JsonProperty(PropertyName = "householdId")]
+        [XmlElement(ElementName = "householdId")]
+        public long HouseholdId { get; set; }
+
+        /// <summary>
+        /// Asset Id
+        /// </summary>
+        [DataMember(Name = "assetId")]
+        [JsonProperty(PropertyName = "assetId")]
+        [XmlElement(ElementName = "assetId")]
+        public long AssetId { get; set; }
+
+        /// <summary>
+        /// File Id
+        /// </summary>
+        [DataMember(Name = "fileId")]
+        [JsonProperty(PropertyName = "fileId")]
+        [XmlElement(ElementName = "fileId")]
+        public long FileId { get; set; }
+
+        /// <summary>
+        /// position
+        /// </summary>
+        [DataMember(Name = "position")]
+        [JsonProperty(PropertyName = "position")]
+        [XmlElement(ElementName = "position")]
+        public int Position { get; set; }
+
+        /// <summary>
+        /// Bookmark Action Type
+        /// </summary>
+        [DataMember(Name = "action")]
+        [JsonProperty(PropertyName = "action")]
+        [XmlElement(ElementName = "action")]
+        public KalturaBookmarkActionType Action { get; set; }
+    }
+}

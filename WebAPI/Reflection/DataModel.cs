@@ -918,6 +918,24 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBookmarkEvent":
+                    switch(property.Name)
+                    {
+                        case "Action":
+                            return "action";
+                        case "AssetId":
+                            return "assetId";
+                        case "FileId":
+                            return "fileId";
+                        case "HouseholdId":
+                            return "householdId";
+                        case "Position":
+                            return "position";
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
                 case "KalturaBookmarkFilter":
                     switch(property.Name)
                     {

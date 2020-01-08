@@ -6879,6 +6879,38 @@ namespace WebAPI.Models.Notification
             return ret;
         }
     }
+    public partial class KalturaBookmarkEvent
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("action", "\"action\": " + "\"" + Enum.GetName(typeof(KalturaBookmarkActionType), Action) + "\"");
+            ret.Add("assetId", "\"assetId\": " + AssetId);
+            ret.Add("fileId", "\"fileId\": " + FileId);
+            ret.Add("householdId", "\"householdId\": " + HouseholdId);
+            ret.Add("position", "\"position\": " + Position);
+            ret.Add("userId", "\"userId\": " + UserId);
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaBookmarkActionType), Action) + "" + "</action>");
+            ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
+            ret.Add("fileId", "<fileId>" + FileId + "</fileId>");
+            ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
+            ret.Add("position", "<position>" + Position + "</position>");
+            ret.Add("userId", "<userId>" + UserId + "</userId>");
+            return ret;
+        }
+    }
     public partial class KalturaConcurrencyViolation
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)

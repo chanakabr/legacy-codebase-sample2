@@ -11,6 +11,7 @@ using WebAPI.Models.Notifications;
 using AutoMapper.Configuration;
 using TVinciShared;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using ApiObjects.Catalog;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -294,16 +295,111 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId));
 
-            cfg.CreateMap<KalturaOTTObject, CoreObject>()
-                .Include<KalturaConcurrencyViolation, ConcurrencyViolation>();
+            cfg.CreateMap<KalturaOTTObject, CoreObject>();
+            cfg.CreateMap<CoreObject, KalturaOTTObject>();
 
             cfg.CreateMap<KalturaConcurrencyViolation, ConcurrencyViolation>()
+                .IncludeBase<KalturaOTTObject, CoreObject>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
                 .ForMember(dest => dest.UDID, opt => opt.MapFrom(src => src.UDID))
                 .ForMember(dest => dest.ViolationRule, opt => opt.MapFrom(src => src.ViolationRule))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+
+            cfg.CreateMap<KalturaBookmarkEvent, BookmarkEvent>()
+                .IncludeBase<KalturaOTTObject, CoreObject>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.FileId))
+                .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Position))
+                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
+
+            cfg.CreateMap<BookmarkEvent, KalturaBookmarkEvent>()
+               .IncludeBase<CoreObject, KalturaOTTObject>()
+               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+               .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
+               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+               .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.FileId))
+               .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Position))
+               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
+
+            cfg.CreateMap<KalturaBookmarkActionType, MediaPlayActions>()
+                .ConvertUsing(bookmarkActionType =>
+                {
+                    switch (bookmarkActionType)
+                    {
+                        case KalturaBookmarkActionType.HIT:
+                            return MediaPlayActions.HIT;
+                        case KalturaBookmarkActionType.PLAY:
+                            return MediaPlayActions.PLAY;
+                        case KalturaBookmarkActionType.STOP:
+                            return MediaPlayActions.STOP;
+                        case KalturaBookmarkActionType.PAUSE:
+                            return MediaPlayActions.PAUSE;
+                        case KalturaBookmarkActionType.FIRST_PLAY:
+                            return MediaPlayActions.FIRST_PLAY;
+                        case KalturaBookmarkActionType.SWOOSH:
+                            return MediaPlayActions.SWOOSH;
+                        case KalturaBookmarkActionType.FULL_SCREEN:
+                            return MediaPlayActions.FULL_SCREEN;
+                        case KalturaBookmarkActionType.SEND_TO_FRIEND:
+                            return MediaPlayActions.SEND_TO_FRIEND;
+                        case KalturaBookmarkActionType.LOAD:
+                            return MediaPlayActions.LOAD;
+                        case KalturaBookmarkActionType.FULL_SCREEN_EXIT:
+                            return MediaPlayActions.FULL_SCREEN_EXIT;
+                        case KalturaBookmarkActionType.FINISH:
+                            return MediaPlayActions.FINISH;
+                        case KalturaBookmarkActionType.BITRATE_CHANGE:
+                            return MediaPlayActions.BITRATE_CHANGE;
+                        case KalturaBookmarkActionType.ERROR:
+                            return MediaPlayActions.ERROR;
+                        case KalturaBookmarkActionType.NONE:
+                            return MediaPlayActions.NONE;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaBookmarkActionType value: {bookmarkActionType}");
+                    }
+                });
+
+            cfg.CreateMap<MediaPlayActions, KalturaBookmarkActionType>()
+                .ConvertUsing(mediaPlayAction =>
+                {
+                    switch (mediaPlayAction)
+                    {
+                        case MediaPlayActions.HIT:
+                            return KalturaBookmarkActionType.HIT;
+                        case MediaPlayActions.PLAY:
+                            return KalturaBookmarkActionType.PLAY;
+                        case MediaPlayActions.STOP:
+                            return KalturaBookmarkActionType.STOP;
+                        case MediaPlayActions.PAUSE:
+                            return KalturaBookmarkActionType.PAUSE;
+                        case MediaPlayActions.FIRST_PLAY:
+                            return KalturaBookmarkActionType.FIRST_PLAY;
+                        case MediaPlayActions.SWOOSH:
+                            return KalturaBookmarkActionType.SWOOSH;
+                        case MediaPlayActions.FULL_SCREEN:
+                            return KalturaBookmarkActionType.FULL_SCREEN;
+                        case MediaPlayActions.SEND_TO_FRIEND:
+                            return KalturaBookmarkActionType.SEND_TO_FRIEND;
+                        case MediaPlayActions.LOAD:
+                            return KalturaBookmarkActionType.LOAD;
+                        case MediaPlayActions.FULL_SCREEN_EXIT:
+                            return KalturaBookmarkActionType.FULL_SCREEN_EXIT;
+                        case MediaPlayActions.FINISH:
+                            return KalturaBookmarkActionType.FINISH;
+                        case MediaPlayActions.BITRATE_CHANGE:
+                            return KalturaBookmarkActionType.BITRATE_CHANGE;
+                        case MediaPlayActions.ERROR:
+                            return KalturaBookmarkActionType.ERROR;
+                        case MediaPlayActions.NONE:
+                            return KalturaBookmarkActionType.NONE;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown MediaPlayActions value: {mediaPlayAction}");
+                    }
+                });
 
             #region Engagement Adapter
 

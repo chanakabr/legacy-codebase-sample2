@@ -314,6 +314,9 @@ namespace WebAPI.Reflection
                 case "KalturaBookmark":
                     return new KalturaBookmark(parameters);
                     
+                case "KalturaBookmarkEvent":
+                    return new KalturaBookmarkEvent(parameters);
+                    
                 case "KalturaBookmarkFilter":
                     return new KalturaBookmarkFilter(parameters);
                     
@@ -8103,6 +8106,44 @@ namespace WebAPI.Models.Notification
     {
         public KalturaAssetReminderFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
+        }
+    }
+    public partial class KalturaBookmarkEvent
+    {
+        public KalturaBookmarkEvent(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("userId") && parameters["userId"] != null)
+                {
+                    UserId = (Int64) Convert.ChangeType(parameters["userId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
+                {
+                    HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
+                {
+                    AssetId = (Int64) Convert.ChangeType(parameters["assetId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("fileId") && parameters["fileId"] != null)
+                {
+                    FileId = (Int64) Convert.ChangeType(parameters["fileId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("position") && parameters["position"] != null)
+                {
+                    Position = (Int32) Convert.ChangeType(parameters["position"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("action") && parameters["action"] != null)
+                {
+                    Action = (KalturaBookmarkActionType) Enum.Parse(typeof(KalturaBookmarkActionType), parameters["action"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBookmarkActionType), Action))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Action, typeof(KalturaBookmarkActionType)));
+                    }
+                }
+            }
         }
     }
     public partial class KalturaConcurrencyViolation
