@@ -116,6 +116,7 @@ namespace ApiObjects.Response
         SSOAdapterIdRequired = 2058,
         ParentIdNotExist = 2059,
         UserFavoriteNotDeleted = 2060,
+        ActionBlocked = 2061,
 
         #endregion
 

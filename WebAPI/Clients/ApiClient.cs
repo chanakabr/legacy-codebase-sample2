@@ -89,7 +89,7 @@ namespace WebAPI.Clients
             return roles;
 
         }
-        
+
         #region Parental Rules
 
         internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId, bool isAllowedToViewInactiveAssets = false)
@@ -125,7 +125,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }        
+        }
 
         internal List<Models.API.KalturaParentalRule> GetUserParentalRules(int groupId, string userId)
         {
@@ -3941,7 +3941,7 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteSegmentationTypeFunc);
         }
 
-        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
+        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, HashSet<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
         {
             KalturaSegmentationTypeListResponse result = new KalturaSegmentationTypeListResponse();
 
@@ -3956,13 +3956,12 @@ namespace WebAPI.Clients
 
             return result;
         }
-
-        internal KalturaUserSegmentListResponse GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
+        internal KalturaUserSegmentListResponse GetUserSegments(int groupId, string userId, AssetSearchDefinition assetSearchDefinition, int pageIndex, int pageSize)
         {
             KalturaUserSegmentListResponse result = new KalturaUserSegmentListResponse();
 
             Func<GenericListResponse<UserSegment>> getUserSegmentsFunc = () =>
-               Core.Api.Module.GetUserSegments(groupId, userId, pageIndex, pageSize);
+               Core.Api.Module.GetUserSegments(groupId, userId, assetSearchDefinition, pageIndex, pageSize);
 
             KalturaGenericListResponse<KalturaUserSegment> response =
                 ClientUtils.GetResponseListFromWS<KalturaUserSegment, UserSegment>(getUserSegmentsFunc);
@@ -3988,6 +3987,23 @@ namespace WebAPI.Clients
         {
             Func<Status> deleteUserSegmentFunc = () => Core.Api.Module.DeleteUserSegment(groupId, userId, segmentId);
             return ClientUtils.GetResponseStatusFromWS(deleteUserSegmentFunc);
+        }
+
+        internal KalturaHouseholdSegment AddHouseholdSegment(int groupId, KalturaHouseholdSegment householdSegment)
+        {
+            Func<HouseholdSegment, GenericResponse<HouseholdSegment>> addHouseholdSegmentFunc = (HouseholdSegment householdSegmentToAdd) =>
+                Core.Api.Module.AddHouseholdSegment(groupId, householdSegmentToAdd);
+
+            KalturaHouseholdSegment result =
+                ClientUtils.GetResponseFromWS<KalturaHouseholdSegment, HouseholdSegment>(householdSegment, addHouseholdSegmentFunc);
+
+            return result;
+        }
+
+        internal bool DeleteHouseholdSegment(int groupId, long householdId, long segmentId)
+        {
+            Func<Status> deleteHouseholdSegmentFunc = () => Core.Api.Module.DeleteHouseholdSegment(groupId, householdId, segmentId);
+            return ClientUtils.GetResponseStatusFromWS(deleteHouseholdSegmentFunc);
         }
 
         internal KalturaBusinessModuleRuleListResponse GetBusinessModuleRules(int groupId, KalturaBusinessModuleRuleFilter filter)

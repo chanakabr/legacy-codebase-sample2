@@ -175,14 +175,22 @@ namespace Core.Recordings
                     bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
 
                     object recordingObject;
+                    bool syncParmeter = false;
                     if (syncParmeters.TryGetValue("recording", out recordingObject))
                     {
                         recording = (Recording)recordingObject;
+                        syncParmeter = true;
                     }
                     // all good
                     else
                     {
                         recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
+                    }
+
+                    if (recording != null)
+                    {
+                        int statusCode = recording.Status != null ? recording.Status.Code : -1;
+                        log.DebugFormat($"RecordingsManager.Record shouldIssueRecord syncParmeter:{syncParmeter} recording.Id:{recording.Id}, RecordingStatus:{recording.RecordingStatus}, recording.Status:{statusCode}");
                     }
 
                     if (!isPrivateCopy)
@@ -913,6 +921,12 @@ namespace Core.Recordings
 
             // for private copy we always issue a recording            
             Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
+            
+            if (recording != null && recording.Id > 0)
+            {
+                log.DebugFormat($"RecordingsManager.synchronizer_SynchronizedAct shouldInsertRecording:{shouldInsertRecording}, recording.Id:{recording.Id}, RecordingStatus:{recording.RecordingStatus}");
+            }
+
             bool shouldCallAdapter = false;
             if (shouldInsertRecording)
             {

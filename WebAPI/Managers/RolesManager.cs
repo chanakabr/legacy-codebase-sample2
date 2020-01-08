@@ -313,9 +313,9 @@ namespace WebAPI.Managers
             // allowed group users (additional user_id) handling:
             // get user_id additional parameter
             string userId = null;
-            if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_USER_ID))
+            if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_USER_ID))
             {
-                var extraUserId = HttpContext.Current.Items[RequestContext.REQUEST_USER_ID];
+                var extraUserId = HttpContext.Current.Items[RequestContextUtils.REQUEST_USER_ID];
                 userId = extraUserId != null ? extraUserId.ToString() : null;
             }
             // if exists and is in the allowed group users list - override the user id in ks (HOUSEHOLD_WILDCARD = everyone in the domain is allowed, PARTNER_WILDCARD = everyone in the group is allowed)

@@ -121,7 +121,13 @@ namespace ApiObjects.Segmentation
             List<long> segmentsToRemove = GetUserSegmentsToCleanup(GroupId, userSegments.Segments.Values.ToList());
             segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
 
-            result = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTTL());
+            ulong ttl = GetDocumentTTL();
+            if (userSegments.Segments.Values.FirstOrDefault(x => x.UpdateDate == DateTime.MaxValue) != null)
+            {
+                ttl = 0;
+            }
+
+            result = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
 
             if (!result)
             {
@@ -189,10 +195,10 @@ namespace ApiObjects.Segmentation
 
         #region Public methods
 
-        public static List<UserSegment> List(int groupId, string userId, int pageIndex, int pageSize, out int totalCount)
+        public static List<UserSegment> List(int groupId, string userId, out int totalCount, List<long> segmentsIds = null , int pageIndex = 0, int pageSize = 0)
         {
             List<UserSegment> result = new List<UserSegment>();
-            totalCount = 0;
+            totalCount = 0;           
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             string userSegmentsKey = GetUserSegmentsKey(userId);
@@ -217,7 +223,11 @@ namespace ApiObjects.Segmentation
                     }
                 }
 
-                totalCount = userSegments.Segments.Count;
+                if (segmentsIds?.Count > 0)
+                {
+                    // should return only segemtns in this list
+                    userSegments.Segments = userSegments.Segments.Where(x => segmentsIds.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+                }
 
                 if (pageSize == 0 && pageIndex == 0)
                 {
@@ -228,6 +238,8 @@ namespace ApiObjects.Segmentation
                     // get only segments on current page
                     result = userSegments.Segments.Values.ToList().Skip(pageIndex * pageSize).Take(pageSize).ToList();
                 }
+
+                totalCount = userSegments.Segments.Count;
             }
 
             return result;

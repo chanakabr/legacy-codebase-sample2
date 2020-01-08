@@ -1,5 +1,6 @@
 ﻿using AdapterControllers;
 using AdapterControllers.CDVR;
+using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using ApiObjects;
@@ -7,10 +8,13 @@ using ApiObjects.CDNAdapter;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Response;
 using ApiObjects.Rules;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Api;
 using Core.Api.Managers;
+using Core.Catalog;
 using Core.Catalog.Response;
 using Core.Pricing;
 using Core.Users;
@@ -219,6 +223,21 @@ namespace Core.ConditionalAccess
                                         if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, rolePermission))
                                         {
                                             continue;
+                                        }
+
+                                        if (priceReason == PriceReason.SubscriptionPurchased)
+                                        {
+                                            var subscriptionId = price.m_oItemPrices?.First()?.m_relevantSub?.m_sObjectCode;
+                                            
+                                            if (!string.IsNullOrEmpty(subscriptionId))
+                                            {
+                                                var status = api.HandleBlockingSegment<SegmentBlockPlaybackSubscriptionAction>(groupId, userId, udid, ip, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, subscriptionId);
+                                                if (!status.IsOkStatusCode())
+                                                {
+                                                    response.Status = status;
+                                                    return response;
+                                                }
+                                            }
                                         }
                                     }
 

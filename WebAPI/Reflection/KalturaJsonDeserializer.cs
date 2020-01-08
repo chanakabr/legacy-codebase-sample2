@@ -308,6 +308,9 @@ namespace WebAPI.Reflection
                 case "KalturaBlockPlaybackAction":
                     return new KalturaBlockPlaybackAction(parameters);
                     
+                case "KalturaBlockSubscriptionSegmentAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaBookmark":
                     return new KalturaBookmark(parameters);
                     
@@ -869,6 +872,15 @@ namespace WebAPI.Reflection
                 case "KalturaHouseholdQuota":
                     return new KalturaHouseholdQuota(parameters);
                     
+                case "KalturaHouseholdSegment":
+                    return new KalturaHouseholdSegment(parameters);
+                    
+                case "KalturaHouseholdSegmentFilter":
+                    return new KalturaHouseholdSegmentFilter(parameters);
+                    
+                case "KalturaHouseholdSegmentListResponse":
+                    return new KalturaHouseholdSegmentListResponse(parameters);
+                    
                 case "KalturaHouseholdUser":
                     return new KalturaHouseholdUser(parameters);
                     
@@ -943,6 +955,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaKeyValue":
                     return new KalturaKeyValue(parameters);
+                    
+                case "KalturaKsqlSegmentAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaLanguage":
                     return new KalturaLanguage(parameters);
@@ -1496,6 +1511,15 @@ namespace WebAPI.Reflection
                 case "KalturaSegmentAllValues":
                     return new KalturaSegmentAllValues(parameters);
                     
+                case "KalturaSegmentAssetFilterAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaSegmentAssetFilterSegmentAction":
+                    return new KalturaSegmentAssetFilterSegmentAction(parameters);
+                    
+                case "KalturaSegmentAssetFilterSubscriptionAction":
+                    return new KalturaSegmentAssetFilterSubscriptionAction(parameters);
+                    
                 case "KalturaSegmentationType":
                     return new KalturaSegmentationType(parameters);
                     
@@ -1504,6 +1528,15 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSegmentationTypeListResponse":
                     return new KalturaSegmentationTypeListResponse(parameters);
+                    
+                case "KalturaSegmentBlockCancelSubscriptionAction":
+                    return new KalturaSegmentBlockCancelSubscriptionAction(parameters);
+                    
+                case "KalturaSegmentBlockPlaybackSubscriptionAction":
+                    return new KalturaSegmentBlockPlaybackSubscriptionAction(parameters);
+                    
+                case "KalturaSegmentBlockPurchaseSubscriptionAction":
+                    return new KalturaSegmentBlockPurchaseSubscriptionAction(parameters);
                     
                 case "KalturaSegmentRange":
                     return new KalturaSegmentRange(parameters);
@@ -21651,6 +21684,12 @@ namespace WebAPI.Models.Segmentation
         {
         }
     }
+    public partial class KalturaBlockSubscriptionSegmentAction
+    {
+        public KalturaBlockSubscriptionSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaContentActionCondition
     {
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
@@ -21906,6 +21945,72 @@ namespace WebAPI.Models.Segmentation
             }
         }
     }
+    public partial class KalturaHouseholdSegment
+    {
+        private static RuntimeSchemePropertyAttribute SegmentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdSegment")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        public KalturaHouseholdSegment(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("segmentId") && parameters["segmentId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SegmentIdSchemaProperty.Validate("segmentId", parameters["segmentId"]);
+                    }
+                    SegmentId = (Int64) Convert.ChangeType(parameters["segmentId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
+                {
+                    HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaHouseholdSegmentFilter
+    {
+        public KalturaHouseholdSegmentFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
+                {
+                    Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaHouseholdSegmentListResponse
+    {
+        public KalturaHouseholdSegmentListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaKsqlSegmentAction
+    {
+        public KalturaKsqlSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("ksql") && parameters["ksql"] != null)
+                {
+                    KSQL = (String) Convert.ChangeType(parameters["ksql"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaMonetizationCondition
     {
         private static RuntimeSchemePropertyAttribute MinValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
@@ -22139,6 +22244,24 @@ namespace WebAPI.Models.Segmentation
             }
         }
     }
+    public partial class KalturaSegmentAssetFilterAction
+    {
+        public KalturaSegmentAssetFilterAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSegmentAssetFilterSegmentAction
+    {
+        public KalturaSegmentAssetFilterSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSegmentAssetFilterSubscriptionAction
+    {
+        public KalturaSegmentAssetFilterSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaSegmentationType
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
@@ -22296,6 +22419,24 @@ namespace WebAPI.Models.Segmentation
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaSegmentBlockCancelSubscriptionAction
+    {
+        public KalturaSegmentBlockCancelSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSegmentBlockPlaybackSubscriptionAction
+    {
+        public KalturaSegmentBlockPlaybackSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSegmentBlockPurchaseSubscriptionAction
+    {
+        public KalturaSegmentBlockPurchaseSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaSegmentRange
@@ -22859,6 +23000,10 @@ namespace WebAPI.Models.Segmentation
                         UserIdEqualSchemaProperty.Validate("userIdEqual", parameters["userIdEqual"]);
                     }
                     UserIdEqual = (String) Convert.ChangeType(parameters["userIdEqual"], typeof(String));
+                }
+                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
+                {
+                    Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
                 }
             }
         }

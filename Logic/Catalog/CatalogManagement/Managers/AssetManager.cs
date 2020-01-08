@@ -131,9 +131,9 @@ namespace Core.Catalog.CatalogManagement
         {
             try
             {
-                CatalogGroupCache catalogGroupCache = null;
-                ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo.Type, out catalogGroupCache);
-                if (objectVirtualAssetInfo == null || catalogGroupCache == null)
+                ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo.Type);
+                
+                if (objectVirtualAssetInfo == null)
                 {
                     return;
                 }
@@ -154,20 +154,31 @@ namespace Core.Catalog.CatalogManagement
                     }
                 };
 
-                virtualAsset.Metas.Add(new Metas()
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
-                    m_oTagMeta = new TagMeta()
-                    {
-                        m_sName = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId].SystemName,
-                        m_sType = ApiObjects.MetaType.Number.ToString()
-                    },
-                    m_sValue = virtualAssetInfo.Id.ToString()
-                });
+                    log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
+                    return;
+                }
 
-                var response = AssetManager.AddAsset(groupId, virtualAsset, virtualAssetInfo.UserId);
-                if (!response.IsOkStatusCode())
+                if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
                 {
-                    log.Debug($"failed to AddVirtualAsset. groupId {groupId}, virtualAssetInfo {virtualAssetInfo.ToString()}");
+                    var meta = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
+
+                    virtualAsset.Metas.Add(new Metas()
+                    {
+                        m_oTagMeta = new TagMeta()
+                        {
+                            m_sName = meta.SystemName,
+                            m_sType = meta.Type.ToString()
+                        },
+                        m_sValue = virtualAssetInfo.Id.ToString()
+                    });
+
+                    var response = AssetManager.AddAsset(groupId, virtualAsset, virtualAssetInfo.UserId);
+                    if (!response.IsOkStatusCode())
+                    {
+                        log.Debug($"failed to AddVirtualAsset. groupId {groupId}, virtualAssetInfo {virtualAssetInfo.ToString()}");
+                    }
                 }
             }
             catch (Exception exc)
@@ -2779,35 +2790,13 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        public static ObjectVirtualAssetInfo GetObjectVirtualAssetInfo(int groupId, ObjectVirtualAssetInfoType objectVirtualAssetInfoType, out CatalogGroupCache catalogGroupCache)
+        public static ObjectVirtualAssetInfo GetObjectVirtualAssetInfo(int groupId, ObjectVirtualAssetInfoType objectVirtualAssetInfoType)
         {
-            catalogGroupCache = null;
-            ObjectVirtualAssetInfo objectVirtualAssetInfo = null;
-
-            var objectVirtualAssetPartnerConfig = ApiDAL.GetObjectVirtualAssetPartnerConfiguration(groupId);
-            if (objectVirtualAssetPartnerConfig == null || objectVirtualAssetPartnerConfig.ObjectVirtualAssets?.Count == 0)
-            {
-                log.Debug($"No objectVirtualAssetPartnerConfigurtion for groupId {groupId}");
-                return objectVirtualAssetInfo;
-            }
-
-            objectVirtualAssetInfo = objectVirtualAssetPartnerConfig.ObjectVirtualAssets.FirstOrDefault(x => x.Type == objectVirtualAssetInfoType);
+            ObjectVirtualAssetInfo objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType);
 
             if (objectVirtualAssetInfo == null)
             {
                 log.Debug($"No objectVirtualAssetInfo for groupId {groupId}. virtualAssetInfo.Type {objectVirtualAssetInfoType}");
-                return objectVirtualAssetInfo;
-            }
-
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-            {
-                log.Debug($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
-                return objectVirtualAssetInfo;
-            }
-
-            if (!catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
-            {
-                log.Debug($"MetaDoesNotExist {objectVirtualAssetInfo.MetaId}. groupId: {groupId}");
                 return objectVirtualAssetInfo;
             }
 
@@ -2818,9 +2807,14 @@ namespace Core.Catalog.CatalogManagement
         {
             Asset asset = null;
             needToCreateVirtualAsset = false;
-            CatalogGroupCache catalogGroupCache = null;
-            ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo.Type, out catalogGroupCache);
-            if (objectVirtualAssetInfo == null || catalogGroupCache == null)
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            {
+                log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
+                return asset;
+            }
+
+            ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo.Type);
+            if (objectVirtualAssetInfo == null)
             {
                 return asset;
             }

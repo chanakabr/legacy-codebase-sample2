@@ -2940,6 +2940,24 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaHouseholdSegment":
+                    switch(property.Name)
+                    {
+                        case "HouseholdId":
+                            return "householdId";
+                        case "SegmentId":
+                            return "segmentId";
+                    }
+                    break;
+                    
+                case "KalturaHouseholdSegmentFilter":
+                    switch(property.Name)
+                    {
+                        case "Ksql":
+                            return "kSql";
+                    }
+                    break;
+                    
                 case "KalturaHouseholdUser":
                     switch(property.Name)
                     {
@@ -3179,6 +3197,14 @@ namespace WebAPI.Reflection
                     {
                         case "ItemPrice":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaKsqlSegmentAction":
+                    switch(property.Name)
+                    {
+                        case "KSQL":
+                            return "ksql";
                     }
                     break;
                     
@@ -6663,6 +6689,8 @@ namespace WebAPI.Reflection
                 case "KalturaUserSegmentFilter":
                     switch(property.Name)
                     {
+                        case "Ksql":
+                            return "kSql";
                         case "UserIdEqual":
                             return "userIdEqual";
                     }
@@ -7427,7 +7455,7 @@ namespace WebAPI.Reflection
                             return ConfigurationsController.List((KalturaConfigurationsFilter) methodParams[0]);
                             
                         case "servebydevice":
-                            HttpContext.Current.Items[RequestContext.REQUEST_SERVE_CONTENT_TYPE] = "application/json";
+                            HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVE_CONTENT_TYPE] = "application/json";
                             return ConfigurationsController.ServeByDevice((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (int) methodParams[5]);
                             
                         case "update":
@@ -8207,6 +8235,25 @@ namespace WebAPI.Reflection
                         case "get":
                             RolesManager.ValidateActionPermitted("householdQuota", "get", false);
                             return HouseholdQuotaController.Get();
+                            
+                    }
+                    break;
+                    
+                case "householdsegment":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("householdsegment", "add");
+                            return HouseholdSegmentController.Add((KalturaHouseholdSegment) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("householdsegment", "delete");
+                            HouseholdSegmentController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("householdsegment", "list");
+                            return HouseholdSegmentController.List((KalturaHouseholdSegmentFilter) methodParams[0]);
                             
                     }
                     break;
@@ -10287,7 +10334,7 @@ namespace WebAPI.Reflection
             service = service.ToLower();
             action = action.ToLower();
             Dictionary<string, MethodParam> ret = new Dictionary<string, MethodParam>();
-            Version currentVersion = (Version)HttpContext.Current.Items[RequestContext.REQUEST_VERSION];
+            Version currentVersion = (Version)HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION];
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             string paramName;
             string newParamName = null;
@@ -14216,6 +14263,37 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "householdsegment":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdSegment),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdSegmentFilter),
+                            });
                             return ret;
                             
                     }

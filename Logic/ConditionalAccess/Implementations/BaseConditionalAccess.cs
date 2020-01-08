@@ -17,9 +17,11 @@ using ApiObjects.Pricing;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using ApiObjects.Rules;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Api;
 using Core.Api.Managers;
 using Core.Catalog.Response;
 using Core.ConditionalAccess.Modules;
@@ -1671,7 +1673,7 @@ namespace Core.ConditionalAccess
                 Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
+                theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false, sSiteGUID);
 
                 if (theSub != null && theSub.m_oUsageModule != null && theSub.m_oSubscriptionPriceCode != null && theSub.m_bIsRecurring)
                 {
@@ -1766,12 +1768,25 @@ namespace Core.ConditionalAccess
                     }
 
                     // check if cancellation is allowed
-                    Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, string.Empty, string.Empty, string.Empty, false);
+                    Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, string.Empty, string.Empty, string.Empty, false, userId);
+
+                    if (subscriptionToCancel == null)
+                    {
+                        response.Code = (int)eResponseStatus.SubscriptionDoesNotExist;
+                        response.Message = "Subscription Does Not Exist";
+                        return response;
+                    }
 
                     if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
                     {
                         response.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
                         response.Message = "Cancellation is blocked for this subscription";
+                        return response;
+                    }
+
+                    response = api.HandleBlockingSegment<SegmentBlockCancelSubscriptionAction>(this.m_nGroupID, userId, udid, userIp, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, subscriptionToCancel.m_sObjectCode);
+                    if (!response.IsOkStatusCode())
+                    {
                         return response;
                     }
 
@@ -9977,23 +9992,33 @@ namespace Core.ConditionalAccess
                     string billingGuid = string.Empty;
 
                     // Check if cancellation allowed for subscription
-                    if (!isForce && transactionType == eTransactionType.Subscription)
+                    if (transactionType == eTransactionType.Subscription)
                     {
-                        Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false);
-                        if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                        Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false, domain.m_masterGUIDs[0].ToString());
+
+                        if (subscriptionToCancel == null)
                         {
                             result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
                             result.Message = "Cancellation is blocked for this subscription";
                             return result;
                         }
 
-                        if (subscriptionToCancel.PreSaleDate.HasValue)
+                        if (!isForce)
                         {
-                            result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
-                            result.Message = "Cancellation is blocked for this seasonal-pass subscription";
-                            return result;
-                        }
+                            if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                            {
+                                result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                                result.Message = "Cancellation is blocked for this subscription";
+                                return result;
+                            }
 
+                            if (subscriptionToCancel.PreSaleDate.HasValue)
+                            {
+                                result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                                result.Message = "Cancellation is blocked for this seasonal-pass subscription";
+                                return result;
+                            }
+                        }
                     }
 
                     // Check if within cancellation window
@@ -10083,6 +10108,12 @@ namespace Core.ConditionalAccess
                                     break;
                                 case eTransactionType.Subscription:
                                     {
+                                        result = api.HandleBlockingSegment<SegmentBlockCancelSubscriptionAction>(this.m_nGroupID, purchasingSiteGuid, udid, userIp, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, assetID.ToString());
+                                        if (!result.IsOkStatusCode())
+                                        {
+                                            return result;
+                                        }
+
                                         long subscriptionPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
                                         if (subscriptionPurchaseId > 0)
                                         {
@@ -13574,8 +13605,9 @@ namespace Core.ConditionalAccess
                     log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                     recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, recording.Crid,
                                                                     new List<long>() { domainID }, out failedDomainIds);
+
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
-                        && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
+                        && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus, true))
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
                         log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
@@ -13602,6 +13634,7 @@ namespace Core.ConditionalAccess
                     {
                         log.DebugFormat("recording.Id = {0}, recording.Status = {1}, IsValidRecordingStatus ={2}",
                             recording != null ? recording.Id : 0, recording.Status != null ? recording.Status.Message.ToString() : "null", Utils.IsValidRecordingStatus(recording.RecordingStatus));
+
                         recording = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingFailed, eResponseStatus.RecordingFailed.ToString()) };
                     }
                 }
