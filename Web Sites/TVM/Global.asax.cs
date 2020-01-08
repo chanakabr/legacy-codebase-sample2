@@ -12,7 +12,7 @@ namespace TVM
     {
         protected void Application_Start(object sender, EventArgs e)
         {
-            ApplicationConfiguration.Initialize(true);
+            ApplicationConfiguration.Init();
 
             // set monitor and log configuration files
             KLogMonitor.KMonitor.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
