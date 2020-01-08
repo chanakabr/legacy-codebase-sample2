@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using ESUtils = ElasticSearch.Common.Utils;
 
@@ -73,10 +74,22 @@ namespace IngestValidtionHandler
                 // All seperated jobs of bulkUpload were completed, we are the last one, we need to switch the alias and commit the chanages.
                 if (_BulkUploadObject.IsProcessCompleted)
                 {
+                    var retryCount = 5;
                     if (_BulkUploadObject.Status == BulkUploadJobStatus.Success)
                     {
-                        SwitchAliases();
-                        InvalidateEpgAssets();
+                        var policy = RetryPolicy.Handle<Exception>()
+                            .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
+                            {
+                                // TODO: improve logging
+                                _Logger.Warn($"SwitchAliases Attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
+                            }
+                        );
+
+                        policy.Execute(() =>
+                        {
+                            SwitchAliases();
+                            InvalidateEpgAssets();
+                        });
 
                     }
 
@@ -134,11 +147,12 @@ namespace IngestValidtionHandler
 
         private bool ValidateClonedIndex(BulkUploadIngestValidationEvent eventDate)
         {
-            // Wait time is 2 sec + 50ms for every program that was indexed
+            // Wait time is 1 sec + 50ms for every program that was indexed
             // TODO: make configurable
             var epgsCounts = eventDate.EPGs.Count;// + eventDate.EdgeProgramsToUpdate.Count;
 
-            var delayMsBeforeValidation = 2000 + (epgsCounts * 10);
+            var delayMsBeforeValidation = 1000 + (epgsCounts * 10);
+            Thread.Sleep(delayMsBeforeValidation);
             var result = false;
             int retryCount = 5; // TODO: Tcm configuration?
 
@@ -201,10 +215,10 @@ namespace IngestValidtionHandler
             var isOPC = GroupSettingsManager.IsOpc(_EventData.GroupId);
             foreach (var progId in programIdsToInvalidate)
             {
-                
-                string invalidationKey = isOPC 
-                    ?LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), progId)
-                    :LayeredCacheKeys.GetEpgInvalidationKey(_EventData.GroupId, progId);
+
+                string invalidationKey = isOPC
+                    ? LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), progId)
+                    : LayeredCacheKeys.GetEpgInvalidationKey(_EventData.GroupId, progId);
 
                 var invalidationResult = LayeredCache.Instance.SetInvalidationKey(invalidationKey);
                 if (!invalidationResult)
@@ -282,15 +296,22 @@ namespace IngestValidtionHandler
                     _Logger.Debug($"Removing alias:[{dateAlias}, {globalAlias}] from:[{string.Join(",", previousIndices)}].");
                     foreach (var oldIndex in previousIndices)
                     {
-                        _ElasticSearchClient.RemoveAlias(oldIndex, globalAlias);
-                        _ElasticSearchClient.RemoveAlias(oldIndex, dateAlias);
+                        var isGlobalAliasRemoveSuccess = _ElasticSearchClient.RemoveAlias(oldIndex, globalAlias);
+                        if (!isGlobalAliasRemoveSuccess) { throw new Exception($"Failed to remove globalAlias:[{globalAlias}] oldIndex:[{oldIndex}]"); }
+                        var isDateAliasRemoveSuccess = _ElasticSearchClient.RemoveAlias(oldIndex, dateAlias);
+                        if (!isDateAliasRemoveSuccess) { throw new Exception($"Failed to remove dateAlias:[{dateAlias}] oldIndex:[{oldIndex}]"); }
                     }
+
                 }
 
                 _Logger.Debug($"Adding alias:[{dateAlias}, {globalAlias}] To:[{newIndex}].");
 
-                _ElasticSearchClient.AddAlias(newIndex.Name, dateAlias);
-                _ElasticSearchClient.AddAlias(newIndex.Name, globalAlias);
+                var isSetDateAliasSuccess = _ElasticSearchClient.AddAlias(newIndex.Name, dateAlias);
+                if (!isSetDateAliasSuccess) { throw new Exception($"Failed to add dateAlias:[{dateAlias}] newIndex.Name:[{newIndex.Name}]"); }
+
+                var isSetGlobalAliasSuccess = _ElasticSearchClient.AddAlias(newIndex.Name, globalAlias);
+                if (!isSetGlobalAliasSuccess) { throw new Exception($"Failed to add globalAlias:[{globalAlias}] newIndex.Name:[{newIndex.Name}]"); }
+
             }
         }
     }

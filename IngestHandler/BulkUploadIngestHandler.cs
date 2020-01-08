@@ -80,7 +80,7 @@ namespace IngestHandler
                 _IngestProfile = GetIngestProfile();
                 _Languages = GetGroupLanguages(out _DefaultLanguage);
                 _NonOpcGroupRatios = EpgDal.Get_PicsEpgRatios();
-                _GroupRatioNamesToImageTypes = EpgImageManager.GetImageTypesMapBySystemName(serviceEvent.GroupId);
+                _GroupRatioNamesToImageTypes = Core.Catalog.CatalogManagement.ImageManager.GetImageTypesMapBySystemName(serviceEvent.GroupId);
                 _IsOpc = GroupSettingsManager.IsOpc(serviceEvent.GroupId);
 
                 ValidateServiceEvent();
