@@ -384,7 +384,10 @@ namespace WebAPI.Managers
             // 10. build the ks:
             KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, ksData, privilagesList, KS.KSVersion.V2);
 
-            // 11. build the response from the ks:
+            //11. update last login date
+            ClientsManager.UsersClient().UpdateLastLoginDate(groupId, userId);
+
+            // 12. build the response from the ks:
             response = new KalturaSessionInfo(ks);
 
             return response;
