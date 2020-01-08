@@ -2218,7 +2218,7 @@ namespace Core.Api
 
             try
             {
-                var userSegments = UserSegment.List(groupId, userId, out int totalCount);
+                var userSegments = UserSegment.List(groupId, userId, out int totalCount, null, pageIndex, pageSize);
 
                 if (totalCount > 0)
                 {
