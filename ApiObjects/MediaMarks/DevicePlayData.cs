@@ -59,7 +59,10 @@ namespace ApiObjects.MediaMarks
 
         // TODO SHIR - DONT FORGET TO ADD TO CC_PROXY
         [JsonProperty("isBookmarkEventDispatched")]
-        public bool isBookmarkEventDispatched { get; set; }
+        public bool IsBookmarkEventDispatched { get; set; }
+
+        [JsonProperty("transactionType")]
+        public eTransactionType? TransactionType { get; set; }
 
         public DevicePlayData()
         {
@@ -70,7 +73,7 @@ namespace ApiObjects.MediaMarks
         
         public DevicePlayData(string udid, int assetID, int userId, long timeStamp, ePlayType playType, MediaPlayActions action, 
                               int deviceFamilyId, long createdAt, long programId, string npvrId, int domainId, List<int> mediaConcurrencyRuleIds,
-                              List<long> assetMediaConcurrencyRuleIds, List<long> assetEpgConcurrencyRuleIds)
+                              List<long> assetMediaConcurrencyRuleIds, List<long> assetEpgConcurrencyRuleIds, bool isBookmarkEventDispatched, eTransactionType? transactionType)
         {
             this.UDID = udid;
             this.AssetId = assetID;
@@ -87,6 +90,8 @@ namespace ApiObjects.MediaMarks
             this.AssetMediaConcurrencyRuleIds = assetMediaConcurrencyRuleIds;
             this.AssetEpgConcurrencyRuleIds = assetEpgConcurrencyRuleIds;
             this.PlayCycleKey = Guid.NewGuid().ToString();
+            this.IsBookmarkEventDispatched = isBookmarkEventDispatched;
+            this.TransactionType = transactionType;
         }
 
         public DevicePlayData(DevicePlayData other)
@@ -106,6 +111,8 @@ namespace ApiObjects.MediaMarks
             this.AssetMediaConcurrencyRuleIds = other.AssetMediaConcurrencyRuleIds;
             this.AssetEpgConcurrencyRuleIds = other.AssetEpgConcurrencyRuleIds;
             this.PlayCycleKey = other.PlayCycleKey;
+            this.IsBookmarkEventDispatched = other.IsBookmarkEventDispatched;
+            this.TransactionType = other.TransactionType;
         }
 
         public UserMediaMark ConvertToUserMediaMark(int location, int fileDuration, int assetTypeId)
@@ -152,6 +159,8 @@ namespace ApiObjects.MediaMarks
             sb.AppendLine(String.Concat("AssetMediaConcurrencyRuleIds: ", this.AssetMediaConcurrencyRuleIds == null ? "null" : string.Join(", ", this.AssetMediaConcurrencyRuleIds)));
             sb.AppendLine(String.Concat("AssetEpgConcurrencyRuleIds: ", this.AssetEpgConcurrencyRuleIds == null ? "null" : string.Join(", ", this.AssetEpgConcurrencyRuleIds)));
             sb.AppendLine(String.Concat("PlayCycleKey: ", this.PlayCycleKey));
+            sb.AppendLine(String.Concat("IsBookmarkEventDispatched: ", this.IsBookmarkEventDispatched));
+            sb.AppendLine(String.Concat("TransactionType: ", this.TransactionType));
 
             return sb.ToString();
         }

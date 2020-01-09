@@ -10986,7 +10986,7 @@ namespace Core.ConditionalAccess
                                                                              devicePlayDataToInsert.MediaConcurrencyRuleIds, devicePlayDataToInsert.AssetMediaConcurrencyRuleIds,
                                                                              devicePlayDataToInsert.AssetEpgConcurrencyRuleIds, devicePlayDataToInsert.AssetId,
                                                                              devicePlayDataToInsert.ProgramId, deviceFamilyId, devicePlayDataToInsert.GetPlayType(),
-                                                                             devicePlayDataToInsert.NpvrId, ttl);
+                                                                             devicePlayDataToInsert.NpvrId, ttl, devicePlayDataToInsert.IsBookmarkEventDispatched, devicePlayDataToInsert.TransactionType);
             }
 
             if (devicePlayDataToInsert != null && !string.IsNullOrEmpty(devicePlayDataToInsert.PlayCycleKey))
@@ -11040,16 +11040,27 @@ namespace Core.ConditionalAccess
                 List<int> mediaConcurrencyRuleIds = new List<int>();
                 if (prices != null && prices.Length > 0)
                 {
-                    if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased)
+                    if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices.Length > 0)
                     {
-                        success = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
+                        var currPrice = prices[0].m_oItemPrices[0];
+                        
+                        if (currPrice.m_PriceReason == PriceReason.PPVPurchased)
+                        {
+                            success = int.TryParse(currPrice.m_sPPVModuleCode, out bmID);
+                            response.Data.TransactionType = eTransactionType.PPV;
+                        }
+                        else if (currPrice.m_PriceReason == PriceReason.SubscriptionPurchased)
+                        {
+                            success = int.TryParse(currPrice.m_relevantSub.m_SubscriptionCode, out bmID);
+                            eBM = eBusinessModule.Subscription;
+                            response.Data.TransactionType = eTransactionType.Subscription;
+                        }
+                        else if (currPrice.m_PriceReason == PriceReason.CollectionPurchased)
+                        {
+                            response.Data.TransactionType = eTransactionType.Collection;
+                        }
                     }
-                    else if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased)
-                    {
-                        success = int.TryParse(prices[0].m_oItemPrices[0].m_relevantSub.m_SubscriptionCode, out bmID);
-                        eBM = eBusinessModule.Subscription;
-                    }
-
+                    
                     if (!success)
                     {
                         return response;
