@@ -115,7 +115,10 @@ namespace ApiObjects.BulkUpload
             AddError(errorStatus);
         }
 
-        public bool IsProcessCompleted => Status == BulkUploadJobStatus.Success || Status == BulkUploadJobStatus.Failed || Status == BulkUploadJobStatus.Partial;
+        public bool IsProcessCompleted => Status == BulkUploadJobStatus.Success 
+            || Status == BulkUploadJobStatus.Failed 
+            || Status == BulkUploadJobStatus.Partial 
+            || Status == BulkUploadJobStatus.Fatal;
 
         public override CoreObject CoreClone()
         {
