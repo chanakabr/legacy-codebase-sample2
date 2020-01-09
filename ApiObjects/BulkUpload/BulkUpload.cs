@@ -32,8 +32,6 @@ namespace ApiObjects.BulkUpload
     {
         public const string NOTIFY_EVENT_NAME = "KalturaBulkUpload";
 
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         [JsonProperty("FileURL")]
         public string FileURL { get; set; }
 
