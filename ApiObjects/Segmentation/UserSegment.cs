@@ -195,7 +195,7 @@ namespace ApiObjects.Segmentation
 
         #region Public methods
 
-        public static List<UserSegment> List(int groupId, string userId, out int totalCount, List<long> segmentsIds = null , int pageIndex = 0, int pageSize = 0)
+        public static List<UserSegment> List(int groupId, string userId, out int totalCount, List<long> segmentsIds = null)
         {
             List<UserSegment> result = new List<UserSegment>();
             totalCount = 0;           
@@ -229,15 +229,7 @@ namespace ApiObjects.Segmentation
                     userSegments.Segments = userSegments.Segments.Where(x => segmentsIds.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
                 }
 
-                if (pageSize == 0 && pageIndex == 0)
-                {
-                    result = userSegments.Segments.Values.ToList();
-                }
-                else
-                {
-                    // get only segments on current page
-                    result = userSegments.Segments.Values.ToList().Skip(pageIndex * pageSize).Take(pageSize).ToList();
-                }
+                result = userSegments.Segments.Values.ToList();
 
                 totalCount = userSegments.Segments.Count;
             }

@@ -2218,8 +2218,7 @@ namespace Core.Api
 
             try
             {
-                var userSegments = UserSegment.List(groupId, userId, out int totalCount, null, pageIndex, pageSize);
-
+                var userSegments = UserSegment.List(groupId, userId, out int totalCount);
                 if (totalCount > 0)
                 {
                     var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(userSegments.Select(x => x.SegmentId).ToList());
@@ -2254,6 +2253,11 @@ namespace Core.Api
                             }
 
                             result.TotalItems = result.Objects.Count;
+
+                            if (pageSize > 0)
+                            {
+                                result.Objects = result.Objects.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                            }
                         }
                     }
                 }
