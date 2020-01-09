@@ -1059,6 +1059,181 @@ namespace AdapterControllers.PlaybackAdapter
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="RequestPlaybackContextOptions", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    public partial class RequestPlaybackContextOptions : object
+    {
+        
+        private System.Collections.Generic.List<AdapterControllers.PlaybackAdapter.KeyValue> AdapterDataField;
+        
+        private string AssetFileIdsField;
+        
+        private string AssetIdField;
+        
+        private AdapterControllers.PlaybackAdapter.AdapterAssetType AssetTypeField;
+        
+        private System.Nullable<AdapterControllers.PlaybackAdapter.AdapterPlaybackContextType> ContextField;
+        
+        private string MediaProtocolField;
+        
+        private string StreamerTypeField;
+        
+        private AdapterControllers.PlaybackAdapter.AdapterUrlType UrlTypeField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<AdapterControllers.PlaybackAdapter.KeyValue> AdapterData
+        {
+            get
+            {
+                return this.AdapterDataField;
+            }
+            set
+            {
+                this.AdapterDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string AssetFileIds
+        {
+            get
+            {
+                return this.AssetFileIdsField;
+            }
+            set
+            {
+                this.AssetFileIdsField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string AssetId
+        {
+            get
+            {
+                return this.AssetIdField;
+            }
+            set
+            {
+                this.AssetIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public AdapterControllers.PlaybackAdapter.AdapterAssetType AssetType
+        {
+            get
+            {
+                return this.AssetTypeField;
+            }
+            set
+            {
+                this.AssetTypeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<AdapterControllers.PlaybackAdapter.AdapterPlaybackContextType> Context
+        {
+            get
+            {
+                return this.ContextField;
+            }
+            set
+            {
+                this.ContextField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string MediaProtocol
+        {
+            get
+            {
+                return this.MediaProtocolField;
+            }
+            set
+            {
+                this.MediaProtocolField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string StreamerType
+        {
+            get
+            {
+                return this.StreamerTypeField;
+            }
+            set
+            {
+                this.StreamerTypeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public AdapterControllers.PlaybackAdapter.AdapterUrlType UrlType
+        {
+            get
+            {
+                return this.UrlTypeField;
+            }
+            set
+            {
+                this.UrlTypeField = value;
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AdapterAssetType", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    public enum AdapterAssetType : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        media = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        recording = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        epg = 2,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AdapterPlaybackContextType", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    public enum AdapterPlaybackContextType : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        TRAILER = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        CATCHUP = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        START_OVER = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PLAYBACK = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        DOWNLOAD = 4,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AdapterUrlType", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    public enum AdapterUrlType : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PLAYMANIFEST = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        DIRECT = 1,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Runtime.Serialization.DataContractAttribute(Name="PlaybackAdapterResponse", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
     public partial class PlaybackAdapterResponse : object
     {
@@ -1103,7 +1278,7 @@ namespace AdapterControllers.PlaybackAdapter
         System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.AdapterStatus> SetConfigurationAsync(long adapterId, string settings, int partnerId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetPlaybackContext", ReplyAction="http://tempuri.org/IService/GetPlaybackContextResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackContextAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions adapterPlaybackContextOptions);
+        System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackContextAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions adapterPlaybackContextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
@@ -1161,9 +1336,9 @@ namespace AdapterControllers.PlaybackAdapter
             return base.Channel.SetConfigurationAsync(adapterId, settings, partnerId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackContextAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions adapterPlaybackContextOptions)
+        public System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackContextAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions adapterPlaybackContextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
         {
-            return base.Channel.GetPlaybackContextAsync(adapterPlaybackContextOptions);
+            return base.Channel.GetPlaybackContextAsync(adapterPlaybackContextOptions, requestPlaybackContextOptions);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()
@@ -1194,7 +1369,7 @@ namespace AdapterControllers.PlaybackAdapter
         {
             if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding_IService))
             {
-                return new System.ServiceModel.EndpointAddress("http://172.31.6.89:90/PlaybackAdapter/Service.svc");                
+                return new System.ServiceModel.EndpointAddress("http://localhost:86/PlaybackAdapter/Service.svc");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }

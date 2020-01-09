@@ -100,7 +100,8 @@ namespace AdapterControllers
         }
 
         public ApiObjects.PlaybackAdapter.PlaybackContext GetPlaybackContext(int groupId, PlaybackProfile adapter, string userId, string udid,
-            string ip, ApiObjects.PlaybackAdapter.PlaybackContext kalturaPlaybackContext, Dictionary<string, string> adapterData)
+            string ip, ApiObjects.PlaybackAdapter.PlaybackContext kalturaPlaybackContext,
+            ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions kContextOptions)
         {
             ApiObjects.PlaybackAdapter.PlaybackContext playbackContext = null;
 
@@ -125,9 +126,9 @@ namespace AdapterControllers
 
                 AdapterControllers.PlaybackAdapter.AdapterPlaybackContext adapterPlaybackContext = ParsePlaybackContextToAdapterContext(kalturaPlaybackContext);
                 List<KeyValue> playbackAdapterData = new List<KeyValue>();
-                if (adapterData != null && adapterData.Count > 0)
+                if (kContextOptions != null && kContextOptions.AdapterData?.Count > 0)
                 {
-                    foreach (KeyValuePair<string, string> pair in adapterData)
+                    foreach (KeyValuePair<string, string> pair in kContextOptions.AdapterData)
                     {
                         playbackAdapterData.Add(new KeyValue() { Key = pair.Key, Value = pair.Value });
                     }
@@ -146,7 +147,23 @@ namespace AdapterControllers
                     UserId = userId
                 };
 
-                PlaybackAdapter.PlaybackAdapterResponse adapterResponse = GetAdapterPlaybackContext(adapterClient, contextOption);
+                PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = null;
+                if (kContextOptions != null)
+                {
+                    requestPlaybackContextOptions = new PlaybackAdapter.RequestPlaybackContextOptions()
+                    {
+                        AdapterData = playbackAdapterData.ToList(),
+                        AssetFileIds = kContextOptions.AssetFileIds,
+                        AssetId = kContextOptions.AssetId,
+                        AssetType = ParseAssetType(kContextOptions.AssetType),
+                        Context = ParseContext(kContextOptions.Context),
+                        MediaProtocol = kContextOptions.MediaProtocol,
+                        StreamerType = kContextOptions.StreamerType,
+                        UrlType = ParseUrlType(kContextOptions.UrlType)
+                    };
+                }
+
+                PlaybackAdapter.PlaybackAdapterResponse adapterResponse = GetAdapterPlaybackContext(adapterClient, contextOption, requestPlaybackContextOptions);
 
                 if (adapterResponse != null)
                 {
@@ -192,14 +209,15 @@ namespace AdapterControllers
             return result;
         }
 
-        private static PlaybackAdapter.PlaybackAdapterResponse GetAdapterPlaybackContext(PlaybackAdapter.ServiceClient adapterClient, PlaybackAdapter.AdapterPlaybackContextOptions contextOptions)
+        private static PlaybackAdapter.PlaybackAdapterResponse GetAdapterPlaybackContext(PlaybackAdapter.ServiceClient adapterClient, PlaybackAdapter.AdapterPlaybackContextOptions contextOptions,
+            PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
         {
             PlaybackAdapter.PlaybackAdapterResponse adapterResponse;
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetPlaybackContextAsync(contextOptions).ExecuteAndWait();
+                adapterResponse = adapterClient.GetPlaybackContextAsync(contextOptions, requestPlaybackContextOptions).ExecuteAndWait();
             }
 
             if (adapterResponse != null)
@@ -509,6 +527,59 @@ namespace AdapterControllers
             }
 
             return playbackPluginDatas;
+        }
+
+        private AdapterUrlType ParseUrlType(UrlType urlType)
+        {
+            switch (urlType)
+            {
+                case UrlType.playmanifest:
+                    return AdapterUrlType.PLAYMANIFEST;
+                case UrlType.direct:
+                    return AdapterUrlType.DIRECT;
+                default:
+                    throw new KalturaException("Unknown UrlType value", (int)eResponseStatus.Error);
+            }
+        }
+
+        private AdapterPlaybackContextType? ParseContext(PlayContextType? context)
+        {
+            if (context.HasValue)
+            {
+                switch (context.Value)
+                {
+                    case PlayContextType.CatchUp:
+                        return AdapterPlaybackContextType.CATCHUP;
+                    case PlayContextType.Download:
+                        return AdapterPlaybackContextType.DOWNLOAD;
+                    case PlayContextType.Playback:
+                        return AdapterPlaybackContextType.PLAYBACK;
+                    case PlayContextType.StartOver:
+                        return AdapterPlaybackContextType.START_OVER;
+                    case PlayContextType.Trailer:
+                        return AdapterPlaybackContextType.TRAILER;
+                    default:
+                        throw new KalturaException("Unknown PlayContextType value", (int)eResponseStatus.Error);
+                }
+            }
+
+            return null;
+        }
+
+        private AdapterAssetType ParseAssetType(eAssetTypes assetType)
+        {
+            switch (assetType)
+            {
+                case eAssetTypes.EPG:
+                    return AdapterAssetType.epg;
+                case eAssetTypes.NPVR:
+                    return AdapterAssetType.recording;
+                case eAssetTypes.MEDIA:
+                    return AdapterAssetType.media;
+                case eAssetTypes.UNKNOWN:
+                default:
+                    throw new KalturaException("Unknown eAssetTypes value", (int)eResponseStatus.Error);
+            }
         }
     }
 }

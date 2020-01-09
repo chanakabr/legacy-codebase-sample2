@@ -1027,7 +1027,8 @@ namespace WebAPI.Controllers
                     DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
 
                     // Check and get PlaybackAdapter in case asset set rule and action.
-                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId, ks.UserId, assetId, assetType, KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response, contextDataParams.AdapterData);
+                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId, ks.UserId, assetId, assetType, 
+                        KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response, contextDataParams);
                     if (adapterResponse != null)
                     {
                         response = adapterResponse;

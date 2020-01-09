@@ -12,8 +12,8 @@ namespace WebAPI.Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal static KalturaPlaybackContext GetPlaybackAdapterContext(int groupId, string userId, string assetId, KalturaAssetType assetType,
-            string udid, string ip, KalturaPlaybackContext kalturaPlaybackContext, SerializableDictionary<string, Models.General.KalturaStringValue> adapterData)
+        internal static KalturaPlaybackContext GetPlaybackAdapterContext(int groupId, string userId, string assetId, KalturaAssetType assetType, 
+            string udid, string ip, KalturaPlaybackContext kalturaPlaybackContext, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaPlaybackContext KalturaPlaybackContextResponse = null;
             string id = assetId;
@@ -59,7 +59,7 @@ namespace WebAPI.Utils
                     }
 
                     KalturaPlaybackContext playbackContextResponse = ClientsManager.ApiClient().GetPlaybackAdapterContext(adapterId, groupId,
-                        userId, udid, ip, kalturaPlaybackContext, adapterData);
+                        userId, udid, ip, kalturaPlaybackContext, contextDataParams.AdapterData, assetId, assetType, contextDataParams);
 
                     if (playbackContextResponse != null)
                     {
