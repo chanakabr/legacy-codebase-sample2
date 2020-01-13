@@ -62,7 +62,7 @@ namespace IngestValidtionHandler
                 _AffectedPrograms = _BulkUploadObject.AffectedObjects?.Cast<EpgProgramBulkUploadObject>()?.ToList();
 
                 var indexIsValid = ValidateClonedIndex(eventData);
-                var statusToSetForResults = indexIsValid? BulkUploadResultStatus.Ok: BulkUploadResultStatus.Error;
+                var statusToSetForResults = indexIsValid ? BulkUploadResultStatus.Ok : BulkUploadResultStatus.Error;
                 _Logger.Debug($"Index validation done with result:[{indexIsValid}], setting results status:[{statusToSetForResults}]");
                 SetStatusToAllCurrentResults(statusToSetForResults);
 
@@ -99,7 +99,18 @@ namespace IngestValidtionHandler
             }
             catch (Exception ex)
             {
-                _Logger.Error($"An Exception occurred in BulkUploadIngestValidationHandler requestId:[{eventData.RequestId}], BulkUploadId:[{eventData.BulkUploadId}].", ex);
+                try
+                {
+                    _BulkUploadObject.AddError(eResponseStatus.Error, $"An unexpected error occored during ingest validation, {ex.Message}");
+                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Fatal);
+                    _Logger.Error($"An Exception occurred in BulkUploadIngestValidationHandler requestId:[{eventData.RequestId}], BulkUploadId:[{eventData.BulkUploadId}].", ex);
+
+                }
+                catch (Exception innerEx)
+                {
+                    _Logger.Error($"Error while trying to update bulk upload with failed status from ingestValidation");
+                }
+
                 throw;
             }
         }
