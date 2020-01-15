@@ -18,13 +18,15 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
         {
             get
             {
-                if(MustBeOverwriteInTcm && (typeof(string) == typeof(T) && ActualValue.ToString() == TcmObjectKeys.Stub || ActualValue == null))
+                if (MustBeOverwriteInTcm && (typeof(string) == typeof(T) && ActualValue.ToString() == TcmObjectKeys.Stub || ActualValue == null))
                 {
                     throw new MissingFieldException($"key [{Key}] must be set in TCM ");
                 }
+
                 return ActualValue == null ? DefaultValue : ActualValue;
             }
         }
+
         public BaseValue(string key, T defaultValue, bool mustBeOverwriteInTcm = false, string description = null)
         {
             this.Key = key;
