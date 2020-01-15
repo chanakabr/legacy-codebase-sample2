@@ -147,7 +147,7 @@ namespace EpgBL
 
             var couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.EPG);
             var lastNewEpgId = couchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, (ulong)countOfIds);
-            lastNewEpgId += (ulong)ApplicationConfiguration.EpgInitialId.LongValue;
+            lastNewEpgId += ApplicationConfiguration.Current.EpgInitialId.Value;
             var firstNewEpgId = (lastNewEpgId - (ulong)countOfIds) + 1;
 
             var listOfIds = new List<ulong>();
