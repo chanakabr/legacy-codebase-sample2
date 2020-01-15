@@ -103,7 +103,7 @@ namespace AdapterControllers
             string ip, ApiObjects.PlaybackAdapter.PlaybackContext kalturaPlaybackContext,
             ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions kContextOptions)
         {
-            ApiObjects.PlaybackAdapter.PlaybackContext playbackContext = null;
+            PlaybackContext playbackContext = null;
 
             if (adapter == null)
             {
@@ -580,6 +580,111 @@ namespace AdapterControllers
                 default:
                     throw new KalturaException("Unknown eAssetTypes value", (int)eResponseStatus.Error);
             }
+        }
+
+        public PlaybackContext GetPlaybackManifest(int groupId, PlaybackProfile adapter, ApiObjects.PlaybackAdapter.PlaybackContext kalturaPlaybackContext,
+            ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions kContextOptions)
+        {
+            PlaybackContext playbackContext = null;
+
+            if (adapter == null)
+            {
+                throw new KalturaException(string.Format("playback adapter doesn't exist"), (int)eResponseStatus.AdapterNotExists);
+            }
+
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
+            {
+                throw new KalturaException("playback adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+            }
+
+            var adapterClient = GetPlaybackAdapterServiceClient(adapter.AdapterUrl);
+
+            //set unixTimestamp
+            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+            string signature = string.Concat(adapter.Id, groupId, string.Empty, string.Empty, string.Empty, unixTimestamp); //TODO anat: ask Ira
+
+            try
+            {
+
+                AdapterControllers.PlaybackAdapter.AdapterPlaybackContext adapterPlaybackContext = ParsePlaybackContextToAdapterContext(kalturaPlaybackContext);
+                List<KeyValue> playbackAdapterData = new List<KeyValue>();
+                if (kContextOptions != null && kContextOptions.AdapterData?.Count > 0)
+                {
+                    foreach (KeyValuePair<string, string> pair in kContextOptions.AdapterData)
+                    {
+                        playbackAdapterData.Add(new KeyValue() { Key = pair.Key, Value = pair.Value });
+                    }
+                }
+
+                PlaybackAdapter.AdapterPlaybackContextOptions contextOption = new PlaybackAdapter.AdapterPlaybackContextOptions()
+                {
+                    AdapterId = adapter.Id,                    
+                    PlaybackContext = adapterPlaybackContext,
+                    PartnerId = groupId,                    
+                    TimeStamp = unixTimestamp,
+                    Signature = System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))),
+                    AdapterData = playbackAdapterData.ToList(),                    
+                };
+
+                PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = null;
+                if (kContextOptions != null)
+                {
+                    requestPlaybackContextOptions = new PlaybackAdapter.RequestPlaybackContextOptions()
+                    {
+                        AdapterData = playbackAdapterData.ToList(),
+                        AssetFileIds = kContextOptions.AssetFileIds,
+                        AssetId = kContextOptions.AssetId,
+                        AssetType = ParseAssetType(kContextOptions.AssetType),
+                        Context = ParseContext(kContextOptions.Context),
+                        MediaProtocol = kContextOptions.MediaProtocol,
+                        StreamerType = kContextOptions.StreamerType,
+                        UrlType = ParseUrlType(kContextOptions.UrlType)
+                    };
+                }
+
+                PlaybackAdapter.PlaybackAdapterResponse adapterResponse = GetAdapterPlaybackManifest(adapterClient, contextOption, requestPlaybackContextOptions);
+
+                if (adapterResponse != null)
+                {
+                    log.DebugFormat("success. playback adapter response for GetAdapterPlaybackContext: status.code = {0},", adapterResponse.Status != null ? adapterResponse.Status.Code.ToString() : "null");
+                    playbackContext = ParsePlaybackContextResponse(adapterResponse);
+                }
+                else
+                {
+                    log.Error("GetPlaybackManifest. playback adapter response for GetAdapterPlaybackContext is null");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in GetPlaybackManifest: adapterId = {0}. ex: {1}", adapter.Id, ex);
+                throw new KalturaException("Adapter failed completing request. GetPlaybackManifest", (int)eResponseStatus.AdapterAppFailure);
+            }
+
+            return playbackContext;
+        }
+
+        private static PlaybackAdapter.PlaybackAdapterResponse GetAdapterPlaybackManifest(PlaybackAdapter.ServiceClient adapterClient, PlaybackAdapter.AdapterPlaybackContextOptions contextOptions,
+            PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
+        {
+            PlaybackAdapter.PlaybackAdapterResponse adapterResponse;
+
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+            {
+                //call adapter
+                adapterResponse = adapterClient.GetPlaybackManifestAsync(contextOptions, requestPlaybackContextOptions).ExecuteAndWait();
+            }
+
+            if (adapterResponse != null)
+            {
+                log.DebugFormat("success. playback adapter response for GetPlaybackManifest: status.code = {0}",
+                    adapterResponse.Status != null ? adapterResponse.Status.Code.ToString() : "null");
+            }
+            else
+            {
+                log.Error("playback adapter response for GetPlaybackManifest is null");
+            }
+
+            return adapterResponse;
         }
     }
 }

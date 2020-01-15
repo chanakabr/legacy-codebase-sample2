@@ -4142,10 +4142,8 @@ namespace WebAPI.Clients
         #endregion
 
         internal KalturaPlaybackContext GetPlaybackAdapterContext(long adapterId, int groupId, string userId, string udid, string ip, KalturaPlaybackContext kalturaPlaybackContext,
-                                                                SerializableDictionary<string, KalturaStringValue> adapterData, 
                                                                 string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
-            Dictionary<string, string> playbackAdapterData = ApiMappings.ConvertSerializeableDictionary(adapterData);
 
             ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = AutoMapper.Mapper.Map<ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>(contextDataParams);
             requestPlaybackContextOptions.AssetId = assetId;
@@ -4451,6 +4449,22 @@ namespace WebAPI.Clients
         {
             Func<Status> clearCache = () => Core.Api.Module.ClearLocalServerCache(action, key);
             return ClientUtils.GetResponseStatusFromWS(clearCache);
+        }
+
+        internal KalturaPlaybackContext GetPlaybackAdapterManifest(long adapterId, int groupId, KalturaPlaybackContext kalturaPlaybackContext,                                                                
+                                                                string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        {
+            ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = AutoMapper.Mapper.Map<ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>(contextDataParams);
+            requestPlaybackContextOptions.AssetId = assetId;
+            requestPlaybackContextOptions.AssetType = ApiMappings.ConvertAssetType(assetType);
+
+            Func<ApiObjects.PlaybackAdapter.PlaybackContext, GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>> updateBusinessModuleRuleFunc = (ApiObjects.PlaybackAdapter.PlaybackContext playbackContext) =>
+             Core.Api.Module.GetPlaybackManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions);
+
+            KalturaPlaybackContext result =
+                ClientUtils.GetResponseFromWS<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>(kalturaPlaybackContext, updateBusinessModuleRuleFunc);
+
+            return result;
         }
     }
 }

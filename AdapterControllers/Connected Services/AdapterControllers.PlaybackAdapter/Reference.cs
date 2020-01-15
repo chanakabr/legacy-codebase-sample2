@@ -1279,6 +1279,9 @@ namespace AdapterControllers.PlaybackAdapter
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetPlaybackContext", ReplyAction="http://tempuri.org/IService/GetPlaybackContextResponse")]
         System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackContextAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions adapterPlaybackContextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetPlaybackManifest", ReplyAction="http://tempuri.org/IService/GetPlaybackManifestResponse")]
+        System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackManifestAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions contextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
@@ -1339,6 +1342,11 @@ namespace AdapterControllers.PlaybackAdapter
         public System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackContextAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions adapterPlaybackContextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
         {
             return base.Channel.GetPlaybackContextAsync(adapterPlaybackContextOptions, requestPlaybackContextOptions);
+        }
+        
+        public System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackManifestAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions contextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
+        {
+            return base.Channel.GetPlaybackManifestAsync(contextOptions, requestPlaybackContextOptions);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()
