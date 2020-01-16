@@ -65,6 +65,15 @@ namespace WebAPI.Models.Segmentation
         [SchemeProperty(MinLength = 1)]
         public string UserIdEqual { get; set; }
 
+        /// <summary>
+        /// KSQL expression
+        /// </summary>
+        [DataMember(Name = "kSql")]
+        [JsonProperty("kSql")]
+        [XmlElement(ElementName = "kSql", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string Ksql { get; set; }
+
         public override KalturaUserSegmentOrder GetDefaultOrderByValue()
         {
             return KalturaUserSegmentOrder.NONE;

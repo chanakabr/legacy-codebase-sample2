@@ -48,7 +48,7 @@ namespace Core.Users
 
         private static double GetDocTTLSettings()
         {
-            double nResult = ApplicationConfiguration.UsersCacheConfiguration.TTLSeconds.DoubleValue;
+            double nResult = ApplicationConfiguration.Current.UsersCacheConfiguration.TTLSeconds.Value;
             if (nResult == 0)
             {
                 nResult = 1440.0;

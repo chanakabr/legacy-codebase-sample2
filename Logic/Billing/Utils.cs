@@ -1656,9 +1656,9 @@ namespace Core.Billing
         public static int GetPreviewModuleNumOfCancelOrRefundAttempts()
         {
             int res = DEFAULT_PREVIEW_MODULE_NUM_OF_CANCEL_OR_REFUND_ATTEMPTS;
-            if (ApplicationConfiguration.PreviewModuleNumOfCancelOrRefundAttempts.IntValue > 0)
+            if (ApplicationConfiguration.Current.PreviewModuleNumOfCancelOrRefundAttempts.Value > 0)
             {
-                return ApplicationConfiguration.PreviewModuleNumOfCancelOrRefundAttempts.IntValue;
+                return ApplicationConfiguration.Current.PreviewModuleNumOfCancelOrRefundAttempts.Value;
             }
             return res;
         }
@@ -2182,7 +2182,7 @@ namespace Core.Billing
                     }
                     else
                     {
-                        double minuteOffset = ApplicationConfiguration.BillingCacheTTL.DoubleValue;
+                        double minuteOffset = ApplicationConfiguration.Current.BillingCacheTTL.Value;
                         if (minuteOffset == 0)
                         {
                             minuteOffset = 60;// default value

@@ -2547,7 +2547,7 @@ namespace DAL
                     counter = cbManager.Increment(GetUserPushKey(partnerId, userId), 1);
                 else
                 {
-                    uint docTTL = (uint)ApplicationConfiguration.PushMessagesConfiguration.TTLSeconds.IntValue;
+                    uint docTTL = (uint)ApplicationConfiguration.Current.PushMessagesConfiguration.TTLSeconds.Value;
 
                     if (docTTL == 0)
                         docTTL = TTL_USER_PUSH_COUNTER_DOCUMENT_SECONDS;

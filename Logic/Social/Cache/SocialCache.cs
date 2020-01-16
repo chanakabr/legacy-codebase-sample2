@@ -61,9 +61,9 @@ namespace Core.Social.Cache
 
         private static double GetDocTTLSettings()
         {
-            double result = ApplicationConfiguration.SocialCacheDocTimeout.DoubleValue;
+            double result = ApplicationConfiguration.Current.SocialCacheDocTimeout.Value;
 
-            if (ApplicationConfiguration.SocialCacheDocTimeout.DoubleValue <= 0)
+            if (ApplicationConfiguration.Current.SocialCacheDocTimeout.Value <= 0)
             {
                 result = 1440.0;
             }

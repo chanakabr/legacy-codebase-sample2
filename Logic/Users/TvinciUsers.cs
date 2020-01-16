@@ -553,7 +553,7 @@ namespace Core.Users
             {
                 if (UsersDal.IsUserDomainMaster(m_nGroupID, userId))
                 {
-                    long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
+                    long roleId = ApplicationConfiguration.Current.RoleIdsConfiguration.MasterRoleId.Value;
                     if (roleId > 0 && !newUser.m_oBasicData.RoleIds.Contains(roleId))
                     {
                         newUser.m_oBasicData.RoleIds.Add(roleId);

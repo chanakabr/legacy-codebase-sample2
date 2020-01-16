@@ -26,7 +26,7 @@ namespace EpgBL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected EpgDal_Couchbase m_oEpgCouchbase;
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
         private static readonly int DAYSBUFFER = 7;
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
         protected ElasticSearchApi elasticSearchApi;
@@ -810,7 +810,7 @@ namespace EpgBL
         {
             try
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
                 {
                     // use old image server flow
                     MutateFullEpgPicURLOldImageServerFlow(epgList, pictures);

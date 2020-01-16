@@ -1,5 +1,6 @@
 ﻿using AdapterControllers;
 using AdapterControllers.CDVR;
+using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using ApiObjects;
@@ -7,10 +8,13 @@ using ApiObjects.CDNAdapter;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Response;
 using ApiObjects.Rules;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Api;
 using Core.Api.Managers;
+using Core.Catalog;
 using Core.Catalog.Response;
 using Core.Pricing;
 using Core.Users;
@@ -220,6 +224,21 @@ namespace Core.ConditionalAccess
                                         {
                                             continue;
                                         }
+
+                                        if (priceReason == PriceReason.SubscriptionPurchased)
+                                        {
+                                            var subscriptionId = price.m_oItemPrices?.First()?.m_relevantSub?.m_sObjectCode;
+                                            
+                                            if (!string.IsNullOrEmpty(subscriptionId))
+                                            {
+                                                var status = api.HandleBlockingSegment<SegmentBlockPlaybackSubscriptionAction>(groupId, userId, udid, ip, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, subscriptionId);
+                                                if (!status.IsOkStatusCode())
+                                                {
+                                                    response.Status = status;
+                                                    return response;
+                                                }
+                                            }
+                                        }
                                     }
 
                                     adsData = GetFileAdsDataFromBusinessModule(groupId, price, udid);
@@ -343,7 +362,7 @@ namespace Core.ConditionalAccess
                                                                            string.Empty, domainId, groupId);
                                             }
                                             // item must be free otherwise we wouldn't get this far
-                                            else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && filePrice.m_oItemPrices?.Length > 0)
+                                            else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value && filePrice.m_oItemPrices?.Length > 0)
 
                                             {
                                                 bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, (int)file.Id,
@@ -528,7 +547,7 @@ namespace Core.ConditionalAccess
                         PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
                     }
                     // item must be free otherwise we wouldn't get this far
-                    else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && price.m_oItemPrices?.Length > 0)
+                    else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value && price.m_oItemPrices?.Length > 0)
 
                     {
                         bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, (int)file.Id,

@@ -1,61 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json.Linq;
+using System;
 
 namespace ConfigurationManager
 {
-    public class ElasticSearchHandlerConfiguration : ConfigurationValue
+    public class ElasticSearchHandlerConfiguration : BaseConfig<ElasticSearchHandlerConfiguration>
     {
-        public NumericConfigurationValue BulkSize;
-        public NumericConfigurationValue NumberOfShards;
-        public NumericConfigurationValue NumberOfReplicas;
-        public NumericConfigurationValue ChannelStartDateDays;
-        public NumericConfigurationValue GetGroupMediaTimeout;
+        public BaseValue<int> BulkSize = new BaseValue<int>("bulk_size", 1000, false, "Number of documents to be updated in same ElasticSearch bulk when rebuilding the index. " +
+                "This value can be several hundreds, depending on typical document size and machine capabilities");
+        public BaseValue<int> NumberOfShards = new BaseValue<int>("shards", 4);
+        public BaseValue<int> NumberOfReplicas = new BaseValue<int>("replicas", 1);
+        public BaseValue<int> ChannelStartDateDays = new BaseValue<int>("channel_start_date_days", 30, false, "Used in EPG Channel updater (when getting programs by channel Ids and dates)");
+        public BaseValue<int> GetGroupMediaTimeout = new BaseValue<int>("get_group_media_timeout", 90, false, "When running Get_GroupMedias_ml stored procedure, how much time (in seconds) should code wait until receiving timeout exception");
 
-        public ElasticSearchHandlerConfiguration(string key) : base(key)
-        {
-            // if this is a sub-configuration value, the second consturctor should be used, sending "this" as a parent
-            BulkSize = new ConfigurationManager.NumericConfigurationValue("bulk_size", this)
-            {
-                // Since this is a remote tasks configuration value, it should be empty on phoenix, which is the component that is validated
-                ShouldAllowEmpty = true,
-                // default value can be set, but is not a must.
-                DefaultValue = 50,
-                // descriptions are important for inetgrators, they help them understand what is the meaning of this key
-                Description = "Number of documents to be updated in same ElasticSearch bulk when rebuilding the index. " +
-                "This value can be several hundreds, depending on typical document size and machine capabilities",
-                OriginalKey = "ES_BULK_SIZE"
-            };
+        public override string TcmKey => TcmObjectKeys.ElasticsearchHandlerConfiguration;
 
-            NumberOfShards = new ConfigurationManager.NumericConfigurationValue("shards", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "ES_NUM_OF_SHARDS"
-            };
+        public override string[] TcmPath => new string[] { TcmKey };
 
-            NumberOfReplicas = new NumericConfigurationValue("replicas", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "ES_NUM_OF_REPLICAS"
-            };
 
-            ChannelStartDateDays = new ConfigurationManager.NumericConfigurationValue("channel_start_date_days", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 30,
-                OriginalKey = "Channel_StartDate_Days",
-                Description = "Used in EPG Channel updater (when getting programs by channel Ids and dates)"
-            };
-
-            GetGroupMediaTimeout = new NumericConfigurationValue("get_group_media_timeout", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 90,
-                Description =
-                    "When running Get_GroupMedias_ml stored procedure, how much time (in seconds) should code wait until receiving timeout exception"
-            };
-        }
     }
 }

@@ -1,38 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json.Linq;
 
 namespace ConfigurationManager.Types
 {
-    public class FileSystemConfiguration : ConfigurationValue
+    public class FileSystemConfiguration : BaseConfig<FileSystemConfiguration>
     {
-        public StringConfigurationValue DestPath;
-        public StringConfigurationValue PublicUrl;
+        public override string TcmKey => TcmObjectKeys.FileSystem;
 
-        public FileSystemConfiguration(string key) 
-            : base(key)
-        {
-            Initialize();
-        }
+        public override string[] TcmPath => new string[] { TcmObjectKeys.FileUpload, TcmKey };
 
-        public FileSystemConfiguration(string key, ConfigurationValue parent) 
-            : base(key, parent)
-        {
-            Initialize();
-        }
+        public BaseValue<string> DestPath = new BaseValue<string>("destPath", "Tzachi", false, "description");
+        public BaseValue<string> PublicUrl = new BaseValue<string>("publicUrl", "publicUrl", false, "description");
 
-        protected void Initialize()
-        {
-            DestPath = new StringConfigurationValue("destPath", this)
-            {
-                DefaultValue = string.Empty,
-            };
-            PublicUrl = new StringConfigurationValue("publicUrl", this)
-            {
-                DefaultValue = string.Empty,
-            };
-        }
+
     }
 }

@@ -296,9 +296,9 @@ namespace TVinciShared
         public static void LogoutFromSite(string sFileToTransferTo)
         {
             string sBaseURL = "http://admin.tvinci.com";
-            if (!string.IsNullOrEmpty(ApplicationConfiguration.TVMBaseUrl.Value))
+            if (!string.IsNullOrEmpty(ApplicationConfiguration.Current.TVMBaseUrl.Value))
             {
-                sBaseURL = ApplicationConfiguration.TVMBaseUrl.Value;
+                sBaseURL = ApplicationConfiguration.Current.TVMBaseUrl.Value;
             }
 
             try
@@ -710,7 +710,7 @@ namespace TVinciShared
 
                 string sIP = PageUtils.GetCallerIP();
 
-                if (!ApplicationConfiguration.TVMSkipLoginIPCheck.Value)
+                if (!ApplicationConfiguration.Current.TVMSkipLoginIPCheck.Value)
                 {
                     bool bAllowedIP = false;
 

@@ -17,7 +17,7 @@ namespace Tvinci.Core.DAL
     public class EpgDal : BaseDal
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
         private const int RETRY_LIMIT = 5;
 
         public static DataTable GetEpgScheduleDataTable(int? topRowsNumber, int groupID, DateTime? fromUTCDay, DateTime? toUTCDay, int epgChannelID)
@@ -834,7 +834,6 @@ namespace Tvinci.Core.DAL
         public static List<EpgCB> GetEpgCBList(List<string> documentIds)
         {
             var resultEpgs = new List<EpgCB>();
-            var recordingKeys = new List<string>();
             var tempEpgs = UtilsDal.GetObjectListFromCB<EpgCB>(eCouchbaseBucket.EPG, documentIds, true);
 
             if (tempEpgs != null && tempEpgs.Count > 0)
@@ -844,16 +843,29 @@ namespace Tvinci.Core.DAL
                     if (epg.Status == 1)
                     {
                         resultEpgs.Add(epg);
+
+                        if (!string.IsNullOrEmpty(epg.DocumentId))
+                        {
+                            documentIds.Remove(epg.DocumentId);
+                        }
+                        else
+                        {
+                            documentIds.Remove(epg.EpgID.ToString());
+                            string docId = string.Format("epg_{0}_lang_{1}", epg.EpgID, epg.Language.ToLower());
+                            documentIds.Remove(docId);
+                        }
                     }
                     else
                     {
-                        recordingKeys.Add(epg.DocumentId);
                         log.WarnFormat("GetEpgCBList - epg with key {0} from CB, returned with status {1}", epg.DocumentId, epg.Status);
                     }
                 }
             }
 
-            resultEpgs.AddRange(GetEpgCBRecordingsList(recordingKeys));
+            if (documentIds.Count > 0)
+            {
+                resultEpgs.AddRange(GetEpgCBRecordingsList(documentIds));
+            }
 
             return resultEpgs;
         }

@@ -68,7 +68,7 @@ namespace DAL
                     feedDoc = cbManager.GetWithVersion<CrowdsourceFeedDoc>(doc.Id, out version);
                 }
                 feedDoc.Items.Insert(0, csItem.Value);
-                feedDoc.Items = feedDoc.Items.Take(ApplicationConfiguration.CrowdSourcerFeedNumberOfItems.IntValue).ToList();
+                feedDoc.Items = feedDoc.Items.Take(ApplicationConfiguration.Current.CrowdSourcerFeedNumberOfItems.Value).ToList();
 
                 return cbManager.SetWithVersionWithRetry<CrowdsourceFeedDoc>(feedDoc.Id, feedDoc, version, 10, 1000, 0, true);
             }

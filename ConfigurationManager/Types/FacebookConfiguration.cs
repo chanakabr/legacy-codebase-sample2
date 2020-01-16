@@ -1,46 +1,20 @@
-﻿namespace ConfigurationManager
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+
+namespace ConfigurationManager
 {
-    public class FacebookConfiguration : ConfigurationValue
+    public class FacebookConfiguration : BaseConfig<FacebookConfiguration>
     {
-        public StringConfigurationValue GraphSocialFeedFields;
-        public StringConfigurationValue GraphURI;
-        public StringConfigurationValue TokenKey;
-        public StringConfigurationValue ListName;
-        public StringConfigurationValue SecureSiteGuidKey;
-        public StringConfigurationValue SecureSiteGuidIV;
-        
-        public FacebookConfiguration(string key) : base(key)
-        {
-            GraphSocialFeedFields = new StringConfigurationValue("graph_socialfeed_fields", this)
-            {
-                DefaultValue = "posts?fields=from,message,link,picture,created_time,likes.limit(1).summary(true),comments.limit(25).fields(message,from,like_count,created_time),picture",
-                OriginalKey = "FB_GRAPH_SOCIALFEED_FIELDS"
-            };
-            GraphURI = new StringConfigurationValue("graph_uri", this)
-            {
-                DefaultValue = "https://graph.facebook.com",
-                OriginalKey = "FB_GRAPH_URI"
-            };
-            TokenKey = new StringConfigurationValue("token_key", this)
-            {
-                DefaultValue = "tvinci",
-                OriginalKey = "FB_TOKEN_KEY"
-            };
-            ListName = new StringConfigurationValue("list_name", this)
-            {
-                DefaultValue = "TvinciAppFriends",
-                OriginalKey = "FB_LIST_NAME"
-            };
-            SecureSiteGuidKey = new StringConfigurationValue("secure_site_guid_key", this)
-            {
-                DefaultValue = "L3CDpYFfCrGnx5ACoO/Az3oIIt/XeC2dhSmFcB6ckxA=",
-                OriginalKey = "SecureSiteGuidKey"
-            };
-            SecureSiteGuidIV = new StringConfigurationValue("secure_site_guid_iv", this)
-            {
-                DefaultValue = "Yn5/n0s8B0yLRvGuhSLRrA==",
-                OriginalKey = "SecureSiteGuidIV"
-            };
-        }
+        public BaseValue<string> GraphSocialFeedFields = new BaseValue<string>("graph_socialfeed_fields", "posts?fields=from,message,link,picture,created_time,likes.limit(1).summary(true),comments.limit(25).fields(message,from,like_count,created_time),picture");
+        public BaseValue<string> GraphURI = new BaseValue<string>("graph_uri", "https://graph.facebook.com");
+        public BaseValue<string> TokenKey = new BaseValue<string>("token_key", "tvinci");
+        public BaseValue<string> ListName = new BaseValue<string>("list_name", "TvinciAppFriends");
+        public BaseValue<string> SecureSiteGuidKey = new BaseValue<string>("secure_site_guid_key", "L3CDpYFfCrGnx5ACoO/Az3oIIt/XeC2dhSmFcB6ckxA=");
+        public BaseValue<string> SecureSiteGuidIV = new BaseValue<string>("secure_site_guid_iv", "Yn5/n0s8B0yLRvGuhSLRrA==");
+
+
+
+        public override string TcmKey => TcmObjectKeys.FacebookConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
     }
 }

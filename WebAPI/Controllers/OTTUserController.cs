@@ -853,8 +853,8 @@ namespace WebAPI.Controllers
             try
             {
                 string userId = KS.GetFromRequest().UserId;
-                string key = ApplicationConfiguration.OTTUserControllerConfiguration.UserIdEncryptionKey.Value;
-                string iv = ApplicationConfiguration.OTTUserControllerConfiguration.UserIdEncryptionIV.Value;
+                string key = ApplicationConfiguration.Current.OTTUserControllerConfiguration.UserIdEncryptionKey.Value;
+                string iv = ApplicationConfiguration.Current.OTTUserControllerConfiguration.UserIdEncryptionIV.Value;
 
                 if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(iv))
                 {

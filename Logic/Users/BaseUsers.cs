@@ -1101,7 +1101,7 @@ namespace Core.Users
                 // Create new PIN               
                 try
                 {
-                    int length = ApplicationConfiguration.UserPINDigitsConfiguration.NumberOfDigits.IntValue;
+                    int length = ApplicationConfiguration.Current.UserPINDigitsConfiguration.NumberOfDigits.Value;
 
                     if (length == 0)
                     {
@@ -1122,8 +1122,8 @@ namespace Core.Users
 
         private bool isValidPIN(string PIN, out ApiObjects.Response.Status response)
         {
-            int minlength = ApplicationConfiguration.UserPINDigitsConfiguration.MinNumberOfDigits.IntValue;
-            int maxlength = ApplicationConfiguration.UserPINDigitsConfiguration.MaxNumberOfDigits.IntValue;
+            int minlength = ApplicationConfiguration.Current.UserPINDigitsConfiguration.MinNumberOfDigits.Value;
+            int maxlength = ApplicationConfiguration.Current.UserPINDigitsConfiguration.MaxNumberOfDigits.Value;
 
             if (minlength == 0)
             {

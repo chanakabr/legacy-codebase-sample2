@@ -682,6 +682,12 @@ namespace Core.Catalog.CatalogManagement
                 CatalogDAL.UpdateBulkUpload(bulkUpload.Id, bulkUpload.Status, bulkUpload.UpdaterId, bulkUpload.FileURL, bulkUpload.BulkObjectType, bulkUpload.NumOfObjects);
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetBulkUploadsInvalidationKey(bulkUpload.GroupId, bulkUpload.BulkObjectType, (int)originalStatus));
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetBulkUploadsInvalidationKey(bulkUpload.GroupId, bulkUpload.BulkObjectType, (int)bulkUpload.Status));
+
+                if (bulkUpload.IsProcessCompleted)
+                {
+                    log.Debug($"UpdateBulkUploadInSqlAndInvalidateKeys > bulk upload proccess is finnished, sending notification to consumers (ps) calculated bulkUpload.Status:[{bulkUpload.Status}]");
+                    bulkUpload.Notify(eKalturaEventTime.After, BulkUpload.NOTIFY_EVENT_NAME);
+                }
             }
         }
     }

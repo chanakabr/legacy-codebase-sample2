@@ -1,28 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json.Linq;
+using System;
 
 namespace ConfigurationManager
 {
-    public class UsersCacheConfiguration : ConfigurationValue
+    public class UsersCacheConfiguration : BaseConfig<UsersCacheConfiguration>
     {
-        public BooleanConfigurationValue ShouldUseCache;
-        public NumericConfigurationValue TTLSeconds;
+        public BaseValue<bool> ShouldUseCache = new BaseValue<bool>("should_use_cache", true);
+        public BaseValue<double> TTLSeconds = new BaseValue<double>("ttl_seconds", 1440.0);
 
-        public UsersCacheConfiguration(string key) : base(key)
-        {
-            ShouldUseCache = new BooleanConfigurationValue("should_use_cache")
-            {
-                DefaultValue = true,
-                OriginalKey = "UseUsersCache"
-            };
-            TTLSeconds = new NumericConfigurationValue("ttl_seconds", this)
-            {
-                DefaultValue = 1440.0,
-                OriginalKey = "UsersCacheDocTimeout"
-            };
-        }
+        public override string TcmKey => TcmObjectKeys.UsersCacheConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+
+  
     }
 }

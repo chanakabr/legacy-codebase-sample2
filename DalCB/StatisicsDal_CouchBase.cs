@@ -12,7 +12,7 @@ namespace DalCB
     public class StatisicsDal_CouchBase
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string CB_STATISTICS_DESGIN = ApplicationConfiguration.CouchBaseDesigns.StatisticsDesign.Value;
+        private static readonly string CB_STATISTICS_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.StatisticsDesign.Value;
 
         CouchbaseManager.CouchbaseManager cbManager;
 

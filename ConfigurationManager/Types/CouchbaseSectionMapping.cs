@@ -1,105 +1,31 @@
-﻿using System;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace ConfigurationManager
 {
-    public class CouchbaseSectionMapping : ConfigurationValue
+    public class CouchbaseSectionMapping : BaseConfig<CouchbaseSectionMapping>
     {
-        public StringConfigurationValue Tokens;
-        public StringConfigurationValue Groups;
-        public StringConfigurationValue EPG;
-        public StringConfigurationValue MediaMarks;
-        public StringConfigurationValue DomainConcurrency;
-        public StringConfigurationValue MediaHits;
-        public StringConfigurationValue Statistics;
-        public StringConfigurationValue Recordings;
-        public StringConfigurationValue Cache;
-        public StringConfigurationValue Social;
-        public StringConfigurationValue ScheduledTasks;
-        public StringConfigurationValue Memcached;
-        public StringConfigurationValue Notifications;
-        public StringConfigurationValue OTTApps;
+        public override string TcmKey => TcmObjectKeys.CouchbaseSectionMapping;
 
-        public CouchbaseSectionMapping(string key) : base(key)
-        {
-            Tokens = new StringConfigurationValue("tokens", this)
-            {
-                DefaultValue = "OTT_Apps"
-            };
-            Groups = new StringConfigurationValue("groups", this)
-            {
-                DefaultValue = "OTT_Apps"
-            };
-            EPG = new StringConfigurationValue("epg", this)
-            {
-                DefaultValue = "epg_channels_schedule"
-            };
-            MediaMarks = new StringConfigurationValue("mediamark", this)
-            {
-                DefaultValue = "MediaMarks"
-            };
-            DomainConcurrency = new StringConfigurationValue("domain_concurrency", this)
-            {
-                DefaultValue = "domain_concurrency"
-            };
-            MediaHits = new StringConfigurationValue("media_hits", this)
-            {
-                DefaultValue = "media_hit"
-            };
-            Statistics = new StringConfigurationValue("statistics", this)
-            {
-                DefaultValue = "statistics"
-            };
-            Recordings = new StringConfigurationValue("recordings", this)
-            {
-                DefaultValue = "OTT_Apps"
-            };
-            Cache = new StringConfigurationValue("cache", this)
-            {
-                DefaultValue = "Cache"
-            };
-            Social = new StringConfigurationValue("social", this)
-            {
-                DefaultValue = "social"
-            };
-            ScheduledTasks = new StringConfigurationValue("scheduled_tasks", this)
-            {
-                DefaultValue = "scheduled_tasks"
-            };
-            Memcached = new StringConfigurationValue("memcached", this)
-            {
-                DefaultValue = "GroupsCache"
-            };
-            Notifications = new StringConfigurationValue("notification", this)
-            {
-                DefaultValue = "OTT_Apps"
-            };
-            OTTApps = new StringConfigurationValue("ott_apps", this)
-            {
-                DefaultValue = "OTT_Apps"
-            };
-        }
+        public override string[] TcmPath => new string[] { TcmKey };
 
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= Tokens.Validate();
-            result &= Groups.Validate();
-            result &= MediaMarks.Validate();
-            result &= DomainConcurrency.Validate();
-            result &= Statistics.Validate();
-            result &= Recordings.Validate();
-            result &= Cache.Validate();
-            result &= Social.Validate();
-            result &= ScheduledTasks.Validate();
-            result &= Memcached.Validate();
-            result &= Notifications.Validate();
-            result &= OTTApps.Validate();
+        public BaseValue<string> Tokens = new BaseValue<string>("tokens", "OTT_Apps");
+        public BaseValue<string> Groups = new BaseValue<string>("groups", "OTT_Apps");
+        public BaseValue<string> EPG = new BaseValue<string>("epg", "epg_channels_schedule");
+        public BaseValue<string> MediaMarks = new BaseValue<string>("mediamark", "MediaMarks");
+        public BaseValue<string> DomainConcurrency = new BaseValue<string>("domain_concurrency", "domain_concurrency");
+        public BaseValue<string> MediaHits = new BaseValue<string>("media_hit", "media_hit");
+        public BaseValue<string> Statistics = new BaseValue<string>("statistics", "statistics");
+        public BaseValue<string> Recordings = new BaseValue<string>("recordings", "OTT_Apps");
+        public BaseValue<string> Cache = new BaseValue<string>("cache","Cache");
+        public BaseValue<string> Social = new BaseValue<string>("social", "social");
+        public BaseValue<string> ScheduledTasks = new BaseValue<string>("scheduled_tasks", "scheduled_tasks");
+        public BaseValue<string> Memcached = new BaseValue<string>("memcached", "GroupsCache");
+        public BaseValue<string> Notifications = new BaseValue<string>("notification", "OTT_Apps");
+        public BaseValue<string> OTTApps = new BaseValue<string>("ott_apps", "OTT_Apps");
 
-            return result;
-        }
+ 
 
         public Dictionary<string, string> GetDictionary()
         {

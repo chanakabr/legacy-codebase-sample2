@@ -599,7 +599,7 @@ namespace TvinciImporter
             int picRatioId = 0;
 
             // use new image server
-            if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+            if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
             {
                 log.DebugFormat("Delete images for media id:{0}", nMediaID);
                 DataRowCollection picsDataRows = CatalogDAL.GetPicsTableData(nMediaID, eAssetImageType.Media);
@@ -2094,9 +2094,9 @@ namespace TvinciImporter
             }
 
             // use old/or image queue
-            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
             {
-                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                bool sUseQueue = ApplicationConfiguration.Current.DownloadPicWithQueue.Value;
                 //use the rabbit Queue
                 if (sUseQueue)
                 {
@@ -2117,7 +2117,7 @@ namespace TvinciImporter
                 log.ErrorFormat("Failed download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
             else
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
                     log.DebugFormat("Successfully download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
                 else
                     log.DebugFormat("Successfully processed image - channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
@@ -2257,7 +2257,7 @@ namespace TvinciImporter
             int picId = 0;
 
             //check if thumb Url exist            
-            if (!ApplicationConfiguration.CheckImageUrl.Value)
+            if (!ApplicationConfiguration.Current.CheckImageUrl.Value)
             {
                 if (!ImageUtils.IsUrlExists(thumb))
                 {
@@ -2273,8 +2273,8 @@ namespace TvinciImporter
             }
 
             //check for epg_image default threshold value
-            int pendingThresholdInMinutes = ApplicationConfiguration.EpgImagePendingThresholdInMinutes.IntValue;
-            int activeThresholdInMinutes = ApplicationConfiguration.EpgImageActiveThresholdInMinutes.IntValue;
+            int pendingThresholdInMinutes = ApplicationConfiguration.Current.EpgImagePendingThresholdInMinutes.Value;
+            int activeThresholdInMinutes = ApplicationConfiguration.Current.EpgImageActiveThresholdInMinutes.Value;
 
             GetEpgPicNameAndId(thumb, groupID, channelID, ratioID, out picName, out picId);
 
@@ -2705,9 +2705,9 @@ namespace TvinciImporter
             int picId = 0;
 
             // use old/or image queue
-            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
             {
-                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                bool sUseQueue = ApplicationConfiguration.Current.DownloadPicWithQueue.Value;
                 //use the rabbit Queue
                 if (sUseQueue)
                 {
@@ -2745,7 +2745,7 @@ namespace TvinciImporter
                 log.ErrorFormat("Failed download pic- mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
             else
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
                     log.DebugFormat("Successfully download pic- mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
                 else
                     log.DebugFormat("Successfully processed image - mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
@@ -3042,7 +3042,7 @@ namespace TvinciImporter
             int picRatioId = 0;
 
             //check if pic Url exist
-            if (!ApplicationConfiguration.CheckImageUrl.Value)
+            if (!ApplicationConfiguration.Current.CheckImageUrl.Value)
             {
                 if (!ImageUtils.IsUrlExists(pic))
                 {
@@ -3243,9 +3243,9 @@ namespace TvinciImporter
             {
                 return WS_Utils.GetTcmConfigValue(key);
             }
-            if (!string.IsNullOrEmpty(ApplicationConfiguration.PicsBasePath.Value))
+            if (!string.IsNullOrEmpty(ApplicationConfiguration.Current.PicsBasePath.Value))
             {
-                return ApplicationConfiguration.PicsBasePath.Value;
+                return ApplicationConfiguration.Current.PicsBasePath.Value;
             }
 
             string sBasePath = string.Empty;
@@ -3715,8 +3715,8 @@ namespace TvinciImporter
                     if (WS_Utils.IsGroupIDContainedInConfig(parentGroupID, rawStrFromConfig, ';'))
                     {
                         // old policy attachment
-                        string sWSURL = ApplicationConfiguration.EncryptorService.Value;
-                        string sWSPassword = ApplicationConfiguration.EncryptorPassword.Value;
+                        string sWSURL = ApplicationConfiguration.Current.EncryptorService.Value;
+                        string sWSPassword = ApplicationConfiguration.Current.EncryptorPassword.Value;
 
                         if (string.IsNullOrEmpty(sWSURL))
                             return;
@@ -5344,7 +5344,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrl(int nGroupID)
         {
-            string sCatalogURL = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
+            string sCatalogURL = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.URL.Value;
             try
             {
                 DataTable dt = ImporterImpDAL.Get_CatalogUrl(nGroupID);
@@ -5371,7 +5371,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrlByParameters(int groupId, eObjectType? objectType, eAction? action)
         {
-            string tcmCatalogURL = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
+            string tcmCatalogURL = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.URL.Value;
             string catalogURL = tcmCatalogURL;
 
             try
@@ -5631,7 +5631,7 @@ namespace TvinciImporter
                         isUpdateIndexSucceeded = Core.Catalog.Module.UpdateIndex(lMediaIds, nParentGroupID, eAction);
 
                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                        log.DebugFormat("Update index {0} in catalog '{1}'", sInfo);
+                        log.DebugFormat("Update index {0}", sInfo);
                     }
                     catch (Exception ex)
                     {
@@ -5651,7 +5651,7 @@ namespace TvinciImporter
         {
             bool isUpdateChannelIndexSucceeded = false;
 
-            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value; // Indexer - ES / Lucene
+            string sUseElasticSearch = ApplicationConfiguration.Current.SearchIndexType.Value; // Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES"))
             {
                 try
@@ -5684,33 +5684,7 @@ namespace TvinciImporter
             return isUpdateChannelIndexSucceeded;
         }
 
-        public static bool UpdateOperator(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe)
-        {
-            bool res = true;
-            try
-            {
-                int nParentGroupID = UtilsDal.GetParentGroupID(nGroupID);
-                res &= Core.Catalog.Module.UpdateOperator(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
-
-            }
-            catch (Exception ex)
-            {
-                #region Logging
-                StringBuilder sb = new StringBuilder(String.Concat("Exception. Msg: ", ex.Message));
-                sb.Append(String.Concat(" Group ID: ", nGroupID));
-                sb.Append(String.Concat(" Operator ID: ", nOperatorID));
-                sb.Append(String.Concat(" Sub ID: ", nSubscriptionID));
-                sb.Append(String.Concat(" Channel ID: ", lChannelID));
-                sb.Append(String.Concat(" Operator Event: ", oe.ToString().ToLower()));
-                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
-                log.Error("UpdateOperator - " + sb.ToString(), ex);
-                #endregion
-                res = false;
-            }
-
-            return res;
-        }
-
+    
         public static bool UpdateEpg(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool datesUpdates = true, bool isCalledFromTvm = false)
         {
             bool isUpdateIndexSucceeded = false;
@@ -5771,7 +5745,7 @@ namespace TvinciImporter
 
             int parentGroupID = UtilsDal.GetParentGroupID(groupId);
 
-            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value;  // Indexer - ES / Lucene
+            string sUseElasticSearch = ApplicationConfiguration.Current.SearchIndexType.Value;  // Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
             {
                 try
@@ -5818,7 +5792,7 @@ namespace TvinciImporter
         {
             bool isUpdateIndexSucceeded = false;
 
-            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value; // Indexer - ES / Lucene
+            string sUseElasticSearch = ApplicationConfiguration.Current.SearchIndexType.Value; // Indexer - ES / Lucene
 
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
             {

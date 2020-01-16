@@ -31,17 +31,11 @@ namespace TVinciShared
             string sURLs = "";
             object oCachecleanURL = null;
             log.Debug("Clear Cache String - Start Staging Clear Cache");
-            if (!string.IsNullOrEmpty(ApplicationConfiguration.StagingClearCachePath.Value))
+
+            oCachecleanURL = ODBCWrapper.Utils.GetTableSingleVal("groups", "CACHING_SERVER_URL", nGroupID);
+            if (oCachecleanURL != null && oCachecleanURL != DBNull.Value)
             {
-                sURLs = ApplicationConfiguration.StagingClearCachePath.Value;
-            }
-            else
-            {
-                oCachecleanURL = ODBCWrapper.Utils.GetTableSingleVal("groups", "CACHING_SERVER_URL", nGroupID);
-                if (oCachecleanURL != null && oCachecleanURL != DBNull.Value)
-                {
-                    sURLs = oCachecleanURL.ToString();
-                }
+                sURLs = oCachecleanURL.ToString();
             }
             log.Debug("Clear Cache String - Start Staging Clear Cache - strng is " + sURLs);
             var tvpCacheError = HttpContext.Current.Session.Get("tvp_cache_error");
@@ -68,23 +62,7 @@ namespace TVinciShared
             }
             
 
-
-            string sTvinciServersCache = ApplicationConfiguration.ClearCachePath.Value;
-
-            if (!string.IsNullOrEmpty(sTvinciServersCache))
-            {
-                string[] sSep = { ";" };
-                string[] sUrlsArray = sTvinciServersCache.Split(sSep, StringSplitOptions.RemoveEmptyEntries);
-                for (int i = 0; i < sUrlsArray.Length; i++)
-                {
-                    string sResp = TVinciShared.Notifier.SendGetHttpReq(sUrlsArray[i], ref nStatus);
-                    tvpCacheError += "Url: " + sUrlsArray[i] + " Status: " + nStatus.ToString() + "<br/>";
-                }
-                if (sUrlsArray.Length <= 0)
-                    tvpCacheError += "No Cache URLs defined for Tvinci servers <br/>";
-            }
-            else
-                tvpCacheError += "No Cache URLs defined for Tvinci servers <br/>";
+            tvpCacheError += "No Cache URLs defined for Tvinci servers <br/>";
             HttpContext.Current.Session.Set("tvp_cache_error", tvpCacheError);
         }
 

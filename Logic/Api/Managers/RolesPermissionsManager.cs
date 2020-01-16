@@ -2,6 +2,7 @@
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using System;
@@ -346,7 +347,7 @@ namespace APILogic.Api.Managers
                 if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<string, Permission>>(key, ref result, BuildGroupFeatures,
                                                                                                                 new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                                                                                 LayeredCacheConfigNames.GET_GROUP_FEATURES,
-                                                                                                                ConfigurationManager.ApplicationConfiguration.GroupsManagerConfiguration.CacheTTLSeconds.DoubleValue,
+                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
                                                                                                                 new List<string>() { invalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetGroupFeatures from LayeredCache, groupId: {0}, key: {1}", groupId, key);

@@ -423,7 +423,7 @@ namespace ApiLogic.Api.Managers
                         filter.RegionIds = map[filter.LiveAssetId];
                     }
                     
-                    if (filter.RegionIds?.Count == 0)
+                    if (filter.RegionIds == null || filter.RegionIds.Count == 0)
                     {
                         result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                         return result;

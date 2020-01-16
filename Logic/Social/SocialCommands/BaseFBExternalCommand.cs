@@ -63,7 +63,7 @@ namespace Core.Social.SocialCommands
             string sJsonPrivacy = string.Empty;
 
 
-            m_oFBWrapper.GetPrivacyGroupJSONString(m_oUser.m_sSiteGUID, ApplicationConfiguration.FacebookConfiguration.ListName.Value, ePrivacy, ref sJsonPrivacy);
+            m_oFBWrapper.GetPrivacyGroupJSONString(m_oUser.m_sSiteGUID, ApplicationConfiguration.Current.FacebookConfiguration.ListName.Value, ePrivacy, ref sJsonPrivacy);
             if (!string.IsNullOrEmpty(sJsonPrivacy))
             {
                 m_dExtraParams["privacy"] = sJsonPrivacy;
@@ -121,7 +121,7 @@ namespace Core.Social.SocialCommands
             eSocialPrivacy ePrivacy = fbNetwork.SocialPrivacy;
             string sJsonPrivacy = string.Empty;
             
-            m_oFBWrapper.GetPrivacyGroupJSONString(m_oUser.m_sSiteGUID, ApplicationConfiguration.FacebookConfiguration.ListName.Value, ePrivacy, ref sJsonPrivacy);
+            m_oFBWrapper.GetPrivacyGroupJSONString(m_oUser.m_sSiteGUID, ApplicationConfiguration.Current.FacebookConfiguration.ListName.Value, ePrivacy, ref sJsonPrivacy);
             if (!string.IsNullOrEmpty(sJsonPrivacy))
             {
                 m_dExtraParams["privacy"] = sJsonPrivacy;
@@ -190,7 +190,7 @@ namespace Core.Social.SocialCommands
                 try
                 {
                     string eToken = m_oUser.m_oBasicData.m_sFacebookToken;
-                    string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
+                    string key = ApplicationConfiguration.Current.FacebookConfiguration.TokenKey.Value;
                     sDecryptedToken = Utils.Decrypt(eToken, key);
                     bResult = true;
                 }

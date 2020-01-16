@@ -126,12 +126,12 @@ namespace Core.Pricing
 
                         PPVModule t = new PPVModule();
                         if (!shouldShrink)
-                            t.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, 
-                                GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, 
+                            t.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
+                                GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly,
                                 sName, string.Empty, string.Empty, string.Empty, GetPPVFileTypes(m_nGroupID, nPPVModuleID), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
                         else
-                            t.Initialize(sPriceCode, string.Empty, string.Empty, string.Empty, 
-                                GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, 
+                            t.Initialize(sPriceCode, string.Empty, string.Empty, string.Empty,
+                                GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly,
                                 sName, string.Empty, string.Empty, string.Empty, GetPPVFileTypes(m_nGroupID, nPPVModuleID), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
                         if (t.m_oPriceCode != null)
                         {
@@ -284,7 +284,7 @@ namespace Core.Pricing
             {
                 result.PPVModule = GetPPVModuleData(sPPVModuleCode);
                 if (result.PPVModule != null)
-                {                    
+                {
                     result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 else
@@ -341,7 +341,7 @@ namespace Core.Pricing
                             { "groupId", GroupID }
                         };
 
-                    if (!LayeredCache.Instance.GetValues<PPVModule>(keysToOriginalValueMap, ref results, BuildPPVModules,layeredCacheParameters, GroupID,
+                    if (!LayeredCache.Instance.GetValues<PPVModule>(keysToOriginalValueMap, ref results, BuildPPVModules, layeredCacheParameters, GroupID,
                                                                     LayeredCacheConfigNames.PPV_MODULES_CACHE_CONFIG_NAME, keysToInvalidationKeysMap))
                     {
                         log.ErrorFormat("Error when getting ppv modules data from layered cache");
@@ -381,6 +381,17 @@ namespace Core.Pricing
                             log.Error("Error - " + string.Format("Get_PPVModulesData returned invalid DataTable, ppvModuleCodes: {0}", sPPVModuleCodes));
                         }
                     }
+                    else if (results?.Count > 0)
+                    {
+                        var count = results.Count();
+                        ppvModules = new PPVModule[count];
+                        int index = 0;
+                        foreach (var result in results)
+                        {
+                            ppvModules[index] = result.Value;
+                            index++;
+                        }
+                    }
                 }
                 else
                 {
@@ -399,8 +410,8 @@ namespace Core.Pricing
 
             try
             {
-                if (funcParams != null && 
-                    funcParams.ContainsKey("ppvModuleCodes") && 
+                if (funcParams != null &&
+                    funcParams.ContainsKey("ppvModuleCodes") &&
                     funcParams.ContainsKey("groupId")
                     )
                 {
@@ -427,10 +438,10 @@ namespace Core.Pricing
                                 bool bIsFirstDeviceLimitation = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["FIRSTDEVICELIMITATION"]));
                                 string productCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["Product_Code"]);
 
-                                ppvModule.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, 
-                                    GetPPVDescription(ppvModuleID), 
+                                ppvModule.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
+                                    GetPPVDescription(ppvModuleID),
                                     groupId, ppvModuleID.ToString(), bSubOnly,
-                                    sName, string.Empty, string.Empty, string.Empty, GetPPVFileTypes(groupId, ppvModuleID), 
+                                    sName, string.Empty, string.Empty, string.Empty, GetPPVFileTypes(groupId, ppvModuleID),
                                     bIsFirstDeviceLimitation, productCode);
 
                                 if (ppvModule != null)
@@ -529,7 +540,7 @@ namespace Core.Pricing
 
             return new Tuple<PPVModule, bool>(result, success);
         }
-        
+
         public override PPVModule[] GetPPVModulesDataByProductCodes(List<string> productCodes)
         {
             PPVModule[] ppvModules = null;
@@ -548,6 +559,6 @@ namespace Core.Pricing
 
             return ppvModules;
         }
-        
+
     }
 }

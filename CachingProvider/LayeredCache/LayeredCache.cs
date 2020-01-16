@@ -669,7 +669,7 @@ namespace CachingProvider.LayeredCache
             LayeredCacheTcmConfig layeredCacheTcmConfig = null;
             try
             {
-                string layeredCacheConfigurationString = ApplicationConfiguration.LayeredCacheConfigurationValidation.Value;
+                string layeredCacheConfigurationString = ApplicationConfiguration.Current.LayeredCacheConfigurationValidation.JsonConfig.Value.ToString();
                 if (!string.IsNullOrEmpty(layeredCacheConfigurationString))
                 {
                     layeredCacheTcmConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<LayeredCacheTcmConfig>(layeredCacheConfigurationString, layeredCacheConfigSerializerSettings);

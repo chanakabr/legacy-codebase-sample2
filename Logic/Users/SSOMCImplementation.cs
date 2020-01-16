@@ -9,6 +9,7 @@ using KLogMonitor;
 using Newtonsoft.Json;
 using TVinciShared;
 using ApiObjects;
+using ConfigurationManager;
 
 namespace Core.Users
 {
@@ -394,7 +395,7 @@ namespace Core.Users
             UserDynamicData udd = new UserDynamicData();
 
             List<string> lDynamicParams = _dynamicParams;
-            string sDynamicKeys = TCMClient.Settings.Instance.GetValue<string>("MCAuthDynamicKeys");
+            string sDynamicKeys = ApplicationConfiguration.Current.GetValueByKey<string>("MCAuthDynamicKeys");
 
             if (string.IsNullOrEmpty(sDynamicKeys))
             {

@@ -586,7 +586,7 @@ namespace Core.Users
             try
             {
                 // add user role
-                long roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;
+                long roleId = ApplicationConfiguration.Current.RoleIdsConfiguration.UserRoleId.Value;
                 if (roleId > 0 && !m_oBasicData.RoleIds.Contains(roleId))
                 {
                     m_oBasicData.RoleIds.Add(roleId);

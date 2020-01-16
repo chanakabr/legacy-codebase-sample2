@@ -32,6 +32,15 @@ namespace WebAPI.Clients
             SubscriptionsResponse response = null;
             List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
 
+            HashSet<long> subIds = new HashSet<long>();
+
+            if (subscriptionsIds?.Length > 0)
+            {
+                foreach (var item in subscriptionsIds)
+                {
+                    subIds.Add(long.Parse(item));
+                }
+            }
 
             SubscriptionOrderBy wsOrderBy = PricingMappings.ConvertSubscriptionOrderBy(orderBy);
 
@@ -39,7 +48,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptions(groupId, subscriptionsIds, string.Empty, languageCode, udid, assetSearchDefinition, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
+                    response = Core.Pricing.Module.GetSubscriptions(groupId, subIds, string.Empty, languageCode, udid, assetSearchDefinition, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
                 }
             }
             catch (Exception ex)
@@ -75,7 +84,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptions(groupId, string.Empty, language, udid, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
+                    response = Core.Pricing.Module.GetSubscriptions(groupId , language, udid, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
                 }
             }
             catch (Exception ex)

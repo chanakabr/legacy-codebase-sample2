@@ -1,58 +1,22 @@
-﻿namespace ConfigurationManager
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+
+namespace ConfigurationManager
 {
-    public class CouchBaseDesigns : ConfigurationValue
+    public class CouchBaseDesigns : BaseConfig<CouchBaseDesigns>
     {
-        public StringConfigurationValue MediaMarkDesign;
-        public StringConfigurationValue EPGDesign;
-        public StringConfigurationValue QueueMessagesDesign;
-        public StringConfigurationValue SocialFeedDesign;
-        public StringConfigurationValue SearchHistoryDesign;
-        public StringConfigurationValue StatisticsDesign;
 
-        public CouchBaseDesigns(string key) : base(key)
-        {
-            MediaMarkDesign = new StringConfigurationValue("media_mark", this)
-            {
-                DefaultValue = "mediamark",
-                OriginalKey = "cb_media_mark_design"
-            };
-            EPGDesign = new StringConfigurationValue("epg", this)
-            {
-                DefaultValue = "epg",
-                OriginalKey = "cb_epg_design"
-            };
-            QueueMessagesDesign = new StringConfigurationValue("queue_messages", this)
-            {
-                DefaultValue = "queue_messages",
-                OriginalKey = "cb_queue_messages_design"
-            };
-            SocialFeedDesign = new StringConfigurationValue("social_feed", this)
-            {
-                DefaultValue = "socialfeed",
-                OriginalKey = "cb_feed_design"
-            };
-            SearchHistoryDesign = new StringConfigurationValue("search_history", this)
-            {
-                DefaultValue = "searchHistory",
-                OriginalKey = "search_history_design_doc"
-            };
-            StatisticsDesign = new StringConfigurationValue("statistics", this)
-            {
-                DefaultValue = "statistics",
-                OriginalKey = "cb_statistics_design"
-            };
-        }
+        public override string TcmKey => TcmObjectKeys.CouchBaseDesigns;
 
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= MediaMarkDesign.Validate();
-            result &= EPGDesign.Validate();
-            result &= QueueMessagesDesign.Validate();
-            result &= SocialFeedDesign.Validate();
-            result &= SearchHistoryDesign.Validate();
+        public override string[] TcmPath => new string[] { TcmKey };
 
-            return result;
-        }
+        public BaseValue<string> MediaMarkDesign = new BaseValue<string>("media_mark", "mediamark");
+        public BaseValue<string> EPGDesign = new BaseValue<string>("epg", "epg");
+        public BaseValue<string> QueueMessagesDesign = new BaseValue<string>("queue_messages", "queue_messages");
+        public BaseValue<string> SocialFeedDesign = new BaseValue<string>("social_feed", "socialfeed");
+        public BaseValue<string> SearchHistoryDesign = new BaseValue<string>("search_history", "searchHistory");
+        public BaseValue<string> StatisticsDesign = new BaseValue<string>("statistics", "statistics");
+
+
+
     }
 }

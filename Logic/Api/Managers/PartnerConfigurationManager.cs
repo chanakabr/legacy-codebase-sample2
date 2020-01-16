@@ -353,38 +353,16 @@ namespace ApiLogic.Api.Managers
             return res;
         }
 
-        internal static ObjectVirtualAssetInfo GetObjectVirtualAssetInfo(int groupId, ObjectVirtualAssetInfoType objectVirtualAssetInfoType, out CatalogGroupCache catalogGroupCache)
+        internal static ObjectVirtualAssetInfo GetObjectVirtualAssetInfo(int groupId, ObjectVirtualAssetInfoType objectVirtualAssetInfoType)
         {
-            catalogGroupCache = null;
             ObjectVirtualAssetInfo objectVirtualAssetInfo = null;
 
-            var objectVirtualAssetPartnerConfig = ApiDAL.GetObjectVirtualAssetPartnerConfiguration(groupId);
-            if (objectVirtualAssetPartnerConfig == null || objectVirtualAssetPartnerConfig.ObjectVirtualAssets?.Count == 0)
+            var objectVirtualAssetPartnerConfig = GetObjectVirtualAssetPartnerConfiguration(groupId);
+            if (objectVirtualAssetPartnerConfig.HasObjects())
             {
-                log.Debug($"No objectVirtualAssetPartnerConfigurtion for groupId {groupId}");
-                return objectVirtualAssetInfo;
+                objectVirtualAssetInfo = objectVirtualAssetPartnerConfig.Objects[0].ObjectVirtualAssets.FirstOrDefault(x => x.Type == objectVirtualAssetInfoType);
             }
-
-            objectVirtualAssetInfo = objectVirtualAssetPartnerConfig.ObjectVirtualAssets.FirstOrDefault(x => x.Type == objectVirtualAssetInfoType);
-
-            if (objectVirtualAssetInfo == null)
-            {
-                log.Debug($"No objectVirtualAssetInfo for groupId {groupId}. virtualAssetInfo.Type {objectVirtualAssetInfoType}");
-                return objectVirtualAssetInfo;
-            }
-
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-            {
-                log.Debug($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
-                return objectVirtualAssetInfo;
-            }
-
-            if (!catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
-            {
-                log.Debug($"MetaDoesNotExist {objectVirtualAssetInfo.MetaId}. groupId: {groupId}");
-                return objectVirtualAssetInfo;
-            }
-
+            
             return objectVirtualAssetInfo;
         }
         #endregion

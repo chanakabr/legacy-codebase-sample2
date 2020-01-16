@@ -23,12 +23,10 @@ namespace ElasticSearch.Common
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static readonly string ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
-        public static readonly string ALT_ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.AlternativeUrl.Value;
+        public static readonly string ES_URL = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value;
         private const string ES_LOG_FILENAME = "Elasticsearch";
 
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.ElasticSearchHttpClientConfiguration);        
-
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.ElasticSearchHttpClientConfiguration);
         public string baseUrl
         {
             get;
@@ -1332,11 +1330,7 @@ namespace ElasticSearch.Common
             }
 
             //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
-            if (isFirstTry && status != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
-            {
-                string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
-                result = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
-            }
+
 
             return result;
         }
@@ -1377,13 +1371,6 @@ namespace ElasticSearch.Common
             catch (Exception ex)
             {
                 log.Error("Error in SendPostHttpReq Exception", ex);
-            }
-
-            //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
-            if (isFirstTry && status != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
-            {
-                string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
-                result = SendGetHttpReq(sAlternativeURL, ref status, false);
             }
 
             return result;
@@ -1440,12 +1427,6 @@ namespace ElasticSearch.Common
                 log.Error("Error in SendPostHttpReq Exception", ex);
             }
 
-            //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
-            if (isFirstTry && status != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
-            {
-                string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
-                result = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
-            }
 
             return result;
         }

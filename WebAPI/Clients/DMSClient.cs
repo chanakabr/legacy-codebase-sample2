@@ -228,7 +228,7 @@ namespace WebAPI.Clients
         {
             string result = string.Empty;
 
-            string dmsServer = ApplicationConfiguration.DMSUrl.Value;
+            string dmsServer = ApplicationConfiguration.Current.DMSUrl.Value;
             
             if (string.IsNullOrWhiteSpace(dmsServer))
             {
@@ -249,7 +249,7 @@ namespace WebAPI.Clients
         {
             string result = string.Empty;
 
-            string dmsServer = ApplicationConfiguration.DMSUrl.Value;
+            string dmsServer = ApplicationConfiguration.Current.DMSUrl.Value;
 
             if (string.IsNullOrWhiteSpace(dmsServer))
             {
@@ -270,7 +270,7 @@ namespace WebAPI.Clients
         {
             string result = string.Empty;
 
-            string dmsServer = ApplicationConfiguration.DMSUrl.Value;
+            string dmsServer = ApplicationConfiguration.Current.DMSUrl.Value;
 
             if (string.IsNullOrWhiteSpace(dmsServer))
             {

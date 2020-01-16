@@ -262,7 +262,7 @@ namespace TVinciShared
                     {
                         string sPicBaseName = "";
                         string sBasePath = HttpContext.Current.ServerMapPath("");
-                        string sPicUploaderPath = ApplicationConfiguration.PictureUploaderPath.Value;
+                        string sPicUploaderPath = ApplicationConfiguration.Current.PictureUploaderPath.Value;
 
                         if (!string.IsNullOrEmpty(sPicUploaderPath))
                         {
@@ -319,7 +319,7 @@ namespace TVinciShared
                             }
                             if (bValid == true)
                             {
-                                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                                bool sUseQueue = ApplicationConfiguration.Current.DownloadPicWithQueue.Value;
                                 //use the rabbit Queue
                                 if (sUseQueue)
                                 {
@@ -1606,7 +1606,7 @@ namespace TVinciShared
 
                         string sPicBaseName = "";
                         string sBasePath = HttpContext.Current.ServerMapPath("");
-                        string sPicUploaderPath = ApplicationConfiguration.PictureUploaderPath.Value;
+                        string sPicUploaderPath = ApplicationConfiguration.Current.PictureUploaderPath.Value;
                         if (!string.IsNullOrEmpty(sPicUploaderPath))
                         {
                             sBasePath = sPicUploaderPath;
@@ -1652,7 +1652,7 @@ namespace TVinciShared
                             }
                             if (bValid == true)
                             {
-                                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                                bool sUseQueue = ApplicationConfiguration.Current.DownloadPicWithQueue.Value;
                                 //use the rabbit Queue
                                 if (sUseQueue)
                                 {

@@ -1,94 +1,21 @@
-﻿using Newtonsoft.Json;
+﻿using System.IO;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json.Linq;
 
 namespace ConfigurationManager
 {
-    public class LayeredCacheConfigurationValidation : StringConfigurationValue
+    public class LayeredCacheConfigurationValidation : BaseConfig<LayeredCacheConfigurationValidation>
     {
-        private static JsonSerializerSettings layeredCacheConfigSerializerSettings = new JsonSerializerSettings()
-        {
-            TypeNameHandling = TypeNameHandling.None
-        };
+        public override string TcmKey => string.Empty;
 
-        public LayeredCacheConfigurationValidation(string key) : base(key)
-        {
-        }
+        public override string[] TcmPath => new string[] { TcmKey };
+        public BaseValue<JToken> JsonConfig = new BaseValue<JToken>(TcmObjectKeys.LayeredCacheConfigurationValidation, defaultConfig);
 
-        internal override bool Validate()
-        {
-            bool result = base.Validate();
 
-            try
-            {
-                LayeredCacheTcmConfig layeredCacheTcmConfig = null;
-                
-                if (this.ObjectValue != null)
-                {
-                    layeredCacheTcmConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<LayeredCacheTcmConfig>(this.ObjectValue.ToString(), layeredCacheConfigSerializerSettings);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogError(string.Format("Could not parse layered cache configuration. Error = {0}", ex), ConfigurationValidationErrorLevel.Failure);
-                result = false;
-            }
-            
-            return result;
-        }
-    }
-
-    internal class LayeredCacheTcmConfig
-    {
-        [JsonProperty("Version")]
-        public string Version { get; set; }
-
-        [JsonProperty("GroupCacheSettings")]
-        public List<LayeredCacheConfig> GroupCacheSettings { get; set; }
-
-        [JsonProperty("InvalidationKeySettings")]
-        public List<LayeredCacheConfig> InvalidationKeySettings { get; set; }
-
-        [JsonProperty("BucketSettings")]
-        public List<LayeredCacheBucketSettings> BucketSettings { get; set; }
-
-        [JsonProperty("DefaultSettings")]
-        public List<LayeredCacheConfig> DefaultSettings { get; set; }
-
-        [JsonProperty("LayeredCacheSettings")]
-        public Dictionary<string, List<LayeredCacheConfig>> LayeredCacheSettings { get; set; }
-
-        [JsonProperty("LayeredCacheInvalidationKeySettings")]
-        public Dictionary<string, List<LayeredCacheConfig>> LayeredCacheInvalidationKeySettings { get; set; }
-    }
-
-    internal class LayeredCacheBucketSettings
-    {
-        [JsonProperty("CacheType")]
-        public LayeredCacheType CacheType { get; set; }
-
-        [JsonProperty("Bucket")]
-        public string Bucket { get; set; }
-    }
-
-    internal class LayeredCacheConfig
-    {
-        [JsonProperty("Type")]
-        public LayeredCacheType Type { get; set; }
-
-        [JsonProperty("TTL")]
-        public uint TTL { get; set; }
+        private static readonly JToken defaultConfig = JToken.Parse("{    \"Version\": 3,    \"DefaultSettings\": {      \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 3600\"    },    \"GroupCacheSettings\": {      \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 60\"    },    \"BucketSettings\": {      \"Bucket\": \"Default\\nCacheType: CbCache\"    },    \"InvalidationKeySettings\": {      \"$type\": \"CachingProvider.LayeredCache.CbLayeredCacheConfig, CachingProvider\\nType: CbMemCache\\nTTL: 86400\\nBucket: Cache\"    },    \"LayeredCacheSettings\": {      \"PhoenixGroupsManager\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 86400\"      },      \"UnifiedSearchWithPersonalData\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 60\"      },      \"AssetStats\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 1800\"      },      \"GetUser\": {        \"$type\": \"CachingProvider.LayeredCache.CbLayeredCacheConfig, CachingProvider\\nType: CbMemCache\\nTTL: 86400  \\nBucket: Cache\"      },      \"GetDomain\": {        \"$type\": \"CachingProvider.LayeredCache.CbLayeredCacheConfig, CachingProvider\\nType: CbMemCache\\nTTL: 86400  \\nBucket: Cache\"      },      \"GetAllAssetRules\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 86400\"      },      \"GetAssetRulesByAsset\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 86400\"      },      \"AssetStatsSort\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 1800\"      }    },    \"LayeredCacheInvalidationKeySettings\": {      \"GetCountryByIp\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 3600\"      },      \"GetGroupAdsControl\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 3600\"      },      \"GetDlm\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 300\"      },      \"GetGroupFeatureStatus\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 3600\"      },      \"GetRoleByRoleId\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 86400\"      },      \"GetRolesByGroupId\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 86400\"      },      \"GetAliasMappingFields\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 86400\"      },      \"GroupManagerGetGroup\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 300\"      },      \"PhoenixGroupsManager\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 86400\"      },      \"QueryCache\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 300\"      },      \"QueriesRouting\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 300\"      },      \"ProceduresRouting\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 300\"      },      \"GetTimeShiftedTvPartnerSettings\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 86400\"      },      \"GetAssetsWithLanguage\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 60\"      },      \"GetAllAssetRules\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 300\"      },      \"GetAssetRulesByAsset\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 300\"      },      \"GetGroupPermittedWatchRules\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 86400\"      },      \"CdnAdapter\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 86400\"      },      \"GetMediaCountries\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 60\"      },      \"GetSSOAdapaterByGroupId\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 86400\"      },      \"PPVModules\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 300\"      },      \"GetAllBusinessModuleRuleIds\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 300\"      },      \"GroupParentalRules\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 300\"      },      \"AssetStatsSort\": {        \"$type\": \"CachingProvider.LayeredCache.InMemoryLayeredCacheConfig, CachingProvider\\nType: InMemoryCache\\nTTL: 1800\"      }    }  }");
 
     }
 
-    internal enum LayeredCacheType
-    {
-        None = 0,
-        InMemoryCache = 1,
-        CbCache = 2,
-        CbMemCache = 3
-    }
+    
 }

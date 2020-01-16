@@ -37,9 +37,9 @@ namespace WebAPI.Utils
         
         public static string GetClientIP()
         {
-            if (HttpContext.Current.Items[RequestContext.USER_IP] != null)
+            if (HttpContext.Current.Items[RequestContextUtils.USER_IP] != null)
             {
-                return HttpContext.Current.Items[RequestContext.USER_IP].ToString();
+                return HttpContext.Current.Items[RequestContextUtils.USER_IP].ToString();
             }
 
             string ip = string.Empty;
@@ -83,22 +83,22 @@ namespace WebAPI.Utils
         
         internal static string GetLanguageFromRequest()
         {
-            if (HttpContext.Current.Items[RequestContext.REQUEST_LANGUAGE] == null)
+            if (HttpContext.Current.Items[RequestContextUtils.REQUEST_LANGUAGE] == null)
             {
                 return null;
             }
 
-            return HttpContext.Current.Items[RequestContext.REQUEST_LANGUAGE].ToString();
+            return HttpContext.Current.Items[RequestContextUtils.REQUEST_LANGUAGE].ToString();
         }
 
         public static int? GetGroupIdFromRequest()
         {
-            if (HttpContext.Current.Items[RequestContext.REQUEST_GROUP_ID] == null)
+            if (HttpContext.Current.Items[RequestContextUtils.REQUEST_GROUP_ID] == null)
             {
                 return null;
             }
 
-            return (int) HttpContext.Current.Items[RequestContext.REQUEST_GROUP_ID];
+            return (int) HttpContext.Current.Items[RequestContextUtils.REQUEST_GROUP_ID];
         }
 
         internal static string GetDefaultLanguage()
@@ -173,19 +173,19 @@ namespace WebAPI.Utils
 
         internal static string GetCurrencyFromRequest()
         {
-            var currency = HttpContext.Current.Items[RequestContext.REQUEST_CURRENCY];
+            var currency = HttpContext.Current.Items[RequestContextUtils.REQUEST_CURRENCY];
             return currency != null ? currency.ToString() : null;
         }
 
         internal static string GetFormatFromRequest()
         {
-            var format = HttpContext.Current.Items[RequestContext.REQUEST_FORMAT];
+            var format = HttpContext.Current.Items[RequestContextUtils.REQUEST_FORMAT];
             return format != null ? format.ToString() : null;
         }
 
         internal static WebAPI.Models.General.KalturaBaseResponseProfile GetResponseProfileFromRequest()
         {
-            KalturaBaseResponseProfile responseProfile = (KalturaBaseResponseProfile)HttpContext.Current.Items[RequestContext.REQUEST_RESPONSE_PROFILE];
+            KalturaBaseResponseProfile responseProfile = (KalturaBaseResponseProfile)HttpContext.Current.Items[RequestContextUtils.REQUEST_RESPONSE_PROFILE];
                         
             return responseProfile != null ? responseProfile as WebAPI.Models.General.KalturaBaseResponseProfile : null;
         }
@@ -245,7 +245,7 @@ namespace WebAPI.Utils
 
         internal static bool GetAbortOnErrorFromRequest()
         {
-            var abortOnError= HttpContext.Current.Items[RequestContext.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR];
+            var abortOnError= HttpContext.Current.Items[RequestContextUtils.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR];
             return abortOnError != null ? (bool)abortOnError : false;
         }
 

@@ -18,7 +18,7 @@ namespace StreamingProvider
     public class AlcatellLucentProvider : BaseLSProvider
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.NPVRHttpClientConfiguration);
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.NPVRHttpClientConfiguration);
 
         public AlcatellLucentProvider()
             : base()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -63,7 +64,7 @@ namespace WebAPI.Controllers
                         }
                     case KalturaEntityReferenceBy.household:
                         {
-                            bool isDeprecated = !DeprecatedAttribute.IsDeprecated("4.8.0.0", (Version)HttpContext.Current.Items[RequestContext.REQUEST_VERSION]); // fix for userFullName and userId disapearing from response since 4.8.0.0
+                            bool isDeprecated = !DeprecatedAttribute.IsDeprecated("4.8.0.0", (Version)HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION]); // fix for userFullName and userId disapearing from response since 4.8.0.0
 
                             response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
                                 groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isDeprecated);

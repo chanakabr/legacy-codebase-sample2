@@ -545,7 +545,7 @@ namespace Core.Catalog.Request
                 int.TryParse(m_oFilter.m_sPlatform, out platform);
 
             int countryId = 0;
-            if (!ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseHitCache.Value)
+            if (!ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseHitCache.Value)
             {
                 countryId = Utils.GetIP2CountryId(this.m_nGroupID, this.m_sUserIP);
             }

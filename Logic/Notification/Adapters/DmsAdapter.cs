@@ -15,7 +15,7 @@ namespace Core.Notification.Adapters
 {
     public class DmsAdapter
     {
-        private static string _DmsAdapterUrl = ApplicationConfiguration.DMSAdapterUrl.Value;
+        private static string _DmsAdapterUrl = ApplicationConfiguration.Current.DMSAdapterUrl.Value;
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static ServiceClient GetDmsAdapterServiceClient()

@@ -23,7 +23,7 @@ namespace ODBCWrapper
         static protected string m_sLocker = "";
         public static Int32 GetCachedSec()
         {
-            var cacheSec = ApplicationConfiguration.DatabaseConfiguration.ODBCCacheSeconds.IntValue;
+            var cacheSec = ApplicationConfiguration.Current.DatabaseConfiguration.ODBCCacheSeconds.Value;
             if (cacheSec > 0)
             {
                 return cacheSec;
@@ -45,7 +45,7 @@ namespace ODBCWrapper
 
         public static System.Data.DataTable GetCachedDataTable(string sCachStr)
         {
-            var cacheSec = ApplicationConfiguration.DatabaseConfiguration.ODBCCacheSeconds.IntValue;
+            var cacheSec = ApplicationConfiguration.Current.DatabaseConfiguration.ODBCCacheSeconds.Value;
 
             if (cacheSec > 0)
             {
