@@ -1,47 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class ImageResizerConfiguration : ConfigurationValue
+    public class ImageResizerConfiguration : BaseConfig<ImageResizerConfiguration>
     {
-        public StringConfigurationValue ProxyAddress;
-        public StringConfigurationValue ProxyUsername;
-        public StringConfigurationValue ProxyPassword;
-        public BooleanConfigurationValue UseFileSystem;
-        public StringConfigurationValue ImagesBasePath;
+        public override string[] TcmPath => new string[] { TcmKey };
+        public override string TcmKey => TcmObjectKeys.ImageResizerConfiguration;
 
-        public ImageResizerConfiguration(string key) : base(key)
-        {
-            ProxyAddress = new ConfigurationManager.StringConfigurationValue("proxy_address", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "proxyAddress"
-            };
-            ProxyUsername = new ConfigurationManager.StringConfigurationValue("proxy_username", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "proxyUsername"
-            };
-            ProxyPassword = new StringConfigurationValue("proxy_password", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "proxyPassword"
-            };
-            UseFileSystem = new ConfigurationManager.BooleanConfigurationValue("use_file_system", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = true,
-                OriginalKey = "TASK_HANDLERS.IMAGE_RESIZER.USE_FILE_SYSTEM"
-            };
-            ImagesBasePath = new ConfigurationManager.StringConfigurationValue("images_base_path", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "TASK_HANDLERS.IMAGE_RESIZER.IMAGES_BASE_PATH"
-            };
-        }
+        public BaseValue<string> ProxyAddress = new BaseValue<string>("proxy_address", TcmObjectKeys.Stub, true);
+        public BaseValue<string> ProxyUsername = new BaseValue<string>("proxy_username", TcmObjectKeys.Stub, true);
+        public BaseValue<string> ProxyPassword = new BaseValue<string>("proxy_password", TcmObjectKeys.Stub, true);
+        public BaseValue<string> ImagesBasePath = new BaseValue<string>("images_base_path", TcmObjectKeys.Stub, true);
+        public BaseValue<bool> UseFileSystem = new BaseValue<bool>("use_file_system", true);
     }
 }

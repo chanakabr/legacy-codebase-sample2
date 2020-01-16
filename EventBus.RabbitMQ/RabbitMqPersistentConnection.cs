@@ -28,9 +28,9 @@ namespace EventBus.RabbitMQ
 
         public static RabbitMQPersistentConnection GetInstanceUsingTCMConfiguration()
         {
-            var configuration = ApplicationConfiguration.RabbitConfiguration.EventBus;
+            var configuration = ApplicationConfiguration.Current.RabbitConfiguration.EventBus;
             if (string.IsNullOrEmpty(configuration.HostName.Value) ||
-                configuration.Port.IntValue <= 0 ||
+                configuration.Port.Value <= 0 ||
                 string.IsNullOrEmpty(configuration.UserName.Value) ||
                 string.IsNullOrEmpty(configuration.Password.Value)
                 )
@@ -48,11 +48,11 @@ namespace EventBus.RabbitMQ
                         connectionFactory.HostName = configuration.HostName.Value;
                         connectionFactory.UserName = configuration.UserName.Value;
                         connectionFactory.Password = configuration.Password.Value;
-                        connectionFactory.Port = configuration.Port.IntValue;
+                        connectionFactory.Port = configuration.Port.Value;
                         connectionFactory.DispatchConsumersAsync = true;
 
-                        _Logger.Info($"Constructing connection factory with HostName:[{configuration.HostName.Value}] on port:[{configuration.Port.IntValue}]");
-                        _Instance = new RabbitMQPersistentConnection(connectionFactory, ApplicationConfiguration.QueueFailLimit.IntValue);
+                        _Logger.Info($"Constructing connection factory with HostName:[{configuration.HostName.Value}] on port:[{configuration.Port.Value}]");
+                        _Instance = new RabbitMQPersistentConnection(connectionFactory, ApplicationConfiguration.Current.QueueFailLimit.Value);
                     }
                 }
             }

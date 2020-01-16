@@ -106,9 +106,9 @@ namespace Core.Billing
 
         public static void GetTvinciWSCredentials(ref string userName, ref string password, ref string merchAccount)
         {
-            userName = ApplicationConfiguration.AdyenWSUser.Value;
-            password = ApplicationConfiguration.AdyenWSPass.Value;
-            merchAccount = ApplicationConfiguration.AdyenWSMerchAccount.Value;
+            userName = ApplicationConfiguration.Current.AdyenWSUser.Value;
+            password = ApplicationConfiguration.Current.AdyenWSPass.Value;
+            merchAccount = ApplicationConfiguration.Current.AdyenWSMerchAccount.Value;
         }
 
         public static void SendAdyenPurchaseMail(int nGroupID, string sCustomData, double dChargePrice, string sCurrencyCode, string sPaymentMethod, string sSiteGuid,
@@ -406,7 +406,7 @@ namespace Core.Billing
 
         public static bool IsValidPSPReference(string sPSPReference)
         {
-            string sOverrideRegexFromConfig = ApplicationConfiguration.AdyenPSPReferenceRegexOverride.Value;
+            string sOverrideRegexFromConfig = ApplicationConfiguration.Current.AdyenPSPReferenceRegexOverride.Value;
             if (!string.IsNullOrEmpty(sOverrideRegexFromConfig))
             {
                 try

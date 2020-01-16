@@ -52,9 +52,6 @@ namespace StreamingProvider
                     case "ALCATELLUCENT":
                         provider = new AlcatellLucentProvider();
                         break;
-                    case "HARMONIC":
-                        provider = new HarmonicProvider();
-                        break;
                     default:
                         provider = new BaseLSProvider();
                         break;

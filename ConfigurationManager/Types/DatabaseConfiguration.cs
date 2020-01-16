@@ -1,144 +1,38 @@
-﻿using System;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 namespace ConfigurationManager
 {
-    public class DatabaseConfiguration : ConfigurationValue
+    public class DatabaseConfiguration : BaseConfig<DatabaseConfiguration>
     {
-        public NumericConfigurationValue ODBCCacheSeconds;
-        public StringConfigurationValue BillingConnectionString;
-        public StringConfigurationValue ConnectionString;
-        public StringConfigurationValue MainConnectionString;
-        public StringConfigurationValue ConditionalAccessConnectionString;
-        public StringConfigurationValue FinancialReportConnectionString;
-        public StringConfigurationValue RecordingConnectionString;
-        public StringConfigurationValue MessageBoxConnectionString;
-        public StringConfigurationValue PricingConnectionString;
-        public StringConfigurationValue UsersConnectionString;
-        public BooleanConfigurationValue UseAlwaysOn;
-        public BooleanConfigurationValue WriteLockUse;
-        public StringConfigurationValue WriteLockParameters;
-        public NumericConfigurationValue WriteLockTTL;
-        public StringConfigurationValue Prefix;
-        public NumericConfigurationValue DbCommandExecuteTimeoutSec;
+        public override string TcmKey => TcmObjectKeys.DatabaseConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+
+        public BaseValue<uint> WriteLockTTL = new BaseValue<uint>("WriteLock_TTL", 1);
+
+        public BaseValue<int> ODBCCacheSeconds = new BaseValue<int>("odbc_cach_sec", 60);
+        public BaseValue<int> DbCommandExecuteTimeoutSec = new BaseValue<int>("DbCommandExecuteTimeoutSec", 1800);
+
+        public BaseValue<string> BillingConnectionString = new BaseValue<string>("BILLING_CONNECTION_STRING", TcmObjectKeys.Stub, true, "Still not in use, requires massive amount of code refactoring.");
+        public BaseValue<string> ConnectionString = new BaseValue<string>("CONNECTION_STRING", TcmObjectKeys.Stub, true, "Still not in use, requires massive amount of code refactoring.");
+        public BaseValue<string> MainConnectionString = new BaseValue<string>("MAIN_CONNECTION_STRING", TcmObjectKeys.Stub, true, "Still not in use, requires massive amount of code refactoring.");
+        public BaseValue<string> ConditionalAccessConnectionString = new BaseValue<string>("CA_CONNECTION_STRING", TcmObjectKeys.Stub, true, "Still not in use, requires massive amount of code refactoring.");
+        public BaseValue<string> FinancialReportConnectionString = new BaseValue<string>("FR_CONNECTION_STRING", TcmObjectKeys.Stub, true, "Still not in use, requires massive amount of code refactoring.");
+        public BaseValue<string> RecordingConnectionString = new BaseValue<string>("RECORDING_CONNECTION_STRING", TcmObjectKeys.Stub, true, "Still not in use, requires massive amount of code refactoring.");
+        public BaseValue<string> MessageBoxConnectionString = new BaseValue<string>("MESSAGE_BOX_CONNECTION_STRING", TcmObjectKeys.Stub, true, "Still not in use, requires massive amount of code refactoring.");
+        public BaseValue<string> PricingConnectionString = new BaseValue<string>("pricing_connection_string", TcmObjectKeys.Stub, true, "Still not in use, requires massive amount of code refactoring.");
+        public BaseValue<string> UsersConnectionString = new BaseValue<string>("users_connection_string", TcmObjectKeys.Stub, true, "Still not in use, requires massive amount of code refactoring.");
+        public BaseValue<string> WriteLockParameters = new BaseValue<string>("WriteLock_Params", "userid;user_id;usersid;siteguid;userids;domain_id;domainid;name;site_user_guid;site_guid;userslist;users;co_guid;user_site_guid;username");
+        public BaseValue<string> Prefix = new BaseValue<string>("prefix", "__SV0__");
+
+        public BaseValue<bool> UseAlwaysOn = new BaseValue<bool>("UseAlwaysOn", true);
+        public BaseValue<bool> WriteLockUse = new BaseValue<bool>("WriteLock_Use", false);
 
 
-        public DatabaseConfiguration(string key) : base(key)
-        {
-            ODBCCacheSeconds = new NumericConfigurationValue("ODBC_CACH_SEC", this)
-            {
-                DefaultValue = 60,
-                OriginalKey = "ODBC_CACH_SEC",
-            };
-            BillingConnectionString = new StringConfigurationValue("BILLING_CONNECTION_STRING", this)
-            {
-                //OriginalKey = "BILLING_CONNECTION_STRING",
-                ShouldAllowEmpty = true,
-                Description = "Still not in use, requires massive amount of code refactoring."
-            };
-            ConnectionString = new StringConfigurationValue("CONNECTION_STRING", this)
-            {
-                //OriginalKey = "CONNECTION_STRING"
-                ShouldAllowEmpty = true,
-                Description = "Still not in use, requires massive amount of code refactoring."
-            };
-            MainConnectionString = new StringConfigurationValue("MAIN_CONNECTION_STRING", this)
-            {
-                //OriginalKey = "MAIN_CONNECTION_STRING"
-                ShouldAllowEmpty = true,
-                Description = "Still not in use, requires massive amount of code refactoring."
-            };
-            ConditionalAccessConnectionString = new StringConfigurationValue("CA_CONNECTION_STRING", this)
-            {
-                //OriginalKey = "CA_CONNECTION_STRING"
-                ShouldAllowEmpty = true,
-                Description = "Still not in use, requires massive amount of code refactoring."
-            };
-            FinancialReportConnectionString = new StringConfigurationValue("FR_CONNECTION_STRING", this)
-            {
-                //OriginalKey = "FR_CONNECTION_STRING"
-                ShouldAllowEmpty = true,
-                Description = "Still not in use, requires massive amount of code refactoring."
-            };
-            RecordingConnectionString = new StringConfigurationValue("RECORDING_CONNECTION_STRING", this)
-            {
-                //OriginalKey = "RECORDING_CONNECTION_STRING"
-                ShouldAllowEmpty = true,
-                Description = "Still not in use, requires massive amount of code refactoring."
-            };
-            MessageBoxConnectionString = new StringConfigurationValue("MESSAGE_BOX_CONNECTION_STRING", this)
-            {
-                //OriginalKey = "MESSAGE_BOX_CONNECTION_STRING"
-                ShouldAllowEmpty = true,
-                Description = "Still not in use, requires massive amount of code refactoring."
-            };
-            PricingConnectionString = new StringConfigurationValue("pricing_connection_string", this)
-            {
-                //OriginalKey = "pricing_connection"
-                ShouldAllowEmpty = true,
-                Description = "Still not in use, requires massive amount of code refactoring."
-            };
-            UsersConnectionString = new StringConfigurationValue("users_connection_string", this)
-            {
-                //OriginalKey = "users_connection_string"
-                ShouldAllowEmpty = true,
-                Description = "Still not in use, requires massive amount of code refactoring."
-            };
-            UseAlwaysOn = new BooleanConfigurationValue("UseAlwaysOn", this)
-            {
-                DefaultValue = true,
-                OriginalKey = "UseAlwaysOn"
-            };
-            WriteLockUse = new BooleanConfigurationValue("WriteLock_Use", this)
-            {
-                DefaultValue = false,
-                OriginalKey = "DB_WriteLock_Use"
-            };
-            WriteLockParameters = new StringConfigurationValue("WriteLock_Params", this)
-            {
-                DefaultValue = "userid;user_id;usersid;siteguid;userids;domain_id;domainid;name;site_user_guid;site_guid;userslist;users;co_guid;user_site_guid;username",
-                OriginalKey = "DB_WriteLock_Params"
-            };
-            WriteLockTTL = new NumericConfigurationValue("WriteLock_TTL", this)
-            {
-                DefaultValue = 1,
-                OriginalKey = "DB_WriteLock_TTL"
-            };
-            Prefix = new StringConfigurationValue("prefix", this)
-            {
-                OriginalKey = "DB_Settings.prefix"
-            };
-            DbCommandExecuteTimeoutSec= new NumericConfigurationValue("DbCommandExecuteTimeoutSec", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 1800
-            };
-        }
-
-        internal override bool Validate()
-        {
-            bool result = true;
-            result &= ODBCCacheSeconds.Validate();
-            result &= BillingConnectionString.Validate();
-            result &= ConnectionString.Validate();
-            result &= MainConnectionString.Validate();
-            result &= ConditionalAccessConnectionString.Validate();
-            result &= FinancialReportConnectionString.Validate();
-            result &= RecordingConnectionString.Validate();
-            result &= MessageBoxConnectionString.Validate();
-            result &= PricingConnectionString.Validate();
-            result &= UsersConnectionString.Validate();
-            result &= UseAlwaysOn.Validate();
-            result &= WriteLockUse.Validate();
-            result &= WriteLockParameters.Validate();
-            result &= WriteLockTTL.Validate();
-            result &= Prefix.Validate();
-            result &= DbCommandExecuteTimeoutSec.Validate();
-
-            return result;
-        }
+        
 
         public List<string> GetWriteLockParameters()
         {

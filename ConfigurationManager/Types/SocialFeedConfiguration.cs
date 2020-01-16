@@ -1,76 +1,51 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using ConfigurationManager.Types;
+using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+
 namespace ConfigurationManager
 {
-    public class SocialFeedConfiguration : ConfigurationValue
+    public class SocialFeedConfiguration : BaseConfig<SocialFeedConfiguration>
     {
-        public NumericConfigurationValue FacebookItemCount;
-        public NumericConfigurationValue InAppItemCount;
-        public NumericConfigurationValue TwitterItemCount;
-        public NumericConfigurationValue FacebookTTL;
-        public NumericConfigurationValue InAppTTL;
-        public NumericConfigurationValue TwitterTTL;
-        public NumericConfigurationValue TagsTTL;
+        public override string TcmKey => TcmObjectKeys.SocialFeedConfiguration;
+        public override string[] TcmPath => new string[] { TcmKey };
 
-        public SocialFeedConfiguration(string key) : base(key)
-        {
-            FacebookItemCount = new NumericConfigurationValue("facebook_item_count", this)
-            {
-                DefaultValue = 100,
-                OriginalKey = "SocialFeed_FB_item_count"
-            };
-            InAppItemCount = new NumericConfigurationValue("in_app_item_count", this)
-            {
-                DefaultValue = 100,
-                OriginalKey = "SocialFeed_InApp_item_count"
-            };
-            TwitterItemCount = new NumericConfigurationValue("twitter_item_count", this)
-            {
-                DefaultValue = 100,
-                OriginalKey = "SocialFeed_Twitter_item_count"
-            };
-            FacebookTTL = new NumericConfigurationValue("facebook_ttl", this)
-            {
-                DefaultValue = 10,
-                OriginalKey = "SocialFeed_Facebook_TTL"
-            };
-            InAppTTL = new NumericConfigurationValue("in_app_ttl", this)
-            {
-                DefaultValue = 10,
-                OriginalKey = "SocialFeed_InApp_TTL"
-            };
-            TwitterTTL = new NumericConfigurationValue("twitter_ttl", this)
-            {
-                DefaultValue = 10,
-                OriginalKey = "SocialFeed_Twitter_TTL"
-            };
-            TagsTTL = new NumericConfigurationValue("tags_ttl", this)
-            {
-                DefaultValue = 30,
-                OriginalKey = "SocialFeed_Tags_TTL"
-            };
-        }
+        public BaseValue<int> FacebookItemCount = new BaseValue<int>("facebook_item_count", 100);
+        public BaseValue<int> InAppItemCount = new BaseValue<int>("in_app_item_count", 100);
+        public BaseValue<int> TwitterItemCount = new BaseValue<int>("twitter_item_count", 100);
+        public BaseValue<int> FacebookTTL = new BaseValue<int>("facebook_ttl", 10);
+        public BaseValue<int> InAppTTL = new BaseValue<int>("in_app_ttl", 10);
+        public BaseValue<int> TwitterTTL = new BaseValue<int>("twitter_ttl", 10);
+        public BaseValue<int> TagsTTL = new BaseValue<int>("tags_ttl", 30);
 
-        public NumericConfigurationValue GetTTLByPlatform(string platform)
+        public BaseValue<int> GetTTLByPlatform(string platform)
         {
-            NumericConfigurationValue ttl = null;
+            BaseValue<int> ttl = new BaseValue<int>("unknown_ttl", 10);
             switch (platform.ToLower())
             {
                 case "inapp":
-                    ttl = InAppTTL;
+                    ttl.ActualValue = InAppTTL.Value;
                     break;
                 case "facebook":
-                    ttl = FacebookTTL;
+                    ttl.ActualValue = FacebookTTL.Value;
                     break;
                 case "twitter":
-                    ttl = TwitterTTL;
+                    ttl.ActualValue = TwitterTTL.Value;
                     break;
                 case "unknown":
                 default:
-                    ttl = new NumericConfigurationValue("unknown_ttl") { DefaultValue = 10, ObjectValue = 10 };
+
                     break;
             }
 
             return ttl;
         }
+
     }
 }
+    
+/*    }
+            
+        }*/
+    

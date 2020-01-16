@@ -1,34 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using ConfigurationManager.Types;
+using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class UserPINDigitsConfiguration : ConfigurationValue
+    public class UserPINDigitsConfiguration : BaseConfig<UserPINDigitsConfiguration>
     {
-        public NumericConfigurationValue NumberOfDigits;
-        public NumericConfigurationValue MinNumberOfDigits;
-        public NumericConfigurationValue MaxNumberOfDigits;
+        public BaseValue<int> NumberOfDigits = new BaseValue<int>("number_of_digits", 10);
+        public BaseValue<int> MinNumberOfDigits = new BaseValue<int>("min_number_of_digits",8);
+        public BaseValue<int> MaxNumberOfDigits = new BaseValue<int>("max_number_of_digits", 10);
 
-        public UserPINDigitsConfiguration(string key) : base(key)
-        {
-            NumberOfDigits = new NumericConfigurationValue("number_of_digits", this)
-            {
-                DefaultValue = 10,
-                OriginalKey = "PIN_NUMBER_OF_DIGITS"
-            };
-            MinNumberOfDigits = new NumericConfigurationValue("min_number_of_digits", this)
-            {
-                DefaultValue = 8,
-                OriginalKey = "PIN_MIN_NUMBER_OF_DIGITS"
-            };
-            MaxNumberOfDigits = new NumericConfigurationValue("max_number_of_digits", this)
-            {
-                DefaultValue = 10,
-                OriginalKey = "PIN_MAX_NUMBER_OF_DIGITS"
-            };
-        }
+        public override string TcmKey => TcmObjectKeys.UserPINDigitsConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
     }
 }

@@ -53,7 +53,9 @@ namespace WebAPI.Controllers
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
             long userId = Utils.Utils.GetUserIdFromKs();
-
+            bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
+            AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition() { Filter = filter.Ksql, UserId = userId, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets };
+            
             try
             {
                 if (filter.MediaFileIdEqual.HasValue)
@@ -64,13 +66,13 @@ namespace WebAPI.Controllers
                     // get subscriptions
                     if (subscriptionsIds != null && subscriptionsIds.Count > 0)
                     {
-                        response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy, null, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                        response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy, assetSearchDefinition, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
                     }
                 }
                 else if (!string.IsNullOrEmpty(filter.SubscriptionIdIn))
                 {
                     // call client
-                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, filter.getSubscriptionIdIn(), udid, language, filter.OrderBy, null, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, filter.getSubscriptionIdIn(), udid, language, filter.OrderBy, assetSearchDefinition, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
                 }
                 else if (!string.IsNullOrEmpty(filter.ExternalIdIn))
                 {
@@ -79,14 +81,12 @@ namespace WebAPI.Controllers
                 }
                 else if (!string.IsNullOrEmpty(filter.Ksql))
                 {
-                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
-
                     // call client
                     response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, null, udid, language, filter.OrderBy,
-                        new AssetSearchDefinition() { Filter = filter.Ksql, UserId = userId, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets }, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                        assetSearchDefinition, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
                 }
                 else if (isFilterValid)
-                {
+                {                    
                     response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
                 }
 

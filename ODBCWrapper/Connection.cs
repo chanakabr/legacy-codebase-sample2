@@ -54,7 +54,7 @@ namespace ODBCWrapper
 
             try
             {
-                useAlwaysOn = ApplicationConfiguration.DatabaseConfiguration.UseAlwaysOn.Value;
+                useAlwaysOn = ApplicationConfiguration.Current.DatabaseConfiguration.UseAlwaysOn.Value;
             }
             catch (Exception) { }
 

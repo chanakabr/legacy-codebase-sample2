@@ -49,7 +49,7 @@ namespace Core.Api
                 throw ex;
             }
         }
-        
+
         public static ChannelObject TVAPI_GetMedias(int groupId, InitializationObject oInitObj, Int32[] nMediaIDs, MediaInfoStructObject theInfoStruct)
         {
             try
@@ -72,7 +72,7 @@ namespace Core.Api
         }
 
         public static RolesResponse GetUserRoles(int groupId, string userId)
-        {            
+        {
             return Core.Api.api.GetUserRoles(groupId, userId);
         }
 
@@ -825,7 +825,7 @@ namespace Core.Api
         {
             return Core.Api.api.GetGroupLanguages(groupId);
         }
-        
+
         #region Parental Rules
 
         /// <summary>
@@ -836,7 +836,7 @@ namespace Core.Api
         /// <param name="password"></param>
         /// <returns></returns>
         public static ParentalRulesResponse GetParentalRules(int groupId, bool isAllowedToViewInactiveAssets = false)
-        {            
+        {
             return Core.Api.api.GetParentalRules(groupId, !isAllowedToViewInactiveAssets);
         }
 
@@ -1486,7 +1486,7 @@ namespace Core.Api
         public static PermissionsResponse GetUserPermissions(int groupId, string userId)
         {
             return Core.Api.api.GetUserPermissions(groupId, userId);
-        }      
+        }
 
         public static Status AddPermissionToRole(int groupId, long roleId, long permissionId)
         {
@@ -1861,7 +1861,7 @@ namespace Core.Api
             return Core.Api.api.SendDrmConfigurationToAdapter(groupId, adapterID);
         }
 
-        public static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId, 
+        public static StringResponse GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, eAssetTypes eAssetTypes, int fileId,
             string externalFileId, string ip, string udid, PlayContextType contextType, string recordingId)
         {
             return Core.Api.api.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, eAssetTypes, fileId, externalFileId, ip, udid, contextType, recordingId);
@@ -1920,32 +1920,32 @@ namespace Core.Api
         }
 
         #region AssetUserRule
-        
+
         public static GenericListResponse<AssetUserRule> GetAssetUserRuleList(int groupId, long? userId, RuleActionType? ruleActionType, bool returnConfigError)
         {
             return AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, false, ruleActionType, returnConfigError);
         }
-        
+
         public static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)
         {
             return AssetUserRuleManager.AddAssetUserRule(groupId, assetUserRuleToAdd);
         }
-        
+
         public static GenericResponse<AssetUserRule> UpdateAssetUserRule(int groupId, long assetUserRuleId, AssetUserRule assetUserRuleToUpdate, long userId)
         {
             return AssetUserRuleManager.UpdateAssetUserRule(groupId, assetUserRuleId, assetUserRuleToUpdate, userId);
         }
-        
+
         public static Status DeleteAssetUserRule(int groupId, long assetUserRuleId, long userId)
         {
             return AssetUserRuleManager.DeleteAssetUserRule(groupId, assetUserRuleId, userId);
         }
-        
+
         public static Status AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
         {
             return AssetUserRuleManager.AddAssetUserRuleToUser(userId, ruleId, groupId);
         }
-        
+
         public static Status DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
         {
             return AssetUserRuleManager.DeleteAssetUserRuleFromUser(userId, ruleId, groupId);
@@ -2061,6 +2061,20 @@ namespace Core.Api
 
             try
             {
+                var assetSearchDefinition = new AssetSearchDefinition() { UserId = userId };
+                var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>() { segmentationType.Id });
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    response.SetStatus(filter.Status);
+                    return response;
+                }
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                {
+                    response.SetStatus((int)eResponseStatus.ObjectNotExist, "Given Id does not exist for group");
+                    return response;
+                }
+
                 segmentationType.GroupId = groupId;
 
                 if (!segmentationType.Update())
@@ -2095,10 +2109,23 @@ namespace Core.Api
 
         public static Status DeleteSegmentationType(int groupId, long id, long userId)
         {
-            Status result = null;
+            Status result = new Status();
             bool deleteResult = false;
             try
             {
+                var assetSearchDefinition = new AssetSearchDefinition() { UserId = userId };
+                var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>() { id });
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    return filter.Status;
+                }
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                {
+                    result.Set(eResponseStatus.ObjectNotExist, eResponseStatus.ObjectNotExist.ToString());
+                    return result;
+                }
+
                 SegmentationType segmentationType = new SegmentationType()
                 {
                     GroupId = groupId,
@@ -2137,19 +2164,27 @@ namespace Core.Api
             return result;
         }
 
-        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
+        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, HashSet<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
         {
             GenericListResponse<SegmentationType> result = new GenericListResponse<SegmentationType>();
 
             try
             {
-                if(assetSearchDefinition != null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
+                var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, ids, pageIndex, pageSize);
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                 {
-                    ids = api.GetObjectVirtualAssetIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment);                    
+                    result.SetStatus(filter.Status);
+                    return result;
+                }
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                {
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    return result;
                 }
 
                 int totalCount;
-                result.Objects = SegmentationType.List(groupId, ids, pageIndex, pageSize, out totalCount);
+                result.Objects = SegmentationType.List(groupId, filter.ObjectIds?.ToList(), pageIndex, pageSize, out totalCount);
                 result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
@@ -2177,14 +2212,56 @@ namespace Core.Api
             return api.DeletePersonalListItemForUser(groupId, personalListItemId, userId);
         }
 
-        public static GenericListResponse<UserSegment> GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
+        public static GenericListResponse<UserSegment> GetUserSegments(int groupId, string userId, AssetSearchDefinition assetSearchDefinition, int pageIndex, int pageSize)
         {
             GenericListResponse<UserSegment> result = new GenericListResponse<UserSegment>();
 
             try
             {
-                result.Objects = UserSegment.List(groupId, userId, pageIndex, pageSize, out int totalCount);
-                result.TotalItems = totalCount;
+                var userSegments = UserSegment.List(groupId, userId, out int totalCount);
+                if (totalCount > 0)
+                {
+                    var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(userSegments.Select(x => x.SegmentId).ToList());
+                    if (segmentTypeIds?.Count > 0)
+                    {
+                        var filtered = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>(segmentTypeIds.Values.ToList()));
+                        if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                        {
+                            result.SetStatus(filtered.Status);
+                            return result;
+                        }
+
+                        if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                        {
+                            result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                            return result;
+                        }
+
+                        if (filtered.ObjectIds?.Count > 0)
+                        {
+                            result.Objects = new List<UserSegment>();
+
+                            foreach (var item in userSegments)
+                            {
+                                if (segmentTypeIds.ContainsKey(item.SegmentId))
+                                {
+                                    if (filtered.ObjectIds.Contains(segmentTypeIds[item.SegmentId]))
+                                    {
+                                        result.Objects.Add(item);
+                                    }
+                                }
+                            }
+
+                            result.TotalItems = result.Objects.Count;
+
+                            if (pageSize > 0)
+                            {
+                                result.Objects = result.Objects.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                            }
+                        }
+                    }
+                }
+
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -2212,6 +2289,28 @@ namespace Core.Api
                 {
                     userSegment.GroupId = groupId;
 
+                    long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(userSegment.SegmentId);
+                    if (segmentationTypeId == 0)
+                    {
+                        response.SetStatus(eResponseStatus.ObjectNotExist, "Segment not exist");
+                        return response;
+                    }
+
+                    var filter = api.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition() { UserId = long.Parse(userSegment.UserId) },
+                        ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
+
+                    if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                    {
+                        response.SetStatus(filter.Status);
+                        return response;
+                    }
+
+                    if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                    {
+                        response.SetStatus(new Status((int)eResponseStatus.ObjectNotExist, "Object Not Exist"));
+                        return response;
+                    }
+
                     if (!userSegment.Insert())
                     {
                         response.SetStatus(eResponseStatus.Error, "Failed inserting user segment.");
@@ -2238,6 +2337,25 @@ namespace Core.Api
             bool deleteResult = false;
             try
             {
+                long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(segmentId);
+                if (segmentationTypeId == 0)
+                {
+                    return new Status(eResponseStatus.ObjectNotExist, "Segment not exist");
+                }
+
+                var filter = api.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition() { UserId = long.Parse(userId) },
+                    ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    return filter.Status;
+                }
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                {
+                    return new Status(eResponseStatus.ObjectNotExist, "Object Not Exist");
+                }
+
                 UserSegment segmentationType = new UserSegment()
                 {
                     GroupId = groupId,
@@ -2263,6 +2381,16 @@ namespace Core.Api
             }
 
             return result;
+        }
+
+        public static GenericResponse<HouseholdSegment> AddHouseholdSegment(int groupId, HouseholdSegment householdSegmentToAdd)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Status DeleteHouseholdSegment(int groupId, long householdId, long segmentId)
+        {
+            throw new NotImplementedException();
         }
 
         public static GenericResponse<BusinessModuleRule> UpdateBusinessModuleRule(int groupId, BusinessModuleRule businessModuleRule)
@@ -2310,7 +2438,7 @@ namespace Core.Api
             return Core.Api.api.UpdatePlaybackAdapter(groupId, userId, playbackAdapterToUpdate);
         }
 
-        public static Status DeletePlaybackAdapter(int groupId, string userId , int id)
+        public static Status DeletePlaybackAdapter(int groupId, string userId, int id)
         {
             return Core.Api.api.DeletePlaybackAdapter(groupId, userId, id);
         }
@@ -2400,7 +2528,7 @@ namespace Core.Api
         public static List<string> GetGroupFeatures(int groupId)
         {
             Dictionary<string, Permission> groupfeatures = api.GetGroupFeatures(groupId);
-            if(groupfeatures?.Count > 0)
+            if (groupfeatures?.Count > 0)
             {
                 return api.GetGroupFeatures(groupId).Keys.ToList();
             }
@@ -2443,6 +2571,36 @@ namespace Core.Api
         public static GenericListResponse<ObjectVirtualAssetPartnerConfig> GetObjectVirtualAssetPartnerConfiguration(int groupId)
         {
             return PartnerConfigurationManager.GetObjectVirtualAssetPartnerConfiguration(groupId);
+        }
+
+        public static List<long> GetUserAndHouseholdSegmentIds(int groupId, string userId, long householdId = -1)
+        {
+            List<long> result = new List<long>();
+
+            try
+            {
+                result = UserSegment.List(groupId, userId, out int totalCount).Select(x => x.SegmentId).ToList();
+
+                if (householdId == -1)
+                {
+                    var user = Users.Module.GetUserData(groupId, userId, string.Empty);
+                    if (user != null && user.m_user != null && user.m_user.m_domianID > 0)
+                    {
+                        householdId = user.m_user.m_domianID;
+                    }
+                }
+
+                if (householdId > 0)
+                {
+                    result.AddRange(HouseholdSegment.List(groupId, householdId, out totalCount).Select(x => x.SegmentId));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed getting User And Household SegmentIds of user id {0} in group id = {1}. ex = {2}", userId, groupId, ex);
+            }
+
+            return result;
         }
     }
 }

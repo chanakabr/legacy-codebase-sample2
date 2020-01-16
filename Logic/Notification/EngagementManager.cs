@@ -770,7 +770,7 @@ namespace Core.Notification
 
             // get bulk from TCM
 
-            int engagementBulkMessages = ApplicationConfiguration.EngagementsConfiguration.NumberOfBulkMessageEngagements.IntValue;
+            int engagementBulkMessages = ApplicationConfiguration.Current.EngagementsConfiguration.NumberOfBulkMessageEngagements.Value;
             if (engagementBulkMessages == 0)
                 engagementBulkMessages = NUM_OF_BULK_MESSAGE_ENGAGEMENTS;
 
@@ -781,7 +781,7 @@ namespace Core.Notification
                 numOfBulkMessages++;
 
             // get number of allowed threads
-            int numberOfEngagementThread = ApplicationConfiguration.EngagementsConfiguration.NumberOfEngagementThreads.IntValue;
+            int numberOfEngagementThread = ApplicationConfiguration.Current.EngagementsConfiguration.NumberOfEngagementThreads.Value;
             if (numberOfEngagementThread == 0)
                 numberOfEngagementThread = NUM_OF_ENGAGEMENT_THREADS;
 
@@ -948,7 +948,7 @@ namespace Core.Notification
             }
 
             // get number of engagements threads
-            int numberOfEngagementThread = ApplicationConfiguration.EngagementsConfiguration.NumberOfEngagementThreads.IntValue;
+            int numberOfEngagementThread = ApplicationConfiguration.Current.EngagementsConfiguration.NumberOfEngagementThreads.Value;
             if (numberOfEngagementThread == 0)
                 numberOfEngagementThread = NUM_OF_ENGAGEMENT_THREADS;
 
@@ -1117,7 +1117,7 @@ namespace Core.Notification
             Status result = new Status() { Code = (int)eResponseStatus.Error };
 
             // get maximum allowed push 
-            int allowedPushMsg = ApplicationConfiguration.PushMessagesConfiguration.NumberOfMessagesPerSecond.IntValue;
+            int allowedPushMsg = ApplicationConfiguration.Current.PushMessagesConfiguration.NumberOfMessagesPerSecond.Value;
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 
@@ -1432,7 +1432,7 @@ namespace Core.Notification
             }
 
             // get maximum allowed push 
-            int allowedPushMsg = ApplicationConfiguration.PushMessagesConfiguration.NumberOfMessagesPerSecond.IntValue;
+            int allowedPushMsg = ApplicationConfiguration.Current.PushMessagesConfiguration.NumberOfMessagesPerSecond.Value;
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 

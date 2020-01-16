@@ -1,27 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json.Linq;
+using System;
 
 namespace ConfigurationManager
 {
-    public class GroupsManagerConfiguration : ConfigurationValue
+    public class GroupsManagerConfiguration : BaseConfig<GroupsManagerConfiguration>
     {
-        public StringConfigurationValue KeyFormat;
-        public NumericConfigurationValue CacheTTLSeconds;
+        public BaseValue<string> KeyFormat = new BaseValue<string>("key_format", "group_{0}");
+        public BaseValue<double> CacheTTLSeconds = new BaseValue<double>("cache_ttl_seconds", 60);
 
-        public GroupsManagerConfiguration(string key) : base(key)
-        {
-            KeyFormat = new StringConfigurationValue("key_format", this)
-            {
-                DefaultValue = "group_{0}",
-                OriginalKey = "group_key_format"
-            };
-            CacheTTLSeconds = new NumericConfigurationValue("cache_ttl_seconds", this)
-            {
-                DefaultValue =  60,
-                OriginalKey = "group_cache_ttl_seconds"
-            };
-        }
+        public override string TcmKey => TcmObjectKeys.GroupsManagerConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+
+
     }
 }

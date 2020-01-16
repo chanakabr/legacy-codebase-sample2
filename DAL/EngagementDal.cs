@@ -401,7 +401,7 @@ namespace DAL
             try
             {
                 // get user engagement TTL
-                int userEngagementTtl = ApplicationConfiguration.EngagementsConfiguration.UserEngagementsTTLDays.IntValue;
+                int userEngagementTtl = ApplicationConfiguration.Current.EngagementsConfiguration.UserEngagementsTTLDays.Value;
                     
                 if (userEngagementTtl == 0)
                     userEngagementTtl = TTL_USER_ENGAGEMENT_DAYS;

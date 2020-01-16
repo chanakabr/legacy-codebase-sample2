@@ -502,7 +502,7 @@ namespace Core.ConditionalAccess
                 isCreditDownloaded = true;
             }
 
-            if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value)
+            if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value)
             {
                 // update lastUseWithCredit value according to nIsCreditDownloaded
                 lastUseWithCredit = isCreditDownloaded ? DateTime.UtcNow : lastUseWithCredit;

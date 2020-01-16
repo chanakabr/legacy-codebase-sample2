@@ -17,9 +17,11 @@ using ApiObjects.Pricing;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using ApiObjects.Rules;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Api;
 using Core.Api.Managers;
 using Core.Catalog.Response;
 using Core.ConditionalAccess.Modules;
@@ -1671,7 +1673,7 @@ namespace Core.ConditionalAccess
                 Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
+                theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false, sSiteGUID);
 
                 if (theSub != null && theSub.m_oUsageModule != null && theSub.m_oSubscriptionPriceCode != null && theSub.m_bIsRecurring)
                 {
@@ -1766,12 +1768,25 @@ namespace Core.ConditionalAccess
                     }
 
                     // check if cancellation is allowed
-                    Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, string.Empty, string.Empty, string.Empty, false);
+                    Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, string.Empty, string.Empty, string.Empty, false, userId);
+
+                    if (subscriptionToCancel == null)
+                    {
+                        response.Code = (int)eResponseStatus.SubscriptionDoesNotExist;
+                        response.Message = "Subscription Does Not Exist";
+                        return response;
+                    }
 
                     if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
                     {
                         response.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
                         response.Message = "Cancellation is blocked for this subscription";
+                        return response;
+                    }
+
+                    response = api.HandleBlockingSegment<SegmentBlockCancelSubscriptionAction>(this.m_nGroupID, userId, udid, userIp, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, subscriptionToCancel.m_sObjectCode);
+                    if (!response.IsOkStatusCode())
+                    {
                         return response;
                     }
 
@@ -9977,23 +9992,33 @@ namespace Core.ConditionalAccess
                     string billingGuid = string.Empty;
 
                     // Check if cancellation allowed for subscription
-                    if (!isForce && transactionType == eTransactionType.Subscription)
+                    if (transactionType == eTransactionType.Subscription)
                     {
-                        Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false);
-                        if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                        Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false, domain.m_masterGUIDs[0].ToString());
+
+                        if (subscriptionToCancel == null)
                         {
                             result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
                             result.Message = "Cancellation is blocked for this subscription";
                             return result;
                         }
 
-                        if (subscriptionToCancel.PreSaleDate.HasValue)
+                        if (!isForce)
                         {
-                            result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
-                            result.Message = "Cancellation is blocked for this seasonal-pass subscription";
-                            return result;
-                        }
+                            if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
+                            {
+                                result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                                result.Message = "Cancellation is blocked for this subscription";
+                                return result;
+                            }
 
+                            if (subscriptionToCancel.PreSaleDate.HasValue)
+                            {
+                                result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                                result.Message = "Cancellation is blocked for this seasonal-pass subscription";
+                                return result;
+                            }
+                        }
                     }
 
                     // Check if within cancellation window
@@ -10083,6 +10108,12 @@ namespace Core.ConditionalAccess
                                     break;
                                 case eTransactionType.Subscription:
                                     {
+                                        result = api.HandleBlockingSegment<SegmentBlockCancelSubscriptionAction>(this.m_nGroupID, purchasingSiteGuid, udid, userIp, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, assetID.ToString());
+                                        if (!result.IsOkStatusCode())
+                                        {
+                                            return result;
+                                        }
+
                                         long subscriptionPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
                                         if (subscriptionPurchaseId > 0)
                                         {
@@ -10432,13 +10463,13 @@ namespace Core.ConditionalAccess
 
             try
             {
-                string task = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.Task.Value;
+                string task = ApplicationConfiguration.Current.RabbitConfiguration.ProfessionalServices.Task.Value;
 
                 PSNotificationData oNotification = new PSNotificationData(task, m_nGroupID, dataDictionary, action);
 
                 PSNotificationsQueue qNotificationQueue = new PSNotificationsQueue();
 
-                string routingKey = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.RoutingKey.Value;
+                string routingKey = ApplicationConfiguration.Current.RabbitConfiguration.ProfessionalServices.RoutingKey.Value;
 
                 if (string.IsNullOrEmpty(routingKey))
                 {
@@ -10827,7 +10858,7 @@ namespace Core.ConditionalAccess
                                                        concurrencyResponse.Data.DomainId, m_nGroupID);
                     }
                     // item must be free otherwise we wouldn't get this far
-                    else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value &&
+                    else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value &&
                              !Utils.InsertOrSetCachedEntitlementResults(concurrencyResponse.Data.DomainId, mediaFileId,
                                 new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false, eTransactionType.PPV)))
                     // transaction type doesn't matter when item is free so just pass PPV
@@ -10965,21 +10996,6 @@ namespace Core.ConditionalAccess
             else
             {
                 playCycleKey = Guid.NewGuid().ToString();
-            }
-
-            /************* For versions (Joker and before) that want to use DB for getting view stats (first_play), we have to insert the playCycleKey **********/
-            if (Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
-            {
-                int ruleID = 0;
-                // take the first rule (probably will be just one rule)
-                if (devicePlayDataToInsert != null && devicePlayDataToInsert.MediaConcurrencyRuleIds != null && devicePlayDataToInsert.MediaConcurrencyRuleIds.Count > 0)
-                {
-                    ruleID = devicePlayDataToInsert.MediaConcurrencyRuleIds[0];
-                }
-
-                int nCountryID = Utils.GetIP2CountryId(m_nGroupID, userIp);
-                CatalogDAL.InsertPlayCycleKey(devicePlayDataToInsert.UserId.ToString(), devicePlayDataToInsert.AssetId, mediaFileID, devicePlayDataToInsert.UDID, 0,
-                                              nCountryID, ruleID, m_nGroupID, playCycleKey);
             }
         }
 
@@ -13307,7 +13323,7 @@ namespace Core.ConditionalAccess
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                 }
 
-                string version = ApplicationConfiguration.Version.Value;
+                string version = ApplicationConfiguration.Current.Version.Value;
                 string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapterId)
@@ -13377,7 +13393,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
@@ -13434,7 +13450,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version,adapterId)
@@ -13589,6 +13605,7 @@ namespace Core.ConditionalAccess
                     log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                     recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, recording.Crid,
                                                                     new List<long>() { domainID }, out failedDomainIds);
+
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
@@ -13617,6 +13634,7 @@ namespace Core.ConditionalAccess
                     {
                         log.DebugFormat("recording.Id = {0}, recording.Status = {1}, IsValidRecordingStatus ={2}",
                             recording != null ? recording.Id : 0, recording.Status != null ? recording.Status.Message.ToString() : "null", Utils.IsValidRecordingStatus(recording.RecordingStatus));
+
                         recording = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingFailed, eResponseStatus.RecordingFailed.ToString()) };
                     }
                 }
@@ -14416,7 +14434,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
@@ -15073,7 +15091,7 @@ namespace Core.ConditionalAccess
                     List<long> deletedRecordingIds = new List<long>();
                     int adapterId = 0;
                     // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                    int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
 
                     if (maxDegreeOfParallelism == 0)
                     {
@@ -15529,7 +15547,7 @@ namespace Core.ConditionalAccess
                 if (task.Id > 0 && recording.RecordingStatus != TstvRecordingStatus.Recorded)
                 {
                     log.DebugFormat("Recording has already been deleted/canceled/failed, taskId: {0}, recordingId:{1}", task.Id, task.RecordingId);
-                    shouldGetDomainRecordings = false;
+                    shouldGetDomainRecordings = recording.RecordingStatus != TstvRecordingStatus.Failed;
                     result = true;
                 }
 
@@ -15541,7 +15559,7 @@ namespace Core.ConditionalAccess
                     shouldGetDomainRecordings = false;
                 }
 
-                if (shouldGetDomainRecordings || (domainRecordingStatus.HasValue && domainRecordingStatus.Value == DomainRecordingStatus.OK))
+                if (shouldGetDomainRecordings)
                 {
                     int status = 1;
                     // Currently canceled can be only due to IngestRecording which Deletes EPG
@@ -15557,7 +15575,7 @@ namespace Core.ConditionalAccess
                         status, domainRecordingStatus.Value, maxDomainRecordingId);
 
                     // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                    int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                     if (maxDegreeOfParallelism == 0)
                     {
                         maxDegreeOfParallelism = 5;
@@ -15583,17 +15601,6 @@ namespace Core.ConditionalAccess
                                     quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainUsedQuota(task.GroupId, domainId, recordingDuration);
                                 }
 
-                                // if old recording duration was sent use the difference, otherwise use the recording length  
-                                //int recordingDurationDif = task.OldRecordingDuration != 0 ? task.OldRecordingDuration - recordingDuration : recordingDuration;
-                                //if (recordingDurationDif > 0)
-                                //{
-                                //    quotaSuccessfullyUpdated = QuotaManager.Instance.IncreaseDomainUsedQuota(task.GroupId, domainId, recordingDurationDif, true);
-                                //}
-                                //else if (recordingDurationDif < 0)
-                                //{
-                                //    quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, -recordingDurationDif);
-                                //}
-
                                 if (quotaSuccessfullyUpdated)
                                 {
                                     domainIds.Add(domainId);
@@ -15601,6 +15608,7 @@ namespace Core.ConditionalAccess
                                     {
                                         log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", task.RecordingId, domainId);
                                     }
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
                                 }
                                 else
                                 {
@@ -15675,7 +15683,7 @@ namespace Core.ConditionalAccess
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                    int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                     if (maxDegreeOfParallelism == 0)
                     {
                         maxDegreeOfParallelism = 5;
@@ -15792,7 +15800,7 @@ namespace Core.ConditionalAccess
                         {
                             //cancel all of those + the record with the epgid we got before 
                             // set max amount of concurrent tasks
-                            int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                            int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                             if (maxDegreeOfParallelism == 0)
                             {
                                 maxDegreeOfParallelism = 5;
@@ -16036,7 +16044,7 @@ namespace Core.ConditionalAccess
                         List<TstvRecordingStatus> validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recorded };
 
                         // set max amount of concurrent tasks
-                        int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                        int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                         if (maxDegreeOfParallelism == 0)
                         {
                             maxDegreeOfParallelism = 5;
@@ -16339,7 +16347,7 @@ namespace Core.ConditionalAccess
                     if (domainFutureSingleRecordings != null)
                     {
                         // set max amount of concurrent tasks
-                        int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                        int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                         if (maxDegreeOfParallelism == 0)
                         {
                             maxDegreeOfParallelism = 5;
@@ -16474,7 +16482,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // set max amount of concurrent tasks
-                int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                 if (maxDegreeOfParallelism == 0)
                 {
                     maxDegreeOfParallelism = 5;
@@ -16586,7 +16594,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // set max amount of concurrent tasks
-                int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                 if (maxDegreeOfParallelism == 0)
                 {
                     maxDegreeOfParallelism = 5;

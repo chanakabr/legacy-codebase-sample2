@@ -28,7 +28,7 @@ namespace ODBCWrapper
 
         private void setCachedSec()
         {
-            var cachedSec = ApplicationConfiguration.DatabaseConfiguration.ODBCCacheSeconds.IntValue;
+            var cachedSec = ApplicationConfiguration.Current.DatabaseConfiguration.ODBCCacheSeconds.Value;
 
             if (cachedSec >= 0)
             {

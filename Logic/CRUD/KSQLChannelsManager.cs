@@ -38,7 +38,7 @@ namespace APILogic.CRUD
 
         static KSQLChannelsManager()
         {
-            version = ApplicationConfiguration.Version.Value;
+            version = ApplicationConfiguration.Current.Version.Value;
         }
 
         #endregion

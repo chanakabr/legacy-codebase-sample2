@@ -1,27 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class LicensedLinksCacheConfiguration : ConfigurationValue
+    public class LicensedLinksCacheConfiguration : BaseConfig<LicensedLinksCacheConfiguration>
     {
-        public BooleanConfigurationValue ShouldUseCache;
-        public NumericConfigurationValue CacheTimeInSeconds;
-        
-        public LicensedLinksCacheConfiguration(string key) : base(key)
-        {
-            ShouldUseCache = new BooleanConfigurationValue("should_use_cache", this)
-            {
-                DefaultValue = true,
-                OriginalKey = "ShouldUseLicenseLinkCache"
-            };
-            CacheTimeInSeconds = new NumericConfigurationValue("cache_time_in_seconds", this)
-            {
-                DefaultValue = 300,
-                OriginalKey = "LicenseLinkCacheInSec"
-            };
-        }
+        public override string TcmKey => "licensed_links_cache_configuration";
+
+        public override string[] TcmPath => new string[] { TcmKey };
+
+        public BaseValue<bool> ShouldUseCache = new BaseValue<bool>("should_use_cache", true, false, "description");
+        public BaseValue<int> CacheTimeInSeconds = new BaseValue<int>("cache_time_in_seconds", 300, false, "LicenseLinkCacheInSec");
     }
+
 }

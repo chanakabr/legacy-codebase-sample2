@@ -35,7 +35,7 @@ namespace EventBus.RabbitMQ
             var eventBusConsumer = new EventBusConsumerRabbitMQ(
                 serviceProvide,
                 persistentConnection,
-                ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value,
+                ApplicationConfiguration.Current.RabbitConfiguration.EventBus.Exchange.Value,
                 queueName,
                 concurrentConsumers);
 

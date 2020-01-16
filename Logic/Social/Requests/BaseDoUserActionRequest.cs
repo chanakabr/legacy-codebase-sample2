@@ -195,7 +195,7 @@ namespace Core.Social.Requests
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(m_nGroupID);
             bool result = false;
 
-            string url = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
+            string url = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value;
 
             string statisticsIndex = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(this.m_nGroupID);
             string normalIndex = this.m_nGroupID.ToString();

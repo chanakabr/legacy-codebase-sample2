@@ -129,7 +129,7 @@ namespace WebAPI.Controllers
                     {
                         if (HttpContext.Current.Request.GetQueryString().Count > 0)
                         {
-                            string dynamicQueryStringParamsConfiguration = ApplicationConfiguration.PlayManifestDynamicQueryStringParamsNames.Value;
+                            string dynamicQueryStringParamsConfiguration = ApplicationConfiguration.Current.PlayManifestDynamicQueryStringParamsNames.Value;
                             
                             // old fix for passing query string params - not using dynamic configuration
                             string[] dynamicQueryStringParamsNames;

@@ -50,7 +50,7 @@ namespace CachingHelpers
         {
             if (string.IsNullOrEmpty(cacheType))
             {
-                cacheType = ApplicationConfiguration.GroupsCacheConfiguration.Type.Value;
+                cacheType = ApplicationConfiguration.Current.GroupsCacheConfiguration.Type.Value; ;
             }
 
             switch (cacheType.ToLower())
@@ -58,7 +58,7 @@ namespace CachingHelpers
                 case "couchbase":
                     {
                         cacheService = CouchBaseCache<T>.GetInstance("CACHE");
-                        version = ApplicationConfiguration.Version.Value;
+                        version = ApplicationConfiguration.Current.Version.Value;
 
                         //set ttl time for document 
                         cacheTime = GetDocTTLSettings();
@@ -75,7 +75,7 @@ namespace CachingHelpers
                         cacheTime = GetDefaultCacheTimeInSeconds();
                         string cacheName = GetCacheName();
                         cacheService = HybridCache<T>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
-                        version = ApplicationConfiguration.Version.Value;
+                        version = ApplicationConfiguration.Current.Version.Value;
 
                         break;
                     }
@@ -91,7 +91,7 @@ namespace CachingHelpers
         {
             string result = DEFAULT_CACHE_NAME;
 
-            string name = ApplicationConfiguration.GroupsCacheConfiguration.Name.Value;
+            string name = ApplicationConfiguration.Current.GroupsCacheConfiguration.Name.Value;
 
             if (name.Length > 0)
             {
@@ -103,7 +103,7 @@ namespace CachingHelpers
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
+            uint result = (uint)ApplicationConfiguration.Current.GroupsCacheConfiguration.TTLSeconds.Value;
 
             if (result <= 0)
             {
@@ -115,7 +115,7 @@ namespace CachingHelpers
 
         private uint GetDocTTLSettings()
         {
-            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
+            uint result = (uint)ApplicationConfiguration.Current.GroupsCacheConfiguration.TTLSeconds.Value; ;
 
             if (result <= 0)
             {

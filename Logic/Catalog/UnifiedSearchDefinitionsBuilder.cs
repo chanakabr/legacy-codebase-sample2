@@ -33,7 +33,7 @@ namespace Core.Catalog
 
         public UnifiedSearchDefinitionsBuilder()
         {
-            shouldUseCache = ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
+            shouldUseCache = ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
         }
 
         #endregion
@@ -87,7 +87,7 @@ namespace Core.Catalog
                 }
 
                 // Get days offset for EPG search from TCM
-                definitions.epgDaysOffest = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
+                definitions.epgDaysOffest = ApplicationConfiguration.Current.CatalogLogicConfiguration.CurrentRequestDaysOffset.Value;
 
                 #region Filter & Order
 

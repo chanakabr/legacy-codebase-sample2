@@ -1,4 +1,5 @@
 ﻿using ConfigurationManager;
+using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 using ConfigurationManager.Types;
 using KLogMonitor;
 using System;
@@ -28,11 +29,11 @@ namespace TVinciShared
         {
             var bindingBase = serviceToConfigure.Endpoint.Binding as HttpBindingBase;
 
-            bindingBase.MaxReceivedMessageSize = adapterConfiguration.MaxReceivedMessageSize.Value;
-            bindingBase.SendTimeout = TimeSpan.FromSeconds(adapterConfiguration.SendTimeout.Value);
-            bindingBase.OpenTimeout = TimeSpan.FromSeconds(adapterConfiguration.OpenTimeout.Value);
-            bindingBase.CloseTimeout = TimeSpan.FromSeconds(adapterConfiguration.CloseTimeout.Value);
-            bindingBase.ReceiveTimeout = TimeSpan.FromSeconds(adapterConfiguration.ReceiveTimeout.Value);
+            bindingBase.MaxReceivedMessageSize = adapterConfiguration.MaxReceivedMessageSize.Value.GetValueOrDefault();
+            bindingBase.SendTimeout = TimeSpan.FromSeconds(adapterConfiguration.SendTimeout.Value.GetValueOrDefault());
+            bindingBase.OpenTimeout = TimeSpan.FromSeconds(adapterConfiguration.OpenTimeout.Value.GetValueOrDefault());
+            bindingBase.CloseTimeout = TimeSpan.FromSeconds(adapterConfiguration.CloseTimeout.Value.GetValueOrDefault());
+            bindingBase.ReceiveTimeout = TimeSpan.FromSeconds(adapterConfiguration.ReceiveTimeout.Value.GetValueOrDefault());
             bindingBase.MaxBufferSize = (int)bindingBase.MaxReceivedMessageSize;
 
             if (serviceToConfigure.Endpoint.Address.Uri.Scheme.ToLower().Equals("https"))
@@ -47,8 +48,8 @@ namespace TVinciShared
         private static AdapterConfiguration GetCurrentConfiguration(string adapterNamespace)
         {
             adapterNamespace = adapterNamespace.Replace('.','_').ToLower();
-            var defaultConfiguration = ApplicationConfiguration.AdaptersConfiguration.ConfigurationDictionary["default"];
-            if (ApplicationConfiguration.AdaptersConfiguration.ConfigurationDictionary.TryGetValue(adapterNamespace, out var specificConfiguration))
+            AdapterConfiguration defaultConfiguration = ApplicationConfiguration.Current.AdaptersConfiguration.ConfigurationDictionary.Value[TcmObjectKeys.DefaultConfigurationKey];
+            if (ApplicationConfiguration.Current.AdaptersConfiguration.ConfigurationDictionary.Value.TryGetValue(adapterNamespace, out var specificConfiguration))
             {
                 _Logger.Debug($"set specific configuration for Adapter:  {adapterNamespace}");
                 defaultConfiguration.CloseTimeout = specificConfiguration.CloseTimeout ?? defaultConfiguration.CloseTimeout;

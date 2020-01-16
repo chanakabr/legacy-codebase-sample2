@@ -19,7 +19,7 @@ namespace DalCB
 
         private static readonly string sEndMaxValue = @"\uefff";
 
-        private static readonly string CB_EPG_DESGIN = ApplicationConfiguration.CouchBaseDesigns.EPGDesign.Value;
+        private static readonly string CB_EPG_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.EPGDesign.Value;
         private static readonly string EPG_DAL_CB_LOG_FILE = "EpgDAL_CB";
 
         CouchbaseManager.CouchbaseManager cbManager;
@@ -123,7 +123,7 @@ namespace DalCB
         }
 
 
-        public bool InsertProgram(string sDocID, object epg, DateTime? dtExpiresAt, ulong cas)
+        public bool InsertProgram(string sDocID, EpgCB epg, DateTime? dtExpiresAt, ulong cas)
         {
             bool bRes = false;
 
@@ -131,6 +131,7 @@ namespace DalCB
             {
                 try
                 {
+                    epg.DocumentId = sDocID;
                     // TODO  : add here the json serialize 
                     bRes = (dtExpiresAt.HasValue) ?
                         cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :

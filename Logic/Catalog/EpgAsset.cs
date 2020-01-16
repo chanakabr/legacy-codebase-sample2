@@ -235,7 +235,7 @@ namespace Core.Catalog
                 this.Images = new List<Image>();
             }
 
-            if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+            if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
             {
                 // use old image server flow
                 //MutateFullEpgPicURLOldImageServerFlow(epgList, pictures);

@@ -33,8 +33,8 @@ namespace Core.Catalog.CatalogManagement
         public static readonly int DAYS = 7;
         private const string PERCOLATOR = ".percolator";
 
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
         protected const string ES_VERSION = "2";
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
 
         public const string EPG_INDEX_TYPE = "epg";
         public const string RECORDING_IDEX_TYPE = "recording";
@@ -917,7 +917,7 @@ namespace Core.Catalog.CatalogManagement
                                         ttl = ttl
                                     });
 
-                                    int sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+                                    int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
                                     if (bulkRequests.Count > sizeOfBulk)
                                     {
                                         // send request to ES API
@@ -1215,7 +1215,7 @@ namespace Core.Catalog.CatalogManagement
 
         public static HashSet<string> CreateNewEpgIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, string newIndexName)
         {
-            int maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            int maxResults = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
             maxResults = maxResults == 0 ? 100000 : maxResults;
 
             var esClient = new ElasticSearchApi();
@@ -1624,7 +1624,7 @@ namespace Core.Catalog.CatalogManagement
         {
             try
             {
-                int days = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
+                int days = ApplicationConfiguration.Current.CatalogLogicConfiguration.CurrentRequestDaysOffset.Value;
 
                 if (days == 0)
                 {

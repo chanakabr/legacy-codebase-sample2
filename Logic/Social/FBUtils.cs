@@ -15,8 +15,8 @@ namespace Core.Social
     public static class FBUtils
     {
         internal static readonly int STATUS_OK = 200;
-        internal static readonly string FB_GRAPH_URI_PREFIX = ApplicationConfiguration.FacebookConfiguration.GraphURI.Value;
-        internal static readonly string FB_GRAPH_URI_ME_PREFIX = string.Format("{0}/me", ApplicationConfiguration.FacebookConfiguration.GraphURI.Value);
+        internal static readonly string FB_GRAPH_URI_PREFIX = ApplicationConfiguration.Current.FacebookConfiguration.GraphURI.Value;
+        internal static readonly string FB_GRAPH_URI_ME_PREFIX = string.Format("{0}/me", ApplicationConfiguration.Current.FacebookConfiguration.GraphURI.Value);
 
         public static SocialActionResponseStatus DeleteUserActionOnObject(string sUserAccessToken, string sFBActionID)
         {

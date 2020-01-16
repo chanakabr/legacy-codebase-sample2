@@ -2,6 +2,7 @@
 using KLogMonitor;
 using System;
 using System.Web;
+using TVinciShared;
 using WebAPI.Models.General;
 
 namespace WebAPI.EventNotifications
@@ -49,7 +50,7 @@ namespace WebAPI.EventNotifications
             }
 
             string systemName = objectEvent.GetSystemName();
-            var userIp = HttpContext.Current?.Items[RequestContext.USER_IP]?.ToString();
+            var userIp = HttpContext.Current?.Items[RequestContextUtils.USER_IP]?.ToString();
 
             KalturaNotification eventWrapper = new KalturaNotification()
             {

@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public long GetTime()
         {
-            DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestContext.REQUEST_TIME];
+            DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestContextUtils.REQUEST_TIME];
             return DateUtils.DateTimeToUtcUnixTimestampSeconds(serverTime);
         }
 
@@ -129,22 +129,22 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Clear local server cache
         /// </summary>
-        /// <param name="action">action to perform, possible values: clear_all / keys / getKey</param>
+        /// <param name="clearCacheAction">clear cache action to perform, possible values: clear_all / keys / getKey</param>
         /// <param name="key">key to get in case you send action getKey</param>
         /// <returns></returns>
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Action(name: "clearLocalServerCache", isInternal: true)]
-        static public bool ClearLocalServerCache(string action = null, string key = null)
+        static public bool ClearLocalServerCache(string clearCacheAction = null, string key = null)
         {
             try
             {
-                if (action == null)
+                if (clearCacheAction == null)
                 {
-                    action = "clear_all";
+                    clearCacheAction = "clear_all";
                 }
 
-                return ClientsManager.ApiClient().ClearLocalServerCache(action, key);
+                return ClientsManager.ApiClient().ClearLocalServerCache(clearCacheAction, key);
             }
             catch (Exception ex)
             {

@@ -54,18 +54,18 @@ namespace WebAPI.Models.Segmentation
             return KalturaSegmentationTypeOrder.NONE;
         }
 
-        public List<long> GetIdIn()
+        public HashSet<long> GetIdIn()
         {
-            HashSet<long> list = new HashSet<long>();
+            HashSet<long> hashSet = new HashSet<long>();
             if (!string.IsNullOrEmpty(IdIn))
             {
                 string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string stringValue in stringValues)
                 {
                     long value;
-                    if (long.TryParse(stringValue, out value) && !list.Contains(value))
+                    if (long.TryParse(stringValue, out value) && !hashSet.Contains(value))
                     {
-                        list.Add(value);
+                        hashSet.Add(value);
                     }
                     else
                     {
@@ -74,7 +74,7 @@ namespace WebAPI.Models.Segmentation
                 }
             }
 
-            return new List<long>(list);
+            return hashSet;
         }
 
         internal bool Validate()

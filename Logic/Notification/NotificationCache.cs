@@ -68,7 +68,7 @@ namespace Core.Notification
 
         private string GetCacheName()
         {
-            string res = ApplicationConfiguration.NotificationCacheConfiguration.Name.Value;
+            string res = ApplicationConfiguration.Current.NotificationCacheConfiguration.Name.Value;
             if (res.Length > 0)
                 return res;
             return DEFAULT_CACHE_NAME;
@@ -76,7 +76,7 @@ namespace Core.Notification
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint result = (uint)ApplicationConfiguration.NotificationCacheConfiguration.TTLSeconds.IntValue;
+            uint result = (uint)ApplicationConfiguration.Current.NotificationCacheConfiguration.TTLSeconds.Value;
 
             if (result <= 0)
             {

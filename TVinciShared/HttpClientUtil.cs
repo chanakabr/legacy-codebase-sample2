@@ -1,8 +1,11 @@
 ﻿using ConfigurationManager;
 using ConfigurationManager.Types;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -10,11 +13,13 @@ namespace TVinciShared
 {
     public static class HttpClientUtil
     {
-        static readonly List<SslProtocols> defaultEnabledSslProtocols = ApplicationConfiguration.HttpClientConfiguration.GetSslProtocols();
-        static readonly List<DecompressionMethods> defaultEnabledDecompressionMethod = ApplicationConfiguration.HttpClientConfiguration.GetDecompressionMethods();
-        static readonly int defaultMaxConnectionsPerServer = ApplicationConfiguration.HttpClientConfiguration.MaxConnectionsPerServer.IntValue;
-        static readonly bool defaultCheckCertificateRevocationList = ApplicationConfiguration.HttpClientConfiguration.CheckCertificateRevocationList.Value;
-        static readonly System.TimeSpan defaultTimeout = System.TimeSpan.FromMilliseconds(ApplicationConfiguration.HttpClientConfiguration.TimeOutInMiliSeconds.DoubleValue);
+        static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        static readonly List<SslProtocols> defaultEnabledSslProtocols = ApplicationConfiguration.Current.HttpClientConfiguration.GetSslProtocols();
+        static readonly List<DecompressionMethods> defaultEnabledDecompressionMethod = ApplicationConfiguration.Current.HttpClientConfiguration.GetDecompressionMethods();
+        static readonly int defaultMaxConnectionsPerServer = ApplicationConfiguration.Current.HttpClientConfiguration.MaxConnectionsPerServer.Value;
+        static readonly bool defaultCheckCertificateRevocationList = ApplicationConfiguration.Current.HttpClientConfiguration.CheckCertificateRevocationList.Value;
+        static readonly System.TimeSpan defaultTimeout = System.TimeSpan.FromMilliseconds(ApplicationConfiguration.Current.HttpClientConfiguration.TimeOutInMiliSeconds.Value);
 
         /// <summary>
         /// 
@@ -22,7 +27,7 @@ namespace TVinciShared
         /// <param name="specificConfiguration"></param>
         /// <param name="shouldDecompress">Should the http client be configured with decompression method from TCM or not.</param>
         /// <returns></returns>
-        public static HttpClient GetHttpClient(HttpClientConfiguration specificConfiguration = null, bool shouldDecompress = true)
+        public static HttpClient GetHttpClient(BaseHttpClientConfiguration specificConfiguration = null, bool shouldDecompress = true)
         {
             List<SslProtocols> enabledSslProtocols;
             List<DecompressionMethods> enabledDecompressionMethod;
@@ -59,10 +64,15 @@ namespace TVinciShared
             return httpClient;
 #elif NETFRAMEWORK
             HttpClientHandler httpHandler = new HttpClientHandler() { SslProtocols = new SslProtocols() };
-            foreach (SslProtocols sslProtocols in enabledSslProtocols)
+/*            foreach (SslProtocols sslProtocols in enabledSslProtocols)
             {
-                httpHandler.SslProtocols = sslProtocols | httpHandler.SslProtocols;
-            }
+                try {
+                    httpHandler.SslProtocols = sslProtocols | httpHandler.SslProtocols;
+                }catch(Exception e){
+                    _Logger.Error($"Error with ssl protocol: {sslProtocols}", e);
+                    _Logger.Error($"curent ssl protocol: {httpHandler.SslProtocols }", e);
+                }
+            }*/
 
             if (shouldDecompress)
             {
@@ -84,7 +94,7 @@ namespace TVinciShared
 #endif
         }
 
-        private static void GetConfigurationValues(HttpClientConfiguration specificConfiguration, out List<SslProtocols> enabledSslProtocols, out List<DecompressionMethods> enabledDecompressionMethod, out int maxConnectionsPerServer, out bool checkCertificateRevocationList, out System.TimeSpan timeout)
+        private static void GetConfigurationValues(BaseHttpClientConfiguration specificConfiguration, out List<SslProtocols> enabledSslProtocols, out List<DecompressionMethods> enabledDecompressionMethod, out int maxConnectionsPerServer, out bool checkCertificateRevocationList, out System.TimeSpan timeout)
         {
             bool shouldTakeSpecificConfiguration = specificConfiguration != null;
 
@@ -98,7 +108,7 @@ namespace TVinciShared
 
             // max connections per server
             maxConnectionsPerServer = shouldTakeSpecificConfiguration ?
-                specificConfiguration.MaxConnectionsPerServer.IntValue : defaultMaxConnectionsPerServer;
+                specificConfiguration.MaxConnectionsPerServer.Value : defaultMaxConnectionsPerServer;
 
             // check certificate revocation list
             checkCertificateRevocationList = shouldTakeSpecificConfiguration ?
@@ -106,7 +116,7 @@ namespace TVinciShared
 
             // timeout
             timeout = shouldTakeSpecificConfiguration ?
-                System.TimeSpan.FromMilliseconds(specificConfiguration.TimeOutInMiliSeconds.DoubleValue) : defaultTimeout;
+                System.TimeSpan.FromMilliseconds(specificConfiguration.TimeOutInMiliSeconds.Value) : defaultTimeout;
         }
     }
 }

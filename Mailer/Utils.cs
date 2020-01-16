@@ -14,7 +14,7 @@ namespace Mailer
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.MailerHttpClientConfiguration);
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.MailerHttpClientConfiguration);
         private static object lck = new object();
 
         public static string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader)

@@ -1,35 +1,20 @@
 ﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using ConfigurationManager.Types;
+using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class EngagementsConfiguration : ConfigurationValue
+    public class EngagementsConfiguration : BaseConfig<EngagementsConfiguration>
     {
-        public NumericConfigurationValue UserEngagementsTTLDays;
-        public NumericConfigurationValue NumberOfBulkMessageEngagements;
-        public NumericConfigurationValue NumberOfEngagementThreads;
+        public BaseValue<int> UserEngagementsTTLDays = new BaseValue<int>("user_engagements_ttl_days", 30);
+        public BaseValue<int> NumberOfBulkMessageEngagements = new BaseValue<int>("num_of_bulk_message_engagements", 500);
+        public BaseValue<int> NumberOfEngagementThreads = new BaseValue<int>("num_of_engagement_threads", 5);
 
-        public EngagementsConfiguration(string key) : base(key)
-        {
-            UserEngagementsTTLDays = new NumericConfigurationValue("user_engagements_ttl_days", this)
-            {
-                DefaultValue = 30,
-                OriginalKey = "ttl_user_engagement_days"
-            };
+        public override string TcmKey => TcmObjectKeys.EngagementsConfiguration;
 
-            NumberOfBulkMessageEngagements = new NumericConfigurationValue("num_of_bulk_message_engagements", this)
-            {
-                DefaultValue = 500,
-                OriginalKey = "num_of_bulk_message_engagements"
-            };
-            NumberOfEngagementThreads = new NumericConfigurationValue("num_of_engagement_threads", this)
-            {
-                DefaultValue = 5,
-                OriginalKey = "num_of_engagement_threads"
-            };
-        }
+        public override string[] TcmPath => new string[] { TcmKey };
     }
 }

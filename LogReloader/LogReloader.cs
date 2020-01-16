@@ -60,7 +60,7 @@ namespace KLogMonitor.ConfigurationReloader
 
         public void Initiate()
         {
-            interval = ApplicationConfiguration.LogReloadInterval.IntValue;
+            interval = ApplicationConfiguration.Current.LogReloadInterval.Value;
 
             if (interval > 0)
             {
@@ -93,7 +93,7 @@ namespace KLogMonitor.ConfigurationReloader
         {
             try
             {
-                var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>(ApplicationConfiguration.LogConfigurationDocumentKey.Value);
+                var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>(ApplicationConfiguration.Current.LogConfigurationDocumentKey.Value);
 
                 // if configuration was updated
                 if (cbConfiguration != null && (configuration == null || cbConfiguration.timeStamp > configuration.timeStamp))

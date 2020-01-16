@@ -59,7 +59,7 @@ namespace QueueWrapper
 
                     try
                     {
-                        int tcmFailCountLimit = ApplicationConfiguration.QueueFailLimit.IntValue;
+                        int tcmFailCountLimit = ApplicationConfiguration.Current.QueueFailLimit.Value;
 
                         if (tcmFailCountLimit > 0)
                         {

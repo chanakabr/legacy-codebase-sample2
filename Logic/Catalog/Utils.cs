@@ -37,7 +37,7 @@ namespace Core.Catalog
         {
             string retVal;
 
-            string hmacSecret = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string hmacSecret = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
             System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
 
@@ -438,7 +438,7 @@ namespace Core.Catalog
             ESRange dateRange = new ESRange(false) { Key = "action_date" };
             string sMax = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 
-            double csts = ApplicationConfiguration.CrowdSourceTimeSpan.DoubleValue;
+            double csts = ApplicationConfiguration.Current.CrowdSourceTimeSpan.Value;
 
             if (csts == 0)
                 csts = 30.0;
@@ -1477,7 +1477,7 @@ namespace Core.Catalog
             try
             {
                 string catalogSignString = Guid.NewGuid().ToString();
-                string catalogSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string catalogSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
 

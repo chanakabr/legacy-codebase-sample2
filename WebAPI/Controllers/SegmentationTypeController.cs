@@ -10,7 +10,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Segmentation;
 using WebAPI.Utils;
-
+    
 namespace WebAPI.Controllers
 {
     [Service("segmentationType")]
@@ -128,7 +128,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
 
-                List<long> ids = null;
+                HashSet<long> ids = null;
                 bool isAllowedToViewInactiveAssets = false;
 
                 if (string.IsNullOrEmpty(filter.Ksql))
@@ -139,8 +139,6 @@ namespace WebAPI.Controllers
                 {
                     isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
                 }
-
-                
 
                 response = ClientsManager.ApiClient().ListSegmentationTypes(groupId, ids, pager.getPageIndex(), pager.getPageSize(), 
                     new AssetSearchDefinition() { Filter = filter.Ksql, UserId = userId, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets });                

@@ -1777,9 +1777,9 @@ namespace DAL
             return 0;
         }
 
-        public static List<string> GetCollectionIds(int groupId)
+        public static HashSet<long> GetCollectionIds(int groupId)
         {
-            List<string> res = null;
+            HashSet<long> res = null;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CollectionsIds");
             sp.SetConnectionKey("pricing_connection");
@@ -1788,15 +1788,19 @@ namespace DAL
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                res = dt.AsEnumerable().Select(x => (x.Field<long>("ID")).ToString()).ToList();
+                res = new HashSet<long>();
+                foreach (DataRow item in dt.Rows)
+                {
+                    res.Add(ODBCWrapper.Utils.GetLongSafeVal(item, "ID"));
+                }
             }
 
             return res;
         }
 
-        public static List<string> GetSubscriptions(int groupId)
+        public static HashSet<long> GetSubscriptions(int groupId)
         {
-            List<string> res = null;
+            HashSet<long> res = null;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsIds");
             sp.SetConnectionKey("pricing_connection");
@@ -1805,7 +1809,11 @@ namespace DAL
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                res = dt.AsEnumerable().Select(x => (x.Field<long>("ID")).ToString()).ToList();
+                res = new HashSet<long>();
+                foreach (DataRow item in dt.Rows)
+                {
+                    res.Add(ODBCWrapper.Utils.GetLongSafeVal(item, "ID"));
+                }
             }
 
             return res;

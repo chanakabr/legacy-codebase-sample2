@@ -85,7 +85,7 @@ namespace Core.Catalog.Request
                     Dictionary<long, List<Picture>> dChanPics = new Dictionary<long, List<Picture>>();
 
                     // use old/new image server
-                    if (WS_Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+                    if (WS_Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
                     {
 
                         // Make category-pictures dictionary
@@ -160,7 +160,7 @@ namespace Core.Catalog.Request
 
                     // use old/new image server
                     Dictionary<int, List<Picture>> dCatPics = new Dictionary<int, List<Picture>>();
-                    if (WS_Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+                    if (WS_Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
                     {
 
                         // Make category-pictures dictionary
