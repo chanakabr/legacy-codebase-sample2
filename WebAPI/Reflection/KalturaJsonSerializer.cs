@@ -24543,6 +24543,60 @@ namespace WebAPI.Models.Partner
             return ret;
         }
     }
+    public partial class KalturaBookmarkEventThreshold
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("threshold", "\"threshold\": " + Threshold);
+            ret.Add("transactionType", "\"transactionType\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), TransactionType) + "\"");
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("threshold", "<threshold>" + Threshold + "</threshold>");
+            ret.Add("transactionType", "<transactionType>" + "" + Enum.GetName(typeof(KalturaTransactionType), TransactionType) + "" + "</transactionType>");
+            return ret;
+        }
+    }
+    public partial class KalturaCommercePartnerConfig
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(BookmarkEventThresholds != null)
+            {
+                propertyValue = "[" + String.Join(", ", BookmarkEventThresholds.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("bookmarkEventThresholds", "\"bookmarkEventThresholds\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(BookmarkEventThresholds != null)
+            {
+                propertyValue = BookmarkEventThresholds.Count > 0 ? "<item>" + String.Join("</item><item>", BookmarkEventThresholds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("bookmarkEventThresholds", "<bookmarkEventThresholds>" + propertyValue + "</bookmarkEventThresholds>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaConcurrencyPartnerConfig
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)

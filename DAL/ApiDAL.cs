@@ -6146,5 +6146,22 @@ namespace DAL
             eResultStatus resultStatus;
             return GetObjectVirtualAssetPartnerConfiguration(groupId, out resultStatus);
         }
+
+        private static string GetCommercePartnerConfigKey(int groupId)
+        {
+            return $"commerce_partner_config_{groupId}";
+        }
+
+        public static CommercePartnerConfig GetCommercePartnerConfig(int groupId)
+        {
+            string key = GetCommercePartnerConfigKey(groupId);
+            return UtilsDal.GetObjectFromCB<CommercePartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SaveCommercePartnerConfig(int groupId, CommercePartnerConfig commercePartnerConfig)
+        {
+            string key = GetCommercePartnerConfigKey(groupId);
+            return UtilsDal.SaveObjectInCB<CommercePartnerConfig>(eCouchbaseBucket.OTT_APPS, key, commercePartnerConfig);
+        }
     }
 }

@@ -57,12 +57,8 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("playCycleKey")]
         public string PlayCycleKey { get; set; }
 
-        // TODO SHIR - DONT FORGET TO ADD TO CC_PROXY
-        [JsonProperty("isBookmarkEventDispatched")]
-        public bool IsBookmarkEventDispatched { get; set; }
-
-        [JsonProperty("transactionType")]
-        public eTransactionType? TransactionType { get; set; }
+        [JsonProperty("bookmarkEventThreshold")]
+        public int? BookmarkEventThreshold { get; set; }
 
         public DevicePlayData()
         {
@@ -73,7 +69,7 @@ namespace ApiObjects.MediaMarks
         
         public DevicePlayData(string udid, int assetID, int userId, long timeStamp, ePlayType playType, MediaPlayActions action, 
                               int deviceFamilyId, long createdAt, long programId, string npvrId, int domainId, List<int> mediaConcurrencyRuleIds,
-                              List<long> assetMediaConcurrencyRuleIds, List<long> assetEpgConcurrencyRuleIds, bool isBookmarkEventDispatched, eTransactionType? transactionType)
+                              List<long> assetMediaConcurrencyRuleIds, List<long> assetEpgConcurrencyRuleIds, int? bookmarkEventThreshold)
         {
             this.UDID = udid;
             this.AssetId = assetID;
@@ -90,8 +86,7 @@ namespace ApiObjects.MediaMarks
             this.AssetMediaConcurrencyRuleIds = assetMediaConcurrencyRuleIds;
             this.AssetEpgConcurrencyRuleIds = assetEpgConcurrencyRuleIds;
             this.PlayCycleKey = Guid.NewGuid().ToString();
-            this.IsBookmarkEventDispatched = isBookmarkEventDispatched;
-            this.TransactionType = transactionType;
+            this.BookmarkEventThreshold = bookmarkEventThreshold;
         }
 
         public DevicePlayData(DevicePlayData other)
@@ -111,8 +106,7 @@ namespace ApiObjects.MediaMarks
             this.AssetMediaConcurrencyRuleIds = other.AssetMediaConcurrencyRuleIds;
             this.AssetEpgConcurrencyRuleIds = other.AssetEpgConcurrencyRuleIds;
             this.PlayCycleKey = other.PlayCycleKey;
-            this.IsBookmarkEventDispatched = other.IsBookmarkEventDispatched;
-            this.TransactionType = other.TransactionType;
+            this.BookmarkEventThreshold = other.BookmarkEventThreshold;
         }
 
         public UserMediaMark ConvertToUserMediaMark(int location, int fileDuration, int assetTypeId)
@@ -159,8 +153,7 @@ namespace ApiObjects.MediaMarks
             sb.AppendLine(String.Concat("AssetMediaConcurrencyRuleIds: ", this.AssetMediaConcurrencyRuleIds == null ? "null" : string.Join(", ", this.AssetMediaConcurrencyRuleIds)));
             sb.AppendLine(String.Concat("AssetEpgConcurrencyRuleIds: ", this.AssetEpgConcurrencyRuleIds == null ? "null" : string.Join(", ", this.AssetEpgConcurrencyRuleIds)));
             sb.AppendLine(String.Concat("PlayCycleKey: ", this.PlayCycleKey));
-            sb.AppendLine(String.Concat("IsBookmarkEventDispatched: ", this.IsBookmarkEventDispatched));
-            sb.AppendLine(String.Concat("TransactionType: ", this.TransactionType));
+            sb.AppendLine(String.Concat("bookmarkEventThreshold: ", this.BookmarkEventThreshold));
 
             return sb.ToString();
         }

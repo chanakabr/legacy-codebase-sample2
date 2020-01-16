@@ -936,6 +936,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBookmarkEventThreshold":
+                    switch(property.Name)
+                    {
+                        case "Threshold":
+                            return "threshold";
+                        case "TransactionType":
+                            return "transactionType";
+                    }
+                    break;
+                    
                 case "KalturaBookmarkFilter":
                     switch(property.Name)
                     {
@@ -1433,6 +1443,14 @@ namespace WebAPI.Reflection
                     {
                         case "Collections":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaCommercePartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "BookmarkEventThresholds":
+                            return "bookmarkEventThresholds";
                     }
                     break;
                     

@@ -744,51 +744,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleType));
 
-            cfg.CreateMap<KalturaTransactionType?, eTransactionType>()
-                .ConvertUsing(kalturaTransactionType =>
-                {
-                    if (kalturaTransactionType.HasValue)
-                    {
-                        switch (kalturaTransactionType.Value)
-                        {
-                            case KalturaTransactionType.ppv:
-                                return eTransactionType.PPV;
-                                break;
-                            case KalturaTransactionType.subscription:
-                                return eTransactionType.Subscription;
-                                break;
-                            case KalturaTransactionType.collection:
-                                return eTransactionType.Collection;
-                                break;
-                            default:
-                                throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown kalturaTransactionType value : {0}", kalturaTransactionType.ToString()));
-                                break;
-                        }
-                    }
-
-                    throw new ClientException((int)StatusCode.ArgumentCannotBeEmpty, string.Format("Argument {0} cannot be empty", "KalturaTransactionType"));
-                });
-
-            cfg.CreateMap<eTransactionType, KalturaTransactionType>()
-                .ConvertUsing(transactionType =>
-                {
-                    switch (transactionType)
-                    {
-                        case eTransactionType.PPV:
-                            return KalturaTransactionType.ppv;
-                            break;
-                        case eTransactionType.Subscription:
-                            return KalturaTransactionType.subscription;
-                            break;
-                        case eTransactionType.Collection:
-                            return KalturaTransactionType.collection;
-                            break;
-                        default:
-                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown eTransactionType value : {0}", transactionType.ToString()));
-                            break;
-                    }
-                });
-
             cfg.CreateMap<KalturaSegmentsCondition, SegmentsCondition>()
                .IncludeBase<KalturaCondition, RuleBaseCondition<ISegmentsConditionScope>>()
                .ForMember(dest => dest.SegmentIds, opt => opt.MapFrom(src => src.getSegmentsIds()));
@@ -1376,7 +1331,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaBusinessModuleRuleFilter, APILogic.ConditionalAccess.ConditionScope>()
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleIdApplied.HasValue ? src.BusinessModuleIdApplied.Value : 0))
-                .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConditionalAccessMappings.ConvertTransactionType(src.BusinessModuleTypeApplied)))
+                .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleTypeApplied))
                 .ForMember(dest => dest.SegmentIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? src.GetItemsIn<List<long>, long>(src.SegmentIdsApplied, "filter.segmentIdsApplied") : null))
                 .ForMember(dest => dest.FilterBySegments, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? true : false));
 

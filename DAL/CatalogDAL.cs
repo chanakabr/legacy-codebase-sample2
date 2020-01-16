@@ -4108,8 +4108,7 @@ namespace Tvinci.Core.DAL
 
         public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
                                                               List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType,
-                                                              string npvrId, eExpirationTTL ttl, bool isBookmarkEventDispatched, eTransactionType? transactionType, 
-                                                              MediaPlayActions mediaPlayAction = MediaPlayActions.NONE)
+                                                              string npvrId, eExpirationTTL ttl, int? bookmarkEventThreshold, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE)
         {
             DevicePlayData devicePlayData = GetDevicePlayData(udid);
             if (devicePlayData != null)
@@ -4125,14 +4124,13 @@ namespace Tvinci.Core.DAL
                 devicePlayData.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
                 devicePlayData.AssetMediaConcurrencyRuleIds = assetMediaRuleIds;
                 devicePlayData.AssetEpgConcurrencyRuleIds = assetEpgRuleIds;
-                devicePlayData.IsBookmarkEventDispatched = isBookmarkEventDispatched;
-                devicePlayData.TransactionType = transactionType;
+                devicePlayData.BookmarkEventThreshold = bookmarkEventThreshold;
             }
             // save firstPlay in cache 
             else if (deviceFamilyId > 0)
             {
                 devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
-                                                    domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, isBookmarkEventDispatched, transactionType);
+                                                    domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, bookmarkEventThreshold);
             }
 
             if (devicePlayData != null)

@@ -1,4 +1,5 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
@@ -4445,6 +4446,22 @@ namespace WebAPI.Clients
         {
             Func<Status> clearCache = () => Core.Api.Module.ClearLocalServerCache(action, key);
             return ClientUtils.GetResponseStatusFromWS(clearCache);
+        }
+
+        internal KalturaPartnerConfigurationListResponse GetCommerceConfigList(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<CommercePartnerConfig>> getCommercePartnerConfigListFunc = () =>
+                PartnerConfigurationManager.GetCommercePartnerConfigList(groupId);
+
+            KalturaGenericListResponse<KalturaCommercePartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaCommercePartnerConfig, CommercePartnerConfig>(getCommercePartnerConfigListFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
         }
     }
 }

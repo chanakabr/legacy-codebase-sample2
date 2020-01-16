@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -74,6 +75,11 @@ namespace TVinciShared
         public static bool IsNullableType(this Type type)
         {
             return Nullable.GetUnderlyingType(type) != null;
+        }
+
+        public static bool IsNullOrEmpty<T>(this T value) where T : ICollection
+        {
+            return value?.Count > 0;
         }
     }
 }

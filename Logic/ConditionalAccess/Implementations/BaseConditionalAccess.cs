@@ -10986,7 +10986,7 @@ namespace Core.ConditionalAccess
                                                                              devicePlayDataToInsert.MediaConcurrencyRuleIds, devicePlayDataToInsert.AssetMediaConcurrencyRuleIds,
                                                                              devicePlayDataToInsert.AssetEpgConcurrencyRuleIds, devicePlayDataToInsert.AssetId,
                                                                              devicePlayDataToInsert.ProgramId, deviceFamilyId, devicePlayDataToInsert.GetPlayType(),
-                                                                             devicePlayDataToInsert.NpvrId, ttl, devicePlayDataToInsert.IsBookmarkEventDispatched, devicePlayDataToInsert.TransactionType);
+                                                                             devicePlayDataToInsert.NpvrId, ttl, devicePlayDataToInsert.BookmarkEventThreshold);
             }
 
             if (devicePlayDataToInsert != null && !string.IsNullOrEmpty(devicePlayDataToInsert.PlayCycleKey))
@@ -11043,21 +11043,30 @@ namespace Core.ConditionalAccess
                     if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices.Length > 0)
                     {
                         var currPrice = prices[0].m_oItemPrices[0];
-                        
+                        eTransactionType? transactionType = null;
                         if (currPrice.m_PriceReason == PriceReason.PPVPurchased)
                         {
                             success = int.TryParse(currPrice.m_sPPVModuleCode, out bmID);
-                            response.Data.TransactionType = eTransactionType.PPV;
+                            transactionType = eTransactionType.PPV;
                         }
                         else if (currPrice.m_PriceReason == PriceReason.SubscriptionPurchased)
                         {
                             success = int.TryParse(currPrice.m_relevantSub.m_SubscriptionCode, out bmID);
                             eBM = eBusinessModule.Subscription;
-                            response.Data.TransactionType = eTransactionType.Subscription;
+                            transactionType = eTransactionType.Subscription;
                         }
                         else if (currPrice.m_PriceReason == PriceReason.CollectionPurchased)
                         {
-                            response.Data.TransactionType = eTransactionType.Collection;
+                            transactionType = eTransactionType.Collection;
+                        }
+
+                        if (transactionType.HasValue)
+                        {
+                            var commerceConfig = PartnerConfigurationManager.GetCommercePartnerConfig(this.m_nGroupID);
+                            if (commerceConfig.HasObject() && !commerceConfig.Object.BookmarkEventThresholds.IsNullOrEmpty() && commerceConfig.Object.BookmarkEventThresholds.ContainsKey(transactionType.Value))
+                            {
+                                response.Data.BookmarkEventThreshold = commerceConfig.Object.BookmarkEventThresholds[transactionType.Value];
+                            }
                         }
                     }
                     
