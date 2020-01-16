@@ -14,8 +14,5 @@ namespace ConfigurationManager
         public BaseValue<string> ExchangeType = new BaseValue<string>("exchangeType", "topic");
         public BaseValue<int> Port = new BaseValue<int>("port", 5672, false, "RabbitMQ access port.");
         public BaseValue<int> Heartbeat = new BaseValue<int>("heartbeat", 20, false, "Heartbeat timeout in seconds. see: https://www.rabbitmq.com/heartbeats.html");
-
-
-
     }
 }

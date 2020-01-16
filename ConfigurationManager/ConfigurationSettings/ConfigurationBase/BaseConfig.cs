@@ -13,11 +13,12 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
     {
         protected static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public abstract string TcmKey { get;  }
+        public abstract string TcmKey { get; }
 
-        public abstract string [] TcmPath { get; }
+        public abstract string[] TcmPath { get; }
 
         protected const string BaseClassName = "BaseConfig";
+
         public JToken GetTcmToken()
         {
             JToken token;
@@ -30,24 +31,33 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
             baseValue.ActualValue = actualvalue;
         }
 
-
-        public virtual void SetActualValue<TV>(JToken token, BaseValue<TV> defaultData) 
+        public virtual void SetActualValue<TV>(JToken token, BaseValue<TV> defaultData)
         {
-            var path = TcmPath == null ? defaultData.Key : string.Join(":", TcmPath) + $":{defaultData.Key}";
+            string loweredKey = defaultData.Key.ToLower();
+            var path = (TcmPath == null ? loweredKey : string.Join(":", TcmPath) + $":{loweredKey}").ToLower();
+
             try
             {
-                if (token == null || token[defaultData.Key] == null)
+                bool emptyValue = true;
+
+                if (token != null)
+                {
+                    var tokenValue = token[loweredKey];
+                    
+                    if (tokenValue != null)
+                    {
+                        emptyValue = false;
+                        defaultData.ActualValue = token[loweredKey].ToObject<TV>();
+                    }
+                }
+
+                if (emptyValue)
                 {
                     _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{path}], setting default value as actual value");
                     defaultData.ActualValue = defaultData.DefaultValue;
                 }
-                else
-                {
-                    defaultData.ActualValue = token[defaultData.Key].ToObject<TV>();
-                }
-
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _Logger.Error($"Invalid data structure for key: {path} under object [{GetType().Name}]. Setting default value as actual value", ex);
                 defaultData.ActualValue = defaultData.DefaultValue;
@@ -63,31 +73,35 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                 JToken token = (JToken)TcmMethod.Invoke(baseConfig, null);
                 IterateOverClassFields(baseConfig, token);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _Logger.Error($"Eror in configuration reading: {ex}");
                 //todo
             }
         }
 
-        protected static void IterateOverClassFields(IBaseConfig baseConfig,  JToken token)
+        protected static void IterateOverClassFields(IBaseConfig baseConfig, JToken token)
         {
             Type type = baseConfig.GetType();
             List<FieldInfo> fields = type.GetFields().ToList();
+
             foreach (var field in fields)
             {
                 object baseValueData = field.GetValue(baseConfig);
+
                 if (baseValueData == null)
                 {
                     _Logger.Error($"Null objcet configuration under {baseConfig.GetType().Name}, please init object during compile time ");
-                    throw new Exception("In test means the filed is not initiate");
+                    throw new Exception("In test means the filed is not initiated");
                 }
+
                 if (field.FieldType.Name.StartsWith("BaseValue"))
                 {
                     if (token == null)
                     {
-                        _Logger.Info($"No data exist in TCM for {baseConfig.ToString()} configuration, will use the default configuration");
+                        _Logger.Info($"No data exists in TCM for {baseConfig.ToString()} configuration, will use the default configuration");
                     }
+
                     Type argu = field.FieldType.GetGenericArguments()[0];
                     MethodInfo methodInfo = type.GetMethod("SetActualValue");
                     var genericMethod = methodInfo.MakeGenericMethod(argu);
@@ -97,11 +111,11 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                 {
                     continue;
                 }
-                else if (IsBaseStartWithName(field.FieldType, BaseClassName) &&
-                    field.FieldType.GetInterface("IBaseConfig") != null)
+                else if (IsBaseStartWithName(field.FieldType, BaseClassName) && field.FieldType.GetInterface("IBaseConfig") != null)
                 {
                     var baseConfig2 = baseValueData as IBaseConfig;
                     Init(baseConfig2);
+
                     if (!baseConfig2.Validate())
                     {
                         _Logger.Error($"TCM Configuration Validation Error under object:  [{baseConfig2.GetType().Name}] ");
@@ -122,8 +136,10 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                 {
                     return true;
                 }
+
                 fieldType = fieldType.BaseType;
             }
+
             return false;
         }
 
@@ -131,6 +147,5 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
         {
             return true;
         }
-
     }
 }
