@@ -374,7 +374,7 @@ namespace IngestHandler
                     prog.EpgCbObjects = new List<EpgCB>();
                     if (prog.IsAutoFill)
                     {
-                        var epgItems = GetAutoFillEpgCBDocuments(_BulkUploadObject.GroupId, prog);
+                        var epgItems = GetAutoFillEpgCBDocuments(prog);
                         prog.EpgCbObjects.AddRange(epgItems.Values);
                     }
                     else
@@ -394,7 +394,7 @@ namespace IngestHandler
             var epgItem = new EpgCB();
             var parsedProg = prog.ParsedProgramObject;
 
-            epgItem.DocumentId = $"epg_{bulkUploadResultItem.BulkUploadId}_{langCode}_{prog.EpgExternalId}";
+            epgItem.DocumentId = GetEpgCBDocumentId(prog.EpgId, bulkUploadResultItem.BulkUploadId, langCode);
             epgItem.Language = langCode;
             epgItem.ChannelID = prog.ChannelId;
             epgItem.LinearMediaId = prog.LinearMediaId;
@@ -432,6 +432,11 @@ namespace IngestHandler
             PrepareEpgItemImages(parsedProg.icon, epgItem, bulkUploadResultItem);
 
             return epgItem;
+        }
+
+        private static string GetEpgCBDocumentId( ulong epgId, long bulkUploadResultItem, string langCode)
+        {
+            return $"epg_{bulkUploadResultItem}_{langCode}_{epgId}";
         }
 
         private void PrepareEpgItemImages(icon[] icons, EpgCB epgItem, BulkUploadProgramAssetResult bulkUploadResultItem)
@@ -784,9 +789,9 @@ namespace IngestHandler
             return true;
         }
 
-        private Dictionary<string, EpgCB> GetAutoFillEpgCBDocuments(int groupId, EpgProgramBulkUploadObject prog)
+        private Dictionary<string, EpgCB> GetAutoFillEpgCBDocuments(EpgProgramBulkUploadObject prog)
         {
-            var key = $"autofill_{groupId}";
+            var key = $"autofill_{_BulkUploadObject.GroupId}";
             _AutoFillEpgsCB = _AutoFillEpgsCB ?? _CouchbaseManager.Get<Dictionary<string, EpgCB>>(key, true);
             var autofillDocs = new Dictionary<string, EpgCB>();
             foreach (var doc in _AutoFillEpgsCB)
@@ -794,6 +799,7 @@ namespace IngestHandler
                 autofillDocs[doc.Key] = ObjectCopier.Clone(doc.Value);
 
                 autofillDocs[doc.Key].EpgID = prog.EpgId;
+                autofillDocs[doc.Key].DocumentId = GetEpgCBDocumentId(prog.EpgId, _BulkUploadObject.Id, doc.Key);
                 autofillDocs[doc.Key].EpgIdentifier = prog.EpgExternalId;
                 autofillDocs[doc.Key].ChannelID = prog.ChannelId;
                 autofillDocs[doc.Key].LinearMediaId = prog.LinearMediaId;
