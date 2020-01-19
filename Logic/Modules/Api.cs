@@ -2602,5 +2602,10 @@ namespace Core.Api
 
             return result;
         }
+
+        public static GenericListResponse<Region> GetDefaultRegion(int groupId)
+        {
+            return ApiLogic.Api.Managers.RegionManager.GetDefaultRegion(groupId);
+        }
     }
 }
