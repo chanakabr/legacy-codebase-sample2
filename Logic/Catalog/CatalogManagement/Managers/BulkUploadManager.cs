@@ -667,7 +667,15 @@ namespace Core.Catalog.CatalogManagement
                 if (bulkUpload.IsProcessCompleted)
                 {
                     log.Debug($"UpdateBulkUploadInSqlAndInvalidateKeys > bulk upload proccess is finnished, sending notification to consumers (ps) calculated bulkUpload.Status:[{bulkUpload.Status}]");
-                    bulkUpload.Notify(eKalturaEventTime.After, BulkUpload.NOTIFY_EVENT_NAME);
+                    var updatedBulkUploadResponse = GetBulkUpload(bulkUpload.GroupId, bulkUpload.Id);
+                    if (updatedBulkUploadResponse.IsOkStatusCode())
+                    {
+                        updatedBulkUploadResponse.Object.Notify(eKalturaEventTime.After, BulkUpload.NOTIFY_EVENT_NAME);
+                    }
+                    else
+                    {
+                        log.Error($"UpdateBulkUploadInSqlAndInvalidateKeys > Failed to send notification to consumers, failed to detch updated bulkUpload object.");
+                    }
                 }
             }
         }
