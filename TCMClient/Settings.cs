@@ -239,7 +239,7 @@ namespace TCMClient
             {
                 foreach (var key in keys)
                 {
-                    token = token.SelectToken(key);
+                    token = token.SelectToken(key.ToLower());
 
                     if (token == null)
                     {
