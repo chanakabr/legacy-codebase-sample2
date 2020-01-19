@@ -207,7 +207,8 @@ namespace IngestHandler
 
         private void UpdateBulkUploadObjectStatusAndResults()
         {
-            BulkUploadManager.UpdateBulkUploadResults(_ResultsDictionary.Values.SelectMany(r => r.Values), out var jobStatus);
+            var resultsToUpdate = _ResultsDictionary.Values.SelectMany(r => r.Values).ToList();
+            BulkUploadManager.UpdateBulkUploadResults(resultsToUpdate, out var jobStatus);
             BulkUploadManager.UpdateBulkUpload(_BulkUploadObject, jobStatus);
         }
 
