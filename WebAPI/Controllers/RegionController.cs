@@ -19,8 +19,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.RegionNotFound)]
-        static public KalturaRegionListResponse List(KalturaRegionFilter filter)
+        static public KalturaRegionListResponse List(KalturaBaseRegionFilter filter)
         {
             KalturaRegionListResponse response = null;
 
@@ -28,7 +29,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().GetRegions(groupId, filter);
+                response = filter.GetRegions(groupId);
             }
             catch (ClientException ex)
             {

@@ -3919,7 +3919,7 @@
             <param name="id">recording identifier</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.RegionController.List(WebAPI.Models.API.KalturaRegionFilter)">
+        <member name="M:WebAPI.Controllers.RegionController.List(WebAPI.Models.API.KalturaBaseRegionFilter)">
             <summary>
             Returns all regions for the partner
             </summary>

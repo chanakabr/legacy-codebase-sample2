@@ -275,6 +275,9 @@ namespace WebAPI.Reflection
                 case "KalturaBaseOTTUser":
                     return new KalturaBaseOTTUser(parameters);
                     
+                case "KalturaBaseRegionFilter":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaBaseResponseProfile":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -568,6 +571,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaDateTrigger":
                     return new KalturaDateTrigger(parameters);
+                    
+                case "KalturaDefaultRegionFilter":
+                    return new KalturaDefaultRegionFilter(parameters);
                     
                 case "KalturaDetachedResponseProfile":
                     return new KalturaDetachedResponseProfile(parameters);
@@ -14757,6 +14763,12 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaBaseRegionFilter
+    {
+        public KalturaBaseRegionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaBusinessModuleCondition
     {
         public KalturaBusinessModuleCondition(Dictionary<string, object> parameters = null) : base(parameters)
@@ -15346,6 +15358,12 @@ namespace WebAPI.Models.API
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
             }
+        }
+    }
+    public partial class KalturaDefaultRegionFilter
+    {
+        public KalturaDefaultRegionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaDeviceBrandListResponse
