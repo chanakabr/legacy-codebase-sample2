@@ -2444,5 +2444,10 @@ namespace Core.Api
         {
             return PartnerConfigurationManager.GetObjectVirtualAssetPartnerConfiguration(groupId);
         }
+
+        public static GenericListResponse<Region> GetDefaultRegion(int groupId)
+        {
+            return ApiLogic.Api.Managers.RegionManager.GetDefaultRegion(groupId);
+        }
     }
 }

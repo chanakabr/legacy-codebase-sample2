@@ -387,6 +387,7 @@ namespace ApiLogic.Api.Managers
 
             return objectVirtualAssetInfo;
         }
+
         #endregion
 
         #region private methods
@@ -499,7 +500,6 @@ namespace ApiLogic.Api.Managers
 
             return new Tuple<GeneralPartnerConfig, bool>(generalPartnerConfig, generalPartnerConfig != null);
         }
-
 
         private static ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfig(int groupId, out eResultStatus resultStatus)
         {
@@ -650,9 +650,6 @@ namespace ApiLogic.Api.Managers
 
             return new Tuple<int, bool>(groupDefaultCurrencyId, res);
         }
-
-
-
         #endregion
     }
 }

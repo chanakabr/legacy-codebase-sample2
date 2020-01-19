@@ -4419,6 +4419,7 @@ namespace WebAPI.Clients
 
             return result;
         }
+
         internal  bool IncrementLayeredCacheGroupConfigVersion(int groupId)
         {
             Func<bool> incrementLayeredCacheGroupConfigVersion = () => Core.Api.Module.IncrementLayeredCacheGroupConfigVersion(groupId);            
@@ -4429,6 +4430,21 @@ namespace WebAPI.Clients
         {
             Func<Status> clearCache = () => Core.Api.Module.ClearLocalServerCache(action, key);
             return ClientUtils.GetResponseStatusFromWS(clearCache);
+        }
+
+        internal KalturaRegionListResponse GetDefaultRegion(int groupId)
+        {
+            KalturaRegionListResponse result = new KalturaRegionListResponse();
+
+            Func<GenericListResponse<Region>> getDefaultRegionFunc = () => Core.Api.Module.GetDefaultRegion(groupId);
+
+            KalturaGenericListResponse<KalturaRegion> response =
+                ClientUtils.GetResponseListFromWS<KalturaRegion, Region>(getDefaultRegionFunc);
+
+            result.Regions = new List<KalturaRegion>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
         }
     }
 }
