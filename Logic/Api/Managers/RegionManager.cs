@@ -665,5 +665,34 @@ namespace ApiLogic.Api.Managers
 
             return result;
         }
+
+        internal static GenericListResponse<Region> GetDefaultRegion(int groupId)
+        {
+            GenericListResponse<Region> result = new GenericListResponse<Region>();
+
+            try
+            {
+                var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId);
+                if (generalPartnerConfig.IsOkStatusCode() && generalPartnerConfig?.Objects?.Count > 0 && generalPartnerConfig.Objects[0].DefaultRegion.HasValue)
+                {
+                    var defaultRegionId = generalPartnerConfig.Objects[0].DefaultRegion.Value;
+
+                    RegionFilter filter = new RegionFilter() { RegionIds = new List<int>(defaultRegionId) };
+                    return GetRegions(groupId, filter);
+                }
+                else
+                {
+                    result.Objects = null;
+                    result.TotalItems = 0;
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetDefaultRegion for groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
     }
 }
