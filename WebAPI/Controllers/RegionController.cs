@@ -19,6 +19,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.RegionNotFound)]
         static public KalturaRegionListResponse List(KalturaBaseRegionFilter filter)
         {
