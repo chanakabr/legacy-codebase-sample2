@@ -75,7 +75,7 @@ namespace Core.Catalog.Request
             if (IsReportingMode)
             {
                 currDevicePlayData = new DevicePlayData(this.m_sUDID, mediaId, userId, 0, playType, action, deviceFamilyId, DateTime.UtcNow.ToUtcUnixTimestampSeconds(), this.ProgramId,
-                                                        npvrId, domainId, null, null, null, null)
+                                                        npvrId, domainId)
                 {
                     PlayCycleKey = Guid.NewGuid().ToString()
                 };
@@ -92,7 +92,7 @@ namespace Core.Catalog.Request
                     List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
                     
                     currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds,
-                        mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, null, action);
+                        mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
                 }
 
                 // update NpvrId

@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.Models.Notification
 {
@@ -57,5 +58,21 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "action")]
         [XmlElement(ElementName = "action")]
         public KalturaBookmarkActionType Action { get; set; }
+
+        /// <summary>
+        /// Product Type
+        /// </summary>
+        [DataMember(Name = "productType")]
+        [JsonProperty(PropertyName = "productType")]
+        [XmlElement(ElementName = "productType")]
+        public KalturaTransactionType ProductType { get; set; }
+
+        /// <summary>
+        /// Product Id
+        /// </summary>
+        [DataMember(Name = "productId")]
+        [JsonProperty(PropertyName = "productId")]
+        [XmlElement(ElementName = "productId")]
+        public int ProductId { get; set; }
     }
 }

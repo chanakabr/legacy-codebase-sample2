@@ -60,6 +60,12 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("bookmarkEventThreshold")]
         public int? BookmarkEventThreshold { get; set; }
 
+        [JsonProperty("ProductType")]
+        public eTransactionType? ProductType { get; set; }
+
+        [JsonProperty("ProductId")]
+        public int? ProductId { get; set; }
+
         public DevicePlayData()
         {
             // default values to members from joker version
@@ -68,8 +74,9 @@ namespace ApiObjects.MediaMarks
         }
         
         public DevicePlayData(string udid, int assetID, int userId, long timeStamp, ePlayType playType, MediaPlayActions action, 
-                              int deviceFamilyId, long createdAt, long programId, string npvrId, int domainId, List<int> mediaConcurrencyRuleIds,
-                              List<long> assetMediaConcurrencyRuleIds, List<long> assetEpgConcurrencyRuleIds, int? bookmarkEventThreshold)
+                              int deviceFamilyId, long createdAt, long programId, string npvrId, int domainId, List<int> mediaConcurrencyRuleIds = null,
+                              List<long> assetMediaConcurrencyRuleIds = null, List<long> assetEpgConcurrencyRuleIds = null, int? bookmarkEventThreshold = null, 
+                              eTransactionType? productType = null, int? productId = null)
         {
             this.UDID = udid;
             this.AssetId = assetID;
@@ -87,6 +94,8 @@ namespace ApiObjects.MediaMarks
             this.AssetEpgConcurrencyRuleIds = assetEpgConcurrencyRuleIds;
             this.PlayCycleKey = Guid.NewGuid().ToString();
             this.BookmarkEventThreshold = bookmarkEventThreshold;
+            this.ProductType = productType;
+            this.ProductId = productId;
         }
 
         public DevicePlayData(DevicePlayData other)
@@ -107,6 +116,8 @@ namespace ApiObjects.MediaMarks
             this.AssetEpgConcurrencyRuleIds = other.AssetEpgConcurrencyRuleIds;
             this.PlayCycleKey = other.PlayCycleKey;
             this.BookmarkEventThreshold = other.BookmarkEventThreshold;
+            this.ProductType = other.ProductType;
+            this.ProductId = other.ProductId;
         }
 
         public UserMediaMark ConvertToUserMediaMark(int location, int fileDuration, int assetTypeId)
@@ -154,6 +165,8 @@ namespace ApiObjects.MediaMarks
             sb.AppendLine(String.Concat("AssetEpgConcurrencyRuleIds: ", this.AssetEpgConcurrencyRuleIds == null ? "null" : string.Join(", ", this.AssetEpgConcurrencyRuleIds)));
             sb.AppendLine(String.Concat("PlayCycleKey: ", this.PlayCycleKey));
             sb.AppendLine(String.Concat("bookmarkEventThreshold: ", this.BookmarkEventThreshold));
+            sb.AppendLine(String.Concat("ProductType: ", this.ProductType));
+            sb.AppendLine(String.Concat("ProductId: ", this.ProductId));
 
             return sb.ToString();
         }

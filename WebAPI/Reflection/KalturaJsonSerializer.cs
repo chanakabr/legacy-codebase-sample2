@@ -6892,6 +6892,8 @@ namespace WebAPI.Models.Notification
             ret.Add("fileId", "\"fileId\": " + FileId);
             ret.Add("householdId", "\"householdId\": " + HouseholdId);
             ret.Add("position", "\"position\": " + Position);
+            ret.Add("productId", "\"productId\": " + ProductId);
+            ret.Add("productType", "\"productType\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), ProductType) + "\"");
             ret.Add("userId", "\"userId\": " + UserId);
             return ret;
         }
@@ -6907,6 +6909,8 @@ namespace WebAPI.Models.Notification
             ret.Add("fileId", "<fileId>" + FileId + "</fileId>");
             ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
             ret.Add("position", "<position>" + Position + "</position>");
+            ret.Add("productId", "<productId>" + ProductId + "</productId>");
+            ret.Add("productType", "<productType>" + "" + Enum.GetName(typeof(KalturaTransactionType), ProductType) + "" + "</productType>");
             ret.Add("userId", "<userId>" + UserId + "</userId>");
             return ret;
         }

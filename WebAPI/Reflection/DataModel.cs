@@ -931,6 +931,10 @@ namespace WebAPI.Reflection
                             return "householdId";
                         case "Position":
                             return "position";
+                        case "ProductId":
+                            return "productId";
+                        case "ProductType":
+                            return "productType";
                         case "UserId":
                             return "userId";
                     }
