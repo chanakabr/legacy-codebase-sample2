@@ -9432,7 +9432,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("region", "list", false);
-                            return RegionController.List((KalturaRegionFilter) methodParams[0]);
+                            return RegionController.List((KalturaBaseRegionFilter) methodParams[0]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("region", "update", false);
@@ -16705,7 +16705,7 @@ namespace WebAPI.Reflection
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaRegionFilter),
+                                Type = typeof(KalturaBaseRegionFilter),
                             });
                             return ret;
                             

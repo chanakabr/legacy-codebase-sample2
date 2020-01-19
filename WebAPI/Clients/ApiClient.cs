@@ -4394,5 +4394,20 @@ namespace WebAPI.Clients
             Func<Status> deleteRegionFunc = () => Core.Api.Module.DeleteRegion(groupId, id, userId);
             ClientUtils.GetResponseStatusFromWS(deleteRegionFunc);
         }
+
+        internal KalturaRegionListResponse GetDefaultRegion(int groupId)
+        {
+            KalturaRegionListResponse result = new KalturaRegionListResponse();
+
+            Func<GenericListResponse<Region>> getDefaultRegionFunc = () => Core.Api.Module.GetDefaultRegion(groupId);
+
+            KalturaGenericListResponse<KalturaRegion> response =
+                ClientUtils.GetResponseListFromWS<KalturaRegion, Region>(getDefaultRegionFunc);
+
+            result.Regions = new List<KalturaRegion>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
     }
 }
