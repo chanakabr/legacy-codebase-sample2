@@ -146,7 +146,7 @@ namespace IngestHandler
             {
                 var pic = picResult.Object;
                 int nPicID = ImporterImpl.DownloadEPGPic(pic.Url, pic.PicName, groupID, 0, pic.ChannelId, pic.RatioId, pic.ImageTypeId);
-                pic.Id = nPicID.ToString();
+                pic.PicID = nPicID;
 
                 // TODO: arhtur: this is crappy implementation of getting the just generated \ inserted image url back from the table....
                 // need to avoid doing another sql query for every image for every program for every translation OMG...

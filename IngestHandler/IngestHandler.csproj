@@ -56,6 +56,7 @@
     <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\..\Core\QueueWrapper\QueueWrapper.csproj" />
     <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
+    <ProjectReference Include="..\..\tvpapi_rest\WebAPI\WebAPI.csproj" />
     <ProjectReference Include="..\IngestHandler.Common\IngestHandler.Common.csproj" />
   </ItemGroup>
 

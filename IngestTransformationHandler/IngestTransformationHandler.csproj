@@ -30,6 +30,7 @@
     <ProjectReference Include="..\..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
+    <ProjectReference Include="..\..\tvpapi_rest\WebAPI\WebAPI.csproj" />
   </ItemGroup>
 
 </Project>
