@@ -1,4 +1,5 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
@@ -2279,7 +2280,7 @@ namespace Core.Api
 
         public static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
         {
-            return api.GetGeneralPartnerConfiguration(groupId);
+            return PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId);
         }
 
         public static LanguageResponse GetAllLanguageList(int groupId)
@@ -2378,6 +2379,11 @@ namespace Core.Api
         public static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter)
         {
             return ApiLogic.Api.Managers.RegionManager.GetRegions(groupId, filter);
+        }
+
+        public static GenericListResponse<Region> GetDefaultRegion(int groupId)
+        {
+            return ApiLogic.Api.Managers.RegionManager.GetDefaultRegion(groupId);
         }
     }
 }
