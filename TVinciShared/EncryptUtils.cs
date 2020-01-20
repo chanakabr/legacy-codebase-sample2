@@ -51,23 +51,40 @@ namespace TVinciShared
             }
         }
 
-        public static byte[] HashSHA1(string payload)
+        public static byte[] AesEncrypt(string secretForSigning, byte[] text, int blockSize)
         {
-            return HashSHA1(Encoding.UTF8.GetBytes(payload));
-        }
+            // Key
+            byte[] hashedKey = HashSHA1(secretForSigning);
+            byte[] keyBytes = new byte[blockSize];
+            Array.Copy(hashedKey, 0, keyBytes, 0, blockSize);
 
-        public static byte[] HashSHA1(byte[] payload)
-        {
-            var sha1 = SHA1Managed.Create();
-            return sha1.ComputeHash(payload);
-        }
+            //IV
+            byte[] ivBytes = new byte[blockSize];
 
-        public static bool IsSignatureValid(string paramsString, string signature, string secret)
-        {
-            byte[] decryptedSignature = AesDecrypt(System.Convert.FromBase64String(signature), secret);
-            byte[] sha1Params = HashSHA1(paramsString);
+            // Text
+            int textSize = ((text.Length + blockSize - 1) / blockSize) * blockSize;
+            byte[] textAsBytes = new byte[textSize];
+            Array.Copy(text, 0, textAsBytes, 0, text.Length);
 
-            return (decryptedSignature.SequenceEqual(sha1Params));
+            // Encrypt
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = keyBytes;
+                aesAlg.IV = ivBytes;
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.None;
+
+                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cst = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                    {
+                        cst.Write(textAsBytes, 0, textSize);
+                        return ms.ToArray();
+                    }
+                }
+            }
         }
 
         private static byte[] AesDecrypt(byte[] encryptedText, string secret)
@@ -99,6 +116,50 @@ namespace TVinciShared
                     }
                 }
             }
+        }
+
+        public static byte[] AesDecrypt(string secretForSigning, byte[] text, int blockSize)
+        {
+            // Key
+            byte[] hashedKey = HashSHA1(secretForSigning);
+            byte[] keyBytes = new byte[blockSize];
+            Array.Copy(hashedKey, 0, keyBytes, 0, blockSize);
+
+            //IV
+            byte[] ivBytes = new byte[blockSize];
+
+            // Text
+            int textSize = ((text.Length + blockSize - 1) / blockSize) * blockSize;
+            byte[] textAsBytes = new byte[textSize];
+            Array.Copy(text, 0, textAsBytes, 0, text.Length);
+
+            // Decrypt
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = keyBytes;
+                aesAlg.IV = ivBytes;
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.None;
+
+                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cst = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
+                    {
+                        cst.Write(text, 0, text.Length);
+                        return ms.ToArray();
+                    }
+                }
+            }
+        }
+
+        public static bool IsSignatureValid(string paramsString, string signature, string secret)
+        {
+            byte[] decryptedSignature = AesDecrypt(System.Convert.FromBase64String(signature), secret);
+            byte[] sha1Params = HashSHA1(paramsString);
+
+            return (decryptedSignature.SequenceEqual(sha1Params));
         }
 
         public static byte[] TrimRight(byte[] arr)
@@ -157,78 +218,25 @@ namespace TVinciShared
 
             return BitConverter.ToString(encrypted).Replace("-", "").ToLower();
         }
-
-        public static byte[] AesDecrypt(string secretForSigning, byte[] text, int blockSize)
+        
+        public static byte[] HashSHA1(string payload)
         {
-            // Key
-            byte[] hashedKey = HashSHA1(secretForSigning);
-            byte[] keyBytes = new byte[blockSize];
-            Array.Copy(hashedKey, 0, keyBytes, 0, blockSize);
-
-            //IV
-            byte[] ivBytes = new byte[blockSize];
-
-            // Text
-            int textSize = ((text.Length + blockSize - 1) / blockSize) * blockSize;
-            byte[] textAsBytes = new byte[textSize];
-            Array.Copy(text, 0, textAsBytes, 0, text.Length);
-
-            // Decrypt
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = keyBytes;
-                aesAlg.IV = ivBytes;
-                aesAlg.Mode = CipherMode.CBC;
-                aesAlg.Padding = PaddingMode.None;
-
-                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    using (CryptoStream cst = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
-                    {
-                        cst.Write(text, 0, text.Length);
-                        return ms.ToArray();
-                    }
-                }
-            }
+            return HashSHA1(Encoding.UTF8.GetBytes(payload));
         }
 
-        public static byte[] AesEncrypt(string secretForSigning, byte[] text, int blockSize)
+        public static byte[] HashSHA1(byte[] payload)
         {
-            // Key
-            byte[] hashedKey = HashSHA1(secretForSigning);
-            byte[] keyBytes = new byte[blockSize];
-            Array.Copy(hashedKey, 0, keyBytes, 0, blockSize);
-
-            //IV
-            byte[] ivBytes = new byte[blockSize];
-
-            // Text
-            int textSize = ((text.Length + blockSize - 1) / blockSize) * blockSize;
-            byte[] textAsBytes = new byte[textSize];
-            Array.Copy(text, 0, textAsBytes, 0, text.Length);
-
-            // Encrypt
-            using (Aes aesAlg = Aes.Create())
+            byte[] response = null;
+            if (payload != null)
             {
-                aesAlg.Key = keyBytes;
-                aesAlg.IV = ivBytes;
-                aesAlg.Mode = CipherMode.CBC;
-                aesAlg.Padding = PaddingMode.None;
-
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-                using (MemoryStream ms = new MemoryStream())
+                using (var sha1 = SHA1Managed.Create())
                 {
-                    using (CryptoStream cst = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
-                    {
-                        cst.Write(textAsBytes, 0, textSize);
-                        return ms.ToArray();
-                    }
+                    response = sha1.ComputeHash(payload);
                 }
             }
+            return response;
         }
+
         public static string HashMD5(string payload)
         {
             string response = null;

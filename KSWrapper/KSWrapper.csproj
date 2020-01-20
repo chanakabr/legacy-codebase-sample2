@@ -11,7 +11,11 @@
 
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
-  </PropertyGroup>  
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
+  </ItemGroup>  
 
 </Project>
 

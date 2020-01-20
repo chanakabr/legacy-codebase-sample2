@@ -138,7 +138,7 @@ namespace WebAPI.Managers.Models
             var secret = secrets.FirstOrDefault();
             var random = Encoding.Default.GetString(randomBytes);
             var concat = string.Format(EncryptionUtils.SignatureFormat, random, secret);
-            return Encoding.Default.GetString(EncryptionUtils.HashSHA1(concat));
+            return Encoding.Default.GetString(EncryptUtils.HashSHA1(concat));
         }
 
         public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, KSData data, Dictionary<string, string> privilegesList, KSVersion ksType)
@@ -163,12 +163,12 @@ namespace WebAPI.Managers.Models
             Array.Copy(randomBytes, 0, randWithFields, 0, randomBytes.Length);
             Array.Copy(ksBytes, 0, randWithFields, randomBytes.Length, ksBytes.Length);
 
-            byte[] signature = Utils.EncryptionUtils.HashSHA1(randWithFields);
+            byte[] signature = EncryptUtils.HashSHA1(randWithFields);
             byte[] input = new byte[signature.Length + randWithFields.Length];
             Array.Copy(signature, 0, input, 0, signature.Length);
             Array.Copy(randWithFields, 0, input, signature.Length, randWithFields.Length);
 
-            byte[] encryptedFields = Utils.EncryptionUtils.AesEncrypt(secret, input, BLOCK_SIZE);
+            byte[] encryptedFields = EncryptUtils.AesEncrypt(secret, input, BLOCK_SIZE);
             string prefix = string.Format("v2|{0}|", groupID);
 
             byte[] output = new byte[encryptedFields.Length + prefix.Length];
@@ -210,7 +210,7 @@ namespace WebAPI.Managers.Models
 
             // decrypt fields
             int fieldsWithRandomIndex = string.Format("v2|{0}|", groupId).Count();
-            byte[] fieldsWithHashBytes = Utils.EncryptionUtils.AesDecrypt(secret, encryptedData.Skip(fieldsWithRandomIndex).ToArray(), BLOCK_SIZE);
+            byte[] fieldsWithHashBytes = EncryptUtils.AesDecrypt(secret, encryptedData.Skip(fieldsWithRandomIndex).ToArray(), BLOCK_SIZE);
 
             // trim Right 0
             fieldsWithHashBytes = TrimRight(fieldsWithHashBytes);
@@ -219,11 +219,11 @@ namespace WebAPI.Managers.Models
             byte[] hash = fieldsWithHashBytes.Take(SHA1_SIZE).ToArray();
             byte[] fieldsWithRandom = fieldsWithHashBytes.Skip(SHA1_SIZE).ToArray();
 
-            if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(Utils.EncryptionUtils.HashSHA1(fieldsWithRandom)))
+            if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(EncryptUtils.HashSHA1(fieldsWithRandom)))
             {
                 if (!string.IsNullOrEmpty(secretFallback))
                 {
-                    fieldsWithHashBytes = Utils.EncryptionUtils.AesDecrypt(secretFallback, encryptedData.Skip(fieldsWithRandomIndex).ToArray(), BLOCK_SIZE);
+                    fieldsWithHashBytes = EncryptUtils.AesDecrypt(secretFallback, encryptedData.Skip(fieldsWithRandomIndex).ToArray(), BLOCK_SIZE);
 
                     // trim Right 0
                     fieldsWithHashBytes = TrimRight(fieldsWithHashBytes);
@@ -231,7 +231,7 @@ namespace WebAPI.Managers.Models
                     // check hash
                     hash = fieldsWithHashBytes.Take(SHA1_SIZE).ToArray();
                     fieldsWithRandom = fieldsWithHashBytes.Skip(SHA1_SIZE).ToArray();
-                    if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(Utils.EncryptionUtils.HashSHA1(fieldsWithRandom)))
+                    if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(EncryptUtils.HashSHA1(fieldsWithRandom)))
                     {
                         throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
                     }

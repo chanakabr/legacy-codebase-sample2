@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
 using WebAPI.Models.General;
 
 namespace WebAPI.Managers.Models
@@ -141,7 +142,7 @@ namespace WebAPI.Managers.Models
             {
                 case KalturaAppTokenHashType.SHA1:
                     {
-                        byte[] hashed = Utils.EncryptionUtils.HashSHA1(stringToHash);
+                        byte[] hashed = EncryptUtils.HashSHA1(stringToHash);
                         if (hashed != null && hashed.Length > 0)
                         {
                             response = hashed.Aggregate(string.Empty, (x, y) => x + y.ToString("X2").ToLower());

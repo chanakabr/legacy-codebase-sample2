@@ -679,7 +679,7 @@ namespace WebAPI.Managers
                 for (int i = groupSecrets.Count - 1; i >= 0; i--) //LIFO
                 {
                     var concat = string.Format(EncryptionUtils.SignatureFormat, ks.Random, groupSecrets[i]);
-                    var encryptedValue = Encoding.Default.GetString(EncryptionUtils.HashSHA1(concat));
+                    var encryptedValue = Encoding.Default.GetString(EncryptUtils.HashSHA1(concat));
                     if (encryptedValue == signature)
                     {
                         log.Debug($"Matching signature was received by {ks.UserId}, index: {i}");

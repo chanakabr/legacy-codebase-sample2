@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
+using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Models;
@@ -54,7 +55,7 @@ namespace WebAPI.Utils
 
             response = string.Concat(group.AccountPrivateKey, customDataString);
 
-            return Convert.ToBase64String(EncryptionUtils.HashSHA1(Encoding.ASCII.GetBytes(response)));
+            return Convert.ToBase64String(EncryptUtils.HashSHA1(Encoding.ASCII.GetBytes(response)));
         }
 
         internal static string BuildUDrmUrl(Group group, KalturaDrmSchemeName schemeName, string customDataString, string signature)
