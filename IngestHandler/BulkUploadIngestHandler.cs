@@ -134,7 +134,7 @@ namespace IngestHandler
 
                 await BulkUploadMethods.UpdateCouchbase(finalEpgSchedule, serviceEvent.GroupId);
 
-                var updater = new UpdateClonedIndex(serviceEvent.GroupId, serviceEvent.BulkUploadId, serviceEvent.DateOfProgramsToIngest, _Languages);
+                var updater = new EpgElasticUpdater(serviceEvent.GroupId, serviceEvent.BulkUploadId, serviceEvent.DateOfProgramsToIngest, _Languages);
                 updater.Update(finalEpgSchedule, overallCrudOperations.ItemsToDelete);
 
                 var isErrorInEpg = _ResultsDictionary.Values.SelectMany(r => r.Values).Any(item => item.Status == BulkUploadResultStatus.Error);
@@ -435,9 +435,9 @@ namespace IngestHandler
             return epgItem;
         }
 
-        private static string GetEpgCBDocumentId( ulong epgId, long bulkUploadResultItem, string langCode)
+        private static string GetEpgCBDocumentId( ulong epgId, long bulkUploadId, string langCode)
         {
-            return $"epg_{bulkUploadResultItem}_{langCode}_{epgId}";
+            return $"epg_{bulkUploadId}_{langCode}_{epgId}";
         }
 
         private void PrepareEpgItemImages(icon[] icons, EpgCB epgItem, BulkUploadProgramAssetResult bulkUploadResultItem)
@@ -595,7 +595,7 @@ namespace IngestHandler
 
             // get the epg document ids from elasticsearch
             var searchQuery = query.ToString();
-            var searchResult = _ElasticSearchClient.Search(index, UpdateClonedIndex.DEFAULT_INDEX_MAPPING_TYPE, ref searchQuery);
+            var searchResult = _ElasticSearchClient.Search(index, EpgElasticUpdater.DEFAULT_INDEX_MAPPING_TYPE, ref searchQuery);
 
 
             List<string> documentIds = new List<string>();

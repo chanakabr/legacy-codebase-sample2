@@ -8,6 +8,8 @@ using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using GroupsCacheManager;
 using KLogMonitor;
+using Polly;
+using Polly.Retry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +17,7 @@ using System.Reflection;
 
 namespace IngestHandler.Common
 {
-    public class UpdateClonedIndex
+    public class EpgElasticUpdater
     {
         public static readonly string DEFAULT_INDEX_MAPPING_TYPE = "epg";
 
@@ -29,7 +31,7 @@ namespace IngestHandler.Common
         private readonly ESSerializerV2 _Serializer;
         private readonly LanguageObj _DefaultLanguage;
 
-        public UpdateClonedIndex(int groupId, long bulkUploadId, DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages)
+        public EpgElasticUpdater(int groupId, long bulkUploadId, DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages)
         {
             _ElasticSearchClient = new ElasticSearchApi();
             _GroupId = groupId;
@@ -103,8 +105,25 @@ namespace IngestHandler.Common
             _Logger.Debug($"Update elasticsearch index completed, delteting required docuements. documents.leng:[{programsToDelete.Count}]");
             if (programIds.Any())
             {
+                var retryCount = 5;
+                var policy = RetryPolicy.Handle<Exception>()
+                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
+                {
+                    // TODO: improve logging
+                    _Logger.Warn($"delete attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
+                });
+
                 var deleteQuery = GetElasticsearchQueryForEpgIDs(programIds);
-                _ElasticSearchClient.DeleteDocsByQuery(index, "", ref deleteQuery);
+                policy.Execute(() =>
+                {
+                    _ElasticSearchClient.DeleteDocsByQuery(index, "", ref deleteQuery, out var deletedDocsCount);
+                    if (deletedDocsCount < programIds.Count())
+                    {
+                        throw new Exception($"requested to delete {programIds.Count()} programs but actually deleted {deletedDocsCount}");
+                    }
+
+                });
+
             }
 
             // If we have anything left that is less than the size of the bulk
