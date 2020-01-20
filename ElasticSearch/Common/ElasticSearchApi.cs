@@ -66,11 +66,11 @@ namespace ElasticSearch.Common
                 var mappingResponse = SendGetHttpReq(urlGetMappings, ref nStatus, string.Empty, string.Empty, true);
                 var mappingsJobject = JObject.Parse(mappingResponse).First.First["mappings"];
 
-                
+
                 var clonedIndexMappings = new JObject();
                 clonedIndexMappings["settings"] = settingsJobject;
                 clonedIndexMappings["mappings"] = mappingsJobject;
-                
+
                 // Create Dest index with source settings
                 var urlSetSettings = string.Format("{0}/{1}", baseUrl, dest);
                 var createIndexResponse = SendPutHttpRequest(urlSetSettings, clonedIndexMappings.ToString());
@@ -230,7 +230,7 @@ namespace ElasticSearch.Common
 
                 jsonBody["source"] = new JObject();
                 jsonBody["source"]["index"] = source;
-                
+
                 if (!string.IsNullOrEmpty(filterQuery))
                 {
                     var filterQueryObject = JObject.Parse(filterQuery);
@@ -240,9 +240,9 @@ namespace ElasticSearch.Common
 
                 jsonBody["dest"] = new JObject();
                 jsonBody["dest"]["index"] = destination;
-                
 
-               
+
+
 
                 string body = jsonBody.ToString();
                 int status = 0;
@@ -702,6 +702,40 @@ namespace ElasticSearch.Common
                 string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
                 log.DebugFormat("Status - DeleteDocsByQuery. Returned JSON from ES: {0}, Query: {1}", sResult, sQuery);
                 bResult = nStatus == 200;
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at DeleteDocsByQuery.");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Index: ", sIndex));
+                sb.Append(String.Concat(" Type: ", sType));
+                sb.Append(String.Concat(" Query: ", sQuery));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                log.Error("Exception - " + sb.ToString(), ex);
+                bResult = false;
+            }
+
+            return bResult;
+        }
+
+        public bool DeleteDocsByQuery(string sIndex, string sType, ref string sQuery, out int countDeleted)
+        {
+            countDeleted = 0;
+            bool bResult = true;
+            try
+            {
+                string sUrl = string.Format("{0}/{1}/{2}/_query", baseUrl, sIndex, sType);
+                int nStatus = 0;
+
+                string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
+                log.DebugFormat("Status - DeleteDocsByQuery. Returned JSON from ES: {0}, Query: {1}", sResult, sQuery);
+                bResult = nStatus == 200;
+                var jsonResult = JObject.Parse(sResult);
+                if (jsonResult != null)
+                {
+                    countDeleted = jsonResult["_indices"]["_all"]["deleted"].Value<int>();
+                }
             }
             catch (Exception ex)
             {
