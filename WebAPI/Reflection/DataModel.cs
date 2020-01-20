@@ -5532,6 +5532,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSegmentValueFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaSegmentValues":
                     switch(property.Name)
                     {
@@ -9592,7 +9600,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("segmentationType", "list", false);
-                            return SegmentationTypeController.List((KalturaSegmentationTypeFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            return SegmentationTypeController.List((KalturaBaseSegmentationTypeFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("segmentationType", "update", false);
@@ -17008,7 +17016,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaSegmentationTypeFilter),
+                                Type = typeof(KalturaBaseSegmentationTypeFilter),
                             });
                             ret.Add("pager", new MethodParam(){
                                 NewName = newParamName,

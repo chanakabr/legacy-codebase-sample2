@@ -2607,5 +2607,32 @@ namespace Core.Api
         {
             return ApiLogic.Api.Managers.RegionManager.GetDefaultRegion(groupId);
         }
+
+        public static GenericListResponse<SegmentationType> GetSegmentationTypesBySegmentIds(int groupId, List<long> ids, int pageIndex, int pageSize,
+            AssetSearchDefinition assetSearchDefinition)
+        {
+            GenericListResponse<SegmentationType> result = new GenericListResponse<SegmentationType>();
+
+            try
+            {
+                var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(ids);
+
+                if (segmentTypeIds?.Count > 0)
+                {
+                    result = ListSegmentationTypes(groupId, new HashSet<long>(segmentTypeIds.Values.ToList()), pageIndex, pageSize, assetSearchDefinition);
+                }
+                else
+                {
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetSegmentationTypesBySegmentIds of group id = {0}. ex = {1}", groupId, ex);
+                result.SetStatus(eResponseStatus.Error, "Failed getting segmentation types");
+            }
+
+            return result;
+        }
     }
 }

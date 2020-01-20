@@ -192,7 +192,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }
+        }        
 
         internal KalturaUserRole UpdateRole(int groupId, long id, KalturaUserRole role)
         {
@@ -4458,6 +4458,23 @@ namespace WebAPI.Clients
                 ClientUtils.GetResponseListFromWS<KalturaRegion, Region>(getDefaultRegionFunc);
 
             result.Regions = new List<KalturaRegion>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaSegmentationTypeListResponse GetSegmentationTypesBySegmentIds(int groupId, List<long> ids, 
+            AssetSearchDefinition assetSearchDefinition, int pageIndex, int pageSize)
+        {
+            KalturaSegmentationTypeListResponse result = new KalturaSegmentationTypeListResponse();
+
+            Func<GenericListResponse<SegmentationType>> getSegmentationTypesBySegmentIdsFunc = () =>
+               Core.Api.Module.GetSegmentationTypesBySegmentIds(groupId, ids, pageIndex, pageSize, assetSearchDefinition);
+
+            KalturaGenericListResponse<KalturaSegmentationType> response =
+                ClientUtils.GetResponseListFromWS<KalturaSegmentationType, SegmentationType>(getSegmentationTypesBySegmentIdsFunc);
+
+            result.SegmentationTypes = response.Objects;
             result.TotalCount = response.TotalCount;
 
             return result;
