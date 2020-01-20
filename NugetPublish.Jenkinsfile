@@ -41,6 +41,7 @@ pipeline {
 				bat "dotnet pack Core/QueueWrapper/QueueWrapper.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/RabbitQueueWrapper/RabbitQueueWrapper.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/LogReloader/LogReloader.csproj -o ${WORKSPACE}/nugets/"
+                echo "shir check KSWrapper"
 				bat "dotnet pack Core/KSWrapper/KSWrapper.csproj -o ${WORKSPACE}/nugets/"
             }        
         }
