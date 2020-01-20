@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -47,11 +48,11 @@ namespace WebAPI.Controllers
         static public KalturaLicensedUrl GetOldStandard(KalturaAssetType assetType, int contentId, string baseUrl, string assetId = null, long? startDate = null, KalturaStreamType? streamType = null)
         {
             KalturaLicensedUrl response = null;
-            
-            KS ks = KS.GetFromRequest();
+
+            var ks = KSManager.GetKSFromRequest();
             int groupId = ks.GroupId;
             string userId = ks.UserId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            string udid = ks.ExtractKSData().UDID;
 
             try
             {
@@ -122,10 +123,10 @@ namespace WebAPI.Controllers
         {
             KalturaLicensedUrl response = null;
 
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             int groupId = ks.GroupId;
             string userId = ks.UserId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            string udid = ks.ExtractKSData().UDID;
 
             try
             {

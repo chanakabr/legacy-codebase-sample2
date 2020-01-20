@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Notifications;
@@ -27,8 +28,8 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
 
                 if (string.IsNullOrEmpty(topicNotification.Name))
                 {
@@ -63,8 +64,8 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
 
                 if (topicNotification.Name == string.Empty)
                 {
@@ -95,8 +96,8 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
 
                 ClientsManager.NotificationClient().DeleteTopicNotification(groupId, id, userId);
             }
@@ -125,7 +126,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 response = ClientsManager.NotificationClient().GetTopicNotifications(groupId, filter.SubscribeReference);
             }
 
@@ -149,8 +150,8 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 ClientsManager.NotificationClient().SubscribeUserToTopicNotification(groupId, userId, topicNotificationId);
             }
 
@@ -171,8 +172,9 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                var ks = KSManager.GetKSFromRequest();
+                int groupId = ks.GroupId;
+                string userId = ks.UserId;
                 ClientsManager.NotificationClient().UnsubscribeUserFromTopicNotification(groupId, userId, topicNotificationId);
             }
 

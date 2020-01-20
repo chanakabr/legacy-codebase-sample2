@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Notification;
@@ -23,7 +24,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaEngagementAdapter> list = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -54,7 +55,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaEngagementAdapter Get(int id)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -86,7 +87,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
             
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -127,7 +128,7 @@ namespace WebAPI.Controllers
             if (string.IsNullOrWhiteSpace(engagementAdapter.Name))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -161,7 +162,7 @@ namespace WebAPI.Controllers
         {
             KalturaEngagementAdapter response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             engagementAdapter.Id = id;
 
             if (string.IsNullOrWhiteSpace(engagementAdapter.AdapterUrl))
@@ -204,7 +205,7 @@ namespace WebAPI.Controllers
         {
             KalturaEngagementAdapter response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {

@@ -12,6 +12,7 @@ using WebAPI.Utils;
 using KLogMonitor;
 using TVinciShared;
 using WebAPI.Models.General;
+using WebAPI.Managers;
 
 namespace WebAPI.Controllers
 {
@@ -39,7 +40,7 @@ namespace WebAPI.Controllers
         {
             KalturaCountry response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(ip))
             {
@@ -165,7 +166,7 @@ namespace WebAPI.Controllers
         {
             try
             {                
-                int groupIdToIncrement = KS.GetFromRequest().GroupId;
+                int groupIdToIncrement = KSManager.GetKSFromRequest().GroupId;
                 if (groupId > 0)
                 {
                     groupIdToIncrement = groupId;

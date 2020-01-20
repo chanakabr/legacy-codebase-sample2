@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -36,7 +37,7 @@ namespace WebAPI.Controllers
             }
 
             filter.OldValidate();
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -81,7 +82,7 @@ namespace WebAPI.Controllers
         static public KalturaMeta UpdateOldStandard(string id, KalturaMeta meta)
         {
             KalturaMeta response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -117,7 +118,7 @@ namespace WebAPI.Controllers
             }
             
             KalturaMetaListResponse response = new KalturaMetaListResponse();
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             try
             {
                 if (Utils.Utils.DoesGroupUsesTemplates(groupId))
@@ -158,7 +159,7 @@ namespace WebAPI.Controllers
         static public KalturaMeta Add(KalturaMeta meta)
         {
             KalturaMeta response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
             meta.ValidateFeatures();
             if (meta.Name == null || meta.Name.Values == null || meta.Name.Values.Count == 0)
@@ -210,7 +211,7 @@ namespace WebAPI.Controllers
         static public KalturaMeta Update(long id, KalturaMeta meta)
         {
             KalturaMeta response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
             meta.ValidateFeatures();
 
@@ -252,7 +253,8 @@ namespace WebAPI.Controllers
         static public bool Delete(long id)
         {
             bool result = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try

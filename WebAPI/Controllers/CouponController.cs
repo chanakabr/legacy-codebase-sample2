@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Pricing;
@@ -25,7 +26,7 @@ namespace WebAPI.Controllers
         {
             KalturaCoupon coupon = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             
 
             if (string.IsNullOrEmpty(code))
@@ -55,7 +56,7 @@ namespace WebAPI.Controllers
         static public KalturaCouponListResponse List(KalturaCouponFilter filter)
         {
             KalturaCouponListResponse response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             if (filter == null)
             {

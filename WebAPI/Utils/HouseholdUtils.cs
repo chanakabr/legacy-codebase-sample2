@@ -6,6 +6,7 @@ using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Domains;
 
@@ -24,7 +25,7 @@ namespace WebAPI.Utils
 
         public static long GetHouseholdIDByKS(int groupID)
         {
-            var ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
 
             if (ks == null)
                 return 0;
@@ -47,7 +48,7 @@ namespace WebAPI.Utils
 
             if (householdId == 0)
             {
-                var ks = KS.GetFromRequest();
+                var ks = KSManager.GetKSFromRequest();
                 if (ks == null)
                     return null;
 
@@ -100,7 +101,7 @@ namespace WebAPI.Utils
             }
             else
             {
-                var ks = KS.GetFromRequest();
+                var ks = KSManager.GetKSFromRequest();
 
                 if (ks == null)
                 {
@@ -135,7 +136,7 @@ namespace WebAPI.Utils
 
         public static bool IsUserMaster()
         {
-            var ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
 
             if (ks == null)
                 return false;
@@ -164,7 +165,7 @@ namespace WebAPI.Utils
 
             if (householdId == 0)
             {
-                var ks = KS.GetFromRequest();
+                var ks = KSManager.GetKSFromRequest();
                 if (ks == null)
                     return null;
 

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -27,7 +28,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaUserRole> list = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
            
 
             if (filter == null)
@@ -40,7 +41,7 @@ namespace WebAPI.Controllers
 
                 if (filter != null && filter.CurrentUserRoleIdsContains.HasValue && filter.CurrentUserRoleIdsContains.Value)
                 {                    
-                    list = ClientsManager.ApiClient().GetUserRoles(groupId, KS.GetFromRequest().UserId);
+                    list = ClientsManager.ApiClient().GetUserRoles(groupId, KSManager.GetKSFromRequest().UserId);
                 }
                 else
                 {
@@ -73,7 +74,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaUserRole> response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             if (filter == null)
                 filter = new KalturaUserRoleFilter();
@@ -107,7 +108,7 @@ namespace WebAPI.Controllers
         {
             KalturaUserRole response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -147,7 +148,7 @@ namespace WebAPI.Controllers
 
             KalturaUserRole response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -178,7 +179,7 @@ namespace WebAPI.Controllers
         static public bool Delete(long id)
         {
             bool response = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {

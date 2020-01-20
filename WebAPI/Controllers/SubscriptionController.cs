@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -49,8 +50,9 @@ namespace WebAPI.Controllers
                 isFilterValid = filter.Validate();
             }
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string udid = ks.ExtractKSData().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
             long userId = Utils.Utils.GetUserIdFromKs();
             bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
@@ -116,8 +118,9 @@ namespace WebAPI.Controllers
             List<KalturaSubscription> subscruptions = null;
             List<int> subscriptionsIds = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string udid = ks.ExtractKSData().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
 
             if (filter.Ids == null || filter.Ids.Count() == 0)
@@ -170,7 +173,7 @@ namespace WebAPI.Controllers
             //filter.Validate();
             KalturaCoupon response = new KalturaCoupon();
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TVinciShared;
 
 namespace KSWrapper
 {
@@ -21,6 +22,69 @@ namespace KSWrapper
         public List<long> UserSegments { get; private set; }
         public List<long> UserRoles { get; private set; }
         public string Signature { get; internal set; }
+
+        public KSData()
+        {
+        }
+
+        public KSData(Dictionary<string, string> pl)
+        {
+            if (pl.ContainsKey(PAYLOAD_UDID))
+            {
+                this.UDID = pl[PAYLOAD_UDID];
+            }
+
+            if (pl.ContainsKey(PAYLOAD_CREATE_DATE))
+            {
+                int createDate = 0;
+                int.TryParse(pl[PAYLOAD_CREATE_DATE], out createDate);
+                this.CreateDate = createDate;
+            }
+
+            if (pl.ContainsKey(PAYLOAD_REGION))
+            {
+                int regionId = 0;
+                int.TryParse(pl[PAYLOAD_REGION], out regionId);
+                this.RegionId = regionId;
+            }
+
+            this.UserSegments = new List<long>();
+            if (pl.ContainsKey(PAYLOAD_USER_SEGMENTS))
+            {
+                this.UserSegments.AddRange(pl[PAYLOAD_USER_SEGMENTS].GetItemsIn<List<long>, long>());
+            }
+
+            this.UserRoles = new List<long>();
+            if (pl.ContainsKey(PAYLOAD_USER_ROLES))
+            {
+                this.UserRoles.AddRange(pl[PAYLOAD_USER_ROLES].GetItemsIn<List<long>, long>());
+            }
+
+            if (pl.ContainsKey(PAYLOAD_SIGNATURE))
+            {
+                this.Signature = pl[PAYLOAD_SIGNATURE];
+            }
+        }
+
+        public KSData(KSData payload, int createDate)
+        {
+            this.CreateDate = createDate;
+            this.UDID = payload.UDID;
+            this.RegionId = payload.RegionId;
+            this.UserSegments = payload.UserSegments;
+            this.UserRoles = payload.UserRoles;
+            this.Signature = this.Signature;
+        }
+
+        public KSData(string udid, int createDate, int regionId, List<long> userSegments, List<long> userRoles, string signature = "")
+        {
+            this.UDID = udid;
+            this.CreateDate = createDate;
+            this.RegionId = regionId;
+            this.UserSegments = userSegments;
+            this.UserRoles = userRoles;
+            this.Signature = signature;
+        }
 
         public string PrepareKSPayload()
         {

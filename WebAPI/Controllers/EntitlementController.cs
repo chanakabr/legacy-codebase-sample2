@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -37,8 +38,8 @@ namespace WebAPI.Controllers
         static public bool Cancel(int assetId, KalturaTransactionType productType)
         {
             bool response = false;
-
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
             try
             {
 
@@ -52,7 +53,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, false, KSUtils.ExtractKSPayload().UDID);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, false, ks.ExtractKSData().UDID);
             }
             catch (ClientException ex)
             {
@@ -86,8 +87,8 @@ namespace WebAPI.Controllers
         static public bool ForceCancel(int assetId, KalturaTransactionType productType)
         {
             bool response = false;
-
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
             try
             {
 
@@ -101,7 +102,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, true, KSUtils.ExtractKSPayload().UDID);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, true, ks.ExtractKSData().UDID);
             }
             catch (ClientException ex)
             {
@@ -132,7 +133,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
         static public void CancelRenewal(string subscriptionId)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
 
             if (string.IsNullOrEmpty(subscriptionId))
             {
@@ -150,7 +152,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, (int)domain, subscriptionId, KS.GetFromRequest().UserId, KSUtils.ExtractKSPayload().UDID);
+                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, (int)domain, subscriptionId, KSManager.GetKSFromRequest().UserId, ks.ExtractKSData().UDID);
             }
             catch (ClientException ex)
             {
@@ -171,7 +173,7 @@ namespace WebAPI.Controllers
         {
             KalturaEntitlementListResponse response = new KalturaEntitlementListResponse();
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -180,7 +182,7 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType);
+                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KSManager.GetKSFromRequest().UserId, filter.EntitlementType);
                         }
                         break;
                     case KalturaEntityReferenceBy.household:
@@ -215,7 +217,7 @@ namespace WebAPI.Controllers
         {
             KalturaEntitlementListResponse response = new KalturaEntitlementListResponse();
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             if (pager == null)
             {
@@ -231,7 +233,7 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId,
+                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KSManager.GetKSFromRequest().UserId,
                                 filter.EntitlementTypeEqual.HasValue ? filter.EntitlementTypeEqual.Value : filter.ProductTypeEqual.Value,
                                 filter.getIsExpiredEqual(), pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
                         }
@@ -271,7 +273,7 @@ namespace WebAPI.Controllers
         {
             KalturaEntitlementListResponse response = new KalturaEntitlementListResponse();
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -283,7 +285,7 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType, true, pager.getPageSize(), pager.getPageIndex());
+                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KSManager.GetKSFromRequest().UserId, filter.EntitlementType, true, pager.getPageSize(), pager.getPageIndex());
                         }
                         break;
                     case KalturaEntityReferenceBy.household:
@@ -349,8 +351,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
 
             long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
@@ -404,8 +406,8 @@ namespace WebAPI.Controllers
         {
             KalturaBillingResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
 
             try
             {
@@ -448,8 +450,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
 
             long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
@@ -478,7 +480,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaEntitlement Update(int id, KalturaEntitlement entitlement)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
@@ -517,8 +519,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
 
             try
             {
@@ -547,7 +549,7 @@ namespace WebAPI.Controllers
         static public bool CancelScheduledSubscription(long scheduledSubscriptionId)
         {
             bool result = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
@@ -572,9 +574,9 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public KalturaEntitlementRenewal GetNextRenewal(int id)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
-            long userId = long.Parse(KS.GetFromRequest().UserId);
+            long userId = long.Parse(KSManager.GetKSFromRequest().UserId);
 
             try
             {
@@ -600,9 +602,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.OtherCouponIsAlreadyAppliedForSubscription)]
         static public void ApplyCoupon(long purchaseId, string couponCode)
         {
-            var groupId = KS.GetFromRequest().GroupId;
+            var groupId = KSManager.GetKSFromRequest().GroupId;
             var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-            var userId = KS.GetFromRequest().UserId;
+            var userId = KSManager.GetKSFromRequest().UserId;
 
             try
             {

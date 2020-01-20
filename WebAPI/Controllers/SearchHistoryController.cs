@@ -8,6 +8,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
+using WebAPI.Managers;
 
 namespace WebAPI.Controllers
 {
@@ -15,6 +16,8 @@ namespace WebAPI.Controllers
     public class SearchHistoryController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public static object KSUtils { get; private set; }
 
         /// <summary>
         /// Get user's last search requests
@@ -29,9 +32,10 @@ namespace WebAPI.Controllers
         {
             KalturaSearchHistoryListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string userId = ks.UserId;
+            string udid = ks.ExtractKSData().UDID;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -76,9 +80,9 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public bool Clean(KalturaSearchHistoryFilter filter = null)
         {
-            var ks = KS.GetFromRequest();
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
 
             try
             {
@@ -103,9 +107,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public bool Delete(string id)
         {
-            var ks = KS.GetFromRequest();
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
 
             try
             {

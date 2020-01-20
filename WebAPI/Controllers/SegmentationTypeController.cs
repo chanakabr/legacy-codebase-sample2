@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -29,7 +30,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
 
                 return ClientsManager.ApiClient().AddSegmentationType(groupId, segmentationType, userId);
@@ -55,7 +56,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 segmentationType.Id = segmentationTypeId;
                 long userId = Utils.Utils.GetUserIdFromKs();
 
@@ -82,7 +83,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
 
                 response = ClientsManager.
@@ -125,7 +126,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
 
                 HashSet<long> ids = null;

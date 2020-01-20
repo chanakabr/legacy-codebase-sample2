@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -33,8 +34,8 @@ namespace WebAPI.Controllers
 
             compensation.Validate();
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
 
             try
             {
@@ -58,7 +59,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public void Delete(long id)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -82,7 +83,7 @@ namespace WebAPI.Controllers
         {
             KalturaCompensation response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {

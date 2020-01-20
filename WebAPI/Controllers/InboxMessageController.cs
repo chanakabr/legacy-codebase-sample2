@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -37,8 +38,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 // call client                
                 response = ClientsManager.NotificationClient().GetInboxMessage(groupId, userId, id);
             }
@@ -68,8 +69,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
 
                 if (pager == null)
                     pager = new KalturaFilterPager();
@@ -115,8 +116,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
 
                 // call client                
                 response = ClientsManager.NotificationClient().UpdateInboxMessage(groupId, userId, id, status);

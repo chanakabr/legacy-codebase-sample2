@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using KSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Net;
 using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 
@@ -206,11 +208,12 @@ namespace WebAPI.Utils
             return baseUrl;
         }
 
+        // TODO SHIR - PUT IN GET CONTEXXT DATA AND REMOVE FROM HERE
         public static long GetUserIdFromKs(KS ks = null)
         {
             if (ks == null)
             {
-                ks = KS.GetFromRequest();
+                ks = KSManager.GetKSFromRequest();
             }
 
             if (ks == null)

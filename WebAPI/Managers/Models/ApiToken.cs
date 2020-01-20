@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using ConfigurationManager;
+using KSWrapper;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using TVinciShared;
@@ -97,9 +99,10 @@ namespace WebAPI.Managers.Models
         //    this.KS = KsObject.ToString();
         //}
 
-        public ApiToken(string userId, int groupId, KS.KSData payload, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration, Dictionary<string, string> privileges = null)
+        public ApiToken(string userId, int groupId, KSData payload, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration, Dictionary<string, string> privileges = null)
         {
-            var ksData = new KS.KSData(payload, (int)DateUtils.GetUtcUnixTimestampNow());
+            // TODO SHIR
+            var ksData = new KSData();// payload, (int)DateUtils.GetUtcUnixTimestampNow());
             this.RefreshToken = Utils.Utils.Generate32LengthGuid();
             this.GroupID = groupId;
             this.UserId = userId;
@@ -137,17 +140,19 @@ namespace WebAPI.Managers.Models
                               groupId.ToString(),
                               userId,
                               (int)(AccessTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)), // relative
-                              isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
+                              (int)(isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER),
                               ksData,
                               privileges,
-                              Models.KS.KSVersion.V2);
+                              KSVersion.V2,
+                              ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets);
 
             this.KS = KsObject.ToString();
         }
 
         public ApiToken(ApiToken token, Group groupConfig, string udid)
         {
-            var ksData = new KS.KSData(token, (int)DateUtils.GetUtcUnixTimestampNow(), udid);
+            // TODO SHIR
+            var ksData = new KSData();//udid, (int)DateUtils.GetUtcUnixTimestampNow(), token.RegionId, token.UserSegments, token.UserRoles);
             this.RefreshToken = token.RefreshToken;
             this.GroupID = token.GroupID;
             this.UserId = token.UserId;
@@ -188,11 +193,29 @@ namespace WebAPI.Managers.Models
                               token.GroupID.ToString(),
                               token.UserId,
                               (int)(AccessTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)),
-                              token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
+                              (int)(token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER),
                               ksData,
                               null, 
-                              Models.KS.KSVersion.V2);
+                              KSVersion.V2,
+                              ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets);
             this.KS = KsObject.ToString();
+        }
+
+        public KS CreateKS(string tokenVal)
+        {
+            // TODO SHIR
+            //var ks = new KS()
+            //{
+            //    groupId = this.GroupID,
+            //    userId = this.UserId,
+            //    expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(this.AccessTokenExpiration),
+            //    sessionType = (int)(this.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER),
+            //    data = KSUtils.PrepareKSPayload(new KS.KSData(this, 0, this.Udid)),
+            //    encryptedValue = tokenVal
+            //};
+
+            //return ks;
+            return null;
         }
     }
 }

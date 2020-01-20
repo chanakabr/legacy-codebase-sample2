@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -36,8 +37,9 @@ namespace WebAPI.Controllers
         {
             KalturaPersonalAssetListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string udid = ks.ExtractKSData().UDID;
 
             if (with == null)
             {
@@ -47,7 +49,7 @@ namespace WebAPI.Controllers
             try
             {
                 // get user id and domain from KS
-                string userID = KS.GetFromRequest().UserId;
+                string userID = KSManager.GetKSFromRequest().UserId;
                 int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
                 string language = Utils.Utils.GetLanguageFromRequest();
 

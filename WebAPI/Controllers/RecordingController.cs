@@ -5,6 +5,7 @@ using System.Linq;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -31,7 +32,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().GetRecord(groupId, domainId, id);
@@ -65,8 +66,8 @@ namespace WebAPI.Controllers
 
             try
             {                        
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
 
                 if (filter == null)
                 {
@@ -122,7 +123,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
                 if (recording is KalturaExternalRecording)
                     // external recording implementation
@@ -170,8 +171,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 if (pager == null)
@@ -246,8 +247,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().CancelRecord(groupId, userId, id);
             }
@@ -280,8 +281,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().DeleteRecord(groupId, userId, id);
             }
@@ -318,8 +319,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().ProtectRecord(groupId, userId, id);
             }
@@ -355,8 +356,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().UpdateRecording(groupId, userId, id, recording);

@@ -136,7 +136,7 @@ namespace WebAPI.Managers.Models
         {
             string response = null;
 
-            string stringToHash = KS.GetFromRequest().ToString() + Token;
+            string stringToHash = KSManager.GetKSFromRequest().ToString() + Token;
 
             switch (HashType)
             {

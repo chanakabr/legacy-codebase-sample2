@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -34,11 +35,11 @@ namespace WebAPI.Controllers
             }
 
             filter.validate();
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
-                response = ClientsManager.SocialClient().GetSocialFeed(groupId, KS.GetFromRequest().UserId, filter.AssetIdEqual, filter.AssetTypeEqual, filter.SocialPlatformEqual,
+                response = ClientsManager.SocialClient().GetSocialFeed(groupId, KSManager.GetKSFromRequest().UserId, filter.AssetIdEqual, filter.AssetTypeEqual, filter.SocialPlatformEqual,
                     pager.getPageSize(), pager.getPageIndex(), filter.CreateDateGreaterThan, filter.OrderBy);
             }
             catch (ClientException ex)

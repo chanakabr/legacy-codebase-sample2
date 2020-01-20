@@ -1,6 +1,7 @@
 ﻿using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using KLogMonitor;
+using KSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,12 +37,12 @@ namespace WebAPI.Managers
 
         private static KS getKS(bool silent)
         {
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
 
             if (ks == null)
                 throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
 
-            if (!ks.IsValid && !silent)
+            if (!AuthorizationManager.IsKsValid(ks) && !silent)
                 throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
 
             return ks;
@@ -297,7 +298,7 @@ namespace WebAPI.Managers
         /// <param name="silent">Fail silently</param>
         internal static void ValidateActionPermitted(string service, string action, bool silent = false)
         {
-            KS ks = getKS(silent);
+            var ks = getKS(silent);
             List<long> roleIds = GetRoleIds(ks);
 
             // no roles found for the user
@@ -326,9 +327,10 @@ namespace WebAPI.Managers
                     (allowedUsersGroup.Contains(RolesManager.PARTNER_WILDCARD) && AuthorizationManager.IsUserInGroup(userId, ks.GroupId)) ||
                     (allowedUsersGroup.Contains(RolesManager.HOUSEHOLD_WILDCARD) && AuthorizationManager.IsUserInHousehold(userId, ks.GroupId))))
                 {
-                    ks.OriginalUserId = ks.UserId;
-                    ks.UserId = userId;
-                    KS.SaveOnRequest(ks);
+                    // TODO SHIR
+                    //ks.OriginalUserId = ks.UserId;
+                    //ks.UserId = userId;
+                    KSManager.SaveOnRequest(ks, false);
                 }
                 else
                 {
@@ -523,14 +525,15 @@ namespace WebAPI.Managers
                 }
 
                 // if the ks was originally of operator - get he's roles too
-                if (appendOriginalRoles && !string.IsNullOrEmpty(ks.OriginalUserId))
-                {
-                    userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.OriginalUserId);
-                    if (userRoleIds != null && userRoleIds.Count > 0)
-                    {
-                        roleIds.AddRange(userRoleIds);
-                    }
-                }
+                // TODO SHIR
+                //if (appendOriginalRoles && !string.IsNullOrEmpty(ks.OriginalUserId))
+                //{
+                //    userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.OriginalUserId);
+                //    if (userRoleIds != null && userRoleIds.Count > 0)
+                //    {
+                //        roleIds.AddRange(userRoleIds);
+                //    }
+                //}
             }
             return roleIds;
         }
@@ -538,7 +541,7 @@ namespace WebAPI.Managers
         public static bool IsManagerAllowedAction(List<long> roleIds)
         {
             // check role's hierarchy 
-            var ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
 
             bool isManager = GetRoleIds(ks).Any(ur => ur == MANAGER_ROLE_ID);
 
@@ -569,8 +572,9 @@ namespace WebAPI.Managers
         public static bool IsAllowedDeleteAction()
         {
             // check role's hierarchy 
-            var ks = KS.GetFromRequest();
-            string originalUserId = string.IsNullOrEmpty(ks.OriginalUserId) ? ks.UserId : ks.OriginalUserId;
+            var ks = KSManager.GetKSFromRequest();
+            // TODO SHIR
+            string originalUserId = null;// string.IsNullOrEmpty(ks.OriginalUserId) ? ks.UserId : ks.OriginalUserId;
 
             if (ks.UserId != "0")
             {
@@ -618,7 +622,7 @@ namespace WebAPI.Managers
         public static bool IsManagerAllowedUpdateAction(string userId, List<long> roleIds)
         {
             // check role's hierarchy 
-            var ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
 
             bool isManager = GetRoleIds(ks).Any(ur => ur == MANAGER_ROLE_ID);
             if (isManager)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -29,12 +30,12 @@ namespace WebAPI.Controllers
             List<KalturaCollectionPrice> collectiontPrices = new List<KalturaCollectionPrice>();
 
             filter.Validate();
-
-            int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string udid = ks.ExtractKSData().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
             string currency = Utils.Utils.GetCurrencyFromRequest();
-            string userId = KS.GetFromRequest().UserId;
+            string userId = ks.UserId;
 
             try
             {

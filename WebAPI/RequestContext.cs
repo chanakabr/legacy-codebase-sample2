@@ -12,6 +12,7 @@ using KlogMonitorHelper;
 
 using WebAPI.Filters;
 using TVinciShared;
+using WebAPI.Managers;
 
 namespace WebAPI
 {
@@ -194,7 +195,7 @@ namespace WebAPI
 
         private static void SetKsContext(IDictionary<string, object> requestParams, bool globalScope)
         {
-            KS.ClearOnRequest();
+            KSManager.ClearOnRequest();
             if (requestParams.ContainsKey("ks") && requestParams["ks"] != null)
             {
                 string ks;
@@ -227,19 +228,14 @@ namespace WebAPI
             // the supplied ks is in KS forma (project phoenix's)
             if (IsKsFormat(ksVal))
             {
-                parseKS(ksVal);
+                var ks = KSManager.ParseKS(ksVal);
+                KSManager.SaveOnRequest(ks, true);
             }
             // the supplied is in access token format (TVPAPI's)
             else
             {
                 GetUserDataFromCB(ksVal);
             }
-        }
-
-        private static void parseKS(string ksVal)
-        {
-            KS ks = KS.ParseKS(ksVal);
-            ks.SaveOnRequest();
         }
 
         private static bool IsKsFormat(string ksVal)
@@ -258,14 +254,14 @@ namespace WebAPI
                 throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
             }
 
-            KS ks = KS.CreateKSFromApiToken(token, ksVal);
+            var ks = token.CreateKS(ksVal);
 
-            if (!ks.IsValid)
+            if (!AuthorizationManager.IsKsValid(ks))
             {
                 throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
             }
 
-            ks.SaveOnRequest();
+            KSManager.SaveOnRequest(ks, true);
         }
 
         private static void SetRequestVersion(IDictionary<string, object> requestParams)

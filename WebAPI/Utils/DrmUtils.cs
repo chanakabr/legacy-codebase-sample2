@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ConfigurationManager;
+using KSWrapper;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
@@ -27,7 +29,7 @@ namespace WebAPI.Utils
         {
             string response = null;
 
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             Group group = GroupsManager.GetGroup(ks.GroupId);
 
             CencCustomData customData = new CencCustomData()
@@ -38,7 +40,7 @@ namespace WebAPI.Utils
                 UserToken = ks.ToString(),
                 ContentId = fileExternalId.ToString(),
                 AdditionalCasSystem = ks.GroupId,
-                UDID = KSUtils.ExtractKSPayload().UDID
+                UDID = ks.ExtractKSData().UDID
             };
 
             response = JsonConvert.SerializeObject(customData);
@@ -50,7 +52,7 @@ namespace WebAPI.Utils
         {
             string response = null;
 
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             Group group = GroupsManager.GetGroup(ks.GroupId);
 
             response = string.Concat(group.AccountPrivateKey, customDataString);
@@ -189,7 +191,7 @@ namespace WebAPI.Utils
                     }
 
                     string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, drmAssetId, assetType, source.Id.Value,
-                        source.ExternalId, KSUtils.ExtractKSPayload().UDID, contextDataParams.Context, recordingId, out code, out message);
+                        source.ExternalId, ks.ExtractKSData().UDID, contextDataParams.Context, recordingId, out code, out message);
 
                     // no errors
                     if (string.IsNullOrEmpty(code))

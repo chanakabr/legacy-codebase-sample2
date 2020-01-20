@@ -9,6 +9,7 @@ using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using ApiObjects.Response;
+using WebAPI.Managers;
 
 namespace WebAPI.Controllers
 {
@@ -25,7 +26,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaPricePlanListResponse List(KalturaPricePlanFilter filter = null)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             
             List<KalturaPricePlan> pricePlans = null;
 
@@ -58,7 +59,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PriceDetailsDoesNotExist)]
         static public KalturaPricePlan Update(long id, KalturaPricePlan pricePlan)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             if (id == 0)
             {
