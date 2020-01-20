@@ -609,11 +609,12 @@ namespace WebAPI.Managers
 
         internal static bool IsKsValid(KS ks, bool validateExpiration = true)
         {
+            var group = GroupsManager.GetGroup(ks.GroupId);
             // Check if KS already validated by gateway
             string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
             if (ksRandomHeader == ks.Random)
             {
-                return ValidateKsSignature(ks);
+                return ValidateKsSignature(ks, group);
             }
 
             if (validateExpiration && ks.Expiration < DateTime.UtcNow)
@@ -621,12 +622,9 @@ namespace WebAPI.Managers
                 return false;
             }
 
-            Group group = GroupsManager.GetGroup(ks.GroupId);
-
             if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
             {
                 string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
-
                 string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
 
                 ApiToken revokedToken = cbManager.Get<ApiToken>(revokedKsCbKey, true);
@@ -654,6 +652,7 @@ namespace WebAPI.Managers
                     }
                 }
             }
+
             if (ks.Privileges != null && ks.Privileges.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
             {
                 string sessionId = ks.Privileges[APP_TOKEN_PRIVILEGE_SESSION_ID];
@@ -670,9 +669,8 @@ namespace WebAPI.Managers
             return true;
         }
 
-        public static bool ValidateKsSignature(KS ks)
+        public static bool ValidateKsSignature(KS ks, Group group)
         {
-            var group = GroupsManager.GetGroup(ks.GroupId);
             var signature = KSUtils.ExtractKSPayload(ks).Signature;
             var groupSecrets = ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets;
 
