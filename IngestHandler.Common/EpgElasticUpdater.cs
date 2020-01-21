@@ -44,15 +44,19 @@ namespace IngestHandler.Common
 
         public void Update(IList<EpgProgramBulkUploadObject> calculatedPrograms, IList<EpgProgramBulkUploadObject> programsToDelete)
         {
-            var bulkSize = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
-            var index = BulkUploadMethods.GetIngestDraftTargetIndexName(_GroupId, _BulkUploadId, _DateOfProgramsToIngest);
-            var bulkRequests = new List<ESBulkRequestObj<string>>();
+            var draftIndexName = BulkUploadMethods.GetIngestDraftTargetIndexName(_GroupId, _BulkUploadId, _DateOfProgramsToIngest);
 
             var isOpc = GroupSettingsManager.IsOpc(_GroupId);
             var metasToPad = GetMetasToPad(_GroupId, isOpc);
 
+            UpsertProgramsToDraftIndex(calculatedPrograms, draftIndexName, isOpc, metasToPad);
+            DeleteProgramsFromIndex(programsToDelete, draftIndexName);
+        }
 
-
+        private void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, bool isOpc, HashSet<string> metasToPad)
+        {
+            var bulkSize = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+            var bulkRequests = new List<ESBulkRequestObj<string>>();
             var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
             foreach (var program in programTranslationsToIndex)
             {
@@ -74,7 +78,7 @@ namespace IngestHandler.Common
                 {
                     docID = program.EpgID.ToString(),
                     document = serializedEpg,
-                    index = index,
+                    index = draftIndexName,
                     Operation = eOperation.index,
                     routing = program.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
                     type = epgType,
@@ -101,31 +105,6 @@ namespace IngestHandler.Common
                 }
             }
 
-            var programIds = programsToDelete.Select(program => program.EpgId);
-            _Logger.Debug($"Update elasticsearch index completed, delteting required docuements. documents.leng:[{programsToDelete.Count}]");
-            if (programIds.Any())
-            {
-                var retryCount = 5;
-                var policy = RetryPolicy.Handle<Exception>()
-                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
-                {
-                    // TODO: improve logging
-                    _Logger.Warn($"delete attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
-                });
-
-                var deleteQuery = GetElasticsearchQueryForEpgIDs(programIds);
-                policy.Execute(() =>
-                {
-                    _ElasticSearchClient.DeleteDocsByQuery(index, "", ref deleteQuery, out var deletedDocsCount);
-                    if (deletedDocsCount < programIds.Count())
-                    {
-                        throw new Exception($"requested to delete {programIds.Count()} programs but actually deleted {deletedDocsCount}");
-                    }
-
-                });
-
-            }
-
             // If we have anything left that is less than the size of the bulk
             if (bulkRequests.Count > 0)
             {
@@ -138,6 +117,38 @@ namespace IngestHandler.Common
                         _Logger.Error($"Could not add EPG to ES index. GroupID={_GroupId} epgId={item.Key} error={item.Value}");
                     }
                 }
+            }
+        }
+
+        private void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string index)
+        {
+            var programIds = programsToDelete.Select(program => program.EpgId);
+
+            // We will retry deletion until the sum of all deleted programs is equal to the total docs deleted, this is becasue
+            // there is an issue in elastic 2.3 where we cannot be sure it will find the item to delete
+            // right after re-index.
+            var totalDocumentsToDelete = programsToDelete.Count * _Languages.Count;
+            var totalDocumentsDeleted = 0;
+            _Logger.Debug($"Update elasticsearch index completed, delteting required docuements. documents.leng:[{programsToDelete.Count}]");
+            if (programIds.Any())
+            {
+                var retryCount = 5;
+                var policy = RetryPolicy.Handle<Exception>()
+                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
+                {
+                    _Logger.Warn($"delete attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
+                });
+
+                var deleteQuery = GetElasticsearchQueryForEpgIDs(programIds);
+                policy.Execute(() =>
+                {
+                    _ElasticSearchClient.DeleteDocsByQuery(index, "", ref deleteQuery, out var deletedDocsCount);
+                    totalDocumentsDeleted += deletedDocsCount;
+                    if (totalDocumentsDeleted < programIds.Count())
+                    {
+                        throw new Exception($"requested to delete {programIds.Count()} programs but actually deleted so far {totalDocumentsDeleted}");
+                    }
+                });
             }
         }
 
