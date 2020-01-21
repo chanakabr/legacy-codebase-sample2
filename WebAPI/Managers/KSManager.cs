@@ -18,19 +18,9 @@ using WebAPI.Managers.Models;
 
 namespace WebAPI.Managers
 {
-    // TODO SHIR - REMOVE AFTER UPDATE NUGET
-    public static class ksex
-    {
-        
-        public static KSData ExtractKSData(this KS ks)
-        {
-            return null;
-        }
-    }
-
     public class KSManager
     {
-        // TODO SHIR - CHECK IF REALY NEED THIS OR UST CONTEXTDATA
+        // TODO - use GetContextData insted
         internal static KS GetKSFromRequest()
         {
             return (KS)HttpContext.Current.Items[RequestContextUtils.REQUEST_KS];
@@ -68,9 +58,7 @@ namespace WebAPI.Managers
 
             // build KS
             string fallbackSecret = group.UserSecretFallbackExpiryEpoch > DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow) ? group.UserSecretFallback : null;
-            // TODO SHIR
-            //return new KS(ks, groupId, encryptedData, adminSecret, fallbackSecret);
-            return null;
+            return new KS(ks, groupId, encryptedData, adminSecret, fallbackSecret);
         }
 
         internal static void SaveOnRequest(KS ks, bool saveConstantsGroupId)
@@ -94,14 +82,13 @@ namespace WebAPI.Managers
             }
             else
             {
-                // TODO SHIR
-                //if (!string.IsNullOrEmpty(ks.OriginalUserId) && ks.OriginalUserId != ks.UserId && long.TryParse(ks.OriginalUserId, out long originalUserId))
-                //{
-                //    if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID))
-                //        HttpContext.Current.Items[RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID] = originalUserId;
-                //    else
-                //        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID, originalUserId);
-                //}
+                if (!string.IsNullOrEmpty(ks.OriginalUserId) && ks.OriginalUserId != ks.UserId && long.TryParse(ks.OriginalUserId, out long originalUserId))
+                {
+                    if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID))
+                        HttpContext.Current.Items[RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID] = originalUserId;
+                    else
+                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID, originalUserId);
+                }
             }
         }
 

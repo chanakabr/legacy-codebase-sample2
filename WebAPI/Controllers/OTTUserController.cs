@@ -944,7 +944,7 @@ namespace WebAPI.Controllers
                 {
                     response = new KalturaOTTUserListResponse();
                     string userId = ks.UserId;
-                    string originalUserId = ""; // TODO SHIR ks.OriginalUserId;
+                    string originalUserId = ks.OriginalUserId;
                     if (string.IsNullOrEmpty(originalUserId))
                     {
                         originalUserId = userId;

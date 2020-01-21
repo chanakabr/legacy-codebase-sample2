@@ -101,8 +101,7 @@ namespace WebAPI.Managers.Models
 
         public ApiToken(string userId, int groupId, KSData payload, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration, Dictionary<string, string> privileges = null)
         {
-            // TODO SHIR
-            var ksData = new KSData();// payload, (int)DateUtils.GetUtcUnixTimestampNow());
+            var ksData = new KSData(payload, (int)DateUtils.GetUtcUnixTimestampNow());
             this.RefreshToken = Utils.Utils.Generate32LengthGuid();
             this.GroupID = groupId;
             this.UserId = userId;
@@ -151,8 +150,7 @@ namespace WebAPI.Managers.Models
 
         public ApiToken(ApiToken token, Group groupConfig, string udid)
         {
-            // TODO SHIR
-            var ksData = new KSData();//udid, (int)DateUtils.GetUtcUnixTimestampNow(), token.RegionId, token.UserSegments, token.UserRoles);
+            var ksData = new KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), token.RegionId, token.UserSegments, token.UserRoles);
             this.RefreshToken = token.RefreshToken;
             this.GroupID = token.GroupID;
             this.UserId = token.UserId;
@@ -204,16 +202,9 @@ namespace WebAPI.Managers.Models
         public KS CreateKS(string tokenVal)
         {
             // TODO SHIR
-            //var ks = new KS()
-            //{
-            //    groupId = this.GroupID,
-            //    userId = this.UserId,
-            //    expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(this.AccessTokenExpiration),
-            //    sessionType = (int)(this.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER),
-            //    data = KSUtils.PrepareKSPayload(new KS.KSData(this, 0, this.Udid)),
-            //    encryptedValue = tokenVal
-            //};
-
+            var sessionType = (int)(this.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER);
+            var data = new KSData(this.Udid, 0, this.RegionId, this.UserSegments, this.UserRoles).PrepareKSPayload();
+            //var ks = new KS(this.GroupID, this.UserId, this.AccessTokenExpiration, sessionType, data, tokenVal);
             //return ks;
             return null;
         }

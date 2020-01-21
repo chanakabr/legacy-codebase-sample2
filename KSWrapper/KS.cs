@@ -178,6 +178,16 @@ namespace KSWrapper
             }
         }
 
+        public KS(int groupId, string userId, long expiration, int sessionType, string data, string encryptedValue)
+        {
+            this.GroupId = groupId;
+            this.UserId = userId;
+            this.Expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(expiration);
+            this.SessionType = sessionType;
+            this.Data = Data;
+            this.EncryptedValue = encryptedValue;         
+        }
+
         private byte[] CreateRandomByteArray(int size)
         {
             byte[] b = new byte[size];
@@ -194,7 +204,7 @@ namespace KSWrapper
 
             var secret = ksSecrets.FirstOrDefault();
             var random = Encoding.Default.GetString(randomBytes);
-            var concat = string.Format(KSData.SignatureFormat, random, secret);
+            var concat = string.Format(KSData.SIGNATURE_FORMAT, random, secret);
             return Encoding.Default.GetString(EncryptUtils.HashSHA1(concat));
         }
 
@@ -285,6 +295,16 @@ namespace KSWrapper
                     return false;
                 }
             }).Reverse().ToArray();
+        }
+
+        /// <summary>
+        /// set OriginalUserId with current UserId and update UserId with param.userId
+        /// </summary>
+        /// <param name="userId"></param>
+        public void SetUsers(string userId)
+        {
+            this.OriginalUserId = this.UserId;
+            this.UserId = userId;
         }
     }
 }

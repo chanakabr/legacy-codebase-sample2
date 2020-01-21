@@ -328,8 +328,7 @@ namespace WebAPI.Managers
                     (allowedUsersGroup.Contains(RolesManager.HOUSEHOLD_WILDCARD) && AuthorizationManager.IsUserInHousehold(userId, ks.GroupId))))
                 {
                     // TODO SHIR
-                    //ks.OriginalUserId = ks.UserId;
-                    //ks.UserId = userId;
+                    //ks.SetUsers(userId);
                     KSManager.SaveOnRequest(ks, false);
                 }
                 else
@@ -525,15 +524,14 @@ namespace WebAPI.Managers
                 }
 
                 // if the ks was originally of operator - get he's roles too
-                // TODO SHIR
-                //if (appendOriginalRoles && !string.IsNullOrEmpty(ks.OriginalUserId))
-                //{
-                //    userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.OriginalUserId);
-                //    if (userRoleIds != null && userRoleIds.Count > 0)
-                //    {
-                //        roleIds.AddRange(userRoleIds);
-                //    }
-                //}
+                if (appendOriginalRoles && !string.IsNullOrEmpty(ks.OriginalUserId))
+                {
+                    userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.OriginalUserId);
+                    if (userRoleIds != null && userRoleIds.Count > 0)
+                    {
+                        roleIds.AddRange(userRoleIds);
+                    }
+                }
             }
             return roleIds;
         }
@@ -573,8 +571,7 @@ namespace WebAPI.Managers
         {
             // check role's hierarchy 
             var ks = KSManager.GetKSFromRequest();
-            // TODO SHIR
-            string originalUserId = null;// string.IsNullOrEmpty(ks.OriginalUserId) ? ks.UserId : ks.OriginalUserId;
+            string originalUserId = string.IsNullOrEmpty(ks.OriginalUserId) ? ks.UserId : ks.OriginalUserId;
 
             if (ks.UserId != "0")
             {

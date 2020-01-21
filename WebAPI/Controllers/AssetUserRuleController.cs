@@ -168,9 +168,10 @@ namespace WebAPI.Controllers
         [SchemeArgument("ruleId", MinLong = 1)]
         static public void AttachUser(long ruleId)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;
-            string originalUserId = ""; //TODO SHIR KSManager.GetKSFromRequest().OriginalUserId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string userId = ks.UserId;
+            string originalUserId = ks.OriginalUserId;
 
             if (string.IsNullOrEmpty(originalUserId)  || !string.IsNullOrEmpty(originalUserId) && originalUserId == userId)
             {
@@ -202,7 +203,7 @@ namespace WebAPI.Controllers
             var ks = KSManager.GetKSFromRequest();
             int groupId = ks.GroupId;
             string userId = ks.UserId;
-            string originalUserId = ""; //TODO SHIR ks.OriginalUserId;
+            string originalUserId = ks.OriginalUserId;
 
             if (string.IsNullOrEmpty(originalUserId) || !string.IsNullOrEmpty(originalUserId) && originalUserId == userId)
             {

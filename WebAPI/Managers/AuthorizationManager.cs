@@ -124,7 +124,7 @@ namespace WebAPI.Managers
             // get group configurations
             var group = GetGroupConfiguration(groupId);
             var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
-            var payload = new KSData();// TODO SHIR udid, 0, regionId, userSegments, userRoles);
+            var payload = new KSData(udid, 0, regionId, userSegments, userRoles);
             var token = new ApiToken(userId, groupId, payload, isAdmin, group, isLoginWithPin, privileges);
             return GenerateSessionByApiToken(token, group);
         }
@@ -375,7 +375,7 @@ namespace WebAPI.Managers
             var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
 
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
-            var ksData = new KSData();// TODO SHIR udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
+            var ksData = new KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
             if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)sessionDuration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
@@ -621,12 +621,11 @@ namespace WebAPI.Managers
         {
             var group = GroupsManager.GetGroup(ks.GroupId);
             // Check if KS already validated by gateway
-            // TODO SHIR
-            //string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
-            //if (ksRandomHeader == ks.Random)
-            //{
-            //    return ValidateKsSignature(ks, group);
-            //}
+            string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
+            if (ksRandomHeader == ks.Random)
+            {
+                return ValidateKsSignature(ks, group);
+            }
 
             if (validateExpiration && ks.Expiration < DateTime.UtcNow)
             {
@@ -690,7 +689,7 @@ namespace WebAPI.Managers
                 for (int i = groupSecrets.Count - 1; i >= 0; i--) //LIFO
                 {
                     // TODO SHIR
-                    var concat = "";// string.Format(EncryptionUtils.SignatureFormat, ks.Random, groupSecrets[i]);
+                    var concat = "";// string.Format(KSData.SIGNATURE_FORMAT, ks.Random, groupSecrets[i]);
                     var encryptedValue = Encoding.Default.GetString(EncryptUtils.HashSHA1(concat));
                     if (encryptedValue == signature)
                     {

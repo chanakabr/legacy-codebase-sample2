@@ -14,7 +14,7 @@ namespace KSWrapper
         private const string PAYLOAD_USER_SEGMENTS = "us";
         private const string PAYLOAD_USER_ROLES = "ur";
         private const string PAYLOAD_SIGNATURE = "sig";
-        internal const string SignatureFormat = "{0}:{1}";
+        public const string SIGNATURE_FORMAT = "{0}:{1}";
 
         public string UDID { get; private set; }
         public int CreateDate { get; private set; }
