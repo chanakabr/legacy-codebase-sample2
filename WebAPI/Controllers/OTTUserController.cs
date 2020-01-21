@@ -863,7 +863,7 @@ namespace WebAPI.Controllers
 
                 response = new KalturaStringValue()
                 {
-                    value = Convert.ToBase64String(Utils.EncryptionUtils.AesEncrypt(userId, iv, key))
+                    value = Convert.ToBase64String(EncryptUtils.AesEncrypt(userId, iv, key))
                 };
             }
             catch (ClientException ex)

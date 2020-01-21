@@ -554,7 +554,7 @@ namespace WebAPI.Managers
                     UserRoles = payload.UserRoles
                 };
 
-                string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
+                string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptUtils.HashMD5(ks.ToString()));
 
                 uint expiration = (uint)(revokedToken.RefreshTokenExpiration - DateUtils.GetUtcUnixTimestampNow());
                 if (revokedKsMaxTtlSeconds > 0 && revokedKsMaxTtlSeconds < expiration)
@@ -635,7 +635,7 @@ namespace WebAPI.Managers
             if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
             {
                 string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
-                string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
+                string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptUtils.HashMD5(ks.ToString()));
 
                 ApiToken revokedToken = cbManager.Get<ApiToken>(revokedKsCbKey, true);
                 if (revokedToken != null)
@@ -688,8 +688,7 @@ namespace WebAPI.Managers
             {
                 for (int i = groupSecrets.Count - 1; i >= 0; i--) //LIFO
                 {
-                    // TODO SHIR
-                    var concat = "";// string.Format(KSData.SIGNATURE_FORMAT, ks.Random, groupSecrets[i]);
+                    var concat = string.Format(KSData.SIGNATURE_FORMAT, ks.Random, groupSecrets[i]);
                     var encryptedValue = Encoding.Default.GetString(EncryptUtils.HashSHA1(concat));
                     if (encryptedValue == signature)
                     {

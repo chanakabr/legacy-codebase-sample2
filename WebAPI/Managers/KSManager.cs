@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ApiObjects.Base;
+using KLogMonitor;
+using KSWrapper;
+using System;
 using System.Text;
 using System.Web;
-using WebAPI.Exceptions;
-using WebAPI.Models.General;
-using KLogMonitor;
 using TVinciShared;
-using ApiObjects.Base;
-using WebAPI.Utils;
-using System.Text.RegularExpressions;
 using WebAPI.ClientManagers;
-using ConfigurationManager;
-using Newtonsoft.Json;
-using KSWrapper;
-using WebAPI.Managers.Models;
+using WebAPI.Exceptions;
+using WebAPI.Utils;
 
 namespace WebAPI.Managers
 {
@@ -92,7 +85,7 @@ namespace WebAPI.Managers
             }
         }
 
-        internal static void ClearOnRequest()
+        public static void ClearOnRequest()
         {
             HttpContext.Current.Items.Remove(RequestContextUtils.REQUEST_GROUP_ID);
             HttpContext.Current.Items.Remove(RequestContextUtils.REQUEST_KS);

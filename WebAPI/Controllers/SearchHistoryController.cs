@@ -3,12 +3,11 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Utils;
-using WebAPI.Managers.Models;
-using WebAPI.Models.General;
+using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
-using WebAPI.Managers;
+using WebAPI.Models.General;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -16,8 +15,6 @@ namespace WebAPI.Controllers
     public class SearchHistoryController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public static object KSUtils { get; private set; }
 
         /// <summary>
         /// Get user's last search requests

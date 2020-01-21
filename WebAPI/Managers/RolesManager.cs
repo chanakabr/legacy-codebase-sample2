@@ -327,8 +327,7 @@ namespace WebAPI.Managers
                     (allowedUsersGroup.Contains(RolesManager.PARTNER_WILDCARD) && AuthorizationManager.IsUserInGroup(userId, ks.GroupId)) ||
                     (allowedUsersGroup.Contains(RolesManager.HOUSEHOLD_WILDCARD) && AuthorizationManager.IsUserInHousehold(userId, ks.GroupId))))
                 {
-                    // TODO SHIR
-                    //ks.SetUsers(userId);
+                    ks.SetUsers(userId);
                     KSManager.SaveOnRequest(ks, false);
                 }
                 else

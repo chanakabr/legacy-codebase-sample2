@@ -9,7 +9,6 @@ using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers;
-using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;

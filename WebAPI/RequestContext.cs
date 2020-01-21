@@ -4,12 +4,10 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Web;
-
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
 using KlogMonitorHelper;
-
 using WebAPI.Filters;
 using TVinciShared;
 using WebAPI.Managers;

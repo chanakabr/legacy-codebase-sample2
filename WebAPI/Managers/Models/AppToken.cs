@@ -150,13 +150,13 @@ namespace WebAPI.Managers.Models
                     }
                     break;
                 case KalturaAppTokenHashType.SHA256:
-                    response = Utils.EncryptionUtils.HashSHA256(stringToHash);
+                    response = EncryptUtils.HashSHA256(stringToHash);
                     break;
                 case KalturaAppTokenHashType.SHA512:
-                    response = Utils.EncryptionUtils.HashSHA512(stringToHash);
+                    response = EncryptUtils.HashSHA512(stringToHash);
                     break;
                 case KalturaAppTokenHashType.MD5:
-                    response = Utils.EncryptionUtils.HashMD5(stringToHash);
+                    response = EncryptUtils.HashMD5(stringToHash);
                     break;
                 default:
                     break;

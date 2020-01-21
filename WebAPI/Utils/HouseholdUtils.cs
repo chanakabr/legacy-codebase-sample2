@@ -7,7 +7,6 @@ using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
-using WebAPI.Managers.Models;
 using WebAPI.Models.Domains;
 
 namespace WebAPI.Utils

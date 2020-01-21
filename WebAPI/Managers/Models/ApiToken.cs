@@ -201,12 +201,10 @@ namespace WebAPI.Managers.Models
 
         public KS CreateKS(string tokenVal)
         {
-            // TODO SHIR
             var sessionType = (int)(this.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER);
             var data = new KSData(this.Udid, 0, this.RegionId, this.UserSegments, this.UserRoles).PrepareKSPayload();
-            //var ks = new KS(this.GroupID, this.UserId, this.AccessTokenExpiration, sessionType, data, tokenVal);
-            //return ks;
-            return null;
+            var ks = new KS(this.GroupID, this.UserId, this.AccessTokenExpiration, sessionType, data, tokenVal);
+            return ks;
         }
     }
 }
