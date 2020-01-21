@@ -36,6 +36,18 @@ namespace KSWrapper
         public string Random { get; private set; }
         public string OriginalUserId { get; private set; }
 
+        /// <summary>
+        /// create ks object for logins
+        /// </summary>
+        /// <param name="secret"></param>
+        /// <param name="groupID"></param>
+        /// <param name="userID"></param>
+        /// <param name="expiration"></param>
+        /// <param name="userType"></param>
+        /// <param name="data"></param>
+        /// <param name="privilegesList"></param>
+        /// <param name="ksType"></param>
+        /// <param name="ksSecrets"></param>
         public KS(string secret, string groupID, string userID, int expiration, int userType, KSData data, Dictionary<string, string> privilegesList, KSVersion ksType, List<string> ksSecrets)
         {
             byte[] randomBytes = CreateRandomByteArray(BLOCK_SIZE);
@@ -86,6 +98,15 @@ namespace KSWrapper
             this.UserId = userID;
         }
 
+        /// <summary>
+        /// create ks object from ks request
+        /// </summary>
+        /// <param name="ks"></param>
+        /// <param name="groupId"></param>
+        /// <param name="encryptedData"></param>
+        /// <param name="adminSecret"></param>
+        /// <param name="fallbackSecret"></param>
+        /// <exception cref="System.FormatException">Thrown when hash is not equal</exception>
         public KS(string ks, int groupId, byte[] encryptedData, string adminSecret, string fallbackSecret)
         {
             this.ksVersion = KSVersion.V2;
@@ -178,13 +199,22 @@ namespace KSWrapper
             }
         }
 
+        /// <summary>
+        /// create ks object for exists data
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="userId"></param>
+        /// <param name="expiration"></param>
+        /// <param name="sessionType"></param>
+        /// <param name="data"></param>
+        /// <param name="encryptedValue"></param>
         public KS(int groupId, string userId, long expiration, int sessionType, string data, string encryptedValue)
         {
             this.GroupId = groupId;
             this.UserId = userId;
             this.Expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(expiration);
             this.SessionType = sessionType;
-            this.Data = Data;
+            this.Data = data;
             this.EncryptedValue = encryptedValue;         
         }
 

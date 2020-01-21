@@ -51,7 +51,15 @@ namespace WebAPI.Managers
 
             // build KS
             string fallbackSecret = group.UserSecretFallbackExpiryEpoch > DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow) ? group.UserSecretFallback : null;
-            return new KS(ks, groupId, encryptedData, adminSecret, fallbackSecret);
+
+            try
+            {
+                return new KS(ks, groupId, encryptedData, adminSecret, fallbackSecret);
+            }
+            catch (FormatException)
+            {
+                throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+            }
         }
 
         internal static void SaveOnRequest(KS ks, bool saveConstantsGroupId)
