@@ -1,28 +1,25 @@
+using ConfigurationManager;
+using KLogMonitor;
+using KSWrapper;
 using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
-using Phoenix.Context;
-using System;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
-using System.Text;
 using Newtonsoft.Json.Linq;
-using System.Reflection;
-using KLogMonitor;
-using System.Net;
-using System.Net.Mime;
-using Microsoft.AspNetCore.Http.Extensions;
-using System.Linq;
-using Newtonsoft.Json.Converters;
+using Phoenix.Context;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using ConfigurationManager;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using TVinciShared;
+using WebAPI;
+using WebAPI.Filters;
+using WebAPI.Managers;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
-using WebAPI;
-using WebAPI.Controllers;
-using WebAPI.Managers.Models;
-using WebAPI.Filters;
-using TVinciShared;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -43,7 +40,7 @@ namespace Phoenix.Rest.Middleware
         {
             using var km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START);
 
-            KS.ClearOnRequest();
+            KSManager.ClearOnRequest();
             var phoenixContext = new PhoenixRequestContext();
             context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] = phoenixContext;
             context.Items[RequestContextUtils.REQUEST_TIME] = DateTime.UtcNow;
