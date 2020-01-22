@@ -257,6 +257,9 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                // Ingest V2 does not use DB anymore so we will wrap all EpgDAL calls in !isIngestV2
+                var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+
                 // update Epg_channels_schedule table (basic data)
                 epgCBToUpdate = CreateEpgCbFromEpgAsset(epgAssetToUpdate, groupId, epgAssetToUpdate.CreateDate.Value, updateDate);
 
@@ -265,12 +268,16 @@ namespace Core.Catalog.CatalogManagement
                     epgCBToUpdate.Language = defaultLanguageCode;
                     epgCBToUpdate.Name = epgAssetToUpdate.Name;
                     epgCBToUpdate.Description = epgAssetToUpdate.Description;
-                    DataTable dtEpgChannelsScheduleToUpdate = GetEpgChannelsScheduleTable();
-                    dtEpgChannelsScheduleToUpdate.Rows.Add(GetEpgChannelsScheduleRow(epgCBToUpdate, dtEpgChannelsScheduleToUpdate, updateDate, userId));
-                    if (!EpgDal.UpdateEpgChannelSchedule(dtEpgChannelsScheduleToUpdate))
+
+                    if (!isIngestV2)
                     {
-                        log.Error("UpdateEpgChannelSchedule Failed");
-                        return result;
+                        DataTable dtEpgChannelsScheduleToUpdate = GetEpgChannelsScheduleTable();
+                        dtEpgChannelsScheduleToUpdate.Rows.Add(GetEpgChannelsScheduleRow(epgCBToUpdate, dtEpgChannelsScheduleToUpdate, updateDate, userId));
+                        if (!EpgDal.UpdateEpgChannelSchedule(dtEpgChannelsScheduleToUpdate))
+                        {
+                            log.Error("UpdateEpgChannelSchedule Failed");
+                            return result;
+                        }
                     }
                 }
 
@@ -291,12 +298,18 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    EpgDal.UpdateEpgMetas(epgAssetToUpdate.Id, epgMetaIdToValues, userId, updateDate, groupId, catalogGroupCache.DefaultLanguage.ID);
+                    if (!isIngestV2)
+                    {
+                        EpgDal.UpdateEpgMetas(epgAssetToUpdate.Id, epgMetaIdToValues, userId, updateDate, groupId, catalogGroupCache.DefaultLanguage.ID);
+                    }
                 }
 
                 if (needToUpdateTags)
                 {
-                    EpgDal.UpdateEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId);
+                    if (!isIngestV2)
+                    {
+                        EpgDal.UpdateEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId);
+                    }
                 }
 
                 Dictionary<string, Dictionary<string, List<string>>> epgTags = GetEpgTags(epgAssetToUpdate.Tags, allNames, defaultLanguageCode);
