@@ -188,11 +188,20 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                newEpgId = EpgDal.InsertEpgToDB(epgCbToAdd, userId, dateTimeNow, epgMetaIdToValues, catalogGroupCache.DefaultLanguage.ID, epgTagsIds);
-                if (newEpgId == 0)
+                var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+                if (isIngestV2)
                 {
-                    log.Error("Inesrt epg to epg_channels_schedule failed");
-                    return result;
+                    var epgBl = new TvinciEpgBL(groupId);
+                    newEpgId = (long)epgBl.GetNewEpgId();
+                }
+                else
+                {
+                    newEpgId = EpgDal.InsertEpgToDB(epgCbToAdd, userId, dateTimeNow, epgMetaIdToValues, catalogGroupCache.DefaultLanguage.ID, epgTagsIds);
+                    if (newEpgId == 0)
+                    {
+                        log.Error("Inesrt epg to epg_channels_schedule failed");
+                        return result;
+                    }
                 }
 
                 epgCbToAdd.EpgID = (ulong)newEpgId;
