@@ -540,23 +540,10 @@ namespace WebAPI.Managers
                 Group group = GroupsManager.GetGroup(ks.GroupId);
                 int revokedKsMaxTtlSeconds = GetRevokedKsMaxTtlSeconds(group);
                 string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
-                var payload = ks.ExtractKSData();
-
-                var revokedToken = new ApiToken()
-                {
-                    GroupID = ks.GroupId,
-                    AccessTokenExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration),
-                    KS = ks.ToString(),
-                    Udid = payload.UDID,
-                    UserId = ks.UserId,
-                    RegionId = payload.RegionId,
-                    UserSegments = payload.UserSegments,
-                    UserRoles = payload.UserRoles
-                };
-
+                var revokedToken = new ApiToken(ks);
                 string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptUtils.HashMD5(ks.ToString()));
-
                 uint expiration = (uint)(revokedToken.RefreshTokenExpiration - DateUtils.GetUtcUnixTimestampNow());
+
                 if (revokedKsMaxTtlSeconds > 0 && revokedKsMaxTtlSeconds < expiration)
                 {
                     expiration = (uint)revokedKsMaxTtlSeconds;

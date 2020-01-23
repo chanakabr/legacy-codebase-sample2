@@ -49,7 +49,6 @@ namespace WebAPI.Managers.Models
         [JsonIgnore]
         public KS KsObject { get; set; }
 
-        // TODO SHIR - SET Signature IN ALL LIKE Udid
         [JsonProperty("Signature")]
         public string Signature { get; set; }
 
@@ -154,10 +153,19 @@ namespace WebAPI.Managers.Models
             this.KS = KsObject.ToString();
         }
 
+        public ApiToken (KS ks)
+        {
+            GroupID = ks.GroupId;
+            AccessTokenExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration);
+            KS = ks.ToString();
+            UserId = ks.UserId;
+            SetKsData(ks.ExtractKSData());
+        }
+
         public KS CreateKS(string tokenVal)
         {
             var sessionType = (int)(this.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER);
-            var data = new KSData(this.Udid, 0, this.RegionId, this.UserSegments, this.UserRoles).PrepareKSPayload();
+            var data = new KSData(this.Udid, 0, this.RegionId, this.UserSegments, this.UserRoles, this.Signature).PrepareKSPayload();
             var ks = new KS(this.GroupID, this.UserId, this.AccessTokenExpiration, sessionType, data, tokenVal);
             return ks;
         }
