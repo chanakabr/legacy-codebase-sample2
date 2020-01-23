@@ -202,11 +202,7 @@ namespace Core.Billing
                 AdyenUtils.GetWSCredentials(m_nGroupID, ref sUN, ref sPass, ref merchAcc, ref merchPurchesAccount, 3);
                 RecurringDetailsResult recRes = GetAdyenConract(merchAcc, sSiteGUID, sUN, sPass);
                 log.Info(string.Format("WSCredentials : GroupID={0}, sUN={1}, sPass={2},merchAcc={3},merchPurchesAccount={4},PurchesType={5}", m_nGroupID, sUN, sPass, merchAcc, merchPurchesAccount, 3));
-                if (recRes.details == null || recRes.details.Length == 0)
-                {
-                    AdyenUtils.GetTvinciWSCredentials(ref sUN, ref sPass, ref merchAcc);
-                    recRes = GetAdyenConract(merchAcc, sSiteGUID, sUN, sPass);
-                }
+
                 if (recRes.details != null && recRes.details.Length > 0)
                 {
                     try
@@ -471,9 +467,9 @@ namespace Core.Billing
 
                 int nBoundOfNumOfCancelOrRefundAttempts = Utils.GetPreviewModuleNumOfCancelOrRefundAttempts();
                 ModificationResult modRes = null;
+
                 for (i = nHowManyCancelOrRefundAttemptsSoFarNotIncludingThisOne; (i < nBoundOfNumOfCancelOrRefundAttempts && bIsCancelOrRefundResultOfPreviewModule) || (i < nHowManyCancelOrRefundAttemptsSoFarNotIncludingThisOne + 1 && !bIsCancelOrRefundResultOfPreviewModule); i++)
                 {
-
                     _PaymentClient.ClientCredentials.UserName.UserName = sUN;
                     _PaymentClient.ClientCredentials.UserName.Password = sPass;
                     modRes = _PaymentClient.cancelOrRefundAsync(modReq).ExecuteAndWait();
