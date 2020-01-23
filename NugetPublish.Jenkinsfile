@@ -24,7 +24,7 @@ pipeline {
         stage("Package Nuget Locally"){
             steps{
                 echo "Cleanning Nugets dir before packaging new nugets"
-                // dir("nugets"){ deleteDir() }
+                dir("nugets"){ deleteDir() }
 
                 bat "dotnet pack Core/ConfigurationManager/ConfigurationManager.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/TCMClient/TCMClient.csproj -o ${WORKSPACE}/nugets/" 
