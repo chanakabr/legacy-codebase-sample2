@@ -15,6 +15,7 @@ using System.Threading;
 using Couchbase.N1QL;
 using System.Linq;
 using System.Threading.Tasks;
+using ConfigurationManager;
 
 namespace CouchbaseManager
 {
@@ -173,7 +174,8 @@ namespace CouchbaseManager
         {
             try
             {
-                var couchbaseConfigFromTCM = TCMClient.Settings.Instance.GetValue<ClientConfiguration>(COUCHBASE_TCM_CONFIG_KEY, true);
+                ClientConfiguration couchbaseConfigFromTCM = ApplicationConfiguration.Current.CouchbaseClientConfiguration.GetClientConfiguration();
+
                 if (couchbaseConfigFromTCM != null)
                 {
                     // This is here because the default constructor of ClientConfiguration adds a http://localhost:8091/pools url to the 0 index :\
