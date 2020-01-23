@@ -188,11 +188,20 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                newEpgId = EpgDal.InsertEpgToDB(epgCbToAdd, userId, dateTimeNow, epgMetaIdToValues, catalogGroupCache.DefaultLanguage.ID, epgTagsIds);
-                if (newEpgId == 0)
+                var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+                if (isIngestV2)
                 {
-                    log.Error("Inesrt epg to epg_channels_schedule failed");
-                    return result;
+                    var epgBl = new TvinciEpgBL(groupId);
+                    newEpgId = (long)epgBl.GetNewEpgId();
+                }
+                else
+                {
+                    newEpgId = EpgDal.InsertEpgToDB(epgCbToAdd, userId, dateTimeNow, epgMetaIdToValues, catalogGroupCache.DefaultLanguage.ID, epgTagsIds);
+                    if (newEpgId == 0)
+                    {
+                        log.Error("Inesrt epg to epg_channels_schedule failed");
+                        return result;
+                    }
                 }
 
                 epgCbToAdd.EpgID = (ulong)newEpgId;
@@ -248,6 +257,9 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                // Ingest V2 does not use DB anymore so we will wrap all EpgDAL calls in !isIngestV2
+                var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+
                 // update Epg_channels_schedule table (basic data)
                 epgCBToUpdate = CreateEpgCbFromEpgAsset(epgAssetToUpdate, groupId, epgAssetToUpdate.CreateDate.Value, updateDate);
 
@@ -256,12 +268,16 @@ namespace Core.Catalog.CatalogManagement
                     epgCBToUpdate.Language = defaultLanguageCode;
                     epgCBToUpdate.Name = epgAssetToUpdate.Name;
                     epgCBToUpdate.Description = epgAssetToUpdate.Description;
-                    DataTable dtEpgChannelsScheduleToUpdate = GetEpgChannelsScheduleTable();
-                    dtEpgChannelsScheduleToUpdate.Rows.Add(GetEpgChannelsScheduleRow(epgCBToUpdate, dtEpgChannelsScheduleToUpdate, updateDate, userId));
-                    if (!EpgDal.UpdateEpgChannelSchedule(dtEpgChannelsScheduleToUpdate))
+
+                    if (!isIngestV2)
                     {
-                        log.Error("UpdateEpgChannelSchedule Failed");
-                        return result;
+                        DataTable dtEpgChannelsScheduleToUpdate = GetEpgChannelsScheduleTable();
+                        dtEpgChannelsScheduleToUpdate.Rows.Add(GetEpgChannelsScheduleRow(epgCBToUpdate, dtEpgChannelsScheduleToUpdate, updateDate, userId));
+                        if (!EpgDal.UpdateEpgChannelSchedule(dtEpgChannelsScheduleToUpdate))
+                        {
+                            log.Error("UpdateEpgChannelSchedule Failed");
+                            return result;
+                        }
                     }
                 }
 
@@ -282,12 +298,18 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    EpgDal.UpdateEpgMetas(epgAssetToUpdate.Id, epgMetaIdToValues, userId, updateDate, groupId, catalogGroupCache.DefaultLanguage.ID);
+                    if (!isIngestV2)
+                    {
+                        EpgDal.UpdateEpgMetas(epgAssetToUpdate.Id, epgMetaIdToValues, userId, updateDate, groupId, catalogGroupCache.DefaultLanguage.ID);
+                    }
                 }
 
                 if (needToUpdateTags)
                 {
-                    EpgDal.UpdateEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId);
+                    if (!isIngestV2)
+                    {
+                        EpgDal.UpdateEpgTags(epgAssetToUpdate.Id, epgTagsIds, userId, updateDate, groupId);
+                    }
                 }
 
                 Dictionary<string, Dictionary<string, List<string>>> epgTags = GetEpgTags(epgAssetToUpdate.Tags, allNames, defaultLanguageCode);
@@ -346,43 +368,48 @@ namespace Core.Catalog.CatalogManagement
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            if (EpgDal.DeleteEpgAsset(epgId, userId))
+            var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+
+            // Ingest V2 is not using DB anymore so we will skip the DB deletion and move to deleting the index and CB
+            if (!isIngestV2)
             {
-                result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-                //update CB
-                CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                var isEpgDeletedFromDB = EpgDal.DeleteEpgAsset(epgId, userId);
+                if (!isEpgDeletedFromDB)
                 {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteEpgAsset", groupId);
-                    return null;
-                }
-
-                var languages = GetLanguagesObj(new List<string>() { "*" }, catalogGroupCache);
-                var docIds = GetEpgCBKeys(groupId, epgId, languages);
-                var epgCbList = EpgDal.GetEpgCBList(docIds);
-
-                foreach (EpgCB epgCB in epgCbList)
-                {
-                    // the documents with main language are saved without a language code so we will send null to get key
-                    var lang = epgCB.Language.Equals(catalogGroupCache.DefaultLanguage.Code) ? null : epgCB.Language;
-                    var docId = GetEpgCBKey(groupId, epgId, lang);
-                    if (!EpgDal.DeleteEpgCB(docId, epgCB))
-                    {
-                        log.ErrorFormat("Failed to DeleteEpgCB for epgId: {0}", epgId);
-                    }
-                }
-
-                // Delete Index
-                bool indexingResult = IndexManager.DeleteProgram(groupId, new List<long>() { epgId });
-                if (!indexingResult)
-                {
-                    log.ErrorFormat("Failed to delete epg index for assetId: {0}, groupId: {1} after DeleteEpgAsset", epgId, groupId);
+                    log.ErrorFormat("Failed to delete epg asset with id: {0}, groupId: {1}", epgId, groupId);
+                    return result;
                 }
             }
-            else
+
+            result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            //update CB
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
             {
-                log.ErrorFormat("Failed to delete epg asset with id: {0}, groupId: {1}", epgId, groupId);
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteEpgAsset", groupId);
+                return null;
+            }
+
+            var languages = GetLanguagesObj(new List<string>() { "*" }, catalogGroupCache);
+            var docIds = GetEpgCBKeys(groupId, epgId, languages);
+            var epgCbList = EpgDal.GetEpgCBList(docIds);
+
+            foreach (EpgCB epgCB in epgCbList)
+            {
+                // the documents with main language are saved without a language code so we will send null to get key
+                var lang = epgCB.Language.Equals(catalogGroupCache.DefaultLanguage.Code) ? null : epgCB.Language;
+                var docId = GetEpgCBKey(groupId, epgId, lang);
+                if (!EpgDal.DeleteEpgCB(docId, epgCB))
+                {
+                    log.ErrorFormat("Failed to DeleteEpgCB for epgId: {0}", epgId);
+                }
+            }
+
+            // Delete Index
+            bool indexingResult = IndexManager.DeleteProgram(groupId, new List<long>() { epgId });
+            if (!indexingResult)
+            {
+                log.ErrorFormat("Failed to delete epg index for assetId: {0}, groupId: {1} after DeleteEpgAsset", epgId, groupId);
             }
 
             return result;
@@ -756,7 +783,7 @@ namespace Core.Catalog.CatalogManagement
                                                             catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas
                                                                 .ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
                                                             !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList();
-            
+
             if (excluded.Count > 0)
             {
                 // get all program asset struct topic systemNames and types mapping
@@ -781,12 +808,12 @@ namespace Core.Catalog.CatalogManagement
             {
                 epgTagsToUpdate = new List<Tags>();
             }
-            
+
             if (catalogGroupCache.ProgramAssetStructId == 0 || oldTagsAsset == null || oldTagsAsset.Count == 0)
             {
                 return epgTagsToUpdate;
             }
-            
+
             List<Tags> excluded = oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
                                                           catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
                                                           catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas
@@ -864,7 +891,7 @@ namespace Core.Catalog.CatalogManagement
             Status status = null;
             epgMetas = null;
             epgTagsIds = null;
-            
+
             if (catalogGroupCache.ProgramAssetStructId == 0)
             {
                 return new Status((int)eResponseStatus.AssetStructDoesNotExist, "Program AssetStruct does not exist");
