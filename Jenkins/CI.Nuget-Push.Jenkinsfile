@@ -1,0 +1,71 @@
+pipeline {
+    agent {
+        label 'Windows'
+    }
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'50'))
+    }
+    parameters {
+        string(name: 'branch', defaultValue: 'master', description: 'Core branch to pull')
+        string(name: 'nuget_server', defaultValue: '10.10.12.70:5555/v3/index.json', description: 'Nuget Server URL')
+        
+    }
+    stages {
+        stage("Checkout and restore Core Source"){
+            steps{
+                dir('Core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${branch}", credentialsId: "github-ott-ci-cd") }
+            }
+        }
+        stage("Version Patch"){
+            steps{
+                dir("Core"){
+                    bat "sh DllVersioning.Core.sh ." 
+                }
+            }        
+        }
+        stage("Package Nuget Locally"){
+            steps{
+                echo "Cleanning Nugets dir before packaging new nugets"
+                dir("nugets"){ deleteDir() }
+
+                bat "dotnet pack Core/ConfigurationManager/ConfigurationManager.csproj -o ${WORKSPACE}/nugets/" 
+                bat "dotnet pack Core/TCMClient/TCMClient.csproj -o ${WORKSPACE}/nugets/" 
+                bat "dotnet pack Core/StaticHttpContextForNetCore/StaticHttpContextForNetCore.csproj -o ${WORKSPACE}/nugets/" 
+                bat "dotnet pack Core/KLogMonitor/KLogMonitor.csproj -o ${WORKSPACE}/nugets/" 
+                bat "dotnet pack Core/CouchBaseExtensions/CouchBaseExtensions.csproj -o ${WORKSPACE}/nugets/" 
+                bat "dotnet pack Core/CouchbaseManager/CouchbaseManager.csproj -o ${WORKSPACE}/nugets/" 
+                bat "dotnet pack Core/ODBCWrapper/ODBCWrapper.csproj -o ${WORKSPACE}/nugets/" 
+                bat "dotnet pack Core/CachingManager/CachingManager.csproj -o ${WORKSPACE}/nugets/" 
+                bat "dotnet pack Core/CachingProvider/CachingProvider.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/ApiObjects/ApiObjects.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/EventBus.Abstraction/EventBus.Abstraction.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/EventManager/EventManager.csproj -o ${WORKSPACE}/nugets/"
+				bat "dotnet pack Core/QueueWrapper/QueueWrapper.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/RabbitQueueWrapper/RabbitQueueWrapper.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/LogReloader/LogReloader.csproj -o ${WORKSPACE}/nugets/"
+            }        
+        }
+        stage("Publish Nugets"){
+            steps { 
+                dir("nugets"){ 
+                    bat "nuget push ConfigurationManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push TCMClient*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push StaticHttpContextForNetCore*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push KLogMonitor*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push CouchBaseExtensions*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push CouchbaseManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push ODBCWrapper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push CachingManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push CachingProvider*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push ApiObjects*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push EventBus.Abstraction*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push EventManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+					bat "nuget push QueueWrapper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push RabbitQueueWrapper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push LogReloader*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                }
+            }
+        }
+       
+    }
+}
