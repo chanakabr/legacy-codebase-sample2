@@ -23,17 +23,11 @@ namespace ConfigurationManager.Types
         public BaseValue<int> MaxDegreeOfParallelism = new BaseValue<int>("max_degree_of_parallelism", 4);
         public BaseValue<List<string>> Servers = new BaseValue<List<string>>("Servers", defaultBucketServerList);
         public BucketsConfig BucketsConfig = new BucketsConfig();
-        private JToken token;
-
-        public override void SetActualValue<TV>(JToken token, BaseValue<TV> defaultData)
-        {
-            base.SetActualValue(token, defaultData);
-            this.token = token;
-        }
 
         public Couchbase.Configuration.Client.ClientConfiguration GetClientConfiguration()
         {
             // first parse/deserialize the json token to the Couchbase configuration object
+            var token = GetOriginalTcmToken();
             var result = token.ToObject<ClientConfiguration>();
 
             // now we shall start overriding some of the defaults, if needed

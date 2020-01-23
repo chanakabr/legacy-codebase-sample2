@@ -179,7 +179,16 @@ namespace CouchbaseManager
                 if (couchbaseConfigFromTCM != null)
                 {
                     // This is here because the default constructor of ClientConfiguration adds a http://localhost:8091/pools url to the 0 index :\
-                    couchbaseConfigFromTCM.Servers.RemoveAt(0);
+                    // Sunny: somehow I got to a situation where we don't have this localhost server, so I added more conditions so we won't remove a "good" server
+                    if (couchbaseConfigFromTCM.Servers != null && couchbaseConfigFromTCM.Servers.Count > 0)
+                    {
+                        var firstServer = couchbaseConfigFromTCM.Servers[0];
+
+                        if (firstServer.AbsoluteUri.ToLower().Contains("localhost"))
+                        {
+                            couchbaseConfigFromTCM.Servers.RemoveAt(0);
+                        }
+                    }
                     couchbaseConfigFromTCM.Transcoder = GetTranscoder;
                     return couchbaseConfigFromTCM;
                 }

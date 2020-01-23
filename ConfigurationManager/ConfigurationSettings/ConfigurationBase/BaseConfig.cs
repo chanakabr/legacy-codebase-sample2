@@ -26,6 +26,11 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
             return token;
         }
 
+        protected JToken GetOriginalTcmToken()
+        {
+            return Settings.Instance.GetJsonString(TcmPath, false);
+        }
+
         protected void SetActualValue<TV>(BaseValue<TV> baseValue, TV actualvalue)
         {
             baseValue.ActualValue = actualvalue;
