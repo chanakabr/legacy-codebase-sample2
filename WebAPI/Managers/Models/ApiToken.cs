@@ -49,6 +49,10 @@ namespace WebAPI.Managers.Models
         [JsonIgnore]
         public KS KsObject { get; set; }
 
+        // TODO SHIR - SET Signature IN ALL LIKE Udid
+        [JsonProperty("Signature")]
+        public string Signature { get; set; }
+
         public ApiToken()
         {
         }
@@ -61,10 +65,6 @@ namespace WebAPI.Managers.Models
             this.UserId = userId;
             this.IsAdmin = isAdmin;
             this.IsLongRefreshExpiration = isLongRefreshExpiration;
-            this.Udid = payload.UDID;
-            this.RegionId = payload.RegionId;
-            this.UserSegments = payload.UserSegments;
-            this.UserRoles = payload.UserRoles;
 
             if (isLongRefreshExpiration)
             {
@@ -98,23 +98,21 @@ namespace WebAPI.Managers.Models
                               privileges,
                               KSVersion.V2,
                               ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets);
+            ksData = this.KsObject.ExtractKSData();
+            SetKsData(ksData);
 
             this.KS = KsObject.ToString();
         }
 
         public ApiToken(ApiToken token, Group groupConfig, string udid)
         {
-            var ksData = new KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), token.RegionId, token.UserSegments, token.UserRoles);
+            var ksData = new KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), token.RegionId, token.UserSegments, token.UserRoles, token.Signature);
             this.RefreshToken = token.RefreshToken;
             this.GroupID = token.GroupID;
             this.UserId = token.UserId;
             this.IsAdmin = token.IsAdmin;
             this.IsLongRefreshExpiration = token.IsLongRefreshExpiration;
-            this.Udid = udid;
-            this.RegionId = token.RegionId;
-            this.UserSegments = token.UserSegments;
-            this.UserRoles = token.UserRoles;
-
+            
             // set refresh token expiration
             if (groupConfig.IsRefreshTokenExtendable)
             {
@@ -150,6 +148,9 @@ namespace WebAPI.Managers.Models
                               null, 
                               KSVersion.V2,
                               ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets);
+            ksData = this.KsObject.ExtractKSData();
+            SetKsData(ksData);
+
             this.KS = KsObject.ToString();
         }
 
@@ -159,6 +160,15 @@ namespace WebAPI.Managers.Models
             var data = new KSData(this.Udid, 0, this.RegionId, this.UserSegments, this.UserRoles).PrepareKSPayload();
             var ks = new KS(this.GroupID, this.UserId, this.AccessTokenExpiration, sessionType, data, tokenVal);
             return ks;
+        }
+
+        private void SetKsData(KSData ksData)
+        {
+            this.Udid = ksData.UDID;
+            this.RegionId = ksData.RegionId;
+            this.UserSegments = ksData.UserSegments;
+            this.UserRoles = ksData.UserRoles;
+            this.Signature = ksData.Signature;
         }
     }
 }

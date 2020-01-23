@@ -16,7 +16,7 @@ namespace KSWrapper
         V2 = 1
     }
 
-    public class KS
+    public sealed class KS
     {
         public const string INVALID_KS_FORMAT = "Invalid KS format";
 

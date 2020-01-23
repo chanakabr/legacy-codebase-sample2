@@ -10,6 +10,14 @@ namespace TVinciShared
     public static class EncryptUtils
     {
         private const int BLOCK_SIZE = 16;
+        
+        // This constant string is used as a "salt" value for the PasswordDeriveBytes function calls.
+        // This size of the IV (in bytes) must = (keysize / 8).  Default keysize is 256, so the IV must be
+        // 32 bytes long.  Using a 16 character string here gives us 32 bytes when converted to a byte array.
+        private static readonly byte[] initVectorBytes = Encoding.ASCII.GetBytes("tu89geji340t89u2");
+
+        // This constant is used to determine the keysize of the encryption algorithm.
+        private const int keysize = 256;
 
         public static byte[] AesEncrypt(string secretForSigning, byte[] text, byte[] iv = null)
         {
@@ -359,14 +367,6 @@ namespace TVinciShared
                 }
             }
         }
-
-        // This constant string is used as a "salt" value for the PasswordDeriveBytes function calls.
-        // This size of the IV (in bytes) must = (keysize / 8).  Default keysize is 256, so the IV must be
-        // 32 bytes long.  Using a 16 character string here gives us 32 bytes when converted to a byte array.
-        private static readonly byte[] initVectorBytes = Encoding.ASCII.GetBytes("tu89geji340t89u2");
-
-        // This constant is used to determine the keysize of the encryption algorithm.
-        private const int keysize = 256;
 
         public static string Decrypt(string cipherText, string passPhrase)
         {

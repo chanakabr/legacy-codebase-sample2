@@ -4,7 +4,7 @@ using TVinciShared;
 
 namespace KSWrapper
 {
-    public class KSData
+    public sealed class KSData
     {
         private const string PAYLOAD_UDID = "UDID";
         private const string PAYLOAD_CREATE_DATE = "CreateDate";
@@ -25,42 +25,42 @@ namespace KSWrapper
         {
         }
 
-        public KSData(Dictionary<string, string> pl)
+        public KSData(Dictionary<string, string> payloadData)
         {
-            if (pl.ContainsKey(PAYLOAD_UDID))
+            if (payloadData.ContainsKey(PAYLOAD_UDID))
             {
-                this.UDID = pl[PAYLOAD_UDID];
+                this.UDID = payloadData[PAYLOAD_UDID];
             }
 
-            if (pl.ContainsKey(PAYLOAD_CREATE_DATE))
+            if (payloadData.ContainsKey(PAYLOAD_CREATE_DATE))
             {
                 int createDate = 0;
-                int.TryParse(pl[PAYLOAD_CREATE_DATE], out createDate);
+                int.TryParse(payloadData[PAYLOAD_CREATE_DATE], out createDate);
                 this.CreateDate = createDate;
             }
 
-            if (pl.ContainsKey(PAYLOAD_REGION))
+            if (payloadData.ContainsKey(PAYLOAD_REGION))
             {
                 int regionId = 0;
-                int.TryParse(pl[PAYLOAD_REGION], out regionId);
+                int.TryParse(payloadData[PAYLOAD_REGION], out regionId);
                 this.RegionId = regionId;
             }
 
             this.UserSegments = new List<long>();
-            if (pl.ContainsKey(PAYLOAD_USER_SEGMENTS))
+            if (payloadData.ContainsKey(PAYLOAD_USER_SEGMENTS))
             {
-                this.UserSegments.AddRange(pl[PAYLOAD_USER_SEGMENTS].GetItemsIn<List<long>, long>());
+                this.UserSegments.AddRange(payloadData[PAYLOAD_USER_SEGMENTS].GetItemsIn<List<long>, long>());
             }
 
             this.UserRoles = new List<long>();
-            if (pl.ContainsKey(PAYLOAD_USER_ROLES))
+            if (payloadData.ContainsKey(PAYLOAD_USER_ROLES))
             {
-                this.UserRoles.AddRange(pl[PAYLOAD_USER_ROLES].GetItemsIn<List<long>, long>());
+                this.UserRoles.AddRange(payloadData[PAYLOAD_USER_ROLES].GetItemsIn<List<long>, long>());
             }
 
-            if (pl.ContainsKey(PAYLOAD_SIGNATURE))
+            if (payloadData.ContainsKey(PAYLOAD_SIGNATURE))
             {
-                this.Signature = pl[PAYLOAD_SIGNATURE];
+                this.Signature = payloadData[PAYLOAD_SIGNATURE];
             }
         }
 
