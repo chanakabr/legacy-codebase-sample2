@@ -30,7 +30,6 @@ namespace Phoenix.Rest.Middleware
     public class PhoenixRequestContextBuilder
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string _FileSystemUploaderSourcePath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
         private static int _LegacyAccessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
         private readonly RequestDelegate _Next;
 
@@ -284,20 +283,11 @@ namespace Phoenix.Rest.Middleware
         private async Task<IDictionary<string, object>> ParseUploadedFiles(HttpRequest request)
         {
             var uploadedFiles = new Dictionary<string, object>();
-            if (!Directory.Exists(_FileSystemUploaderSourcePath))
-            {
-                Directory.CreateDirectory(_FileSystemUploaderSourcePath);
-            }
 
             foreach (var uploadedFile in request.Form.Files)
             {
-                var filePath = $@"{_FileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
-                using (Stream tempFile = File.Create(filePath))
-                {
-                    await uploadedFile.CopyToAsync(tempFile);
-                }
-
-                uploadedFiles.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
+                var kalturaFile = KalturaOTTFile.CreateFromStream(uploadedFile.FileName, uploadedFile.OpenReadStream());
+                uploadedFiles.Add(uploadedFile.Name, kalturaFile);
             }
 
             return uploadedFiles;

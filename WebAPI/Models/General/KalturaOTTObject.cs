@@ -1,8 +1,10 @@
 ﻿using ApiObjects.Base;
+using ConfigurationManager;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
@@ -82,7 +84,7 @@ namespace WebAPI.Models.General
     public interface IKalturaOTTObject
     {
     }
-    
+
     /// <summary>
     /// Base class
     /// </summary>
@@ -99,7 +101,7 @@ namespace WebAPI.Models.General
         public SerializableDictionary<string, IKalturaListResponse> relatedObjects { get; set; }
 
         public virtual void SetRelatedObjects(ContextData contextData, KalturaDetachedResponseProfile profile) { }
-        
+
         public KalturaOTTObject(Dictionary<string, object> parameters = null)
         {
             Init();
@@ -170,7 +172,7 @@ namespace WebAPI.Models.General
 
             foreach (JToken item in array)
             {
-                list.Add((T) Convert.ChangeType(item, itemType));
+                list.Add((T)Convert.ChangeType(item, itemType));
             }
 
             return list;
@@ -180,7 +182,7 @@ namespace WebAPI.Models.General
         {
             Type listType = typeof(List<>).MakeGenericType(itemType);
             dynamic list = Activator.CreateInstance(listType);
-            
+
             foreach (object item in array)
             {
                 var obj = Deserializer.deserialize(itemType, item as Dictionary<string, object>);
@@ -197,7 +199,7 @@ namespace WebAPI.Models.General
             foreach (string key in dictionary.Keys)
             {
                 JToken item = (JToken)dictionary[key];
-                T itemObject = (T) Deserializer.deserialize(itemType, item.ToObject<Dictionary<string, object>>());
+                T itemObject = (T)Deserializer.deserialize(itemType, item.ToObject<Dictionary<string, object>>());
                 res.Add(key, itemObject);
             }
 
@@ -225,7 +227,7 @@ namespace WebAPI.Models.General
 
             return res;
         }
-        
+
         public virtual void AfterRequestParsed(string service, string action, string language, int groupId, string userId, string deviceId, JObject json = null)
         {
 
@@ -288,12 +290,14 @@ namespace WebAPI.Models.General
             return values;
         }
     }
-    
+
     /// <summary>
     /// Base class
     /// </summary>
     public class KalturaOTTFile
     {
+        private static readonly string TEMP_UPLOAD_FOLDER = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
+
         public KalturaOTTFile(string filePath, string fileName)
         {
             path = filePath;
@@ -302,6 +306,23 @@ namespace WebAPI.Models.General
 
         public string path { get; set; }
         public string name { get; set; }
+
+        public static KalturaOTTFile CreateFromStream(string fileName, Stream fileStream)
+        {
+            if (!Directory.Exists(TEMP_UPLOAD_FOLDER)) { Directory.CreateDirectory(TEMP_UPLOAD_FOLDER); }
+
+            var originalFileExtention = Path.GetExtension(fileName);
+            var randomNamePart = Path.GetFileNameWithoutExtension(Path.GetRandomFileName());
+            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
+            var filePath = Path.Combine(TEMP_UPLOAD_FOLDER, $"{timestamp}_{randomNamePart}.{originalFileExtention}");
+
+            using (Stream tempFile = File.Create(filePath))
+            {
+                fileStream.CopyTo(tempFile);
+            }
+
+            return new KalturaOTTFile(filePath, fileName);
+        }
     }
 
     public partial class KalturaOTTObjectSupportNullable : KalturaOTTObject

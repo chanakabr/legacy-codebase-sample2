@@ -46,7 +46,6 @@ namespace WebAPI.Filters
         private const char PARAMS_PREFIX = ':';
         private const char PARAMS_NESTED_PREFIX = '.';
 
-        private static readonly string fileSystemUploaderSourcePath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
 
         private static Dictionary<string, Type> types = null;
         private static object locker = new object();
@@ -104,13 +103,7 @@ namespace WebAPI.Filters
         {
             if (actionContext.Request.Content.IsMimeMultipartContent())
             {
-                if (!Directory.Exists(fileSystemUploaderSourcePath))
-                {
-                    Directory.CreateDirectory(fileSystemUploaderSourcePath);
-                }
-
                 var ret = new Dictionary<string, object>();
-
                 byte[] requestBody = (byte[])HttpContext.Current.Items["body"];
                 using (Stream stream = new MemoryStream(requestBody))
                 {
@@ -122,12 +115,8 @@ namespace WebAPI.Filters
 
                     foreach (var uploadedFile in parser.Files)
                     {
-                        var filePath = $@"{fileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
-                        using (Stream tempFile = File.Create(filePath))
-                        {
-                            uploadedFile.Data.CopyTo(tempFile);
-                        }
-                        ret.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
+                        var kalturaFile = KalturaOTTFile.CreateFromStream(uploadedFile.FileName, uploadedFile.Data);
+                        ret.Add(uploadedFile.Name, kalturaFile);
                     }
 
                 }
