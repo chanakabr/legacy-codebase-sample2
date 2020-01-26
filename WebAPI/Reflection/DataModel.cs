@@ -6911,6 +6911,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("asset", "getPlaybackContext", false);
                             return AssetController.GetPlaybackContext((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2], (string) methodParams[3]);
                             
+                        case "getplaybackmanifest":
+                            RolesManager.ValidateActionPermitted("asset", "getPlaybackManifest", false);
+                            return AssetController.GetPlaybackManifest((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2], (string) methodParams[3]);
+                            
                         case "list":
                             if(isOldVersion)
                             {
@@ -11349,6 +11353,29 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "getplaybackcontext":
+                            ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("assetType", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetType),
+                            });
+                            ret.Add("contextDataParams", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPlaybackContextOptions),
+                            });
+                            ret.Add("sourceType", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "getplaybackmanifest":
                             ret.Add("assetId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),

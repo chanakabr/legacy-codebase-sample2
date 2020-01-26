@@ -2450,9 +2450,10 @@ namespace Core.Api
         }
 
         public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackContext(long adapterId, int groupId, string userId, string udid, string ip,
-                                                                          ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, Dictionary<string, string> adapterData)
+                                                                          ApiObjects.PlaybackAdapter.PlaybackContext playbackContext,
+                                                                          ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
         {
-            return Core.Api.api.GetPlaybackAdapterContext(adapterId, groupId, userId, udid, ip, playbackContext, adapterData);
+            return Core.Api.api.GetPlaybackAdapterContext(adapterId, groupId, userId, udid, ip, playbackContext, requestPlaybackContextOptions);
         }
 
         public static Status UpdateGeneralPartnerConfig(int groupId, GeneralPartnerConfig partnerConfigToUpdate)
@@ -2603,6 +2604,10 @@ namespace Core.Api
             return result;
         }
 
+        public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackManifest(long adapterId, int groupId, ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
+        {
+            return api.GetPlaybackAdapterManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions);
+        }
         public static GenericListResponse<Region> GetDefaultRegion(int groupId)
         {
             return ApiLogic.Api.Managers.RegionManager.GetDefaultRegion(groupId);
