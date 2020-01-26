@@ -3,13 +3,7 @@
     "IngestTransformationHandler": {
       "commandName": "Project",
       "environmentVariables": {
-        "CONCURRENT_CONSUMERS": "1",
-        "TCM_URL": "http://tcm.service.consul:8443",
-        "TCM_APP": "OTT_API_SV",
-        "TCM_HOST": "PROD_v5_2_2",
-        "TCM_SECTION": "main",
-        "TCM_APP_ID": "5bf8cf60",
-        "TCM_APP_SECRET": "5aaa99331c18f6bad4adeef93ab770c2"
+        "CONCURRENT_CONSUMERS": "1"
       }
     }
   }

@@ -134,7 +134,7 @@ namespace IngestHandler
 
                 await BulkUploadMethods.UpdateCouchbase(finalEpgSchedule, serviceEvent.GroupId);
 
-                var updater = new UpdateClonedIndex(serviceEvent.GroupId, serviceEvent.BulkUploadId, serviceEvent.DateOfProgramsToIngest, _Languages);
+                var updater = new EpgElasticUpdater(serviceEvent.GroupId, serviceEvent.BulkUploadId, serviceEvent.DateOfProgramsToIngest, _Languages);
                 updater.Update(finalEpgSchedule, overallCrudOperations.ItemsToDelete);
 
                 var isErrorInEpg = _ResultsDictionary.Values.SelectMany(r => r.Values).Any(item => item.Status == BulkUploadResultStatus.Error);
@@ -207,7 +207,15 @@ namespace IngestHandler
 
         private void UpdateBulkUploadObjectStatusAndResults()
         {
-            BulkUploadManager.UpdateBulkUploadResults(_ResultsDictionary.Values.SelectMany(r => r.Values), out var jobStatus);
+            var resultsToUpdate = _ResultsDictionary.Values.SelectMany(r => r.Values).ToList();
+
+            BulkUploadManager.UpdateBulkUploadResults(resultsToUpdate, out var jobStatusByResultStatus);
+
+            // in case there was any other logic that decided that the entire bulk upload has failed we should update final status to faild and
+            // ignore the status that is based on results
+            // for instance when we found a gap but non of the result object were causing the gap, we will put a general error and faild status
+            // but all results will be OK
+            var jobStatus = _BulkUploadObject.Status == BulkUploadJobStatus.Failed ? BulkUploadJobStatus.Failed : jobStatusByResultStatus;
             BulkUploadManager.UpdateBulkUpload(_BulkUploadObject, jobStatus);
         }
 
@@ -245,10 +253,34 @@ namespace IngestHandler
                     {
                         gaps.ForEach(gappedProgs =>
                         {
-                            var errorMessage = $"Program {gappedProgs.Item1.EpgExternalId} end: {gappedProgs.Item1.EndDate} creates a gap with another program {gappedProgs.Item2.EpgExternalId} start: {gappedProgs.Item2.StartDate}";
+                            var gapStartTime = gappedProgs.Item1.EndDate;
+                            var gapEndTime = gappedProgs.Item2.StartDate;
+                            var errorMessage = $"Program {gappedProgs.Item1.EpgExternalId} end: {gapStartTime} creates a gap with another program {gappedProgs.Item2.EpgExternalId} start: {gapEndTime}";
                             // Using try add error on both items because we are not sure which program is from source and which is existing
-                            TryAddError(gappedProgs.Item1.ChannelId, gappedProgs.Item1.EpgExternalId, eResponseStatus.EPGSProgramDatesError, errorMessage);
-                            TryAddError(gappedProgs.Item2.ChannelId, gappedProgs.Item2.EpgExternalId, eResponseStatus.EPGSProgramDatesError, errorMessage);
+                            var isUpdateSuccessItem1 = TryAddError(gappedProgs.Item1.ChannelId, gappedProgs.Item1.EpgExternalId, eResponseStatus.EPGSProgramDatesError, errorMessage);
+                            var isUpdateSuccessItem2 = TryAddError(gappedProgs.Item2.ChannelId, gappedProgs.Item2.EpgExternalId, eResponseStatus.EPGSProgramDatesError, errorMessage);
+
+                            // this means the gap was created between 2 programs in current epg schedule and maybe an update caused the gap
+                            // so we are gonna search for the culprit
+                            if (!isUpdateSuccessItem1 && !isUpdateSuccessItem2)
+                            {
+                                var updatedProgramsCausingTheGap = crudOperations.ItemsToUpdate.Where(p => p.StartDate >= gapStartTime && p.EndDate >= gapEndTime).ToList();
+                                if (updatedProgramsCausingTheGap.Any())
+                                {
+                                    updatedProgramsCausingTheGap.ForEach(p =>
+                                    {
+                                        errorMessage = $"Program {p.EpgExternalId} update, is causing a gap between program {gappedProgs.Item1.EpgExternalId} end: {gapStartTime} creates and program {gappedProgs.Item2.EpgExternalId} start: {gapEndTime}";
+
+                                        _ResultsDictionary[p.ChannelId][p.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, errorMessage);
+                                    });
+                                }
+                                else
+                                {
+                                    //This means we found an unxplainable gap and we cannot identify what was the root cause for it, so we put a general error;
+                                    _BulkUploadObject.AddError(eResponseStatus.EPGSProgramDatesError, errorMessage);
+                                    _BulkUploadObject.Status = BulkUploadJobStatus.Failed;
+                                }
+                            }
                         });
                         isValid = false;
                     }
@@ -434,9 +466,9 @@ namespace IngestHandler
             return epgItem;
         }
 
-        private static string GetEpgCBDocumentId( ulong epgId, long bulkUploadResultItem, string langCode)
+        private static string GetEpgCBDocumentId(ulong epgId, long bulkUploadId, string langCode)
         {
-            return $"epg_{bulkUploadResultItem}_{langCode}_{epgId}";
+            return $"epg_{bulkUploadId}_{langCode}_{epgId}";
         }
 
         private void PrepareEpgItemImages(icon[] icons, EpgCB epgItem, BulkUploadProgramAssetResult bulkUploadResultItem)
@@ -594,7 +626,7 @@ namespace IngestHandler
 
             // get the epg document ids from elasticsearch
             var searchQuery = query.ToString();
-            var searchResult = _ElasticSearchClient.Search(index, UpdateClonedIndex.DEFAULT_INDEX_MAPPING_TYPE, ref searchQuery);
+            var searchResult = _ElasticSearchClient.Search(index, EpgElasticUpdater.DEFAULT_INDEX_MAPPING_TYPE, ref searchQuery);
 
 
             List<string> documentIds = new List<string>();
