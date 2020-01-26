@@ -35,7 +35,7 @@ namespace ConfigurationManager
         public BaseValue<string> ApplicationName = new BaseValue<string>("APPLICATION_NAME", TcmObjectKeys.Stub, true);
         public BaseValue<string> GraceNoteXSLTPath = new BaseValue<string>("GraceNote_XSLT_PATH", TcmObjectKeys.Stub, true, "Remote tasks configuration for EPG XDTV Transformation.");
         public BaseValue<string> GraceNoteALUIdConvertion = new BaseValue<string>("GraceNote_ALU_IDConvertion", TcmObjectKeys.Stub, true, "Remote tasks configuration for EPG XDTV Transformation.");
-        public BaseValue<string> DMSUrl = new BaseValue<string>("DMSUrl", TcmObjectKeys.Stub, true, "Address of DMS server.");
+        public BaseValue<string> DMSUrl = new BaseValue<string>("dms_url", TcmObjectKeys.Stub, true, "Address of DMS server.");
         public BaseValue<string> CatalogSignatureKey = new BaseValue<string>("CatalogSignatureKey", "liat regev", false, "liat regev");
         public BaseValue<string> SingleInMemoryCacheName = new BaseValue<string>("single_in_memory_cache_name", "SVInMemoryCache");
         public BaseValue<string> ExcludePsDllImplementation = new BaseValue<string>("EXCLUDE_PS_DLL_IMPLEMENTATION", TcmObjectKeys.Stub, true);
