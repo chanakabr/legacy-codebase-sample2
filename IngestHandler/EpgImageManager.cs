@@ -78,23 +78,67 @@ namespace IngestHandler
             return nRet;
         }
 
-
-        // TODO: Arthur - Implement download pic for multiple pictures
         public static async Task<IEnumerable<GenericResponse<EpgPicture>>> UploadEPGPictures(int groupID, IEnumerable<EpgPicture> pics)
         {
             var results = pics.Select(p => new GenericResponse<EpgPicture>(Status.Ok, p));
-            if (results.Any(p => string.IsNullOrEmpty(p.Object.Url)))
-            {
-                var picsResultsWIthoutUrl = results.Where(p => string.IsNullOrEmpty(p.Object.Url));
-                log.Error($"Some picture were sent withour Url. pics:[{string.Join(",", picsResultsWIthoutUrl.Select(r => r.Object))}], setting their Id to 0");
-                foreach (var picResult in picsResultsWIthoutUrl)
-                {
-                    picResult.SetStatus(eResponseStatus.ImageUrlRequired);
-                }
-            }
-
+            ValidatePicturesHasUrl(results);
             var validPicturesToUpload = results.Where(p => p.IsOkStatusCode());
 
+            await CheckPictureUrlWithHeadRequest(validPicturesToUpload);
+            validPicturesToUpload = results.Where(p => p.IsOkStatusCode());
+
+            foreach (var pic in validPicturesToUpload)
+            {
+                if (pic.Object.RatioId <= 0) { pic.Object.RatioId = ImageUtils.GetGroupDefaultEpgRatio(groupID); }
+                var picName = getPictureFileName(pic.Object.Url);
+                picName = string.Format("{0}_{1}_{2}", pic.Object.ChannelId, pic.Object.RatioId, picName);
+                pic.Object.PicName = picName;
+            }
+
+            GetExistingPictures(groupID, validPicturesToUpload);
+            var picsToInsert = validPicturesToUpload.Where(p => p.Object.PicID <= 0);
+
+            InsertNewPicturesToDB(groupID, picsToInsert);
+
+            return results;
+        }
+
+        private static void InsertNewPicturesToDB(int groupID, IEnumerable<GenericResponse<EpgPicture>> picsToInsert)
+        {
+            foreach (var picResult in picsToInsert)
+            {
+                var pic = picResult.Object;
+                int nPicID = ImporterImpl.DownloadEPGPic(pic.Url, pic.PicName, groupID, 0, pic.ChannelId, pic.RatioId, pic.ImageTypeId);
+                pic.PicID = nPicID;
+
+                // TODO: arhtur: this is crappy implementation of getting the just generated \ inserted image url back from the table....
+                // need to avoid doing another sql query for every image for every program for every translation OMG...
+                // but right now to be as compatiable as possible with ws_ingest and to solve a production issue we have to :\
+                var baseURl = ODBCWrapper.Utils.GetTableSingleVal("epg_pics", "BASE_URL", nPicID);
+                if (baseURl != null && baseURl != DBNull.Value)
+                {
+                    pic.Url = baseURl.ToString();
+                    pic.BaseUrl = pic.Url;
+                }
+            }
+        }
+
+        private static void GetExistingPictures(int groupID, IEnumerable<GenericResponse<EpgPicture>> validPicturesToUpload)
+        {
+            var existingPicsDict = GetExistingPicIds(groupID, validPicturesToUpload);
+            foreach (var existingPic in existingPicsDict)
+            {
+                var existingPics = validPicturesToUpload.Where(p => p.Object.PicName == existingPic.Key);
+                foreach (var pic in existingPics)
+                {
+                    pic.Object.PicID = existingPic.Value.Id;
+                    pic.Object.Url = existingPic.Value.BaseUrl;
+                }
+            }
+        }
+
+        private static async Task CheckPictureUrlWithHeadRequest(IEnumerable<GenericResponse<EpgPicture>> validPicturesToUpload)
+        {
             if (!ApplicationConfiguration.CheckImageUrl.Value)
             {
                 var originalMaxConcurrentConnections = ServicePointManager.DefaultConnectionLimit;
@@ -119,60 +163,35 @@ namespace IngestHandler
                 await Task.WhenAll(imageServerRequests);
                 ServicePointManager.DefaultConnectionLimit = originalMaxConcurrentConnections;
             }
-
-            validPicturesToUpload = results.Where(p => p.IsOkStatusCode());
-            foreach (var pic in validPicturesToUpload)
-            {
-                if (pic.Object.RatioId <= 0) { pic.Object.RatioId = ImageUtils.GetGroupDefaultEpgRatio(groupID); }
-
-                var picName = getPictureFileName(pic.Object.Url);
-                picName = string.Format("{0}_{1}_{2}", pic.Object.ChannelId, pic.Object.RatioId, picName);
-                pic.Object.PicName = picName;
-            }
-
-            var existingPicsDict = GetExistingPicIds(groupID, validPicturesToUpload);
-
-            foreach (var existingPic in existingPicsDict)
-            {
-                var existingPics = validPicturesToUpload.Where(p => p.Object.PicName == existingPic.Key);
-                foreach (var pic in existingPics)
-                {
-                    pic.Object.PicID = existingPic.Value;
-                }
-            }
-
-            var picsToInsert = validPicturesToUpload.Where(p => p.Object.PicID <= 0);
-
-            foreach (var picResult in picsToInsert)
-            {
-                var pic = picResult.Object;
-                int nPicID = ImporterImpl.DownloadEPGPic(pic.Url, pic.PicName, groupID, 0, pic.ChannelId, pic.RatioId, pic.ImageTypeId);
-                pic.PicID = nPicID;
-
-                // TODO: arhtur: this is crappy implementation of getting the just generated \ inserted image url back from the table....
-                // need to avoid doing another sql query for every image for every program for every translation OMG...
-                // but right now to be as compatiable as possible with ws_ingest and to solve a production issue we have to :\
-                var baseURl = ODBCWrapper.Utils.GetTableSingleVal("epg_pics", "BASE_URL", nPicID);
-                if (baseURl != null && baseURl != DBNull.Value)
-                {
-                    pic.Url = baseURl.ToString();
-                    pic.BaseUrl = pic.Url;
-                }
-            }
-
-            return results;
         }
 
-        private static Dictionary<string, int> GetExistingPicIds(int groupID, IEnumerable<GenericResponse<EpgPicture>> validPicturesToUpload)
+        private static void ValidatePicturesHasUrl(IEnumerable<GenericResponse<EpgPicture>> results)
         {
+            if (results.Any(p => string.IsNullOrEmpty(p.Object.Url)))
+            {
+                var picsResultsWIthoutUrl = results.Where(p => string.IsNullOrEmpty(p.Object.Url));
+                log.Error($"Some picture were sent withour Url. pics:[{string.Join(",", picsResultsWIthoutUrl.Select(r => r.Object))}], setting their Id to 0");
+                foreach (var picResult in picsResultsWIthoutUrl)
+                {
+                    picResult.SetStatus(eResponseStatus.ImageUrlRequired);
+                }
+            }
+        }
+
+        private static Dictionary<string, EPGPicDTO> GetExistingPicIds(int groupID, IEnumerable<GenericResponse<EpgPicture>> validPicturesToUpload)
+        {
+
             var picNames = validPicturesToUpload.Select(p => p.Object.PicName).ToList();
             var existingPicsTbl = CatalogDAL.GetEpgPicturesByName(groupID, picNames);
-            var existingPicsDict = new Dictionary<string, int>();
+            var existingPicsDict = new Dictionary<string, EPGPicDTO>();
+
             foreach (DataRow row in existingPicsTbl.Rows)
             {
-                var picName = ODBCWrapper.Utils.GetSafeStr(row, "DESCRIPTION");
-                var picId = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                existingPicsDict[picName] = picId;
+                var pic = new EPGPicDTO();
+                pic.Id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                pic.PicName   = ODBCWrapper.Utils.GetSafeStr(row, "DESCRIPTION");
+                pic.BaseUrl = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL");
+                existingPicsDict[pic.PicName] = pic;
             }
 
             return existingPicsDict;
@@ -284,6 +303,13 @@ namespace IngestHandler
 
 
 
+    }
+
+    public class EPGPicDTO
+    {
+        public int Id { get; set; }
+        public string PicName { get; set; }
+        public string BaseUrl { get; set; }
     }
 }
 

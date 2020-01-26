@@ -95,7 +95,14 @@ namespace IngestValidtionHandler
                     }
                 }
 
-                TriggerElasticIndexCleanerForPartner(_BulkUploadObject, eventData);
+                try
+                {
+                    TriggerElasticIndexCleanerForPartner(_BulkUploadObject, eventData);
+                }
+                catch (Exception e)
+                {
+                    _Logger.Error($"Error while running ElasticIndexCleaner", e);
+                }
             }
             catch (Exception ex)
             {
