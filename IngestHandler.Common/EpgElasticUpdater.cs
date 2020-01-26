@@ -55,7 +55,7 @@ namespace IngestHandler.Common
 
         private void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, bool isOpc, HashSet<string> metasToPad)
         {
-            var bulkSize = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+            var bulkSize = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
             var bulkRequests = new List<ESBulkRequestObj<string>>();
             var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
             foreach (var program in programTranslationsToIndex)
