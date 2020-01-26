@@ -2219,7 +2219,6 @@ namespace Core.Api
             try
             {
                 var userSegments = UserSegment.List(groupId, userId, out int totalCount);
-
                 if (totalCount > 0)
                 {
                     var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(userSegments.Select(x => x.SegmentId).ToList());
@@ -2254,6 +2253,11 @@ namespace Core.Api
                             }
 
                             result.TotalItems = result.Objects.Count;
+
+                            if (pageSize > 0)
+                            {
+                                result.Objects = result.Objects.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                            }
                         }
                     }
                 }
@@ -2603,6 +2607,10 @@ namespace Core.Api
         public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackManifest(long adapterId, int groupId, ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
         {
             return api.GetPlaybackAdapterManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions);
+        }
+        public static GenericListResponse<Region> GetDefaultRegion(int groupId)
+        {
+            return ApiLogic.Api.Managers.RegionManager.GetDefaultRegion(groupId);
         }
     }
 }

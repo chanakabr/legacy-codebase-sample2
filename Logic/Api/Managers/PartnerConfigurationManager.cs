@@ -189,7 +189,7 @@ namespace ApiLogic.Api.Managers
                     if (defaultRegion == null)
                     {
                         log.ErrorFormat("Error while update generalPartnerConfig. DefaultRegion {0} not exist in groupId: {1}", partnerConfigToUpdate.DefaultRegion.Value, groupId);
-                        response.Set((int)eResponseStatus.RegionDoesNotExist, eResponseStatus.DlmNotExist.ToString());
+                        response.Set((int)eResponseStatus.RegionDoesNotExist, eResponseStatus.RegionDoesNotExist.ToString());
                         return response;
                     }
                     else
@@ -365,6 +365,7 @@ namespace ApiLogic.Api.Managers
             
             return objectVirtualAssetInfo;
         }
+
         #endregion
 
         #region private methods
@@ -477,7 +478,6 @@ namespace ApiLogic.Api.Managers
 
             return new Tuple<GeneralPartnerConfig, bool>(generalPartnerConfig, generalPartnerConfig != null);
         }
-
 
         private static ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfig(int groupId, out eResultStatus resultStatus)
         {
@@ -628,9 +628,6 @@ namespace ApiLogic.Api.Managers
 
             return new Tuple<int, bool>(groupDefaultCurrencyId, res);
         }
-
-
-
         #endregion
     }
 }

@@ -13607,7 +13607,7 @@ namespace Core.ConditionalAccess
                                                                     new List<long>() { domainID }, out failedDomainIds);
 
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
-                        && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus, true))
+                        && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
                         log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);

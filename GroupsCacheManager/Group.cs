@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using ApiObjects;
 using DAL;
@@ -26,22 +25,33 @@ namespace GroupsCacheManager
         #endregion
 
         #region Members
+        
         [JsonProperty("m_nParentGroupID")]
-        public int m_nParentGroupID { get; set; }
+        public int m_nParentGroupID { get; private set; }
+
         [JsonProperty("m_nLangID")]
         public int m_nLangID { get; set; }
+
         [JsonProperty("m_oMetasValuesByGroupId")]
         public Dictionary<int, Dictionary<string, string>> m_oMetasValuesByGroupId { get; set; } // Holds mapped meta columns (<groupId, <meta , meta name>>)
+
+        [JsonProperty("MetaValueToTypesMapping")]
+        public Dictionary<string, bool> MetaValueToTypesMapping { get; set; } // <meta name, is_string_meta>
+
         [JsonProperty("m_oGroupTags")]
         public Dictionary<int, string> m_oGroupTags { get; set; }
         [JsonProperty("tagToGroup")]
         public Dictionary<int, int> TagToGroup { get; set; }
+        
         [JsonProperty("m_oEpgGroupSettings")]
-        public EpgGroupSettings m_oEpgGroupSettings { get; set; }
+        public EpgGroupSettings m_oEpgGroupSettings { get; private set; }
+
         [JsonProperty("m_sPermittedWatchRules")]
         public List<string> m_sPermittedWatchRules { get; set; }
+        
         [JsonProperty("m_nSubGroup")]
-        public List<int> m_nSubGroup { get; set; }
+        public List<int> m_nSubGroup { get; private set; }
+
         [JsonProperty]
         public List<int> m_lServiceObject { get; set; }
 
@@ -134,20 +144,11 @@ namespace GroupsCacheManager
         #endregion
 
         #region CTOR
-        public Group()
+        public Group(int groupId, List<int> subGroups, EpgGroupSettings epgGroupSettings)
         {
-
-        }
-
-        #endregion
-
-        #region Public
-        public void Init(int groupID)
-        {
-            this.m_nParentGroupID = groupID;
+            this.m_nParentGroupID = groupId;
             this.m_oMetasValuesByGroupId = new Dictionary<int, Dictionary<string, string>>();
             this.m_oGroupTags = new Dictionary<int, string>();
-            this.m_oEpgGroupSettings = new EpgGroupSettings();
             this.m_sPermittedWatchRules = new List<string>();
             this.m_oOperatorChannelIDs = new Dictionary<int, List<long>>();
             this.m_oLockers = new ConcurrentDictionary<int, ReaderWriterLockSlim>();
@@ -160,7 +161,14 @@ namespace GroupsCacheManager
             this.linearChannelMediaTypes = new List<int>();
             this.groupMediaFileTypeToFileType = new Dictionary<int, int>();
             this.mediaTypes = new List<MediaType>();
+            this.m_nSubGroup = subGroups;
+            this.m_oEpgGroupSettings = epgGroupSettings;
+            this.MetaValueToTypesMapping = new Dictionary<string, bool>();
         }
+
+        #endregion
+
+        #region Public
 
         public List<long> GetOperatorChannelIDs(int nOperatorID)
         {

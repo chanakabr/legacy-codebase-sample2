@@ -55,7 +55,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
         }
-        
+
         internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
         {
             List<KalturaUserRole> roles = new List<KalturaUserRole>();
@@ -769,7 +769,7 @@ namespace WebAPI.Clients
             KalturaPurchaseSettings response = AutoMapper.Mapper.Map<KalturaPurchaseSettings>(webServiceResponse);
 
             return response;
-        }       
+        }
 
         [Obsolete]
         internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetDomainPurchasePinOldstandard(int groupId, int domainId)
@@ -2586,7 +2586,7 @@ namespace WebAPI.Clients
                 userRole = AutoMapper.Mapper.Map<KalturaUserRole>(response.Roles[0]);
             }
             return userRole;
-        }        
+        }
 
         internal void DeletePermission(int groupId, long id)
         {
@@ -3084,7 +3084,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetRegions(groupId, wsFilter, pageIndex, pageSize);                    
+                    response = Core.Api.Module.GetRegions(groupId, wsFilter, pageIndex, pageSize);
                 }
             }
             catch (Exception ex)
@@ -3104,9 +3104,9 @@ namespace WebAPI.Clients
             }
 
             regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Objects);
-            
-            return new KalturaRegionListResponse() { Regions = regions, TotalCount = response.TotalItems};
-        }       
+
+            return new KalturaRegionListResponse() { Regions = regions, TotalCount = response.TotalItems };
+        }
 
         internal KalturaDeviceFamilyListResponse GetDeviceFamilyList(int groupId)
         {
@@ -4439,9 +4439,10 @@ namespace WebAPI.Clients
 
             return result;
         }
-        internal  bool IncrementLayeredCacheGroupConfigVersion(int groupId)
+
+        internal bool IncrementLayeredCacheGroupConfigVersion(int groupId)
         {
-            Func<bool> incrementLayeredCacheGroupConfigVersion = () => Core.Api.Module.IncrementLayeredCacheGroupConfigVersion(groupId);            
+            Func<bool> incrementLayeredCacheGroupConfigVersion = () => Core.Api.Module.IncrementLayeredCacheGroupConfigVersion(groupId);
             return ClientUtils.GetBoolResponseFromWS(incrementLayeredCacheGroupConfigVersion);
         }
 
@@ -4451,7 +4452,7 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(clearCache);
         }
 
-        internal KalturaPlaybackContext GetPlaybackAdapterManifest(long adapterId, int groupId, KalturaPlaybackContext kalturaPlaybackContext,                                                                
+        internal KalturaPlaybackContext GetPlaybackAdapterManifest(long adapterId, int groupId, KalturaPlaybackContext kalturaPlaybackContext,
                                                                 string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
             ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = AutoMapper.Mapper.Map<ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>(contextDataParams);
@@ -4463,6 +4464,21 @@ namespace WebAPI.Clients
 
             KalturaPlaybackContext result =
                 ClientUtils.GetResponseFromWS<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>(kalturaPlaybackContext, updateBusinessModuleRuleFunc);
+
+            return result;
+        }
+
+        internal KalturaRegionListResponse GetDefaultRegion(int groupId)
+        {
+            KalturaRegionListResponse result = new KalturaRegionListResponse();
+
+            Func<GenericListResponse<Region>> getDefaultRegionFunc = () => Core.Api.Module.GetDefaultRegion(groupId);
+
+            KalturaGenericListResponse<KalturaRegion> response =
+                ClientUtils.GetResponseListFromWS<KalturaRegion, Region>(getDefaultRegionFunc);
+
+            result.Regions = new List<KalturaRegion>(response.Objects);
+            result.TotalCount = response.TotalCount;
 
             return result;
         }

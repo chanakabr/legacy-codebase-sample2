@@ -19,7 +19,7 @@ namespace TCMClient
 {
     public class Settings
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());       
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly HttpClient httpClient;
 
         static Settings()
@@ -79,7 +79,7 @@ namespace TCMClient
 
         private JObject m_SettingsLoweredKeys = new JObject();
         private JObject m_SettingsOriginalKeys = new JObject();
-        
+
         private string m_URL;
         private string m_Application;
         private string m_Host;
@@ -229,24 +229,25 @@ namespace TCMClient
                 _Logger.Error($"Error while retriving value from TCM. key:[{key}]", ex);
                 return default(T);
             }
-
         }
 
         public JToken GetJsonString(string[] keys)
         {
+            JToken token = m_SettingsLoweredKeys;
 
-            JToken token = m_SettingsOriginalKeys;
             if (keys != null && keys.Any())
             {
                 foreach (var key in keys)
                 {
-                    token = token.SelectToken(key);
-                    if(token == null)
+                    token = token.SelectToken(key.ToLower());
+
+                    if (token == null)
                     {
                         return null;
                     }
                 }
             }
+
             return token;
         }
 
@@ -382,10 +383,10 @@ namespace TCMClient
                         }
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     _Logger.Error($"Error while trying to populate TCM settings[{settings}]", e);
-                    throw new Exception("Source is corrupted.");
+                    //throw new Exception("Source is corrupted.");
                 }
             }
             else
@@ -403,7 +404,7 @@ namespace TCMClient
                 if (record.Value is JObject)
                 {
                     //if JObject (complex), go deeper in the hierarchy
-                    JObject parsedJObject = ParseNestedObjects((JObject) record.Value, shouldLower);
+                    JObject parsedJObject = ParseNestedObjects((JObject)record.Value, shouldLower);
 
                     string key = record.Key;
 
