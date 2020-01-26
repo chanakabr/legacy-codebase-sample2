@@ -3,11 +3,7 @@
     "IngestTransformationHandler": {
       "commandName": "Project",
       "environmentVariables": {
-        "CONCURRENT_CONSUMERS": "1",
-        "TCM_APP": "REMOTE_TASKS_v5_3_0",
-        "TCM_SECTION": "dev_local",
-        "TCM_APP_ID": "5bf8cf60",
-        "TCM_APP_SECRET": "5aaa99331c18f6bad4adeef93ab770c2"
+        "CONCURRENT_CONSUMERS": "1"
       }
     }
   }

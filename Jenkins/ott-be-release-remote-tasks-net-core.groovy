@@ -62,6 +62,13 @@ pipeline {
                 }
             }
         }
+        stage("Upload to kdevops S3"){
+            steps { 
+                dir("published"){ 
+                    bat "aws s3 cp remotetasks_${params.version}.zip s3://kaltura-ott-deployments-builds/mediahub/RemoteTasks/${params.branch}/ --profile infra-kdevops"
+                }
+            }
+        }
         stage("Deploy"){
             steps { 
                 dir("published"){ 
