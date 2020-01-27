@@ -8,7 +8,8 @@
             ReceiveTimeout = 10,
             SendTimeout = 10,
             CloseTimeout = 60,
-            MaxReceivedMessageSize = 2147483647 // in bytes
+            MaxReceivedMessageSize = 2147483647, // in bytes
+            HttpClientCredentialType = System.ServiceModel.HttpClientCredentialType.None
         };
 
         public int? SendTimeout { get; set; }
@@ -16,5 +17,6 @@
         public int? CloseTimeout { get; set; }
         public int? ReceiveTimeout { get; set; }
         public int? MaxReceivedMessageSize { get; set; }
+        public System.ServiceModel.HttpClientCredentialType? HttpClientCredentialType { get; set; }
     }
 }
