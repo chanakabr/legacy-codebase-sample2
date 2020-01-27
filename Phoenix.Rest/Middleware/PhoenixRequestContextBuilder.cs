@@ -97,6 +97,8 @@ namespace Phoenix.Rest.Middleware
 
             if (context.Items.TryGetValue(RequestContextUtils.REQUEST_GLOBAL_KS, out var ks))
             {
+
+
                 _PhoenixContext.Ks = ks as KS;
             }
 
