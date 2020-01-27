@@ -34,9 +34,9 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
                 if (partnerConfig != null)
-                {                    
+                {
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    if(partnerConfig.ObjectVirtualAssets?.Count > 0)
+                    if (partnerConfig.ObjectVirtualAssets?.Count > 0)
                     {
                         response.Objects.Add(partnerConfig);
                     }
@@ -363,7 +363,7 @@ namespace ApiLogic.Api.Managers
             {
                 objectVirtualAssetInfo = objectVirtualAssetPartnerConfig.Objects[0].ObjectVirtualAssets.FirstOrDefault(x => x.Type == objectVirtualAssetInfoType);
             }
-            
+
             return objectVirtualAssetInfo;
         }
 
@@ -404,8 +404,7 @@ namespace ApiLogic.Api.Managers
                 {
                     log.Error($"Failed getting GetCommercePartnerConfig from LayeredCache, groupId: {groupId}, key: {key}");
                 }
-
-                if (commercePartnerConfig != null)
+                else
                 {
                     response.Object = commercePartnerConfig;
                     response.SetStatus(eResponseStatus.OK);
@@ -729,7 +728,8 @@ namespace ApiLogic.Api.Managers
 
         private static Tuple<CommercePartnerConfig, bool> GetCommercePartnerConfigDB(Dictionary<string, object> funcParams)
         {
-            CommercePartnerConfig commercePartnerConfig = null;
+            CommercePartnerConfig commercePartnerConfig = new CommercePartnerConfig();
+            bool result = false;
 
             try
             {
@@ -737,6 +737,7 @@ namespace ApiLogic.Api.Managers
                 if (groupId.HasValue)
                 {
                     commercePartnerConfig = ApiDAL.GetCommercePartnerConfig(groupId.Value);
+                    result = true;
                 }
             }
             catch (Exception ex)
@@ -744,7 +745,7 @@ namespace ApiLogic.Api.Managers
                 log.Error(string.Format("GetCommercePartnerConfigDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<CommercePartnerConfig, bool>(commercePartnerConfig, commercePartnerConfig != null);
+            return new Tuple<CommercePartnerConfig, bool>(commercePartnerConfig, result);
         }
 
         #endregion

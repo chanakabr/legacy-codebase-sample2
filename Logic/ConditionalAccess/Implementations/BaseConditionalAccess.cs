@@ -11066,7 +11066,7 @@ namespace Core.ConditionalAccess
                         if (transactionType.HasValue && businessModuleId > 0)
                         {
                             var commerceConfig = PartnerConfigurationManager.GetCommercePartnerConfig(this.m_nGroupID);
-                            if (commerceConfig.HasObject() && !commerceConfig.Object.BookmarkEventThresholds.IsNullOrEmpty() && commerceConfig.Object.BookmarkEventThresholds.ContainsKey(transactionType.Value))
+                            if (commerceConfig.HasObject() && commerceConfig.Object.BookmarkEventThresholds?.Count > 0 && commerceConfig.Object.BookmarkEventThresholds.ContainsKey(transactionType.Value))
                             {
                                 response.Data.BookmarkEventThreshold = commerceConfig.Object.BookmarkEventThresholds[transactionType.Value];
                                 response.Data.ProductType = transactionType.Value;
