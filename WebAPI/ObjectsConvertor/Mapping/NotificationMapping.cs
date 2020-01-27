@@ -314,7 +314,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.FileId))
                 .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Position))
-                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
+                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+                .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => src.ProductType))
+                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId));
 
             cfg.CreateMap<BookmarkEvent, KalturaBookmarkEvent>()
                .IncludeBase<CoreObject, KalturaOTTObject>()
@@ -323,7 +325,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.FileId))
                .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Position))
-               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
+               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+               .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => src.ProductType))
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId));
 
             cfg.CreateMap<KalturaBookmarkActionType, MediaPlayActions>()
                 .ConvertUsing(bookmarkActionType =>

@@ -76,10 +76,5 @@ namespace TVinciShared
         {
             return Nullable.GetUnderlyingType(type) != null;
         }
-
-        public static bool IsNullOrEmpty<T>(this T value) where T : ICollection
-        {
-            return value?.Count > 0;
-        }
     }
 }

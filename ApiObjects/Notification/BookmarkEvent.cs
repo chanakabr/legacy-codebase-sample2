@@ -11,6 +11,8 @@ namespace ApiObjects.Notification
         public long FileId { get; set; }
         public int Position { get; set; }
         public MediaPlayActions Action { get; set; }
+        public eTransactionType ProductType { get; set; }
+        public int ProductId { get; set; }
 
         public override CoreObject CoreClone()
         {

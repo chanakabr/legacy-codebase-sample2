@@ -370,16 +370,12 @@ namespace ApiLogic.Api.Managers
         public static GenericListResponse<CommercePartnerConfig> GetCommercePartnerConfigList(int groupId)
         {
             var response = new GenericListResponse<CommercePartnerConfig>();
-
             var commercePartnerConfig = GetCommercePartnerConfig(groupId);
-            if (commercePartnerConfig.HasObject())
+            response.SetStatus(commercePartnerConfig.Status);
+
+            if (commercePartnerConfig.Object != null)
             {
                 response.Objects.Add(commercePartnerConfig.Object);
-                response.SetStatus(eResponseStatus.OK);
-            }
-            else
-            {
-                response.SetStatus(commercePartnerConfig.Status);
             }
 
             return response;
@@ -728,7 +724,7 @@ namespace ApiLogic.Api.Managers
 
         private static Tuple<CommercePartnerConfig, bool> GetCommercePartnerConfigDB(Dictionary<string, object> funcParams)
         {
-            CommercePartnerConfig commercePartnerConfig = new CommercePartnerConfig();
+            CommercePartnerConfig commercePartnerConfig = null;
             bool result = false;
 
             try
