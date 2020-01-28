@@ -13,9 +13,11 @@ namespace ConfigurationManager.Types
 
         private readonly JObject _Json;
         private const string DefaultConfigurationKey = "default";
+
         public AdaptersConfiguration(string key) : base(key)
         {
             string objectValue = Convert.ToString(ObjectValue);
+
             if (!string.IsNullOrEmpty(objectValue))
             {
                 _Json = JObject.Parse(objectValue);
@@ -29,6 +31,7 @@ namespace ConfigurationManager.Types
                 tcmConfiguration.OpenTimeout = tcmConfiguration.OpenTimeout ?? AdapterConfiguration.DefaultConfig.OpenTimeout;
                 tcmConfiguration.ReceiveTimeout = tcmConfiguration.ReceiveTimeout ?? AdapterConfiguration.DefaultConfig.ReceiveTimeout;
                 tcmConfiguration.SendTimeout = tcmConfiguration.SendTimeout ?? AdapterConfiguration.DefaultConfig.SendTimeout;
+                tcmConfiguration.HttpClientCredentialType = tcmConfiguration.HttpClientCredentialType ?? AdapterConfiguration.DefaultConfig.HttpClientCredentialType;
             }
             else
             {

@@ -324,8 +324,17 @@ namespace Core.Users
 
             foreach (KeyValuePair<string, string> kvp in dynamicDataToInsert)
             {
+
+                if(string.IsNullOrEmpty(kvp.Key) || string.IsNullOrEmpty(kvp.Value))
+                {
+                    continue;
+                }
+
+                var key = kvp.Key.Replace("'", "''");
+                var value = kvp.Value.Replace("'", "''");
+
                 directQuery += "insert into #x (id, user_id, data_type, data_value, is_active, status, group_id, create_date, update_date, publish_date) values";
-                directQuery += "(0, " + UserId.ToString() + ", '" + kvp.Key + "' , N'" + kvp.Value + "' ,1 , 1, " + this.GroupId.ToString() + ",";
+                directQuery += "(0, " + UserId.ToString() + ", '" + key + "' , N'" + value + "' ,1 , 1, " + this.GroupId.ToString() + ",";
                 directQuery += "getdate() , getdate(), getdate() )";
             }
 
@@ -352,7 +361,19 @@ namespace Core.Users
 
             foreach (int id in dynamicDataToUpdate.Keys)
             {
-                directQuery += "insert into #x (id, data_type, data_value,status, update_date) values (" + id.ToString() + ", '" + dynamicDataToUpdate[id].Key + "' , N'" + dynamicDataToUpdate[id].Value + "', 1, getdate())";
+                var key = dynamicDataToUpdate[id].Key;
+                if (!string.IsNullOrEmpty(key))
+                {
+                    key = dynamicDataToUpdate[id].Key.Replace("'", "''");
+                }
+
+                var value = dynamicDataToUpdate[id].Value;
+                if (!string.IsNullOrEmpty(value))
+                {
+                    dynamicDataToUpdate[id].Value.Replace("'", "''");
+                }
+                
+                directQuery += "insert into #x (id, data_type, data_value,status, update_date) values (" + id.ToString() + ", '" + key + "' , N'" + value + "', 1, getdate())";
             }
 
             //update the rows that already exist
