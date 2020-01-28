@@ -371,12 +371,13 @@ namespace ApiLogic.Api.Managers
         {
             var response = new GenericListResponse<CommercePartnerConfig>();
             var commercePartnerConfig = GetCommercePartnerConfig(groupId);
-            response.SetStatus(commercePartnerConfig.Status);
-
-            if (commercePartnerConfig.Object != null)
+            
+            if (commercePartnerConfig.HasObject())
             {
                 response.Objects.Add(commercePartnerConfig.Object);
             }
+
+            response.SetStatus(eResponseStatus.OK);
 
             return response;
         }
@@ -402,8 +403,15 @@ namespace ApiLogic.Api.Managers
                 }
                 else
                 {
-                    response.Object = commercePartnerConfig;
-                    response.SetStatus(eResponseStatus.OK);
+                    if (commercePartnerConfig == null)
+                    {
+                        response.SetStatus(eResponseStatus.PartnerConfigurationDoesNotExist, "Commerce partner configuration does not exist.");
+                    }
+                    else
+                    {
+                        response.Object = commercePartnerConfig;
+                        response.SetStatus(eResponseStatus.OK);
+                    }
                 }
             }
             catch (Exception ex)
