@@ -40,7 +40,7 @@ namespace TVinciShared
             {
                 var securityMode = serviceToConfigure.Endpoint.Binding as BasicHttpBinding;
                 securityMode.Security.Mode = BasicHttpSecurityMode.Transport;
-                securityMode.Security.Transport.ClientCredentialType = adapterConfiguration.HttpClientCredentialType ?? HttpClientCredentialType.None;
+                securityMode.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
             }
         }
 
