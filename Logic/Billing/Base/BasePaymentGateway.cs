@@ -961,12 +961,12 @@ namespace Core.Billing
             PaymentGatewayItemResponse response = new PaymentGatewayItemResponse();
             PaymentGateway paymentGateway = null;
             chargeId = string.Empty;
+            bool isSuspended = false;
             try
             {
                 // Get Oss Adapter default payment gateway
                 paymentGateway = GetOSSAdapterPaymentGateway(groupID, householdId, userIP, out chargeId);
 
-                bool isSuspended = false;
                 if (paymentGateway == null)
                 {
                     if (paymentGatewayId == 0)
@@ -1005,11 +1005,6 @@ namespace Core.Billing
                             return response;
                         }
                     }
-                    if (isSuspended)
-                    {
-                        response.Status = new Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
-                        return response;
-                    }
                 }
                 else
                 {
@@ -1030,7 +1025,16 @@ namespace Core.Billing
                 response.PaymentGateway = null;
                 response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
-            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            if (isSuspended)
+            {
+                response.Status = new Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
+            }
+            else
+            {
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            
             response.PaymentGateway = paymentGateway;
             return response;
         }
@@ -1790,14 +1794,6 @@ namespace Core.Billing
                     // get charge ID
                     bool isSuspended = false;
                     chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdId, ref isPaymentGatewayHouseholdExist, ref isSuspended);
-
-                    if (isSuspended) // return due to suspend payment gateway !!! 
-                    {
-                        transactionResponse.Status = new Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
-
-
-                        return transactionResponse;
-                    }
 
                     // Handle  Payment Method
                     //------------------------
