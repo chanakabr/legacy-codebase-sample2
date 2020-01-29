@@ -346,42 +346,31 @@ namespace Core.Users
             ioUser.m_eUserState = (UserState)(int)userData.UserState;
             ioUser.m_eSuspendState = (DomainSuspentionStatus)(int)userData.SuspensionState;
 
-            var basicData = new
+            //m_oBasicData
+            ioUser.m_oBasicData = ioUser.m_oBasicData ?? new UserBasicData();//only if null
+            ioUser.m_oBasicData.m_CoGuid = ioUser.m_oBasicData.m_CoGuid ?? userData.ExternalId;
+            ioUser.m_oBasicData.m_sUserName = ioUser.m_oBasicData.m_sUserName ?? userData.Username;
+            ioUser.m_oBasicData.m_sFirstName = ioUser.m_oBasicData.m_sFirstName ?? userData.FirstName;
+            ioUser.m_oBasicData.m_sLastName = ioUser.m_oBasicData.m_sLastName ?? userData.LastName;
+            ioUser.m_oBasicData.m_sEmail = ioUser.m_oBasicData.m_sEmail ?? userData.Email;
+            ioUser.m_oBasicData.m_sCity = ioUser.m_oBasicData.m_sCity ?? userData.City;
+            if (ioUser.m_oBasicData.m_Country == null)
             {
-                lastLoginDate = ioUser.m_oBasicData.LastLoginDate,
-                createDate = ioUser.m_oBasicData.CreateDate,
-                updateDate = ioUser.m_oBasicData.UpdateDate,
-                roleIds = ioUser.m_oBasicData.RoleIds
+                ioUser.m_oBasicData.m_Country = userData.CountryId.HasValue && userData.CountryId.Value > 0 ? new Country { m_nObjecrtID = userData.CountryId.Value } : null;   //BEO-7091
+            }
+            ioUser.m_oBasicData.m_sZip = ioUser.m_oBasicData.m_sZip ?? userData.Zip;
+            ioUser.m_oBasicData.m_sPhone = ioUser.m_oBasicData.m_sPhone ?? userData.Phone;
+            ioUser.m_oBasicData.m_sAddress = ioUser.m_oBasicData.m_sAddress ?? userData.Address;
+            ioUser.m_oBasicData.m_UserType = new ApiObjects.UserType
+            {
+                ID = userData.UserType.Id > 0 ? userData.UserType.Id : (int?)null,  //BEO-7091
+                Description = userData.UserType.Description
             };
 
-            ioUser.m_oBasicData = new UserBasicData
-            {
-                m_CoGuid = userData.ExternalId,
-                m_sUserName = userData.Username,
-                m_sFirstName = userData.FirstName,
-                m_sLastName = userData.LastName,
-                m_sEmail = userData.Email,
-                m_sCity = userData.City,
-                m_Country = userData.CountryId.HasValue && userData.CountryId.Value > 0 ? new Country { m_nObjecrtID = userData.CountryId.Value } : null,   //BEO-7091
-                m_sZip = userData.Zip,
-                m_sPhone = userData.Phone,
-                m_sAddress = userData.Address,
-                m_UserType = new ApiObjects.UserType
-                {
-                    ID = userData.UserType.Id > 0 ? userData.UserType.Id : (int?)null,  //BEO-7091
-                    Description = userData.UserType.Description
-                },
-                LastLoginDate = basicData.lastLoginDate,
-                CreateDate = basicData.createDate,
-                UpdateDate = basicData.updateDate,
-                RoleIds = basicData.roleIds
-            };
-
-            ioUser.m_oDynamicData = new UserDynamicData
-            {
-                m_sUserData = dynamicData,
-                UserId = userData.Id,
-            };
+            //m_oDynamicData
+            ioUser.m_oDynamicData = ioUser.m_oDynamicData ?? new UserDynamicData();
+            ioUser.m_oDynamicData.m_sUserData = ioUser.m_oDynamicData.m_sUserData ?? dynamicData;
+            ioUser.m_oDynamicData.UserId = ioUser.m_oDynamicData.UserId == default ? userData.Id : ioUser.m_oDynamicData.UserId;
         }
 
         private bool ValidateConfigurationIsSet(AdapterStatusCode responseStatus)
