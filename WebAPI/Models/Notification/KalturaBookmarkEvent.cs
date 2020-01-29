@@ -2,6 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
@@ -17,6 +18,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "userId")]
         [JsonProperty(PropertyName = "userId")]
         [XmlElement(ElementName = "userId")]
+        [SchemeProperty(MinLong = 0)]
         public long UserId { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "householdId")]
         [JsonProperty(PropertyName = "householdId")]
         [XmlElement(ElementName = "householdId")]
+        [SchemeProperty(MinLong = 0)]
         public long HouseholdId { get; set; }
 
         /// <summary>
@@ -33,6 +36,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]
+        [SchemeProperty(MinLong = 0)]
         public long AssetId { get; set; }
 
         /// <summary>
@@ -41,6 +45,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "fileId")]
         [JsonProperty(PropertyName = "fileId")]
         [XmlElement(ElementName = "fileId")]
+        [SchemeProperty(MinLong = 0)]
         public long FileId { get; set; }
 
         /// <summary>
@@ -49,6 +54,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "position")]
         [JsonProperty(PropertyName = "position")]
         [XmlElement(ElementName = "position")]
+        [SchemeProperty(MinInteger = 0)]
         public int Position { get; set; }
 
         /// <summary>
@@ -73,6 +79,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "productId")]
         [JsonProperty(PropertyName = "productId")]
         [XmlElement(ElementName = "productId")]
+        [SchemeProperty(MinInteger = 0)]
         public int ProductId { get; set; }
     }
 }
