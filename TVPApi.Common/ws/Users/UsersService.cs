@@ -45,6 +45,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
+                    logger.Error($"Error on ChangeUserPasword for username = {sUN}. ex = {ex}");
                     HttpContext.Current.Items["Error"] = ex;
                 }
             }
