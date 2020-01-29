@@ -346,11 +346,12 @@ namespace Core.Users
             ioUser.m_eUserState = (UserState)(int)userData.UserState;
             ioUser.m_eSuspendState = (DomainSuspentionStatus)(int)userData.SuspensionState;
 
-            var dates = new
+            var basicData = new
             {
                 lastLoginDate = ioUser.m_oBasicData.LastLoginDate,
                 createDate = ioUser.m_oBasicData.CreateDate,
-                updateDate = ioUser.m_oBasicData.UpdateDate
+                updateDate = ioUser.m_oBasicData.UpdateDate,
+                roleIds = ioUser.m_oBasicData.RoleIds
             };
 
             ioUser.m_oBasicData = new UserBasicData
@@ -370,9 +371,10 @@ namespace Core.Users
                     ID = userData.UserType.Id > 0 ? userData.UserType.Id : (int?)null,  //BEO-7091
                     Description = userData.UserType.Description
                 },
-                LastLoginDate = dates.lastLoginDate,
-                CreateDate = dates.createDate,
-                UpdateDate = dates.updateDate
+                LastLoginDate = basicData.lastLoginDate,
+                CreateDate = basicData.createDate,
+                UpdateDate = basicData.updateDate,
+                RoleIds = basicData.roleIds
             };
 
             ioUser.m_oDynamicData = new UserDynamicData
