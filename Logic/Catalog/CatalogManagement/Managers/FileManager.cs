@@ -329,7 +329,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        AssetFile assetFile = CreateAssetFile(groupId, dr, true);
+                        AssetFile assetFile = CreateAssetFile(groupId, dr, shouldAddBaseUrl);
                         if (assetFile != null)
                         {
                             response.Add(assetFile);
