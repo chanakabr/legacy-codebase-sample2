@@ -30,6 +30,7 @@ namespace Core.Billing
         public AdyenDirectDebit(int groupID)
             : base(groupID)
         {
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11;
 
             var addRequestIdToHeadersBehaviour = new ServiceExtensions.ClientEndpointBehavior();
             var paymentServiceUrl = AdyenUtils.GetWSPaymentUrl(groupID);
