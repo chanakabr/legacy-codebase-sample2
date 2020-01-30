@@ -198,7 +198,7 @@ namespace Core.Catalog.CatalogManagement
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
-                    response.Object = CreateAssetFile(groupId, dt.Rows[0], true);
+                    response.Object = CreateAssetFile(groupId, dt.Rows[0], shouldAddBaseUrl);
                     if (response.Object != null)
                     {
                         response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
