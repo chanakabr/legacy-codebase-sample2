@@ -30,21 +30,33 @@ namespace Core.Billing
         public AdyenDirectDebit(int groupID)
             : base(groupID)
         {
-            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11;
+            SecurityProtocolType currentServicePointManagerSecurityProtocol = System.Net.ServicePointManager.SecurityProtocol;
+            try
+            {
+                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11;
 
-            var addRequestIdToHeadersBehaviour = new ServiceExtensions.ClientEndpointBehavior();
-            var paymentServiceUrl = AdyenUtils.GetWSPaymentUrl(groupID);
-            var paymentEndpointConfig = PaymentPortTypeClient.EndpointConfiguration.PaymentHttpPort;
+                var addRequestIdToHeadersBehaviour = new ServiceExtensions.ClientEndpointBehavior();
+                var paymentServiceUrl = AdyenUtils.GetWSPaymentUrl(groupID);
+                var paymentEndpointConfig = PaymentPortTypeClient.EndpointConfiguration.PaymentHttpPort;
 
-            var recurringPaymentServiceUrl = AdyenUtils.GetWSRecurringUrl(groupID);
-            var recurringPaymentEndpointConfig = RecurringPortTypeClient.EndpointConfiguration.RecurringHttpPort;
+                var recurringPaymentServiceUrl = AdyenUtils.GetWSRecurringUrl(groupID);
+                var recurringPaymentEndpointConfig = RecurringPortTypeClient.EndpointConfiguration.RecurringHttpPort;
 
-            _RecurringPaymentClient = new RecurringPortTypeClient(recurringPaymentEndpointConfig, recurringPaymentServiceUrl);
-            _RecurringPaymentClient.ConfigureServiceClient();
+                _RecurringPaymentClient = new RecurringPortTypeClient(recurringPaymentEndpointConfig, recurringPaymentServiceUrl);
+                _RecurringPaymentClient.ConfigureServiceClient();
 
 
-            _PaymentClient = new PaymentPortTypeClient(paymentEndpointConfig, paymentServiceUrl);
-            _PaymentClient.ConfigureServiceClient();
+                _PaymentClient = new PaymentPortTypeClient(paymentEndpointConfig, paymentServiceUrl);
+                _PaymentClient.ConfigureServiceClient();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                System.Net.ServicePointManager.SecurityProtocol = currentServicePointManagerSecurityProtocol;
+            }
         }
 
 
