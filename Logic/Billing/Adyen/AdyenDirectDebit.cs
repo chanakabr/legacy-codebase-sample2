@@ -426,7 +426,6 @@ namespace Core.Billing
 
             if (recRes.details != null && recRes.details.Length > 0)
             {
-                SecurityProtocolType currentServicePointManagerSecurityProtocol = System.Net.ServicePointManager.SecurityProtocol;
                 try
                 {
                     RecurringDetail det = null;
@@ -435,18 +434,14 @@ namespace Core.Billing
                     {
                         bt = Core.Billing.AdyenUtils.BillingType.CreditCard;
                     }
-                    
-                    System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11;
+
+
                     det = AdyenUtils.GetRecurringDetailByLastFourDigits(sSiteGUID, recRes.details, bt, string.Empty);
                     res.Initialize(det);
                 }
                 catch (Exception ex)
                 {
                     log.Error("Exception - Exception Get Last Billing User Info for user " + sSiteGUID + " ex: " + ex.Message);
-                }
-                finally
-                {
-                    System.Net.ServicePointManager.SecurityProtocol = currentServicePointManagerSecurityProtocol;
                 }
             }
             return res;
