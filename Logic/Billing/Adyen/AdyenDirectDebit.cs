@@ -30,33 +30,18 @@ namespace Core.Billing
         public AdyenDirectDebit(int groupID)
             : base(groupID)
         {
-            SecurityProtocolType currentServicePointManagerSecurityProtocol = System.Net.ServicePointManager.SecurityProtocol;
-            try
-            {
-                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11;
+            var addRequestIdToHeadersBehaviour = new ServiceExtensions.ClientEndpointBehavior();
+            var paymentServiceUrl = AdyenUtils.GetWSPaymentUrl(groupID);
+            var paymentEndpointConfig = PaymentPortTypeClient.EndpointConfiguration.PaymentHttpPort;
 
-                var addRequestIdToHeadersBehaviour = new ServiceExtensions.ClientEndpointBehavior();
-                var paymentServiceUrl = AdyenUtils.GetWSPaymentUrl(groupID);
-                var paymentEndpointConfig = PaymentPortTypeClient.EndpointConfiguration.PaymentHttpPort;
+            var recurringPaymentServiceUrl = AdyenUtils.GetWSRecurringUrl(groupID);
+            var recurringPaymentEndpointConfig = RecurringPortTypeClient.EndpointConfiguration.RecurringHttpPort;
 
-                var recurringPaymentServiceUrl = AdyenUtils.GetWSRecurringUrl(groupID);
-                var recurringPaymentEndpointConfig = RecurringPortTypeClient.EndpointConfiguration.RecurringHttpPort;
+            _RecurringPaymentClient = new RecurringPortTypeClient(recurringPaymentEndpointConfig, recurringPaymentServiceUrl);
+            _RecurringPaymentClient.ConfigureServiceClient();
 
-                _RecurringPaymentClient = new RecurringPortTypeClient(recurringPaymentEndpointConfig, recurringPaymentServiceUrl);
-                _RecurringPaymentClient.ConfigureServiceClient();
-
-
-                _PaymentClient = new PaymentPortTypeClient(paymentEndpointConfig, paymentServiceUrl);
-                _PaymentClient.ConfigureServiceClient();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                System.Net.ServicePointManager.SecurityProtocol = currentServicePointManagerSecurityProtocol;
-            }
+            _PaymentClient = new PaymentPortTypeClient(paymentEndpointConfig, paymentServiceUrl);
+            _PaymentClient.ConfigureServiceClient();
         }
 
 
@@ -441,6 +426,7 @@ namespace Core.Billing
 
             if (recRes.details != null && recRes.details.Length > 0)
             {
+                SecurityProtocolType currentServicePointManagerSecurityProtocol = System.Net.ServicePointManager.SecurityProtocol;
                 try
                 {
                     RecurringDetail det = null;
@@ -449,14 +435,18 @@ namespace Core.Billing
                     {
                         bt = Core.Billing.AdyenUtils.BillingType.CreditCard;
                     }
-
-
+                    
+                    System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11;
                     det = AdyenUtils.GetRecurringDetailByLastFourDigits(sSiteGUID, recRes.details, bt, string.Empty);
                     res.Initialize(det);
                 }
                 catch (Exception ex)
                 {
                     log.Error("Exception - Exception Get Last Billing User Info for user " + sSiteGUID + " ex: " + ex.Message);
+                }
+                finally
+                {
+                    System.Net.ServicePointManager.SecurityProtocol = currentServicePointManagerSecurityProtocol;
                 }
             }
             return res;
