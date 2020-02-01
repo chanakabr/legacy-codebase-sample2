@@ -46,6 +46,8 @@ pipeline {
                 bat "dotnet pack Core/LogReloader/LogReloader.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/Core.Middleware/Core.Middleware.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/ServiceExtensions/ServiceExtensions.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/SoapAdaptersCommon/SoapAdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
+
             }        
         }
         stage("Publish Nugets"){
@@ -69,6 +71,7 @@ pipeline {
                     bat "nuget push LogReloader*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push Core.Middleware*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push ServiceExtensions*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
+                    bat "nuget push SoapAdaptersCommon*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
                 }
             }
         }
