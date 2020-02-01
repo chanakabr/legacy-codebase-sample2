@@ -24,11 +24,15 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <PackageReference Include="SoapCore" Version="1.0.0" />
     <ProjectReference Include="..\Core.Middleware\Core.Middleware.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <Compile Remove="Middleware\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    
   </ItemGroup>
 
 </Project>
