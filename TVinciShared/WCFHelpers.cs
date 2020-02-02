@@ -55,6 +55,7 @@ namespace TVinciShared
                 defaultConfiguration.OpenTimeout = specificConfiguration.OpenTimeout ?? defaultConfiguration.OpenTimeout;
                 defaultConfiguration.ReceiveTimeout = specificConfiguration.ReceiveTimeout ?? defaultConfiguration.ReceiveTimeout;
                 defaultConfiguration.SendTimeout = specificConfiguration.SendTimeout ?? defaultConfiguration.SendTimeout;
+                defaultConfiguration.HttpClientCredentialType = specificConfiguration.HttpClientCredentialType ?? defaultConfiguration.HttpClientCredentialType;
             }
 
             return defaultConfiguration;
