@@ -77,7 +77,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "threshold")]
         [JsonProperty("threshold")]
         [XmlElement(ElementName = "threshold")]
-        [SchemeInput(MinInteger = 1)]
+        [SchemeProperty(MinInteger = 1)]
         public int Threshold { get; set; }
     }
 }
