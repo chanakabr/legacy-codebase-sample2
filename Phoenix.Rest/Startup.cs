@@ -14,7 +14,6 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Phoenix.Rest.Middleware;
-using Core.Middleware;
 
 namespace Phoenix.Rest
 {
