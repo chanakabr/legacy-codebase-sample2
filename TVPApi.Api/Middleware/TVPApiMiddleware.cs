@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TVPApi.Common;
 using Core.Middleware;
 using Microsoft.Extensions.DependencyInjection;
+using WebAPI.Filters;
 
 namespace TVPApi.Web.Middleware
 {
@@ -29,6 +30,8 @@ namespace TVPApi.Web.Middleware
         /// </summary>
         public static IApplicationBuilder UseTvpApi(this IApplicationBuilder app)
         {
+            EventNotificationsConfig.SubscribeConsumers();
+
             app.UseCoreConcurrencyLimiter();
             app.UseApiExceptionHandler();
             app.UseKloggerSessionIdBuilder();

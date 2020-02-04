@@ -9,6 +9,7 @@ using System.Web.Security;
 using System.Web.SessionState;
 using System.Reflection;
 using TVinciShared;
+using WebAPI.Filters;
 
 namespace WAP_TVPApi
 {
@@ -46,6 +47,8 @@ namespace WAP_TVPApi
 
             // This line is here to avoid error while deserilizing json that was serlizied using net core with TypeNameHandling
             AssemblyUtils.RedirectAssembly("System.Private.CoreLib", "mscorlib");
+
+            EventNotificationsConfig.SubscribeConsumers();
         }
 
         protected void Session_Start(object sender, EventArgs e)

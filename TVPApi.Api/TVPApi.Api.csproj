@@ -20,6 +20,7 @@
     <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\Libs\TVPApiModule\TVPApiModule.csproj" />
     <ProjectReference Include="..\TVPApi.Common\TVPApi.Common.csproj" />
+    <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

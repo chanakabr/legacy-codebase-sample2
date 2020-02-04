@@ -163,6 +163,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPApi.Common", "TVPApi.Com
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Middleware", "..\Core\Core.Middleware\Core.Middleware.csproj", "{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "..\Core\WebAPI\WebAPI.csproj", "{27B8AB82-1D17-430C-A86F-4F305DC40FAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		AllClients|Any CPU = AllClients|Any CPU
