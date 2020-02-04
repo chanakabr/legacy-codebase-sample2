@@ -9,7 +9,6 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TVinciShared;
-using Core.Catalog.CatalogManagement;
 
 public partial class adm_media_concurrency_tag_type_values : System.Web.UI.Page
 {
@@ -91,7 +90,10 @@ public partial class adm_media_concurrency_tag_type_values : System.Web.UI.Page
         Int32 nTagTypeID = 0;
         int groupId = LoginManager.GetLoginGroupID();
 
-        if (CatalogManager.DoesGroupUsesTemplates(groupId))
+        object isOpcDB = ODBCWrapper.Utils.GetTableSingleVal("groups", "ENABLE_TEMPLATES", groupId, 86400);
+        bool isOpc = isOpcDB != null && isOpcDB != DBNull.Value && isOpcDB.ToString().Equals("1");
+
+        if (isOpc)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select t.id, t.system_name from topics t join media_concurrency_rules mcr on (mcr.tag_type_id=t.id) where t.[status]=1 and ";
