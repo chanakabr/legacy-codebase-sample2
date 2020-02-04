@@ -17281,9 +17281,9 @@ namespace Core.ConditionalAccess
                     foreach (DataRow dr in dt.Rows)
                     {
                         long proccessId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                        int status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
+                        int count = ODBCWrapper.Utils.GetIntSafeVal(dr, "sp_count");
 
-                        if (proccessId > 0 && status != 2)
+                        if (proccessId > 0 && count > 0)
                         {
                             unifiedProcessIds.Add(proccessId);
                         }
@@ -17372,17 +17372,20 @@ namespace Core.ConditionalAccess
                         DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                         int state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
                         ProcessUnifiedState processPurchasesState = (ProcessUnifiedState)state;
-                        int status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
+                        int count = ODBCWrapper.Utils.GetIntSafeVal(dr, "sp_count");
 
-                        if (proccessId > 0 && status != 2 && endDate < DateTime.UtcNow)
+                        if (proccessId > 0 && count > 0 && endDate < DateTime.UtcNow)
                         {
                             if (!RenewManager.HandleRenewUnifiedSubscriptionPending(m_nGroupID, householdId, endDate, 0, proccessId))
                             {
                                 log.ErrorFormat("Failed to resume entitlements. householdId = {0}, proccessId = {1}", householdId, proccessId);
                             }
                         }
+
                     }
                 }
+
+                HandleSingleSuspendPurchases((int)householdId, paymentGatewayId);
             }
             catch (Exception ex)
             {
@@ -17391,6 +17394,47 @@ namespace Core.ConditionalAccess
             }
 
             return response;
+        }
+
+        private void HandleSingleSuspendPurchases(int householdId, int paymentGatewayId)
+        {
+            var res = GetDomainEntitlements(householdId, eTransactionType.Subscription);
+            if (res != null && res.entitelments?.Count > 0)
+            {
+                DateTime now = DateTime.UtcNow;
+                var suspended = res.entitelments.Where(x => x.IsSuspended && x.paymentGatewayId == paymentGatewayId && x.UnifiedPaymentId == 0 && x.endDate < now).Select(z => z.purchaseID).ToList();
+                foreach (var purchaseId in suspended)
+                {
+                    // get subscription purchase 
+                    DataRow subscriptionRenealDataRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseNextRenewal(m_nGroupID, purchaseId);
+
+                    // validate subscription received
+                    if (subscriptionRenealDataRow == null)
+                    {
+                        continue;
+                    }
+
+                    var renewDetails = new RenewDetails()
+                    {
+                        ProductId = ODBCWrapper.Utils.ExtractInteger(subscriptionRenealDataRow, "SUBSCRIPTION_CODE"), // AKA subscription ID/CODE
+                        PurchaseId = purchaseId,
+                        BillingGuid = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "billing_Guid"),
+
+                        UserId = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "site_user_guid"),
+                        DomainId = householdId,
+                        ShouldSwitchToMasterUser = false,
+                        GroupId = m_nGroupID,
+                        Currency = "n/a",
+
+                        PaymentNumber = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRenealDataRow, "PAYMENT_NUMBER"),
+                        NumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRenealDataRow, "number_of_payments"),
+                        CustomData = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "CUSTOMDATA"),
+                        EndDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionRenealDataRow, "END_DATE")
+                    };
+
+                    RenewManager.HandleRenewSubscriptionPending(this, renewDetails, now, string.Empty);
+                }
+            }
         }
 
         internal EntitlementRenewalResponse GetEntitlementNextRenewal(long householdId, int purchaseId, long userId)
