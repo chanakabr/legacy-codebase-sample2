@@ -1,31 +1,26 @@
+using ConfigurationManager;
+using KLogMonitor;
 using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
-using Phoenix.Context;
-using System;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
-using System.Text;
 using Newtonsoft.Json.Linq;
-using System.Reflection;
-using KLogMonitor;
-using System.Net;
-using System.Net.Mime;
-using Microsoft.AspNetCore.Http.Extensions;
-using System.Linq;
-using Newtonsoft.Json.Converters;
+using Phoenix.Context;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using ConfigurationManager;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using WebAPI;
+using WebAPI.Filters;
+using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
-using WebAPI;
-using WebAPI.Controllers;
-using WebAPI.Managers.Models;
-using WebAPI.Filters;
 
 namespace Phoenix.Rest.Middleware
 {
-
     public class PhoenixRequestContextBuilder
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -153,9 +148,6 @@ namespace Phoenix.Rest.Middleware
             return new Dictionary<string, object>(parsedActionParams, StringComparer.OrdinalIgnoreCase);
         }
 
-
-
-
         private RequestRouteData GetRouteData(HttpRequest request)
         {
             if (TryGetRouteDataFromUrl(request, out var routeDataFromUrl)) { return routeDataFromUrl; }
@@ -232,7 +224,6 @@ namespace Phoenix.Rest.Middleware
 
             return isRoutDataFoundInUrl;
         }
-
 
         private async Task<IDictionary<string, object>> GetActionParamsFromPostBody(HttpRequest request, PhoenixRequestContext context)
         {
@@ -374,5 +365,4 @@ namespace Phoenix.Rest.Middleware
             return ksVal.Length > _LegacyAccessTokenLength;
         }
     }
-
 }
