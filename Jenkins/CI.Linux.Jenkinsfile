@@ -85,7 +85,6 @@ pipeline {
     }
 }
 
-
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
     def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "cd tvpapi_rest && git rev-parse HEAD", returnStdout: true).trim();
