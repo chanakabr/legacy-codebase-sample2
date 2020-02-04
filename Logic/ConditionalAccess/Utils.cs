@@ -342,7 +342,7 @@ namespace Core.ConditionalAccess
             return mapper;
         }
 
-        internal static int GetMediaIdByFildId(int groupId, int mediaFileId)
+        internal static int GetMediaIdByFileId(int groupId, int mediaFileId)
         {
             int mediaId = 0;
             try
@@ -355,7 +355,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetMediaIdByFildId for groupId: {0}, mediaFileId: {1}", groupId, mediaFileId), ex);
+                log.Error(string.Format("Failed GetMediaIdByFileId for groupId: {0}, mediaFileId: {1}", groupId, mediaFileId), ex);
             }
 
             return mediaId;
@@ -7527,7 +7527,7 @@ namespace Core.ConditionalAccess
                         eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
                         string userId = funcParams["userId"] as string;
                         bool isExternalRecordingAccount = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId.Value, GroupFeature.EXTERNAL_RECORDINGS);
-                        if (!string.IsNullOrEmpty(assetId) && assetType.HasValue && groupId.HasValue && !string.IsNullOrEmpty(userId)
+                        if (!string.IsNullOrEmpty(assetId) && assetType.HasValue && groupId.HasValue 
                             && (long.TryParse(assetId, out id) || (isExternalRecordingAccount && assetType.Value == eAssetTypes.NPVR)))
                         {
                             switch (assetType)

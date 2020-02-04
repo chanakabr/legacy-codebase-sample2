@@ -278,6 +278,9 @@ namespace WebAPI.Reflection
                 case "KalturaBaseOTTUser":
                     return new KalturaBaseOTTUser(parameters);
                     
+                case "KalturaBaseRegionFilter":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaBaseResponseProfile":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -286,6 +289,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBaseSegmentAction":
                     return new KalturaBaseSegmentAction(parameters);
+                    
+                case "KalturaBaseSegmentationTypeFilter":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBaseSegmentCondition":
                     return new KalturaBaseSegmentCondition(parameters);
@@ -592,6 +598,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaDateTrigger":
                     return new KalturaDateTrigger(parameters);
+                    
+                case "KalturaDefaultRegionFilter":
+                    return new KalturaDefaultRegionFilter(parameters);
                     
                 case "KalturaDetachedResponseProfile":
                     return new KalturaDetachedResponseProfile(parameters);
@@ -1561,6 +1570,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSegmentValue":
                     return new KalturaSegmentValue(parameters);
+                    
+                case "KalturaSegmentValueFilter":
+                    return new KalturaSegmentValueFilter(parameters);
                     
                 case "KalturaSegmentValues":
                     return new KalturaSegmentValues(parameters);
@@ -15002,6 +15014,12 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaBaseRegionFilter
+    {
+        public KalturaBaseRegionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaBusinessModuleCondition
     {
         public KalturaBusinessModuleCondition(Dictionary<string, object> parameters = null) : base(parameters)
@@ -15591,6 +15609,12 @@ namespace WebAPI.Models.API
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
             }
+        }
+    }
+    public partial class KalturaDefaultRegionFilter
+    {
+        public KalturaDefaultRegionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaDeviceBrandListResponse
@@ -21824,6 +21848,12 @@ namespace WebAPI.Models.Segmentation
         {
         }
     }
+    public partial class KalturaBaseSegmentationTypeFilter
+    {
+        public KalturaBaseSegmentationTypeFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaBaseSegmentCondition
     {
         public KalturaBaseSegmentCondition(Dictionary<string, object> parameters = null) : base(parameters)
@@ -22892,6 +22922,19 @@ namespace WebAPI.Models.Segmentation
                         ValueSchemaProperty.Validate("value", parameters["value"]);
                     }
                     Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaSegmentValueFilter
+    {
+        public KalturaSegmentValueFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
         }

@@ -303,15 +303,13 @@ namespace Core.Catalog.Request
                     return mediaMarkResponse;
                 }
             }
-            else if (assetType == eAssetTypes.NPVR)
+            else if (assetType == eAssetTypes.NPVR && long.TryParse(this.m_oMediaPlayRequestData.m_sAssetID, out recordingId))
             {
                 NPVR.INPVRProvider npvrProvider;
-
-                if (NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null))
-                {
-                    recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
-                }
-                else if (!CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, ref recordingId, this.m_nGroupID, this.domainId))
+                
+                bool isGroupHaveNPVRImpl = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null);
+                
+                if (!isGroupHaveNPVRImpl && !CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, this.m_nGroupID, this.domainId))
                 {
                     mediaMarkResponse.status.Set((int)eResponseStatus.RecordingNotFound, "Recording doesn't exist");
                     return mediaMarkResponse;
@@ -552,7 +550,7 @@ namespace Core.Catalog.Request
 
             DevicePlayData devicePlayData =
                 this.m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, mediaPlayAction, this.m_nGroupID, isLinearChannel,
-                                                                       playType, this.domainId, recordingId, platform, countryId, ttl);
+                                                                       playType, this.domainId, recordingId, platform, countryId, ttl, isReportingMode);
 
             if (devicePlayData == null)
             {

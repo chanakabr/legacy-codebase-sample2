@@ -1673,6 +1673,47 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             break;
                     }
                 });
+
+            cfg.CreateMap<KalturaPlaybackContextOptions, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>()                
+            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => ConvertSerializeableDictionary(src.AdapterData)))
+            .ForMember(dest => dest.AssetFileIds, opt => opt.MapFrom(src => src.AssetFileIds))
+            .ForMember(dest => dest.Context, opt => opt.MapFrom(src => src.Context))
+            .ForMember(dest => dest.UrlType, opt => opt.MapFrom(src => src.UrlType));
+
+            cfg.CreateMap<KalturaPlaybackContextType, ApiObjects.PlayContextType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case KalturaPlaybackContextType.CATCHUP:
+                            return ApiObjects.PlayContextType.CatchUp;
+                        case KalturaPlaybackContextType.DOWNLOAD:
+                            return ApiObjects.PlayContextType.Download;
+                        case KalturaPlaybackContextType.PLAYBACK:
+                            return ApiObjects.PlayContextType.Playback;
+                        case KalturaPlaybackContextType.START_OVER:
+                            return ApiObjects.PlayContextType.StartOver;
+                        case KalturaPlaybackContextType.TRAILER:
+                            return ApiObjects.PlayContextType.Trailer;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown PlayContextType value : {0}", type.ToString()));
+                    }
+                });
+
+            cfg.CreateMap<KalturaUrlType, ApiObjects.UrlType>()
+               .ConvertUsing(type =>
+               {
+                   switch (type)
+                   {
+                       case KalturaUrlType.DIRECT:
+                           return ApiObjects.UrlType.direct;
+                       case KalturaUrlType.PLAYMANIFEST:  
+                           return ApiObjects.UrlType.playmanifest;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown UrlType value : {0}", type.ToString()));
+                   }
+               });
+
             #endregion
 
             #region EventNotification
