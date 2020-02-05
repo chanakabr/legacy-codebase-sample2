@@ -5981,8 +5981,67 @@ namespace Core.Catalog
             // If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
             if (string.IsNullOrEmpty(externalChannel.FilterExpression) && string.IsNullOrEmpty(request.filterQuery))
             {
-                searchResultsList = GetValidateRecommendationsAssets(recommendations, request.m_nGroupID);
-                totalItems = searchResultsList.Count;
+                var groupPermittedWatchRules = GetGroupPermittedWatchRules(request.m_nGroupID);
+                if (groupPermittedWatchRules != null && groupPermittedWatchRules.Count > 0)
+                {
+                    string watchRules = string.Join(" ", GetGroupPermittedWatchRules(request.m_nGroupID));
+
+                    // validate media on ES
+                    UnifiedSearchDefinitions searchDefinitions = new UnifiedSearchDefinitions()
+                    {
+                        groupId = request.m_nGroupID,
+                        permittedWatchRules = watchRules,
+                        specificAssets = new Dictionary<eAssetTypes, List<string>>(),
+                        shouldUseEndDateForEpg = true,
+                        shouldUseStartDateForEpg = true,
+                        shouldUseFinalEndDate = true,
+                        shouldUseStartDateForMedia = true,
+                        shouldAddIsActiveTerm = true,
+                        shouldIgnoreDeviceRuleID = true
+                    };
+
+                    int elasticSearchPageSize = 0;
+
+                    List<string> listOfMedia = recommendations.Where(x => x.type == eAssetTypes.MEDIA).Select(x => x.id).ToList();
+                    if (listOfMedia.Count > 0)
+                    {
+                        searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, listOfMedia);
+                        searchDefinitions.shouldSearchMedia = true;
+                        elasticSearchPageSize += listOfMedia.Count;
+                    }
+
+                    List<string> listOfPrograms = recommendations.Where(x => x.type == eAssetTypes.EPG).Select(x => x.id).ToList();
+                    if (listOfPrograms.Count > 0)
+                    {
+                        searchDefinitions.specificAssets.Add(eAssetTypes.EPG, listOfPrograms);
+                        searchDefinitions.shouldSearchEpg = true;
+                        elasticSearchPageSize += listOfPrograms.Count;
+                    }
+
+                    searchDefinitions.pageSize = elasticSearchPageSize;
+
+                    if (elasticSearchPageSize > 0)
+                    {
+                        ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
+                        int esTotalItems = 0, to = 0;
+                        var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+
+                        if (searchResults != null && searchResults.Count > 0)
+                        {
+                            totalItems = searchResults.Count;
+
+                            foreach (var searchResult in searchResults)
+                            {
+                                searchResultsList.Add(new UnifiedSearchResult
+                                {
+                                    AssetId = searchResult.AssetId,
+                                    AssetType = searchResult.AssetType,
+                                    m_dUpdateDate = searchResult.m_dUpdateDate
+                                });
+                            }
+                        }
+                    }
+                }
             }
             // If there is, go to ES and perform further filter
             else
