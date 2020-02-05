@@ -208,7 +208,7 @@ namespace Core.ConditionalAccess
                                 AdsControlData adsData = null;
 
                                 // check permitted role 
-                                ApiObjects.ConditionalAccess.PriceReason priceReason = ApiObjects.ConditionalAccess.PriceReason.PPVPurchased;
+                                PriceReason priceReason = PriceReason.PPVPurchased;
 
                                 if (!isSuspended && price.m_oItemPrices?.First()?.m_PriceReason == PriceReason.UserSuspended)
                                 {
@@ -217,9 +217,9 @@ namespace Core.ConditionalAccess
 
                                 if (Utils.IsItemPurchased(price, ref priceReason))
                                 {
-                                    if (priceReason == ApiObjects.ConditionalAccess.PriceReason.PPVPurchased || priceReason == ApiObjects.ConditionalAccess.PriceReason.SubscriptionPurchased)
+                                    if (priceReason == PriceReason.PPVPurchased || priceReason == PriceReason.SubscriptionPurchased)
                                     {
-                                        RolePermissions rolePermission = priceReason == ApiObjects.ConditionalAccess.PriceReason.PPVPurchased ? RolePermissions.PLAYBACK_PPV : RolePermissions.PLAYBACK_SUBSCRIPTION;
+                                        RolePermissions rolePermission = priceReason == PriceReason.PPVPurchased ? RolePermissions.PLAYBACK_PPV : RolePermissions.PLAYBACK_SUBSCRIPTION;
                                         if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, rolePermission))
                                         {
                                             continue;

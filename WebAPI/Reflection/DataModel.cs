@@ -918,6 +918,38 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBookmarkEvent":
+                    switch(property.Name)
+                    {
+                        case "Action":
+                            return "action";
+                        case "AssetId":
+                            return "assetId";
+                        case "FileId":
+                            return "fileId";
+                        case "HouseholdId":
+                            return "householdId";
+                        case "Position":
+                            return "position";
+                        case "ProductId":
+                            return "productId";
+                        case "ProductType":
+                            return "productType";
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
+                case "KalturaBookmarkEventThreshold":
+                    switch(property.Name)
+                    {
+                        case "Threshold":
+                            return "threshold";
+                        case "TransactionType":
+                            return "transactionType";
+                    }
+                    break;
+                    
                 case "KalturaBookmarkFilter":
                     switch(property.Name)
                     {
@@ -1415,6 +1447,14 @@ namespace WebAPI.Reflection
                     {
                         case "Collections":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaCommercePartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "BookmarkEventThresholds":
+                            return "bookmarkEventThresholds";
                     }
                     break;
                     

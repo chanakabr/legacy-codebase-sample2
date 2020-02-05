@@ -1,4 +1,5 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
@@ -192,7 +193,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }        
+        }
 
         internal KalturaUserRole UpdateRole(int groupId, long id, KalturaUserRole role)
         {
@@ -4483,7 +4484,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaSegmentationTypeListResponse GetSegmentationTypesBySegmentIds(int groupId, List<long> ids, 
+        internal KalturaSegmentationTypeListResponse GetSegmentationTypesBySegmentIds(int groupId, List<long> ids,
             AssetSearchDefinition assetSearchDefinition, int pageIndex, int pageSize)
         {
             KalturaSegmentationTypeListResponse result = new KalturaSegmentationTypeListResponse();
@@ -4496,7 +4497,21 @@ namespace WebAPI.Clients
 
             result.SegmentationTypes = response.Objects;
             result.TotalCount = response.TotalCount;
+            return result;
+        }
 
+        internal KalturaPartnerConfigurationListResponse GetCommerceConfigList(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<CommercePartnerConfig>> getCommercePartnerConfigListFunc = () =>
+                PartnerConfigurationManager.GetCommercePartnerConfigList(groupId);
+
+            KalturaGenericListResponse<KalturaCommercePartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaCommercePartnerConfig, CommercePartnerConfig>(getCommercePartnerConfigListFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
             return result;
         }
     }
