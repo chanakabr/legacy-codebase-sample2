@@ -46,6 +46,7 @@ pipeline {
                 bat "dotnet pack Core/ServiceExtensions/ServiceExtensions.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/SoapAdaptersCommon/SoapAdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/RestAdaptersCommon/RestAdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/AdaptersCommon/AdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
 
             }        
         }
@@ -72,6 +73,7 @@ pipeline {
                     bat "nuget push ServiceExtensions*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push SoapAdaptersCommon*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push RestAdaptersCommon*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
+                    bat "nuget push AdaptersCommon*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                 }
             }
         }

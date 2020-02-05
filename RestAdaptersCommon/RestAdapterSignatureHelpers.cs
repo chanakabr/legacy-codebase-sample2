@@ -9,28 +9,17 @@ using System.Text;
 
 namespace RestAdaptersCommon
 {
-    public static class CryptoHelpers
+    public static class RestAdapterSignatureHelpers
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string SEPERATOR_FOR_ENUMRABLE_VALUES="";
-
-        public static string HmacSha1(this string value, string secret)
-        {
-            var secretByteArray = Encoding.UTF8.GetBytes(secret);
-            using (var hash = new HMACSHA1(secretByteArray))
-            {
-                var signatureBytes = hash.ComputeHash(Encoding.UTF8.GetBytes(value));
-                var signature = Convert.ToBase64String(signatureBytes);
-                return signature;
-            }
-        }
 
         public static string CalculateSignature(this BaseAdapterRequest req, string secret)
         {
             var type = req.GetType();
             var props = type.GetProperties().Where(p => !Attribute.IsDefined(p, typeof(IgnoreFromSignatureHash)));
             string values = GetConcatenatedValues(req, props);
-            var signature = values.HmacSha1(secret);
+            var signature = AdaptersCommon.SignatureHelpers.CalculateSignature(values, secret);
             return signature;
         }
 
