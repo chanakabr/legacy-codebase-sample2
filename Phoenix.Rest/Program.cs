@@ -13,6 +13,8 @@ namespace Phoenix.Rest
         {
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";
+            
+            ConfigurationManager.ApplicationConfiguration.Init();
 
             await KalturaWebHostBuilder.RunWebServerAsync<Startup>(new WebServerConfiguration
             {
