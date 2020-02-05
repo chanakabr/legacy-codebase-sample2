@@ -548,7 +548,7 @@ namespace IngestHandler
                 _Logger.Warn($"Received bulk upload ingest event with 0 programs to insert. group id ={_EventData.GroupId} id = {_EventData.BulkUploadId}");
             }
 
-            var targetIndex = BulkUploadMethods.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
+            var targetIndex = IndexManager.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
             if (_ElasticSearchClient.IndexExists(targetIndex))
             {
                 _Logger.Warn($"already found index:[{targetIndex}], removing it before ingest starts");
@@ -751,8 +751,8 @@ namespace IngestHandler
         private bool CloneExistingIndex()
         {
             var result = true;
-            string source = BulkUploadMethods.GetIngestCurrentProgramsAliasName(_EventData.GroupId, _EventData.DateOfProgramsToIngest);
-            string destination = BulkUploadMethods.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
+            string source = IndexManager.GetIngestCurrentProgramsAliasName(_EventData.GroupId, _EventData.DateOfProgramsToIngest);
+            string destination = IndexManager.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
 
             if (_ElasticSearchClient.IndexExists(source))
             {
