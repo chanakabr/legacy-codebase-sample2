@@ -4,6 +4,7 @@ using ApiObjects.Catalog;
 using ConfigurationManager;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
+using Core.GroupManagers;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using GroupsCacheManager;
@@ -235,6 +236,9 @@ namespace ElasticSearchHandler.Updaters
                             linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
                         }
 
+                        var alias = GetAlias();
+                        var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+
                         // Create dictionary by languages
                         foreach (LanguageObj language in languages)
                         {
@@ -244,11 +248,17 @@ namespace ElasticSearchHandler.Updaters
 
                             if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                             {
-                                string alias = GetAlias();
 
                                 // Create bulk request object for each program
                                 foreach (EpgCB epg in currentLanguageEpgs)
                                 {
+                                    // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
+                                    // in that case we need to use the specific date alias for each epg item to update
+                                    if (isIngestV2)
+                                    {
+                                        alias = IndexManager.GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date);
+                                    }
+
                                     epg.PadMetas(metasToPad);
 
                                     string suffix = null;
@@ -285,7 +295,7 @@ namespace ElasticSearchHandler.Updaters
                                     if (bulkRequests.Count > sizeOfBulk)
                                     {
                                         // send request to ES API
-                                       invalidResults = esApi.CreateBulkRequest(bulkRequests);
+                                        invalidResults = esApi.CreateBulkRequest(bulkRequests);
 
                                         if (invalidResults != null && invalidResults.Count > 0)
                                         {

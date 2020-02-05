@@ -150,7 +150,7 @@ namespace IngestValidtionHandler
                 }
             );
 
-            var index = BulkUploadMethods.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
+            var index = IndexManager.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
 
             // Checking all languages by searhcing for all types
             var type = string.Empty;
