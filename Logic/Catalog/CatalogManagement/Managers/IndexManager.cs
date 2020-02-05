@@ -8,6 +8,7 @@ using ConfigurationManager;
 using Core.Api.Managers;
 using Core.Catalog.Cache;
 using Core.Catalog.Request;
+using Core.GroupManagers;
 using ElasticSearch.Common;
 using ElasticSearch.Common.DeleteResults;
 using ElasticSearch.Searcher;
@@ -878,13 +879,21 @@ namespace Core.Catalog.CatalogManagement
                             List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg =>
                                 epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
 
+                            var alias = string.Format("{0}_epg", groupId);
+                            var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
                             if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                             {
-                                string alias = string.Format("{0}_epg", groupId);
 
                                 // Create bulk request object for each program
                                 foreach (EpgCB epg in currentLanguageEpgs)
                                 {
+                                    // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
+                                    // in that case we need to use the specific date alias for each epg item to update
+                                    if (isIngestV2)
+                                    {
+                                        alias = IndexManager.GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date);
+                                    }
+
                                     string suffix = null;
 
                                     if (!language.IsDefault)
@@ -1656,6 +1665,24 @@ namespace Core.Catalog.CatalogManagement
                 log.Error("Error - " + string.Format("Update EPGs threw an exception. (in GetLinearChannelValues). Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
                 throw ex;
             }
+        }
+
+        /// <summary>
+        /// This is the index name that we will ingest into, used by ingest V2 only
+        /// </summary>
+        public static string GetIngestDraftTargetIndexName(int groupId, long bulkUploadId, DateTime dateOfProgramsToIngest)
+        {
+            string dateString = dateOfProgramsToIngest.ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
+            return $"{groupId}_epg_v2_{dateString}_{bulkUploadId}";
+        }
+
+        /// <summary>
+        /// This is the index name of exsisting programs, used by Ingest V2 only
+        /// </summary>
+        public static string GetIngestCurrentProgramsAliasName(int groupId, DateTime dateOfProgramsToIngest)
+        {
+            string dateString = dateOfProgramsToIngest.Date.ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
+            return $"{groupId}_epg_v2_{dateString}";
         }
     }
 }
