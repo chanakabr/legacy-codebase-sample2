@@ -76,25 +76,7 @@ namespace IngestHandler.Common
                 _Logger.Error($"Failed inserting program. group:[{groupId}] bulkUploadId:[{groupId}]");
             }
         }
-
-        /// <summary>
-        /// This is the index name that we will ingest into
-        /// </summary>
-        public static string GetIngestDraftTargetIndexName(int groupId, long bulkUploadId, DateTime dateOfProgramsToIngest)
-        {
-            string dateString = dateOfProgramsToIngest.ToString(ESUtils.ES_DATEONLY_FORMAT);
-            return $"{groupId}_epg_v2_{dateString}_{bulkUploadId}";
-        }
-
-        /// <summary>
-        /// This is the index name of exsisting programs
-        /// </summary>
-        public static string GetIngestCurrentProgramsAliasName(int groupId, DateTime dateOfProgramsToIngest)
-        {
-            string dateString = dateOfProgramsToIngest.ToString(ESUtils.ES_DATEONLY_FORMAT);
-            return $"{groupId}_epg_v2_{dateString}";
-        }
-
+        
         private static void SetSearchEndDate(List<EpgCB> lEpg, int groupID)
         {
             try
