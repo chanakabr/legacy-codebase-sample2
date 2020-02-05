@@ -44,7 +44,7 @@ namespace IngestHandler.Common
 
         public void Update(IList<EpgProgramBulkUploadObject> calculatedPrograms, IList<EpgProgramBulkUploadObject> programsToDelete)
         {
-            var draftIndexName = BulkUploadMethods.GetIngestDraftTargetIndexName(_GroupId, _BulkUploadId, _DateOfProgramsToIngest);
+            var draftIndexName = IndexManager.GetIngestDraftTargetIndexName(_GroupId, _BulkUploadId, _DateOfProgramsToIngest);
 
             var isOpc = GroupSettingsManager.IsOpc(_GroupId);
             var metasToPad = GetMetasToPad(_GroupId, isOpc);
