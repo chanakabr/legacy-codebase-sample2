@@ -30,8 +30,11 @@ namespace Core.Catalog
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string XML_TV_DATE_FORMAT = "yyyyMMddHHmmss";
+        private const string LOCK_KEY_DATE_FORMAT = "yyyyMMdd";
         private static readonly XmlSerializer _XmltTVserilizer = new XmlSerializer(typeof(EpgChannels));
         public int? IngestProfileId { get; set; }
+
+        public string[] LockKeys;
 
         public override GenericListResponse<BulkUploadResult> Deserialize(int groupId, long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
@@ -55,12 +58,20 @@ namespace Core.Catalog
 
                 var epgData = DeserializeXmlTvEpgData(bulkUploadId, xmlTvString);
                 response.Objects = epgData;
+
+                var allPrograms = epgData.Select(r => r.Object).Cast<EpgProgramBulkUploadObject>().ToList();
+                var allProgramDates = allPrograms.Select(p => p.StartDate.Date).Distinct().ToList();
+                LockKeys = allProgramDates.Select(programDate => GetIngestLockKey(programDate)).ToArray();
+
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception e)
             {
                 response.SetStatus(eResponseStatus.Error, $"Error during Epg Injest Deserialize > ex:[{e}]");
             }
+
+
+
             return response;
         }
 
@@ -212,7 +223,9 @@ namespace Core.Catalog
             return liveAsstes;
         }
 
-
-
+        public static string GetIngestLockKey(DateTime dateOfProgramsToIngest)
+        {
+            return $"Ingest_V2_Lock_{dateOfProgramsToIngest.ToString(LOCK_KEY_DATE_FORMAT)}";
+        }
     }
 }

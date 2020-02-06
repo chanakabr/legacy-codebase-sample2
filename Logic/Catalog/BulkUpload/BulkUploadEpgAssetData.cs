@@ -9,6 +9,8 @@ using System.Linq;
 using ApiObjects.EventBus;
 using KLogMonitor;
 using System.Reflection;
+using Synchronizer;
+using ConfigurationManager;
 
 namespace Core.Catalog
 {
@@ -49,9 +51,13 @@ namespace Core.Catalog
                 RequestId = KLogger.GetRequestId(),
             });
 
+            // Lock all dates before starting the ingest
+            var jobData = bulkUpload.JobData as BulkUploadIngestJobData;
+            var locker = new DistributedLock();
+            var epgV2Config = ApplicationConfiguration.EPGIngestV2Configuration;
+            locker.Lock(jobData.LockKeys, epgV2Config.LockNumOfRetries.IntValue, epgV2Config.LockRetryIntervalMS.IntValue, epgV2Config.LockTTLSeconds.IntValue, $"BulkUpload_{bulkUpload.Id}");
+           
             publisher.Publish(bulkUploadIngestEvents);
-
-
         }
 
         public override Dictionary<string, object> GetMandatoryPropertyToValueMap()
