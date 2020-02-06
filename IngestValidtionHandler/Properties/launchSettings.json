@@ -3,7 +3,7 @@
     "IngestHandler": {
       "commandName": "Project",
       "environmentVariables": {
-        "CONCURRENT_CONSUMERS": "1"
+        "CONCURRENT_CONSUMERS": "4"
       }
     }
   }
