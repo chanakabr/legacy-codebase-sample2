@@ -13,7 +13,7 @@ namespace ConfigurationManager
         public BaseValue<int> LockRetryIntervalMS = new BaseValue<int>("lock_retry_interval_ms", 10000);
         public BaseValue<int> LockTTLSeconds = new BaseValue<int>("lock_ttl_seconds", 10800);
 
-        public override string TcmKey => TcmObjectKeys.OTTUserControllerConfiguration;
+        public override string TcmKey => TcmObjectKeys.EPGIngestV2Configuration;
 
         public override string[] TcmPath => new string[] { TcmKey };
 
