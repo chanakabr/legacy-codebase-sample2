@@ -138,7 +138,7 @@ namespace IngestHandler
 
         private static async Task CheckPictureUrlWithHeadRequest(IEnumerable<GenericResponse<EpgPicture>> validPicturesToUpload)
         {
-            if (!ApplicationConfiguration.CheckImageUrl.Value)
+            if (!ApplicationConfiguration.Current.CheckImageUrl.Value)
             {
                 var originalMaxConcurrentConnections = ServicePointManager.DefaultConnectionLimit;
                 ServicePointManager.DefaultConnectionLimit = 10; // TODO: Arthur - Take from TCM ? 
