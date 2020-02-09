@@ -27,7 +27,6 @@ namespace ConfigurationManager
         public BaseValue<string> UsersConnectionString = new BaseValue<string>("users_connection_string", TcmObjectKeys.Stub, true, "Still not in use, requires massive amount of code refactoring.");
         public BaseValue<string> WriteLockParameters = new BaseValue<string>("WriteLock_Params", "userid;user_id;usersid;siteguid;userids;domain_id;domainid;name;site_user_guid;site_guid;userslist;users;co_guid;user_site_guid;username");
         public BaseValue<string> Prefix = new BaseValue<string>("prefix", "__SV0__");
-   
 
         public BaseValue<bool> UseAlwaysOn = new BaseValue<bool>("UseAlwaysOn", true);
         public BaseValue<bool> WriteLockUse = new BaseValue<bool>("WriteLock_Use", false);

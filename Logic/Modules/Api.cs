@@ -2219,7 +2219,6 @@ namespace Core.Api
             try
             {
                 var userSegments = UserSegment.List(groupId, userId, out int totalCount);
-
                 if (totalCount > 0)
                 {
                     var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(userSegments.Select(x => x.SegmentId).ToList());
@@ -2254,6 +2253,11 @@ namespace Core.Api
                             }
 
                             result.TotalItems = result.Objects.Count;
+
+                            if (pageSize > 0)
+                            {
+                                result.Objects = result.Objects.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                            }
                         }
                     }
                 }
@@ -2446,9 +2450,10 @@ namespace Core.Api
         }
 
         public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackContext(long adapterId, int groupId, string userId, string udid, string ip,
-                                                                          ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, Dictionary<string, string> adapterData)
+                                                                          ApiObjects.PlaybackAdapter.PlaybackContext playbackContext,
+                                                                          ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
         {
-            return Core.Api.api.GetPlaybackAdapterContext(adapterId, groupId, userId, udid, ip, playbackContext, adapterData);
+            return Core.Api.api.GetPlaybackAdapterContext(adapterId, groupId, userId, udid, ip, playbackContext, requestPlaybackContextOptions);
         }
 
         public static Status UpdateGeneralPartnerConfig(int groupId, GeneralPartnerConfig partnerConfigToUpdate)
@@ -2594,6 +2599,42 @@ namespace Core.Api
             catch (Exception ex)
             {
                 log.ErrorFormat("Failed getting User And Household SegmentIds of user id {0} in group id = {1}. ex = {2}", userId, groupId, ex);
+            }
+
+            return result;
+        }
+
+        public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackManifest(long adapterId, int groupId, ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
+        {
+            return api.GetPlaybackAdapterManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions);
+        }
+        public static GenericListResponse<Region> GetDefaultRegion(int groupId)
+        {
+            return ApiLogic.Api.Managers.RegionManager.GetDefaultRegion(groupId);
+        }
+
+        public static GenericListResponse<SegmentationType> GetSegmentationTypesBySegmentIds(int groupId, List<long> ids, int pageIndex, int pageSize,
+            AssetSearchDefinition assetSearchDefinition)
+        {
+            GenericListResponse<SegmentationType> result = new GenericListResponse<SegmentationType>();
+
+            try
+            {
+                var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(ids);
+
+                if (segmentTypeIds?.Count > 0)
+                {
+                    result = ListSegmentationTypes(groupId, new HashSet<long>(segmentTypeIds.Values.ToList()), pageIndex, pageSize, assetSearchDefinition);
+                }
+                else
+                {
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetSegmentationTypesBySegmentIds of group id = {0}. ex = {1}", groupId, ex);
+                result.SetStatus(eResponseStatus.Error, "Failed getting segmentation types");
             }
 
             return result;

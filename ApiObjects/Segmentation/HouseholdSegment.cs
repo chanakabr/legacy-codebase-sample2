@@ -160,7 +160,7 @@ namespace ApiObjects.Segmentation
             return true;
         }
         
-        public static List<HouseholdSegment> List(int groupId, long householdId, out int totalCount, List<long> segmentsIds = null, int pageIndex = 0, int pageSize = 0)
+        public static List<HouseholdSegment> List(int groupId, long householdId, out int totalCount, List<long> segmentsIds = null)
         {
             totalCount = 0;
             List<HouseholdSegment> result = new List<HouseholdSegment>();
@@ -177,16 +177,7 @@ namespace ApiObjects.Segmentation
                     householdSegments.Segments = householdSegments.Segments.Where(x => segmentsIds.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
                 }
 
-                if (pageSize == 0 && pageIndex == 0)
-                {
-                    result = householdSegments.Segments.Values.ToList();
-                }
-                else
-                {
-                    // get only segments on current page
-                    result = householdSegments.Segments.Values.ToList().Skip(pageIndex * pageSize).Take(pageSize).ToList();
-                }
-
+                result = householdSegments.Segments.Values.ToList();             
                 totalCount = householdSegments.Segments.Count;
             }
 

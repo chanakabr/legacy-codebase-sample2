@@ -30,6 +30,8 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUpload : CoreObject
     {
+        public const string NOTIFY_EVENT_NAME = "KalturaBulkUpload";
+
         [JsonProperty("FileURL")]
         public string FileURL { get; set; }
 
@@ -63,8 +65,8 @@ namespace ApiObjects.BulkUpload
                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<BulkUploadResult> Results { get; set; }
 
-        
-        
+
+
         /// <summary>
         /// This list of results that are additional to the source input
         /// i.e. side affects of epg ingest may cause existing programs to update.
@@ -109,7 +111,10 @@ namespace ApiObjects.BulkUpload
             AddError(errorStatus);
         }
 
-        public bool IsProcessCompleted => Status == BulkUploadJobStatus.Success || Status == BulkUploadJobStatus.Failed || Status == BulkUploadJobStatus.Partial;
+        public bool IsProcessCompleted => Status == BulkUploadJobStatus.Success 
+            || Status == BulkUploadJobStatus.Failed 
+            || Status == BulkUploadJobStatus.Partial 
+            || Status == BulkUploadJobStatus.Fatal;
 
         public override CoreObject CoreClone()
         {

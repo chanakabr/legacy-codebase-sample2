@@ -138,10 +138,6 @@ namespace Core.Catalog
                 {
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
-
-                    // except recodrings. FOR NOW
-                    // TEMPORARY UNTIL REST IS FIXED
-                    // FOR NOW ONLY
                     definitions.shouldSearchRecordings = false;
                 }
                 else
@@ -149,18 +145,15 @@ namespace Core.Catalog
                     definitions.mediaTypes = new List<int>(request.assetTypes);
                 }
 
-                // 0 - hard coded for EPG
-                if (definitions.mediaTypes.Remove(UnifiedSearchDefinitions.EPG_ASSET_TYPE))
-                {
-                    definitions.shouldSearchEpg = true;
-                }
-
-                if (definitions.ksqlAssetTypes?.Count == 1 && definitions.ksqlAssetTypes.Contains("media"))
+                if (definitions.ksqlAssetTypes?.Count > 0)
                 {
                     definitions.shouldSearchEpg = false;
                 }
 
-                if (definitions.ksqlAssetTypes.Contains("epg"))
+                // 0 or 'epg' - hard coded for EPG
+                if (definitions.mediaTypes.Remove(UnifiedSearchDefinitions.EPG_ASSET_TYPE) || 
+                    definitions.ksqlAssetTypes.Contains("epg") || 
+                    definitions.ksqlAssetTypes.Contains(UnifiedSearchDefinitions.EPG_ASSET_TYPE.ToString()))
                 {
                     definitions.shouldSearchEpg = true;
                 }

@@ -622,8 +622,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.Ignore())
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
                 .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => ConvertInheritancePolicy(src.InheritancePolicy)))
-                .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.FallBackEpgIdentifier))
-                ;
+                .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.FallBackEpgIdentifier) ? src.FallBackEpgIdentifier : null))
+            ;
 
             //LiveAsset to KalturaLiveAsset
             cfg.CreateMap<LiveAsset, KalturaLiveAsset>()

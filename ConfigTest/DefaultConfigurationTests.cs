@@ -20,14 +20,11 @@ namespace Tests.ConfigTest
         [TestMethod]
         public void Test_AllConfigurationSettingsMustHaveDefultValue()
         {
-
             ApplicationConfiguration configuration = ApplicationConfiguration.Current;
             Type type = typeof(ApplicationConfiguration);
             var result = TestIfConainNullDefaultValue(type, configuration);
             Assert.IsTrue(result);
-
         }
-
 
         [TestMethod]
         public void Test_StubInCaseOfMustBeOverwriteInTcmInTcm()
@@ -53,7 +50,6 @@ namespace Tests.ConfigTest
             Assert.IsTrue(res);
         }
 
-
         [TestMethod]
         public void Test_ValidateDuplicateKeys()
         {
@@ -62,16 +58,15 @@ namespace Tests.ConfigTest
             TestIfConainsDuplicateKey(type, configuration);
         }
 
-
         private void TestStubKey(Type type, IBaseConfig baseConfig)
         {
             List<FieldInfo> fields = type.GetFields().ToList();
             foreach (var field in fields)
             {
                 object baseValueData = field.GetValue(baseConfig);
+
                 if (baseValueData == null)
                 {
-
                     Assert.Fail($"object [{type.Name}] holds null objcet {field.Name}");
                 }
                 else if (field.FieldType.Name.StartsWith("BaseValue"))

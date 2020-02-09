@@ -5110,67 +5110,23 @@ namespace Core.Catalog
             lMedia.Add(new KeyValuePair<string, int>("fileDuration", fileDuration));
         }
 
-        internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref int fileDuration, ref long recordingId, int groupId, int domainId)
+        internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref int fileDuration, int groupId, int domainId)
         {
             bool result = false;
-            bool shouldGoToCas = false;
-            bool shouldCache = false;
-            recordingId = 0;
 
-            CatalogCache catalogCache = CatalogCache.Instance();
-            string key = string.Format("Recording_{0}", domainRecordingId);
+            var recording = ConditionalAccess.Module.GetRecordingByDomainRecordingId(groupId, domainId, domainRecordingId);
 
-            if (!ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseHitCache.Value)
+            // Validate recording
+            if (recording != null && recording.Status != null && recording.Status.Code == 0)
             {
-                shouldGoToCas = true;
+                fileDuration = (int)((recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
+
+                result = true;
             }
             else
             {
-                shouldCache = true;
-                object cacheDuration = catalogCache.Get(key);
-
-                if (cacheDuration != null)
-                {
-                    fileDuration = Convert.ToInt32(cacheDuration);
-                    result = true;
-                }
-                else
-                {
-                    shouldGoToCas = true;
-                }
-            }
-
-            if (shouldGoToCas)
-            {
-                var recording = ConditionalAccess.Module.GetRecordingByDomainRecordingId(groupId, domainId, domainRecordingId);
-
-                // Validate recording
-                if (recording != null && recording.Status != null && recording.Status.Code == 0)
-                {
-                    fileDuration = (int)((recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
-                    recordingId = recording.Id;
-
-                    if (shouldCache)
-                    {
-                        double timeInCache = (double)(fileDuration / 60);
-
-                        bool setResult = catalogCache.Set(key, fileDuration, timeInCache);
-
-                        if (!setResult)
-                        {
-                            log.ErrorFormat("Failed setting file duration of recording {0} in cache", domainRecordingId);
-                        }
-                    }
-
-                    result = true;
-                }
-                else
-                {
-                    // if recording is invalid, still cache that this recording is invalid
-
-                    result = false;
-                    catalogCache.Set(key, 0, 10);
-                }
+                // if recording is invalid, still cache that this recording is invalid
+                result = false;
             }
 
             return result;
@@ -6025,8 +5981,67 @@ namespace Core.Catalog
             // If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
             if (string.IsNullOrEmpty(externalChannel.FilterExpression) && string.IsNullOrEmpty(request.filterQuery))
             {
-                searchResultsList = GetValidateRecommendationsAssets(recommendations, request.m_nGroupID);
-                totalItems = searchResultsList.Count;
+                var groupPermittedWatchRules = GetGroupPermittedWatchRules(request.m_nGroupID);
+                if (groupPermittedWatchRules != null && groupPermittedWatchRules.Count > 0)
+                {
+                    string watchRules = string.Join(" ", GetGroupPermittedWatchRules(request.m_nGroupID));
+
+                    // validate media on ES
+                    UnifiedSearchDefinitions searchDefinitions = new UnifiedSearchDefinitions()
+                    {
+                        groupId = request.m_nGroupID,
+                        permittedWatchRules = watchRules,
+                        specificAssets = new Dictionary<eAssetTypes, List<string>>(),
+                        shouldUseEndDateForEpg = true,
+                        shouldUseStartDateForEpg = true,
+                        shouldUseFinalEndDate = true,
+                        shouldUseStartDateForMedia = true,
+                        shouldAddIsActiveTerm = true,
+                        shouldIgnoreDeviceRuleID = true
+                    };
+
+                    int elasticSearchPageSize = 0;
+
+                    List<string> listOfMedia = recommendations.Where(x => x.type == eAssetTypes.MEDIA).Select(x => x.id).ToList();
+                    if (listOfMedia.Count > 0)
+                    {
+                        searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, listOfMedia);
+                        searchDefinitions.shouldSearchMedia = true;
+                        elasticSearchPageSize += listOfMedia.Count;
+                    }
+
+                    List<string> listOfPrograms = recommendations.Where(x => x.type == eAssetTypes.EPG).Select(x => x.id).ToList();
+                    if (listOfPrograms.Count > 0)
+                    {
+                        searchDefinitions.specificAssets.Add(eAssetTypes.EPG, listOfPrograms);
+                        searchDefinitions.shouldSearchEpg = true;
+                        elasticSearchPageSize += listOfPrograms.Count;
+                    }
+
+                    searchDefinitions.pageSize = elasticSearchPageSize;
+
+                    if (elasticSearchPageSize > 0)
+                    {
+                        ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
+                        int esTotalItems = 0, to = 0;
+                        var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+
+                        if (searchResults != null && searchResults.Count > 0)
+                        {
+                            totalItems = searchResults.Count;
+
+                            foreach (var searchResult in searchResults)
+                            {
+                                searchResultsList.Add(new UnifiedSearchResult
+                                {
+                                    AssetId = searchResult.AssetId,
+                                    AssetType = searchResult.AssetType,
+                                    m_dUpdateDate = searchResult.m_dUpdateDate
+                                });
+                            }
+                        }
+                    }
+                }
             }
             // If there is, go to ES and perform further filter
             else

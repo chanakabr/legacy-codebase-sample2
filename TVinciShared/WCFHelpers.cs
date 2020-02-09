@@ -35,14 +35,13 @@ namespace TVinciShared
             bindingBase.CloseTimeout = TimeSpan.FromSeconds(adapterConfiguration.CloseTimeout.Value.GetValueOrDefault());
             bindingBase.ReceiveTimeout = TimeSpan.FromSeconds(adapterConfiguration.ReceiveTimeout.Value.GetValueOrDefault());
             bindingBase.MaxBufferSize = (int)bindingBase.MaxReceivedMessageSize;
-
+            
             if (serviceToConfigure.Endpoint.Address.Uri.Scheme.ToLower().Equals("https"))
             {
                 var securityMode = serviceToConfigure.Endpoint.Binding as BasicHttpBinding;
                 securityMode.Security.Mode = BasicHttpSecurityMode.Transport;
                 securityMode.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
             }
-
         }
 
         private static AdapterConfiguration GetCurrentConfiguration(string adapterNamespace)

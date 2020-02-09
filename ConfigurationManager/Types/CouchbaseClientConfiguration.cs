@@ -46,11 +46,13 @@ namespace ConfigurationManager.Types
         {
             Dictionary<string, CouchbaseBucketConfig> actual = new Dictionary<string, CouchbaseBucketConfig>();
             var defaultConfiguration = defaultData.DefaultValue as Dictionary<string, CouchbaseBucketConfig>;
+
             if (token == null)
             {
-                _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{string.Join(":", TcmPath) }], setting default value as actual value");
+                _Logger.Info($"Empty data in TCM under object: [{GetType().Name}]  for key [{string.Join(":", TcmPath) }], setting default value as actual value");
                 return;
             }
+
             CouchbaseBucketConfig defaultConfig = defaultConfiguration[TcmObjectKeys.DefaultConfigurationKey];
             JObject tokenConfiguration = JObject.Parse(token.ToString());
             var defaultTokenData = tokenConfiguration[TcmObjectKeys.DefaultConfigurationKey];

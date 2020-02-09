@@ -28,6 +28,83 @@ namespace WebAPI.ObjectsConvertor.Mapping
     {
         public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
+            cfg.CreateMap<KalturaTransactionType, eTransactionType>()
+               .ConvertUsing(kalturaTransactionType =>
+               {
+                   switch (kalturaTransactionType)
+                   {
+                       case KalturaTransactionType.ppv:
+                           return eTransactionType.PPV;
+                       case KalturaTransactionType.subscription:
+                           return eTransactionType.Subscription;
+                       case KalturaTransactionType.collection:
+                           return eTransactionType.Collection;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown kalturaTransactionType value : {kalturaTransactionType}");
+                   }
+               });
+
+            cfg.CreateMap<KalturaTransactionType?, eTransactionType>()
+               .ConvertUsing(kalturaTransactionType =>
+               {
+                   if (kalturaTransactionType.HasValue)
+                   {
+                       switch (kalturaTransactionType.Value)
+                       {
+                           case KalturaTransactionType.ppv:
+                               return eTransactionType.PPV;
+                           case KalturaTransactionType.subscription:
+                               return eTransactionType.Subscription;
+                           case KalturaTransactionType.collection:
+                               return eTransactionType.Collection;
+                           default:
+                               throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown kalturaTransactionType value : {kalturaTransactionType}");
+                       }
+                   }
+
+                   throw new ClientException((int)StatusCode.ArgumentCannotBeEmpty, $"Argument KalturaTransactionType cannot be empty");
+               });
+
+            cfg.CreateMap<KalturaTransactionType?, eTransactionType?>()
+                .ConvertUsing(clientTransactionType =>
+                {
+                    eTransactionType? result = null;
+                    if (clientTransactionType.HasValue)
+                    {
+                        switch (clientTransactionType)
+                        {
+                            case KalturaTransactionType.ppv:
+                                result = eTransactionType.PPV;
+                                break;
+                            case KalturaTransactionType.subscription:
+                                result = eTransactionType.Subscription;
+                                break;
+                            case KalturaTransactionType.collection:
+                                result = eTransactionType.Collection;
+                                break;
+                            default:
+                                throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
+                        }
+                    }
+                    return result;
+                });
+
+            cfg.CreateMap<eTransactionType, KalturaTransactionType>()
+                .ConvertUsing(transactionType =>
+                {
+                    switch (transactionType)
+                    {
+                        case eTransactionType.PPV:
+                            return KalturaTransactionType.ppv;
+                        case eTransactionType.Subscription:
+                            return KalturaTransactionType.subscription;
+                        case eTransactionType.Collection:
+                            return KalturaTransactionType.collection;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown eTransactionType value : {transactionType}");
+                    }
+                });
+
             // Entitlements(WS) to  WebAPI.Entitlement(REST)
             #region Entitlement
 
@@ -821,50 +898,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
         #endregion
-
-        // TransactionType to eTransactionType
-        public static eTransactionType? ConvertTransactionType(KalturaTransactionType? clientTransactionType)
-        {
-            eTransactionType? result = null;
-            if (clientTransactionType.HasValue)
-            {
-                switch (clientTransactionType)
-                {
-                    case KalturaTransactionType.ppv:
-                        result = eTransactionType.PPV;
-                        break;
-                    case KalturaTransactionType.subscription:
-                        result = eTransactionType.Subscription;
-                        break;
-                    case KalturaTransactionType.collection:
-                        result = eTransactionType.Collection;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
-                }
-            }
-            return result;
-        }
-
-        public static eTransactionType ConvertTransactionType(KalturaTransactionType clientTransactionType)
-        {
-            eTransactionType result;
-            switch (clientTransactionType)
-            {
-                case KalturaTransactionType.ppv:
-                    result = eTransactionType.PPV;
-                    break;
-                case KalturaTransactionType.subscription:
-                    result = eTransactionType.Subscription;
-                    break;
-                case KalturaTransactionType.collection:
-                    result = eTransactionType.Collection;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
-            }
-            return result;
-        }
 
         internal static Dictionary<string, string> ConvertMetaData(SerializableDictionary<string, KalturaStringValue> metaData)
         {

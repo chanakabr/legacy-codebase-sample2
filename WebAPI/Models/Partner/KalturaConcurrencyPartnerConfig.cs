@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 
 namespace WebAPI.Models.Partner
@@ -53,6 +54,13 @@ namespace WebAPI.Models.Partner
 
             return values;
         }
+
+        internal override bool Update(int groupId)
+        {
+            return ClientsManager.ApiClient().UpdateConcurrencyPartner(groupId, this);
+        }
+
+        protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.Concurrency; } }
     }
     
     public enum KalturaEvictionPolicyType
