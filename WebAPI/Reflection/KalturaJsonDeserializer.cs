@@ -11606,10 +11606,6 @@ namespace WebAPI.Models.Catalog
                 {
                     ChannelsIds = (String) Convert.ChangeType(parameters["channelsIds"], typeof(String));
                 }
-                if (parameters.ContainsKey("imagesIds") && parameters["imagesIds"] != null)
-                {
-                    ImagesIds = (String) Convert.ChangeType(parameters["imagesIds"], typeof(String));
-                }
             }
         }
     }

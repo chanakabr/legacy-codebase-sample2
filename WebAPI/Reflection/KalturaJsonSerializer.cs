@@ -10764,10 +10764,6 @@ namespace WebAPI.Models.Catalog
                 ret.Add("childCategoriesIds", "\"childCategoriesIds\": " + "\"" + EscapeJson(ChildCategoriesIds) + "\"");
             }
             ret.Add("id", "\"id\": " + Id);
-            if(ImagesIds != null)
-            {
-                ret.Add("imagesIds", "\"imagesIds\": " + "\"" + EscapeJson(ImagesIds) + "\"");
-            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -10794,10 +10790,6 @@ namespace WebAPI.Models.Catalog
                 ret.Add("childCategoriesIds", "<childCategoriesIds>" + EscapeXml(ChildCategoriesIds) + "</childCategoriesIds>");
             }
             ret.Add("id", "<id>" + Id + "</id>");
-            if(ImagesIds != null)
-            {
-                ret.Add("imagesIds", "<imagesIds>" + EscapeXml(ImagesIds) + "</imagesIds>");
-            }
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");

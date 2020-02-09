@@ -1191,8 +1191,6 @@ namespace WebAPI.Reflection
                             return "childCategoriesIds";
                         case "Id":
                             return "id";
-                        case "ImagesIds":
-                            return "imagesIds";
                         case "Name":
                             return "name";
                         case "ParentCategoryId":

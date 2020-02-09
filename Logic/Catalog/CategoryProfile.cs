@@ -10,7 +10,6 @@ namespace ApiLogic.Catalog
         public long? ParentCategoryId { get; set; }
         public List<long> ChildCategoriesIds { get; set; }
         public List<long> ChannelsIds { get; set; }
-        public List<long> ImagesIds { get; set; }       
     }
 
     public class CategoryProfileFilter : ICrudFilter

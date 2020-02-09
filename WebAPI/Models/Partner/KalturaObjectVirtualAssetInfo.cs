@@ -33,6 +33,6 @@ namespace WebAPI.Models.Partner
         public KalturaObjectVirtualAssetInfoType Type { get; set; }
     }
 
-    public enum KalturaObjectVirtualAssetInfoType { Subscription = 0, Segment = 1 }
+    public enum KalturaObjectVirtualAssetInfoType { Subscription = 0, Segment = 1, Category = 2 }
 
 }

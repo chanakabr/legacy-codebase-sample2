@@ -56,15 +56,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "channelsIds")]
         [JsonProperty(PropertyName = "channelsIds")]
         [XmlArray(ElementName = "channelsIds", IsNullable = true)]
-        public string ChannelsIds { get; set; }
-
-        /// <summary>
-        ///Comma separated list of images' Ids.
-        /// </summary>
-        [DataMember(Name = "imagesIds")]
-        [JsonProperty(PropertyName = "imagesIds")]
-        [XmlArray(ElementName = "imagesIds", IsNullable = true)]
-        public string ImagesIds { get; set; }
+        public string ChannelsIds { get; set; }        
 
         public List<long> GetChildCategoriesIds()
         {
@@ -81,16 +73,6 @@ namespace WebAPI.Models.Catalog
             if (ChannelsIds != null)
             {
                 return GetItemsIn<List<long>, long>(ChannelsIds, "KalturaCategoryProfile.channelsIds", true, true);
-            }
-
-            return null;
-        }
-
-        public List<long> GetImagesIds()
-        {
-            if (ImagesIds != null)
-            {
-                return GetItemsIn<List<long>, long>(ImagesIds, "KalturaCategoryProfile.imagesIds", true, true);
             }
 
             return null;
