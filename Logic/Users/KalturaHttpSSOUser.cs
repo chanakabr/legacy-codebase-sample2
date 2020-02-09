@@ -413,5 +413,83 @@ namespace Core.Users
             };
         }
 
+        public override UserResponseObject PreSignOut(ref int siteGuid, ref int groupId, ref string sessionId, ref string ip, ref string deviceUdid, ref List<KeyValuePair> keyValueList)
+        {
+            if (!_ImplementedMethods.Contains(eSSOMethods.PerSignOut))
+            {
+                return base.PreSignOut(ref siteGuid, ref groupId, ref sessionId, ref ip, ref deviceUdid, ref keyValueList);
+            }
+
+            try
+            {
+                var domainResponse = Core.Domains.Module.GetDomainByUser(groupId, siteGuid.ToString());
+                var domainId = domainResponse.Status.IsOkStatusCode() && domainResponse.Domain != null ? domainResponse.Domain.m_nDomainID : 0;
+                var preSignOutModel = new PreSignOutModel
+                {
+                    UserId = siteGuid,
+                    HouseholdId = domainId,
+                    DeviceUdid = deviceUdid
+                };
+
+                _Logger.Info($"Calling SSO adapter PreSignOut [{_AdapterConfig.Name}], group:[{_GroupId}]");
+
+                var response = _AdapterClient.PreSignOutAsync(_AdapterId, preSignOutModel).ExecuteAndWait();
+                if (!ValidateConfigurationIsSet(response.AdapterStatus))
+                {
+                    response = _AdapterClient.PreSignOutAsync(_AdapterId, preSignOutModel).ExecuteAndWait();
+                }
+
+                if (response.SSOResponseStatus.ResponseStatus != eSSOUserResponseStatus.OK)
+                {
+                    return CreateFromAdapterResponseStatus(response.SSOResponseStatus);
+                }
+
+                return new UserResponseObject { m_RespStatus = ResponseStatus.OK };
+            }
+            catch (Exception ex)
+            {
+                _Logger.Error($"Unexpected error during PreSignOut for user:[{siteGuid}] group:[{groupId}], ex:{ex}");
+                return new UserResponseObject { m_RespStatus = ResponseStatus.InternalError };
+            }
+        }
+        public override void PostSignOut(ref UserResponseObject userResponse, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, ref List<KeyValuePair> keyValueList)
+        {
+            if (!_ImplementedMethods.Contains(eSSOMethods.PostSignIn))
+            {
+                base.PostSignOut(ref userResponse, siteGuid, groupId, sessionId, ip, deviceUdid, ref keyValueList);
+                return;
+            }
+
+            try
+            {
+                var domainResponse = Core.Domains.Module.GetDomainByUser(groupId, siteGuid.ToString());
+                var domainId = domainResponse.Status.IsOkStatusCode() && domainResponse.Domain != null ? domainResponse.Domain.m_nDomainID : 0;
+
+                var postSignOutModel = new PostSignOutModel
+                {
+                    UserId = siteGuid,
+                    DeviceUdid = deviceUdid,
+                    HouseholdId = domainId
+                };
+
+                var response = _AdapterClient.PostSignOutAsync(_AdapterId, postSignOutModel).ExecuteAndWait();
+
+                _Logger.Info($"Calling SSO adapter PostSignOut [{_AdapterConfig.Name}], group:[{_GroupId}]");
+
+                if (!ValidateConfigurationIsSet(response.AdapterStatus))
+                {
+                    response = _AdapterClient.PostSignOutAsync(_AdapterId, postSignOutModel).ExecuteAndWait();
+                }
+
+                if (response.AdapterStatus != AdapterStatusCode.OK)
+                {
+                    _Logger.Error($"Failed to PostSignOut, Status: {response.SSOResponseStatus} for user: [{siteGuid}] group: [{groupId}]");
+                }
+            }
+            catch (Exception ex)
+            {
+                _Logger.Error($"Unexpected error during PostSignOut for user:[{siteGuid}] group:[{groupId}], ex:{ex}");
+            }
+        }
     }
 }
