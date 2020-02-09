@@ -8,22 +8,22 @@ using System.Reflection;
 
 namespace Core.Catalog.Handlers
 {
-    public class CategoryProfileHandler : ICrudHandler<CategoryProfile, long, CategoryProfileFilter>
+    public class CategoryItemHandler : ICrudHandler<CategoryItem, long, CategoryItemFilter>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly Lazy<CategoryProfileHandler> lazy = new Lazy<CategoryProfileHandler>(() => new CategoryProfileHandler());
+        private static readonly Lazy<CategoryItemHandler> lazy = new Lazy<CategoryItemHandler>(() => new CategoryItemHandler());
 
-        public static CategoryProfileHandler Instance { get { return lazy.Value; } }
+        public static CategoryItemHandler Instance { get { return lazy.Value; } }
 
-        private CategoryProfileHandler() { }
+        private CategoryItemHandler() { }
 
-        public GenericResponse<CategoryProfile> Add(ContextData contextData, CategoryProfile objectToAdd)
+        public GenericResponse<CategoryItem> Add(ContextData contextData, CategoryItem objectToAdd)
         {
             throw new NotImplementedException();
         }
 
-        public GenericResponse<CategoryProfile> Update(ContextData contextData, CategoryProfile objectToUpdate)
+        public GenericResponse<CategoryItem> Update(ContextData contextData, CategoryItem objectToUpdate)
         {
             throw new NotImplementedException();
         }
@@ -33,12 +33,17 @@ namespace Core.Catalog.Handlers
             throw new NotImplementedException();
         }
 
-        public GenericResponse<CategoryProfile> Get(ContextData contextData, long id)
+        public GenericResponse<CategoryItem> Get(ContextData contextData, long id)
         {
             throw new NotImplementedException();
         }
 
-        public GenericListResponse<CategoryProfile> List(ContextData contextData, CategoryProfileFilter filter)
+        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemFilter filter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public GenericResponse<CategoryItem> Duplicate(int groupId, long id)
         {
             throw new NotImplementedException();
         }

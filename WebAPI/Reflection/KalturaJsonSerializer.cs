@@ -10747,7 +10747,7 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
-    public partial class KalturaCategoryProfile
+    public partial class KalturaCategoryItem
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -10762,6 +10762,11 @@ namespace WebAPI.Models.Catalog
             if(ChildCategoriesIds != null)
             {
                 ret.Add("childCategoriesIds", "\"childCategoriesIds\": " + "\"" + EscapeJson(ChildCategoriesIds) + "\"");
+            }
+            if(DynamicData != null)
+            {
+                propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
             }
             ret.Add("id", "\"id\": " + Id);
             if(Name != null)
@@ -10789,6 +10794,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("childCategoriesIds", "<childCategoriesIds>" + EscapeXml(ChildCategoriesIds) + "</childCategoriesIds>");
             }
+            if(DynamicData != null)
+            {
+                propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
+            }
             ret.Add("id", "<id>" + Id + "</id>");
             if(Name != null)
             {
@@ -10801,7 +10811,7 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
-    public partial class KalturaCategoryProfileFilter
+    public partial class KalturaCategoryItemFilter
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -10809,11 +10819,15 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            ret.Add("categoryProfileIdEqual", "\"categoryProfileIdEqual\": " + CategoryProfileIdEqual);
-            if(CategoryProfileNameEqual != null)
+            if(IdIn != null)
             {
-                ret.Add("categoryProfileNameEqual", "\"categoryProfileNameEqual\": " + "\"" + EscapeJson(CategoryProfileNameEqual) + "\"");
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
             }
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
+            }
+            ret.Add("rootOnly", "\"rootOnly\": " + RootOnly.ToString().ToLower());
             return ret;
         }
         
@@ -10823,15 +10837,19 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            ret.Add("categoryProfileIdEqual", "<categoryProfileIdEqual>" + CategoryProfileIdEqual + "</categoryProfileIdEqual>");
-            if(CategoryProfileNameEqual != null)
+            if(IdIn != null)
             {
-                ret.Add("categoryProfileNameEqual", "<categoryProfileNameEqual>" + EscapeXml(CategoryProfileNameEqual) + "</categoryProfileNameEqual>");
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
             }
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "<kSql>" + EscapeXml(Ksql) + "</kSql>");
+            }
+            ret.Add("rootOnly", "<rootOnly>" + RootOnly.ToString().ToLower() + "</rootOnly>");
             return ret;
         }
     }
-    public partial class KalturaCategoryProfileListResponse
+    public partial class KalturaCategoryItemListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {

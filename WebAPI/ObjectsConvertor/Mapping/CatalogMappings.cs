@@ -1138,28 +1138,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
-            #region CategoryProfile
-            cfg.CreateMap<ApiLogic.Catalog.CategoryProfile, KalturaCategoryProfile>()
+            #region CategoryItem
+            cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.ParentCategoryId, opt => opt.MapFrom(src => src.ParentCategoryId))
                .ForMember(dest => dest.ChildCategoriesIds, opt => opt.MapFrom(src => src.ChildCategoriesIds != null ? string.Join(",", src.ChildCategoriesIds) : null))
                .ForMember(dest => dest.ChannelsIds, opt => opt.MapFrom(src => src.ChannelsIds != null ? string.Join(",", src.ChannelsIds) : null))
+               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
             ;
 
-            cfg.CreateMap<KalturaCategoryProfile, ApiLogic.Catalog.CategoryProfile>()
+            cfg.CreateMap<KalturaCategoryItem, ApiLogic.Catalog.CategoryItem>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.ParentCategoryId, opt => opt.MapFrom(src => src.ParentCategoryId))
               .ForMember(dest => dest.ChildCategoriesIds, opt => opt.MapFrom(src => src.GetChildCategoriesIds()))
               .ForMember(dest => dest.ChannelsIds, opt => opt.MapFrom(src => src.GetChannelsIds()))
+              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData)))
            ;
 
-            cfg.CreateMap<KalturaCategoryProfileFilter, ApiLogic.Catalog.CategoryProfileFilter>()
-              .ForMember(dest => dest.CategoryProfileIdEqual, opt => opt.MapFrom(src => src.CategoryProfileIdEqual))
-              .ForMember(dest => dest.CategoryProfileNameEqual, opt => opt.MapFrom(src => src.CategoryProfileNameEqual))              
+            cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
+              .ForMember(dest => dest.Ids, opt => opt.MapFrom(src => src.GetIdIn()))
+              .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))              
+              .ForMember(dest => dest.ParentOnly, opt => opt.MapFrom(src => src.RootOnly))              
            ;
-            #endregion CategoryProfile
+            #endregion CategoryItem
         }
 
         private static int? ConvertToNullableInt(bool? value)

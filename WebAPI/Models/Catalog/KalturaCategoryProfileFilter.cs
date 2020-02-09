@@ -3,6 +3,7 @@ using ApiLogic.Catalog;
 using Core.Catalog.Handlers;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
@@ -11,49 +12,67 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     [Serializable]
-    public partial class KalturaCategoryProfileFilter : KalturaCrudFilter<KalturaCategoryProfileOrderBy, CategoryProfile, long, CategoryProfileFilter>
+    public partial class KalturaCategoryItemFilter : KalturaCrudFilter<KalturaCategoryItemOrderBy, CategoryItem, long, CategoryItemFilter>
     {
         /// <summary>
-        /// Indicates which category profile list to return by their category profile identifier.
+        /// Category item identifiers
         /// </summary>
-        [DataMember(Name = "categoryProfileIdEqual")]
-        [JsonProperty("categoryProfileIdEqual")]
-        [XmlElement(ElementName = "categoryProfileIdEqual", IsNullable = true)]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [SchemeProperty(MinInteger = 1)]
-        public long CategoryProfileIdEqual { get; set; }
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn", IsNullable = true)]
+        public string IdIn { get; set; }
+        
 
         /// <summary>
-        /// Indicates which category profile list to return by their category profile name.
+        /// KSQL expression
         /// </summary>
-        [DataMember(Name = "categoryProfileNameEqual")]
-        [JsonProperty("categoryProfileNameEqual")]
-        [XmlElement(ElementName = "categoryProfileNameEqual", IsNullable = true)]
+        [DataMember(Name = "kSql")]
+        [JsonProperty("kSql")]
+        [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public string CategoryProfileNameEqual { get; set; }
+        public string Ksql { get; set; }
 
-        public override ICrudHandler<CategoryProfile, long, CategoryProfileFilter> Handler
+        /// <summary>
+        /// Root only to filter by
+        /// </summary>
+        [DataMember(Name = "rootOnly")]
+        [JsonProperty("rootOnly")]
+        [XmlElement(ElementName = "rootOnly")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool RootOnly { get; set; }
+
+        public override ICrudHandler<CategoryItem, long, CategoryItemFilter> Handler
         {
             get
             {
-                return CategoryProfileHandler.Instance;
+                return CategoryItemHandler.Instance;
             }
         }
-        public override KalturaCategoryProfileOrderBy GetDefaultOrderByValue()
+        public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
         {
-            return KalturaCategoryProfileOrderBy.NONE;
+            return KalturaCategoryItemOrderBy.NONE;
         }
 
         public override void Validate()
         {
         }
 
-        public KalturaCategoryProfileFilter() : base()
+        public KalturaCategoryItemFilter() : base()
         {
+        }
+
+        public List<long> GetIdIn()
+        {
+            if (IdIn != null)
+            {
+                return GetItemsIn<List<long>, long>(IdIn, "KalturaCategoryItemFilter.idIn", true, true);
+            }
+
+            return null;
         }
     }
 
-    public enum KalturaCategoryProfileOrderBy
+    public enum KalturaCategoryItemOrderBy
     {
         NONE
     }

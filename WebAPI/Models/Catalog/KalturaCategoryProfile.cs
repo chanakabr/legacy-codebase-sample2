@@ -15,7 +15,7 @@ namespace WebAPI.Models.Catalog
     /// Category details
     /// </summary>
     [Serializable]
-    public partial class KalturaCategoryProfile : KalturaCrudObject<CategoryProfile, long, CategoryProfileFilter>
+    public partial class KalturaCategoryItem : KalturaCrudObject<CategoryItem, long, CategoryItemFilter>
     {
         /// <summary>
         /// Unique identifier for the category
@@ -56,13 +56,21 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "channelsIds")]
         [JsonProperty(PropertyName = "channelsIds")]
         [XmlArray(ElementName = "channelsIds", IsNullable = true)]
-        public string ChannelsIds { get; set; }        
+        public string ChannelsIds { get; set; }
+
+        /// <summary>
+        /// Dynamic data
+        /// </summary>
+        [DataMember(Name = "dynamicData")]
+        [JsonProperty("dynamicData")]
+        [XmlElement(ElementName = "dynamicData", IsNullable = true)]
+        public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
 
         public List<long> GetChildCategoriesIds()
         {
             if (ChildCategoriesIds != null)
             {
-                return GetItemsIn<List<long>, long>(ChildCategoriesIds, "KalturaCategoryProfile.childCategoriesIds", true, true);
+                return GetItemsIn<List<long>, long>(ChildCategoriesIds, "KalturaCategoryItem.childCategoriesIds", true, true);
             }
 
             return null;
@@ -72,17 +80,17 @@ namespace WebAPI.Models.Catalog
         {
             if (ChannelsIds != null)
             {
-                return GetItemsIn<List<long>, long>(ChannelsIds, "KalturaCategoryProfile.channelsIds", true, true);
+                return GetItemsIn<List<long>, long>(ChannelsIds, "KalturaCategoryItem.channelsIds", true, true);
             }
 
             return null;
         }
 
-        internal override ICrudHandler<CategoryProfile, long, CategoryProfileFilter> Handler
+        internal override ICrudHandler<CategoryItem, long, CategoryItemFilter> Handler
         {
             get
             {
-                return CategoryProfileHandler.Instance;
+                return CategoryItemHandler.Instance;
             }
         }
 
@@ -101,12 +109,12 @@ namespace WebAPI.Models.Catalog
             throw new System.NotImplementedException();
         }
 
-        public KalturaCategoryProfile() : base() { }
+        public KalturaCategoryItem() : base() { }
 
     }
 
-    public partial class KalturaCategoryProfileListResponse : KalturaListResponse<KalturaCategoryProfile>
+    public partial class KalturaCategoryItemListResponse : KalturaListResponse<KalturaCategoryItem>
     {
-        public KalturaCategoryProfileListResponse() : base() { }
+        public KalturaCategoryItemListResponse() : base() { }
     }
 }

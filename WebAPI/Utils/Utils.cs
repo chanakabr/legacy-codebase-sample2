@@ -6,6 +6,7 @@ using System.Net;
 using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 
@@ -258,5 +259,31 @@ namespace WebAPI.Utils
         {
             return str.Replace('_', '/');
         }
+
+        internal static Dictionary<string, string> ConvertSerializeableDictionary(SerializableDictionary<string, KalturaStringValue> dict)
+        {
+            Dictionary<string, string> res = new Dictionary<string, string>();
+
+            if (dict != null && dict.Count > 0)
+            {
+                foreach (KeyValuePair<string, KalturaStringValue> pair in dict)
+                {
+                    if (!string.IsNullOrEmpty(pair.Key))
+                    {
+                        if (!res.ContainsKey(pair.Key))
+                        {
+                            res.Add(pair.Key, pair.Value.value);
+                        }
+                        else
+                        {
+                            throw new ClientException((int)StatusCode.ArgumentsDuplicate, string.Format("key {0} already exists in sent dictionary", pair.Key));
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+
     }
 }

@@ -1182,13 +1182,15 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaCategoryProfile":
+                case "KalturaCategoryItem":
                     switch(property.Name)
                     {
                         case "ChannelsIds":
                             return "channelsIds";
                         case "ChildCategoriesIds":
                             return "childCategoriesIds";
+                        case "DynamicData":
+                            return "dynamicData";
                         case "Id":
                             return "id";
                         case "Name":
@@ -1198,13 +1200,15 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaCategoryProfileFilter":
+                case "KalturaCategoryItemFilter":
                     switch(property.Name)
                     {
-                        case "CategoryProfileIdEqual":
-                            return "categoryProfileIdEqual";
-                        case "CategoryProfileNameEqual":
-                            return "categoryProfileNameEqual";
+                        case "IdIn":
+                            return "idIn";
+                        case "Ksql":
+                            return "kSql";
+                        case "RootOnly":
+                            return "rootOnly";
                     }
                     break;
                     
@@ -7277,21 +7281,28 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "categoryprofile":
+                case "categoryitem":
                     switch(action)
                     {
+                        case "duplicate":
+                            return CategoryItemController.Duplicate((long) methodParams[0]);
+                            
                         case "add":
-                            RolesManager.ValidateActionPermitted("categoryprofile", "add");
-                            return CategoryProfileController.Add((KalturaCategoryProfile) methodParams[0]);
+                            RolesManager.ValidateActionPermitted("categoryitem", "add");
+                            return CategoryItemController.Add((KalturaCategoryItem) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("categoryitem", "update");
+                            return CategoryItemController.Update((long) methodParams[0], (KalturaCategoryItem) methodParams[1]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("categoryprofile", "delete");
-                            CategoryProfileController.Delete((long) methodParams[0]);
+                            RolesManager.ValidateActionPermitted("categoryitem", "delete");
+                            CategoryItemController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("categoryprofile", "list");
-                            return CategoryProfileController.List((KalturaCategoryProfileFilter) methodParams[0]);
+                            RolesManager.ValidateActionPermitted("categoryitem", "list");
+                            return CategoryItemController.List((KalturaCategoryItemFilter) methodParams[0]);
                             
                     }
                     break;
@@ -12309,14 +12320,33 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "categoryprofile":
+                case "categoryitem":
                     switch(action)
                     {
+                        case "duplicate":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
                         case "add":
                             ret.Add("objectToAdd", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaCategoryProfile),
+                                Type = typeof(KalturaCategoryItem),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryItem),
                             });
                             return ret;
                             
@@ -12333,7 +12363,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaCategoryProfileFilter),
+                                Type = typeof(KalturaCategoryItemFilter),
                             });
                             return ret;
                             
