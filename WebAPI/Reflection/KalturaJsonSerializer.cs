@@ -10747,6 +10747,118 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
+    public partial class KalturaCategoryProfile
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ChannelsIds != null)
+            {
+                ret.Add("channelsIds", "\"channelsIds\": " + "\"" + EscapeJson(ChannelsIds) + "\"");
+            }
+            if(ChildCategoriesIds != null)
+            {
+                ret.Add("childCategoriesIds", "\"childCategoriesIds\": " + "\"" + EscapeJson(ChildCategoriesIds) + "\"");
+            }
+            ret.Add("id", "\"id\": " + Id);
+            if(ImagesIds != null)
+            {
+                ret.Add("imagesIds", "\"imagesIds\": " + "\"" + EscapeJson(ImagesIds) + "\"");
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(ParentCategoryId.HasValue)
+            {
+                ret.Add("parentCategoryId", "\"parentCategoryId\": " + ParentCategoryId);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ChannelsIds != null)
+            {
+                ret.Add("channelsIds", "<channelsIds>" + EscapeXml(ChannelsIds) + "</channelsIds>");
+            }
+            if(ChildCategoriesIds != null)
+            {
+                ret.Add("childCategoriesIds", "<childCategoriesIds>" + EscapeXml(ChildCategoriesIds) + "</childCategoriesIds>");
+            }
+            ret.Add("id", "<id>" + Id + "</id>");
+            if(ImagesIds != null)
+            {
+                ret.Add("imagesIds", "<imagesIds>" + EscapeXml(ImagesIds) + "</imagesIds>");
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(ParentCategoryId.HasValue)
+            {
+                ret.Add("parentCategoryId", "<parentCategoryId>" + ParentCategoryId + "</parentCategoryId>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCategoryProfileFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("categoryProfileIdEqual", "\"categoryProfileIdEqual\": " + CategoryProfileIdEqual);
+            if(CategoryProfileNameEqual != null)
+            {
+                ret.Add("categoryProfileNameEqual", "\"categoryProfileNameEqual\": " + "\"" + EscapeJson(CategoryProfileNameEqual) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("categoryProfileIdEqual", "<categoryProfileIdEqual>" + CategoryProfileIdEqual + "</categoryProfileIdEqual>");
+            if(CategoryProfileNameEqual != null)
+            {
+                ret.Add("categoryProfileNameEqual", "<categoryProfileNameEqual>" + EscapeXml(CategoryProfileNameEqual) + "</categoryProfileNameEqual>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCategoryProfileListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
     public partial class KalturaChannel
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)

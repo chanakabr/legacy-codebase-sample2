@@ -416,6 +416,15 @@ namespace WebAPI.Reflection
                 case "KalturaCatalogWithHolder":
                     return new KalturaCatalogWithHolder(parameters);
                     
+                case "KalturaCategoryProfile":
+                    return new KalturaCategoryProfile(parameters);
+                    
+                case "KalturaCategoryProfileFilter":
+                    return new KalturaCategoryProfileFilter(parameters);
+                    
+                case "KalturaCategoryProfileListResponse":
+                    return new KalturaCategoryProfileListResponse(parameters);
+                    
                 case "KalturaCDNAdapterProfile":
                     return new KalturaCDNAdapterProfile(parameters);
                     
@@ -11553,6 +11562,95 @@ namespace WebAPI.Models.Catalog
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaCategoryProfile
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryProfile")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaCategoryProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("parentCategoryId") && parameters["parentCategoryId"] != null)
+                {
+                    ParentCategoryId = (Int64) Convert.ChangeType(parameters["parentCategoryId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("childCategoriesIds") && parameters["childCategoriesIds"] != null)
+                {
+                    ChildCategoriesIds = (String) Convert.ChangeType(parameters["childCategoriesIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("channelsIds") && parameters["channelsIds"] != null)
+                {
+                    ChannelsIds = (String) Convert.ChangeType(parameters["channelsIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("imagesIds") && parameters["imagesIds"] != null)
+                {
+                    ImagesIds = (String) Convert.ChangeType(parameters["imagesIds"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaCategoryProfileFilter
+    {
+        private static RuntimeSchemePropertyAttribute CategoryProfileIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryProfileFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        public KalturaCategoryProfileFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("categoryProfileIdEqual") && parameters["categoryProfileIdEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CategoryProfileIdEqualSchemaProperty.Validate("categoryProfileIdEqual", parameters["categoryProfileIdEqual"]);
+                    }
+                    CategoryProfileIdEqual = (Int64) Convert.ChangeType(parameters["categoryProfileIdEqual"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("categoryProfileNameEqual") && parameters["categoryProfileNameEqual"] != null)
+                {
+                    CategoryProfileNameEqual = (String) Convert.ChangeType(parameters["categoryProfileNameEqual"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaCategoryProfileListResponse
+    {
+        public KalturaCategoryProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaChannel

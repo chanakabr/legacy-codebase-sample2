@@ -1137,6 +1137,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
 
             #endregion
+
+            #region CategoryProfile
+            cfg.CreateMap<ApiLogic.Catalog.CategoryProfile, KalturaCategoryProfile>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.ParentCategoryId, opt => opt.MapFrom(src => src.ParentCategoryId))
+               .ForMember(dest => dest.ChildCategoriesIds, opt => opt.MapFrom(src => src.ChildCategoriesIds != null ? string.Join(",", src.ChildCategoriesIds) : null))
+               .ForMember(dest => dest.ChannelsIds, opt => opt.MapFrom(src => src.ChannelsIds != null ? string.Join(",", src.ChannelsIds) : null))
+               .ForMember(dest => dest.ImagesIds, opt => opt.MapFrom(src => src.ImagesIds != null ? string.Join(",", src.ImagesIds) : null))
+            ;
+
+            cfg.CreateMap<KalturaCategoryProfile, ApiLogic.Catalog.CategoryProfile>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.ParentCategoryId, opt => opt.MapFrom(src => src.ParentCategoryId))
+              .ForMember(dest => dest.ChildCategoriesIds, opt => opt.MapFrom(src => src.GetChildCategoriesIds()))
+              .ForMember(dest => dest.ChannelsIds, opt => opt.MapFrom(src => src.GetChannelsIds()))
+              .ForMember(dest => dest.ImagesIds, opt => opt.MapFrom(src => src.GetImagesIds()))
+           ;
+
+            cfg.CreateMap<KalturaCategoryProfileFilter, ApiLogic.Catalog.CategoryProfileFilter>()
+              .ForMember(dest => dest.CategoryProfileIdEqual, opt => opt.MapFrom(src => src.CategoryProfileIdEqual))
+              .ForMember(dest => dest.CategoryProfileNameEqual, opt => opt.MapFrom(src => src.CategoryProfileNameEqual))              
+           ;
+            #endregion CategoryProfile
         }
 
         private static int? ConvertToNullableInt(bool? value)

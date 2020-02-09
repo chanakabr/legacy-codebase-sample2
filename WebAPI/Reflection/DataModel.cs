@@ -1182,6 +1182,34 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCategoryProfile":
+                    switch(property.Name)
+                    {
+                        case "ChannelsIds":
+                            return "channelsIds";
+                        case "ChildCategoriesIds":
+                            return "childCategoriesIds";
+                        case "Id":
+                            return "id";
+                        case "ImagesIds":
+                            return "imagesIds";
+                        case "Name":
+                            return "name";
+                        case "ParentCategoryId":
+                            return "parentCategoryId";
+                    }
+                    break;
+                    
+                case "KalturaCategoryProfileFilter":
+                    switch(property.Name)
+                    {
+                        case "CategoryProfileIdEqual":
+                            return "categoryProfileIdEqual";
+                        case "CategoryProfileNameEqual":
+                            return "categoryProfileNameEqual";
+                    }
+                    break;
+                    
                 case "KalturaCDNAdapterProfile":
                     switch(property.Name)
                     {
@@ -7251,6 +7279,25 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "categoryprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("categoryprofile", "add");
+                            return CategoryProfileController.Add((KalturaCategoryProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("categoryprofile", "delete");
+                            CategoryProfileController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("categoryprofile", "list");
+                            return CategoryProfileController.List((KalturaCategoryProfileFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
                 case "cdnadapterprofile":
                     switch(action)
                     {
@@ -12258,6 +12305,37 @@ namespace WebAPI.Reflection
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(int),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "categoryprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryProfileFilter),
                             });
                             return ret;
                             
