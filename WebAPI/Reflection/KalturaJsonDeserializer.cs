@@ -1820,6 +1820,12 @@ namespace WebAPI.Reflection
                 case "KalturaTwitterTwit":
                     return new KalturaTwitterTwit(parameters);
                     
+                case "KalturaUnifiedChannel":
+                    return new KalturaUnifiedChannel(parameters);
+                    
+                case "KalturaUnifiedChannelInfo":
+                    return new KalturaUnifiedChannelInfo(parameters);
+                    
                 case "KalturaUnifiedPaymentRenewal":
                     return new KalturaUnifiedPaymentRenewal(parameters);
                     
@@ -11576,6 +11582,16 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute ChildCategoriesIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaCategoryItem(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -11600,11 +11616,22 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("childCategoriesIds") && parameters["childCategoriesIds"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        ChildCategoriesIdsSchemaProperty.Validate("childCategoriesIds", parameters["childCategoriesIds"]);
+                    }
                     ChildCategoriesIds = (String) Convert.ChangeType(parameters["childCategoriesIds"], typeof(String));
                 }
-                if (parameters.ContainsKey("channelsIds") && parameters["channelsIds"] != null)
+                if (parameters.ContainsKey("unifiedChannels") && parameters["unifiedChannels"] != null)
                 {
-                    ChannelsIds = (String) Convert.ChangeType(parameters["channelsIds"], typeof(String));
+                    if (parameters["unifiedChannels"] is JArray)
+                    {
+                        UnifiedChannels = buildList<KalturaUnifiedChannelInfo>(typeof(KalturaUnifiedChannelInfo), (JArray) parameters["unifiedChannels"]);
+                    }
+                    else if (parameters["unifiedChannels"] is IList)
+                    {
+                        UnifiedChannels = buildList(typeof(KalturaUnifiedChannelInfo), parameters["unifiedChannels"] as object[]);
+                    }
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
                 {
@@ -14769,6 +14796,58 @@ namespace WebAPI.Models.Catalog
                     {
                         Tags = buildList(typeof(KalturaTag), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaUnifiedChannel
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUnifiedChannel")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        public KalturaUnifiedChannel(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("type") && parameters["type"] != null)
+                {
+                    Type = (KalturaChannelType) Enum.Parse(typeof(KalturaChannelType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaChannelType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaChannelType)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaUnifiedChannelInfo
+    {
+        public KalturaUnifiedChannelInfo(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
             }
         }

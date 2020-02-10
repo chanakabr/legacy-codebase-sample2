@@ -36,31 +36,8 @@ namespace WebAPI.Controllers
                                                        //}
                   )]
 
-    [ListAction(Summary = "Gets all categoryItem items for a household", IsFilterOptional = true)]
+    [ListAction(Summary = "Gets all categoryItem items", IsFilterOptional = true)]
     public class CategoryItemController : KalturaCrudController<KalturaCategoryItem, KalturaCategoryItemListResponse, CategoryItem, long, KalturaCategoryItemFilter, CategoryItemFilter>
-    {
-        /// <summary>
-        /// Sign up a new user.      
-        /// </summary>        
-        /// <param name="id">Category identifier</param>        
-        [Action("duplicate")]
-        [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public KalturaCategoryItem Duplicate(long id)
-        {
-            KalturaCategoryItem response = null;
-
-            var groupId = KS.GetFromRequest().GroupId;
-
-            try
-            {
-                response = ClientsManager.CatalogClient().Duplicate(groupId, id);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
+    {       
     }
 }

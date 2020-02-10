@@ -1185,8 +1185,6 @@ namespace WebAPI.Reflection
                 case "KalturaCategoryItem":
                     switch(property.Name)
                     {
-                        case "ChannelsIds":
-                            return "channelsIds";
                         case "ChildCategoriesIds":
                             return "childCategoriesIds";
                         case "DynamicData":
@@ -1197,6 +1195,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "ParentCategoryId":
                             return "parentCategoryId";
+                        case "UnifiedChannels":
+                            return "unifiedChannels";
                     }
                     break;
                     
@@ -6498,6 +6498,24 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaUnifiedChannel":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
+                case "KalturaUnifiedChannelInfo":
+                    switch(property.Name)
+                    {
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
                 case "KalturaUnifiedPaymentRenewal":
                     switch(property.Name)
                     {
@@ -7284,9 +7302,6 @@ namespace WebAPI.Reflection
                 case "categoryitem":
                     switch(action)
                     {
-                        case "duplicate":
-                            return CategoryItemController.Duplicate((long) methodParams[0]);
-                            
                         case "add":
                             RolesManager.ValidateActionPermitted("categoryitem", "add");
                             return CategoryItemController.Add((KalturaCategoryItem) methodParams[0]);
@@ -12323,13 +12338,6 @@ namespace WebAPI.Reflection
                 case "categoryitem":
                     switch(action)
                     {
-                        case "duplicate":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            return ret;
-                            
                         case "add":
                             ret.Add("objectToAdd", new MethodParam(){
                                 NewName = newParamName,

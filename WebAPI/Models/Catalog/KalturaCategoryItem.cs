@@ -47,16 +47,18 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "childCategoriesIds")]
         [JsonProperty(PropertyName = "childCategoriesIds")]
-        [XmlArray(ElementName = "childCategoriesIds", IsNullable = true)]
+        [XmlElement(ElementName = "childCategoriesIds")]
+        [SchemeProperty(ReadOnly = true)]
         public string ChildCategoriesIds { get; set; }
 
         /// <summary>
-        /// Comma separated list of channels' Ids.
+        /// List of unified Channels.
         /// </summary>
-        [DataMember(Name = "channelsIds")]
-        [JsonProperty(PropertyName = "channelsIds")]
-        [XmlArray(ElementName = "channelsIds", IsNullable = true)]
-        public string ChannelsIds { get; set; }
+        [DataMember(Name = "unifiedChannels")]
+        [JsonProperty(PropertyName = "unifiedChannels")]
+        [XmlArray(ElementName = "unifiedChannels", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaUnifiedChannelInfo> UnifiedChannels { get; set; }
 
         /// <summary>
         /// Dynamic data
@@ -74,17 +76,7 @@ namespace WebAPI.Models.Catalog
             }
 
             return null;
-        }
-
-        public List<long> GetChannelsIds()
-        {
-            if (ChannelsIds != null)
-            {
-                return GetItemsIn<List<long>, long>(ChannelsIds, "KalturaCategoryItem.channelsIds", true, true);
-            }
-
-            return null;
-        }
+        }        
 
         internal override ICrudHandler<CategoryItem, long, CategoryItemFilter> Handler
         {
@@ -96,17 +88,17 @@ namespace WebAPI.Models.Catalog
 
         internal override void SetId(long id)
         {
-            throw new System.NotImplementedException();
+            this.Id = id;
         }
 
         internal override void ValidateForAdd()
         {
-            throw new System.NotImplementedException();
+            //TODO anat:
         }
 
         internal override void ValidateForUpdate()
         {
-            throw new System.NotImplementedException();
+            //TODO anat:
         }
 
         public KalturaCategoryItem() : base() { }

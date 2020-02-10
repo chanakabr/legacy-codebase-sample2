@@ -10755,10 +10755,6 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(ChannelsIds != null)
-            {
-                ret.Add("channelsIds", "\"channelsIds\": " + "\"" + EscapeJson(ChannelsIds) + "\"");
-            }
             if(ChildCategoriesIds != null)
             {
                 ret.Add("childCategoriesIds", "\"childCategoriesIds\": " + "\"" + EscapeJson(ChildCategoriesIds) + "\"");
@@ -10777,6 +10773,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("parentCategoryId", "\"parentCategoryId\": " + ParentCategoryId);
             }
+            if(UnifiedChannels != null)
+            {
+                propertyValue = "[" + String.Join(", ", UnifiedChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("unifiedChannels", "\"unifiedChannels\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -10786,10 +10787,6 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(ChannelsIds != null)
-            {
-                ret.Add("channelsIds", "<channelsIds>" + EscapeXml(ChannelsIds) + "</channelsIds>");
-            }
             if(ChildCategoriesIds != null)
             {
                 ret.Add("childCategoriesIds", "<childCategoriesIds>" + EscapeXml(ChildCategoriesIds) + "</childCategoriesIds>");
@@ -10807,6 +10804,11 @@ namespace WebAPI.Models.Catalog
             if(ParentCategoryId.HasValue)
             {
                 ret.Add("parentCategoryId", "<parentCategoryId>" + ParentCategoryId + "</parentCategoryId>");
+            }
+            if(UnifiedChannels != null)
+            {
+                propertyValue = UnifiedChannels.Count > 0 ? "<item>" + String.Join("</item><item>", UnifiedChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("unifiedChannels", "<unifiedChannels>" + propertyValue + "</unifiedChannels>");
             }
             return ret;
         }
@@ -13777,6 +13779,58 @@ namespace WebAPI.Models.Catalog
             {
                 propertyValue = Tags.Count > 0 ? "<item>" + String.Join("</item><item>", Tags.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaUnifiedChannel
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("id", "\"id\": " + Id);
+            ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaChannelType), Type) + "\"");
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("id", "<id>" + Id + "</id>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaChannelType), Type) + "" + "</type>");
+            return ret;
+        }
+    }
+    public partial class KalturaUnifiedChannelInfo
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Name != null)
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
             return ret;
         }
