@@ -83,6 +83,7 @@ namespace ConfigurationManager.Types
             base.SetActualValue(token, config.OpenTimeout);
             base.SetActualValue(token, config.ReceiveTimeout);
             base.SetActualValue(token, config.SendTimeout);
+            base.SetActualValue(token, config.HttpClientCredentialType);
         }
         
     }
