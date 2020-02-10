@@ -4,6 +4,8 @@ using ApiObjects.Notification;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using AutoMapper;
+using Core.Catalog.CatalogManagement;
+using Core.Notification;
 using KLogMonitor;
 using Newtonsoft.Json;
 using System;
@@ -467,8 +469,6 @@ namespace WebAPI.Clients
             GetAllMessageAnnouncementsResponse response = null;
             KalturaAnnouncementListResponse ret;
 
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -491,6 +491,16 @@ namespace WebAPI.Clients
 
             ret = new KalturaAnnouncementListResponse() { Announcements = result, TotalCount = response.totalCount };
             return ret;
+        }
+
+        internal KalturaAnnouncement GetMessageAnnouncement(int groupId, long id)
+        {
+            Func<GenericResponse<MessageAnnouncement>> getMessageAnnouncementFunc = () => AnnouncementManager.GetMessageAnnouncement(groupId, id);
+
+            KalturaAnnouncement response =
+                ClientUtils.GetResponseFromWS<KalturaAnnouncement, MessageAnnouncement>(getMessageAnnouncementFunc);
+
+            return response;
         }
 
         [Obsolete]
@@ -1156,13 +1166,10 @@ namespace WebAPI.Clients
             return true;
         }
 
-
         internal KalturaTopic GetTopic(int groupId, int id)
         {
-            AnnouncementsResponse response = null;
             KalturaTopic result = null;
-
-
+            AnnouncementsResponse response = null;
 
             try
             {
@@ -1173,7 +1180,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetTopic.  groupID: {0}, exception: {1}", groupId, ex);
+                log.Error($"Error while GetAnnouncement. groupID: {groupId}, exception: {ex}");
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1189,7 +1196,7 @@ namespace WebAPI.Clients
 
             if (response.Announcements != null && response.Announcements.Count > 0)
             {
-                result = AutoMapper.Mapper.Map<KalturaTopic>(response.Announcements[0]);
+                result = Mapper.Map<KalturaTopic>(response.Announcements[0]);
             }
 
             return result;

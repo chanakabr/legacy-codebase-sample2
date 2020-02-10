@@ -340,5 +340,31 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Get announcement by Id
+        /// </summary>
+        /// <param name="id">Announcement id</param>
+        /// <returns></returns>
+        [Action("get")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.FeatureDisabled)]
+        [Throws(eResponseStatus.AnnouncementNotFound)]
+        static public KalturaAnnouncement Get(long id)
+        {
+            KalturaAnnouncement response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                response = ClientsManager.NotificationClient().GetMessageAnnouncement(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

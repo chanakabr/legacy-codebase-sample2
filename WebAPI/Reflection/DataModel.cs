@@ -6822,6 +6822,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("announcement", "enableSystemAnnouncements", false);
                             return AnnouncementController.EnableSystemAnnouncements();
                             
+                        case "get":
+                            RolesManager.ValidateActionPermitted("announcement", "get", false);
+                            return AnnouncementController.Get((long) methodParams[0]);
+                            
                         case "list":
                             if(isOldVersion)
                             {
@@ -11003,6 +11007,13 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "enablesystemannouncements":
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
                             return ret;
                             
                         case "list":
