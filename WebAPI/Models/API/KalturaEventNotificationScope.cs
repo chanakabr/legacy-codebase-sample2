@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -14,7 +15,7 @@ namespace WebAPI.Models.API
     /// </summary>
     public abstract partial class KalturaEventNotificationScope : KalturaOTTObject
     {
-
+        internal abstract bool NotifyEvent(int groupId);
     }
 
     /// <summary>
@@ -29,5 +30,10 @@ namespace WebAPI.Models.API
         [JsonProperty("eventObject")]
         [XmlElement(ElementName = "eventObject")]
         public KalturaEventObject EventObject { get; set; }
+
+        internal override bool NotifyEvent(int groupId)
+        {
+            return ClientsManager.NotificationClient().DispatchEventNotification(groupId, this);
+        }
     }
 }

@@ -89,7 +89,7 @@ namespace Core.Users
                             if (currUser != null)
                             {
                                 // set user role to master 
-                                long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
+                                long roleId = ApplicationConfiguration.Current.RoleIdsConfiguration.MasterRoleId.Value;
                                 if (roleId > 0 && !currUser.m_oBasicData.RoleIds.Contains(roleId))
                                 {
                                     currUser.m_oBasicData.RoleIds.Add(roleId);

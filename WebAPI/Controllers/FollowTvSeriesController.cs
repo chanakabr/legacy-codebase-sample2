@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Response;
 using System;
 using System.Web;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -188,7 +189,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidToken)]
         static public void DeleteWithToken(int assetId, string token, int partnerId)
         {
-            HttpContext.Current.Items.Add(RequestContext.REQUEST_GROUP_ID, partnerId);
+            HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_GROUP_ID, partnerId);
 
             try
             {

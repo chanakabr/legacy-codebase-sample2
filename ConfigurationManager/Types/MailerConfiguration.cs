@@ -1,27 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class MailerConfiguration : ConfigurationValue
+    public class MailerConfiguration : BaseConfig<MailerConfiguration>
     {
-        public StringConfigurationValue MCKey;
-        public StringConfigurationValue MCURL;
+        public override string TcmKey => TcmObjectKeys.MailerConfiguration;
 
-        public MailerConfiguration(string key) : base(key)
-        {
-            MCKey = new StringConfigurationValue("MCKey", this)
-            {
-                DefaultValue = "5DcCPYFCdFMpSi_994pa4w",
-                OriginalKey = "MCKey"
-            };
-            MCURL = new StringConfigurationValue("MCURL", this)
-            {
-                DefaultValue = "https://mandrillapp.com/api/1.0/messages/send-template.json",
-                OriginalKey = "MCURL"
-            };
-        }
+        public override string[] TcmPath => new string[] { TcmKey };
+
+        public BaseValue<string> MCKey = new BaseValue<string>("MCKey", "5DcCPYFCdFMpSi_994pa4w");
+        public BaseValue<string> MCURL = new BaseValue<string>("MCURL", "https://mandrillapp.com/api/1.0/messages/send-template.json");
+
+
+
     }
 }

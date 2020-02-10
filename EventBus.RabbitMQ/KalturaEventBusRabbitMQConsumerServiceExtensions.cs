@@ -56,7 +56,7 @@ namespace EventBus.RabbitMQ
 
             builder.ConfigureServices((hostContext, services) =>
             {
-                ApplicationConfiguration.Initialize();
+                ApplicationConfiguration.Init();
                 // Add all discovered implementation of IServiceHandler as scoped services
                 foreach (var handler in _AllServiceHandlers)
                 {

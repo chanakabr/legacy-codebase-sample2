@@ -126,10 +126,6 @@ namespace WebAPI.WebServices
             return Core.Catalog.Module.UpdateChannelIndex(channelIds, groupId, action);
         }
 
-        public bool UpdateOperator(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe)
-        {
-            return Core.Catalog.Module.UpdateOperator(nGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
-        }
 
         public bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction)
         {

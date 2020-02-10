@@ -675,9 +675,9 @@ namespace TVinciShared
         {
             ThreadPool.QueueUserWorkItem(delegate
                 {
-                    string ftpUrl = ApplicationConfiguration.IngestFtpUrl.Value;
-                    string ftpUser = ApplicationConfiguration.IngestFtpUser.Value;
-                    string ftpPass = ApplicationConfiguration.IngestFtpPass.Value;
+                    string ftpUrl = ApplicationConfiguration.Current.IngestFtpUrl.Value;
+                    string ftpUser = ApplicationConfiguration.Current.IngestFtpUser.Value;
+                    string ftpPass = ApplicationConfiguration.Current.IngestFtpPass.Value;
 
                     byte[] zip = ZipUtils.Compress(files);
 

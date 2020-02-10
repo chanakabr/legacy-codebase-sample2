@@ -1,24 +1,22 @@
-﻿using KLogMonitor;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
+using ConfigurationManager;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Web;
+using TVinciShared;
 using WebAPI.ClientManagers;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.ClientManagers.Client;
-using WebAPI.Models.Users;
-using WebAPI.Utils;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
-using APILogic.Api.Managers;
-using ApiObjects;
-using ConfigurationManager;
-using TVinciShared;
-using Core.Api;
-using System.Text;
-using Newtonsoft.Json;
+using WebAPI.Models.Users;
+using WebAPI.Utils;
 
 namespace WebAPI.Managers
 {
@@ -124,13 +122,7 @@ namespace WebAPI.Managers
 
             // get group configurations
             var group = GetGroupConfiguration(groupId);
-            var userSegments = new List<long>();
-            var userSegmentsResponse = Core.Api.Module.GetUserSegments(groupId, userId, 0, 0);
-            if (userSegmentsResponse.HasObjects())
-            {
-                userSegments.AddRange(userSegmentsResponse.Objects.Select(x => x.SegmentId));
-            }
-
+            var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
             var payload = new KS.KSData(udid, 0, regionId, userSegments, userRoles);
             var token = new ApiToken(userId, groupId, payload, isAdmin, group, isLoginWithPin, privileges);
             return GenerateSessionByApiToken(token, group);
@@ -379,12 +371,7 @@ namespace WebAPI.Managers
             // set payload data
             var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
             var userRoles = ClientsManager.UsersClient().GetUserRoleIds(groupId, userId);
-            var userSegments = new List<long>();
-            var userSegmentsResponse = Core.Api.Module.GetUserSegments(groupId, userId, 0, 0);
-            if (userSegmentsResponse.HasObjects())
-            {
-                userSegments.AddRange(userSegmentsResponse.Objects.Select(x => x.SegmentId));
-            }
+            var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
 
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
             var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
@@ -397,7 +384,10 @@ namespace WebAPI.Managers
             // 10. build the ks:
             KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, ksData, privilagesList, KS.KSVersion.V2);
 
-            // 11. build the response from the ks:
+            //11. update last login date
+            ClientsManager.UsersClient().UpdateLastLoginDate(groupId, userId);
+
+            // 12. build the response from the ks:
             response = new KalturaSessionInfo(ks);
 
             return response;
@@ -509,7 +499,7 @@ namespace WebAPI.Managers
             }
 
             string userId = KS.GetFromRequest().UserId;
-            if (appToken.SessionUserId.CompareTo(userId) != 0 && !RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.DELETE_ALL_APP_TOKENS))
+            if (appToken.SessionUserId.CompareTo(userId) != 0 || !RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.DELETE_ALL_APP_TOKENS))
             {
                 // Because the user is not allowed to get or delete app-tokens that owned and created by other users, we throw object not found on purpose.
                 throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Application-token", id);
@@ -580,7 +570,7 @@ namespace WebAPI.Managers
             string revokedKsKeyFormat = group.RevokedKsKeyFormat;
             if (string.IsNullOrEmpty(revokedKsKeyFormat))
             {
-                revokedKsKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedKSKeyFormat.Value;
+                revokedKsKeyFormat = ApplicationConfiguration.Current.AuthorizationManagerConfiguration.RevokedKSKeyFormat.Value;
             }
 
             return revokedKsKeyFormat;
@@ -591,7 +581,7 @@ namespace WebAPI.Managers
             string revokedSessionKeyFormat = group.RevokedSessionKeyFormat;
             if (string.IsNullOrEmpty(revokedSessionKeyFormat))
             {
-                revokedSessionKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedSessionKeyFormat.Value;
+                revokedSessionKeyFormat = ApplicationConfiguration.Current.AuthorizationManagerConfiguration.RevokedSessionKeyFormat.Value;
 
                 if (string.IsNullOrEmpty(revokedSessionKeyFormat))
                 {
@@ -604,7 +594,7 @@ namespace WebAPI.Managers
 
         private static int GetRevokedKsMaxTtlSeconds(Group group)
         {
-            return group.RevokedKsMaxTtlSeconds == 0 ? ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedKSMaxTTLSeconds.IntValue : group.RevokedKsMaxTtlSeconds;
+            return group.RevokedKsMaxTtlSeconds == 0 ? ApplicationConfiguration.Current.AuthorizationManagerConfiguration.RevokedKSMaxTTLSeconds.Value : group.RevokedKsMaxTtlSeconds;
         }
 
         internal static bool RevokeSessions(int groupId, string userId)
@@ -687,7 +677,7 @@ namespace WebAPI.Managers
         {
             var group = GroupsManager.GetGroup(ks.GroupId);
             var signature = KSUtils.ExtractKSPayload(ks).Signature;
-            var groupSecrets = ApplicationConfiguration.RequestParserConfiguration.KsSecrets;
+            var groupSecrets = ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets;
 
             if (!string.IsNullOrEmpty(signature) && group.EnforceGroupsSecret)
             {
@@ -713,7 +703,7 @@ namespace WebAPI.Managers
             string userSessionsKeyFormat = group.UserSessionsKeyFormat;
             if (string.IsNullOrEmpty(userSessionsKeyFormat))
             {
-                userSessionsKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.UsersSessionsKeyFormat.Value;
+                userSessionsKeyFormat = ApplicationConfiguration.Current.AuthorizationManagerConfiguration.UsersSessionsKeyFormat.Value;
 
                 if (string.IsNullOrEmpty(userSessionsKeyFormat))
                 {

@@ -368,7 +368,7 @@ namespace WebAPI.Clients
             try
             {
                 // convert local enumerator, to web service enumerator
-                eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
+                eTransactionType transactionType = Mapper.Map<eTransactionType>(clientTransactionType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -413,7 +413,7 @@ namespace WebAPI.Clients
             try
             {
                 // convert local enumerator, to web service enumerator
-                eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
+                eTransactionType transactionType = Mapper.Map<eTransactionType>(clientTransactionType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -530,7 +530,7 @@ namespace WebAPI.Clients
             Entitlements wsResponse = null;
 
             // convert WS eTransactionType to KalturaTransactionType
-            eTransactionType wsType = ConditionalAccessMappings.ConvertTransactionType(type);
+            eTransactionType wsType = Mapper.Map<eTransactionType>(type);
 
             // get group ID
 
@@ -588,10 +588,8 @@ namespace WebAPI.Clients
             Entitlements wsResponse = null;
 
             // convert WS eTransactionType to KalturaTransactionType
-            eTransactionType wsType = ConditionalAccessMappings.ConvertTransactionType(type);
-
+            eTransactionType wsType = Mapper.Map<eTransactionType>(type);
             // get group ID
-
 
             // convert order by
             EntitlementOrderBy wsOrderBy = ConditionalAccessMappings.ConvertEntitlementOrderBy(orderBy);
@@ -642,7 +640,7 @@ namespace WebAPI.Clients
             KalturaTransactionType product_type, bool history, string deviceName)
         {
             // convert local enumerator, to web service enumerator
-            eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(product_type);
+            eTransactionType transactionType = Mapper.Map<eTransactionType>(product_type);
 
             Func<Status> grantEntitlementsFunc = () => Core.ConditionalAccess.Module.GrantEntitlements
                         (groupId, user_id, household_id, content_id, product_id, transactionType, Utils.Utils.GetClientIP(), deviceName, history);
@@ -891,7 +889,7 @@ namespace WebAPI.Clients
             try
             {
                 // convert local enumerator, to web service enumerator
-                eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(kalTuraTransactioType);
+                eTransactionType transactionType = Mapper.Map<eTransactionType>(kalTuraTransactioType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -928,7 +926,7 @@ namespace WebAPI.Clients
             try
             {
                 // convert local enumerator, to web service enumerator
-                eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
+                eTransactionType transactionType = Mapper.Map<eTransactionType>(clientTransactionType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -2019,7 +2017,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams, string sourceType = null)
+        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams, string sourceType = null, bool isPlaybackManifest = false)
         {
             KalturaPlaybackContext kalturaPlaybackContext = null;
             PlaybackContextResponse response = null;
@@ -2046,7 +2044,8 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, ApiMappings.ConvertAssetType(assetType), 
-                                                                                contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext, urlType, sourceType);
+                                                                                contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext, 
+                                                                                urlType, sourceType, isPlaybackManifest);
                 }
             }
             catch (Exception ex)

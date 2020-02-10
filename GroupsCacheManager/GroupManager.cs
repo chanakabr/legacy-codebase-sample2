@@ -67,38 +67,6 @@ namespace GroupsCacheManager
 
         }
 
-        public List<long> GetOperatorChannelIDs(int nGroupID, int nOperatorID)
-        {
-
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, ';'))
-            {
-                // group has ipnos
-                Group group = GetGroup(nGroupID);
-                if (group != null)
-                {
-                    List<long> operatorChannelIDs = group.GetOperatorChannelIDs(nOperatorID);
-
-                    return operatorChannelIDs;
-                }
-            }
-
-            return new List<long>(0);
-        }
-
-        public List<long> GetDistinctAllOperatorsChannels(int nGroupID)
-        {
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, ';'))
-            {
-                // group has ipnos
-                Group group = GetGroup(nGroupID);
-                if (group != null)
-                {
-                    return group.GetAllOperatorsChannelIDs();
-                }
-            }
-
-            return new List<long>(0);
-        }
 
         public List<int> GetSubGroup(int nGroupID)
         {
@@ -158,7 +126,7 @@ namespace GroupsCacheManager
         public bool HandleOperatorEvent(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe)
         {
             bool res = false;
-            if (Utils.IsGroupIDContainedInConfig(nGroupID, ';'))
+            /*if (Utils.IsGroupIDContainedInConfig(nGroupID, ';'))
             {
                 switch (oe)
                 {
@@ -180,7 +148,7 @@ namespace GroupsCacheManager
                             break;
                         }
                 }
-            }
+            }*/
 
             return res;
         }

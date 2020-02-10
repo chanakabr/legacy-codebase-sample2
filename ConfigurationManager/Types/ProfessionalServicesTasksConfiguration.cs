@@ -1,78 +1,46 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConfigurationManager
 {
-    public class ProfessionalServicesTasksConfiguration : StringConfigurationValue
+    public class ProfessionalServicesTasksConfiguration : BaseConfig<ProfessionalServicesTasksConfiguration>
     {
-        private JObject json;
+        public override string TcmKey => null;
 
-        public ProfessionalServicesTasksConfiguration(string key) : base(key)
+        public override string[] TcmPath => null;
+
+        private static readonly Dictionary<string, ProfessionalServicesActionConfiguration> defaultProfessionalServicesActionConfiguration = new Dictionary<string, ProfessionalServicesActionConfiguration>();
+
+
+        public BaseValue<Dictionary<string, ProfessionalServicesActionConfiguration>> ProfessionalServicesActionConfiguration = 
+            new BaseValue<Dictionary<string, ProfessionalServicesActionConfiguration>>(TcmObjectKeys.ProfessionalServicesTasksConfiguration, defaultProfessionalServicesActionConfiguration, false);
+    }
+
+
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class ProfessionalServicesActionConfiguration
+    {
+        [JsonProperty("DllLocation")]
+        public string DllLocation
         {
-            if (!string.IsNullOrEmpty(this.Value))
-            {
-                json = JObject.Parse(this.Value);
-            }
+            get;
+            set;
         }
 
-        internal override bool Validate()
+        [JsonProperty("Type")]
+        public string Type
         {
-            bool result = base.Validate();
-
-            if (json != null)
-            {
-                foreach (var token in json.Children())
-                {
-                    try
-                    {
-                        ProfessionalServicesActionConfiguration action = (token as JProperty).Value.ToObject<ProfessionalServicesActionConfiguration>();
-                    }
-                    catch (Exception ex)
-                    {
-                        LogError(string.Format("Could not load action. ex = {0}", ex), ConfigurationValidationErrorLevel.Failure);
-                        result = false;
-                    }
-                }
-            }
-
-            return result;
+            get;
+            set;
         }
 
-        public JToken GetActionHandler(string action)
+        [JsonProperty("HandlerUrl")]
+        public string HandlerUrl
         {
-            JToken result = null;
-
-            if (this.json != null)
-            {
-                result = this.json.SelectToken(action);
-            }
-
-            return result;
-        }
-
-        [Serializable]
-        [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-        public class ProfessionalServicesActionConfiguration
-        {
-            [JsonProperty("DllLocation")]
-            public string DllLocation
-            {
-                get;
-                set;
-            }
-
-            [JsonProperty("Type")]
-            public string Type
-            {
-                get;
-                set;
-            }
-
+            get;
+            set;
         }
     }
+
 }

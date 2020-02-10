@@ -45,7 +45,7 @@ namespace Core.Notification
         private const string DATETIME_FORMAT_IS_INVALID = "Date time format is invalid";
         private const string FOLLOW_TEMPLATE_NOT_FOUND = "Message template not found";
         private static string CatalogSignString = Guid.NewGuid().ToString();
-        private static string CatalogSignatureKey = ApplicationConfiguration.CatalogSignatureKey.Value;
+        private static string CatalogSignatureKey = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
         private const string FOLLOW_PHRASE_FORMAT = "{0}='{1}'";
         #endregion
 
@@ -1556,7 +1556,7 @@ namespace Core.Notification
 
         private static long GetPersonalizedFeedTtlDaysInSec()
         {
-            int personalizedFeedTtlDay = ApplicationConfiguration.PersonalizedFeedTTLDays.IntValue;
+            int personalizedFeedTtlDay = ApplicationConfiguration.Current.PersonalizedFeedTTLDays.Value;
 
             if (personalizedFeedTtlDay <= 0)
             {

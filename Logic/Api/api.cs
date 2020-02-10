@@ -15,6 +15,7 @@ using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
@@ -511,7 +512,7 @@ namespace Core.Api
             autoCompleteRequest.m_lTags = request.m_InfoStruct.m_Tags;
 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
             autoCompleteRequest.m_sSignature = sSignature;
@@ -881,7 +882,7 @@ namespace Core.Api
             try
             {
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 for (int i = 0; i < nChannels.Length; i++)
@@ -1059,7 +1060,7 @@ namespace Core.Api
                 ccm.m_nMediaID = nMediaID;
                 ccm.m_lChannles = nChannels.ToList();
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 ccm.m_sSignString = sSignString;
                 ccm.m_sSignature = sSignature;
@@ -1088,7 +1089,7 @@ namespace Core.Api
                 ccm.m_nMediaID = nMediaID;
                 ccm.m_lChannles = nChannels.ToList();
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 ccm.m_sSignString = sSignString;
                 ccm.m_sSignature = sSignature;
@@ -1731,7 +1732,7 @@ namespace Core.Api
             }
 
             return res;
-        }       
+        }
 
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
@@ -1767,7 +1768,7 @@ namespace Core.Api
                 log.Error("GetMediaConcurrencyRulesByDomainLimitionModule - Failed  due ex = " + ex.Message, ex);
                 return null;
             }
-        }        
+        }
 
         internal static GenericResponse<AssetRule> GetAssetRule(int groupId, long assetRuleId)
         {
@@ -1822,7 +1823,7 @@ namespace Core.Api
                 selectMetaQuery = null;
             }
             return EPG_ResponseMeta;
-        }        
+        }
 
         static private List<EPGDictionary> GetEPGMetasData(int nGroupID, string ProgramID)
         {
@@ -2300,8 +2301,8 @@ namespace Core.Api
 
             }
             return res;
-        }      
-
+        }       
+        
         public static List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
             List<EPGChannelProgrammeObject> res = new List<EPGChannelProgrammeObject>();
@@ -4023,7 +4024,7 @@ namespace Core.Api
         {
             //call catalog service for details 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4078,7 +4079,7 @@ namespace Core.Api
         {
             List<string> medias = new List<string>();
             string signString = Guid.NewGuid().ToString();
-            string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, ApplicationConfiguration.CatalogSignatureKey.Value);
+            string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, ApplicationConfiguration.Current.CatalogSignatureKey.Value);
 
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
@@ -4106,7 +4107,7 @@ namespace Core.Api
         public static bool DoesMediaBelongToBundle(int nBundleCode, int[] nFileTypeIDs, int nMediaID, string sDevice, int nGroupID, Btype bType)
         {
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4163,7 +4164,7 @@ namespace Core.Api
             List<int> nMedias = new List<int>();
 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4286,7 +4287,7 @@ namespace Core.Api
                 oFilter.m_sPlatform = "";
 
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
 
@@ -4318,7 +4319,7 @@ namespace Core.Api
             try
             {
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4349,7 +4350,7 @@ namespace Core.Api
         {
             //call catalog service for details 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4557,7 +4558,7 @@ namespace Core.Api
                 request.m_oFilter.m_bOnlyActiveMedia = true;
 
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
                 request.m_sSignature = sSignature;
@@ -6966,7 +6967,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine deleted");
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7064,7 +7065,7 @@ namespace Core.Api
                         }
                     }
 
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]{
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngine.ID)
                     };
@@ -7305,7 +7306,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine set changes");
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7369,7 +7370,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine configs delete");
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7685,7 +7686,7 @@ namespace Core.Api
                     response = new Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
                 }
 
-                string version = ApplicationConfiguration.Version.Value;
+                string version = ApplicationConfiguration.Current.Version.Value;
                 string[] keys = new string[1]
                 {
                     string.Format("{0}_external_channel_{1}_{2}", version, groupId, externalChannelId)
@@ -7815,7 +7816,7 @@ namespace Core.Api
                     response.Status = new Status((int)eResponseStatus.Error, "external channel failed set changes");
                 }
 
-                string version = ApplicationConfiguration.Version.Value;
+                string version = ApplicationConfiguration.Current.Version.Value;
                 string[] keys = new string[1]
                 {
                     string.Format("{0}_external_channel_{1}_{2}", version, groupId, externalChannel.ID)
@@ -7940,7 +7941,7 @@ namespace Core.Api
                 return response;
             }
 
-            int frequencyMinValue = ApplicationConfiguration.ExportConfiguration.FrequencyMinimumValue.IntValue;
+            int frequencyMinValue = ApplicationConfiguration.Current.ExportConfiguration.FrequencyMinimumValue.Value;
 
             if (frequency < frequencyMinValue)
             {
@@ -8005,7 +8006,7 @@ namespace Core.Api
                     return response;
                 }
 
-                int frequencyMinValue = ApplicationConfiguration.ExportConfiguration.FrequencyMinimumValue.IntValue;
+                int frequencyMinValue = ApplicationConfiguration.Current.ExportConfiguration.FrequencyMinimumValue.Value;
 
                 if (frequency < frequencyMinValue)
                 {
@@ -8518,7 +8519,7 @@ namespace Core.Api
             try
             {
                 string catalogSignString = Guid.NewGuid().ToString();
-                string catalogSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string catalogSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
 
@@ -8865,7 +8866,7 @@ namespace Core.Api
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                 }
 
-                string version = ApplicationConfiguration.Version.Value;
+                string version = ApplicationConfiguration.Current.Version.Value;
                 string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version, adapterId)
@@ -8943,7 +8944,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version, adapter.ID)
@@ -9000,7 +9001,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version,adapterId)
@@ -9099,7 +9100,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version, adapterId)
@@ -9484,7 +9485,7 @@ namespace Core.Api
             try
             {
                 string catalogSignString = Guid.NewGuid().ToString();
-                string catalogSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string catalogSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
 
@@ -9983,7 +9984,7 @@ namespace Core.Api
                 string actionToPerform = string.IsNullOrEmpty(action) ? string.Empty : action.ToLower().Trim();
                 string sentKey = string.IsNullOrEmpty(key) ? string.Empty : key.Trim();
                 if (!string.IsNullOrEmpty(action))
-                {                    
+                {
                     if (actionToPerform == "clear_all")
                     {
                         try
@@ -9998,7 +9999,7 @@ namespace Core.Api
                         {
                             status.Message = string.Format("Error : {0}", ex.Message);
                             status.Code = 404;
-                        }                      
+                        }
                     }
                     if (actionToPerform == "keys")
                     {
@@ -10056,7 +10057,7 @@ namespace Core.Api
                 {
                     status.Code = 404;
                 }
-            }            
+            }
             catch (Exception ex)
             {
                 log.Error("Failed ClearLocalServerCache", ex);
@@ -10720,7 +10721,7 @@ namespace Core.Api
                     {
                         // get mediaIds from catalog using WatchHistoryRequest
                         string signString = Guid.NewGuid().ToString();
-                        string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, ApplicationConfiguration.WebServicesConfiguration.Catalog.SignatureKey.Value);
+                        string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.SignatureKey.Value);
 
                         // build request
                         WatchHistoryRequest request = new WatchHistoryRequest()
@@ -10990,7 +10991,7 @@ namespace Core.Api
                     DataRow[] allowedCountries = mediaCountriesDt.Select("is_allowed = 1");
                     DataRow[] blockedCountries = mediaCountriesDt.Select("is_allowed = 0");
 
-                    bool allowUnknownCountry = ApplicationConfiguration.AllowUnknownCountry.Value;
+                    bool allowUnknownCountry = ApplicationConfiguration.Current.AllowUnknownCountry.Value;
                     if (allowUnknownCountry && countryId == 0) // Do not block if country is unknown and configuration allowes it (for internal IP)
                     {
                         return false;
@@ -11518,7 +11519,8 @@ namespace Core.Api
         }
 
         public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackAdapterContext(long adapterId, int groupId, string userId, string udid, string ip,
-                                                                                ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, Dictionary<string, string> adapterData)
+                                                                                ApiObjects.PlaybackAdapter.PlaybackContext playbackContext,
+                                                                                ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
         {
             GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> response = new GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>();
 
@@ -11531,7 +11533,7 @@ namespace Core.Api
                     return response;
                 }
 
-                playbackContext = PlaybackAdapterController.GetInstance().GetPlaybackContext(groupId, adapter, userId, udid, ip, playbackContext, adapterData);
+                playbackContext = PlaybackAdapterController.GetInstance().GetPlaybackContext(groupId, adapter, userId, udid, ip, playbackContext, requestPlaybackContextOptions);
 
                 if (playbackContext == null)
                 {
@@ -11854,7 +11856,7 @@ namespace Core.Api
             }
 
             return response;
-        }     
+        }
 
         internal static void AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
@@ -11871,17 +11873,62 @@ namespace Core.Api
             AssetManager.UpdateVirtualAsset(groupId, virtualAssetInfo);
         }
 
-        internal static List<long> GetObjectVirtualAssetIds(int groupId, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition, ObjectVirtualAssetInfoType objectVirtualAssetInfoType)
+        internal static ObjectVirtualAssetFilter GetObjectVirtualAssetObjectIds(int groupId, AssetSearchDefinition assetSearchDefinition,
+            ObjectVirtualAssetInfoType objectVirtualAssetInfoType, HashSet<long> objectIds = null, int pageIndex = 0, int pageSize = 0)
         {
-            List<long> assetIds = null;
-            List<long> ids = new List<long>();
-            CatalogGroupCache catalogGroupCache = null;
-            ObjectVirtualAssetInfo objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType, out catalogGroupCache);
+            var objectVirtualAssetFilter = new ObjectVirtualAssetFilter();
+            var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType);
 
-            string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter})";
+            if (objectVirtualAssetInfo == null)
+            {
+                if (assetSearchDefinition != null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
+                {
+                    objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Error;
+                    objectVirtualAssetFilter.Status = new Status(eResponseStatus.Error, "Cant use ksql filter when object virtual asset not set for partner");
+                    return objectVirtualAssetFilter;
+                }
+
+                objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
+                objectVirtualAssetFilter.ObjectIds = objectIds?.ToList();
+                return objectVirtualAssetFilter;
+            }
+           
+            if (assetSearchDefinition == null)
+            {
+                assetSearchDefinition = new AssetSearchDefinition() { Filter = string.Empty };
+            }
+            else if (assetSearchDefinition.Filter == null)
+            {
+                assetSearchDefinition.Filter = string.Empty;
+            }
+
+            long originalUserId = RequestContextUtils.GetOriginalUserId();
+            if (originalUserId > 0)
+            {
+                assetSearchDefinition.UserId = originalUserId;
+            }
+
+            string assetFilter = GetObjectVirtualAssetsFilters(groupId, assetSearchDefinition, objectVirtualAssetInfo);
+
+            if (string.IsNullOrEmpty(assetFilter) && string.IsNullOrEmpty(assetSearchDefinition.Filter))
+            {
+                objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
+                objectVirtualAssetFilter.ObjectIds = objectIds?.ToList();
+                return objectVirtualAssetFilter;
+            }
+
+            string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter} {assetFilter})";
+
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            {
+                log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
+                return objectVirtualAssetFilter;
+            }
 
             if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
             {
+                objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.None;
+
                 var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
 
                 List<string> extraReturnFields = new List<string>() { topic.SystemName };
@@ -11892,17 +11939,175 @@ namespace Core.Api
                     List<KeyValuePair<eAssetTypes, long>> kvp = assets.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
                     var virtualAssets = AssetManager.GetAssets(groupId, kvp, false);
 
+                    objectVirtualAssetFilter.ObjectIds = new List<long>();
+
+                    long objectId = 0;
                     foreach (var virtualAsset in virtualAssets)
                     {
                         var meta = virtualAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
-                        if (meta != null)
+                        if (meta != null && long.TryParse(meta.m_sValue, out objectId))
                         {
-                            ids.Add(long.Parse(meta.m_sValue));
+                            if (objectIds == null || objectIds.Count == 0 || objectIds.Contains(objectId))
+                            {
+                                objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
+                                objectVirtualAssetFilter.ObjectIds.Add(objectId);
+                            }
                         }
                     }
                 }
             }
-            return ids;
-        }        
+
+            return objectVirtualAssetFilter;
+        }       
+
+        public static Status HandleBlockingSegment<T>(int groupId, string userId, string udid, string ip, int domainId,
+            ObjectVirtualAssetInfoType virtualAssetInfoType, string objectId) where T : SegmentActionObjectVirtualAssetBlockAction
+        {
+            long originalUserId = RequestContextUtils.GetOriginalUserId();
+            if (originalUserId > 0)
+            {
+                userId = originalUserId.ToString();
+            }
+
+            var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, virtualAssetInfoType);
+
+            if (objectVirtualAssetInfo != null)
+            {
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+                {
+                    log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
+                    return Status.Ok;
+                }
+
+                if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
+                {
+                    // Get User segmentations 
+                    var segmentationsWithBlockActions = GetUserAndDomainSegmentationActionsOfType<T>(groupId, userId);
+
+                    if (segmentationsWithBlockActions.Any())
+                    {
+                        var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
+                        var topicSystemName = topic.SystemName;
+
+                        foreach (var segment in segmentationsWithBlockActions)
+                        {
+                            foreach (var blockAction in segment.Actions.OfType<T>().Where(x => x.objectVirtualAssetInfoType == virtualAssetInfoType))
+                            {
+                                string ksql = string.Format($"(and {blockAction.Ksql} asset_type='{objectVirtualAssetInfo.AssetStructId}' {topicSystemName}='{objectId}')"); // (or operator = 'sky' media_id = '2' media_id = '3')
+                                var assetResult = Api.api.SearchAssets(groupId, ksql, 0, 1, true, 0, true, udid, ip, userId, domainId, 0, false, false);
+                                if (assetResult != null && assetResult.Any())
+                                {
+                                    return new Status((int)eResponseStatus.ActionBlocked, string.Format("Blocked by segment id {0}", segment.Id));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return Status.Ok;
+        }
+
+        private static List<SegmentationType> GetUserAndDomainSegmentationActionsOfType<T>(int groupId, string userId) where T : SegmentAction
+        {
+            List<SegmentationType> segmentations = new List<SegmentationType>();
+
+            if (!long.TryParse(userId, out long nUserId) || nUserId <= 0)
+            {
+                return segmentations;
+            }
+
+            List<long> segmentsIds = new List<long>();
+            var userSegments = UserSegment.List(groupId, userId, out int totalCount);
+            if (totalCount > 0)
+            {
+                segmentsIds.AddRange(userSegments.Select(x => x.SegmentId).ToList());
+            }
+            
+            var user = Users.Module.GetUserData(groupId, userId, string.Empty);            
+            
+            if (user != null && user.m_user != null && user.m_user.m_domianID > 0)
+            {
+                var householdSegments = HouseholdSegment.List(groupId, user.m_user.m_domianID, out totalCount);
+                if (totalCount > 0)
+                {
+                    segmentsIds.AddRange(householdSegments.Select(x => x.SegmentId).ToList());
+                }
+            }
+
+            if (segmentsIds?.Count > 0)
+            {
+                var  segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(segmentsIds);
+
+                if (segmentTypeIds?.Count > 0)
+                {
+                    segmentations = SegmentationType.ListActionOfType<T>(groupId, segmentTypeIds.Values.ToList());
+                }
+            }
+
+            return segmentations;
+        }
+
+        private static string GetObjectVirtualAssetsFilters(int groupId, AssetSearchDefinition assetSearchDefinition, ObjectVirtualAssetInfo objectVirtualAssetInfo)
+        {
+            if(assetSearchDefinition == null || assetSearchDefinition.UserId == 0)
+            {
+                return string.Empty;
+            }
+
+            // Get User segmentations 
+            var segmentationTypes = GetUserAndDomainSegmentationActionsOfType<SegmentActionObjectVirtualFilterAsset>(groupId, assetSearchDefinition.UserId.ToString());
+
+            List<string> ksqls = new List<string>();
+
+            if (segmentationTypes?.Count > 0)
+            {
+                //check if user have rules with the same type and if yes get the sql
+                foreach (var segment in segmentationTypes)
+                {
+                    var actionList = segment.Actions.OfType<SegmentActionObjectVirtualAsset>().Where(x => x.objectVirtualAssetInfoType == objectVirtualAssetInfo.Type).ToList();
+                    if (actionList.Count > 0)
+                    {
+                        ksqls.AddRange(actionList.Where(x => !string.IsNullOrEmpty(x.Ksql)).Select(x => $"{x.Ksql}"));
+                    }
+                }
+            }
+            
+            return ksqls.Count > 0 ? $" (or {string.Join(" ", ksqls)})" : string.Empty;
+        }
+
+        internal static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackAdapterManifest(long adapterId, int groupId, 
+            ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
+        {
+            GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> response = new GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>();
+
+            try
+            {
+                PlaybackProfile adapter = GetPlaybackAdapter(groupId, adapterId, true);
+                if (adapter == null)
+                {
+                    response.SetStatus((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                playbackContext = PlaybackAdapterController.GetInstance().GetPlaybackManifest(groupId, adapter, playbackContext, requestPlaybackContextOptions);
+
+                if (playbackContext == null)
+                {
+                    log.Error($"Error while GetPlaybackManifest. groupId:{groupId}, adapter:{adapter.Id}");
+                }
+                else
+                {
+                    response.Object = playbackContext;
+                    response.SetStatus(eResponseStatus.OK);
+                }
+            }
+            catch (Exception)
+            {
+                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error($"Failed in GetPlaybackManifest. groupId:{groupId}");
+            }
+            return response;
+        }
     }
 }

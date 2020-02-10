@@ -1,27 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class RoleIdsConfiguration : ConfigurationValue
+    public class RoleIdsConfiguration : BaseConfig<RoleIdsConfiguration>
     {
-        public NumericConfigurationValue MasterRoleId;
-        public NumericConfigurationValue UserRoleId;
+        public BaseValue<long> MasterRoleId = new BaseValue<long>("master_role_id", 2);
+        public BaseValue<long> UserRoleId = new BaseValue<long>("user_role_id", 1);
 
-        public RoleIdsConfiguration(string key) : base(key)
-        {
-            MasterRoleId = new NumericConfigurationValue("master_role_id", this)
-            {
-                DefaultValue = 2,
-                OriginalKey = "master_role_id"
-            };
-            UserRoleId = new NumericConfigurationValue("user_role_id", this)
-            {
-                DefaultValue = 1,
-                OriginalKey = "user_role_id"
-            };
-        }
+        public override string TcmKey => TcmObjectKeys.RoleIdsConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
     }
 }

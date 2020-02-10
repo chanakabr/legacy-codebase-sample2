@@ -16,7 +16,7 @@ namespace DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
-        private static readonly uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = (uint)ApplicationConfiguration.LicensedLinksCacheConfiguration.CacheTimeInSeconds.IntValue;
+        private static readonly uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = (uint)ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.CacheTimeInSeconds.Value;
 
         public static DataTable Get_MediaFileByProductCode(int nGroupID, string sProductCode)
         {

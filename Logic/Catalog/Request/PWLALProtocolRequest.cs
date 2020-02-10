@@ -55,7 +55,7 @@ namespace Core.Catalog.Request
         protected override int GetProtocolMaxResultsSize()
         {
             int res = 0;
-            int resultsSize = ApplicationConfiguration.PwlalPMaxResultsSize.IntValue;
+            int resultsSize = ApplicationConfiguration.Current.PwlalPMaxResultsSize.Value;
             if (resultsSize > 0)
                 return resultsSize;
             return CatalogLogic.DEFAULT_PWLALP_MAX_RESULTS_SIZE;

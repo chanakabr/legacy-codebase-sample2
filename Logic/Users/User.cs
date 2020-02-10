@@ -25,7 +25,7 @@ namespace Core.Users
     public class User : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
+
         [JsonProperty()]
         public UserBasicData m_oBasicData;
 
@@ -43,7 +43,7 @@ namespace Core.Users
         public bool m_isDomainMaster;
         public int m_nSSOOperatorID;
         public bool IsActivationGracePeriod;
-        
+
         [XmlIgnore]
         [JsonIgnore()]
         public bool shouldSetUserActive;
@@ -463,7 +463,7 @@ namespace Core.Users
 
                     return result;
                 }
-                
+
                 // Get user from cache by siteGUID
                 UsersCache usersCache = UsersCache.Instance();
                 var user = usersCache.GetUser(nUserID, nGroupID);
@@ -586,7 +586,7 @@ namespace Core.Users
             try
             {
                 // add user role
-                long roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;
+                long roleId = ApplicationConfiguration.Current.RoleIdsConfiguration.UserRoleId.Value;
                 if (roleId > 0 && !m_oBasicData.RoleIds.Contains(roleId))
                 {
                     m_oBasicData.RoleIds.Add(roleId);
@@ -663,7 +663,7 @@ namespace Core.Users
             if (this.userId > 0)
             {
                 m_sSiteGUID = this.userId.ToString();
-                
+
                 if (UsersDal.UpsertUserRoleIds(this.GroupId, this.userId, m_oBasicData.RoleIds))
                 {
                     string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(this.m_sSiteGUID);
@@ -824,8 +824,8 @@ namespace Core.Users
         }
 
         static protected bool UpdateFailCount(int groupId, int add, int userId, User user, bool setLoginDate = false)
-        {           
-            if(!UpdateUserPreviousLogin(groupId, userId, user))
+        {
+            if (!UpdateUserPreviousLogin(groupId, userId, user))
             {
                 log.Error($"Failed to save User {userId} PreviousLogin. group {groupId}");
             }
@@ -834,7 +834,7 @@ namespace Core.Users
             UsersCache usersCache = UsersCache.Instance();
             usersCache.RemoveUser(userId, groupId);
             return updateRes;
-        }       
+        }
 
         private static int AddUserSession(int nSiteGuid, string sSessionID, string sIP, string sIDInDevices)
         {
@@ -968,7 +968,7 @@ namespace Core.Users
                 bool bIsDeviceActivated = false;
                 Device device = CreateAndInitializeDevice(deviceUDID, groupID, retObj.m_user.m_domianID);
                 bIsDeviceActivated = (device != null && device.m_state == DeviceState.Activated) || (device == null); // device == null means web login
-                
+
                 {
                     string sDeviceIDToUse = device != null ? device.m_id : string.Empty;
                     int nSiteGuid = 0;
@@ -1085,14 +1085,14 @@ namespace Core.Users
             var userResponseObject = CheckUserPassword(username, password, maxFailCount, lockMinutes, groupId, bPreventDoubleLogins, false, true);
             return InnerSignIn(ref userResponseObject, maxFailCount, lockMinutes, groupId, sessionID, sIP, deviceID, bPreventDoubleLogins, groupId);
         }
-        
-        static public UserResponseObject CheckUserPassword(string username, string password, int defaultMaxFailCount, int lockMinutes, int groupId, bool preventDoubleLogins, 
+
+        static public UserResponseObject CheckUserPassword(string username, string password, int defaultMaxFailCount, int lockMinutes, int groupId, bool preventDoubleLogins,
             bool checkHitDate, bool isSignIn = false)
         {
             var userResponseObject = new UserResponseObject();
             var responseStatus = ResponseStatus.WrongPasswordOrUserName;
             User user = null;
-           
+
             if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
             {
                 DateTime passwordUpdateDate = DateTime.MinValue;
@@ -1108,7 +1108,7 @@ namespace Core.Users
                     return userResponseObject;
                 }
 
-                var initializedUser = new User();                
+                var initializedUser = new User();
                 var isUserInitialized = initializedUser.Initialize(userId, groupId);
 
                 if (isUserInitialized && initializedUser.m_oBasicData != null && initializedUser.m_oDynamicData != null && !string.IsNullOrEmpty(initializedUser.m_oBasicData.m_sPassword))
@@ -1165,7 +1165,7 @@ namespace Core.Users
 
                             if (isSignIn)
                             {
-                                var userLoginInfo =  UsersDal.GetUserLoginInfo(groupId, userId);
+                                var userLoginInfo = UsersDal.GetUserLoginInfo(groupId, userId);
                                 if (userLoginInfo != null)
                                 {
                                     initializedUser.m_oBasicData.FailedLoginCount = userLoginInfo.FailedLoginCount;
@@ -1224,7 +1224,7 @@ namespace Core.Users
                     }
                 }
             }
-            
+
             if (maxFailuresCount == 0)
             {
                 maxFailuresCount = defaultMaxFailCount;
@@ -1331,6 +1331,11 @@ namespace Core.Users
         public int Save(Int32 groupId, bool bIsSetUserActive = false)
         {
             return SaveForUpdate(groupId, bIsSetUserActive);
+        }
+
+        static public bool UpdateLoginViaStartSession(int groupId, int add, int userId, User user, bool setLoginDate = false)
+        {
+            return UpdateFailCount(groupId, add, userId, user, setLoginDate);
         }
     }
 }

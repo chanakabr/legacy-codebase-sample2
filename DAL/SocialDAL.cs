@@ -13,7 +13,7 @@ namespace DAL
 {
     public class SocialDAL
     {
-        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
 
         private int m_nGroupID;
         public SocialDAL(int nGroupID)

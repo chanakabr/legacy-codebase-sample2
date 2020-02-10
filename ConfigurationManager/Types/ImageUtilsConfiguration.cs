@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,26 +7,13 @@ using System.Threading.Tasks;
 
 namespace ConfigurationManager
 {
-    public class ImageUtilsConfiguration : ConfigurationValue
+    public class ImageUtilsConfiguration : BaseConfig<ImageUtilsConfiguration>
     {
-        public StringConfigurationValue Task;
-        public StringConfigurationValue RoutingKey;
+        public BaseValue<string> Task = new BaseValue<string>("picture_queue_task", "distributed_tasks.process_image", false, "");
+        public BaseValue<string> RoutingKey = new BaseValue<string>("picture_queue_routing_key", "PROCESS_IMAGE", false, "");
 
-        public ImageUtilsConfiguration(string key) : base(key)
-        {
-            this.Task = new ConfigurationManager.StringConfigurationValue("picture_queue_task", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = "distributed_tasks.process_image",
-                OriginalKey = "taskPicture"
-            };
+        public override string TcmKey => "image_utils_configuration";
 
-            this.RoutingKey = new StringConfigurationValue("picture_queue_routing_key", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = "PROCESS_IMAGE",
-                OriginalKey = "routingKeyPicture"
-            };
-        }
+        public override string[] TcmPath => new[] { TcmKey };
     }
 }

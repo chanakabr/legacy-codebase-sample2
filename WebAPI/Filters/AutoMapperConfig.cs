@@ -34,6 +34,7 @@ namespace WebAPI.Filters
             PartnerMappings.RegisterMappings(cfg);
             NotificationMapping.RegisterMappings(cfg);
             DMSMapping.RegisterMappings(cfg);
+            SegmentationMapings.RegisterMappings(cfg);
 
             Mapper.Initialize(cfg);
 

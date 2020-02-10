@@ -1,58 +1,67 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Security.Authentication;
+using System.Text;
 
 namespace ConfigurationManager.Types
 {
-    public class HttpClientConfiguration : ConfigurationValue
+    public abstract class BaseHttpClientConfiguration : BaseConfig<BaseHttpClientConfiguration>
     {
-        public NumericConfigurationValue MaxConnectionsPerServer;
-        public BooleanConfigurationValue CheckCertificateRevocationList;
-        public StringConfigurationValue EnabledSslProtocols;
-        public StringConfigurationValue EnabledDecompressionMethods;
-        public NumericConfigurationValue TimeOutInMiliSeconds;
+//<<<<<<< HEAD
+        public BaseValue<int> MaxConnectionsPerServer = new BaseValue<int>("max_connections_per_server",5,false,"The maximum number of concurrent connections (per server endpoint) allowed when making requests using HttpClient. Limit is per server endpoint");
+        public BaseValue<bool> CheckCertificateRevocationList = new BaseValue<bool>("check_certificate_revocation",false,false,"Indicates whether the certificate is checked against the certificate authority revocation list");
+        public BaseValue<string> EnabledSslProtocols = new BaseValue<string>("enabled_ssl_protocols", "Ssl2,Ssl3,Tls,Tls11,Tls12", false,"the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None");
+        public BaseValue<string> EnabledDecompressionMethods = new BaseValue<string>("enabled_decompression_methods","Deflate,GZip",false,"Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All");
+        public BaseValue<int> TimeOutInMiliSeconds = new BaseValue<int>("timeout",100000,false,"The timeout in milliseconds for the HttpClient");
+//=======
+//        public NumericConfigurationValue MaxConnectionsPerServer;
+//        public BooleanConfigurationValue CheckCertificateRevocationList;
+//        public StringConfigurationValue EnabledSslProtocols;
+//        public StringConfigurationValue EnabledDecompressionMethods;
+//        public NumericConfigurationValue TimeOutInMiliSeconds;
 
-        public HttpClientConfiguration(string key) : base(key)
-        {
-            MaxConnectionsPerServer = new NumericConfigurationValue("max_connections_per_server", this)
-            {
-                DefaultValue = 5,
-                ShouldAllowEmpty = true,
-                Description = "The maximum number of concurrent connections (per server endpoint) allowed when making requests using HttpClient. Limit is per server endpoint"
-            };
+//        public HttpClientConfiguration(string key) : base(key)
+//        {
+//            MaxConnectionsPerServer = new NumericConfigurationValue("max_connections_per_server", this)
+//            {
+//                DefaultValue = 5,
+//                ShouldAllowEmpty = true,
+//                Description = "The maximum number of concurrent connections (per server endpoint) allowed when making requests using HttpClient. Limit is per server endpoint"
+//            };
+//>>>>>>> origin/master
 
-            CheckCertificateRevocationList = new BooleanConfigurationValue("check_certificate_revocation", this)
-            {
-                DefaultValue = false,
-                ShouldAllowEmpty = true,
-                Description = "Indicates whether the certificate is checked against the certificate authority revocation list"
-            };
+      
 
-            EnabledSslProtocols = new StringConfigurationValue("enabled_ssl_protocols", this)
-            {
-                DefaultValue = "Tls,Tls11,Tls12",
-                ShouldAllowEmpty = true,
-                Description = "the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None"
-            };
+//<<<<<<< HEAD
+        public override bool Validate()
+//=======
+//            EnabledSslProtocols = new StringConfigurationValue("enabled_ssl_protocols", this)
+//            {
+//                DefaultValue = "Tls,Tls11,Tls12",
+//                ShouldAllowEmpty = true,
+//                Description = "the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None"
+//            };
 
-            EnabledDecompressionMethods = new StringConfigurationValue("enabled_decompression_methods", this)
-            {                
-                DefaultValue = "Deflate,Gzip",
-                ShouldAllowEmpty = true,
-                Description = "Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All"
-            };
+//            EnabledDecompressionMethods = new StringConfigurationValue("enabled_decompression_methods", this)
+//            {                
+//                DefaultValue = "Deflate,Gzip",
+//                ShouldAllowEmpty = true,
+//                Description = "Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All"
+//            };
 
-            TimeOutInMiliSeconds = new NumericConfigurationValue("timeout", this)
-            {
-                DefaultValue = 100000,
-                ShouldAllowEmpty = true,
-                Description = "The timeout in milliseconds for the HttpClient"
-            };
-        }
+//            TimeOutInMiliSeconds = new NumericConfigurationValue("timeout", this)
+//            {
+//                DefaultValue = 100000,
+//                ShouldAllowEmpty = true,
+//                Description = "The timeout in milliseconds for the HttpClient"
+//            };
+//        }
 
-        internal override bool Validate()
+//        internal override bool Validate()
+//>>>>>>> origin/master
         {
             bool isValid = base.Validate();
             if (isValid)
@@ -63,7 +72,7 @@ namespace ConfigurationManager.Types
             return isValid;
         }
 
-        public bool ValidateSslProtocols()
+        private bool ValidateSslProtocols()
         {
             bool isValid = true;
             List<string> sslProtocols = new List<string>();
@@ -97,19 +106,35 @@ namespace ConfigurationManager.Types
 
             if (sslProtocols.Count > 0)
             {
-                System.Security.Authentication.SslProtocols sslProtocol;
-                isValid = sslProtocols.Any(x => !Enum.TryParse<System.Security.Authentication.SslProtocols>(x, out sslProtocol));
+                isValid = sslProtocols.TrueForAll(x => ValidateEnum(x));
             }
 
             return isValid;
         }
 
-        public List<System.Security.Authentication.SslProtocols> GetSslProtocols()
+        private bool ValidateEnum(string stringValue)
+        {
+            System.Security.Authentication.SslProtocols sslProtocol;
+            if (! Enum.TryParse(stringValue, out sslProtocol))
+            {
+                _Logger.Error($"Invalid casting to SslProtocols enum, param {stringValue}");
+                StringBuilder sb = new StringBuilder();
+                foreach (SslProtocols foo in Enum.GetValues(typeof(SslProtocols)))
+                {
+                    sb.Append(foo.ToString() + ",");
+                }
+                _Logger.Error($"valid params for SslProtocols: {sb.ToString()}");
+                return false;
+            }
+            return true;
+        }
+
+        public List<SslProtocols> GetSslProtocols()
         {            
-            List<System.Security.Authentication.SslProtocols> SslProtocols = new List<System.Security.Authentication.SslProtocols>();
+            List<SslProtocols> SslProtocols = new List<SslProtocols>();
             if (!string.IsNullOrEmpty(EnabledSslProtocols.Value))
             {
-                System.Security.Authentication.SslProtocols tempSslProtocols;                
+                SslProtocols tempSslProtocols;                
                 string splitValue = EnabledSslProtocols.Value.Contains(",") ? "," : EnabledSslProtocols.Value.Contains(";") ? ";" : string.Empty;
                 if (!string.IsNullOrEmpty(splitValue))
                 {
@@ -138,7 +163,7 @@ namespace ConfigurationManager.Types
             return SslProtocols;            
         }
 
-        public bool ValidateDecompressionMethods()
+        private bool ValidateDecompressionMethods()
         {
             bool isValid = true;
             List<string> decompressionMethods = new List<string>();
@@ -172,8 +197,8 @@ namespace ConfigurationManager.Types
 
             if (decompressionMethods.Count > 0)
             {
-                System.Net.DecompressionMethods decompressionMethod;
-                isValid = decompressionMethods.Any(x => !Enum.TryParse<System.Net.DecompressionMethods>(x, out decompressionMethod));
+                DecompressionMethods decompressionMethod;
+                isValid = decompressionMethods.TrueForAll(x => Enum.TryParse(x, out decompressionMethod));
             }
 
             return isValid;
@@ -212,6 +237,37 @@ namespace ConfigurationManager.Types
 
             return DecompressionMethods;
         }
+    }
 
+
+
+    public class HttpClientConfiguration : BaseHttpClientConfiguration
+    {
+        public override string TcmKey => TcmObjectKeys.HttpClientConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+    }
+
+    public class ElasticSearchHttpClientConfiguration : BaseHttpClientConfiguration
+    {
+        public override string TcmKey => TcmObjectKeys.ElasticSearchHttpClientConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+    }
+
+
+    public class NPVRHttpClientConfiguration : BaseHttpClientConfiguration
+    {
+        public override string TcmKey => TcmObjectKeys.NPVRHttpClientConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+    }
+
+
+    public class MailerHttpClientConfiguration : BaseHttpClientConfiguration
+    {
+        public override string TcmKey => TcmObjectKeys.MailerHttpClientConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
     }
 }

@@ -650,6 +650,26 @@ namespace CachingProvider.LayeredCache
             return string.Format("object_virtual_asset_config_{0}", groupId);
         }
 
+        public static string GetGroupSegmentationTypesKey(int groupId)
+        {
+            return string.Format("group_segmentation_types_{0}", groupId);
+        }
+
+        public static string GetSegmentationTypeKey(int groupId, long segmentationTypeId)
+        {
+            return string.Format("segmentation_type_{0}_{1}", groupId, segmentationTypeId);
+        }
+
+        public static string GetGroupSegmentationTypeIdsOfActionKey(int groupId, string cacheKey)
+        {
+            return string.Format("group_segmentation_types_of_action_{0}_{1}", groupId, cacheKey);
+        }
+
+        public static string GetCommercePartnerConfigKey(int groupId)
+        {
+            return string.Format("commerce_partner_config_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1152,6 +1172,26 @@ namespace CachingProvider.LayeredCache
         public static string GetObjectVirtualAssetPartnerConfigInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_object_virtual_asset_partner_config_{0}", groupId);
+        }
+
+        public static string GetGroupSegmentationTypesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_group_segmentation_types_{0}", groupId);
+        }
+
+        public static string GetSegmentationTypeInvalidationKey(int groupId, long segmentationTypeId)
+        {
+            return string.Format("invalidationKey_segmentation_type_{0}_{1}", groupId, segmentationTypeId);
+        }
+
+        public static string GetGroupSegmentationTypeIdsOfActionInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_group_segmentation_type_of_action_{0}", groupId);
+        }
+
+        public static string GetCommercePartnerConfigInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_{0}", GetCommercePartnerConfigKey(groupId));
         }
 
         #endregion

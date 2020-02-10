@@ -6502,136 +6502,78 @@ namespace TVinciShared
             return sMailData;
         }
 
-        static protected string StripHTML(string source)
+        /// <summary>
+        /// Remove HTML Development formatting
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string StripHTML(string source)
         {
             try
             {
-
                 string result;
 
-                // Remove HTML Development formatting
-                // Replace line breaks with space
-                // because browsers inserts space
+                // Replace line breaks with space because browsers inserts space
                 result = source.Replace("\r", " ");
-                // Replace line breaks with space
-                // because browsers inserts space
+                
+                // Replace line breaks with space because browsers inserts space
                 result = result.Replace("\n", " ");
                 // Remove step-formatting
                 result = result.Replace("\t", string.Empty);
                 // Remove repeating speces becuase browsers ignore them
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                                                                      @"( )+", " ");
+                result = Regex.Replace(result, @"( )+", " ");
 
                 // Remove the header (prepare first by clearing attributes)
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"<( )*head([^>])*>", "<head>",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"(<( )*(/)( )*head( )*>)", "</head>",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         "(<head>).*(</head>)", string.Empty,
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"<( )*head([^>])*>", "<head>", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"(<( )*(/)( )*head( )*>)", "</head>", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, "(<head>).*(</head>)", string.Empty, RegexOptions.IgnoreCase);
 
                 // remove all scripts (prepare first by clearing attributes)
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"<( )*script([^>])*>", "<script>",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"(<( )*(/)( )*script( )*>)", "</script>",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                //result = System.Text.RegularExpressions.Regex.Replace(result, 
-                //         @"(<script>)([^(<script>\.</script>)])*(</script>)",
-                //         string.Empty, 
-                //         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"(<script>).*(</script>)", string.Empty,
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"<( )*script([^>])*>", "<script>", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"(<( )*(/)( )*script( )*>)", "</script>", RegexOptions.IgnoreCase);
+                
+                //result = Regex.Replace(result, @"(<script>)([^(<script>\.</script>)])*(</script>)", string.Empty, RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"(<script>).*(</script>)", string.Empty, RegexOptions.IgnoreCase);
 
                 // remove all styles (prepare first by clearing attributes)
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"<( )*style([^>])*>", "<style>",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"(<( )*(/)( )*style( )*>)", "</style>",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         "(<style>).*(</style>)", string.Empty,
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"<( )*style([^>])*>", "<style>", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"(<( )*(/)( )*style( )*>)", "</style>", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, "(<style>).*(</style>)", string.Empty, RegexOptions.IgnoreCase);
 
                 // insert tabs in spaces of <td> tags
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"<( )*td([^>])*>", "\t",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"<( )*td([^>])*>", "\t", RegexOptions.IgnoreCase);
 
                 // insert line breaks in places of <BR> and <LI> tags
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"<( )*br( )*>", "\r",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"<( )*li( )*>", "\r",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"<( )*br( )*>", "\r", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"<( )*li( )*>", "\r", RegexOptions.IgnoreCase);
 
                 // insert line paragraphs (double line breaks) in place
                 // if <P>, <DIV> and <TR> tags
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"<( )*div([^>])*>", "\r\r",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"<( )*tr([^>])*>", "\r\r",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"<( )*p([^>])*>", "\r\r",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"<( )*div([^>])*>", "\r\r", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"<( )*tr([^>])*>", "\r\r", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"<( )*p([^>])*>", "\r\r", RegexOptions.IgnoreCase);
 
-                // Remove remaining tags like <a>, links, images,
-                // comments etc - anything thats enclosed inside < >
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"<[^>]*>", string.Empty,
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                // Remove remaining tags like <a>, links, images, comments etc - anything thats enclosed inside < >
+                result = Regex.Replace(result, @"<[^>]*>", string.Empty, RegexOptions.IgnoreCase);
 
                 // replace special characters:
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @" ", " ",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @" ", " ", RegexOptions.IgnoreCase);
 
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"&bull;", " * ",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"&lsaquo;", "<",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"&rsaquo;", ">",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"&trade;", "(tm)",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"&frasl;", "/",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"&lt;", "<",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"&gt;", ">",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"&copy;", "(c)",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"&reg;", "(r)",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"&bull;", " * ", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"&lsaquo;", "<", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"&rsaquo;", ">", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"&trade;", "(tm)", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"&frasl;", "/", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"&lt;", "<", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"&gt;", ">", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"&copy;", "(c)", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"&reg;", "(r)", RegexOptions.IgnoreCase);
                 // Remove all others. More can be added, see
                 // http://hotwired.lycos.com/webmonkey/reference/special_characters/
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         @"&(.{2,6});", string.Empty,
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, @"&(.{2,6});", string.Empty, RegexOptions.IgnoreCase);
 
                 // for testng
-                //System.Text.RegularExpressions.Regex.Replace(result, 
-                //       this.txtRegex.Text,string.Empty, 
-                //       System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                //Regex.Replace(result, this.txtRegex.Text,string.Empty, RegexOptions.IgnoreCase);
 
                 // make line breaking consistent
                 result = result.Replace("\n", "\r");
@@ -6640,26 +6582,14 @@ namespace TVinciShared
                 // replace over 2 breaks with 2 and over 4 tabs with 4. 
                 // Prepare first to remove any whitespaces inbetween
                 // the escaped characters and remove redundant tabs inbetween linebreaks
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         "(\r)( )+(\r)", "\r\r",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         "(\t)( )+(\t)", "\t\t",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         "(\t)( )+(\r)", "\t\r",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         "(\r)( )+(\t)", "\r\t",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, "(\r)( )+(\r)", "\r\r", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, "(\t)( )+(\t)", "\t\t", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, "(\t)( )+(\r)", "\t\r", RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, "(\r)( )+(\t)", "\r\t", RegexOptions.IgnoreCase);
                 // Remove redundant tabs
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         "(\r)(\t)+(\r)", "\r\r",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, "(\r)(\t)+(\r)", "\r\r", RegexOptions.IgnoreCase);
                 // Remove multible tabs followind a linebreak with just one tab
-                result = System.Text.RegularExpressions.Regex.Replace(result,
-                         "(\r)(\t)+", "\r\t",
-                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                result = Regex.Replace(result, "(\r)(\t)+", "\r\t", RegexOptions.IgnoreCase);
                 // Initial replacement target string for linebreaks
                 string breaks = "\r\r\r";
                 // Initial replacement target string for tabs
@@ -6668,11 +6598,10 @@ namespace TVinciShared
                 {
                     result = result.Replace(breaks, "\r\r");
                     result = result.Replace(tabs, "\t\t\t\t");
-                    breaks = breaks + "\r";
-                    tabs = tabs + "\t";
+                    breaks += "\r";
+                    tabs += "\t";
                 }
 
-                // Thats it.
                 return result;
 
             }

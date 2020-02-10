@@ -226,7 +226,7 @@ namespace APILogic.Api.Managers
         internal static void FillCatalogSignature(BaseRequest request)
         {
             request.m_sSignString = Guid.NewGuid().ToString();
-            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, ApplicationConfiguration.CatalogSignatureKey.Value);
+            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, ApplicationConfiguration.Current.CatalogSignatureKey.Value);
         }
 
         internal static LinearChannelSettings GetLinearChannelSettings(int groupId, long? epgChannelId)

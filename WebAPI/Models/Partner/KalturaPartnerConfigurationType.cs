@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
@@ -12,12 +13,14 @@ namespace WebAPI.Models.Partner
         OSSAdapter,
         Concurrency,
         General,
-        ObjectVirtualAsset
+        ObjectVirtualAsset,
+        Commerce
     }
 
     /// <summary>
     /// Holder object for channel enrichment enum
     /// </summary>    
+    [Obsolete]
     public partial class KalturaPartnerConfigurationHolder : KalturaOTTObject
     {
         /// <summary>

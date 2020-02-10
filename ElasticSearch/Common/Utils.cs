@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using ConfigurationManager;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
 
@@ -20,15 +21,10 @@ namespace ElasticSearch.Common
 
         public static string GetTcmValue(string sKey)
         {
-            string result = string.Empty;
-            try
-            {
-                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
-            }
-            catch (Exception ex)
+            string result = ApplicationConfiguration.Current.GetValueByKey<string>(sKey);
+            if (result == null)
             {
                 result = string.Empty;
-                log.Error("ElasticSearch.Common - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
         }

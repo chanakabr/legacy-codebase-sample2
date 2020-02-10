@@ -22,8 +22,8 @@ namespace DAL
     public class ApiDAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
-        private static readonly string CB_MESSAGE_QUEUE_DESGIN = ApplicationConfiguration.CouchBaseDesigns.QueueMessagesDesign.Value;
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
+        private static readonly string CB_MESSAGE_QUEUE_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.QueueMessagesDesign.Value;
         private const eCouchbaseBucket EVENT_NOTIFICATION_ACTION_BUCKET = eCouchbaseBucket.SOCIAL;
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int NUM_OF_TRIES = 3;
@@ -581,7 +581,7 @@ namespace DAL
 
         public static MediaMarkObject Get_MediaMark(int nMediaID, string userID, int nGroupID)
         {
-            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
+            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
             
             MediaMarkObject ret = new MediaMarkObject();
             ret.nGroupID = nGroupID;
@@ -5564,8 +5564,8 @@ namespace DAL
             sp.AddParameter("@dateFormat", partnerConfig.DateFormat);            
             if (partnerConfig.HouseholdLimitationModule.HasValue)
                 sp.AddParameter("@domainLimitionModule", partnerConfig.HouseholdLimitationModule);
-            sp.AddParameter("@shouldDeleteSecondaryLanguages", partnerConfig.SecondaryLanguages?.Count == 0 ? 1 : 0);
-            sp.AddParameter("@shouldDeleteSecondaryCurrencies", partnerConfig.SecondaryCurrencies?.Count == 0 ? 1 : 0);
+            sp.AddParameter("@shouldDeleteSecondaryLanguages", partnerConfig.SecondaryLanguages?.Count > 0 ? 0: 1);
+            sp.AddParameter("@shouldDeleteSecondaryCurrencies", partnerConfig.SecondaryCurrencies?.Count > 0 ? 0 : 1);
 
             if (partnerConfig.EnableRegionFiltering.HasValue)
             {
@@ -6145,6 +6145,23 @@ namespace DAL
         {
             eResultStatus resultStatus;
             return GetObjectVirtualAssetPartnerConfiguration(groupId, out resultStatus);
+        }
+
+        private static string GetCommercePartnerConfigKey(int groupId)
+        {
+            return $"commerce_partner_config_{groupId}";
+        }
+
+        public static CommercePartnerConfig GetCommercePartnerConfig(int groupId)
+        {
+            string key = GetCommercePartnerConfigKey(groupId);
+            return UtilsDal.GetObjectFromCB<CommercePartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SaveCommercePartnerConfig(int groupId, CommercePartnerConfig commercePartnerConfig)
+        {
+            string key = GetCommercePartnerConfigKey(groupId);
+            return UtilsDal.SaveObjectInCB<CommercePartnerConfig>(eCouchbaseBucket.OTT_APPS, key, commercePartnerConfig);
         }
     }
 }

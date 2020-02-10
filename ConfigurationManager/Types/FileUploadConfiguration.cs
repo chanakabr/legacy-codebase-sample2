@@ -1,69 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json.Linq;
 
 namespace ConfigurationManager.Types
 {
-    public class FileUploadConfiguration : ConfigurationValue
+    public class FileUploadConfiguration : BaseConfig<FileUploadConfiguration>
     {
-        public S3Configuration S3;
-        public FileSystemConfiguration FileSystem;
+        public override string TcmKey => TcmObjectKeys.FileUpload;
 
-        public BooleanConfigurationValue ShouldDeleteSourceFile;
-        
-        internal StringConfigurationValue Type;
-        public eFileUploadType UploadType
-        {
-            get
-            {
-                eFileUploadType ret;
-                if (Enum.TryParse(Type.Value, true, out ret))
-                    return ret;
+        public override string[] TcmPath => new string[] { TcmKey };
 
-                return eFileUploadType.None;
-            }
-        }
-        
-        public enum eFileUploadType
-        {
-            None,
-            S3,
-            FileSystem
-        }
 
-        public FileUploadConfiguration(string key) 
-            : base(key)
-        {
-            S3 = new S3Configuration("S3", this)
-            {
-                ShouldAllowEmpty = true
-            };
-            FileSystem = new FileSystemConfiguration("FileSystem", this);
+        public S3Configuration S3 = new S3Configuration();
+        public FileSystemConfiguration FileSystem = new FileSystemConfiguration();
 
-            Type = new StringConfigurationValue("type", this)
-            {
-                DefaultValue = "s3"
-            };
-            ShouldDeleteSourceFile = new BooleanConfigurationValue("shouldDeleteSourceFile", this)
-            {
-                DefaultValue = false,
-                ShouldAllowEmpty = true
-            };
-        }
+        public BaseValue<eFileUploadType> Type = new BaseValue<eFileUploadType>("type", eFileUploadType.None, false, "description");
+        public BaseValue<bool> ShouldDeleteSourceFile = new BaseValue<bool>("shouldDeleteSourceFile", true, false, "shouldDeleteSourceFile  description");
 
-        internal override bool Validate()
-        {
-            bool res = base.Validate();
 
-            if (UploadType.Equals(eFileUploadType.None))
-            {
-                res = false;
-                LogError("invalid value for property Type", ConfigurationValidationErrorLevel.Failure);
-            }
 
-            return res;
-        }
+
+
+
+    }
+
+    public enum eFileUploadType
+    {
+        None,
+        S3,
+        FileSystem
     }
 }

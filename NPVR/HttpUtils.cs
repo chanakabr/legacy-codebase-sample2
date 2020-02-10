@@ -9,7 +9,7 @@ namespace NPVR
 {
     internal class HttpUtils
     {
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.NPVRHttpClientConfiguration);
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.NPVRHttpClientConfiguration);
 
         public static bool TrySendHttpGetRequest(string url, Encoding encoding, ref int responseStatus, ref string result, ref string errorMsg, Dictionary<string, string> headersToAdd = null)
         {

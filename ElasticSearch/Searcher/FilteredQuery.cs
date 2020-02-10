@@ -41,7 +41,7 @@ namespace ElasticSearch.Searcher
             
             m_bIsRoot = bIsRoot;
 
-            MAX_RESULTS = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
 
             if (MAX_RESULTS == 0)
             {

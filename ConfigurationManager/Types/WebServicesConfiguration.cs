@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class WebServicesConfiguration : ConfigurationValue
+    public class WebServicesConfiguration : BaseConfig<WebServiceConfiguration>
     {
         public WebServiceConfiguration Users;
         public WebServiceConfiguration ConditionalAccess;
@@ -18,70 +14,49 @@ namespace ConfigurationManager
         public WebServiceConfiguration Notification;
         public CatalogWebServiceConfiguration Catalog;
 
-        public WebServicesConfiguration(string key) : base(key)
+        public WebServicesConfiguration()
         {
-            Users = new ConfigurationManager.WebServiceConfiguration("Users", this);
-            ConditionalAccess = new ConfigurationManager.WebServiceConfiguration("ConditionalAccess", this);
-            Api = new ConfigurationManager.WebServiceConfiguration("Api", this);
-            Pricing = new ConfigurationManager.WebServiceConfiguration("Pricing", this);
-            Billing = new ConfigurationManager.WebServiceConfiguration("Billing", this);
-            Domains = new ConfigurationManager.WebServiceConfiguration("Domains", this);
-            Social = new ConfigurationManager.WebServiceConfiguration("Social", this);
-            Notification = new ConfigurationManager.WebServiceConfiguration("Notification", this);
-            Catalog = new ConfigurationManager.CatalogWebServiceConfiguration("Catalog", this);
+            Users = new WebServiceConfiguration("Users",                         "https://webservices.service.consul:48080/ws_users_module.asmx");
+            ConditionalAccess = new WebServiceConfiguration("ConditionalAccess", "https://webservices.service.consul:48080/ws_cas_module.asmx");
+            Api = new WebServiceConfiguration("Api",                             "https://webservices.service.consul:48080/api.asmx");
+            Pricing = new WebServiceConfiguration("Pricing",                     "https://webservices.service.consul:48080/ws_pricing_module.asmx");
+            Billing = new WebServiceConfiguration("Billing",                     "https://webservices.service.consul:48080/ws_billing_module.asmx");
+            Domains = new WebServiceConfiguration("Domains",                     "https://webservices.service.consul:48080/ws_domains_module.asmx");
+            Social = new WebServiceConfiguration("Social",                       "https://webservices.service.consul:48080/ws_social_module.asmx");
+            Notification = new WebServiceConfiguration("Notification",           "https://webservices.service.consul:48080/ws_notification_service.svc");
+            Catalog = new CatalogWebServiceConfiguration("Catalog",              "https://webservices.service.consul:48080/ws_catalog_service.svc");
         }
+
+        public override string TcmKey => TcmObjectKeys.WebServicesConfiguration;
+
+        public override string[] TcmPath => new[] { TcmKey };
     }
 
-    public class WebServiceConfiguration : ConfigurationValue
+    public class WebServiceConfiguration : BaseConfig<WebServiceConfiguration>
     {
-        public StringConfigurationValue URL;
-        
-        public WebServiceConfiguration(string key) : base(key)
+        public BaseValue<string> URL;
+
+
+        private string _SelfKey;
+        public override string TcmKey => _SelfKey;
+
+        public WebServiceConfiguration(string key, string defaultUrl)
         {
-            this.Initialize();
+            _SelfKey = key;
+            URL = new BaseValue<string>("URL", defaultUrl, false, "");
         }
 
-        public WebServiceConfiguration(string key, ConfigurationValue parent) : base(key, parent)
-        {
-            this.Initialize();
-        }
 
-        protected virtual void Initialize()
-        {
-            this.URL = new ConfigurationManager.StringConfigurationValue("URL", this)
-            {
-                ShouldAllowEmpty = true
-            };
-        }
+        public override string[] TcmPath => new[] { TcmObjectKeys.WebServicesConfiguration, TcmKey };
     }
 
     public class CatalogWebServiceConfiguration : WebServiceConfiguration
     {
-        public StringConfigurationValue SignatureKey;
-        public NumericConfigurationValue CacheDurationSeconds;
+        public BaseValue<string> SignatureKey = new BaseValue<string>("SignatureKey", "liat regev", false,"");
+        public BaseValue<int> CacheDurationSeconds = new BaseValue<int>("CacheDurationSeconds", 0,false, "");
 
-        public CatalogWebServiceConfiguration(string key) : base(key)
+        public CatalogWebServiceConfiguration(string key, string defaultUrl) : base(key, defaultUrl)
         {
-            this.Initialize();
-        }
-
-        public CatalogWebServiceConfiguration(string key, ConfigurationValue parent) : base(key, parent)
-        {
-            this.Initialize();
-        }
-        
-        protected override void Initialize()
-        {
-            base.Initialize();
-
-            this.SignatureKey = new ConfigurationManager.StringConfigurationValue("SignatureKey", this)
-            {
-                DefaultValue = "liat regev"
-            };
-            this.CacheDurationSeconds = new NumericConfigurationValue("CacheDurationSeconds", this)
-            {
-                ShouldAllowEmpty = true
-            };
         }
     }
 }

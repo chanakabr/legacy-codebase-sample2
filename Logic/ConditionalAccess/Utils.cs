@@ -101,11 +101,6 @@ namespace Core.ConditionalAccess
                         oConditionalAccess = new ElisaConditionalAccess(nGroupID, sConnKey);
                         break;
                     }
-                case (7):
-                    {
-                        oConditionalAccess = new EutelsatConditionalAccess(nGroupID, sConnKey);
-                        break;
-                    }
                 case (9):
                     {
                         oConditionalAccess = new CinepolisConditionalAccess(nGroupID, sConnKey);
@@ -347,7 +342,7 @@ namespace Core.ConditionalAccess
             return mapper;
         }
 
-        internal static int GetMediaIdByFildId(int groupId, int mediaFileId)
+        internal static int GetMediaIdByFileId(int groupId, int mediaFileId)
         {
             int mediaId = 0;
             try
@@ -360,7 +355,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetMediaIdByFildId for groupId: {0}, mediaFileId: {1}", groupId, mediaFileId), ex);
+                log.Error(string.Format("Failed GetMediaIdByFileId for groupId: {0}, mediaFileId: {1}", groupId, mediaFileId), ex);
             }
 
             return mediaId;
@@ -439,9 +434,17 @@ namespace Core.ConditionalAccess
          */
         internal static Subscription[] GetSubscriptionsDataWithCaching<T>(List<T> lstSubsCodes, int nGroupID) where T : IComparable, IComparable<T>, IEquatable<T>, IConvertible
         {
-            string[] subs = lstSubsCodes.Select((item) => item.ToString()).Distinct().ToArray();
+            HashSet<long> subIds = new HashSet<long>();
+            long subId = 0;
+            foreach (var item in lstSubsCodes)
+            {
+                if (long.TryParse(item.ToString(), out subId) && !subIds.Contains(subId))
+                {
+                    subIds.Add(subId);
+                }
+            }
 
-            var res = Pricing.Module.GetSubscriptionsData(nGroupID, subs, string.Empty, string.Empty, string.Empty);
+            var res = Pricing.Module.GetSubscriptions(nGroupID, subIds, string.Empty, string.Empty, string.Empty, null);
             if (res != null)
                 return res.Subscriptions;
             return null;
@@ -715,7 +718,7 @@ namespace Core.ConditionalAccess
         internal static void FillCatalogSignature(BaseRequest request)
         {
             request.m_sSignString = Guid.NewGuid().ToString();
-            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, ApplicationConfiguration.CatalogSignatureKey.Value);
+            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, ApplicationConfiguration.Current.CatalogSignatureKey.Value);
         }
 
         private static BundlesContainingMediaRequest InitializeCatalogRequest(int nGroupID, int nMediaID,
@@ -1298,7 +1301,7 @@ namespace Core.ConditionalAccess
 
             try
             {
-                subscription = Pricing.Module.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false);
+                subscription = Pricing.Module.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false, userId);
                 if (subscription == null)
                 {
                     theReason = PriceReason.UnKnown;
@@ -1598,7 +1601,7 @@ namespace Core.ConditionalAccess
             {
                 foreach (var userInDomain in allUserIdsInDomain)
                 {
-                    var userSegments = Api.Module.GetUserSegments(groupId, userInDomain, 0, 0);
+                    var userSegments = Api.Module.GetUserSegments(groupId, userInDomain, null, 0, 0);
                     if (userSegments != null && userSegments.HasObjects())
                     {
                         segmentIds.AddRange(userSegments.Objects.Select(x => x.SegmentId));
@@ -2283,7 +2286,7 @@ namespace Core.ConditionalAccess
                 DateTime dPurchaseDate = DateTime.MinValue;
                 int ppvID = StringUtils.ConvertTo<int>(ppvModule.m_sObjectCode);
 
-                if (allUserIDsInDomain?.Count == 0)
+                if (allUserIDsInDomain == null || allUserIDsInDomain.Count == 0)
                 {
                     allUserIDsInDomain = GetAllUsersDomainBySiteGUID(sSiteGUID, groupID, ref domainID);
                 }
@@ -4079,7 +4082,15 @@ namespace Core.ConditionalAccess
             {
                 if (domainBundleEntitlements.EntitledSubscriptions != null && domainBundleEntitlements.EntitledSubscriptions.Count > 0)
                 {
-                    SubscriptionsResponse subscriptionsResponse = Core.Pricing.Module.GetSubscriptionsData(groupId, domainBundleEntitlements.EntitledSubscriptions.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
+                    HashSet<long> subIds = new HashSet<long>();
+                    foreach (var item in domainBundleEntitlements.EntitledSubscriptions.Keys)
+                    {
+                        subIds.Add(long.Parse(item));
+                    }
+
+                    SubscriptionsResponse subscriptionsResponse = Core.Pricing.Module.GetSubscriptions(groupId, subIds, String.Empty, String.Empty, 
+                        String.Empty, null);
+
                     if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions.Count() > 0)
                     {
                         foreach (Subscription subscription in subscriptionsResponse.Subscriptions)
@@ -6458,7 +6469,7 @@ namespace Core.ConditionalAccess
                     ShouldUseSearchEndDate = true
                 };
                 FillCatalogSignature(request);
-                string catalogUrl = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
+                string catalogUrl = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.URL.Value;
                 if (string.IsNullOrEmpty(catalogUrl))
                 {
                     log.Error("Catalog Url is null or empty");
@@ -6750,18 +6761,16 @@ namespace Core.ConditionalAccess
             TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
             int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
             DateTime? viewableUntilDate = null;
-            if (recordingLifetime.HasValue && recording.RecordingStatus != TstvRecordingStatus.Failed)
+
+            //BEO - 7188
+            if (recordingLifetime.HasValue)
             {
                 viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
-            }
-            else
-            {
-                viewableUntilDate = new DateTime(1970, 1, 1);
+                recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
+                return RecordingsDAL.UpdateRecording(recording, groupId, rowStatus, isActive, status, viewableUntilDate);
             }
 
-            recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
-
-            return RecordingsDAL.UpdateRecording(recording, groupId, rowStatus, isActive, status, viewableUntilDate);
+            return false;
         }
 
         internal static List<Recording> GetRecordings(int groupId, List<long> recordingIds)
@@ -7364,12 +7373,12 @@ namespace Core.ConditionalAccess
 
         internal static bool InsertOrSetCachedEntitlementResults(long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
         {
-            return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(ApplicationConfiguration.Version.Value, domainId, mediaFileId, cachedEntitlementResults);
+            return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(ApplicationConfiguration.Current.Version.Value, domainId, mediaFileId, cachedEntitlementResults);
         }
 
         internal static CachedEntitlementResults GetCachedEntitlementResults(long domainId, int mediaFileId)
         {
-            return ConditionalAccessDAL.GetCachedEntitlementResults(ApplicationConfiguration.Version.Value, domainId, mediaFileId);
+            return ConditionalAccessDAL.GetCachedEntitlementResults(ApplicationConfiguration.Current.Version.Value, domainId, mediaFileId);
         }
 
         internal static ApiObjects.Response.Status SetResponseStatus(PriceReason priceReason)
@@ -7518,7 +7527,7 @@ namespace Core.ConditionalAccess
                         eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
                         string userId = funcParams["userId"] as string;
                         bool isExternalRecordingAccount = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId.Value, GroupFeature.EXTERNAL_RECORDINGS);
-                        if (!string.IsNullOrEmpty(assetId) && assetType.HasValue && groupId.HasValue && !string.IsNullOrEmpty(userId)
+                        if (!string.IsNullOrEmpty(assetId) && assetType.HasValue && groupId.HasValue 
                             && (long.TryParse(assetId, out id) || (isExternalRecordingAccount && assetType.Value == eAssetTypes.NPVR)))
                         {
                             switch (assetType)
@@ -8641,13 +8650,13 @@ namespace Core.ConditionalAccess
             return status;
         }
 
-        public static Subscription GetSubscription(int groupId, int subscriptionId)
+        public static Subscription GetSubscription(int groupId, int subscriptionId, string userId = null)
         {
             Subscription subscription = null;
 
             try
             {
-                subscription = Core.Pricing.Module.GetSubscriptionData(groupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                subscription = Core.Pricing.Module.GetSubscriptionData(groupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false, userId);
             }
             catch (Exception ex)
             {

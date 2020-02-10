@@ -5,6 +5,7 @@ using ApiObjects.Response;
 using ConfigurationManager;
 using ConfigurationManager.Types;
 using KLogMonitor;
+
 using System;
 using System.IO;
 using System.Reflection;
@@ -46,16 +47,17 @@ namespace ApiLogic
 
         private void initialize()
         {
-            ShouldDeleteSourceFile = ApplicationConfiguration.FileUpload.ShouldDeleteSourceFile.Value;
+            ShouldDeleteSourceFile = ApplicationConfiguration.Current.FileUpload.ShouldDeleteSourceFile.Value;
         }
 
         private static FileHandler GetFileHandlerImpl()
         {
-            switch (ApplicationConfiguration.FileUpload.UploadType)
+            
+            switch (ApplicationConfiguration.Current.FileUpload.Type.Value)
             {
-                case FileUploadConfiguration.eFileUploadType.FileSystem:
+                case eFileUploadType.FileSystem:
                     return new FileSystemHandler();
-                case FileUploadConfiguration.eFileUploadType.S3:
+                case eFileUploadType.S3:
                     return new S3FileHandler();
             }
 
@@ -162,14 +164,17 @@ namespace ApiLogic
         public string BucketName { get; private set; }
         public string Path { get; private set; }
 
+        
+        
+
         protected override void Initialize()
         {
-            AccessKey = ApplicationConfiguration.FileUpload.S3.AccessKey.Value;
-            SecretKey = ApplicationConfiguration.FileUpload.S3.SecretKey.Value;
-            Region = ApplicationConfiguration.FileUpload.S3.Region.Value;
-            BucketName = ApplicationConfiguration.FileUpload.S3.BucketName.Value;
-            NumberOfRetries = ApplicationConfiguration.FileUpload.S3.NumberOfRetries.IntValue;
-            Path = ApplicationConfiguration.FileUpload.S3.Path.Value;
+            AccessKey = ApplicationConfiguration.Current.FileUpload.S3.AccessKey.Value;
+            SecretKey = ApplicationConfiguration.Current.FileUpload.S3.SecretKey.Value;
+            Region = ApplicationConfiguration.Current.FileUpload.S3.Region.Value;
+            BucketName = ApplicationConfiguration.Current.FileUpload.S3.BucketName.Value;
+            NumberOfRetries = ApplicationConfiguration.Current.FileUpload.S3.NumberOfRetries.Value;
+            Path = ApplicationConfiguration.Current.FileUpload.S3.Path.Value;
         }
 
         protected override GenericResponse<string> Save(string fileName, FileInfo fileInfo, string subDir)
@@ -282,8 +287,8 @@ namespace ApiLogic
 
         protected override void Initialize()
         {
-            Destination = ApplicationConfiguration.FileUpload.FileSystem.DestPath.Value;
-            PublicUrl = ApplicationConfiguration.FileUpload.FileSystem.PublicUrl.Value;
+            Destination = ApplicationConfiguration.Current.FileUpload.FileSystem.DestPath.Value;
+            PublicUrl = ApplicationConfiguration.Current.FileUpload.FileSystem.PublicUrl.Value;
         }
 
         protected override GenericResponse<string> Save(string fileName, FileInfo fileInfo, string subDir)

@@ -198,7 +198,7 @@ namespace Core.Catalog.CatalogManagement
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
-                    response.Object = CreateAssetFile(groupId, dt.Rows[0], true);
+                    response.Object = CreateAssetFile(groupId, dt.Rows[0], shouldAddBaseUrl);
                     if (response.Object != null)
                     {
                         response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -212,7 +212,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }        
+        }
 
         private static AssetFile CreateAssetFile(int groupId, DataRow dr, bool shouldAddBaseUrl)
         {
@@ -258,7 +258,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return res;
-;
+            ;
         }
 
         private static void DoFreeItemIndexUpdateIfNeeded(int groupId, int assetId, DateTime? previousStartDate, DateTime? startDate, DateTime? previousEndDate, DateTime? endDate)
@@ -286,9 +286,9 @@ namespace Core.Catalog.CatalogManagement
         {
             MediaFileType result = null;
             GenericListResponse<MediaFileType> mediaFileTypesResponse = GetMediaFileTypes(groupId);
-            if (mediaFileTypesResponse != null && 
-                mediaFileTypesResponse.Status != null && 
-                mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK && 
+            if (mediaFileTypesResponse != null &&
+                mediaFileTypesResponse.Status != null &&
+                mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK &&
                 mediaFileTypesResponse.Objects.Count > 0)
             {
                 result = mediaFileTypesResponse.Objects.Where(x => x.Id == id).Count() == 1 ? mediaFileTypesResponse.Objects.Where(x => x.Id == id).First() : null;
@@ -323,17 +323,15 @@ namespace Core.Catalog.CatalogManagement
 
         internal static List<AssetFile> CreateAssetFileListResponseFromDataTable(int groupId, DataTable dt, bool shouldAddBaseUrl = true)
         {
-            List<AssetFile> response = new List<AssetFile>();
+            var response = new List<AssetFile>();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
+                foreach (DataRow dr in dt.Rows)
                 {
-                    foreach (DataRow dr in dt.Rows)
+                    AssetFile assetFile = CreateAssetFile(groupId, dr, shouldAddBaseUrl);
+                    if (assetFile != null)
                     {
-                        AssetFile assetFile = CreateAssetFile(groupId, dr, true);
-                        if (assetFile != null)
-                        {
-                            response.Add(assetFile);
-                        }
+                        response.Add(assetFile);
                     }
                 }
             }
@@ -391,7 +389,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }        
+        }
 
         public static GenericResponse<MediaFileType> AddMediaFileType(int groupId, MediaFileType mediaFileTypeToAdd, long userId)
         {
@@ -467,10 +465,10 @@ namespace Core.Catalog.CatalogManagement
                     if (mediaFilesDt != null && mediaFilesDt.Rows != null && mediaFilesDt.Rows.Count > 0)
                     {
                         // preparing media list for updating index and invalidating cache
-                        List<int> mediaIds = new List<int>();                        
+                        List<int> mediaIds = new List<int>();
                         foreach (DataRow dr in mediaFilesDt.Rows)
                         {
-                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");                            
+                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
                             if (mediaId > 0)
                             {
                                 mediaIds.Add(mediaId);
@@ -557,7 +555,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DateTime startDate = assetFileToAdd.StartDate ?? DateTime.UtcNow;
-                    
+
                 DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AlternativeCdnAdapaterProfileId, assetFileToAdd.AssetId,
                                                         assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.EndDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
                                                         assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, startDate,
@@ -585,7 +583,7 @@ namespace Core.Catalog.CatalogManagement
                         // invalidate asset
                         AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileToAdd.AssetId);
                     }
-                    
+
                     // free item index update 
                     DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToAdd.AssetId, null, assetFileToAdd.StartDate, null, assetFileToAdd.EndDate);
                 }
@@ -683,7 +681,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
                 }
-                
+
                 // ExternalId and AltExternalId cannot be the same value
                 if (string.IsNullOrEmpty(assetFileToUpdate.ExternalId))
                 {
@@ -714,12 +712,12 @@ namespace Core.Catalog.CatalogManagement
 
                     assetFileToUpdate.CdnAdapaterProfileId = GroupDefaultCdnAdapter.Adapter.ID;
                 }
-                
-                var ds = CatalogDAL.UpdateMediaFile(groupId, assetFileToUpdate.Id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode, 
-                                                    assetFileToUpdate.AlternativeCdnAdapaterProfileId, assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, 
-                                                    assetFileToUpdate.Duration, assetFileToUpdate.EndDate, assetFileToUpdate.ExternalId, assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, 
-                                                    assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum, 
-                                                    assetFileToUpdate.StartDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId, 
+
+                var ds = CatalogDAL.UpdateMediaFile(groupId, assetFileToUpdate.Id, userId, assetFileToUpdate.AdditionalData, assetFileToUpdate.AltStreamingCode,
+                                                    assetFileToUpdate.AlternativeCdnAdapaterProfileId, assetFileToUpdate.AssetId, assetFileToUpdate.BillingType,
+                                                    assetFileToUpdate.Duration, assetFileToUpdate.EndDate, assetFileToUpdate.ExternalId, assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize,
+                                                    assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum,
+                                                    assetFileToUpdate.StartDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId,
                                                     assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive, assetFileToUpdate.CatalogEndDate);
 
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);

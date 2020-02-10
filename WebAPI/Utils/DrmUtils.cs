@@ -62,7 +62,7 @@ namespace WebAPI.Utils
             string response = null;
             string baseUdrmUrl = !string.IsNullOrEmpty(group.UDrmUrl) ?
                 group.UDrmUrl :
-                ApplicationConfiguration.UDRMUrl.Value;
+                ApplicationConfiguration.Current.UDRMUrl.Value;
 
             customDataString = HttpUtility.UrlEncode(Convert.ToBase64String(Encoding.ASCII.GetBytes(customDataString)));
             signature = HttpUtility.UrlEncode(signature);

@@ -489,7 +489,7 @@ namespace DAL
             try
             {
                 // get user interest TTL
-                int userInterestTtl = ApplicationConfiguration.UserInterestsTTLDays.IntValue;
+                int userInterestTtl = ApplicationConfiguration.Current.UserInterestsTTLDays.Value;
 
                 if (userInterestTtl == 0)
                     userInterestTtl = TTL_USER_INTEREST_DAYS;

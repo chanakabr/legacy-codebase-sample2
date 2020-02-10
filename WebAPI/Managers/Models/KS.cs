@@ -134,7 +134,7 @@ namespace WebAPI.Managers.Models
 
         private string ConvertSignature(byte[] randomBytes)
         {
-            var secrets = ApplicationConfiguration.RequestParserConfiguration.KsSecrets;
+            var secrets = ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets;
             var secret = secrets.FirstOrDefault();
             var random = Encoding.Default.GetString(randomBytes);
             var concat = string.Format(EncryptionUtils.SignatureFormat, random, secret);
@@ -206,32 +206,34 @@ namespace WebAPI.Managers.Models
             ks.groupId = groupId;
 
             // get string
-            string encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
+            string encryptedDataStr = Encoding.ASCII.GetString(encryptedData);
 
             // decrypt fields
             int fieldsWithRandomIndex = string.Format("v2|{0}|", groupId).Count();
-            byte[] fieldsWithHashBytes = Utils.EncryptionUtils.AesDecrypt(secret, encryptedData.Skip(fieldsWithRandomIndex).ToArray(), BLOCK_SIZE);
+            var encrypted = encryptedData.Skip(fieldsWithRandomIndex).ToArray();
+            byte[] fieldsWithHashBytes = EncryptionUtils.AesDecrypt(secret, encrypted, BLOCK_SIZE);
 
             // trim Right 0
             fieldsWithHashBytes = TrimRight(fieldsWithHashBytes);
 
             // check hash
-            byte[] hash = fieldsWithHashBytes.Take(SHA1_SIZE).ToArray();
+            var hash = Encoding.ASCII.GetString(fieldsWithHashBytes.Take(SHA1_SIZE).ToArray());
             byte[] fieldsWithRandom = fieldsWithHashBytes.Skip(SHA1_SIZE).ToArray();
-
-            if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(Utils.EncryptionUtils.HashSHA1(fieldsWithRandom)))
+            var fieldsHash = Encoding.ASCII.GetString(EncryptionUtils.HashSHA1(fieldsWithRandom));
+            if (hash != fieldsHash)
             {
                 if (!string.IsNullOrEmpty(secretFallback))
                 {
-                    fieldsWithHashBytes = Utils.EncryptionUtils.AesDecrypt(secretFallback, encryptedData.Skip(fieldsWithRandomIndex).ToArray(), BLOCK_SIZE);
+                    fieldsWithHashBytes = EncryptionUtils.AesDecrypt(secretFallback, encrypted, BLOCK_SIZE);
 
                     // trim Right 0
                     fieldsWithHashBytes = TrimRight(fieldsWithHashBytes);
 
                     // check hash
-                    hash = fieldsWithHashBytes.Take(SHA1_SIZE).ToArray();
+                    hash = Encoding.ASCII.GetString(fieldsWithHashBytes.Take(SHA1_SIZE).ToArray());
                     fieldsWithRandom = fieldsWithHashBytes.Skip(SHA1_SIZE).ToArray();
-                    if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(Utils.EncryptionUtils.HashSHA1(fieldsWithRandom)))
+                    fieldsHash = Encoding.ASCII.GetString(EncryptionUtils.HashSHA1(fieldsWithRandom));
+                    if (hash != fieldsHash)
                     {
                         throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
                     }
@@ -244,7 +246,7 @@ namespace WebAPI.Managers.Models
 
             //parse fields
             ks.Random = string.Concat(Array.ConvertAll(fieldsWithRandom.Take(BLOCK_SIZE).ToArray(), b => b.ToString("X2"))); // byte array to hex string
-            string fieldsString = System.Text.Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray());
+            string fieldsString = Encoding.ASCII.GetString(fieldsWithRandom.Skip(BLOCK_SIZE).ToArray());
             string[] fields = fieldsString.Split("&_".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
             if (fields == null || fields.Length < 3)
@@ -347,32 +349,40 @@ namespace WebAPI.Managers.Models
         internal void SaveOnRequest()
         {
             HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
-            HttpContext.Current.Items.Add(RequestContext.REQUEST_GROUP_ID, groupId);
-            HttpContext.Current.Items.Add(RequestContext.REQUEST_KS, this);
+            HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_GROUP_ID, groupId);
+            HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_KS, this);
         }
 
         public static void ClearOnRequest()
         {
-            HttpContext.Current.Items.Remove(RequestContext.REQUEST_GROUP_ID);
-            HttpContext.Current.Items.Remove(RequestContext.REQUEST_KS);
+            HttpContext.Current.Items.Remove(RequestContextUtils.REQUEST_GROUP_ID);
+            HttpContext.Current.Items.Remove(RequestContextUtils.REQUEST_KS);
         }
 
         internal static void SaveOnRequest(KS ks)
         {
-            if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_KS))
-                HttpContext.Current.Items[RequestContext.REQUEST_KS] = ks;
+            if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_KS))
+                HttpContext.Current.Items[RequestContextUtils.REQUEST_KS] = ks;
             else
-                HttpContext.Current.Items.Add(RequestContext.REQUEST_KS, ks);
+                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_KS, ks);
 
-            if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_GROUP_ID))
-                HttpContext.Current.Items[RequestContext.REQUEST_GROUP_ID] = ks.groupId;
+            if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_GROUP_ID))
+                HttpContext.Current.Items[RequestContextUtils.REQUEST_GROUP_ID] = ks.groupId;
             else
-                HttpContext.Current.Items.Add(RequestContext.REQUEST_GROUP_ID, ks.groupId);
+                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_GROUP_ID, ks.groupId);
+            
+            if (!string.IsNullOrEmpty(ks.OriginalUserId) && ks.OriginalUserId != ks.userId && long.TryParse(ks.OriginalUserId, out long originalUserId))
+            {
+                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID))
+                    HttpContext.Current.Items[RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID] = originalUserId;
+                else
+                    HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID, originalUserId);
+            }
         }
 
         internal static KS GetFromRequest()
         {
-            return (KS)HttpContext.Current.Items[RequestContext.REQUEST_KS];
+            return (KS)HttpContext.Current.Items[RequestContextUtils.REQUEST_KS];
         }
 
         public static KS CreateKSFromApiToken(ApiToken token, string tokenVal)

@@ -1208,7 +1208,20 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Pricing.Utils.GetGroupID(sWSUsername, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GetSubscriptions(nGroupID, oSubCodes, sCountryCd2, sLanguageCode3, sDeviceName, null, orderBy);
+                HashSet<long> subIds = new HashSet<long>();
+                if (oSubCodes?.Length > 0)
+                {
+                    long subId = 0;
+                    foreach (var item in oSubCodes)
+                    {
+                        if (long.TryParse(item, out subId) && !subIds.Contains(subId))
+                        {
+                            subIds.Add(subId);
+                        }
+                    }
+                }
+
+                return Core.Pricing.Module.GetSubscriptions(nGroupID, subIds, sCountryCd2, sLanguageCode3, sDeviceName, null, orderBy);
             }
             else
             {

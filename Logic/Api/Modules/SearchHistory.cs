@@ -23,7 +23,7 @@ namespace Core.Api.Modules
         #region Consts
 
         private const string KEY_FORMAT = "search_history_{0}_{1}";
-        private static readonly string CB_SEARCH_HISTORY_DESIGN_DOC = ApplicationConfiguration.CouchBaseDesigns.SearchHistoryDesign.Value;
+        private static readonly string CB_SEARCH_HISTORY_DESIGN_DOC = ApplicationConfiguration.Current.CouchBaseDesigns.SearchHistoryDesign.Value;
 
         #endregion
 

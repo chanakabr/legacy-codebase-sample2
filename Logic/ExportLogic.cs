@@ -27,13 +27,13 @@ namespace APILogic
 
         private static object lockObject = new object();
 
-        private static string exportBasePath = ApplicationConfiguration.ExportConfiguration.BasePath.Value;
-        private static string exportPathFormat = ApplicationConfiguration.ExportConfiguration.PathFormat.Value; // {0}/{1}/{2}
-        private static string exportFileNameFormat = ApplicationConfiguration.ExportConfiguration.FileNameFormat.Value; // {0}_{1}.xml
-        private static string exportFileNameDateFormat = ApplicationConfiguration.ExportConfiguration.FileNameDateFormat.Value; // yyyyMMddHHmmss
-        private static int maxAssetsPerTask = ApplicationConfiguration.ExportConfiguration.MaxAssetsPerThread.IntValue;
-        private static int maxTasks = ApplicationConfiguration.ExportConfiguration.MaxThreads.IntValue;
-        private static int innerTaskRetriesLimit = ApplicationConfiguration.ExportConfiguration.ThreadRetryLimit.IntValue;
+        private static string exportBasePath = ApplicationConfiguration.Current.ExportConfiguration.BasePath.Value;
+        private static string exportPathFormat = ApplicationConfiguration.Current.ExportConfiguration.PathFormat.Value; // {0}/{1}/{2}
+        private static string exportFileNameFormat = ApplicationConfiguration.Current.ExportConfiguration.FileNameFormat.Value; // {0}_{1}.xml
+        private static string exportFileNameDateFormat = ApplicationConfiguration.Current.ExportConfiguration.FileNameDateFormat.Value; // yyyyMMddHHmmss
+        private static int maxAssetsPerTask = ApplicationConfiguration.Current.ExportConfiguration.MaxAssetsPerThread.Value;
+        private static int maxTasks = ApplicationConfiguration.Current.ExportConfiguration.MaxThreads.Value;
+        private static int innerTaskRetriesLimit = ApplicationConfiguration.Current.ExportConfiguration.ThreadRetryLimit.Value;
 
         private delegate bool DoTaskJob(int groupId, long taskId, List<long> ids, string exportFullPath, string mainLang, int firstTaskIndex, int numberOfTasks, int index, int retrisCount = 0);
 
@@ -46,7 +46,8 @@ namespace APILogic
             DataSet unactiveAssets = null;
 
             // Get active media ids from catalog with consideration of the task filter KSSQL and the asset last update date.
-            ids = GetAssetsIdsByFilter(groupId, task.Filter, task.DataType, task.VodTypes, task.ExportType == eBulkExportExportType.Incremental ? task.LastProcess : null);
+            var truncFilter = ProtocolsFuncs.StripHTML(task.Filter);
+            ids = GetAssetsIdsByFilter(groupId, truncFilter, task.DataType, task.VodTypes, task.ExportType == eBulkExportExportType.Incremental ? task.LastProcess : null);
 
             // if export type is incremental - get all deleted / not active since the last task process
             if (task.ExportType == eBulkExportExportType.Incremental && task.LastProcess != null)

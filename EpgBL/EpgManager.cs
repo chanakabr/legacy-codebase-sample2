@@ -28,7 +28,7 @@ namespace EpgBL
                 var lastNewEpgId = couchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, (ulong)programsToAdd.Count + 1);
                 var firstNewEpgId = lastNewEpgId - (ulong)programsToAdd.Count;
 
-                firstNewEpgId += (ulong)ApplicationConfiguration.EpgInitialId.LongValue;
+                firstNewEpgId += (ulong)ApplicationConfiguration.Current.EpgInitialId.Value;
                 // set the new programs with new IDs from sequence document in couchbase
                 foreach (var program in programsToAdd)
                 {
