@@ -1,36 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+
 
 namespace ConfigurationManager
 {
-    public class FtpApiServerConfiguration : ConfigurationValue
+    public class FtpApiServerConfiguration : BaseConfig<FtpApiServerConfiguration>
     {
-        public NumericConfigurationValue FtpServerPort;
-        public StringConfigurationValue FtpServerAddress;
-        public StringConfigurationValue PhoenixServerUrl;
 
-        public FtpApiServerConfiguration(string key) : base(key)
-        {
-            FtpServerPort = new NumericConfigurationValue("ftp_server_port", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 21,
-            };
+        public override string TcmKey => TcmObjectKeys.FtpApiServerConfiguration;
 
-            FtpServerAddress = new StringConfigurationValue("ftp_server_address", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = "localhost",
-            };
+        public override string[] TcmPath => new string[] { TcmKey };
 
-            PhoenixServerUrl = new StringConfigurationValue("phoenix_server_url", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = "localhost:8080",
-            };
-        }
+        public BaseValue<int> FtpServerPort = new BaseValue<int>("ftp_server_port", 21);
+        public BaseValue<string> FtpServerAddress = new BaseValue<string>("ftp_server_address", "localhost");
+        public BaseValue<string> PhoenixServerUrl = new BaseValue<string>("phoenix_server_url", "localhost:8080");
     }
 }

@@ -1,7 +1,5 @@
 ﻿using ApiObjects.Response;
-using KLogMonitor;
 using System;
-using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -14,8 +12,6 @@ namespace WebAPI.Controllers
     [Service("partnerConfiguration")]
     public class PartnerConfigurationController : IKalturaController
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         /// <summary>
         /// Get the list of PartnerConfiguration
         /// </summary>
@@ -34,24 +30,6 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.ApiClient().GetConcurrencyPartner(groupId);
                 }
-                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.DefaultPaymentGateway)
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, 
-                                                  "filter.partnerConfigurationTypeEqual", 
-                                                  KalturaPartnerConfigurationType.Concurrency.ToString());
-                }
-                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.EnablePaymentGatewaySelection)
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE,
-                                                  "filter.partnerConfigurationTypeEqual",
-                                                  KalturaPartnerConfigurationType.Concurrency.ToString());
-                }
-                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.OSSAdapter)
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE,
-                                                  "filter.partnerConfigurationTypeEqual",
-                                                  KalturaPartnerConfigurationType.Concurrency.ToString());
-                }
                 else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.General)
                 {
                     response = ClientsManager.ApiClient().GetGeneralPartnerConfiguration(groupId);
@@ -60,9 +38,13 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.ApiClient().GetObjectVirtualAssetPartnerConfiguration(groupId);
                 }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.Commerce)
+                {
+                    response = ClientsManager.ApiClient().GetCommerceConfigList(groupId);
+                }
                 else
                 {
-                    throw new InternalServerErrorException();
+                    throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "filter.partnerConfigurationTypeEqual", filter.PartnerConfigurationTypeEqual);
                 }
             }
             catch (ClientException ex)
@@ -74,13 +56,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update Partner Configuration
+        /// Update/set Partner Configuration
         /// </summary>
-        /// <param name="configuration">Partner Configuration
-        /// possible configuration type: 
-        /// 'configuration': { 'value': 0, 'partner_configuration_type': { 'type': 'OSSAdapter', 'objectType': 'KalturaPartnerConfigurationHolder' },
-        /// 'objectType': 'KalturaBillingPartnerConfig'}
-        /// </param>        
+        /// <param name="configuration">Partner Configuration to update</param>
+        /// <returns></returns>
         [Action("update")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
@@ -96,30 +75,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (configuration is KalturaBillingPartnerConfig)
-                {
-                    KalturaBillingPartnerConfig partnerConfig = configuration as KalturaBillingPartnerConfig;
-                    response = ClientsManager.BillingClient().SetPartnerConfiguration(groupId, partnerConfig);
-                }
-                else if (configuration is KalturaConcurrencyPartnerConfig)
-                {
-                    KalturaConcurrencyPartnerConfig partnerConfig = configuration as KalturaConcurrencyPartnerConfig;
-                    response = ClientsManager.ApiClient().UpdateConcurrencyPartner(groupId, partnerConfig);
-                }
-                else if (configuration is KalturaGeneralPartnerConfig)
-                {
-                    KalturaGeneralPartnerConfig partnerConfig = configuration as KalturaGeneralPartnerConfig;
-                    response = ClientsManager.ApiClient().UpdateGeneralPartnerConfiguration(groupId, partnerConfig);
-                }
-                else if (configuration is KalturaObjectVirtualAssetPartnerConfig)
-                {
-                    KalturaObjectVirtualAssetPartnerConfig partnerConfig = configuration as KalturaObjectVirtualAssetPartnerConfig;
-                    response = ClientsManager.ApiClient().UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfig);
-                }
-                else
-                {
-                    throw new InternalServerErrorException();
-                }
+                response = configuration.Update(groupId);
             }
             catch (ClientException ex)
             {
@@ -128,7 +84,5 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
     }
-
 }

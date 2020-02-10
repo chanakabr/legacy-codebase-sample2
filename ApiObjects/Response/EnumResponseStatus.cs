@@ -116,6 +116,7 @@ namespace ApiObjects.Response
         SSOAdapterIdRequired = 2058,
         ParentIdNotExist = 2059,
         UserFavoriteNotDeleted = 2060,
+        ActionBlocked = 2061,
 
         #endregion
 
@@ -356,6 +357,8 @@ namespace ApiObjects.Response
         RegionCannotBeParent = 5067,
         DefaultRegionCannotBeDeleted = 5068,
         CannotDeleteRegionInUse = 5069,
+        PartnerConfigurationDoesNotExist = 5070,
+
         #endregion
 
         #region Billing 6000 - 6999

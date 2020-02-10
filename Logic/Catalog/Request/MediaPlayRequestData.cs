@@ -74,38 +74,25 @@ namespace Core.Catalog.Request
 
             if (IsReportingMode)
             {
-                currDevicePlayData = new DevicePlayData(this.m_sUDID, mediaId, userId, 0, playType, action, deviceFamilyId, DateTime.UtcNow.ToUtcUnixTimestampSeconds(),
-                                                                                this.ProgramId, npvrId, domainId, null, null, null);
-                currDevicePlayData.PlayCycleKey = Guid.NewGuid().ToString();
+                currDevicePlayData = new DevicePlayData(this.m_sUDID, mediaId, userId, 0, playType, action, deviceFamilyId, DateTime.UtcNow.ToUtcUnixTimestampSeconds(), this.ProgramId,
+                                                        npvrId, domainId)
+                {
+                    PlayCycleKey = Guid.NewGuid().ToString()
+                };
             }
             else
             {
                 currDevicePlayData = CatalogDAL.GetDevicePlayData(this.m_sUDID);
 
                 // create and save new DevicePlayData if not exist
-                if (userId > 0 && (currDevicePlayData == null || IsReportingMode))
+                if (userId > 0 && currDevicePlayData == null)
                 {
                     List<int> mediaConcurrencyRuleIds = null;
                     List<long> assetMediaRulesIds = ConditionalAccess.Utils.GetAssetMediaRuleIds(groupId, mediaId);
                     List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
-
+                    
                     currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds,
                         mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
-
-                    //FPNPC -  on First Play create New Play Cycle
-                    if (CatalogLogic.IsGroupUseFPNPC(groupId))
-                    {
-                        // We still insert to DB incase needed by other process
-                        if (currDevicePlayData != null && !string.IsNullOrEmpty(currDevicePlayData.PlayCycleKey))
-                        {
-                            CatalogDAL.InsertPlayCycleKey(currDevicePlayData.UserId.ToString(), currDevicePlayData.AssetId, this.m_nMediaFileID,
-                                                          currDevicePlayData.UDID, platform, countryId, 0, groupId, currDevicePlayData.PlayCycleKey);
-                        }
-                        else
-                        {
-                            CatalogDAL.GetOrInsertPlayCycleKey(userId.ToString(), mediaId, this.m_nMediaFileID, this.m_sUDID, platform, countryId, 0, groupId, true);
-                        }
-                    }
                 }
 
                 // update NpvrId

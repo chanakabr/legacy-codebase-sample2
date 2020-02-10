@@ -46,7 +46,7 @@ namespace Core.ConditionalAccess
             }
 
             // frequency (tcm)
-            long frequency = ApplicationConfiguration.ReconciliationFrequencySeconds.LongValue;
+            long frequency = ApplicationConfiguration.Current.ReconciliationFrequencySeconds.Value;
 
             if (frequency == 0)
             {

@@ -63,6 +63,7 @@
     <Compile Remove="Controllers\DomainsController.cs" />
     <Compile Remove="Controllers\EngagementAdapterSettingsController.cs" />
     <Compile Remove="Controllers\HouseholdLimitationModuleController.cs" />
+    <Compile Remove="Controllers\HouseholdSegmentController .cs" />
     <Compile Remove="Managers\Models\EventNotification.cs" />
     <Compile Remove="Models\ConditionalAccess\AdapterPlaybackContextOptions.cs" />
     <Compile Remove="Models\General\KalturaString.cs" />

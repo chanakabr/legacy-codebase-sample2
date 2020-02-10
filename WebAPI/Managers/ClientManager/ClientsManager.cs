@@ -99,47 +99,47 @@ namespace WebAPI.ClientManagers.Client
                 {
                     case ClientType.Api:
                         {
-                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+                            serviceUrl = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
                             break;
                         }
                     case ClientType.Billing:
                         {
-                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Billing.URL.Value;
+                            serviceUrl = ApplicationConfiguration.Current.WebServicesConfiguration.Billing.URL.Value;
                             break;
                         }
                     case ClientType.ConditionalAccess:
                         {
-                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
+                            serviceUrl = ApplicationConfiguration.Current.WebServicesConfiguration.ConditionalAccess.URL.Value;
                             break;
                         }
                     case ClientType.Domains:
                         {
-                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
+                            serviceUrl = ApplicationConfiguration.Current.WebServicesConfiguration.Domains.URL.Value;
                             break;
                         }
                     case ClientType.Notification:
                         {
-                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
+                            serviceUrl = ApplicationConfiguration.Current.WebServicesConfiguration.Notification.URL.Value;
                             break;
                         }
                     case ClientType.Pricing:
                         {
-                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
+                            serviceUrl = ApplicationConfiguration.Current.WebServicesConfiguration.Pricing.URL.Value;
                             break;
                         }
                     case ClientType.Social:
                         {
-                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Social.URL.Value;
+                            serviceUrl = ApplicationConfiguration.Current.WebServicesConfiguration.Social.URL.Value;
                             break;
                         }
                     case ClientType.Users:
                         {
-                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Users.URL.Value;
+                            serviceUrl = ApplicationConfiguration.Current.WebServicesConfiguration.Users.URL.Value;
                             break;
                         }
                     case ClientType.Catalog:
                         {
-                            serviceUrl = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
+                            serviceUrl = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.URL.Value;
                             break;
                         }
                     default:
@@ -150,8 +150,8 @@ namespace WebAPI.ClientManagers.Client
 
                 if (clientType == ClientType.Catalog)
                 {
-                    ((CatalogClient)client).SignatureKey = ApplicationConfiguration.WebServicesConfiguration.Catalog.SignatureKey.Value;
-                    ((CatalogClient)client).CacheDuration = ApplicationConfiguration.WebServicesConfiguration.Catalog.CacheDurationSeconds.IntValue;
+                    ((CatalogClient)client).SignatureKey = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.SignatureKey.Value;
+                    ((CatalogClient)client).CacheDuration = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.CacheDurationSeconds.Value;
                 }
                 
                 clients.TryAdd(clientType, client);

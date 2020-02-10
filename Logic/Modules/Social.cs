@@ -103,7 +103,7 @@ namespace Core.Social
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = nSiteGUID;
 
-            string sFbListName = ApplicationConfiguration.FacebookConfiguration.ListName.Value;
+            string sFbListName = ApplicationConfiguration.Current.FacebookConfiguration.ListName.Value;
             FacebookWrapper oFBWrapper = new FacebookWrapper(nGroupID);
             return oFBWrapper.GetFBAvailablePrivacyGroups(nSiteGUID.ToString(), nGroupID, sFbListName);
         }
@@ -225,7 +225,7 @@ namespace Core.Social
         {
             FacebookConfigResponse response = new FacebookConfigResponse();
 
-            string str = ApplicationConfiguration.DatabaseConfiguration.ConnectionString.Value;
+            string str = ApplicationConfiguration.Current.DatabaseConfiguration.ConnectionString.Value;
             FacebookWrapper oFBWRapper = new FacebookWrapper(nGroupID);
             response.FacebookConfig = oFBWRapper.FBConfig;
             if (response.FacebookConfig != null)

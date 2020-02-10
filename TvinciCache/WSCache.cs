@@ -24,7 +24,7 @@ namespace TvinciCache
 
         private string GetCacheName()
         {
-            string res = ApplicationConfiguration.WSCacheConfiguration.Name.Value;
+            string res = ApplicationConfiguration.Current.WSCacheConfiguration.Name.Value; 
 
             if (res.Length > 0)
                 return res;
@@ -33,7 +33,7 @@ namespace TvinciCache
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint result = (uint)ApplicationConfiguration.WSCacheConfiguration.TTLSeconds.IntValue;
+            uint result = (uint)ApplicationConfiguration.Current.WSCacheConfiguration.TTLSeconds.Value; 
 
             if (result <= 0)
             {
@@ -45,7 +45,7 @@ namespace TvinciCache
 
         private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            string result = ApplicationConfiguration.WSCacheConfiguration.Type.Value;
+            string result = ApplicationConfiguration.Current.WSCacheConfiguration.Type.Value;
 
             switch (result)
             {

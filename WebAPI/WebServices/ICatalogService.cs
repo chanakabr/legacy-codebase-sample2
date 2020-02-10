@@ -125,10 +125,6 @@ namespace WS_Catalog
         EpgProgramResponse GetProgramsByIDs(EpgProgramDetailsRequest programRequest);
 
         [OperationContract]
-        //[WebInvoke(Method = "POST", UriTemplate = "UpdateOperator", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
-        bool UpdateOperator(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe);
-
-        [OperationContract]
         //[WebInvoke(Method = "POST", UriTemplate = "UpdateEpgIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction);
 

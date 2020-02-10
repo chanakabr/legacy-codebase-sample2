@@ -1,4 +1,5 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
@@ -55,7 +56,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
         }
-        
+
         internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
         {
             List<KalturaUserRole> roles = new List<KalturaUserRole>();
@@ -89,7 +90,7 @@ namespace WebAPI.Clients
             return roles;
 
         }
-        
+
         #region Parental Rules
 
         internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId, bool isAllowedToViewInactiveAssets = false)
@@ -125,7 +126,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }        
+        }
 
         internal List<Models.API.KalturaParentalRule> GetUserParentalRules(int groupId, string userId)
         {
@@ -769,7 +770,7 @@ namespace WebAPI.Clients
             KalturaPurchaseSettings response = AutoMapper.Mapper.Map<KalturaPurchaseSettings>(webServiceResponse);
 
             return response;
-        }       
+        }
 
         [Obsolete]
         internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetDomainPurchasePinOldstandard(int groupId, int domainId)
@@ -2586,7 +2587,7 @@ namespace WebAPI.Clients
                 userRole = AutoMapper.Mapper.Map<KalturaUserRole>(response.Roles[0]);
             }
             return userRole;
-        }        
+        }
 
         internal void DeletePermission(int groupId, long id)
         {
@@ -3084,7 +3085,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetRegions(groupId, wsFilter, pageIndex, pageSize);                    
+                    response = Core.Api.Module.GetRegions(groupId, wsFilter, pageIndex, pageSize);
                 }
             }
             catch (Exception ex)
@@ -3104,9 +3105,9 @@ namespace WebAPI.Clients
             }
 
             regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Objects);
-            
-            return new KalturaRegionListResponse() { Regions = regions, TotalCount = response.TotalItems};
-        }       
+
+            return new KalturaRegionListResponse() { Regions = regions, TotalCount = response.TotalItems };
+        }
 
         internal KalturaDeviceFamilyListResponse GetDeviceFamilyList(int groupId)
         {
@@ -3941,7 +3942,7 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteSegmentationTypeFunc);
         }
 
-        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
+        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, HashSet<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
         {
             KalturaSegmentationTypeListResponse result = new KalturaSegmentationTypeListResponse();
 
@@ -3956,13 +3957,12 @@ namespace WebAPI.Clients
 
             return result;
         }
-
-        internal KalturaUserSegmentListResponse GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
+        internal KalturaUserSegmentListResponse GetUserSegments(int groupId, string userId, AssetSearchDefinition assetSearchDefinition, int pageIndex, int pageSize)
         {
             KalturaUserSegmentListResponse result = new KalturaUserSegmentListResponse();
 
             Func<GenericListResponse<UserSegment>> getUserSegmentsFunc = () =>
-               Core.Api.Module.GetUserSegments(groupId, userId, pageIndex, pageSize);
+               Core.Api.Module.GetUserSegments(groupId, userId, assetSearchDefinition, pageIndex, pageSize);
 
             KalturaGenericListResponse<KalturaUserSegment> response =
                 ClientUtils.GetResponseListFromWS<KalturaUserSegment, UserSegment>(getUserSegmentsFunc);
@@ -3988,6 +3988,23 @@ namespace WebAPI.Clients
         {
             Func<Status> deleteUserSegmentFunc = () => Core.Api.Module.DeleteUserSegment(groupId, userId, segmentId);
             return ClientUtils.GetResponseStatusFromWS(deleteUserSegmentFunc);
+        }
+
+        internal KalturaHouseholdSegment AddHouseholdSegment(int groupId, KalturaHouseholdSegment householdSegment)
+        {
+            Func<HouseholdSegment, GenericResponse<HouseholdSegment>> addHouseholdSegmentFunc = (HouseholdSegment householdSegmentToAdd) =>
+                Core.Api.Module.AddHouseholdSegment(groupId, householdSegmentToAdd);
+
+            KalturaHouseholdSegment result =
+                ClientUtils.GetResponseFromWS<KalturaHouseholdSegment, HouseholdSegment>(householdSegment, addHouseholdSegmentFunc);
+
+            return result;
+        }
+
+        internal bool DeleteHouseholdSegment(int groupId, long householdId, long segmentId)
+        {
+            Func<Status> deleteHouseholdSegmentFunc = () => Core.Api.Module.DeleteHouseholdSegment(groupId, householdId, segmentId);
+            return ClientUtils.GetResponseStatusFromWS(deleteHouseholdSegmentFunc);
         }
 
         internal KalturaBusinessModuleRuleListResponse GetBusinessModuleRules(int groupId, KalturaBusinessModuleRuleFilter filter)
@@ -4126,11 +4143,15 @@ namespace WebAPI.Clients
         #endregion
 
         internal KalturaPlaybackContext GetPlaybackAdapterContext(long adapterId, int groupId, string userId, string udid, string ip, KalturaPlaybackContext kalturaPlaybackContext,
-                                                                SerializableDictionary<string, KalturaStringValue> adapterData)
+                                                                string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
-            Dictionary<string, string> playbackAdapterData = ApiMappings.ConvertSerializeableDictionary(adapterData);
+
+            ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = AutoMapper.Mapper.Map<ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>(contextDataParams);
+            requestPlaybackContextOptions.AssetId = assetId;
+            requestPlaybackContextOptions.AssetType = ApiMappings.ConvertAssetType(assetType);
+
             Func<ApiObjects.PlaybackAdapter.PlaybackContext, GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>> updateBusinessModuleRuleFunc = (ApiObjects.PlaybackAdapter.PlaybackContext getPlaybackContext) =>
-             Core.Api.Module.GetPlaybackContext(adapterId, groupId, userId, udid, ip, getPlaybackContext, playbackAdapterData);
+             Core.Api.Module.GetPlaybackContext(adapterId, groupId, userId, udid, ip, getPlaybackContext, requestPlaybackContextOptions);
 
             KalturaPlaybackContext result =
                 ClientUtils.GetResponseFromWS<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>(kalturaPlaybackContext, updateBusinessModuleRuleFunc);
@@ -4419,9 +4440,10 @@ namespace WebAPI.Clients
 
             return result;
         }
-        internal  bool IncrementLayeredCacheGroupConfigVersion(int groupId)
+
+        internal bool IncrementLayeredCacheGroupConfigVersion(int groupId)
         {
-            Func<bool> incrementLayeredCacheGroupConfigVersion = () => Core.Api.Module.IncrementLayeredCacheGroupConfigVersion(groupId);            
+            Func<bool> incrementLayeredCacheGroupConfigVersion = () => Core.Api.Module.IncrementLayeredCacheGroupConfigVersion(groupId);
             return ClientUtils.GetBoolResponseFromWS(incrementLayeredCacheGroupConfigVersion);
         }
 
@@ -4429,6 +4451,68 @@ namespace WebAPI.Clients
         {
             Func<Status> clearCache = () => Core.Api.Module.ClearLocalServerCache(action, key);
             return ClientUtils.GetResponseStatusFromWS(clearCache);
+        }
+
+        internal KalturaPlaybackContext GetPlaybackAdapterManifest(long adapterId, int groupId, KalturaPlaybackContext kalturaPlaybackContext,
+                                                                string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        {
+            ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = AutoMapper.Mapper.Map<ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>(contextDataParams);
+            requestPlaybackContextOptions.AssetId = assetId;
+            requestPlaybackContextOptions.AssetType = ApiMappings.ConvertAssetType(assetType);
+
+            Func<ApiObjects.PlaybackAdapter.PlaybackContext, GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>> updateBusinessModuleRuleFunc = (ApiObjects.PlaybackAdapter.PlaybackContext playbackContext) =>
+             Core.Api.Module.GetPlaybackManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions);
+
+            KalturaPlaybackContext result =
+                ClientUtils.GetResponseFromWS<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>(kalturaPlaybackContext, updateBusinessModuleRuleFunc);
+
+            return result;
+        }
+
+        internal KalturaRegionListResponse GetDefaultRegion(int groupId)
+        {
+            KalturaRegionListResponse result = new KalturaRegionListResponse();
+
+            Func<GenericListResponse<Region>> getDefaultRegionFunc = () => Core.Api.Module.GetDefaultRegion(groupId);
+
+            KalturaGenericListResponse<KalturaRegion> response =
+                ClientUtils.GetResponseListFromWS<KalturaRegion, Region>(getDefaultRegionFunc);
+
+            result.Regions = new List<KalturaRegion>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaSegmentationTypeListResponse GetSegmentationTypesBySegmentIds(int groupId, List<long> ids,
+            AssetSearchDefinition assetSearchDefinition, int pageIndex, int pageSize)
+        {
+            KalturaSegmentationTypeListResponse result = new KalturaSegmentationTypeListResponse();
+
+            Func<GenericListResponse<SegmentationType>> getSegmentationTypesBySegmentIdsFunc = () =>
+               Core.Api.Module.GetSegmentationTypesBySegmentIds(groupId, ids, pageIndex, pageSize, assetSearchDefinition);
+
+            KalturaGenericListResponse<KalturaSegmentationType> response =
+                ClientUtils.GetResponseListFromWS<KalturaSegmentationType, SegmentationType>(getSegmentationTypesBySegmentIdsFunc);
+
+            result.SegmentationTypes = response.Objects;
+            result.TotalCount = response.TotalCount;
+            return result;
+        }
+
+        internal KalturaPartnerConfigurationListResponse GetCommerceConfigList(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<CommercePartnerConfig>> getCommercePartnerConfigListFunc = () =>
+                PartnerConfigurationManager.GetCommercePartnerConfigList(groupId);
+
+            KalturaGenericListResponse<KalturaCommercePartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaCommercePartnerConfig, CommercePartnerConfig>(getCommercePartnerConfigListFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+            return result;
         }
     }
 }

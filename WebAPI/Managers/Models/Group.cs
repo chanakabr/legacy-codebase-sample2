@@ -128,7 +128,10 @@ namespace WebAPI.Managers.Models
 
         [JsonProperty("is_refresh_token_enabled")]
         public bool IsRefreshTokenEnabled { get; set; }
-        
+
+        [JsonProperty("enforce_groups_secret")]
+        public bool EnforceGroupsSecret { get; set; }
+
         /// <summary>
         /// Obsolete - should be taken directly from catalog group object!
         /// </summary>

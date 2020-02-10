@@ -160,7 +160,7 @@ namespace WebAPI.Models.API
                 HashSet<string> featuresHashSet = GetFeaturesAsHashSet();
                 if (featuresHashSet != null && featuresHashSet.Count > 0)
                 {
-                    string allowedPattern = ApplicationConfiguration.MetaFeaturesPattern.Value;
+                    string allowedPattern = ApplicationConfiguration.Current.MetaFeaturesPattern.Value;
                     Regex regex = new Regex(allowedPattern);
                     foreach (string feature in featuresHashSet)
                     {

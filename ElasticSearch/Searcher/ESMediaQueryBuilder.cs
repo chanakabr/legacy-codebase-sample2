@@ -41,7 +41,7 @@ namespace ElasticSearch.Searcher
             m_nGroupID = nGroupID;
             ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"media_id\"", "\"name\"", "\"cache_date\"", "\"update_date\"" };
 
-            MAX_RESULTS = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
 
             if (MAX_RESULTS == 0)
             {

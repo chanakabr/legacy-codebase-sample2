@@ -30,6 +30,7 @@ pipeline {
                 bat "dotnet pack Core/TCMClient/TCMClient.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/StaticHttpContextForNetCore/StaticHttpContextForNetCore.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/KLogMonitor/KLogMonitor.csproj -o ${WORKSPACE}/nugets/" 
+                bat "dotnet pack Core/KlogMonitorHelper/KlogMonitorHelper.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/CouchBaseExtensions/CouchBaseExtensions.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/CouchbaseManager/CouchbaseManager.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/ODBCWrapper/ODBCWrapper.csproj -o ${WORKSPACE}/nugets/" 
@@ -41,6 +42,12 @@ pipeline {
 				bat "dotnet pack Core/QueueWrapper/QueueWrapper.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/RabbitQueueWrapper/RabbitQueueWrapper.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/LogReloader/LogReloader.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/Core.Middleware/Core.Middleware.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/ServiceExtensions/ServiceExtensions.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/SoapAdaptersCommon/SoapAdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/RestAdaptersCommon/RestAdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/AdaptersCommon/AdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
+
             }        
         }
         stage("Publish Nugets"){
@@ -50,6 +57,7 @@ pipeline {
                     bat "nuget push TCMClient*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push StaticHttpContextForNetCore*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push KLogMonitor*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
+                    bat "nuget push KlogMonitorHelper*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push CouchBaseExtensions*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push CouchbaseManager*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push ODBCWrapper*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
@@ -61,6 +69,11 @@ pipeline {
 					bat "nuget push QueueWrapper*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push RabbitQueueWrapper*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push LogReloader*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
+                    bat "nuget push Core.Middleware*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
+                    bat "nuget push ServiceExtensions*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
+                    bat "nuget push SoapAdaptersCommon*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
+                    bat "nuget push RestAdaptersCommon*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
+                    bat "nuget push AdaptersCommon*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                 }
             }
         }

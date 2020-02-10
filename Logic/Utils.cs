@@ -133,7 +133,7 @@ namespace APILogic
 
             try
             {
-                sCatalogURL = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
+                sCatalogURL = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.URL.Value;
             }
             catch (Exception ex)
             {

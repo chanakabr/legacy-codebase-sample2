@@ -1,34 +1,16 @@
-﻿namespace ConfigurationManager
-{
-    public class SocialFeedQueueConfiguration : ConfigurationValue
-    {
-        public StringConfigurationValue Task;
-        public StringConfigurationValue RoutingKey;
-        public StringConfigurationValue TaskSocialMerge;
-        public StringConfigurationValue RoutingKeyMerge;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
-        public SocialFeedQueueConfiguration(string key) : base(key)
-        {
-            Task = new StringConfigurationValue("task", this)
-            {
-                DefaultValue = "distributed_tasks.process_update_social_feed",
-                OriginalKey = "taskSocialFeed"
-            };
-            RoutingKey = new StringConfigurationValue("routing_key", this)
-            {
-                DefaultValue = "PROCESS_UPDATE_SOCIAL_FEED",
-                OriginalKey = "routingKeySocialFeedUpdate"
-            };
-            RoutingKeyMerge = new StringConfigurationValue("routingKeySocialFeedMerge", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "routingKeySocialFeedMerge"
-            };
-            TaskSocialMerge = new StringConfigurationValue("taskSocialMerge", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "taskSocialMerge"
-            };
-        }
+namespace ConfigurationManager
+{
+    public class SocialFeedQueueConfiguration : BaseConfig<SocialFeedQueueConfiguration>
+    {
+        public BaseValue<string> Task = new BaseValue<string>("task", "distributed_tasks.process_update_social_feed");
+        public BaseValue<string> RoutingKey = new BaseValue<string>("routing_key", "PROCESS_UPDATE_SOCIAL_FEED");
+        public BaseValue<string> TaskSocialMerge = new BaseValue<string>("taskSocialMerge",  TcmObjectKeys.Stub, true);
+        public BaseValue<string> RoutingKeyMerge = new BaseValue<string>("routingKeySocialFeedMerge", TcmObjectKeys.Stub,true);
+
+        public override string TcmKey => TcmObjectKeys.SocialFeedQueueConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
     }
 }

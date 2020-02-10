@@ -11,6 +11,8 @@ namespace WebAPI.Models.Partner
     /// </summary>
     public abstract partial class KalturaPartnerConfiguration : KalturaOTTObject
     {
+        protected abstract KalturaPartnerConfigurationType ConfigurationType { get; }
+        internal abstract bool Update(int groupId);
     }
 
     public partial class KalturaPartnerConfigurationListResponse : KalturaListResponse

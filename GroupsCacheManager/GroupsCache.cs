@@ -50,8 +50,8 @@ namespace GroupsCacheManager
 
         private GroupsCache()
         {
-            cacheGroupConfiguration = ApplicationConfiguration.GroupsCacheConfiguration.Type.Value;
-            version = ApplicationConfiguration.Version.Value;
+            cacheGroupConfiguration = ApplicationConfiguration.Current.GroupsCacheConfiguration.Type.Value; 
+            version = ApplicationConfiguration.Current.Version.Value;
 
             switch (cacheGroupConfiguration)
             {
@@ -108,7 +108,7 @@ namespace GroupsCacheManager
 
         private string GetCacheName()
         {
-            string res = ApplicationConfiguration.GroupsCacheConfiguration.Name.Value;
+            string res = ApplicationConfiguration.Current.GroupsCacheConfiguration.Name.Value;
 
             if (res.Length > 0)
                 return res;
@@ -117,7 +117,7 @@ namespace GroupsCacheManager
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
+            uint result = (uint)ApplicationConfiguration.Current.GroupsCacheConfiguration.TTLSeconds.Value; ;
 
             if (result <= 0)
             {
@@ -139,7 +139,7 @@ namespace GroupsCacheManager
 
         private static uint GetDocTTLSettings()
         {
-            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
+            uint result = (uint)ApplicationConfiguration.Current.GroupsCacheConfiguration.TTLSeconds.Value; ;
 
             if (result <= 0)
             {

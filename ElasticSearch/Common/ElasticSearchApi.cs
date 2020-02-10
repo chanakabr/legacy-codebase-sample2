@@ -23,12 +23,10 @@ namespace ElasticSearch.Common
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static readonly string ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
-        public static readonly string ALT_ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.AlternativeUrl.Value;
+        public static readonly string ES_URL = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value;
         private const string ES_LOG_FILENAME = "Elasticsearch";
 
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.ElasticSearchHttpClientConfiguration);        
-
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.ElasticSearchHttpClientConfiguration);
         public string baseUrl
         {
             get;
@@ -716,6 +714,40 @@ namespace ElasticSearch.Common
             return bResult;
         }
 
+        public bool DeleteDocsByQuery(string sIndex, string sType, ref string sQuery, out int countDeleted)
+        {
+            countDeleted = 0;
+            bool bResult = true;
+            try
+            {
+                string sUrl = string.Format("{0}/{1}/{2}/_query", baseUrl, sIndex, sType);
+                int nStatus = 0;
+
+                string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
+                log.DebugFormat("Status - DeleteDocsByQuery. Returned JSON from ES: {0}, Query: {1}", sResult, sQuery);
+                bResult = nStatus == 200;
+                var jsonResult = JObject.Parse(sResult);
+                if (jsonResult != null)
+                {
+                    countDeleted = jsonResult["_indices"]["_all"]["deleted"].Value<int>();
+                }
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at DeleteDocsByQuery.");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Index: ", sIndex));
+                sb.Append(String.Concat(" Type: ", sType));
+                sb.Append(String.Concat(" Query: ", sQuery));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                log.Error("Exception - " + sb.ToString(), ex);
+                bResult = false;
+            }
+
+            return bResult;
+        }
+
         /// <summary>
         /// Performs a partial update on a document
         /// </summary>
@@ -1332,11 +1364,7 @@ namespace ElasticSearch.Common
             }
 
             //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
-            if (isFirstTry && status != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
-            {
-                string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
-                result = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
-            }
+
 
             return result;
         }
@@ -1377,13 +1405,6 @@ namespace ElasticSearch.Common
             catch (Exception ex)
             {
                 log.Error("Error in SendPostHttpReq Exception", ex);
-            }
-
-            //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
-            if (isFirstTry && status != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
-            {
-                string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
-                result = SendGetHttpReq(sAlternativeURL, ref status, false);
             }
 
             return result;
@@ -1440,12 +1461,6 @@ namespace ElasticSearch.Common
                 log.Error("Error in SendPostHttpReq Exception", ex);
             }
 
-            //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
-            if (isFirstTry && status != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
-            {
-                string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
-                result = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
-            }
 
             return result;
         }

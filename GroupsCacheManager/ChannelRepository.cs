@@ -27,14 +27,13 @@ namespace GroupsCacheManager
 
         #region Public Methods
 
-        public static Group BuildGroup(int nGroupID)
+        public static Group BuildGroup(int groupId)
         {
             //Group newGroup = new Group(nGroupID);
-            Group newGroup = new Group();
-            newGroup.Init(nGroupID);
-            newGroup.m_nSubGroup = Get_SubGroupsTree(nGroupID);
-
-            GetGroupEpgTagsAndMetas(ref newGroup);
+            var subGroups = Get_SubGroupsTree(groupId);
+            var epgGroupSettings = GetGroupEpgTagsAndMetas(groupId, subGroups);
+            var newGroup = new Group(groupId, subGroups, epgGroupSettings);
+            
             SetGroupMetas(ref newGroup);
 
             if (newGroup != null)
@@ -49,7 +48,7 @@ namespace GroupsCacheManager
 
                 var mediaTypeIds = newGroup.GetMediaTypes();
 
-                newGroup.mediaTypes = BuildMediaTypes(mediaTypeIds, nGroupID);
+                newGroup.mediaTypes = BuildMediaTypes(mediaTypeIds, groupId);
 
                 SetMediaFileTypes(newGroup);
 
@@ -149,13 +148,13 @@ namespace GroupsCacheManager
         }
 
 
-        private static void GetGroupEpgTagsAndMetas(ref Group newGroup)
+        private static EpgGroupSettings GetGroupEpgTagsAndMetas(int parentGroupId, List<int> subGroups)
         {
+            var epgGroupSettings = new EpgGroupSettings();
+
             try
             {
-                EpgGroupSettings egs = new EpgGroupSettings();
-                DataSet ds = Tvinci.Core.DAL.EpgDal.Get_Group_EPGTagsAndMetas(newGroup.m_nParentGroupID, newGroup.m_nSubGroup, 0/*return not only searchable*/);
-
+                var ds = EpgDal.Get_Group_EPGTagsAndMetas(parentGroupId, subGroups, 0/*return not only searchable*/);
                 if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
                 {
                     #region metas
@@ -163,9 +162,9 @@ namespace GroupsCacheManager
                     {
                         foreach (DataRow row in ds.Tables[0].Rows)
                         {
-                            if (egs.GroupId == 0)
+                            if (epgGroupSettings.GroupId == 0)
                             {
-                                egs.GroupId = ODBCWrapper.Utils.ExtractValue<int>(row, "group_id");
+                                epgGroupSettings.GroupId = ODBCWrapper.Utils.ExtractValue<int>(row, "group_id");
                             }
 
                             long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
@@ -173,9 +172,9 @@ namespace GroupsCacheManager
 
                             if (!string.IsNullOrEmpty(name))
                             {
-                                egs.m_lMetasName.Add(name.ToLower());
-                                egs.metas[id] = name.ToLower();
-                                egs.MetasDisplayName.Add(name);
+                                epgGroupSettings.m_lMetasName.Add(name.ToLower());
+                                epgGroupSettings.metas[id] = name.ToLower();
+                                epgGroupSettings.MetasDisplayName.Add(name);
                             }
                         }
                     }
@@ -185,9 +184,9 @@ namespace GroupsCacheManager
                     {
                         foreach (DataRow row in ds.Tables[1].Rows)
                         {
-                            if (egs.GroupId == 0)
+                            if (epgGroupSettings.GroupId == 0)
                             {
-                                egs.GroupId = ODBCWrapper.Utils.ExtractValue<int>(row, "group_id");
+                                epgGroupSettings.GroupId = ODBCWrapper.Utils.ExtractValue<int>(row, "group_id");
                             }
 
                             long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
@@ -195,21 +194,22 @@ namespace GroupsCacheManager
 
                             if (!string.IsNullOrEmpty(name))
                             {
-                                egs.m_lTagsName.Add(name.ToLower());
-                                egs.tags[id] = name.ToLower();
-                                egs.TagsDisplayName.Add(name);
+                                epgGroupSettings.m_lTagsName.Add(name.ToLower());
+                                epgGroupSettings.tags[id] = name.ToLower();
+                                epgGroupSettings.TagsDisplayName.Add(name);
                             }
                         }
                     }
                     #endregion
-
-                    newGroup.m_oEpgGroupSettings = egs;
                 }
             }
             catch (Exception ex)
             {
-                log.Error("Error - " + string.Format("Caught exception when fetching EPG group tags and metas. Ex={0}", ex.Message), ex);
+                log.Error($"Error - Caught exception when fetching EPG group tags and metas. Ex={ex.Message}", ex);
+                epgGroupSettings = null;
             }
+
+            return epgGroupSettings;
         }
 
         /// <summary>
@@ -218,16 +218,12 @@ namespace GroupsCacheManager
         /// <param name="group"></param>
         private static void GetAllGroupChannelIds(Group group)
         {
-            DataTable groupChannels = Tvinci.Core.DAL.CatalogDAL.Get_GroupChannels(group.m_nParentGroupID, group.m_nSubGroup);
-
+            var groupChannels = CatalogDAL.Get_GroupChannels(group.m_nParentGroupID, group.m_nSubGroup);
             if (groupChannels != null && groupChannels.DefaultView.Count > 0)
             {
-                int channelID;
-
                 foreach (DataRow row in groupChannels.Rows)
                 {
-                    channelID = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
-
+                    var channelID = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
                     if (channelID != 0)
                     {
                         group.channelIDs.Add(channelID);
@@ -742,64 +738,84 @@ namespace GroupsCacheManager
 
         private static void SetGroupMetas(ref Group group)
         {
-            DataTable dtMappedMetaValues = Tvinci.Core.DAL.CatalogDAL.GetMappedMetasByGroupId(group.m_nParentGroupID, group.m_nSubGroup);
-
+            var dtMappedMetaValues = CatalogDAL.GetMappedMetasByGroupId(group.m_nParentGroupID, group.m_nSubGroup);
+            
             if (dtMappedMetaValues != null && dtMappedMetaValues.Rows.Count > 0)
             {
                 foreach (DataRow metaDataRow in dtMappedMetaValues.Rows)
                 {
-                    string sSubGroupNumber = ODBCWrapper.Utils.GetSafeStr(metaDataRow, "Id");
-                    int nSubGroupNumberId = -1;
-                    bool bIsIdParseSucceeded = int.TryParse(sSubGroupNumber, out nSubGroupNumberId);
-                    if (bIsIdParseSucceeded)
+                    var subGroupNumberId = ODBCWrapper.Utils.GetIntSafeVal(metaDataRow, "Id");
+                    if (subGroupNumberId > 0)
                     {
-                        if (!group.m_oMetasValuesByGroupId.ContainsKey(nSubGroupNumberId))
+                        if (!group.m_oMetasValuesByGroupId.ContainsKey(subGroupNumberId))
                         {
-                            group.m_oMetasValuesByGroupId.Add(nSubGroupNumberId, new Dictionary<string, string>());
+                            group.m_oMetasValuesByGroupId.Add(subGroupNumberId, new Dictionary<string, string>());
                         }
 
-                        string sMetaColumn = RemoveMetasSuffixName(ODBCWrapper.Utils.GetSafeStr(metaDataRow, "columnname"));
-                        string sMappedMetaColumnName = ODBCWrapper.Utils.GetSafeStr(metaDataRow, "value");
-                        Dictionary<string, string> oMappedMettaValuesForCurrentGroupId = group.m_oMetasValuesByGroupId[nSubGroupNumberId];
-                        if (!oMappedMettaValuesForCurrentGroupId.ContainsKey(sMetaColumn))
+                        var metaColumn = RemoveMetasSuffixName(ODBCWrapper.Utils.GetSafeStr(metaDataRow, "columnname"));
+                        var metaValue = ODBCWrapper.Utils.GetSafeStr(metaDataRow, "value");
+
+                        if (!group.m_oMetasValuesByGroupId[subGroupNumberId].ContainsKey(metaColumn))
                         {
-                            group.m_oMetasValuesByGroupId[nSubGroupNumberId].Add(sMetaColumn, sMappedMetaColumnName);
+                            group.m_oMetasValuesByGroupId[subGroupNumberId].Add(metaColumn, metaValue);
+                        }
+
+                        var loweredMetaValue = metaValue.ToLower();
+                        if (!group.MetaValueToTypesMapping.ContainsKey(loweredMetaValue))
+                        {
+                            group.MetaValueToTypesMapping.Add(loweredMetaValue, IsStringMetaType(metaColumn));
+                        }
+                        else if (IsStringMetaType(metaColumn))
+                        {
+                            group.MetaValueToTypesMapping[loweredMetaValue] = true;
                         }
                     }
                 }
 
                 // date metas
-                DataTable dtDateMetaValues = Tvinci.Core.DAL.CatalogDAL.GetDateMetasByGroupId(group.m_nSubGroup);
+                var dtDateMetaValues = CatalogDAL.GetDateMetasByGroupId(group.m_nSubGroup);
                 if (dtDateMetaValues != null && dtDateMetaValues.Rows.Count > 0)
                 {
                     foreach (DataRow metaDataRow in dtDateMetaValues.Rows)
                     {
-                        int groupId = ODBCWrapper.Utils.GetIntSafeVal(metaDataRow, "group_id");
+                        var groupId = ODBCWrapper.Utils.GetIntSafeVal(metaDataRow, "group_id");
                         if (!group.m_oMetasValuesByGroupId.ContainsKey(groupId))
                         {
                             group.m_oMetasValuesByGroupId.Add(groupId, new Dictionary<string, string>());
                         }
 
-                        string id = ODBCWrapper.Utils.GetSafeStr(metaDataRow, "id");
-                        string name = ODBCWrapper.Utils.GetSafeStr(metaDataRow, "name");
-                        Dictionary<string, string> mappedMetaValuesForCurrentGroupId = group.m_oMetasValuesByGroupId[groupId];
-                        string metaDateKey = string.Format("date_{0}", id);
-                        if (!mappedMetaValuesForCurrentGroupId.ContainsKey(metaDateKey))
+                        var id = ODBCWrapper.Utils.GetSafeStr(metaDataRow, "id");
+                        var name = ODBCWrapper.Utils.GetSafeStr(metaDataRow, "name");
+                        string metaDateKey = $"date_{id}";
+
+                        if (!group.m_oMetasValuesByGroupId[groupId].ContainsKey(metaDateKey))
                         {
                             group.m_oMetasValuesByGroupId[groupId].Add(metaDateKey, name);
+                        }
+
+                        var loweredName = name.ToLower();
+                        if (!group.MetaValueToTypesMapping.ContainsKey(loweredName))
+                        {
+                            group.MetaValueToTypesMapping.Add(loweredName, false);
                         }
                     }
                 }
             }
             else if(group.m_nSubGroup.Count > 1)
             {
-                if (group != null)
-                {
-                    log.ErrorFormat("Didn't get any metas from GetMappedMetasByGroupId for group {0}", group.m_nParentGroupID);
-                }
-
+                log.Error($"Didn't get any metas from GetMappedMetasByGroupId for group {group.m_nParentGroupID}");
                 group = null;
             }
+        }
+
+        private static bool IsStringMetaType(string metaColumn)
+        {
+            if (metaColumn.EndsWith(META_BOOL_SUFFIX) || metaColumn.EndsWith(META_DOUBLE_SUFFIX))
+            {
+                return false;
+            }
+            
+            return true;
         }
 
         private static void GetGroupsTagsTypes(ref Group group)
@@ -810,7 +826,7 @@ namespace GroupsCacheManager
 
             if (!string.IsNullOrEmpty(sAllGroups))
             {
-                DataTable mediaTagsType = Tvinci.Core.DAL.CatalogDAL.GetMediaTagsTypesByGroupIds(sAllGroups);
+                DataTable mediaTagsType = CatalogDAL.GetMediaTagsTypesByGroupIds(sAllGroups);
                 if (mediaTagsType != null && mediaTagsType.Rows.Count > 0)
                 {
                     foreach (DataRow mediaTagTypeRow in mediaTagsType.Rows)

@@ -13,6 +13,7 @@ namespace WebAPI.Utils
         // This size of the IV (in bytes) must = (keysize / 8).  Default keysize is 256, so the IV must be
         // 32 bytes long.  Using a 16 character string here gives us 32 bytes when converted to a byte array.
         private static readonly byte[] initVectorBytes = Encoding.ASCII.GetBytes("tu89geji340t89u2");
+        public static readonly string SignatureFormat = "{0}:{1}";
 
         // This constant is used to determine the keysize of the encryption algorithm.
         private const int keysize = 256;

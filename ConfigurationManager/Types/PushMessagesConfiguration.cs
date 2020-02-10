@@ -1,29 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class PushMessagesConfiguration : ConfigurationValue
+    public class PushMessagesConfiguration : BaseConfig<PushMessagesConfiguration>
     {
 
-        public NumericConfigurationValue NumberOfMessagesPerSecond;
-        public NumericConfigurationValue TTLSeconds;
+        public BaseValue<int> NumberOfMessagesPerSecond = new BaseValue<int>("num_of_messages_per_second", 3, false, "");
+        public BaseValue<int> TTLSeconds = new BaseValue<int>("ttl_seconds", 30, false, "");
 
-        public PushMessagesConfiguration(string key) : base(key)
-        {
-            NumberOfMessagesPerSecond = new NumericConfigurationValue("num_of_messages_per_second", this)
-            {
-                DefaultValue = 3,
-                OriginalKey = "push_message.num_of_msg_per_seconds"
-            };
-            TTLSeconds = new NumericConfigurationValue("ttl_seconds", this)
-            {
-                DefaultValue = 30,
-                OriginalKey = "push_message.ttl_seconds"
-            };
-        }
+        public override string TcmKey => "push_messages";
+
+        public override string[] TcmPath => new[] { TcmKey };
     }
 }

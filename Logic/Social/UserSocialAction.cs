@@ -209,7 +209,7 @@ namespace Core.Social
         {
             bool result = false;
 
-            string url = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
+            string url = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value;
 
             string statisticsIndex = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
             string normalIndex = groupId.ToString();

@@ -423,7 +423,7 @@ namespace ApiLogic.Api.Managers
                         filter.RegionIds = map[filter.LiveAssetId];
                     }
                     
-                    if (filter.RegionIds?.Count == 0)
+                    if (filter.RegionIds == null || filter.RegionIds.Count == 0)
                     {
                         result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                         return result;
@@ -685,6 +685,35 @@ namespace ApiLogic.Api.Managers
             if (res?.Length > 0)
             {
                 result = CatalogLogic.UpdateEpgIndex(res.Select(x => long.Parse(x.AssetId)).ToList(), groupId, eAction.Update);
+            }
+
+            return result;
+        }
+
+        internal static GenericListResponse<Region> GetDefaultRegion(int groupId)
+        {
+            GenericListResponse<Region> result = new GenericListResponse<Region>();
+
+            try
+            {
+                var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId);
+                if (generalPartnerConfig.IsOkStatusCode() && generalPartnerConfig?.Objects?.Count > 0 && generalPartnerConfig.Objects[0].DefaultRegion.HasValue)
+                {
+                    var defaultRegionId = generalPartnerConfig.Objects[0].DefaultRegion.Value;
+
+                    RegionFilter filter = new RegionFilter() { RegionIds = new List<int>(defaultRegionId) };
+                    return GetRegions(groupId, filter);
+                }
+                else
+                {
+                    result.Objects = null;
+                    result.TotalItems = 0;
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetDefaultRegion for groupId: {0}", groupId), ex);
             }
 
             return result;

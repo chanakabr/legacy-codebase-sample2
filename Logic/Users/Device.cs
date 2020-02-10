@@ -47,6 +47,8 @@ namespace Core.Users
 
         public string LicenseData;
 
+        public string ExternalId;
+
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
         {
             int nFamilyID = 0;
@@ -171,7 +173,7 @@ namespace Core.Users
                 { "UnKnown", DeviceState.UnKnown },
                 { "Error", DeviceState.Error },
                 { "NotExists", DeviceState.NotExists },
-                { "Pending", DeviceState.Pending }, 
+                { "Pending", DeviceState.Pending },
                 { "Activated", DeviceState.Activated },
                 { "UnActivated", DeviceState.UnActivated }
             };
@@ -245,7 +247,7 @@ namespace Core.Users
             return DeviceDal.Get_DeviceFamilyIDAndName(deviceBrand, ref familyID);
         }
 
-        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null)
+        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string externalId = "", bool allowNullExternalId = false)
         {
             int retVal = 0;
 
@@ -262,7 +264,7 @@ namespace Core.Users
 
             if (!deviceFound) // New Device
             {
-                retVal = DAL.DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, nIsActive, nStatus, m_pin);
+                retVal = DAL.DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, nIsActive, nStatus, m_pin, externalId);
             }
             else // Update Device
             {
@@ -280,6 +282,11 @@ namespace Core.Users
                     if (nStatus != -1)
                     {
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
+                    }
+
+                    if (!string.IsNullOrEmpty(externalId) || allowNullExternalId)
+                    {
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("external_Id", "=", externalId);
                     }
 
                     updateQuery += "where";
@@ -311,6 +318,11 @@ namespace Core.Users
             m_id = retVal.ToString();
 
             this.InvalidateDomainDevice();
+
+            if (retVal > 0)
+            {
+                this.ExternalId = externalId;
+            }
 
             return retVal;
         }
@@ -348,7 +360,7 @@ namespace Core.Users
                 }
             }
         }
-        
+
         private string GenerateNewPIN()
         {
             string sNewPIN = string.Empty;
@@ -393,14 +405,14 @@ namespace Core.Users
             return sNewPIN;
         }
 
-        public bool SetDeviceInfo(string sDeviceName)
+        public bool SetDeviceInfo(string sDeviceName, string externalId, bool allowNullExternalId = false)
         {
             bool res = false;
             m_deviceName = sDeviceName;
 
             if (m_state >= DeviceState.Pending)
             {
-                int nDeviceID = Save(-1); // Returns device ID, 0 otherwise
+                int nDeviceID = Save(-1, 1, null, externalId, allowNullExternalId); // Returns device ID, 0 otherwise
                 if (nDeviceID != 0)
                 {
                     res = true;
@@ -417,6 +429,22 @@ namespace Core.Users
         public static int GetDeviceIDByUDID(string sUDID, int nGroupID)
         {
             return (int)DeviceDal.Get_IDInDevicesByDeviceUDID(sUDID, nGroupID);
+        }
+
+        public static string GetDeviceIDByExternalId(int nGroupID, string externalId)
+        {
+            if (string.IsNullOrEmpty(externalId))
+                return string.Empty;
+
+            var dtDeviceInfo = DeviceDal.Get_DeviceInfoByExternalId(nGroupID, externalId);
+            var exists = dtDeviceInfo.Rows.Count > 0;
+            if (exists)
+            {
+                DataRow dr = dtDeviceInfo.Rows[0];
+                return ODBCWrapper.Utils.GetIntSafeVal(dr["id"]).ToString();
+            }
+
+            return string.Empty;
         }
 
         private bool InitDeviceInfo(string sID, bool isUDID)
@@ -448,7 +476,7 @@ namespace Core.Users
                 // Device found
 
                 DataRow dr = dtDeviceInfo.Rows[0];
-
+                //TODO MATAN - add to the sp select part
                 int nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dr["id"]);
                 m_id = nDeviceID.ToString();
                 m_deviceUDID = ODBCWrapper.Utils.GetSafeStr(dr["device_id"]);
@@ -457,6 +485,7 @@ namespace Core.Users
                 m_groupID = ODBCWrapper.Utils.GetIntSafeVal(dr["group_id"]);
                 m_deviceFamilyID = ODBCWrapper.Utils.GetIntSafeVal(dr["device_family_id"]);
                 m_pin = ODBCWrapper.Utils.GetSafeStr(dr["pin"]);
+                ExternalId = ODBCWrapper.Utils.GetSafeStr(dr["external_id"]);
 
                 PopulateDeviceStreamTypeAndProfile();
 
@@ -494,7 +523,6 @@ namespace Core.Users
                 {
                     m_state = DeviceState.Error;
                 }
-
 
                 return true;
             }
@@ -542,7 +570,7 @@ namespace Core.Users
 
             return sb.ToString();
         }
-        
+
         public void InvalidateDomainDevice()
         {
             List<string> invalidationKeys = new List<string>()

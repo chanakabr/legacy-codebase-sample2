@@ -1,12 +1,13 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects;
+using ApiObjects.Response;
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Utils;
-using WebAPI.Models.Segmentation;
 using WebAPI.Models.General;
+using WebAPI.Models.Segmentation;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -28,10 +29,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.DomainNotExists)]
-
         static public KalturaUserSegmentListResponse List(KalturaUserSegmentFilter filter, KalturaFilterPager pager = null)
         {
             KalturaUserSegmentListResponse response = null;
+            bool isAllowedToViewInactiveAssets = false;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -49,10 +50,17 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "filter..userIdEqual");
             }
 
+
+            if (!string.IsNullOrEmpty(filter.Ksql))                
+            {
+                isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
+            }
+
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GetUserSegments(groupId, userId, pager.getPageIndex(), pager.getPageSize());
+                response = ClientsManager.ApiClient().GetUserSegments(groupId, userId,
+                    new AssetSearchDefinition() { Filter = filter.Ksql, UserId = long.Parse(userId), IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets }, pager.getPageIndex(), pager.getPageSize());
             }
             catch (ClientException ex)
             {

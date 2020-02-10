@@ -79,7 +79,7 @@ namespace Core.Users
             }
 
             // load user assembly
-            string usersAssemblyLocation = ApplicationConfiguration.UsersAssemblyLocation.Value;
+            string usersAssemblyLocation = ApplicationConfiguration.Current.UsersAssemblyLocation.Value;
             Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation :
                 usersAssemblyLocation + "\\", moduleName));
 

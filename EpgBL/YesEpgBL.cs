@@ -360,7 +360,7 @@ namespace EpgBL
         private string GetYesRestUrl(DateTime startDate, string sEPGChannelID, int nTotalMinutes, int nTotalPrograms)
         {
             string day = startDate.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = ApplicationConfiguration.EPGUrl.Value;
+            string epgURL = ApplicationConfiguration.Current.EPGUrl.Value;
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
             url.AppendFormat("schedules?");

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 
 
@@ -119,6 +120,13 @@ namespace WebAPI.Models.Partner
         {
             return GetItemsIn<List<int>, int>(SecondaryCurrencies, "KalturaGeneralPartnerConfig.secondaryCurrencies", false, false);
         }
+
+        internal override bool Update(int groupId)
+        {
+            return ClientsManager.ApiClient().UpdateGeneralPartnerConfiguration(groupId, this);
+        }
+
+        protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.General; } }
     }
 
     public enum KalturaDeleteMediaPolicy { Disable = 0, Delete = 1 }

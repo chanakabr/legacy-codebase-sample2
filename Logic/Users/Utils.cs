@@ -156,7 +156,7 @@ namespace Core.Users
                 }
                 else
                 {
-                    string usersAssemblyLocation = ApplicationConfiguration.UsersAssemblyLocation.Value;
+                    string usersAssemblyLocation = ApplicationConfiguration.Current.UsersAssemblyLocation.Value;
 
                     try
                     {
@@ -529,7 +529,7 @@ namespace Core.Users
         static public bool IsGroupIDContainedInConfig(long lGroupID)
         {
             bool res = false;
-            string rawStrFromConfig = ApplicationConfiguration.ExcludePsDllImplementation.Value;
+            string rawStrFromConfig = ApplicationConfiguration.Current.ExcludePsDllImplementation.Value;
             if (rawStrFromConfig.Length > 0)
             {
                 string[] strArrOfIDs = rawStrFromConfig.Split(';');

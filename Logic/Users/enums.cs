@@ -127,7 +127,8 @@ namespace Core.Users
         DuplicatePin,
         DeviceNotExists,
         OK,
-        ExceededLimit
+        ExceededLimit,
+        ExternalIdAlreadyExists
     }
 
     public enum UserGroupRuleResponseStatus

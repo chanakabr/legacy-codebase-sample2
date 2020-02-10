@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Newtonsoft.Json;
+using System.Linq;
 using EventManager;
 using KLogMonitor;
 using System.IO;
@@ -18,7 +18,7 @@ namespace WebAPI.Filters
         {
             builder.ConfigureServices((hostContext, services) =>
             {
-                ApplicationConfiguration.Initialize(true, true);
+                ApplicationConfiguration.Init();
 
                 SubscribeConsumers();
             });
@@ -28,27 +28,14 @@ namespace WebAPI.Filters
 
         public static void SubscribeConsumers()
         {
-            ConsumerSettings consumerSettings = null;
+            List<ConsumerDefinition> consumerSettings = ApplicationConfiguration.Current.EventConsumersConfiguration.ConsumerSettings.Value;
 
-            try
-            {
-                string consumerSettingsJson = ApplicationConfiguration.EventConsumersConfiguration.Value;
 
-                if (consumerSettingsJson != null)
-                {
-                    consumerSettings = Newtonsoft.Json.JsonConvert.DeserializeObject<ConsumerSettings>(consumerSettingsJson);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed reading TCM value of event consumer settings: {0}", ex);
-            }
-
-            if (consumerSettings != null && consumerSettings.Consumers != null)
+            if (consumerSettings != null && consumerSettings.Any())
             {
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-                foreach (var setting in consumerSettings.Consumers)
+                foreach (var setting in consumerSettings)
                 {
                     try
                     {
@@ -99,35 +86,5 @@ namespace WebAPI.Filters
         }
     }
 
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class ConsumerSettings
-    {
-        [JsonProperty("Consumers")]
-        public List<ConsumerDefinition> Consumers
-        {
-            get;
-            set;
-        }
 
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class ConsumerDefinition
-    {
-        [JsonProperty("DllLocation")]
-        public string DllLocation
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty("Type")]
-        public string Type
-        {
-            get;
-            set;
-        }
-    }
 }

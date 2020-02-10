@@ -34,7 +34,7 @@ namespace Core.ConditionalAccess
             }
             ItemPriceContainer itemPriceContainer = price.m_oItemPrices[0];
 
-            int mediaId = Utils.GetMediaIdByFildId(groupId, mediaFileId);
+            int mediaId = Utils.GetMediaIdByFileId(groupId, mediaFileId);
             if (mediaId == 0)
             {
                 return;
@@ -502,7 +502,7 @@ namespace Core.ConditionalAccess
                 isCreditDownloaded = true;
             }
 
-            if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value)
+            if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value)
             {
                 // update lastUseWithCredit value according to nIsCreditDownloaded
                 lastUseWithCredit = isCreditDownloaded ? DateTime.UtcNow : lastUseWithCredit;

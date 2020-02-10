@@ -15,7 +15,7 @@ namespace ApiObjects.Segmentation
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static readonly int USER_SEGMENT_TTL_HOURS = ApplicationConfiguration.UserSegmentTTL.IntValue;
+        public static readonly int USER_SEGMENT_TTL_HOURS = ApplicationConfiguration.Current.UserSegmentTTL.Value;
 
         #region Members
 
@@ -121,7 +121,13 @@ namespace ApiObjects.Segmentation
             List<long> segmentsToRemove = GetUserSegmentsToCleanup(GroupId, userSegments.Segments.Values.ToList());
             segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
 
-            result = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTTL());
+            ulong ttl = GetDocumentTTL();
+            if (userSegments.Segments.Values.FirstOrDefault(x => x.UpdateDate == DateTime.MaxValue) != null)
+            {
+                ttl = 0;
+            }
+
+            result = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
 
             if (!result)
             {
@@ -189,10 +195,10 @@ namespace ApiObjects.Segmentation
 
         #region Public methods
 
-        public static List<UserSegment> List(int groupId, string userId, int pageIndex, int pageSize, out int totalCount)
+        public static List<UserSegment> List(int groupId, string userId, out int totalCount, List<long> segmentsIds = null)
         {
             List<UserSegment> result = new List<UserSegment>();
-            totalCount = 0;
+            totalCount = 0;           
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             string userSegmentsKey = GetUserSegmentsKey(userId);
@@ -217,17 +223,15 @@ namespace ApiObjects.Segmentation
                     }
                 }
 
-                totalCount = userSegments.Segments.Count;
+                if (segmentsIds?.Count > 0)
+                {
+                    // should return only segemtns in this list
+                    userSegments.Segments = userSegments.Segments.Where(x => segmentsIds.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+                }
 
-                if (pageSize == 0 && pageIndex == 0)
-                {
-                    result = userSegments.Segments.Values.ToList();
-                }
-                else
-                {
-                    // get only segments on current page
-                    result = userSegments.Segments.Values.ToList().Skip(pageIndex * pageSize).Take(pageSize).ToList();
-                }
+                result = userSegments.Segments.Values.ToList();
+
+                totalCount = userSegments.Segments.Count;
             }
 
             return result;

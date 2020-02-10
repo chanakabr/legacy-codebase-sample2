@@ -182,7 +182,7 @@ namespace Core.Catalog.Request
         protected override int GetProtocolMaxResultsSize()
         {
             int res = 0;
-            int resultsSize = ApplicationConfiguration.CatalogLogicConfiguration.PersonalRecommendedMaxResultsSize.IntValue;
+            int resultsSize = ApplicationConfiguration.Current.CatalogLogicConfiguration.PersonalRecommendedMaxResultsSize.Value;
             if (resultsSize > 0)
                 return res;
             return CatalogLogic.DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE;

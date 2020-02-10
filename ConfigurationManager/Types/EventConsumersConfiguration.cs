@@ -1,58 +1,33 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ConfigurationManager
 {
-    public class EventConsumersConfiguration : StringConfigurationValue
+    public class EventConsumersConfiguration : BaseConfig<EventConsumersConfiguration>
     {
-        private static JsonSerializerSettings serializerSettings = new JsonSerializerSettings()
-        {
-            TypeNameHandling = TypeNameHandling.None
+        public override string TcmKey => TcmObjectKeys.EventConsumersConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+
+
+        private static readonly List<ConsumerDefinition> defaultConsumerSettings = new List<ConsumerDefinition>() {new ConsumerDefinition(){
+            DllLocation = "bin\\WebAPI.dll",
+            Type = "WebAPI.RestNotificationEventConsumer"}
         };
 
-        public EventConsumersConfiguration(string key) : base(key)
-        {
-        }
+        public BaseValue<List<ConsumerDefinition>> ConsumerSettings = new BaseValue<List<ConsumerDefinition>>(TcmObjectKeys.ConsumerSettings, defaultConsumerSettings);
 
-        internal override bool Validate()
-        {
-            bool result = base.Validate();
-
-            try
-            {
-                ConsumerSettings consumerSettings = null;
-
-                if (this.ObjectValue != null)
-                {
-                    consumerSettings = Newtonsoft.Json.JsonConvert.DeserializeObject<ConsumerSettings>(this.ObjectValue.ToString(), serializerSettings);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogError(string.Format("Could not parse event consumers configuration. Error = {0}", ex), ConfigurationValidationErrorLevel.Failure);
-                result = false;
-            }
-
-            return result;
-        }
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class ConsumerSettings
-    {
-        [JsonProperty("Consumers")]
-        public List<ConsumerDefinition> Consumers
-        {
-            get;
-            set;
-        }
 
     }
+
+
+
+
+
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
@@ -72,4 +47,6 @@ namespace ConfigurationManager
             set;
         }
     }
+
 }
+

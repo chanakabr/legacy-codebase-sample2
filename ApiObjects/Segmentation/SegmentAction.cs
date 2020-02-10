@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace ApiObjects.Segmentation
 {
-    public class SegmentAction
+    public abstract class SegmentAction
     {
         public virtual Status ValidateForInsert()
         {
@@ -18,6 +18,43 @@ namespace ApiObjects.Segmentation
         {
             return new Status(eResponseStatus.OK);
         }
+    }
+
+    public abstract class SegmentActionObjectVirtualAsset : SegmentAction
+    {
+        [JsonProperty()]
+        public string Ksql { get; set; }
+
+        [JsonProperty()]
+        public abstract ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get; }
+
+        public override Status ValidateForInsert()
+        {
+            var status = new Status(eResponseStatus.OK);
+
+            if (string.IsNullOrEmpty(Ksql))
+            {
+                status.Set(eResponseStatus.InvalidParameters, "missing ksql");
+            }
+
+            return status;
+        }
+
+        public override Status ValidateForUpdate()
+        {
+            var status = new Status(eResponseStatus.OK);
+
+            if (string.IsNullOrEmpty(Ksql))
+            {
+                status.Set(eResponseStatus.InvalidParameters, "missing ksql");
+            }
+
+            return status;
+        }
+    }
+
+    public abstract class SegmentActionObjectVirtualFilterAsset : SegmentActionObjectVirtualAsset
+    {
     }
 
     public class SegmentAssetOrderAction : SegmentAction
@@ -75,5 +112,35 @@ namespace ApiObjects.Segmentation
 
             return status;
         }
+    }
+
+
+    public class SegmentAssetFilterSegmentAction : SegmentActionObjectVirtualFilterAsset
+    {
+        public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Segment; } }
+    }
+
+    public class SegmentAssetFilterSubscriptionAction : SegmentActionObjectVirtualFilterAsset
+    {
+        public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Subscription; } }
+    }
+
+    public abstract class SegmentActionObjectVirtualAssetBlockAction : SegmentActionObjectVirtualAsset
+    {
+    }
+
+    public class SegmentBlockPlaybackSubscriptionAction : SegmentActionObjectVirtualAssetBlockAction
+    {
+        public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Subscription; } }
+    }
+
+    public class SegmentBlockCancelSubscriptionAction : SegmentActionObjectVirtualAssetBlockAction
+    {
+        public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Subscription; } }
+    }
+
+    public class SegmentBlockPurchaseSubscriptionAction : SegmentActionObjectVirtualAssetBlockAction
+    {
+        public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Subscription; } }
     }
 }

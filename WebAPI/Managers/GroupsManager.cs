@@ -18,7 +18,7 @@ namespace WebAPI.ClientManagers
         
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static string groupKeyFormat;
-        private static int groupCacheTtlSeconds;
+        private static double groupCacheTtlSeconds;
 
         private static object syncObj;
         private static ReaderWriterLockSlim syncLock;
@@ -29,8 +29,8 @@ namespace WebAPI.ClientManagers
         {
             try
             {
-                groupKeyFormat = ApplicationConfiguration.GroupsManagerConfiguration.KeyFormat.Value;
-                groupCacheTtlSeconds = ApplicationConfiguration.GroupsManagerConfiguration.CacheTTLSeconds.IntValue;
+                groupKeyFormat = ApplicationConfiguration.Current.GroupsManagerConfiguration.KeyFormat.Value;
+                groupCacheTtlSeconds = ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value;
                 syncObj = new object();
                 syncLock = new ReaderWriterLockSlim();
             }

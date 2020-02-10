@@ -29,7 +29,7 @@ namespace Core.Catalog
         public static readonly string DATE_FORMAT = "yyyyMMddHHmmss";
         private static readonly string INDEX_DATE_FORMAT = "yyyyMMdd";
 
-        public static readonly string ES_BASE_ADDRESS = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
+        public static readonly string ES_BASE_ADDRESS = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value;
         public const int STATUS_OK = 200;
         public const int STATUS_NOT_FOUND = 404;
         public const int STATUS_INTERNAL_ERROR = 500;
@@ -1098,7 +1098,7 @@ namespace Core.Catalog
                 pageSize = unifiedSearchDefinitions.pageSize;
                 queryParser.PageIndex = 0;
 
-                int maxStatSortResult = ApplicationConfiguration.ElasticSearchConfiguration.MaxStatSortResults.IntValue;
+                int maxStatSortResult = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxStatSortResults.Value;
 
                 if (maxStatSortResult > 0)
                 {
@@ -2067,7 +2067,7 @@ namespace Core.Catalog
 
             #region Split call of aggregations query to pieces
 
-            int aggregationsSize = ApplicationConfiguration.ElasticSearchConfiguration.StatSortBulkSize.IntValue;
+            int aggregationsSize = ApplicationConfiguration.Current.ElasticSearchConfiguration.StatSortBulkSize.Value;
 
             //Start MultiThread Call
             List<Task> tasks = new List<Task>();

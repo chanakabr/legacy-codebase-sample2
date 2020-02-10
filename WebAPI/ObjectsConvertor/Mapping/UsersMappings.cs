@@ -477,7 +477,14 @@ namespace ObjectsConvertor.Mapping
                 {
                     if (!string.IsNullOrEmpty(data.m_sDataType))
                     {
-                        result.Add(data.m_sDataType, new KalturaStringValue() { value = data.m_sValue });
+                        if (result.ContainsKey(data.m_sDataType))
+                        {
+                            result[data.m_sDataType].value = data.m_sValue;
+                        }
+                        else
+                        {
+                            result.Add(data.m_sDataType, new KalturaStringValue() { value = data.m_sValue });
+                        }
                     }
                 }
             }

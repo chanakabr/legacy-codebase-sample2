@@ -23,7 +23,7 @@ namespace Mailer
                 log.DebugFormat("SendMailTemplate: SenderTo={0}, Subject={1}, TemplateName={2} ", request.m_sSenderTo, request.m_sSubject, request.m_sTemplateName);
                 bool retVal = false;
                 MCObjByTemplate mcObj = request.parseRequestToTemplate();
-                mcObj.key = ApplicationConfiguration.MailerConfiguration.MCKey.Value; // default key
+                mcObj.key = ApplicationConfiguration.Current.MailerConfiguration.MCKey.Value; // default key
 
                 if (!string.IsNullOrEmpty(request.m_emailKey))// specific key to group
                 {
@@ -46,8 +46,9 @@ namespace Mailer
                 }
                 string json = JsonConvert.SerializeObject(mcObj);
                 //log.DebugFormat("SendMailTemplate: mcObj={0} ", json);
-                string mcURL = ApplicationConfiguration.MailerConfiguration.MCURL.Value;
+                string mcURL = ApplicationConfiguration.Current.MailerConfiguration.MCURL.Value;
                 string sResp = Utils.SendPostHttpReq(mcURL, json);
+
                 log.DebugFormat("mailurl={0} response={1} ", mcURL + " key:" + mcObj.key, sResp);
                 if (sResp.Contains("sent"))
                 {

@@ -1,5 +1,6 @@
 ﻿using AdapterControllers;
 using AdapterControllers.CDVR;
+using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using ApiObjects;
@@ -7,10 +8,13 @@ using ApiObjects.CDNAdapter;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Response;
 using ApiObjects.Rules;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Api;
 using Core.Api.Managers;
+using Core.Catalog;
 using Core.Catalog.Response;
 using Core.Pricing;
 using Core.Users;
@@ -122,7 +126,7 @@ namespace Core.ConditionalAccess
                     if (isExternalRecordingIgnoreMode && fileIds != null && fileIds.Count > 0)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        mediaId = Utils.GetMediaIdByFildId(groupId, (int)fileIds[0]);
+                        mediaId = Utils.GetMediaIdByFileId(groupId, (int)fileIds[0]);
                     }
                     else
                     {
@@ -204,7 +208,7 @@ namespace Core.ConditionalAccess
                                 AdsControlData adsData = null;
 
                                 // check permitted role 
-                                ApiObjects.ConditionalAccess.PriceReason priceReason = ApiObjects.ConditionalAccess.PriceReason.PPVPurchased;
+                                PriceReason priceReason = PriceReason.PPVPurchased;
 
                                 if (!isSuspended && price.m_oItemPrices?.First()?.m_PriceReason == PriceReason.UserSuspended)
                                 {
@@ -213,12 +217,27 @@ namespace Core.ConditionalAccess
 
                                 if (Utils.IsItemPurchased(price, ref priceReason))
                                 {
-                                    if (priceReason == ApiObjects.ConditionalAccess.PriceReason.PPVPurchased || priceReason == ApiObjects.ConditionalAccess.PriceReason.SubscriptionPurchased)
+                                    if (priceReason == PriceReason.PPVPurchased || priceReason == PriceReason.SubscriptionPurchased)
                                     {
-                                        RolePermissions rolePermission = priceReason == ApiObjects.ConditionalAccess.PriceReason.PPVPurchased ? RolePermissions.PLAYBACK_PPV : RolePermissions.PLAYBACK_SUBSCRIPTION;
+                                        RolePermissions rolePermission = priceReason == PriceReason.PPVPurchased ? RolePermissions.PLAYBACK_PPV : RolePermissions.PLAYBACK_SUBSCRIPTION;
                                         if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, rolePermission))
                                         {
                                             continue;
+                                        }
+
+                                        if (priceReason == PriceReason.SubscriptionPurchased)
+                                        {
+                                            var subscriptionId = price.m_oItemPrices?.First()?.m_relevantSub?.m_sObjectCode;
+
+                                            if (!string.IsNullOrEmpty(subscriptionId))
+                                            {
+                                                var status = api.HandleBlockingSegment<SegmentBlockPlaybackSubscriptionAction>(groupId, userId, udid, ip, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, subscriptionId);
+                                                if (!status.IsOkStatusCode())
+                                                {
+                                                    response.Status = status;
+                                                    return response;
+                                                }
+                                            }
                                         }
                                     }
 
@@ -343,7 +362,7 @@ namespace Core.ConditionalAccess
                                                                            string.Empty, domainId, groupId);
                                             }
                                             // item must be free otherwise we wouldn't get this far
-                                            else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && filePrice.m_oItemPrices?.Length > 0)
+                                            else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value && filePrice.m_oItemPrices?.Length > 0)
 
                                             {
                                                 bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, (int)file.Id,
@@ -528,7 +547,7 @@ namespace Core.ConditionalAccess
                         PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
                     }
                     // item must be free otherwise we wouldn't get this far
-                    else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && price.m_oItemPrices?.Length > 0)
+                    else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value && price.m_oItemPrices?.Length > 0)
 
                     {
                         bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, (int)file.Id,
@@ -895,6 +914,96 @@ namespace Core.ConditionalAccess
                 AdsPolicy = adsData.AdsPolicy,
                 AdsParam = adsData.AdsParam
             };
+        }
+
+        public static PlaybackContextResponse GetPlaybackManifest(int groupId, string assetId, eAssetTypes assetType,
+                                                                List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context,
+                                                                string sourceType = null)
+        {
+            PlaybackContextResponse response = new PlaybackContextResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            };
+
+            try
+            {
+                long mediaId;
+                Recording recording = null;
+                EPGChannelProgrammeObject program = null;
+                bool isExternalRecordingIgnoreMode = assetType == eAssetTypes.NPVR && TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EXTERNAL_RECORDINGS);
+                if (assetType != eAssetTypes.MEDIA)
+                {
+                    response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, string.Empty, null, string.Empty, out mediaId, out recording, out program);
+                }
+                else
+                {
+                    mediaId = long.Parse(assetId);
+                }
+                // Allow to continue for external recording (and asset type = NPVR) since we may not be updated on them in real time
+                if (response.Status.Code != (int)eResponseStatus.OK)
+                {
+                    if (isExternalRecordingIgnoreMode && fileIds != null && fileIds.Count > 0)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        mediaId = Utils.GetMediaIdByFileId(groupId, (int)fileIds[0]);
+                    }
+                    else
+                    {
+                        return response;
+                    }
+                }
+
+                MediaObj epgChannelLinearMedia = null;
+
+                // Recording
+                if (assetType == eAssetTypes.NPVR)
+                {
+                    epgChannelLinearMedia = Utils.GetMediaById(groupId, (int)mediaId);
+
+                    // get TSTV settings
+                    var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
+
+                    // validate recording channel exists or the settings allow it to not exist
+                    if (epgChannelLinearMedia == null && (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
+                    {
+                        log.Error($"EPG channel does not exist and TSTV settings do not allow playback in this case. groupId = {groupId}, domainRecordingId = {assetId}, channelId = {recording.ChannelId}, recordingId = {recording.Id}");
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording playback is not allowed for non existing EPG channel");
+                        return response;
+                    }
+
+                    if (recording != null)
+                    {
+                        if (System.Web.HttpContext.Current != null && System.Web.HttpContext.Current.Items != null)
+                        {
+                            System.Web.HttpContext.Current.Items[RECORDING_CONVERT_KEY] = recording.EpgId;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Error when trying to save epgId in httpContext key {0} for GetPlaybackContext on recording assetId {1}",
+                                                Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY, assetId);
+                        }
+                    }
+                }
+
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds, false, sourceType);
+                if (files != null && files.Count > 0)
+                {
+                    response.Files = files;
+                }
+                else
+                {
+                    log.DebugFormat("No files found for asset assetId = {0}, assetType = {1}, streamerType = {2}, protocols = {3}", assetId, assetType, streamerType, mediaProtocol);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoFilesFound, "No files found");
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to GetPlaybackManifest for assetId = {assetId}, assetType = {assetType}", ex);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+
+            return response;
         }
     }
 }

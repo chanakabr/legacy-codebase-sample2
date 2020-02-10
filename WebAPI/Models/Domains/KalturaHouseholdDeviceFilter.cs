@@ -10,7 +10,6 @@ namespace WebAPI.Models.Domains
 {
     public partial class KalturaHouseholdDeviceFilter : KalturaFilter<KalturaHouseholdDeviceOrderBy>
     {
-
         /// <summary>
         /// The identifier of the household
         /// </summary>
@@ -27,6 +26,14 @@ namespace WebAPI.Models.Domains
         [JsonProperty(PropertyName = "deviceFamilyIdIn")]
         [XmlArray(ElementName = "deviceFamilyIdIn", IsNullable = true)]        
         public string DeviceFamilyIdIn { get; set; }
+
+        /// <summary>
+        /// External Id
+        /// </summary>
+        [DataMember(Name = "externalIdEqual")]
+        [JsonProperty(PropertyName = "externalIdEqual")]
+        [XmlArray(ElementName = "externalIdEqual", IsNullable = true)]
+        public string ExternalIdEqual { get; set; }
 
         public override KalturaHouseholdDeviceOrderBy GetDefaultOrderByValue()
         {
