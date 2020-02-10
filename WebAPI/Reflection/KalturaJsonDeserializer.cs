@@ -11618,24 +11618,14 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCategoryItemFilter
     {
-        private static RuntimeSchemePropertyAttribute CategoryItemIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItemFilter")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-            MinInteger = 1,
-        };
         public KalturaCategoryItemFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
                 if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
                 {
                     Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
