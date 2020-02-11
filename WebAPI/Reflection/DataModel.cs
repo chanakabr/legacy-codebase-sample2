@@ -1216,6 +1216,24 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCategoryTree":
+                    switch(property.Name)
+                    {
+                        case "Children":
+                            return "children";
+                        case "DynamicData":
+                            return "dynamicData";
+                        case "Id":
+                            return "id";
+                        case "Images":
+                            return "images";
+                        case "Name":
+                            return "name";
+                        case "UnifiedChannels":
+                            return "unifiedChannels";
+                    }
+                    break;
+                    
                 case "KalturaCDNAdapterProfile":
                     switch(property.Name)
                     {
@@ -7326,6 +7344,15 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "categorytree":
+                    switch(action)
+                    {
+                        case "duplicate":
+                            return CategoryTreeController.Duplicate((long) methodParams[0]);
+                            
+                    }
+                    break;
+                    
                 case "cdnadapterprofile":
                     switch(action)
                     {
@@ -12376,6 +12403,19 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCategoryItemFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "categorytree":
+                    switch(action)
+                    {
+                        case "duplicate":
+                            ret.Add("categoryItemId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
                             });
                             return ret;
                             

@@ -1,9 +1,11 @@
 ﻿using ApiLogic.Api.Managers;
+using ApiLogic.Catalog;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Catalog.Response;
 using DAL;
 using KLogMonitor;
@@ -17,7 +19,6 @@ using System.Reflection;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
-using ConfigurationManager;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -939,6 +940,61 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return true;
+        }
+
+        private static Tuple<Dictionary<long, CategoryItem>, bool> BuildGroupCategories(Dictionary<string, object> funcParams)
+        {
+            Dictionary<long, CategoryItem> result = new Dictionary<long, CategoryItem>();
+            bool success = false;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        result = GetCategories(groupId.Value);
+                        success = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"BuildGroupCategories failed, parameters : {string.Join(";", funcParams.Keys)}", ex);
+            }
+
+            return new Tuple<Dictionary<long, CategoryItem>, bool>(result, success);
+        }
+
+        private static Dictionary<long, CategoryItem> GetCategories(int groupId)
+        {
+            Dictionary<long, CategoryItem> categoryItems = new Dictionary<long, CategoryItem>();
+            CategoryItem categoryItem = null;
+
+            try
+            {
+                DataTable dt = ApiDAL.GetCategories(groupId);
+                if (dt?.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        categoryItem = new CategoryItem()
+                        {
+                            Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
+                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "CATEGORY_NAME"),
+                            ParentCategoryId = ODBCWrapper.Utils.GetNullableLong(dr, "PARENT_CATEGORY_ID")                            
+                        };
+
+                        categoryItems.Add(categoryItem.Id, categoryItem);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while getting categories. group id = {groupId}", ex);
+            }
+
+            return categoryItems;
         }
 
         #endregion
@@ -3171,6 +3227,31 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return linearMediaTypeIds;
+        }
+
+        public static Dictionary<long, CategoryItem> GetGroupCategories(int groupId)
+        {
+            Dictionary<long, CategoryItem> result = new Dictionary<long, CategoryItem>();
+
+            try
+            {
+                string key = LayeredCacheKeys.GetGroupCategoriesKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetGroupCategoriesDictionaryInvalidationKey(groupId);
+                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<long, CategoryItem>>(key, ref result, BuildGroupCategories,
+                                                                                                                new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                                                                                LayeredCacheConfigNames.GET_GROUP_CATEGORIES,
+                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
+                                                                                                                new List<string>() { invalidationKey }))
+                {
+                    log.Error($"Failed getting GetGroupCategories from LayeredCache, groupId: {groupId}, key: {key}");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed GetGroupCategories, groupId: {groupId}", ex);
+            }
+
+            return result;
         }
 
         #endregion

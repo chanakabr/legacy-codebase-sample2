@@ -2,8 +2,12 @@
 using ApiLogic.Catalog;
 using ApiObjects.Base;
 using ApiObjects.Response;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using DAL;
 using KLogMonitor;
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace Core.Catalog.Handlers
@@ -20,7 +24,39 @@ namespace Core.Catalog.Handlers
 
         public GenericResponse<CategoryItem> Add(ContextData contextData, CategoryItem objectToAdd)
         {
-            throw new NotImplementedException();
+            var response = new GenericResponse<CategoryItem>();
+
+            try
+            {
+                if (objectToAdd.ParentCategoryId.HasValue)
+                {
+                    //Check if ParentCategoryId Exist
+                    var groupCategories =  CatalogManagement.CatalogManager.GetGroupCategories(contextData.GroupId);
+                    if (groupCategories == null || !groupCategories.Values.Any(x => x.Id == objectToAdd.ParentCategoryId.Value))
+                    {
+                        response.SetStatus(eResponseStatus.CategoryNotExist, "Category doe not exist");
+                        return response;
+                    }
+                }
+
+                long id = ApiDAL.InsertCategory(contextData.GroupId, contextData.UserId, objectToAdd.Name, objectToAdd.ParentCategoryId);
+
+                if(id == 0 )
+                {
+                    log.Error($"Error while InsertCategory. contextData: {contextData.ToString()}.");
+                    return response;
+                }
+
+                objectToAdd.Id = id;
+                response.Object = objectToAdd;
+                response.Status.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in CategoryItem add. contextData:{contextData.ToString()}, Name:{objectToAdd.Name}", ex);
+            }
+
+            return response;
         }
 
         public GenericResponse<CategoryItem> Update(ContextData contextData, CategoryItem objectToUpdate)

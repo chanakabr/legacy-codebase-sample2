@@ -250,6 +250,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType RELATED_ENTITIES_EXCEED_LIMITATION = new ClientExceptionType(eResponseStatus.RelatedEntitiesExceedLimitation, "", "Related entities exceed limitation");
         public static ClientExceptionType ACCOUNT_EPG_INGEST_VERSION_NOT_SUPPORTED = new ClientExceptionType(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk, "", "Account Epg Ingest Version does not support ingest using bulk upload");
         public static ClientExceptionType CAN_NOT_DELETE_OBJECT_VIRTUAL_ASSET_META = new ClientExceptionType(eResponseStatus.CanNotDeleteObjectVirtualAssetMeta, "", "can not delete object virtual asset meta");
+        public static ClientExceptionType CATEGORY_NOT_EXIST = new ClientExceptionType(eResponseStatus.CategoryNotExist, "", "The category you selected does not exist");
 
         #endregion
 

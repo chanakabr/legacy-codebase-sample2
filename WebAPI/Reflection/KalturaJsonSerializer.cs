@@ -10929,6 +10929,76 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
+    public partial class KalturaCategoryTree
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Children != null)
+            {
+                propertyValue = "[" + String.Join(", ", Children.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("children", "\"children\": " + propertyValue);
+            }
+            if(DynamicData != null)
+            {
+                propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
+            }
+            ret.Add("id", "\"id\": " + Id);
+            if(Images != null)
+            {
+                propertyValue = "[" + String.Join(", ", Images.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("images", "\"images\": " + propertyValue);
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(UnifiedChannels != null)
+            {
+                propertyValue = "[" + String.Join(", ", UnifiedChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("unifiedChannels", "\"unifiedChannels\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Children != null)
+            {
+                propertyValue = Children.Count > 0 ? "<item>" + String.Join("</item><item>", Children.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("children", "<children>" + propertyValue + "</children>");
+            }
+            if(DynamicData != null)
+            {
+                propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
+            }
+            ret.Add("id", "<id>" + Id + "</id>");
+            if(Images != null)
+            {
+                propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("images", "<images>" + propertyValue + "</images>");
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(UnifiedChannels != null)
+            {
+                propertyValue = UnifiedChannels.Count > 0 ? "<item>" + String.Join("</item><item>", UnifiedChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("unifiedChannels", "<unifiedChannels>" + propertyValue + "</unifiedChannels>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaChannel
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)

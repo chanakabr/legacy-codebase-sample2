@@ -434,6 +434,9 @@ namespace WebAPI.Reflection
                 case "KalturaCategoryItemListResponse":
                     return new KalturaCategoryItemListResponse(parameters);
                     
+                case "KalturaCategoryTree":
+                    return new KalturaCategoryTree(parameters);
+                    
                 case "KalturaCDNAdapterProfile":
                     return new KalturaCDNAdapterProfile(parameters);
                     
@@ -11694,6 +11697,93 @@ namespace WebAPI.Models.Catalog
     {
         public KalturaCategoryItemListResponse(Dictionary<string, object> parameters = null) : base(parameters)
         {
+        }
+    }
+    public partial class KalturaCategoryTree
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ChildrenSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaCategoryTree(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("children") && parameters["children"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ChildrenSchemaProperty.Validate("children", parameters["children"]);
+                    }
+                    if (parameters["children"] is JArray)
+                    {
+                        Children = buildList<KalturaCategoryTree>(typeof(KalturaCategoryTree), (JArray) parameters["children"]);
+                    }
+                    else if (parameters["children"] is IList)
+                    {
+                        Children = buildList(typeof(KalturaCategoryTree), parameters["children"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("unifiedChannels") && parameters["unifiedChannels"] != null)
+                {
+                    if (parameters["unifiedChannels"] is JArray)
+                    {
+                        UnifiedChannels = buildList<KalturaUnifiedChannelInfo>(typeof(KalturaUnifiedChannelInfo), (JArray) parameters["unifiedChannels"]);
+                    }
+                    else if (parameters["unifiedChannels"] is IList)
+                    {
+                        UnifiedChannels = buildList(typeof(KalturaUnifiedChannelInfo), parameters["unifiedChannels"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
+                {
+                    if (parameters["dynamicData"] is JObject)
+                    {
+                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
+                if (parameters.ContainsKey("images") && parameters["images"] != null)
+                {
+                    if (parameters["images"] is JArray)
+                    {
+                        Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
+                    }
+                    else if (parameters["images"] is IList)
+                    {
+                        Images = buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaChannel

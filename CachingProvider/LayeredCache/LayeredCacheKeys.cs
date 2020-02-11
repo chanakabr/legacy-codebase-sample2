@@ -670,6 +670,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("commerce_partner_config_{0}", groupId);
         }
 
+        public static string GetGroupCategoriesKey(int groupId)
+        {
+            return string.Format("groupCategoriesKey_groupId_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1226,6 +1231,11 @@ namespace CachingProvider.LayeredCache
         public static string GetAssetStatsSortInvalidationKey()
         {
             return "invalidation_key_asset_stats_sort";
+        }
+
+        public static string GetGroupCategoriesDictionaryInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_groupCategoriesDictionaryKey_groupId_{0}", groupId);
         }
 
         #endregion

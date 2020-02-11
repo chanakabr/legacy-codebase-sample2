@@ -118,7 +118,8 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_SEGMENTATION_TYPES = "GetGroupSegmentationTypes";
         public const string GET_SEGMENTATION_TYPE = "GetSegmentationType";
         public const string GET_GROUP_SEGMENTATION_TYPES_OF_ACTION = "GetGroupSegmentationTypesOfAction";
-        public const string GET_COMMERCE_PARTNER_CONFIG = "GetCommercePartnerConfigDB"; 
+        public const string GET_COMMERCE_PARTNER_CONFIG = "GetCommercePartnerConfigDB";
+        public const string GET_GROUP_CATEGORIES = "GetGroupCategories";
 
         #endregion
 

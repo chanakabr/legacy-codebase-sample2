@@ -42,7 +42,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }       
+        }        
 
         public static DataTable Get_GeoBlockRuleForMediaAndCountries(int nGroupID, int nMediaID)
         {
@@ -6162,6 +6162,43 @@ namespace DAL
         {
             string key = GetCommercePartnerConfigKey(groupId);
             return UtilsDal.SaveObjectInCB<CommercePartnerConfig>(eCouchbaseBucket.OTT_APPS, key, commercePartnerConfig);
+        }
+
+        public static DataTable GetCategories(int groupId)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId } };
+                return UtilsDal.Execute("Get_Get_Categories", parameters);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while Get_Categories from DB, groupId = {groupId}", ex);
+            }
+
+            return null;
+        }
+
+
+        public static long InsertCategory(int groupId, long? userId, string name, long? parentCategoryId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Insert_Categories");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@parentCategoryId", parentCategoryId.HasValue? parentCategoryId.Value: 0);
+                sp.AddParameter("@updaterId", userId.HasValue? userId.Value : 0);
+
+                return sp.ExecuteReturnValue<long>();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while InsertCategory in DB, groupId: {groupId}, name: {name}, ex:{ex} ");
+                throw;
+            }
         }
     }
 }
