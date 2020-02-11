@@ -10813,7 +10813,7 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
-    public partial class KalturaCategoryItemFilter
+    public partial class KalturaCategoryItemByIdInFilter
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -10825,11 +10825,6 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
             }
-            if(Ksql != null)
-            {
-                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
-            }
-            ret.Add("rootOnly", "\"rootOnly\": " + RootOnly.ToString().ToLower());
             return ret;
         }
         
@@ -10843,11 +10838,74 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaCategoryItemByKsqlFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
             if(Ksql != null)
             {
                 ret.Add("kSql", "<kSql>" + EscapeXml(Ksql) + "</kSql>");
             }
-            ret.Add("rootOnly", "<rootOnly>" + RootOnly.ToString().ToLower() + "</rootOnly>");
+            return ret;
+        }
+    }
+    public partial class KalturaCategoryItemByRootFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
+    public partial class KalturaCategoryItemFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
             return ret;
         }
     }

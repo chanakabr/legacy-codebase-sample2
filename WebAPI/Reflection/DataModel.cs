@@ -1200,15 +1200,19 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaCategoryItemFilter":
+                case "KalturaCategoryItemByIdInFilter":
                     switch(property.Name)
                     {
                         case "IdIn":
                             return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaCategoryItemByKsqlFilter":
+                    switch(property.Name)
+                    {
                         case "Ksql":
                             return "kSql";
-                        case "RootOnly":
-                            return "rootOnly";
                     }
                     break;
                     

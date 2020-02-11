@@ -1198,11 +1198,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<ApiLogic.Catalog.UnifiedChannelInfo, KalturaUnifiedChannelInfo>()
                 .IncludeBase<ApiLogic.Catalog.UnifiedChannel, KalturaUnifiedChannel>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
-
-            cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
-              .ForMember(dest => dest.Ids, opt => opt.MapFrom(src => src.GetIdIn()))
-              .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
-              .ForMember(dest => dest.ParentOnly, opt => opt.MapFrom(src => src.RootOnly));
+              
             #endregion CategoryItem
         }
 

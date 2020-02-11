@@ -419,6 +419,15 @@ namespace WebAPI.Reflection
                 case "KalturaCategoryItem":
                     return new KalturaCategoryItem(parameters);
                     
+                case "KalturaCategoryItemByIdInFilter":
+                    return new KalturaCategoryItemByIdInFilter(parameters);
+                    
+                case "KalturaCategoryItemByKsqlFilter":
+                    return new KalturaCategoryItemByKsqlFilter(parameters);
+                    
+                case "KalturaCategoryItemByRootFilter":
+                    return new KalturaCategoryItemByRootFilter(parameters);
+                    
                 case "KalturaCategoryItemFilter":
                     return new KalturaCategoryItemFilter(parameters);
                     
@@ -11643,9 +11652,9 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
-    public partial class KalturaCategoryItemFilter
+    public partial class KalturaCategoryItemByIdInFilter
     {
-        public KalturaCategoryItemFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryItemByIdInFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11653,15 +11662,32 @@ namespace WebAPI.Models.Catalog
                 {
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
+            }
+        }
+    }
+    public partial class KalturaCategoryItemByKsqlFilter
+    {
+        public KalturaCategoryItemByKsqlFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
                 if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
                 {
                     Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
                 }
-                if (parameters.ContainsKey("rootOnly") && parameters["rootOnly"] != null)
-                {
-                    RootOnly = (Boolean) Convert.ChangeType(parameters["rootOnly"], typeof(Boolean));
-                }
             }
+        }
+    }
+    public partial class KalturaCategoryItemByRootFilter
+    {
+        public KalturaCategoryItemByRootFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaCategoryItemFilter
+    {
+        public KalturaCategoryItemFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaCategoryItemListResponse
