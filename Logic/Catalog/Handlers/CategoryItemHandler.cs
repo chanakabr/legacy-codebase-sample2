@@ -43,7 +43,7 @@ namespace Core.Catalog.Handlers
             throw new NotImplementedException();
         }
 
-        public GenericResponse<CategoryItem> Duplicate(int groupId, long id)
+        public GenericResponse<CategoryTree> Duplicate(int groupId, long id)
         {
             throw new NotImplementedException();
         }

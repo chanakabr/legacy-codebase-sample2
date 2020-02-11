@@ -4152,12 +4152,12 @@ namespace WebAPI.Clients
             return excelStructure;
         }
 
-        internal KalturaCategoryItem Duplicate(int groupId, long id)
+        internal KalturaCategoryTree Duplicate(int groupId, long id)
         {
-            Func<GenericResponse<CategoryItem>> duplicateFunc = () => CategoryItemHandler.Instance.Duplicate(groupId, id);
+            Func<GenericResponse<CategoryTree>> duplicateFunc = () => CategoryItemHandler.Instance.Duplicate(groupId, id);
 
-            KalturaCategoryItem response =
-                ClientUtils.GetResponseFromWS<KalturaCategoryItem, CategoryItem>(duplicateFunc);
+            KalturaCategoryTree response =
+                ClientUtils.GetResponseFromWS<KalturaCategoryTree, CategoryTree>(duplicateFunc);
 
             return response;
         }

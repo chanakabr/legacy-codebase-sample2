@@ -1198,7 +1198,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<ApiLogic.Catalog.UnifiedChannelInfo, KalturaUnifiedChannelInfo>()
                 .IncludeBase<ApiLogic.Catalog.UnifiedChannel, KalturaUnifiedChannel>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
-              
+
+            cfg.CreateMap<ApiLogic.Catalog.CategoryTree, KalturaCategoryTree>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Children, opt => opt.MapFrom(src => src.Children))
+                .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
+
+            cfg.CreateMap<KalturaCategoryTree, ApiLogic.Catalog.CategoryTree>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Children, opt => opt.MapFrom(src => src.Children))
+                .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
+
             #endregion CategoryItem
         }
 
