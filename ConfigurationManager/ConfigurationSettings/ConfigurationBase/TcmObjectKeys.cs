@@ -68,6 +68,7 @@
         public const string NPVRHttpClientConfiguration = "npvr_http_client_configuration";
         public const string MailerHttpClientConfiguration = "mailer_http_client_configuration";
         public const string Stub = "Stub";   
+        public const string EPGIngestV2Configuration = "epg_ingest_v2";
     }    
 }
 
