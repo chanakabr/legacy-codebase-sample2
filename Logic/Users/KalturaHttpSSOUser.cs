@@ -422,7 +422,7 @@ namespace Core.Users
 
             try
             {
-                var domainResponse = Core.Domains.Module.GetDomainByUser(groupId, siteGuid.ToString());
+                var domainResponse = Domains.Module.GetDomainByUser(groupId, siteGuid.ToString());
                 var domainId = domainResponse.Status.IsOkStatusCode() && domainResponse.Domain != null ? domainResponse.Domain.m_nDomainID : 0;
                 var preSignOutModel = new PreSignOutModel
                 {
@@ -431,12 +431,13 @@ namespace Core.Users
                     DeviceUdid = deviceUdid
                 };
 
+                var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, preSignOutModel.UserId);
                 _Logger.Info($"Calling SSO adapter PreSignOut [{_AdapterConfig.Name}], group:[{_GroupId}]");
 
-                var response = _AdapterClient.PreSignOutAsync(_AdapterId, preSignOutModel).ExecuteAndWait();
+                var response = _AdapterClient.PreSignOutAsync(_AdapterId, preSignOutModel, signature).ExecuteAndWait();
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
-                    response = _AdapterClient.PreSignOutAsync(_AdapterId, preSignOutModel).ExecuteAndWait();
+                    response = _AdapterClient.PreSignOutAsync(_AdapterId, preSignOutModel, signature).ExecuteAndWait();
                 }
 
                 if (response.SSOResponseStatus.ResponseStatus != eSSOUserResponseStatus.OK)
@@ -452,6 +453,7 @@ namespace Core.Users
                 return new UserResponseObject { m_RespStatus = ResponseStatus.InternalError };
             }
         }
+
         public override void PostSignOut(ref UserResponseObject userResponse, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, ref List<KeyValuePair> keyValueList)
         {
             if (!_ImplementedMethods.Contains(eSSOMethods.PostSignIn))
@@ -472,13 +474,15 @@ namespace Core.Users
                     HouseholdId = domainId
                 };
 
-                var response = _AdapterClient.PostSignOutAsync(_AdapterId, postSignOutModel).ExecuteAndWait();
+                var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, postSignOutModel.UserId);
+
+                var response = _AdapterClient.PostSignOutAsync(_AdapterId, postSignOutModel, signature).ExecuteAndWait();
 
                 _Logger.Info($"Calling SSO adapter PostSignOut [{_AdapterConfig.Name}], group:[{_GroupId}]");
 
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
-                    response = _AdapterClient.PostSignOutAsync(_AdapterId, postSignOutModel).ExecuteAndWait();
+                    response = _AdapterClient.PostSignOutAsync(_AdapterId, postSignOutModel, signature).ExecuteAndWait();
                 }
 
                 if (response.AdapterStatus != AdapterStatusCode.OK)

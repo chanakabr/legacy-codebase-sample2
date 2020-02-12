@@ -29,5 +29,11 @@ namespace SSOAdapter
 
         [OperationContract]
         UserResponse PostGetUserData(int adapterId, User userData, IDictionary<string, string> customParams, string signature);
+
+        [OperationContract]
+        UserResponse PreSignOut(int adapterId, PreSignOutModel preSignOutData, string signature);
+
+        [OperationContract]
+        UserResponse PostSignOut(int adapterId, PostSignOutModel postSignOutData, string signature);
     }
 }

@@ -1023,10 +1023,10 @@ namespace APILogic.SSOAdapaterService
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostGetUserDataAsync(int adapterId, APILogic.SSOAdapaterService.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
 
         [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PreSignOutAsync", ReplyAction = "http://tempuri.org/IService/PostPreSignOutAsync")]
-        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PreSignOutAsync(int adapterId, APILogic.SSOAdapaterService.PreSignOutModel preSignOutData);
+        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PreSignOutAsync(int adapterId, APILogic.SSOAdapaterService.PreSignOutModel preSignOutData, string signature);
 
         [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PostSignOutAsync", ReplyAction = "http://tempuri.org/IService/PostSignOutAsync")]
-        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostSignOutAsync(int adapterId, APILogic.SSOAdapaterService.PostSignOutModel postSignOutData);
+        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostSignOutAsync(int adapterId, APILogic.SSOAdapaterService.PostSignOutModel postSignOutData, string signature);
     }
 
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
@@ -1152,14 +1152,14 @@ namespace APILogic.SSOAdapaterService
             return ServiceClient.GetEndpointAddress(EndpointConfiguration.BasicHttpBinding_IService);
         }
 
-        public Task<UserResponse> PreSignOutAsync(int adapterId, PreSignOutModel preSignOutData)
+        public Task<UserResponse> PreSignOutAsync(int adapterId, PreSignOutModel preSignOutData, string signature)
         {
-            return base.Channel.PreSignOutAsync(adapterId, preSignOutData);
+            return base.Channel.PreSignOutAsync(adapterId, preSignOutData, signature);
         }
 
-        public Task<UserResponse> PostSignOutAsync(int adapterId, PostSignOutModel postSignOutModel)
+        public Task<UserResponse> PostSignOutAsync(int adapterId, PostSignOutModel postSignOutModel, string signature)
         {
-            return base.Channel.PostSignOutAsync(adapterId, postSignOutModel);
+            return base.Channel.PostSignOutAsync(adapterId, postSignOutModel, signature);
         }
 
         public enum EndpointConfiguration
