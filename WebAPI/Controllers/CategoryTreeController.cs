@@ -23,10 +23,11 @@ namespace WebAPI.Controllers
             KalturaCategoryTree response = null;
 
             var groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             try
             {
-                response = ClientsManager.CatalogClient().Duplicate(groupId, categoryItemId);
+                response = ClientsManager.CatalogClient().Duplicate(groupId, long.Parse(userId), categoryItemId);
             }
             catch (ClientException ex)
             {

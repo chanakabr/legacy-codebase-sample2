@@ -101,7 +101,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }
+        }        
 
         public static DataSet Get_MediaDetailsForEmail(int nMediaID, int nGroupID)
         {
@@ -115,7 +115,7 @@ namespace DAL
             if (ds != null)
                 return ds;
             return null;
-        }
+        }        
 
         public static DataTable Get_GroupRules(int nGroupID)
         {
@@ -6197,7 +6197,47 @@ namespace DAL
             catch (Exception ex)
             {
                 log.Error($"Error while InsertCategory in DB, groupId: {groupId}, name: {name}, ex:{ex} ");
-                throw;
+                return 0;
+            }
+        }
+
+        public static bool UpdateCategory(int groupId, long? userId, long id, string name, long? parentCategoryId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Update_Categories");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@id", id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@parentCategoryId", parentCategoryId.HasValue ? parentCategoryId.Value : 0);
+                sp.AddParameter("@updaterId", userId);
+
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while UpdateCategory from DB, groupId: {groupId}, categoryId: {id})", ex);
+                return false;
+            }
+        }
+
+        public static bool DeleteCategory(int groupId, long? userId, long id)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_Categories");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@id", id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@updaterId", userId);
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while DeleteCategory from DB, groupId: {groupId}, Id: {id})", ex);
+                return false;
             }
         }
     }

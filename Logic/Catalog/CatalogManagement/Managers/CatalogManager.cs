@@ -88,7 +88,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, res);
-        }
+        }        
 
         private static void InvalidateCatalogGroupCache(int groupId, Status resultStatus, bool shouldCheckResultObject, object resultObject = null)
         {
@@ -3252,6 +3252,20 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        internal static CategoryItem GetGroupCategory(int groupId, long id)
+        {
+            CategoryItem categoryItem = null;
+
+            var categories = GetGroupCategories(groupId);
+            if(categories == null || !categories.ContainsKey(id))
+            {
+                log.Debug($"No categories found for groupId: { groupId}");
+                return categoryItem;
+            }
+
+            return categories[id];
         }
 
         #endregion
