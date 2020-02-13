@@ -23,31 +23,35 @@ namespace ConfigurationManager
             LockNumOfRetries = new NumericConfigurationValue("lock_num_of_retries", this)
             {
                 DefaultValue = 600,
+                ShouldAllowEmpty = true
             };
             
             LockRetryIntervalMS = new NumericConfigurationValue("lock_retry_interval_ms", this)
             {
-                DefaultValue = 10000, // 10 seconds
+                DefaultValue = 10000, // 10 seconds,
+                ShouldAllowEmpty = true
             };
 
             LockTTLSeconds = new NumericConfigurationValue("lock_ttl_seconds", this)
             {
-                DefaultValue = 10800, // 3 hours
+                DefaultValue = 10800, // 3 hours,
+                ShouldAllowEmpty = true
             };
         }
 
         internal override bool Validate()
         {
-            var isValid = LockNumOfRetries.IntValue > 0;
-            isValid &= LockRetryIntervalMS.IntValue > 0;
-            isValid &= LockTTLSeconds.IntValue > 0;
+            bool result = true;
+            result &= LockNumOfRetries.ObjectValue == null || LockNumOfRetries.IntValue > 0;
+            result &= LockRetryIntervalMS.ObjectValue == null || LockRetryIntervalMS.IntValue > 0;
+            result &= LockTTLSeconds.ObjectValue == null || LockTTLSeconds.IntValue > 0;
 
-            if (LockTTLSeconds.IntValue < 10800)
+            if (LockTTLSeconds.ObjectValue != null && LockTTLSeconds.IntValue < 10800)
             {
-                log.Warn($"Setting the distributed lock to less than 6 hours is not recommended, this is a failsafe mechanisms to prevent locking indefinetlly");
+                log.Warn($"Setting the distributed lock to less than 6 hours is not recommended, this is a failsafe mechanisms to prevent locking indefinitely");
             }
 
-            return isValid;
+            return result;
         }
     }
 }
