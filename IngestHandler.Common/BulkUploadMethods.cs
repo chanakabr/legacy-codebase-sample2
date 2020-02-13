@@ -111,5 +111,10 @@ namespace IngestHandler.Common
                 throw ex;
             }
         }
+
+        public void AcquireMultiLock(IEnumerable<DateTime> dates)
+        {
+
+        }
     }
 }
