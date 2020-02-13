@@ -9,7 +9,7 @@ namespace ApiLogic.Catalog
         public string Name { get; set; }
         public long? ParentCategoryId { get; set; }
         public List<long> ChildCategoriesIds { get; set; }
-        public List<UnifiedChannelInfo> UnifiedChannels { get; set; }
+        public List<UnifiedChannel> UnifiedChannels { get; set; }
         public Dictionary<string, string> DynamicData { get; set; }
         public bool HasDynamicData { get; set; }
     }

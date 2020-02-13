@@ -58,7 +58,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "unifiedChannels")]
         [XmlArray(ElementName = "unifiedChannels", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaUnifiedChannelInfo> UnifiedChannels { get; set; }
+        public List<KalturaUnifiedChannel> UnifiedChannels { get; set; }
 
         /// <summary>
         /// Dynamic data

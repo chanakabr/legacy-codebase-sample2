@@ -11638,11 +11638,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["unifiedChannels"] is JArray)
                     {
-                        UnifiedChannels = buildList<KalturaUnifiedChannelInfo>(typeof(KalturaUnifiedChannelInfo), (JArray) parameters["unifiedChannels"]);
+                        UnifiedChannels = buildList<KalturaUnifiedChannel>(typeof(KalturaUnifiedChannel), (JArray) parameters["unifiedChannels"]);
                     }
                     else if (parameters["unifiedChannels"] is IList)
                     {
-                        UnifiedChannels = buildList(typeof(KalturaUnifiedChannelInfo), parameters["unifiedChannels"] as object[]);
+                        UnifiedChannels = buildList(typeof(KalturaUnifiedChannel), parameters["unifiedChannels"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
