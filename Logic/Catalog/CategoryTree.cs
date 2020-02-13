@@ -1,5 +1,4 @@
-﻿using ApiObjects.Base;
-using Core.Catalog;
+﻿using Core.Catalog;
 using System.Collections.Generic;
 
 namespace ApiLogic.Catalog
@@ -11,6 +10,7 @@ namespace ApiLogic.Catalog
         public List<CategoryTree> Children { get; set; }
         public List<UnifiedChannelInfo> UnifiedChannels { get; set; }
         public Dictionary<string,string> DynamicData { get; set; }
+        
         public List<Picture> Images;
     }
 }

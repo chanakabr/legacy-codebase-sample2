@@ -2,13 +2,10 @@
 using ApiLogic.Catalog;
 using ApiObjects.Base;
 using ApiObjects.Response;
-using Core.Catalog.Request;
-using Core.Catalog.Response;
-using DAL;
 using KLogMonitor;
 using System;
-using System.Linq;
 using System.Reflection;
+using Tvinci.Core.DAL;
 
 namespace Core.Catalog.Handlers
 {
@@ -31,7 +28,7 @@ namespace Core.Catalog.Handlers
                 if (objectToAdd.ParentCategoryId.HasValue)
                 {
                     //Check if ParentCategoryId Exist
-                    var category =  CatalogManagement.CatalogManager.GetGroupCategory(contextData.GroupId, objectToAdd.ParentCategoryId.Value);
+                    var category = CatalogManagement.CatalogManager.GetGroupCategory(contextData.GroupId, objectToAdd.ParentCategoryId.Value);
                     if (category == null)
                     {
                         response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
@@ -39,9 +36,9 @@ namespace Core.Catalog.Handlers
                     }
                 }
 
-                long id = ApiDAL.InsertCategory(contextData.GroupId, contextData.UserId, objectToAdd.Name, objectToAdd.ParentCategoryId);
+                long id = CatalogDAL.InsertCategory(contextData.GroupId, contextData.UserId, objectToAdd.Name, objectToAdd.ParentCategoryId, objectToAdd.DynamicData);
 
-                if(id == 0 )
+                if (id == 0)
                 {
                     log.Error($"Error while InsertCategory. contextData: {contextData.ToString()}.");
                     return response;
@@ -86,19 +83,25 @@ namespace Core.Catalog.Handlers
                                 response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
                                 return response;
                             }
-                        }                       
+                        }
                     }
                     else
                     {
                         objectToUpdate.ParentCategoryId = currentCategory.ParentCategoryId;
                     }
-                }               
+                }
 
-                if(!ApiDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, objectToUpdate.ParentCategoryId))
+                if (objectToUpdate.DynamicData == null)
+                {
+                    objectToUpdate.DynamicData = currentCategory.DynamicData;
+
+                }
+
+                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, objectToUpdate.ParentCategoryId, objectToUpdate.DynamicData))
                 {
                     log.Error($"Error while InsertCategory. contextData: {contextData.ToString()}.");
                     return response;
-                }                
+                }
 
                 response.Object = objectToUpdate;
                 response.Status.Set(eResponseStatus.OK);
@@ -125,7 +128,7 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                if (!ApiDAL.DeleteCategory(contextData.GroupId, contextData.UserId, id))
+                if (!CatalogDAL.DeleteCategory(contextData.GroupId, contextData.UserId, id))
                 {
                     log.Error($"Error while DeleteCategory. contextData: {contextData.ToString()} id: {id}.");
                     return response;
@@ -172,7 +175,7 @@ namespace Core.Catalog.Handlers
             throw new NotImplementedException();
         }
 
-        public GenericResponse<CategoryTree> Duplicate(int groupId, long userId,  long id)
+        public GenericResponse<CategoryTree> Duplicate(int groupId, long userId, long id)
         {
             var response = new GenericResponse<CategoryTree>();
 
@@ -184,9 +187,9 @@ namespace Core.Catalog.Handlers
                 {
                     response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
                     return response;
-                }                
+                }
 
-                long newCategoryId = ApiDAL.InsertCategory(groupId, userId, categoryToDuplicate.Name, categoryToDuplicate.ParentCategoryId);
+                long newCategoryId = CatalogDAL.InsertCategory(groupId, userId, categoryToDuplicate.Name, categoryToDuplicate.ParentCategoryId, categoryToDuplicate.DynamicData);
 
                 if (newCategoryId == 0)
                 {
@@ -195,7 +198,7 @@ namespace Core.Catalog.Handlers
                 }
 
                 categoryToDuplicate.Id = newCategoryId;
-                response.Object =  new CategoryTree() { Id = newCategoryId, Name = categoryToDuplicate.Name };
+                response.Object = new CategoryTree() { Id = newCategoryId, Name = categoryToDuplicate.Name };
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)

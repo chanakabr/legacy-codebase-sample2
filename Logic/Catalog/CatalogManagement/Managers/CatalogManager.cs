@@ -973,7 +973,7 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                DataTable dt = ApiDAL.GetCategories(groupId);
+                DataTable dt = CatalogDAL.GetCategories(groupId);
                 if (dt?.Rows.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
@@ -982,7 +982,8 @@ namespace Core.Catalog.CatalogManagement
                         {
                             Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
                             Name = ODBCWrapper.Utils.GetSafeStr(dr, "CATEGORY_NAME"),
-                            ParentCategoryId = ODBCWrapper.Utils.GetNullableLong(dr, "PARENT_CATEGORY_ID")                            
+                            ParentCategoryId = ODBCWrapper.Utils.GetNullableLong(dr, "PARENT_CATEGORY_ID"),
+                            HasDynamicData = ODBCWrapper.Utils.ExtractBoolean(dr, "HAS_METADATA")
                         };
 
                         categoryItems.Add(categoryItem.Id, categoryItem);

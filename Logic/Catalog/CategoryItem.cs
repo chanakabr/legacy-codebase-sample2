@@ -10,7 +10,8 @@ namespace ApiLogic.Catalog
         public long? ParentCategoryId { get; set; }
         public List<long> ChildCategoriesIds { get; set; }
         public List<UnifiedChannelInfo> UnifiedChannels { get; set; }
-        public Dictionary<string,string> DynamicData { get; set; }
+        public Dictionary<string, string> DynamicData { get; set; }
+        public bool HasDynamicData { get; set; }
     }
 
     public class CategoryItemFilter : ICrudFilter

@@ -6005,5 +6005,104 @@ namespace Tvinci.Core.DAL
 
             return res;
         }
+
+        public static DataTable GetCategories(int groupId)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId } };
+                return UtilsDal.Execute("Get_Get_Categories", parameters);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while Get_Categories from DB, groupId = {groupId}", ex);
+            }
+
+            return null;
+        }
+
+        public static long InsertCategory(int groupId, long? userId, string name, long? parentCategoryId,
+            Dictionary<string, string> dynamicData)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Insert_Categories");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@parentCategoryId", parentCategoryId.HasValue ? parentCategoryId.Value : 0);
+                sp.AddParameter("@parentCategoryId", parentCategoryId.HasValue ? parentCategoryId.Value : 0);
+                sp.AddParameter("@hasMetadata", dynamicData != null);
+                sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
+
+                var id = sp.ExecuteReturnValue<long>();
+                if (id > 0)
+                {
+                    SaveCategoryDynamicData(id, dynamicData);
+                }
+
+                return id;
+
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while InsertCategory in DB, groupId: {groupId}, name: {name}, ex:{ex} ");
+                return 0;
+            }
+        }
+
+        public static bool UpdateCategory(int groupId, long? userId, long id, string name, long? parentCategoryId,
+            Dictionary<string, string> dynamicData)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Update_Categories");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@id", id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@parentCategoryId", parentCategoryId.HasValue ? parentCategoryId.Value : 0);
+                sp.AddParameter("@hasMetadata", dynamicData != null);
+                sp.AddParameter("@updaterId", userId);
+
+                var result = sp.ExecuteReturnValue<int>() > 0;
+                if (result && dynamicData != null)
+                {
+                    SaveCategoryDynamicData(id, dynamicData);
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while UpdateCategory from DB, groupId: {groupId}, categoryId: {id})", ex);
+                return false;
+            }
+        }
+
+        public static bool DeleteCategory(int groupId, long? userId, long id)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_Categories");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@id", id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@updaterId", userId);
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while DeleteCategory from DB, groupId: {groupId}, Id: {id})", ex);
+                return false;
+            }
+        }
+
+        public static void SaveCategoryDynamicData(long id, Dictionary<string, string> dynamicData)
+        {
+            var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
+            UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, new CBCategoryDynamicData { Id = id, DynamicData = dynamicData }, true);
+        }
     }
 }
