@@ -429,7 +429,7 @@ namespace WebAPI.Controllers
 
                 if (household == null && string.IsNullOrEmpty(filter.ExternalIdEqual))
                 {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "householdIdEqual");
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "householdIdEqual", "externalIdEqual");
                 }
 
                 // call client

@@ -1146,12 +1146,11 @@ namespace WebAPI.Clients
         {
             if (household == null)
             {
-                //TODO - Matan
                 var deviceId = Device.GetDeviceIDByExternalId(groupId, externalId);
                 int.TryParse(deviceId, out int _deviceId);
                 var device = new Device(groupId);
                 device.Initialize(_deviceId);
-                household = ClientsManager.DomainsClient().GetDomainInfo(groupId, device.m_domainID);//exception if not found
+                household = ClientsManager.DomainsClient().GetDomainInfo(groupId, device.m_domainID);
             }
 
             KalturaHouseholdDeviceListResponse response = new KalturaHouseholdDeviceListResponse() { TotalCount = 0, Objects = new List<KalturaHouseholdDevice>() };
