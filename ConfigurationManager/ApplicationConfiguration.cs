@@ -57,6 +57,7 @@ namespace ConfigurationManager
         public static GroupsManagerConfiguration GroupsManagerConfiguration;
         public static RequestParserConfiguration RequestParserConfiguration;
         public static OTTUserControllerConfiguration OTTUserControllerConfiguration;
+        public static EPGIngestV2Configuration EPGIngestV2Configuration;
         public static CouchbaseSectionMapping CouchbaseSectionMapping;
         public static UsersCacheConfiguration UsersCacheConfiguration;
         public static BaseCacheConfiguration BaseCacheConfiguration;
@@ -304,6 +305,7 @@ namespace ConfigurationManager
             GroupsManagerConfiguration = new GroupsManagerConfiguration("groups_manager");
             RequestParserConfiguration = new RequestParserConfiguration("request_parser");
             OTTUserControllerConfiguration = new OTTUserControllerConfiguration("ott_user_controller");
+            EPGIngestV2Configuration = new EPGIngestV2Configuration("epg_ingest_v2");
             CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
             UsersCacheConfiguration = new UsersCacheConfiguration("users_cache_configuration");
             BaseCacheConfiguration = new BaseCacheConfiguration("base_cache_configuration");
@@ -652,6 +654,7 @@ namespace ConfigurationManager
                     GroupsManagerConfiguration,
                     RequestParserConfiguration,
                     OTTUserControllerConfiguration,
+                    EPGIngestV2Configuration,
                     CouchbaseSectionMapping,
                     UsersCacheConfiguration,
                     BaseCacheConfiguration,
