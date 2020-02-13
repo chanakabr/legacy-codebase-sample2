@@ -2495,6 +2495,8 @@ namespace Core.Catalog
                             }
                         }
                     }
+
+                    #endregion
                 }
             }
 
@@ -2521,8 +2523,6 @@ namespace Core.Catalog
             //{
             //    finalList = null;
             //}
-
-            #endregion
 
             return validAssets;
         }
