@@ -1032,6 +1032,7 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
+
         public static DataSet GetMediasStats(int nGroupID, List<int> mediaIDs, DateTime? dStartDate, DateTime? dEndDate, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure MediaStats = new ODBCWrapper.StoredProcedure("Get_MediasStats");
@@ -6011,7 +6012,7 @@ namespace Tvinci.Core.DAL
             try
             {
                 var parameters = new Dictionary<string, object>() { { "@groupId", groupId } };
-                return UtilsDal.Execute("Get_Get_Categories", parameters);
+                return UtilsDal.Execute("Get_CategoriesIds", parameters);
             }
             catch (Exception ex)
             {
@@ -6021,7 +6022,22 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static long InsertCategory(int groupId, long? userId, string name, long? parentCategoryId, List<long> channelsIds,
+        public static DataSet GetCategoryItem(int groupId, long id)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@id", id } };
+                return UtilsDal.ExecuteDataSet("Get_Category", parameters);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while GetCategoryItem from DB, groupId = {groupId}", ex);
+            }
+
+            return null;
+        }
+
+        public static long InsertCategory(int groupId, long? userId, string name, long? parentCategoryId, List<KeyValuePair<long, int>> channels,
             Dictionary<string, string> dynamicData)
         {
             try
@@ -6032,8 +6048,8 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@parentCategoryId", parentCategoryId.HasValue ? parentCategoryId.Value : 0);
                 sp.AddParameter("@hasMetadata", dynamicData != null);
-                sp.AddParameter("@categoriesChannelsExist", channelsIds == null ? 0 : 1);
-                sp.AddOrderIdListParameter<long>("@categoriesChannels", channelsIds, "Id");
+                sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
+                sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
                 sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
 
                 var id = sp.ExecuteReturnValue<long>();
@@ -6053,7 +6069,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static bool UpdateCategory(int groupId, long? userId, long id, string name, long? parentCategoryId,
-            Dictionary<string, string> dynamicData)
+             List<KeyValuePair<long, int>> channels, Dictionary<string, string> dynamicData)
         {
             try
             {
@@ -6063,13 +6079,23 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@parentCategoryId", parentCategoryId.HasValue ? parentCategoryId.Value : 0);
-                sp.AddParameter("@hasMetadata", dynamicData != null);
+                sp.AddParameter("@hasMetadata", dynamicData != null && dynamicData.Count > 0);
+                sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
+                sp.AddParameter("@needToDeleteCategoriesChannels", channels != null && channels.Count == 0 ? 1 : 0);
+                sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
                 sp.AddParameter("@updaterId", userId);
 
                 var result = sp.ExecuteReturnValue<int>() > 0;
                 if (result && dynamicData != null)
                 {
-                    SaveCategoryDynamicData(id, dynamicData);
+                    if (dynamicData.Count > 0)
+                    {
+                        SaveCategoryDynamicData(id, dynamicData);
+                    }
+                    else
+                    {
+                        DeleteCategoryDynamicData(id);
+                    }
                 }
 
                 return result;
@@ -6104,6 +6130,20 @@ namespace Tvinci.Core.DAL
         {
             var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
             UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, new CBCategoryDynamicData { Id = id, DynamicData = dynamicData }, true);
+        }
+
+        public static Dictionary<string, string> GetCategoryDynamicData(long id)
+        {
+            var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
+            var res = UtilsDal.GetObjectFromCB<CBCategoryDynamicData>(eCouchbaseBucket.OTT_APPS, key, true);
+
+            return res.DynamicData;
+        }
+
+        public static void DeleteCategoryDynamicData(long id)
+        {
+            var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
+            UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
         }
     }
 }

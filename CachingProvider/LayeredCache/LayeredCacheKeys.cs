@@ -672,7 +672,12 @@ namespace CachingProvider.LayeredCache
 
         public static string GetGroupCategoriesKey(int groupId)
         {
-            return string.Format("groupCategoriesKey_groupId_{0}", groupId);
+            return $"groupCategoriesKey_groupId_{groupId}";
+        }
+
+        public static string GetCategoryItemKey(int groupId, long id)
+        {
+            return $"categoryItem_{groupId}_{id}";
         }
 
         #endregion
@@ -1233,9 +1238,14 @@ namespace CachingProvider.LayeredCache
             return "invalidation_key_asset_stats_sort";
         }
 
-        public static string GetGroupCategoriesDictionaryInvalidationKey(int groupId)
+        public static string GetGroupCategoriesInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_groupCategoriesDictionaryKey_groupId_{0}", groupId);
+            return $"invalidationKey_groupCategoriesKey_groupId_{groupId}";
+        }      
+
+        public static string GetCategoryIdInvalidationKey(int categoryId)
+        {
+            return $"invalidationKey_categoryId_{categoryId}";
         }
 
         #endregion

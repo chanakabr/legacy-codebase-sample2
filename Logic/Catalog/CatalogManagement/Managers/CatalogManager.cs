@@ -88,7 +88,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, res);
-        }        
+        }
 
         private static void InvalidateCatalogGroupCache(int groupId, Status resultStatus, bool shouldCheckResultObject, object resultObject = null)
         {
@@ -942,9 +942,9 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        private static Tuple<Dictionary<long, CategoryItem>, bool> BuildGroupCategories(Dictionary<string, object> funcParams)
+        private static Tuple<Dictionary<long, long>, bool> BuildGroupCategories(Dictionary<string, object> funcParams)
         {
-            Dictionary<long, CategoryItem> result = new Dictionary<long, CategoryItem>();
+            Dictionary<long, long> result = new Dictionary<long, long>();
             bool success = false;
             try
             {
@@ -953,7 +953,7 @@ namespace Core.Catalog.CatalogManagement
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue)
                     {
-                        result = GetCategories(groupId.Value);
+                        result = GetCategoriesIds(groupId.Value);
                         success = true;
                     }
                 }
@@ -963,12 +963,12 @@ namespace Core.Catalog.CatalogManagement
                 log.Error($"BuildGroupCategories failed, parameters : {string.Join(";", funcParams.Keys)}", ex);
             }
 
-            return new Tuple<Dictionary<long, CategoryItem>, bool>(result, success);
+            return new Tuple<Dictionary<long, long>, bool>(result, success);
         }
 
-        private static Dictionary<long, CategoryItem> GetCategories(int groupId)
+        private static Dictionary<long, long> GetCategoriesIds(int groupId)
         {
-            Dictionary<long, CategoryItem> categoryItems = new Dictionary<long, CategoryItem>();
+            Dictionary<long, long> categoryItems = new Dictionary<long, long>();
             CategoryItem categoryItem = null;
 
             try
@@ -981,12 +981,10 @@ namespace Core.Catalog.CatalogManagement
                         categoryItem = new CategoryItem()
                         {
                             Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
-                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "CATEGORY_NAME"),
-                            ParentCategoryId = ODBCWrapper.Utils.GetNullableLong(dr, "PARENT_CATEGORY_ID"),
-                            HasDynamicData = ODBCWrapper.Utils.ExtractBoolean(dr, "HAS_METADATA")
+                            ParentCategoryId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_CATEGORY_ID"),
                         };
 
-                        categoryItems.Add(categoryItem.Id, categoryItem);
+                        categoryItems.Add(categoryItem.Id, categoryItem.ParentCategoryId.Value);
                     }
                 }
             }
@@ -996,6 +994,76 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return categoryItems;
+        }
+
+        private static Tuple<CategoryItem, bool> BuildCategoryItem(Dictionary<string, object> funcParams)
+        {
+            CategoryItem result = null;
+            bool success = false;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("id"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    long? id = funcParams["id"] as long?;
+                    if (groupId.HasValue)
+                    {
+                        result = GetCategoryItembyDb(groupId.Value, id.Value);
+                        success = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"BuildCategoryItem failed, parameters : {string.Join(";", funcParams.Keys)}", ex);
+            }
+
+            return new Tuple<CategoryItem, bool>(result, success);
+        }
+
+        private static CategoryItem GetCategoryItembyDb(int groupId, long id)
+        {
+            CategoryItem categoryItem = null;
+
+            try
+            {
+                DataSet ds = CatalogDAL.GetCategoryItem(groupId, id);
+                if (ds?.Tables.Count > 1 && ds.Tables[0].Rows.Count > 0)
+                {
+                    categoryItem = new CategoryItem()
+                    {
+                        Id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID"),
+                        ParentCategoryId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "PARENT_CATEGORY_ID"),
+                        Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "NAME"),
+                        HasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA")                       
+                    };
+
+                    if (ds.Tables[1].Rows.Count > 0)
+                    {
+                        categoryItem.UnifiedChannels = new List<UnifiedChannel>();
+
+                        foreach (DataRow dr in ds.Tables[1].Rows)
+                        {
+                            categoryItem.UnifiedChannels.Add(new UnifiedChannel()
+                            {
+                                Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_ID"),
+                                Type = (UnifiedChannelType)ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_TYPE")
+                            });
+                        }
+                    }
+
+                    if(categoryItem.HasDynamicData)
+                    {
+                        categoryItem.DynamicData = CatalogDAL.GetCategoryDynamicData(id);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while getting GetCategoryItembyDb. group id = {groupId}", ex);
+            }
+
+            return categoryItem;
         }
 
         #endregion
@@ -3208,7 +3276,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling GetLinearMediaTypeIds");
             }
-            else 
+            else
             {
                 long linearMediaTypeId = -1;
                 if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(CatalogManager.LINEAR_ASSET_STRUCT_SYSTEM_NAME))
@@ -3230,18 +3298,19 @@ namespace Core.Catalog.CatalogManagement
             return linearMediaTypeIds;
         }
 
-        public static Dictionary<long, CategoryItem> GetGroupCategories(int groupId)
+        private static Dictionary<long, long> GetGroupCategoriesIds(int groupId)
         {
-            Dictionary<long, CategoryItem> result = new Dictionary<long, CategoryItem>();
+            // save mapping between categoryItem and Parentcategory
+            Dictionary<long, long> result = new Dictionary<long, long>();
 
             try
             {
                 string key = LayeredCacheKeys.GetGroupCategoriesKey(groupId);
-                string invalidationKey = LayeredCacheKeys.GetGroupCategoriesDictionaryInvalidationKey(groupId);
-                if (!LayeredCache.Instance.Get<Dictionary<long, CategoryItem>>(key, 
-                                                                            ref result, 
+                string invalidationKey = LayeredCacheKeys.GetGroupCategoriesInvalidationKey(groupId);
+                if (!LayeredCache.Instance.Get<Dictionary<long, long>>(key,
+                                                                            ref result,
                                                                             BuildGroupCategories,
-                                                                            new Dictionary<string, object>() { { "groupId", groupId } }, 
+                                                                            new Dictionary<string, object>() { { "groupId", groupId } },
                                                                             groupId,
                                                                             LayeredCacheConfigNames.GET_GROUP_CATEGORIES,
                                                                             new List<string>() { invalidationKey }))
@@ -3257,18 +3326,43 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        internal static CategoryItem GetGroupCategory(int groupId, long id)
+        internal static bool IsCategoryExist(int groupId, long id)
         {
-            CategoryItem categoryItem = null;
-
-            var categories = GetGroupCategories(groupId);
-            if(categories == null || !categories.ContainsKey(id))
+            var categories = GetGroupCategoriesIds(groupId);
+            if (categories == null || !categories.ContainsKey(id))
             {
                 log.Debug($"No categories found for groupId: { groupId}");
-                return categoryItem;
+                return false;
             }
 
-            return categories[id];
+            return true;
+        }
+
+        internal static CategoryItem GetCategoryItem(int groupId, long id)
+        {
+            CategoryItem result = null;
+
+            try
+            {
+                string key = LayeredCacheKeys.GetCategoryItemKey(groupId, id);
+                string invalidationKey = LayeredCacheKeys.GetCategoryIdInvalidationKey(groupId);
+                if (!LayeredCache.Instance.Get<CategoryItem>(key,
+                                                            ref result,
+                                                        BuildCategoryItem,
+                                                        new Dictionary<string, object>() { { "groupId", groupId }, { "id", id } },
+                                                        groupId,
+                                                        LayeredCacheConfigNames.GET_CATEGORY_ITEM,
+                                                        new List<string>() { invalidationKey }))
+                {
+                    log.Error($"Failed getting GetCategoryItem from LayeredCache, groupId: {groupId}, key: {key}");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed GetCategoryItem, groupId: {groupId}", ex);
+            }
+
+            return result;
         }
 
         #endregion

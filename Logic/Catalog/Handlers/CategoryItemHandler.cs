@@ -34,35 +34,27 @@ namespace Core.Catalog.Handlers
                 if (objectToAdd.ParentCategoryId.HasValue)
                 {
                     //Check if ParentCategoryId Exist
-                    var category = CatalogManagement.CatalogManager.GetGroupCategory(contextData.GroupId, objectToAdd.ParentCategoryId.Value);
-                    if (category == null)
+                    if (!CatalogManager.IsCategoryExist(contextData.GroupId, objectToAdd.ParentCategoryId.Value))
                     {
-                        response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
+                        response.SetStatus(eResponseStatus.CategoryNotExist, "Parent Category does not exist");
                         return response;
                     }
                 }
+                List<KeyValuePair<long, int>> channels = null;
 
-                List<long> channelsIds = null;
                 if (objectToAdd.UnifiedChannels?.Count > 0)
                 {
-                    // TODO anat: Validate channels?  
-                    foreach (var unifiedChannel in objectToAdd.UnifiedChannels)
+                    if (!IsUnifiedChannelsValid(contextData.GroupId, contextData.UserId.HasValue ? contextData.UserId.Value : 0, objectToAdd.UnifiedChannels))
                     {
-                        // TODO anat: Validate channels?  ( is it inner and external?)
-                        var channel = ChannelManager.GetChannelById(contextData.GroupId, int.Parse(unifiedChannel.Id.ToString()), false, long.Parse(contextData.UserId.ToString()));
-                        if (!channel.HasObject())
-                        {
-                            log.Error($"Channel {unifiedChannel.Id} at groupId  {contextData.GroupId}, doesn't exist");
-                            response.SetStatus(eResponseStatus.ChannelDoesNotExist, "Channel does not exist");
-                            return response;
-                        }
+                        response.SetStatus(eResponseStatus.ChannelDoesNotExist, "Channel does not exist");
+                        return response;
                     }
 
-                    channelsIds = objectToAdd.UnifiedChannels.Select(x => x.Id).ToList();
+                    channels = objectToAdd.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
                 }
 
                 long id = CatalogDAL.InsertCategory(contextData.GroupId, contextData.UserId, objectToAdd.Name,
-                    objectToAdd.ParentCategoryId, channelsIds, objectToAdd.DynamicData);
+                    objectToAdd.ParentCategoryId, channels, objectToAdd.DynamicData);
 
                 if (id == 0)
                 {
@@ -70,18 +62,19 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                // Add VirtualAssetInfo for new category
+                // Add VirtualAssetInfo for new category 
                 var virtualAssetInfo = new VirtualAssetInfo()
                 {
                     Type = ObjectVirtualAssetInfoType.Category,
                     Id = id,
                     Name = objectToAdd.Name,
-                    UserId = long.Parse(contextData.UserId.ToString())
+                    UserId = contextData.UserId.Value
                 };
 
                 api.AddVirtualAsset(contextData.GroupId, virtualAssetInfo);
 
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesDictionaryInvalidationKey(contextData.GroupId));
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(contextData.GroupId));
 
                 objectToAdd.Id = id;
                 response.Object = objectToAdd;
@@ -102,13 +95,14 @@ namespace Core.Catalog.Handlers
             try
             {
                 // Get the current category
-                var currentCategory = CatalogManagement.CatalogManager.GetGroupCategory(contextData.GroupId, objectToUpdate.Id);
+                var currentCategory = CatalogManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id);
                 if (currentCategory == null)
                 {
                     response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
                     return response;
                 }
 
+                bool needToInvalidate = false;
                 if (currentCategory.ParentCategoryId != objectToUpdate.ParentCategoryId)
                 {
                     if (objectToUpdate.ParentCategoryId.HasValue)
@@ -116,12 +110,13 @@ namespace Core.Catalog.Handlers
                         if (objectToUpdate.ParentCategoryId.Value > 0)
                         {
                             //Check if ParentCategoryId Exist
-                            var category = CatalogManagement.CatalogManager.GetGroupCategory(contextData.GroupId, objectToUpdate.ParentCategoryId.Value);
-                            if (category == null)
+                            if (!CatalogManager.IsCategoryExist(contextData.GroupId, objectToUpdate.ParentCategoryId.Value))
                             {
-                                response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
+                                response.SetStatus(eResponseStatus.CategoryNotExist, "Parent Category does not exist");
                                 return response;
                             }
+                            
+                            needToInvalidate = true;
                         }
                     }
                     else
@@ -130,17 +125,61 @@ namespace Core.Catalog.Handlers
                     }
                 }
 
+                List<KeyValuePair<long, int>> channels = null;
+
+                if (objectToUpdate.UnifiedChannels == null)
+                {
+                    if (currentCategory.UnifiedChannels != null)
+                    {
+                        objectToUpdate.UnifiedChannels = currentCategory.UnifiedChannels;
+                    }
+                }
+                else
+                {
+                    if (objectToUpdate.UnifiedChannels?.Count > 0)
+                    {
+                        if (!IsUnifiedChannelsValid(contextData.GroupId, contextData.UserId.HasValue ? contextData.UserId.Value : 0, objectToUpdate.UnifiedChannels))
+                        {
+                            response.SetStatus(eResponseStatus.ChannelDoesNotExist, "Channel does not exist");
+                            return response;
+                        }
+
+                        channels = objectToUpdate.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
+                    }
+                }
+
                 if (objectToUpdate.DynamicData == null)
                 {
                     objectToUpdate.DynamicData = currentCategory.DynamicData;
-
                 }
 
-                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, objectToUpdate.ParentCategoryId, objectToUpdate.DynamicData))
+                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, objectToUpdate.ParentCategoryId,
+                    channels, objectToUpdate.DynamicData))
                 {
                     log.Error($"Error while InsertCategory. contextData: {contextData.ToString()}.");
                     return response;
                 }
+
+                // if name change need to update virtualAsset
+                if (objectToUpdate.Name != currentCategory.Name)
+                {
+                    var virtualAssetInfo = new VirtualAssetInfo()
+                    {
+                        Type = ObjectVirtualAssetInfoType.Category,
+                        Id = currentCategory.Id,
+                        Name = objectToUpdate.Name,
+                        UserId = contextData.UserId.Value
+                    };
+
+                    api.UpdateVirtualAsset(contextData.GroupId, virtualAssetInfo);
+                }
+
+                if (needToInvalidate)
+                {
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
+                }
+                
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(contextData.GroupId));
 
                 response.Object = objectToUpdate;
                 response.Status.Set(eResponseStatus.OK);
@@ -160,21 +199,32 @@ namespace Core.Catalog.Handlers
             try
             {
                 // Get the current category
-                var currentCategory = CatalogManagement.CatalogManager.GetGroupCategory(contextData.GroupId, id);
-                if (currentCategory == null)
-                {
-                    response.Set(eResponseStatus.CategoryNotExist, "Category does not exist");
-                    return response;
-                }
+                //var currentCategory = CatalogManagement.CatalogManager.GetGroupCategory(contextData.GroupId, id);
+                //if (currentCategory == null)
+                //{
+                //    response.Set(eResponseStatus.CategoryNotExist, "Category does not exist");
+                //    return response;
+                //}
 
-                if (!CatalogDAL.DeleteCategory(contextData.GroupId, contextData.UserId, id))
-                {
-                    log.Error($"Error while DeleteCategory. contextData: {contextData.ToString()} id: {id}.");
-                    return response;
-                }
+                //if (!CatalogDAL.DeleteCategory(contextData.GroupId, contextData.UserId, id))
+                //{
+                //    log.Error($"Error while DeleteCategory. contextData: {contextData.ToString()} id: {id}.");
+                //    return response;
+                //}
 
-                response.Set(eResponseStatus.OK);
+                //// Delete the virtual asset
+                //var virtualAssetInfo = new VirtualAssetInfo()
+                //{
+                //    Type = ObjectVirtualAssetInfoType.Category,
+                //    Id = id,
+                //    UserId = long.Parse(contextData.UserId.ToString())
+                //};
 
+                //api.DeleteVirtualAsset(contextData.GroupId, virtualAssetInfo);
+
+                //LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesDictionaryInvalidationKey(contextData.GroupId));
+
+                //response.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
@@ -190,16 +240,16 @@ namespace Core.Catalog.Handlers
 
             try
             {
-                // Get the current category
-                var currentCategory = CatalogManagement.CatalogManager.GetGroupCategory(contextData.GroupId, id);
-                if (currentCategory == null)
-                {
-                    response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
-                    return response;
-                }
+                //// Get the current category
+                //var currentCategory = CatalogManagement.CatalogManager.GetGroupCategory(contextData.GroupId, id);
+                //if (currentCategory == null)
+                //{
+                //    response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
+                //    return response;
+                //}
 
-                response.Object = currentCategory;
-                response.Status.Set(eResponseStatus.OK);
+                //response.Object = currentCategory;
+                //response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
@@ -221,12 +271,12 @@ namespace Core.Catalog.Handlers
             try
             {
                 // Get category to duplicate
-                var categoryToDuplicate = CatalogManagement.CatalogManager.GetGroupCategory(groupId, id);
-                if (categoryToDuplicate == null)
-                {
-                    response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
-                    return response;
-                }
+                //var categoryToDuplicate = CatalogManagement.CatalogManager.GetGroupCategory(groupId, id);
+                //if (categoryToDuplicate == null)
+                //{
+                //    response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
+                //    return response;
+                //}
 
                 //long newCategoryId = CatalogDAL.InsertCategory(groupId, userId, categoryToDuplicate.Name, categoryToDuplicate.ParentCategoryId, categoryToDuplicate.DynamicData);
 
@@ -246,6 +296,32 @@ namespace Core.Catalog.Handlers
             }
 
             return response;
+        }
+
+        private bool IsUnifiedChannelsValid(int groupId, long userId, List<UnifiedChannel> unifiedChannels)
+        {
+            List<long> externalChannels = unifiedChannels.Where(x => x.Type == UnifiedChannelType.External).Select(y => y.Id).ToList();
+            List<long> intenalChannels = unifiedChannels.Where(x => x.Type == UnifiedChannelType.Internal).Select(y => y.Id).ToList();
+
+            //check external channel exist
+            foreach (var channelId in externalChannels)
+            {
+                if (CatalogDAL.GetExternalChannelById(groupId, (int)channelId) == null)
+                {
+                    return false;
+                }
+            }
+
+            //check internal channel exist
+            foreach (var channelId in intenalChannels)
+            {
+                var channel = ChannelManager.GetChannelById(groupId, (int)channelId, true, userId);
+                if (!channel.HasObject())
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

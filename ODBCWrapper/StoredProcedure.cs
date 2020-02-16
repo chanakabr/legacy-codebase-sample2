@@ -709,17 +709,19 @@ namespace ODBCWrapper
             return true;
         }
 
-        public void AddOrderIdListParameter<T>(string sKey, List<T> oListValue, string colName)
+        public void AddOrderKeyValueListParameter<T1,T2>(string sKey, List<KeyValuePair<T1, T2>> oListValue, string colNameKey, string colNameValue)
         {
-            m_Parameters.Add(sKey, CreateOrderedDataTable<T>(oListValue, colName));
+            m_Parameters.Add(sKey, CreateOrderedDataTable<T1, T2>(oListValue, colNameKey, colNameValue));
 
             Utils.CheckDBReadWrite(sKey, oListValue, procedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
-        private object CreateOrderedDataTable<T>(IEnumerable<T> ids, string colName)
+        private object CreateOrderedDataTable<T1,T2>(List<KeyValuePair<T1, T2>> oListValue, string colNameKey, string colNameValue)
+
         {
-            DataTable table = new DataTable();           
-            table.Columns.Add(colName, typeof(T));
+            DataTable table = new DataTable();
+            table.Columns.Add(colNameKey, typeof(T1));
+            table.Columns.Add(colNameValue, typeof(T2));
             table.Columns.Add(new DataColumn()
             {
                 ColumnName = "Ordered",
@@ -728,13 +730,17 @@ namespace ODBCWrapper
                 AutoIncrementSeed = 1,
                 AutoIncrementStep = 1
             });
-            if (ids != null)
+            if (oListValue != null)
             {
-                foreach (T id in ids)
+                DataRow dr = null;
+                foreach (KeyValuePair<T1, T2> obj in oListValue)
                 {
-                    table.Rows.Add(id);
+                    dr = table.NewRow();
+                    dr[colNameKey] = obj.Key;
+                    dr[colNameValue] = obj.Value;
+                    table.Rows.Add(dr);
                 }
-            }         
+            }
 
             return table;
         }
