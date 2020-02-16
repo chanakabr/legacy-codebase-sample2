@@ -708,5 +708,35 @@ namespace ODBCWrapper
             }
             return true;
         }
+
+        public void AddOrderIdListParameter<T>(string sKey, List<T> oListValue, string colName)
+        {
+            m_Parameters.Add(sKey, CreateOrderedDataTable<T>(oListValue, colName));
+
+            Utils.CheckDBReadWrite(sKey, oListValue, procedureName, m_bIsWritable, ref Utils.UseWritable);
+        }
+
+        private object CreateOrderedDataTable<T>(IEnumerable<T> ids, string colName)
+        {
+            DataTable table = new DataTable();           
+            table.Columns.Add(colName, typeof(T));
+            table.Columns.Add(new DataColumn()
+            {
+                ColumnName = "Ordered",
+                DataType = System.Type.GetType("System.Int32"),
+                AutoIncrement = true,
+                AutoIncrementSeed = 1,
+                AutoIncrementStep = 1
+            });
+            if (ids != null)
+            {
+                foreach (T id in ids)
+                {
+                    table.Rows.Add(id);
+                }
+            }         
+
+            return table;
+        }
     }
 }

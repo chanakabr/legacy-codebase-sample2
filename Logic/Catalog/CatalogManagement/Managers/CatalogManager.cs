@@ -3238,11 +3238,13 @@ namespace Core.Catalog.CatalogManagement
             {
                 string key = LayeredCacheKeys.GetGroupCategoriesKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetGroupCategoriesDictionaryInvalidationKey(groupId);
-                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<long, CategoryItem>>(key, ref result, BuildGroupCategories,
-                                                                                                                new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                                                                                                                LayeredCacheConfigNames.GET_GROUP_CATEGORIES,
-                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
-                                                                                                                new List<string>() { invalidationKey }))
+                if (!LayeredCache.Instance.Get<Dictionary<long, CategoryItem>>(key, 
+                                                                            ref result, 
+                                                                            BuildGroupCategories,
+                                                                            new Dictionary<string, object>() { { "groupId", groupId } }, 
+                                                                            groupId,
+                                                                            LayeredCacheConfigNames.GET_GROUP_CATEGORIES,
+                                                                            new List<string>() { invalidationKey }))
                 {
                     log.Error($"Failed getting GetGroupCategories from LayeredCache, groupId: {groupId}, key: {key}");
                 }

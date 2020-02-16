@@ -4108,7 +4108,7 @@ namespace Tvinci.Core.DAL
 
         public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
                                                               List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType,
-                                                              string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE, 
+                                                              string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE,
                                                               int? bookmarkEventThreshold = null, eTransactionType? productType = null, int? productId = null)
         {
             DevicePlayData devicePlayData = GetDevicePlayData(udid);
@@ -4133,7 +4133,7 @@ namespace Tvinci.Core.DAL
             else if (deviceFamilyId > 0)
             {
                 devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
-                                                    domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, bookmarkEventThreshold, 
+                                                    domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, bookmarkEventThreshold,
                                                     productType, productId);
             }
 
@@ -5828,7 +5828,7 @@ namespace Tvinci.Core.DAL
                 var affectedObjectsDictionary = bulkUpload.AffectedObjects == null
                                                 ? new Dictionary<ulong, IAffectedObject>()
                                                 : bulkUpload.AffectedObjects.ToDictionary(o => o.ObjectId);
-                
+
                 foreach (var affectedObject in affectedObjects)
                 {
                     affectedObjectsDictionary[affectedObject.ObjectId] = affectedObject;
@@ -6021,7 +6021,7 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static long InsertCategory(int groupId, long? userId, string name, long? parentCategoryId,
+        public static long InsertCategory(int groupId, long? userId, string name, long? parentCategoryId, List<long> channelsIds,
             Dictionary<string, string> dynamicData)
         {
             try
@@ -6031,8 +6031,9 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@parentCategoryId", parentCategoryId.HasValue ? parentCategoryId.Value : 0);
-                sp.AddParameter("@parentCategoryId", parentCategoryId.HasValue ? parentCategoryId.Value : 0);
                 sp.AddParameter("@hasMetadata", dynamicData != null);
+                sp.AddParameter("@categoriesChannelsExist", channelsIds == null ? 0 : 1);
+                sp.AddOrderIdListParameter<long>("@categoriesChannels", channelsIds, "Id");
                 sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
 
                 var id = sp.ExecuteReturnValue<long>();

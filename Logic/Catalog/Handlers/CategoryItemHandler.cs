@@ -1,9 +1,15 @@
 ﻿using ApiLogic.Base;
 using ApiLogic.Catalog;
+using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using Core.Api;
+using Core.Catalog.CatalogManagement;
 using KLogMonitor;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
 
@@ -36,13 +42,46 @@ namespace Core.Catalog.Handlers
                     }
                 }
 
-                long id = CatalogDAL.InsertCategory(contextData.GroupId, contextData.UserId, objectToAdd.Name, objectToAdd.ParentCategoryId, objectToAdd.DynamicData);
+                List<long> channelsIds = null;
+                if (objectToAdd.UnifiedChannels?.Count > 0)
+                {
+                    // TODO anat: Validate channels?  
+                    foreach (var unifiedChannel in objectToAdd.UnifiedChannels)
+                    {
+                        // TODO anat: Validate channels?  ( is it inner and external?)
+                        var channel = ChannelManager.GetChannelById(contextData.GroupId, int.Parse(unifiedChannel.Id.ToString()), false, long.Parse(contextData.UserId.ToString()));
+                        if (!channel.HasObject())
+                        {
+                            log.Error($"Channel {unifiedChannel.Id} at groupId  {contextData.GroupId}, doesn't exist");
+                            response.SetStatus(eResponseStatus.ChannelDoesNotExist, "Channel does not exist");
+                            return response;
+                        }
+                    }
+
+                    channelsIds = objectToAdd.UnifiedChannels.Select(x => x.Id).ToList();
+                }
+
+                long id = CatalogDAL.InsertCategory(contextData.GroupId, contextData.UserId, objectToAdd.Name,
+                    objectToAdd.ParentCategoryId, channelsIds, objectToAdd.DynamicData);
 
                 if (id == 0)
                 {
                     log.Error($"Error while InsertCategory. contextData: {contextData.ToString()}.");
                     return response;
                 }
+
+                // Add VirtualAssetInfo for new category
+                var virtualAssetInfo = new VirtualAssetInfo()
+                {
+                    Type = ObjectVirtualAssetInfoType.Category,
+                    Id = id,
+                    Name = objectToAdd.Name,
+                    UserId = long.Parse(contextData.UserId.ToString())
+                };
+
+                api.AddVirtualAsset(contextData.GroupId, virtualAssetInfo);
+
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesDictionaryInvalidationKey(contextData.GroupId));
 
                 objectToAdd.Id = id;
                 response.Object = objectToAdd;
@@ -189,17 +228,17 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                long newCategoryId = CatalogDAL.InsertCategory(groupId, userId, categoryToDuplicate.Name, categoryToDuplicate.ParentCategoryId, categoryToDuplicate.DynamicData);
+                //long newCategoryId = CatalogDAL.InsertCategory(groupId, userId, categoryToDuplicate.Name, categoryToDuplicate.ParentCategoryId, categoryToDuplicate.DynamicData);
 
-                if (newCategoryId == 0)
-                {
-                    log.Error($"Error while DuplicateCategory. groupId: {groupId} id: {id}.");
-                    return response;
-                }
+                //if (newCategoryId == 0)
+                //{
+                //    log.Error($"Error while DuplicateCategory. groupId: {groupId} id: {id}.");
+                //    return response;
+                //}
 
-                categoryToDuplicate.Id = newCategoryId;
-                response.Object = new CategoryTree() { Id = newCategoryId, Name = categoryToDuplicate.Name };
-                response.Status.Set(eResponseStatus.OK);
+                //categoryToDuplicate.Id = newCategoryId;
+                //response.Object = new CategoryTree() { Id = newCategoryId, Name = categoryToDuplicate.Name };
+                //response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
