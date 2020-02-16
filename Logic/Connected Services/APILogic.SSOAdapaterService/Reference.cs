@@ -102,7 +102,7 @@ namespace APILogic.SSOAdapaterService
         PostGetUserData = 3,
 
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        PerSignOut = 4,
+        PreSignOut = 4,
 
         [System.Runtime.Serialization.EnumMemberAttribute()]
         PostSignOut = 5,

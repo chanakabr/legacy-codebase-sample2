@@ -415,7 +415,7 @@ namespace Core.Users
 
         public override UserResponseObject PreSignOut(ref int siteGuid, ref int groupId, ref string sessionId, ref string ip, ref string deviceUdid, ref List<KeyValuePair> keyValueList)
         {
-            if (!_ImplementedMethods.Contains(eSSOMethods.PerSignOut))
+            if (!_ImplementedMethods.Contains(eSSOMethods.PreSignOut))
             {
                 return base.PreSignOut(ref siteGuid, ref groupId, ref sessionId, ref ip, ref deviceUdid, ref keyValueList);
             }
@@ -456,7 +456,7 @@ namespace Core.Users
 
         public override void PostSignOut(ref UserResponseObject userResponse, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, ref List<KeyValuePair> keyValueList)
         {
-            if (!_ImplementedMethods.Contains(eSSOMethods.PostSignIn))
+            if (!_ImplementedMethods.Contains(eSSOMethods.PostSignOut))
             {
                 base.PostSignOut(ref userResponse, siteGuid, groupId, sessionId, ip, deviceUdid, ref keyValueList);
                 return;
