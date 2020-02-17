@@ -3,8 +3,16 @@
 namespace SSOAdapter.Models
 {
     [DataContract]
-    public partial class PostSignOutModel : SignOutModel
+    public partial class PostSignOutModel/* : SignOutModel*/
     {
+        [DataMember]
         public User AuthenticatedUser;
+        
+        [DataMember]
+        public string DeviceUdid { get; set; }
+        [DataMember]
+        public int HouseholdId { get; set; }
+        [DataMember]
+        public int UserId { get; set; }
     }
 }
