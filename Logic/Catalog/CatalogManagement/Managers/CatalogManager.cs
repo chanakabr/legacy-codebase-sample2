@@ -1008,7 +1008,7 @@ namespace Core.Catalog.CatalogManagement
                     long? id = funcParams["id"] as long?;
                     if (groupId.HasValue)
                     {
-                        result = GetCategoryItembyDb(groupId.Value, id.Value);
+                        result = GetCategory(groupId.Value, id.Value);
                         success = true;
                     }
                 }
@@ -1021,7 +1021,7 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<CategoryItem, bool>(result, success);
         }
 
-        private static CategoryItem GetCategoryItembyDb(int groupId, long id)
+        private static CategoryItem GetCategory(int groupId, long id)
         {
             CategoryItem categoryItem = null;
 
@@ -1035,7 +1035,7 @@ namespace Core.Catalog.CatalogManagement
                         Id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID"),
                         ParentCategoryId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "PARENT_CATEGORY_ID"),
                         Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "CATEGORY_NAME"),
-                        HasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA")                       
+                        HasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA")
                     };
 
                     if (ds.Tables[1].Rows.Count > 0)
@@ -1052,7 +1052,14 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    if(categoryItem.HasDynamicData)
+                    // Set ChildCategoriesIds
+                    var categoriesMap = GetGroupCategoriesIds(groupId);
+                    if (categoriesMap != null)
+                    {
+                        categoryItem.ChildCategoriesIds = categoriesMap.Where(x => x.Value == id).Select(x => x.Key).ToList();
+                    }
+
+                    if (categoryItem.HasDynamicData)
                     {
                         categoryItem.DynamicData = CatalogDAL.GetCategoryDynamicData(id);
                     }
@@ -3298,7 +3305,7 @@ namespace Core.Catalog.CatalogManagement
             return linearMediaTypeIds;
         }
 
-        private static Dictionary<long, long> GetGroupCategoriesIds(int groupId)
+        internal static Dictionary<long, long> GetGroupCategoriesIds(int groupId)
         {
             // save mapping between categoryItem and Parentcategory
             Dictionary<long, long> result = new Dictionary<long, long>();

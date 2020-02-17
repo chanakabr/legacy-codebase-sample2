@@ -101,6 +101,12 @@ namespace Core.Catalog.Handlers
 
             try
             {
+                if (objectToUpdate.ParentCategoryId.HasValue && objectToUpdate.ParentCategoryId.Value == objectToUpdate.Id)
+                {
+                    response.SetStatus(eResponseStatus.ParentIdShouldNotPointToItself, "ParentId Should Not Point To Itself");
+                    return response;
+                }
+
                 // Get the current category
                 var currentCategory = CatalogManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id);
                 if (currentCategory == null)
@@ -131,12 +137,6 @@ namespace Core.Catalog.Handlers
                 }
 
                 bool needToInvalidate = false;
-                if(objectToUpdate.ParentCategoryId.HasValue && objectToUpdate.ParentCategoryId.Value == objectToUpdate.Id)
-                {
-                    response.SetStatus(eResponseStatus.ParentIdShouldNotPointToItself, "ParentId Should Not Point To Itself");
-                    return response;
-                }
-                
                 if (currentCategory.ParentCategoryId != objectToUpdate.ParentCategoryId)
                 {
                     if (objectToUpdate.ParentCategoryId.HasValue)
@@ -150,7 +150,7 @@ namespace Core.Catalog.Handlers
                                 return response;
                             }
                         }
-                        
+
                         needToInvalidate = true;
                     }
                     else
@@ -185,7 +185,7 @@ namespace Core.Catalog.Handlers
                 if (objectToUpdate.DynamicData == null)
                 {
                     objectToUpdate.DynamicData = currentCategory.DynamicData;
-                }                
+                }
 
                 if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, objectToUpdate.ParentCategoryId,
                     channels, objectToUpdate.DynamicData))
@@ -228,6 +228,22 @@ namespace Core.Catalog.Handlers
                     response.Set(eResponseStatus.CategoryNotExist, "Category does not exist");
                     return response;
                 }
+
+                // need to check if category is a root category. In case it is, all the sub categories should removed as well
+                var categoriesMap = CatalogManager.GetGroupCategoriesIds(contextData.GroupId);
+                
+                if (categoriesMap != null )
+                {
+                    // means category is parent
+                    if(categoriesMap.Values.Count(x => x == id) > 0)
+                    {
+
+                    }
+                }
+
+
+
+
 
                 if (!CatalogDAL.DeleteCategory(contextData.GroupId, contextData.UserId, id))
                 {

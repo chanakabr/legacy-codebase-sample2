@@ -12,22 +12,28 @@ namespace WebAPI.Controllers
 {
     [Service("categoryItem")]
     [AddAction(Summary = "categoryItem add",
-               ObjectToAddDescription = "categoryItem details",
-                ClientThrows = new eResponseStatus[]
-               {
+        ObjectToAddDescription = "categoryItem details",
+        ClientThrows = new eResponseStatus[]{
                    eResponseStatus.NameRequired,
                    eResponseStatus.CategoryNotExist,
-                   eResponseStatus.ChannelDoesNotExist
-               })]
+                   eResponseStatus.ChannelDoesNotExist}
+     )]
 
     [UpdateAction(Summary = "categoryItem update",
-                  IdDescription = "Category identifier",
-                  ObjectToUpdateDescription = "categoryItem details", ClientThrows = new eResponseStatus[] { eResponseStatus.CategoryNotExist }
-               )]
+        IdDescription = "Category identifier",
+        ObjectToUpdateDescription = "categoryItem details",
+        ClientThrows = new eResponseStatus[] { 
+            eResponseStatus.CategoryNotExist,
+            eResponseStatus.NameRequired,
+            eResponseStatus.ChannelDoesNotExist,
+            eResponseStatus.ParentIdShouldNotPointToItself}
+    )]
 
     [DeleteAction(Summary = "Remove category",
-                  IdDescription = "Category identifier", ClientThrows = new eResponseStatus[] { eResponseStatus.CategoryNotExist }
-                  )]
+        IdDescription = "Category identifier",
+        ClientThrows = new eResponseStatus[] { 
+            eResponseStatus.CategoryNotExist }
+    )]
 
     [ListAction(Summary = "Gets all categoryItem items", IsFilterOptional = true)]
     public class CategoryItemController : KalturaCrudController<KalturaCategoryItem, KalturaCategoryItemListResponse, CategoryItem, long, KalturaCategoryItemFilter, CategoryItemFilter>
