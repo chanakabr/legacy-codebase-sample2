@@ -91,7 +91,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ITEM_NOT_FOUND = new ClientExceptionType(eResponseStatus.ItemNotFound, "Item Not Found", "Unable to find the item you requested");
         public static ClientExceptionType EXTERNAL_ID_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.ExternalIdAlreadyExists, "External ID already exists", "The external ID you are trying to add / update already exists");
         public static ApiExceptionType EXTERNAL_ERROR = new ApiExceptionType(StatusCode.ExternalError, "externalCode: [@externalCode@], externalMessage: [@externalMessage@]", "externalCode", "externalMessage");
-        public static ClientExceptionType PARENTID_SHOULD_NOT_POINT_TO_ITSELF = new ClientExceptionType(eResponseStatus.ParentIdShouldNotPointToItself, "ParentId Should Not Point To Itself");
+        public static ClientExceptionType PARENTID_SHOULD_NOT_POINT_TO_ITSELF = new ClientExceptionType(eResponseStatus.ParentIdShouldNotPointToItself, "ParentId Should Not Point To Itself", "ParentId should not point to itself");
         public static ClientExceptionType PARENTID_NOT_EXIST = new ClientExceptionType(eResponseStatus.ParentIdNotExist, "ParentId Not Exist");
         public static ClientExceptionType USER_FAVORITE_NOT_DELETED = new ClientExceptionType(eResponseStatus.UserFavoriteNotDeleted, "User Favorite Not Deleted");
 

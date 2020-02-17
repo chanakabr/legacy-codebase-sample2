@@ -40,7 +40,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "parentCategoryId")]
         [JsonProperty(PropertyName = "parentCategoryId")]
-        [XmlElement(ElementName = "parentCategoryId")]
+        [XmlElement(ElementName = "parentCategoryId", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
         public long? ParentCategoryId { get; set; }
 
         /// <summary>

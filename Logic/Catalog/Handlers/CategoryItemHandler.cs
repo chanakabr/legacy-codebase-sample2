@@ -131,6 +131,12 @@ namespace Core.Catalog.Handlers
                 }
 
                 bool needToInvalidate = false;
+                if(objectToUpdate.ParentCategoryId.HasValue && objectToUpdate.ParentCategoryId.Value == objectToUpdate.Id)
+                {
+                    response.SetStatus(eResponseStatus.ParentIdShouldNotPointToItself, "ParentId Should Not Point To Itself");
+                    return response;
+                }
+                
                 if (currentCategory.ParentCategoryId != objectToUpdate.ParentCategoryId)
                 {
                     if (objectToUpdate.ParentCategoryId.HasValue)
@@ -143,9 +149,9 @@ namespace Core.Catalog.Handlers
                                 response.SetStatus(eResponseStatus.CategoryNotExist, "Parent Category does not exist");
                                 return response;
                             }
-
-                            needToInvalidate = true;
                         }
+                        
+                        needToInvalidate = true;
                     }
                     else
                     {

@@ -11594,6 +11594,17 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute ParentCategoryIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
         private static RuntimeSchemePropertyAttribute ChildCategoriesIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
             ReadOnly = true,
@@ -11624,6 +11635,10 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("parentCategoryId") && parameters["parentCategoryId"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        ParentCategoryIdSchemaProperty.Validate("parentCategoryId", parameters["parentCategoryId"]);
+                    }
                     ParentCategoryId = (Int64) Convert.ChangeType(parameters["parentCategoryId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("childCategoriesIds") && parameters["childCategoriesIds"] != null)
