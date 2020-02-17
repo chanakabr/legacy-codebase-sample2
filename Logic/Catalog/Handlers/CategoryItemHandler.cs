@@ -303,6 +303,56 @@ namespace Core.Catalog.Handlers
             throw new NotImplementedException();
         }
 
+        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemByIdInFilter filter)
+        {
+            GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
+
+            List<long> categoriesIds = null;
+            CategoryItem categoryItem = null;
+
+            if (filter?.GetIdIn()?.Count > 0)
+            {
+                categoriesIds = filter.GetIdIn();
+                foreach (var categoryId in categoriesIds)
+                {
+                    categoryItem = CatalogManager.GetCategoryItem(contextData.GroupId, categoryId);
+                    if(categoryItem != null)
+                    {
+                        response.Objects.Add(categoryItem);
+                    }
+                }
+
+                response.TotalItems = response.Objects.Count;
+                response.SetStatus(eResponseStatus.OK);
+            }
+
+            return response;
+        }
+        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemByRootFilter filter)
+        {
+            GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
+            CategoryItem categoryItem = null;
+
+            var categoriesMap = CatalogManager.GetGroupCategoriesIds(contextData.GroupId);
+            if (categoriesMap?.Count > 0)
+            {
+                List<long> categoriesIds = categoriesMap.Where(x => x.Value == 0).Select(x => x.Key).ToList();
+                foreach (var categoryId in categoriesIds)
+                {
+                    categoryItem = CatalogManager.GetCategoryItem(contextData.GroupId, categoryId);
+                    if(categoryItem != null)
+                    {
+                        response.Objects.Add(categoryItem);
+                    }
+                }
+
+                response.TotalItems = response.Objects.Count;
+                response.SetStatus(eResponseStatus.OK);
+            }
+
+            return response;
+        }
+
         public GenericResponse<CategoryTree> Duplicate(int groupId, long userId, long id)
         {
             var response = new GenericResponse<CategoryTree>();

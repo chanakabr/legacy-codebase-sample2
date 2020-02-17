@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -44,7 +45,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "idIn")]
         [JsonProperty("idIn")]
-        [XmlElement(ElementName = "idIn", IsNullable = true)]
+        [XmlElement(ElementName = "idIn", IsNullable = false)]
         public string IdIn { get; set; }              
        
         public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
@@ -54,28 +55,21 @@ namespace WebAPI.Models.Catalog
 
         public override void Validate()
         {
+            if(string.IsNullOrEmpty(IdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
+            }
         }
 
         public KalturaCategoryItemByIdInFilter() : base()
         {
         }
 
-        public List<long> GetIdIn()
-        {
-            if (IdIn != null)
-            {
-                return GetItemsIn<List<long>, long>(IdIn, "KalturaCategoryItemFilter.idIn", true, true);
-            }
-
-            return null;
-        }
-
         public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
         {
-            var coreFilter = AutoMapper.Mapper.Map<CategoryItemFilter>(this);
+            var coreFilter = AutoMapper.Mapper.Map<CategoryItemByIdInFilter>(this);
             return CategoryItemHandler.Instance.List(contextData, coreFilter);
         }
-
     }
 
     public partial class KalturaCategoryItemByKsqlFilter : KalturaCategoryItemFilter
@@ -85,7 +79,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "kSql")]
         [JsonProperty("kSql")]
-        [XmlElement(ElementName = "kSql", IsNullable = true)]
+        [XmlElement(ElementName = "kSql", IsNullable = false)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string Ksql { get; set; }
 
@@ -96,11 +90,21 @@ namespace WebAPI.Models.Catalog
 
         public override void Validate()
         {
+            if (string.IsNullOrEmpty(Ksql))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+            }
         }
 
         public KalturaCategoryItemByKsqlFilter() : base()
         {
-        }     
+        }
+
+        public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
+        {
+            var coreFilter = AutoMapper.Mapper.Map<CategoryItemByKsqlFilter>(this);
+            return CategoryItemHandler.Instance.List(contextData, coreFilter);
+        }
     }
 
     public partial class KalturaCategoryItemByRootFilter : KalturaCategoryItemFilter
@@ -120,9 +124,8 @@ namespace WebAPI.Models.Catalog
 
         public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
         {
-            // var coreFilter = AutoMapper.Mapper.Map<HouseholdSegmentFilter>(this);
-            //return HouseholdSegmentManager.Instance.List(contextData, coreFilter);
-            return null;
+            var coreFilter = AutoMapper.Mapper.Map<CategoryItemByRootFilter>(this);
+            return CategoryItemHandler.Instance.List(contextData, coreFilter);
         }
     }
 
