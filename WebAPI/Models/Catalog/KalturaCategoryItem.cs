@@ -102,7 +102,10 @@ namespace WebAPI.Models.Catalog
 
         internal override void ValidateForUpdate()
         {
-            //TODO anat:
+            if (this.Name !=null && this.Name.Trim() == "")
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            }           
         }
 
         public KalturaCategoryItem() : base() { }

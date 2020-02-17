@@ -97,6 +97,7 @@ namespace Core.Catalog.Handlers
         public GenericResponse<CategoryItem> Update(ContextData contextData, CategoryItem objectToUpdate)
         {
             var response = new GenericResponse<CategoryItem>();
+            VirtualAssetInfo virtualAssetInfo = null;
 
             try
             {
@@ -106,6 +107,27 @@ namespace Core.Catalog.Handlers
                 {
                     response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
                     return response;
+                }
+
+                // if name change need to update virtualAsset
+                if (objectToUpdate.Name == null)
+                {
+                    objectToUpdate.Name = currentCategory.Name;
+                }
+                else if (objectToUpdate.Name.Trim() == "")
+                {
+                    response.SetStatus(eResponseStatus.NameRequired, "Name Required");
+                    return response;
+                }
+                else if (objectToUpdate.Name != currentCategory.Name)
+                {
+                    virtualAssetInfo = new VirtualAssetInfo()
+                    {
+                        Type = ObjectVirtualAssetInfoType.Category,
+                        Id = currentCategory.Id,
+                        Name = objectToUpdate.Name,
+                        UserId = contextData.UserId.Value
+                    };
                 }
 
                 bool needToInvalidate = false;
@@ -157,7 +179,7 @@ namespace Core.Catalog.Handlers
                 if (objectToUpdate.DynamicData == null)
                 {
                     objectToUpdate.DynamicData = currentCategory.DynamicData;
-                }
+                }                
 
                 if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, objectToUpdate.ParentCategoryId,
                     channels, objectToUpdate.DynamicData))
@@ -165,18 +187,8 @@ namespace Core.Catalog.Handlers
                     log.Error($"Error while InsertCategory. contextData: {contextData.ToString()}.");
                     return response;
                 }
-
-                // if name change need to update virtualAsset
-                if (objectToUpdate.Name != currentCategory.Name)
+                if (virtualAssetInfo != null)
                 {
-                    var virtualAssetInfo = new VirtualAssetInfo()
-                    {
-                        Type = ObjectVirtualAssetInfoType.Category,
-                        Id = currentCategory.Id,
-                        Name = objectToUpdate.Name,
-                        UserId = contextData.UserId.Value
-                    };
-
                     api.UpdateVirtualAsset(contextData.GroupId, virtualAssetInfo);
                 }
 
