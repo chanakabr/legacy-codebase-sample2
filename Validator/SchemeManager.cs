@@ -221,7 +221,7 @@ namespace Validator.Managers.Scheme
         private static bool ValidateProperty(PropertyInfo property, bool strict, ListResponseAttribute listResponseAttribute)
         {
             bool valid = true;
-            if (property.DeclaringType != null && property.DeclaringType == typeof(KalturaCrudFilter<,,,>)) { return valid; }
+            if (property.DeclaringType != null && property.DeclaringType == typeof(KalturaCrudFilter<,>)) { return valid; }
             
             if (property.Name.Contains('_'))
             {
@@ -268,7 +268,7 @@ namespace Validator.Managers.Scheme
         private static bool ValidateFilter(Type type, bool strict)
         {
             bool valid = true;
-            if (type == typeof(KalturaCrudFilter<,,,>)) { return valid; };
+            if (type == typeof(KalturaCrudFilter<,>)) { return valid; };
             
             foreach (PropertyInfo property in type.GetProperties().Where(x => x.DeclaringType == type && !hasValidationException(x, SchemeValidationType.FILTER_SUFFIX)))
             {
@@ -771,9 +771,18 @@ namespace Validator.Managers.Scheme
             return isGenericListResponse;
         }
 
-        public static bool IsParameterOptional(ParameterInfo parameter, HashSet<string> optionalParameters)
+        public static bool? IsParameterOptional(ParameterInfo parameter, Dictionary<string, bool> optionalParameters)
         {
-            var isParamOptional = parameter.IsOptional || (optionalParameters != null && optionalParameters.Contains(parameter.Name));
+            bool? isParamOptional = null;
+            if (parameter.IsOptional || optionalParameters == null)
+            {
+                isParamOptional = parameter.IsOptional;
+            }
+            else if (optionalParameters != null && optionalParameters.ContainsKey(parameter.Name))
+            {
+                isParamOptional = optionalParameters[parameter.Name];
+            }
+            
             return isParamOptional;
         }
 
