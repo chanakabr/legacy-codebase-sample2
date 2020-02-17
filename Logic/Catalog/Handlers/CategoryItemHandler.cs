@@ -404,8 +404,8 @@ namespace Core.Catalog.Handlers
             categoryTree = new CategoryTree() { 
                 Id = categoryItem.Id, 
                 DynamicData = categoryItem .DynamicData,
-                Name = categoryItem.Name,
-                UnifiedChannels = categoryItem.UnifiedChannels                
+                Name = categoryItem.Name
+                //UnifiedChannels = categoryItem.UnifiedChannels                
             };
 
             if(categoryItem.ChildCategoriesIds?.Count > 0)
