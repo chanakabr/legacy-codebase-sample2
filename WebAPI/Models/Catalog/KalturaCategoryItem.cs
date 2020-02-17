@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -93,7 +94,10 @@ namespace WebAPI.Models.Catalog
 
         internal override void ValidateForAdd()
         {
-            //TODO anat:
+            if (string.IsNullOrEmpty(this.Name))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            }
         }
 
         internal override void ValidateForUpdate()

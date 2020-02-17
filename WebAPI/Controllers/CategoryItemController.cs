@@ -12,9 +12,13 @@ namespace WebAPI.Controllers
 {
     [Service("categoryItem")]
     [AddAction(Summary = "categoryItem add",
-               ObjectToAddDescription = "categoryItem details"
-               )]
-
+               ObjectToAddDescription = "categoryItem details",
+                ClientThrows = new eResponseStatus[]
+               {
+                   eResponseStatus.NameRequired,
+                   eResponseStatus.CategoryNotExist,
+                   eResponseStatus.ChannelDoesNotExist
+               })]
 
     [UpdateAction(Summary = "categoryItem update",
                   IdDescription = "Category identifier",

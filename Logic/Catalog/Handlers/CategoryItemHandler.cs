@@ -31,6 +31,12 @@ namespace Core.Catalog.Handlers
 
             try
             {
+                if (!string.IsNullOrEmpty(objectToAdd.Name))
+                {
+                    response.SetStatus(eResponseStatus.NameRequired, "Name Required");
+                    return response;
+                }
+
                 if (objectToAdd.ParentCategoryId.HasValue)
                 {
                     //Check if ParentCategoryId Exist
@@ -115,7 +121,7 @@ namespace Core.Catalog.Handlers
                                 response.SetStatus(eResponseStatus.CategoryNotExist, "Parent Category does not exist");
                                 return response;
                             }
-                            
+
                             needToInvalidate = true;
                         }
                     }
@@ -178,7 +184,7 @@ namespace Core.Catalog.Handlers
                 {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
                 }
-                
+
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(contextData.GroupId));
 
                 response.Object = objectToUpdate;
@@ -198,33 +204,32 @@ namespace Core.Catalog.Handlers
 
             try
             {
-                // Get the current category
-                //var currentCategory = CatalogManagement.CatalogManager.GetGroupCategory(contextData.GroupId, id);
-                //if (currentCategory == null)
-                //{
-                //    response.Set(eResponseStatus.CategoryNotExist, "Category does not exist");
-                //    return response;
-                //}
+                //Check if category exist
+                if (!CatalogManager.IsCategoryExist(contextData.GroupId, id))
+                {
+                    response.Set(eResponseStatus.CategoryNotExist, "Category does not exist");
+                    return response;
+                }
 
-                //if (!CatalogDAL.DeleteCategory(contextData.GroupId, contextData.UserId, id))
-                //{
-                //    log.Error($"Error while DeleteCategory. contextData: {contextData.ToString()} id: {id}.");
-                //    return response;
-                //}
+                if (!CatalogDAL.DeleteCategory(contextData.GroupId, contextData.UserId, id))
+                {
+                    log.Error($"Error while DeleteCategory. contextData: {contextData.ToString()} id: {id}.");
+                    return response;
+                }
 
-                //// Delete the virtual asset
-                //var virtualAssetInfo = new VirtualAssetInfo()
-                //{
-                //    Type = ObjectVirtualAssetInfoType.Category,
-                //    Id = id,
-                //    UserId = long.Parse(contextData.UserId.ToString())
-                //};
+                // Delete the virtual asset
+                var virtualAssetInfo = new VirtualAssetInfo()
+                {
+                    Type = ObjectVirtualAssetInfoType.Category,
+                    Id = id,
+                    UserId = long.Parse(contextData.UserId.ToString())
+                };
 
-                //api.DeleteVirtualAsset(contextData.GroupId, virtualAssetInfo);
+                api.DeleteVirtualAsset(contextData.GroupId, virtualAssetInfo);
 
-                //LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesDictionaryInvalidationKey(contextData.GroupId));
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
 
-                //response.Set(eResponseStatus.OK);
+                response.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
@@ -240,16 +245,16 @@ namespace Core.Catalog.Handlers
 
             try
             {
-                //// Get the current category
-                //var currentCategory = CatalogManagement.CatalogManager.GetGroupCategory(contextData.GroupId, id);
-                //if (currentCategory == null)
-                //{
-                //    response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
-                //    return response;
-                //}
+                // Get the current category
+                var currentCategory = CatalogManager.GetCategoryItem(contextData.GroupId, id);
+                if (currentCategory == null)
+                {
+                    response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
+                    return response;
+                }
 
-                //response.Object = currentCategory;
-                //response.Status.Set(eResponseStatus.OK);
+                response.Object = currentCategory;
+                response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
             {

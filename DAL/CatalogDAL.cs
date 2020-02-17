@@ -6117,7 +6117,11 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@id", id);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@updaterId", userId);
-                return sp.ExecuteReturnValue<int>() > 0;
+                var result = sp.ExecuteReturnValue<int>() > 0;
+
+                DeleteCategoryDynamicData(id);
+
+                return result;
             }
             catch (Exception ex)
             {
