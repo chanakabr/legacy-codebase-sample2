@@ -13,7 +13,7 @@ namespace WebAPI.Controllers
     public class CategoryTreeController : IKalturaController
     {
         /// <summary>
-        /// Sign up a new user.      
+        /// Duplicate category Item
         /// </summary>        
         /// <param name="categoryItemId">Category item identifier</param>        
         [Action("duplicate")]
@@ -28,6 +28,31 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.CatalogClient().Duplicate(groupId, long.Parse(userId), categoryItemId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Retrive category tree.      
+        /// </summary>        
+        /// <param name="categoryItemId">Category item identifier</param>        
+        [Action("get")]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        static public KalturaCategoryTree Get(long categoryItemId)
+        {
+            KalturaCategoryTree response = null;
+
+            var groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                response = ClientsManager.CatalogClient().GetCategoryTree(groupId, long.Parse(userId), categoryItemId);
             }
             catch (ClientException ex)
             {

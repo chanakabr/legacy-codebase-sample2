@@ -387,6 +387,45 @@ namespace Core.Catalog.Handlers
             return response;
         }
 
+        public GenericResponse<CategoryTree> GetCategoryTree(int groupId, long userId, long categoryItemId)
+        {
+            GenericResponse<CategoryTree> response = new GenericResponse<CategoryTree>();
+
+            CategoryTree categoryTree = null;
+
+            // Get the current category
+            var categoryItem = CatalogManager.GetCategoryItem(groupId, categoryItemId);
+            if (categoryItem == null)
+            {
+                response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
+                return response;
+            }
+
+            categoryTree = new CategoryTree() { 
+                Id = categoryItem.Id, 
+                DynamicData = categoryItem .DynamicData,
+                Name = categoryItem.Name,
+                UnifiedChannels = categoryItem.UnifiedChannels                
+            };
+
+            if(categoryItem.ChildCategoriesIds?.Count > 0)
+            {
+                categoryTree.Children = new List<CategoryTree>();
+                //TODO anat: images
+
+                foreach (var categoryId in categoryItem.ChildCategoriesIds)
+                {
+
+                }
+            }
+
+            //TODO anat: images
+
+            response.Object = categoryTree;
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
         private bool IsUnifiedChannelsValid(int groupId, long userId, List<UnifiedChannel> unifiedChannels)
         {
             List<long> externalChannels = unifiedChannels.Where(x => x.Type == UnifiedChannelType.External).Select(y => y.Id).ToList();
@@ -411,6 +450,6 @@ namespace Core.Catalog.Handlers
                 }
             }
             return true;
-        }
+        }       
     }
 }

@@ -115,7 +115,7 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }       
+        }        
 
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
@@ -4152,9 +4152,19 @@ namespace WebAPI.Clients
             return excelStructure;
         }
 
-        internal KalturaCategoryTree Duplicate(int groupId, long userId, long id)
+        internal KalturaCategoryTree Duplicate(int groupId, long userId, long categoryItemId)
         {
-            Func<GenericResponse<CategoryTree>> duplicateFunc = () => CategoryItemHandler.Instance.Duplicate(groupId, userId, id);
+            Func<GenericResponse<CategoryTree>> duplicateFunc = () => CategoryItemHandler.Instance.Duplicate(groupId, userId, categoryItemId);
+
+            KalturaCategoryTree response =
+                ClientUtils.GetResponseFromWS<KalturaCategoryTree, CategoryTree>(duplicateFunc);
+
+            return response;
+        }
+
+        internal KalturaCategoryTree GetCategoryTree(int groupId, long userId, long categoryItemId)
+        {
+            Func<GenericResponse<CategoryTree>> duplicateFunc = () => CategoryItemHandler.Instance.GetCategoryTree(groupId, userId, categoryItemId);
 
             KalturaCategoryTree response =
                 ClientUtils.GetResponseFromWS<KalturaCategoryTree, CategoryTree>(duplicateFunc);

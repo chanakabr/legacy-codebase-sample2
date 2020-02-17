@@ -7350,6 +7350,9 @@ namespace WebAPI.Reflection
                         case "duplicate":
                             return CategoryTreeController.Duplicate((long) methodParams[0]);
                             
+                        case "get":
+                            return CategoryTreeController.Get((long) methodParams[0]);
+                            
                     }
                     break;
                     
@@ -12418,6 +12421,13 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "duplicate":
+                            ret.Add("categoryItemId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "get":
                             ret.Add("categoryItemId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
