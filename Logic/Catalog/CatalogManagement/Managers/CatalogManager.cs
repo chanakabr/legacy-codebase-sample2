@@ -969,7 +969,6 @@ namespace Core.Catalog.CatalogManagement
         private static Dictionary<long, long> GetCategoriesIds(int groupId)
         {
             Dictionary<long, long> categoryItems = new Dictionary<long, long>();
-            CategoryItem categoryItem = null;
 
             try
             {
@@ -978,13 +977,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        categoryItem = new CategoryItem()
-                        {
-                            Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
-                            ParentCategoryId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_CATEGORY_ID"),
-                        };
-
-                        categoryItems.Add(categoryItem.Id, categoryItem.ParentCategoryId.Value);
+                        categoryItems.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"), ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_CATEGORY_ID"));
                     }
                 }
             }
@@ -1028,7 +1021,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DataSet ds = CatalogDAL.GetCategoryItem(groupId, id);
-                if (ds?.Tables.Count > 1 && ds.Tables[0].Rows.Count > 0)
+                if (ds?.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     categoryItem = new CategoryItem()
                     {
@@ -1038,7 +1031,7 @@ namespace Core.Catalog.CatalogManagement
                         HasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA")
                     };
 
-                    if (ds.Tables[1].Rows.Count > 0)
+                    if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                     {
                         categoryItem.UnifiedChannels = new List<UnifiedChannel>();
 
@@ -1049,6 +1042,8 @@ namespace Core.Catalog.CatalogManagement
                                 Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_ID"),
                                 Type = (UnifiedChannelType)ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_TYPE")
                             });
+
+                            //TODO anat: check if channel exist 
                         }
                     }
 
@@ -3338,7 +3333,6 @@ namespace Core.Catalog.CatalogManagement
             var categories = GetGroupCategoriesIds(groupId);
             if (categories == null || !categories.ContainsKey(id))
             {
-                log.Debug($"No categories found for groupId: { groupId}");
                 return false;
             }
 

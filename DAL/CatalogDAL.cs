@@ -6053,7 +6053,7 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
 
                 var id = sp.ExecuteReturnValue<long>();
-                if (id > 0)
+                if (dynamicData?.Count >0 && id > 0)
                 {
                     SaveCategoryDynamicData(id, dynamicData);
                 }

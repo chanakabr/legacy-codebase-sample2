@@ -40,7 +40,7 @@ namespace Core.Catalog.Handlers
                 if (objectToAdd.ParentCategoryId.HasValue)
                 {
                     //Check if ParentCategoryId Exist
-                    if (!CatalogManager.IsCategoryExist(contextData.GroupId, objectToAdd.ParentCategoryId.Value))
+                    if (objectToAdd.ParentCategoryId.Value == 0 || !CatalogManager.IsCategoryExist(contextData.GroupId, objectToAdd.ParentCategoryId.Value))
                     {
                         response.SetStatus(eResponseStatus.CategoryNotExist, "Parent Category does not exist");
                         return response;
@@ -80,7 +80,6 @@ namespace Core.Catalog.Handlers
                 api.AddVirtualAsset(contextData.GroupId, virtualAssetInfo);
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(contextData.GroupId));
 
                 objectToAdd.Id = id;
                 response.Object = objectToAdd;
@@ -302,7 +301,6 @@ namespace Core.Catalog.Handlers
         {
             throw new NotImplementedException();
         }
-
         public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemByIdInFilter filter)
         {
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
