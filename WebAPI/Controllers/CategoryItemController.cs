@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
             eResponseStatus.CategoryNotExist }
     )]
 
-    [ListAction(Summary = "Gets all categoryItem items", IsFilterOptional = true)]
+    [ListAction(Summary = "Gets all categoryItem items", IsFilterOptional = true, IsPagerOptional = false)]
     public class CategoryItemController : KalturaCrudController<KalturaCategoryItem, KalturaCategoryItemListResponse, CategoryItem, long, KalturaCategoryItemFilter, CategoryItemFilter>
     {
     }

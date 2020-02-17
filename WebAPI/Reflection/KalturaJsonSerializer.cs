@@ -5203,7 +5203,7 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
-    public partial class KalturaCrudFilter<KalturaOrderByT, ICrudHandeledObject, IdentifierT, ICrudFilter>
+    public partial class KalturaCrudFilter<KalturaOrderByT, ICrudHandeledObject>
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {

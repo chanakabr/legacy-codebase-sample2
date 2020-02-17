@@ -596,9 +596,6 @@ namespace WebAPI.Reflection
                 case "KalturaCouponsGroupListResponse":
                     return new KalturaCouponsGroupListResponse(parameters);
                     
-                case "KalturaCrudFilter":
-                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
-                    
                 case "KalturaCrudObject":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -6944,12 +6941,6 @@ namespace WebAPI.Models.General
                     ApiVersion = (String) Convert.ChangeType(parameters["apiVersion"], typeof(String));
                 }
             }
-        }
-    }
-    public partial class KalturaCrudFilter<KalturaOrderByT, ICrudHandeledObject, IdentifierT, ICrudFilter>
-    {
-        public KalturaCrudFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
         }
     }
     public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>

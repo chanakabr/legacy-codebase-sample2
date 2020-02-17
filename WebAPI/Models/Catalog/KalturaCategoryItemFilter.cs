@@ -1,5 +1,7 @@
 ﻿using ApiLogic.Base;
 using ApiLogic.Catalog;
+using ApiObjects.Base;
+using ApiObjects.Response;
 using Core.Catalog.Handlers;
 using Newtonsoft.Json;
 using System;
@@ -12,13 +14,14 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     [Serializable]
-    public partial class KalturaCategoryItemFilter : KalturaCrudFilter<KalturaCategoryItemOrderBy, CategoryItem, long, CategoryItemFilter>
+    public partial class KalturaCategoryItemFilter : KalturaCrudFilter<KalturaCategoryItemOrderBy, CategoryItem>
     {
-        internal virtual KalturaCategoryItemListResponse GetCategoryItems(int groupId, KalturaFilterPager pager)
+        public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
         {
-            return null;
+            var coreFilter = AutoMapper.Mapper.Map<CategoryItemFilter>(this);
+            return CategoryItemHandler.Instance.List(contextData, coreFilter);
         }
-        
+
         public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
         {
             return KalturaCategoryItemOrderBy.NONE;
@@ -28,19 +31,12 @@ namespace WebAPI.Models.Catalog
         {
         }
 
-        public override ICrudHandler<CategoryItem, long, CategoryItemFilter> Handler
-        {
-            get
-            {
-                return CategoryItemHandler.Instance;
-            }
-        }
-
         public KalturaCategoryItemFilter() : base()
         {
 
         }
     }
+
     public partial class KalturaCategoryItemByIdInFilter : KalturaCategoryItemFilter
     {
         /// <summary>
@@ -74,10 +70,12 @@ namespace WebAPI.Models.Catalog
             return null;
         }
 
-        internal override KalturaCategoryItemListResponse GetCategoryItems(int groupId, KalturaFilterPager pager)
+        public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
         {
-            throw new NotImplementedException();
+            var coreFilter = AutoMapper.Mapper.Map<CategoryItemFilter>(this);
+            return CategoryItemHandler.Instance.List(contextData, coreFilter);
         }
+
     }
 
     public partial class KalturaCategoryItemByKsqlFilter : KalturaCategoryItemFilter
@@ -102,12 +100,7 @@ namespace WebAPI.Models.Catalog
 
         public KalturaCategoryItemByKsqlFilter() : base()
         {
-        }       
-
-        internal override KalturaCategoryItemListResponse GetCategoryItems(int groupId, KalturaFilterPager pager)
-        {
-            throw new NotImplementedException();
-        }
+        }     
     }
 
     public partial class KalturaCategoryItemByRootFilter : KalturaCategoryItemFilter
@@ -125,9 +118,11 @@ namespace WebAPI.Models.Catalog
         {
         }
 
-        internal override KalturaCategoryItemListResponse GetCategoryItems(int groupId, KalturaFilterPager pager)
+        public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
         {
-            throw new NotImplementedException();
+            // var coreFilter = AutoMapper.Mapper.Map<HouseholdSegmentFilter>(this);
+            //return HouseholdSegmentManager.Instance.List(contextData, coreFilter);
+            return null;
         }
     }
 

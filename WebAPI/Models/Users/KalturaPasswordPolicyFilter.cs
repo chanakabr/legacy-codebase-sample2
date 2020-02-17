@@ -1,10 +1,11 @@
 ﻿using ApiLogic.Base;
 using ApiLogic.Users.Managers;
 using ApiObjects;
+using ApiObjects.Base;
+using ApiObjects.Response;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -13,7 +14,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Password policy settings filter
     /// </summary>
-    public partial class KalturaPasswordPolicyFilter : KalturaCrudFilter<KalturaPasswordPolicyOrderBy, PasswordPolicy, long, PasswordPolicyFilter>
+    public partial class KalturaPasswordPolicyFilter : KalturaCrudFilter<KalturaPasswordPolicyOrderBy, PasswordPolicy>
     {
         /// <summary>
         /// Comma separated list of role Ids.
@@ -28,14 +29,6 @@ namespace WebAPI.Models.Users
         {
         }
 
-        public override ICrudHandler<PasswordPolicy, long, PasswordPolicyFilter> Handler
-        {
-            get
-            {
-                return PasswordPolicyManager.Instance;
-            }
-        }
-        
         public override KalturaPasswordPolicyOrderBy GetDefaultOrderByValue()
         {
             return KalturaPasswordPolicyOrderBy.NONE;
@@ -43,6 +36,12 @@ namespace WebAPI.Models.Users
 
         public override void Validate()
         {
+        }
+
+        public override GenericListResponse<PasswordPolicy> List(ContextData contextData, CorePager pager)
+        {
+            var coreFilter = AutoMapper.Mapper.Map<PasswordPolicyFilter>(this);
+            return PasswordPolicyManager.Instance.List(contextData, coreFilter);
         }
     }
 

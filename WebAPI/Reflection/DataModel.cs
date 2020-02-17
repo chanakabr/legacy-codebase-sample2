@@ -7339,7 +7339,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("categoryitem", "list");
-                            return CategoryItemController.List((KalturaCategoryItemFilter) methodParams[0]);
+                            return CategoryItemController.List((KalturaCategoryItemFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -7883,7 +7883,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("eventnotification", "list");
-                            return EventNotificationController.List((KalturaEventNotificationFilter) methodParams[0]);
+                            return EventNotificationController.List((KalturaEventNotificationFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -8196,7 +8196,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("householdcoupon", "list");
-                            return HouseholdCouponController.List((KalturaHouseholdCouponFilter) methodParams[0]);
+                            return HouseholdCouponController.List((KalturaHouseholdCouponFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -8407,7 +8407,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("householdsegment", "list");
-                            return HouseholdSegmentController.List((KalturaHouseholdSegmentFilter) methodParams[0]);
+                            return HouseholdSegmentController.List((KalturaHouseholdSegmentFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -9099,7 +9099,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("passwordpolicy", "list");
-                            return PasswordPolicyController.List((KalturaPasswordPolicyFilter) methodParams[0]);
+                            return PasswordPolicyController.List((KalturaPasswordPolicyFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -12403,6 +12403,11 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaCategoryItemFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             

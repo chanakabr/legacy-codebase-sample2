@@ -16,8 +16,19 @@ namespace ApiLogic.Catalog
 
     public class CategoryItemFilter : ICrudFilter
     {
-        public List<long> Ids { get; set; }
+    }
+
+    public class CategoryItemByIdInFilter : CategoryItemFilter
+    {
+        public string IdIn { get; set; }        
+    }
+
+    public class CategoryItemByKsqlFilter : CategoryItemFilter
+    {
         public string Ksql { get; set; }
-        public bool ParentOnly { get; set; }
+    }
+
+    public class CategoryItemByRootFilter : CategoryItemFilter
+    {
     }
 }

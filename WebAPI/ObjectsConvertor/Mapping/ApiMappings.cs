@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Notification;
@@ -26,6 +27,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
     {
         public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
+            cfg.CreateMap<KalturaFilterPager, CorePager>()
+                .ForMember(dest => dest.PageIndex, opt => opt.MapFrom(src => src.getPageIndex()))
+                .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.getPageSize()));
+
             //Language 
             cfg.CreateMap<LanguageObj, WebAPI.Managers.Models.Language>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))

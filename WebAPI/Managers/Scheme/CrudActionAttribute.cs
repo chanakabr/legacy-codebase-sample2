@@ -14,7 +14,7 @@ namespace WebAPI.Managers.Scheme
 
         public abstract string GetName();
         public abstract string GetDescription(string paramName);
-        public virtual HashSet<string> GetOptionalParameters() { return null; }
+        public virtual Dictionary<string, bool> GetOptionalParameters() { return null; }
     }
 
     public class AddActionAttribute : CrudActionAttribute
@@ -115,12 +115,31 @@ namespace WebAPI.Managers.Scheme
     public class ListActionAttribute : CrudActionAttribute
     {
         public const string Name = "list";
+        
+        private bool isPagerOptional;
+        private bool hasPager;
+
         public string FilterDescription { get; set; }
+        public string PagerDescription { get; set; }
         public bool IsFilterOptional { get; set; }
+        
+        public bool IsPagerOptional
+        {
+            get
+            {
+                return isPagerOptional;
+            }
+            set
+            {
+                isPagerOptional = value;
+                hasPager = true;
+            }
+        }
 
         public ListActionAttribute()
         {
             this.FilterDescription = "Request filter";
+            this.PagerDescription = "Request pager";
             this.IsFilterOptional = false;
         }
 
@@ -131,16 +150,31 @@ namespace WebAPI.Managers.Scheme
 
         public override string GetDescription(string paramName)
         {
-            return FilterDescription;
+            if (paramName == "filter")
+            {
+                return FilterDescription;
+            }
+
+            if (paramName == "pager")
+            {
+                return PagerDescription;
+            }
+           
+            return string.Empty;
         }
 
-        public override HashSet<string> GetOptionalParameters()
+        public override Dictionary<string, bool> GetOptionalParameters()
         {
-            var optionalParameters = new HashSet<string>();
-            if (IsFilterOptional)
+            var optionalParameters = new Dictionary<string, bool>()
             {
-                optionalParameters.Add("filter");
+                { "filter", IsFilterOptional }
+            };
+
+            if (hasPager)
+            {
+                optionalParameters.Add("pager", IsPagerOptional);
             }
+
             return optionalParameters;
         }
     }

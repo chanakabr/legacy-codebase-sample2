@@ -1,6 +1,8 @@
 ﻿using ApiLogic.Api.Managers;
 using ApiLogic.Base;
 using ApiObjects;
+using ApiObjects.Base;
+using ApiObjects.Response;
 using Newtonsoft.Json;
 using System;
 using System.Runtime.Serialization;
@@ -12,7 +14,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.API
 {
     [Serializable]
-    public partial class KalturaEventNotificationFilter : KalturaCrudFilter<KalturaEventNotificationOrderBy, EventNotificationAction, string, EventNotificationActionFilter>
+    public partial class KalturaEventNotificationFilter : KalturaCrudFilter<KalturaEventNotificationOrderBy, EventNotificationAction>
     {
         /// <summary>
         /// Indicates which event notification to return by their event notifications Id.
@@ -41,14 +43,6 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "eventObjectTypeEqual", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string EventObjectTypeEqual { get; set; }
-
-        public override ICrudHandler<EventNotificationAction, string, EventNotificationActionFilter> Handler
-        {
-            get
-            {
-                return EventNotificationActionManager.Instance;
-            }
-        }
 
         private static readonly Type relatedObjectFilterType = typeof(KalturaEventNotificationFilter);
 
@@ -85,6 +79,12 @@ namespace WebAPI.Models.API
 
         public KalturaEventNotificationFilter() : base()
         {
+        }
+
+        public override GenericListResponse<EventNotificationAction> List(ContextData contextData, CorePager pager)
+        {
+            var coreFilter = AutoMapper.Mapper.Map<EventNotificationActionFilter>(this);
+            return EventNotificationActionManager.Instance.List(contextData, coreFilter);
         }
     }
 

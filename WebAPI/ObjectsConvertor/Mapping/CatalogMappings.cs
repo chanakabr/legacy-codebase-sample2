@@ -1215,6 +1215,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
 
+            cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>();
+
+            cfg.CreateMap<KalturaCategoryItemByIdInFilter, ApiLogic.Catalog.CategoryItemByIdInFilter>()
+               .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
+               .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => src.IdIn));
+
+            cfg.CreateMap<KalturaCategoryItemByKsqlFilter, ApiLogic.Catalog.CategoryItemByKsqlFilter>()
+              .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
+              .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
+
+            cfg.CreateMap<KalturaCategoryItemByRootFilter, ApiLogic.Catalog.CategoryItemByRootFilter>()
+             .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>();
+
             #endregion CategoryItem
         }
 

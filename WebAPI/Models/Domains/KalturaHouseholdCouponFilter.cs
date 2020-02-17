@@ -1,6 +1,7 @@
 ﻿using ApiLogic.Base;
 using ApiObjects.Base;
 using ApiObjects.Pricing;
+using ApiObjects.Response;
 using Core.Pricing.Handlers;
 using Newtonsoft.Json;
 using System;
@@ -20,7 +21,7 @@ using WebAPI.Models.Pricing;
 namespace WebAPI.Models.Domains
 {
     [Serializable]
-    public partial class KalturaHouseholdCouponFilter : KalturaCrudFilter<KalturaHouseholdCouponOrderBy, CouponWallet, string, CouponWalletFilter>
+    public partial class KalturaHouseholdCouponFilter : KalturaCrudFilter<KalturaHouseholdCouponOrderBy, CouponWallet>
     {
         /// <summary>
         /// Indicates which household coupons list to return by their business module type.
@@ -59,14 +60,6 @@ namespace WebAPI.Models.Domains
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public KalturaCouponStatus? Status { get; set; }
 
-        public override ICrudHandler<CouponWallet, string, CouponWalletFilter> Handler
-        {
-            get
-            {
-                return CouponWalletHandler.Instance;
-            }
-        }
-
         private static readonly Type relatedObjectFilterType = typeof(KalturaHouseholdCouponCodeFilter);
 
         public override Type RelatedObjectFilterType
@@ -89,6 +82,12 @@ namespace WebAPI.Models.Domains
                 var filterName = "KalturaHouseholdCouponFilter";
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, $"{filterName}.businessModuleIdEqual, {filterName}.couponCode, {filterName}.status");
             }
+        }
+
+        public override GenericListResponse<CouponWallet> List(ContextData contextData, CorePager pager)
+        {
+            var coreFilter = AutoMapper.Mapper.Map<CouponWalletFilter>(this);
+            return CouponWalletHandler.Instance.List(contextData, coreFilter);
         }
 
         public KalturaHouseholdCouponFilter() : base()

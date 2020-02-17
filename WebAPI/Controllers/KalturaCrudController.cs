@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         where KalturaT : KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>, new()
         where KalturaListResponseT : KalturaListResponse<KalturaT>, new()
         where IdentifierT : IConvertible
-        where KalturaFilterT : KalturaOTTObject, IKalturaCrudFilter<ICrudHandeledObject, IdentifierT, ICrudFilter>, new()
+        where KalturaFilterT : KalturaOTTObject, IKalturaCrudFilter<ICrudHandeledObject>, new()
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected static KalturaT DefaultObject { get; set; }
@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
         
         [Action(ListActionAttribute.Name)]
         [ApiAuthorize]
-        public static KalturaListResponseT List(KalturaFilterT filter)
+        public static KalturaListResponseT List(KalturaFilterT filter, KalturaFilterPager pager)
         {
             KalturaListResponseT response = null;
             
@@ -150,9 +150,14 @@ namespace WebAPI.Controllers
                 {
                     filter.Validate();
                 }
-                
+
+                if (pager == null)
+                {
+                    pager = new KalturaFilterPager();
+                }
+
                 var contextData = KS.GetContextData();
-                response = GetResponseListFromCore(filter, contextData);
+                response = GetResponseListFromCore(contextData, filter, pager);
 
                 var responseProfile = Utils.Utils.GetResponseProfileFromRequest();
                 if (response.Objects.Count > 0 && responseProfile != null && filter.RelatedObjectFilterType != null)
@@ -279,16 +284,16 @@ namespace WebAPI.Controllers
             return result;
         }
 
-        private static KalturaListResponseT GetResponseListFromCore(KalturaFilterT filter, ContextData contextData)
+        private static KalturaListResponseT GetResponseListFromCore(ContextData contextData, KalturaFilterT filter, KalturaFilterPager pager)
         {
             GenericListResponse<ICrudHandeledObject> response = null;
 
             try
             {
-                var coreFilter = AutoMapper.Mapper.Map<ICrudFilter>(filter);
+                var corePager = AutoMapper.Mapper.Map<CorePager>(pager);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = filter.Handler.List(contextData, coreFilter);
+                    response = filter.List(contextData, corePager);
                 }
             }
             catch (Exception ex)
