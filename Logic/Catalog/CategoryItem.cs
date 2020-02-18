@@ -12,5 +12,13 @@ namespace ApiLogic.Catalog
         public List<UnifiedChannel> UnifiedChannels { get; set; }
         public Dictionary<string, string> DynamicData { get; set; }
         public bool HasDynamicData { get; set; }
+
+        public CategoryItem()
+        {
+            ChildCategoriesIds = new List<long>();
+            UnifiedChannels = new List<UnifiedChannel>();
+            DynamicData = null;
+            HasDynamicData = false;
+        }
     }   
 }

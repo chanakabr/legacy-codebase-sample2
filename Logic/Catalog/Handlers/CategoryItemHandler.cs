@@ -37,15 +37,26 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                if (objectToAdd.ParentCategoryId.HasValue)
+                if (objectToAdd.ChildCategoriesIds?.Count > 0)
                 {
-                    //Check if ParentCategoryId Exist
-                    if (objectToAdd.ParentCategoryId.Value == 0 || !CatalogManager.IsCategoryExist(contextData.GroupId, objectToAdd.ParentCategoryId.Value))
+                    var groupCategories = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId, objectToAdd.ChildCategoriesIds);
+                    
+                    if (groupCategories == null || groupCategories.Count != objectToAdd.ChildCategoriesIds.Count)
                     {
-                        response.SetStatus(eResponseStatus.CategoryNotExist, "Parent Category does not exist");
+                        response.SetStatus(eResponseStatus.Error, $"Child Category does not exist.");
                         return response;
                     }
+
+                    foreach (long item in objectToAdd.ChildCategoriesIds)
+                    {
+                        if (groupCategories[item].ParentId > 0)
+                        {
+                            response.SetStatus(eResponseStatus.Error, $"Child Category contains other parent. id = {item}");
+                            return response;
+                        }
+                    }
                 }
+
                 List<KeyValuePair<long, int>> channels = null;
 
                 if (objectToAdd.UnifiedChannels?.Count > 0)
@@ -67,6 +78,8 @@ namespace Core.Catalog.Handlers
                     log.Error($"Error while InsertCategory. contextData: {contextData.ToString()}.");
                     return response;
                 }
+
+                //TODO add new SP to set child category & order
 
                 // Add VirtualAssetInfo for new category 
                 var virtualAssetInfo = new VirtualAssetInfo()
@@ -100,14 +113,8 @@ namespace Core.Catalog.Handlers
 
             try
             {
-                if (objectToUpdate.ParentCategoryId.HasValue && objectToUpdate.ParentCategoryId.Value == objectToUpdate.Id)
-                {
-                    response.SetStatus(eResponseStatus.ParentIdShouldNotPointToItself, "ParentId Should Not Point To Itself");
-                    return response;
-                }
-
                 // Get the current category
-                var currentCategory = CatalogManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id);
+                var currentCategory = CategoriesManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id);
                 if (currentCategory == null)
                 {
                     response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
@@ -135,27 +142,14 @@ namespace Core.Catalog.Handlers
                     };
                 }
 
-                bool needToInvalidate = false;
-                if (currentCategory.ParentCategoryId != objectToUpdate.ParentCategoryId)
+                bool updateChildCategories = false;
+                List<long> categoriesToRemove = new List<long>();
+                var status = CategoriesManager.HandleCategoryChildUpdate(contextData.GroupId, objectToUpdate.Id, objectToUpdate.ChildCategoriesIds, 
+                                                                        currentCategory.ChildCategoriesIds, ref categoriesToRemove, out updateChildCategories);
+                if (status != Status.Ok)
                 {
-                    if (objectToUpdate.ParentCategoryId.HasValue)
-                    {
-                        if (objectToUpdate.ParentCategoryId.Value > 0)
-                        {
-                            //Check if ParentCategoryId Exist
-                            if (!CatalogManager.IsCategoryExist(contextData.GroupId, objectToUpdate.ParentCategoryId.Value))
-                            {
-                                response.SetStatus(eResponseStatus.CategoryNotExist, "Parent Category does not exist");
-                                return response;
-                            }
-                        }
-
-                        needToInvalidate = true;
-                    }
-                    else
-                    {
-                        objectToUpdate.ParentCategoryId = currentCategory.ParentCategoryId;
-                    }
+                    response.SetStatus(status);
+                    return response;
                 }
 
                 List<KeyValuePair<long, int>> channels = null;
@@ -197,7 +191,7 @@ namespace Core.Catalog.Handlers
                     api.UpdateVirtualAsset(contextData.GroupId, virtualAssetInfo);
                 }
 
-                if (needToInvalidate)
+                if (updateChildCategories || categoriesToRemove.Count > 0)
                 {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
                 }
@@ -222,27 +216,31 @@ namespace Core.Catalog.Handlers
             try
             {
                 //Check if category exist
-                if (!CatalogManager.IsCategoryExist(contextData.GroupId, id))
+                if (!CategoriesManager.IsCategoryExist(contextData.GroupId, id))
                 {
                     response.Set(eResponseStatus.CategoryNotExist, "Category does not exist");
                     return response;
                 }
 
                 // need to check if category is a root category. In case it is, all the sub categories should removed as well
-                var categoriesMap = CatalogManager.GetGroupCategoriesIds(contextData.GroupId);
-                
-                if (categoriesMap != null )
+                var successors = CategoriesManager.GetCategoryItemSuccessors(contextData.GroupId, id);
+                foreach (long successor in successors)
                 {
-                    // means category is parent
-                    if(categoriesMap.Values.Count(x => x == id) > 0)
+                    if (!CatalogDAL.DeleteCategory(contextData.GroupId, contextData.UserId, id))
                     {
-
+                        log.Error($"Error while DeleteCategory. contextData: {contextData.ToString()} id: {successor}.");
                     }
+
+                    // Delete the virtual asset
+                    var vai = new VirtualAssetInfo()
+                    {
+                        Type = ObjectVirtualAssetInfoType.Category,
+                        Id = successor,
+                        UserId = long.Parse(contextData.UserId.ToString())
+                    };
+
+                    api.DeleteVirtualAsset(contextData.GroupId, vai);
                 }
-
-
-
-
 
                 if (!CatalogDAL.DeleteCategory(contextData.GroupId, contextData.UserId, id))
                 {
@@ -279,7 +277,7 @@ namespace Core.Catalog.Handlers
             try
             {
                 // Get the current category
-                var currentCategory = CatalogManager.GetCategoryItem(contextData.GroupId, id);
+                var currentCategory = CategoriesManager.GetCategoryItem(contextData.GroupId, id);
                 if (currentCategory == null)
                 {
                     response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
@@ -313,7 +311,7 @@ namespace Core.Catalog.Handlers
                 categoriesIds = filter.GetIdIn();
                 foreach (var categoryId in categoriesIds)
                 {
-                    categoryItem = CatalogManager.GetCategoryItem(contextData.GroupId, categoryId);
+                    categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, categoryId);
                     if(categoryItem != null)
                     {
                         response.Objects.Add(categoryItem);
@@ -331,13 +329,13 @@ namespace Core.Catalog.Handlers
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
             CategoryItem categoryItem = null;
 
-            var categoriesMap = CatalogManager.GetGroupCategoriesIds(contextData.GroupId);
+            var categoriesMap = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId);
             if (categoriesMap?.Count > 0)
             {
-                List<long> categoriesIds = categoriesMap.Where(x => x.Value == 0).Select(x => x.Key).ToList();
+                List<long> categoriesIds = categoriesMap.Where(x => x.Value.ParentId == 0).Select(x => x.Key).ToList();
                 foreach (var categoryId in categoriesIds)
                 {
-                    categoryItem = CatalogManager.GetCategoryItem(contextData.GroupId, categoryId);
+                    categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, categoryId);
                     if(categoryItem != null)
                     {
                         response.Objects.Add(categoryItem);
@@ -358,7 +356,7 @@ namespace Core.Catalog.Handlers
             try
             {
                 // Get category to duplicate
-                //var categoryToDuplicate = CatalogManagement.CatalogManager.GetGroupCategory(groupId, id);
+                //var categoryToDuplicate = CatalogManagement.CategoriesManagerGetGroupCategory(groupId, id);
                 //if (categoryToDuplicate == null)
                 //{
                 //    response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
@@ -392,7 +390,7 @@ namespace Core.Catalog.Handlers
             CategoryTree categoryTree = null;
 
             // Get the current category
-            var categoryItem = CatalogManager.GetCategoryItem(groupId, categoryItemId);
+            var categoryItem = CategoriesManager.GetCategoryItem(groupId, categoryItemId);
             if (categoryItem == null)
             {
                 response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
