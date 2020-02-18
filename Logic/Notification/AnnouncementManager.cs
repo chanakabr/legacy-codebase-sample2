@@ -137,7 +137,7 @@ namespace Core.Notification
                 }
             }
         }
-
+        
         public static MessageAnnouncementResponse UpdateMessageAnnouncement(int groupId, int announcementId, MessageAnnouncement announcement, bool enforceMsgAllowedTime = false, bool validateMsgStartTime = true)
         {
             var response = new MessageAnnouncementResponse
@@ -198,7 +198,7 @@ namespace Core.Notification
             response.Announcement = announcement;
             return response;
         }
-
+        
         public static Status UpdateMessageSystemAnnouncementStatus(int groupId, long id, bool status)
         {
             // validate system announcements are enabled
@@ -379,7 +379,7 @@ namespace Core.Notification
             return true;
         }
 
-        public static GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex)
+        public static GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex, MessageAnnouncementFilter filter)
         {
             GetAllMessageAnnouncementsResponse ret = new GetAllMessageAnnouncementsResponse
             {
@@ -389,14 +389,42 @@ namespace Core.Notification
             // validate system announcements are enabled
             if (!NotificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
             {
-                log.ErrorFormat("CreateSystemAnnouncement  - partner system announcements are disabled. groupID = {0}", groupId);
+                log.Error($"Get_AllMessageAnnouncements  - partner system announcements are disabled. groupID = {groupId}");
                 ret.Status = new Status((int)eResponseStatus.FeatureDisabled, "Feature Disabled");
                 return ret;
             }
 
             ret.messageAnnouncements = new List<MessageAnnouncement>();
 
-            List<DataRow> rows = DAL.NotificationDal.Get_MessageAllAnnouncements(groupId, pageSize, pageIndex);
+            if (filter != null)
+            {
+                if (filter.MessageAnnouncementIds != null && filter.MessageAnnouncementIds.Count > 0)
+                {
+                    if (pageIndex != 1)
+                    {
+                        ret.Status.Set(eResponseStatus.InvalidValue, "Page index value must be 1.");
+                    }
+
+                    if (pageSize != filter.MessageAnnouncementIds.Count)
+                    {
+                        ret.Status.Set(eResponseStatus.InvalidValue, "Page size must to be equal to the size of MessageAnnouncement.Ids");
+                    }
+
+                    foreach (var id in filter.MessageAnnouncementIds)
+                    {
+                        var msgResponse = GetMessageAnnouncement(groupId, id);
+                        if (msgResponse.HasObject())
+                        {
+                            ret.messageAnnouncements.Add(msgResponse.Object);
+                        }
+                    }
+
+                    ret.totalCount = ret.messageAnnouncements.Count;
+                    return ret;
+                }
+            }
+
+            List<DataRow> rows = NotificationDal.Get_MessageAllAnnouncements(groupId, pageSize, pageIndex);
 
             if (rows != null)
             {
@@ -406,7 +434,7 @@ namespace Core.Notification
                     ret.messageAnnouncements.Add(msg);
                 }
 
-                ret.totalCount = DAL.NotificationDal.Get_MessageAllAnnouncementsCount(groupId);
+                ret.totalCount = NotificationDal.Get_MessageAllAnnouncementsCount(groupId);
             }
 
             return ret;
@@ -1617,7 +1645,7 @@ namespace Core.Notification
                     return response;
                 }
 
-                DataRow dr = NotificationDal.Get_MessageAnnouncement(id);
+                DataRow dr = NotificationDal.Get_MessageAnnouncement(id, groupId);
                 if (dr == null)
                 {
                     log.Error($"Announcement not exist in DB: group: {groupId}, Id: {id}");

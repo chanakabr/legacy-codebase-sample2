@@ -226,61 +226,11 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal KalturaAnnouncement AddAnnouncement(int groupId, Models.Notifications.KalturaAnnouncement announcement)
+        internal KalturaAnnouncement AddAnnouncement(int groupId, KalturaAnnouncement announcement)
         {
             AddMessageAnnouncementResponse response = null;
 
-
-            eAnnouncementRecipientsType recipients = eAnnouncementRecipientsType.Other;
-            switch (announcement.Recipients)
-            {
-                case Models.Notifications.KalturaAnnouncementRecipientsType.All:
-                    recipients = eAnnouncementRecipientsType.All;
-                    break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.Guests:
-                    recipients = eAnnouncementRecipientsType.Guests;
-                    break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.LoggedIn:
-                    recipients = eAnnouncementRecipientsType.LoggedIn;
-                    break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.Other:
-                    recipients = eAnnouncementRecipientsType.Other;
-                    break;
-            }
-
-            eAnnouncementStatus status = eAnnouncementStatus.NotSent;
-            switch (announcement.Status)
-            {
-                case Models.Notifications.KalturaAnnouncementStatus.Aborted:
-                    status = eAnnouncementStatus.Aborted;
-                    break;
-                case Models.Notifications.KalturaAnnouncementStatus.NotSent:
-                    status = eAnnouncementStatus.NotSent;
-                    break;
-                case Models.Notifications.KalturaAnnouncementStatus.Sending:
-                    status = eAnnouncementStatus.Sending;
-                    break;
-                case Models.Notifications.KalturaAnnouncementStatus.Sent:
-                    status = eAnnouncementStatus.Sent;
-                    break;
-            }
-
-            MessageAnnouncement messageAnnouncement = new MessageAnnouncement()
-            {
-                Enabled = announcement.getEnabled(),
-                Message = announcement.Message,
-                MessageAnnouncementId = announcement.getId(),
-                Name = announcement.Name,
-                Recipients = recipients,
-                StartTime = announcement.getStartTime(),
-                Status = status,
-                Timezone = announcement.Timezone,
-                ImageUrl = announcement.ImageUrl,
-                IncludeMail = announcement.IncludeMail,
-                MailSubject = announcement.MailSubject,
-                MailTemplate = announcement.MailTemplate,
-                IncludeSms = announcement.IncludeSms
-            };
+            var messageAnnouncement = Mapper.Map<MessageAnnouncement>(announcement);
 
             try
             {
@@ -305,60 +255,10 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAnnouncement UpdateAnnouncement(int groupId, int announcementId, Models.Notifications.KalturaAnnouncement announcement)
+        internal KalturaAnnouncement UpdateAnnouncement(int groupId, int announcementId, KalturaAnnouncement announcement)
         {
             MessageAnnouncementResponse response = null;
-
-
-            eAnnouncementRecipientsType recipients = eAnnouncementRecipientsType.Other;
-            switch (announcement.Recipients)
-            {
-                case Models.Notifications.KalturaAnnouncementRecipientsType.All:
-                    recipients = eAnnouncementRecipientsType.All;
-                    break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.Guests:
-                    recipients = eAnnouncementRecipientsType.Guests;
-                    break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.LoggedIn:
-                    recipients = eAnnouncementRecipientsType.LoggedIn;
-                    break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.Other:
-                    recipients = eAnnouncementRecipientsType.Other;
-                    break;
-            }
-
-            eAnnouncementStatus status = eAnnouncementStatus.NotSent;
-            switch (announcement.Status)
-            {
-                case Models.Notifications.KalturaAnnouncementStatus.Aborted:
-                    status = eAnnouncementStatus.Aborted;
-                    break;
-                case Models.Notifications.KalturaAnnouncementStatus.NotSent:
-                    status = eAnnouncementStatus.NotSent;
-                    break;
-                case Models.Notifications.KalturaAnnouncementStatus.Sending:
-                    status = eAnnouncementStatus.Sending;
-                    break;
-                case Models.Notifications.KalturaAnnouncementStatus.Sent:
-                    status = eAnnouncementStatus.Sent;
-                    break;
-            }
-
-            MessageAnnouncement messageAnnouncement = new MessageAnnouncement()
-            {
-                Enabled = announcement.getEnabled(),
-                Message = announcement.Message,
-                MessageAnnouncementId = announcement.getId(),
-                Name = announcement.Name,
-                Recipients = recipients,
-                StartTime = announcement.getStartTime(),
-                Status = status,
-                Timezone = announcement.Timezone,
-                ImageUrl = announcement.ImageUrl,
-                IncludeMail = announcement.IncludeMail,
-                MailSubject = announcement.MailSubject,
-                MailTemplate = announcement.MailTemplate
-            };
+            MessageAnnouncement messageAnnouncement = Mapper.Map<MessageAnnouncement>(announcement);
 
             try
             {
@@ -386,7 +286,6 @@ namespace WebAPI.Clients
         internal bool UpdateAnnouncementStatus(int groupId, long id, bool status)
         {
             Status response = null;
-
 
             try
             {
@@ -463,17 +362,16 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaAnnouncementListResponse GetAnnouncements(int groupId, int pageSize, int pageIndex)
+        internal KalturaAnnouncementListResponse GetAnnouncements(int groupId, int pageSize, int pageIndex, KalturaAnnouncementFilter kalturaFilter)
         {
-            List<KalturaAnnouncement> result = null;
             GetAllMessageAnnouncementsResponse response = null;
-            KalturaAnnouncementListResponse ret;
 
             try
             {
+                var filter = Mapper.Map<MessageAnnouncementFilter>(kalturaFilter);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetAllMessageAnnouncements(groupId, pageSize, pageIndex);
+                    response = Core.Notification.Module.GetAllMessageAnnouncements(groupId, pageSize, pageIndex, filter);
                 }
             }
             catch (Exception ex)
@@ -487,20 +385,9 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = Mapper.Map<List<KalturaAnnouncement>>(response.messageAnnouncements);
-
-            ret = new KalturaAnnouncementListResponse() { Announcements = result, TotalCount = response.totalCount };
+            var result = Mapper.Map<List<KalturaAnnouncement>>(response.messageAnnouncements);
+            var ret = new KalturaAnnouncementListResponse() { Announcements = result, TotalCount = response.totalCount };
             return ret;
-        }
-
-        internal KalturaAnnouncement GetMessageAnnouncement(int groupId, long id)
-        {
-            Func<GenericResponse<MessageAnnouncement>> getMessageAnnouncementFunc = () => AnnouncementManager.GetMessageAnnouncement(groupId, id);
-
-            KalturaAnnouncement response =
-                ClientUtils.GetResponseFromWS<KalturaAnnouncement, MessageAnnouncement>(getMessageAnnouncementFunc);
-
-            return response;
         }
 
         [Obsolete]

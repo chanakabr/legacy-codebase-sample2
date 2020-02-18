@@ -818,11 +818,12 @@ namespace DAL
             return null;
         }
 
-        public static DataRow Get_MessageAnnouncement(long messageAnnouncementId)
+        public static DataRow Get_MessageAnnouncement(long messageAnnouncementId, int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementById");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@ID", messageAnnouncementId);
+            sp.AddParameter("@groupId", groupId);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
