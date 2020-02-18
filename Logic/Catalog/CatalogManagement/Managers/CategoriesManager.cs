@@ -352,10 +352,6 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-
-
-
-
                     if (oldChildCategoriesIds.Count == 0)
                     {
                         updateChildCategories = true;
