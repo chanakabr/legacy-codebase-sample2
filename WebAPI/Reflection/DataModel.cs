@@ -126,6 +126,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAnnouncementFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaAnnouncementListResponse":
                     switch(property.Name)
                     {
@@ -6822,10 +6830,6 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("announcement", "enableSystemAnnouncements", false);
                             return AnnouncementController.EnableSystemAnnouncements();
                             
-                        case "get":
-                            RolesManager.ValidateActionPermitted("announcement", "get", false);
-                            return AnnouncementController.Get((long) methodParams[0]);
-                            
                         case "list":
                             if(isOldVersion)
                             {
@@ -11007,13 +11011,6 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "enablesystemannouncements":
-                            return ret;
-                            
-                        case "get":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
                             return ret;
                             
                         case "list":
