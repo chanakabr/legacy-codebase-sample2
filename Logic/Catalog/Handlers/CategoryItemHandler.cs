@@ -126,8 +126,8 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                // if name change need to update virtualAsset               
-                else if (objectToUpdate.Name != null && objectToUpdate.Name.Trim() == "")
+                // if name change need to update virtualAsset                               
+                if (objectToUpdate.Name != null && objectToUpdate.Name.Trim() == "")
                 {
                     response.SetStatus(eResponseStatus.NameRequired, "Name Required");
                     return response;
@@ -210,7 +210,7 @@ namespace Core.Catalog.Handlers
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(contextData.GroupId));
 
-                response.Object = objectToUpdate;
+                response.Object = CategoriesManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id); 
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
