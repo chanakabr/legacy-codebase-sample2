@@ -147,7 +147,7 @@ namespace Core.Catalog.Handlers
                 List<long> categoriesToRemove = new List<long>();
                 var status = CategoriesManager.HandleCategoryChildUpdate(contextData.GroupId, objectToUpdate.Id, objectToUpdate.ChildCategoriesIds,
                                                                         currentCategory.ChildCategoriesIds, ref categoriesToRemove, out updateChildCategories);
-                if (status != Status.Ok)
+                if (!status.IsOkStatusCode())
                 {
                     response.SetStatus(status);
                     return response;
