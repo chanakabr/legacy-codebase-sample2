@@ -6046,7 +6046,7 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", name);
-                sp.AddParameter("@hasMetadata", dynamicData != null);
+                sp.AddParameter("@hasMetadata", dynamicData == null || dynamicData.Count == 0? 0 : 1);
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
                 sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
                 sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
@@ -6156,9 +6156,9 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@id", id);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@childCategoriesIdsExist", childCategoriesIds == null || childCategoriesIds.Count == 0 ? 0 : 1);
-                sp.AddOrderKeyListParameter<long>("@categoriesChannels", childCategoriesIds, "idKey");
+                sp.AddOrderKeyListParameter<long>("@childCategoriesIds", childCategoriesIds, "idKey");
                 sp.AddParameter("@childCategoriesIdsToDeleteExist", childCategoriesIdsToRemove == null || childCategoriesIdsToRemove.Count == 0 ? 0 : 1);
-                sp.AddIDListParameter<long>("@categoriesChannels", childCategoriesIdsToRemove, "Id");
+                sp.AddIDListParameter<long>("@childCategoriesIdsToDelete", childCategoriesIdsToRemove, "Id");
                 sp.AddParameter("@updaterId", userId);
 
                 return sp.ExecuteReturnValue<int>() > 0;

@@ -31,7 +31,7 @@ namespace Core.Catalog.Handlers
 
             try
             {
-                if (!string.IsNullOrEmpty(objectToAdd.Name))
+                if (string.IsNullOrEmpty(objectToAdd.Name))
                 {
                     response.SetStatus(eResponseStatus.NameRequired, "Name Required");
                     return response;
@@ -79,7 +79,7 @@ namespace Core.Catalog.Handlers
                 }
 
                 // set child category's order
-                if(objectToAdd.ChildCategoriesIds?.Count > 0 && !CatalogDAL.UpdateCategoryOrderNum(contextData.GroupId, contextData.UserId, id, objectToAdd.ChildCategoriesIds))
+                if (objectToAdd.ChildCategoriesIds?.Count > 0 && !CatalogDAL.UpdateCategoryOrderNum(contextData.GroupId, contextData.UserId, id, objectToAdd.ChildCategoriesIds))
                 {
                     log.Error($"Error while order child categories. contextData: {contextData.ToString()}. new categoryId: {id}");
                     response.SetStatus(eResponseStatus.Error);
@@ -127,7 +127,7 @@ namespace Core.Catalog.Handlers
                 }
 
                 // if name change need to update virtualAsset               
-                else if (objectToUpdate.Name.Trim() == "")
+                else if (objectToUpdate.Name != null && objectToUpdate.Name.Trim() == "")
                 {
                     response.SetStatus(eResponseStatus.NameRequired, "Name Required");
                     return response;
@@ -196,7 +196,7 @@ namespace Core.Catalog.Handlers
                         response.SetStatus(eResponseStatus.Error);
                         return response;
                     }
-                }               
+                }
 
                 if (virtualAssetInfo != null)
                 {
