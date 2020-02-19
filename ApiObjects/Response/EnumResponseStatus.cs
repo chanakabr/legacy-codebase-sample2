@@ -294,6 +294,9 @@ namespace ApiObjects.Response
         ImageUrlRequired = 4089,
         CanNotDeleteObjectVirtualAssetMeta = 4090,
         CategoryNotExist = 4091,
+        ChildCategoryNotExist = 4092,
+        ChildCategoryAlreadyBelongsToAnotherCategory = 4093,
+        ChildCategoryCannotBeTheCategoryItself = 4094,
 
         #endregion
 

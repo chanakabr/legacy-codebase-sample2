@@ -10769,10 +10769,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
-            if(ParentCategoryId.HasValue)
-            {
-                ret.Add("parentCategoryId", "\"parentCategoryId\": " + ParentCategoryId);
-            }
+            ret.Add("parentCategoryId", "\"parentCategoryId\": " + ParentCategoryId);
             if(UnifiedChannels != null)
             {
                 propertyValue = "[" + String.Join(", ", UnifiedChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -10801,10 +10798,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            if(ParentCategoryId.HasValue)
-            {
-                ret.Add("parentCategoryId", "<parentCategoryId>" + ParentCategoryId + "</parentCategoryId>");
-            }
+            ret.Add("parentCategoryId", "<parentCategoryId>" + ParentCategoryId + "</parentCategoryId>");
             if(UnifiedChannels != null)
             {
                 propertyValue = UnifiedChannels.Count > 0 ? "<item>" + String.Join("</item><item>", UnifiedChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";

@@ -6037,7 +6037,7 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static long InsertCategory(int groupId, long? userId, string name, long? parentCategoryId, List<KeyValuePair<long, int>> channels,
+        public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, int>> channels,
             Dictionary<string, string> dynamicData)
         {
             try
@@ -6046,14 +6046,13 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", name);
-                sp.AddParameter("@parentCategoryId", parentCategoryId.HasValue ? parentCategoryId.Value : 0);
                 sp.AddParameter("@hasMetadata", dynamicData != null);
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
                 sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
                 sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
 
                 var id = sp.ExecuteReturnValue<long>();
-                if (dynamicData?.Count >0 && id > 0)
+                if (dynamicData?.Count > 0 && id > 0)
                 {
                     SaveCategoryDynamicData(id, dynamicData);
                 }
@@ -6068,8 +6067,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static bool UpdateCategory(int groupId, long? userId, long id, string name, long? parentCategoryId,
-             List<KeyValuePair<long, int>> channels, Dictionary<string, string> dynamicData)
+        public static bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, int>> channels, Dictionary<string, string> dynamicData)
         {
             try
             {
@@ -6078,7 +6076,6 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@id", id);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", name);
-                sp.AddParameter("@parentCategoryId", parentCategoryId.HasValue ? parentCategoryId.Value : 0);
                 sp.AddParameter("@hasMetadata", dynamicData != null && dynamicData.Count > 0);
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
                 sp.AddParameter("@needToDeleteCategoriesChannels", channels != null && channels.Count == 0 ? 1 : 0);
@@ -6125,7 +6122,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                log.Error($"Error while DeleteCategory from DB, groupId: {groupId}, Id: {id})", ex);
+                log.Error($"Error while DeleteCategory from DB, groupId: {groupId}, Id: {id}", ex);
                 return false;
             }
         }
@@ -6148,6 +6145,29 @@ namespace Tvinci.Core.DAL
         {
             var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
             UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool UpdateCategoryOrderNum(int groupId, long? userId, long id, List<long> childCategoriesIds, List<long> childCategoriesIdsToRemove = null)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Update_CategoriesOrderNum");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@id", id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@childCategoriesIdsExist", childCategoriesIds == null || childCategoriesIds.Count == 0 ? 0 : 1);
+                sp.AddOrderKeyListParameter<long>("@categoriesChannels", childCategoriesIds, "idKey");
+                sp.AddParameter("@childCategoriesIdsToDeleteExist", childCategoriesIdsToRemove == null || childCategoriesIdsToRemove.Count == 0 ? 0 : 1);
+                sp.AddIDListParameter<long>("@categoriesChannels", childCategoriesIdsToRemove, "Id");
+                sp.AddParameter("@updaterId", userId);
+
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while UpdateCategoryOrderNum from DB, groupId: {groupId}, Id: {id}", ex);
+                return false;
+            }
         }
     }
 }

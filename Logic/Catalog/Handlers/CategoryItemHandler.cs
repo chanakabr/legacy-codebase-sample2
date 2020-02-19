@@ -40,18 +40,18 @@ namespace Core.Catalog.Handlers
                 if (objectToAdd.ChildCategoriesIds?.Count > 0)
                 {
                     var groupCategories = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId, objectToAdd.ChildCategoriesIds);
-                    
+
                     if (groupCategories == null || groupCategories.Count != objectToAdd.ChildCategoriesIds.Count)
                     {
-                        response.SetStatus(eResponseStatus.Error, $"Child Category does not exist.");
+                        response.SetStatus(eResponseStatus.ChildCategoryNotExist, "Child category does not exist.");
                         return response;
                     }
 
-                    foreach (long item in objectToAdd.ChildCategoriesIds)
+                    foreach (long childCategoryId in objectToAdd.ChildCategoriesIds)
                     {
-                        if (groupCategories[item].ParentId > 0)
+                        if (groupCategories[childCategoryId].ParentId > 0)
                         {
-                            response.SetStatus(eResponseStatus.Error, $"Child Category contains other parent. id = {item}");
+                            response.SetStatus(eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory, $"Child Category contains other parent. id = {childCategoryId}");
                             return response;
                         }
                     }
@@ -70,8 +70,7 @@ namespace Core.Catalog.Handlers
                     channels = objectToAdd.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
                 }
 
-                long id = CatalogDAL.InsertCategory(contextData.GroupId, contextData.UserId, objectToAdd.Name,
-                    objectToAdd.ParentCategoryId, channels, objectToAdd.DynamicData);
+                long id = CatalogDAL.InsertCategory(contextData.GroupId, contextData.UserId, objectToAdd.Name, channels, objectToAdd.DynamicData);
 
                 if (id == 0)
                 {
@@ -79,7 +78,13 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                //TODO add new SP to set child category & order
+                // set child category's order
+                if(objectToAdd.ChildCategoriesIds?.Count > 0 && !CatalogDAL.UpdateCategoryOrderNum(contextData.GroupId, contextData.UserId, id, objectToAdd.ChildCategoriesIds))
+                {
+                    log.Error($"Error while order child categories. contextData: {contextData.ToString()}. new categoryId: {id}");
+                    response.SetStatus(eResponseStatus.Error);
+                    return response;
+                }
 
                 // Add VirtualAssetInfo for new category 
                 var virtualAssetInfo = new VirtualAssetInfo()
@@ -121,11 +126,7 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                // if name change need to update virtualAsset
-                if (objectToUpdate.Name == null)
-                {
-                    objectToUpdate.Name = currentCategory.Name;
-                }
+                // if name change need to update virtualAsset               
                 else if (objectToUpdate.Name.Trim() == "")
                 {
                     response.SetStatus(eResponseStatus.NameRequired, "Name Required");
@@ -144,7 +145,7 @@ namespace Core.Catalog.Handlers
 
                 bool updateChildCategories = false;
                 List<long> categoriesToRemove = new List<long>();
-                var status = CategoriesManager.HandleCategoryChildUpdate(contextData.GroupId, objectToUpdate.Id, objectToUpdate.ChildCategoriesIds, 
+                var status = CategoriesManager.HandleCategoryChildUpdate(contextData.GroupId, objectToUpdate.Id, objectToUpdate.ChildCategoriesIds,
                                                                         currentCategory.ChildCategoriesIds, ref categoriesToRemove, out updateChildCategories);
                 if (status != Status.Ok)
                 {
@@ -180,12 +181,23 @@ namespace Core.Catalog.Handlers
                     objectToUpdate.DynamicData = currentCategory.DynamicData;
                 }
 
-                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, objectToUpdate.ParentCategoryId,
-                    channels, objectToUpdate.DynamicData))
+                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, channels, objectToUpdate.DynamicData))
                 {
                     log.Error($"Error while InsertCategory. contextData: {contextData.ToString()}.");
                     return response;
                 }
+
+                // set child category's order
+                if (categoriesToRemove?.Count > 0 || updateChildCategories)
+                {
+                    if (!CatalogDAL.UpdateCategoryOrderNum(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.ChildCategoriesIds, categoriesToRemove))
+                    {
+                        log.Error($"Error while re-order child categories. contextData: {contextData.ToString()}. new categoryId: {objectToUpdate.Id}");
+                        response.SetStatus(eResponseStatus.Error);
+                        return response;
+                    }
+                }               
+
                 if (virtualAssetInfo != null)
                 {
                     api.UpdateVirtualAsset(contextData.GroupId, virtualAssetInfo);
@@ -312,7 +324,7 @@ namespace Core.Catalog.Handlers
                 foreach (var categoryId in categoriesIds)
                 {
                     categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, categoryId);
-                    if(categoryItem != null)
+                    if (categoryItem != null)
                     {
                         response.Objects.Add(categoryItem);
                     }
@@ -336,7 +348,7 @@ namespace Core.Catalog.Handlers
                 foreach (var categoryId in categoriesIds)
                 {
                     categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, categoryId);
-                    if(categoryItem != null)
+                    if (categoryItem != null)
                     {
                         response.Objects.Add(categoryItem);
                     }
@@ -397,14 +409,15 @@ namespace Core.Catalog.Handlers
                 return response;
             }
 
-            categoryTree = new CategoryTree() { 
-                Id = categoryItem.Id, 
-                DynamicData = categoryItem .DynamicData,
+            categoryTree = new CategoryTree()
+            {
+                Id = categoryItem.Id,
+                DynamicData = categoryItem.DynamicData,
                 Name = categoryItem.Name
                 //UnifiedChannels = categoryItem.UnifiedChannels                
             };
 
-            if(categoryItem.ChildCategoriesIds?.Count > 0)
+            if (categoryItem.ChildCategoriesIds?.Count > 0)
             {
                 categoryTree.Children = new List<CategoryTree>();
                 //TODO anat: images
@@ -446,6 +459,6 @@ namespace Core.Catalog.Handlers
                 }
             }
             return true;
-        }       
+        }
     }
 }

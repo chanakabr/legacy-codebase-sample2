@@ -251,6 +251,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ACCOUNT_EPG_INGEST_VERSION_NOT_SUPPORTED = new ClientExceptionType(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk, "", "Account Epg Ingest Version does not support ingest using bulk upload");
         public static ClientExceptionType CAN_NOT_DELETE_OBJECT_VIRTUAL_ASSET_META = new ClientExceptionType(eResponseStatus.CanNotDeleteObjectVirtualAssetMeta, "", "can not delete object virtual asset meta");
         public static ClientExceptionType CATEGORY_NOT_EXIST = new ClientExceptionType(eResponseStatus.CategoryNotExist, "", "The category you selected does not exist");
+        public static ClientExceptionType CHILD_CATEGORY_NOT_EXIST = new ClientExceptionType(eResponseStatus.ChildCategoryNotExist, "", "Child category does not exist");
+        public static ClientExceptionType CHILD_CATEGORY_ALREADY_BELONGS_TO_ANOTHER = new ClientExceptionType(eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory, "", "Child Category already belongs to another category");
+        public static ClientExceptionType CHILD_CATEGORY_CANNOT_BE_THE_CATEGORY_ITSELF = new ClientExceptionType(eResponseStatus.ChildCategoryCannotBeTheCategoryItself, "", "A child category cannot be the category itself");
 
         #endregion
 

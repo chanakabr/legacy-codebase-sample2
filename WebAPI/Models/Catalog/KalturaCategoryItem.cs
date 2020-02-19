@@ -40,17 +40,16 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "parentCategoryId")]
         [JsonProperty(PropertyName = "parentCategoryId")]
-        [XmlElement(ElementName = "parentCategoryId", IsNullable = true)]
-        [SchemeProperty(MinInteger = 1)]
-        public long? ParentCategoryId { get; set; }
+        [XmlElement(ElementName = "parentCategoryId")]
+        [SchemeProperty(ReadOnly = true)]
+        public long ParentCategoryId { get; set; }
 
         /// <summary>
         /// Comma separated list of child categories' Ids.
         /// </summary>
         [DataMember(Name = "childCategoriesIds")]
         [JsonProperty(PropertyName = "childCategoriesIds")]
-        [XmlElement(ElementName = "childCategoriesIds")]
-        [SchemeProperty(ReadOnly = true)]
+        [XmlElement(ElementName = "childCategoriesIds")]        
         public string ChildCategoriesIds { get; set; }
 
         /// <summary>
@@ -69,16 +68,6 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("dynamicData")]
         [XmlElement(ElementName = "dynamicData", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
-
-        public List<long> GetChildCategoriesIds()
-        {
-            if (ChildCategoriesIds != null)
-            {
-                return GetItemsIn<List<long>, long>(ChildCategoriesIds, "KalturaCategoryItem.childCategoriesIds", true, true);
-            }
-
-            return null;
-        }        
 
         internal override ICrudHandler<CategoryItem, long, CategoryItemFilter> Handler
         {

@@ -730,6 +730,7 @@ namespace ODBCWrapper
                 AutoIncrementSeed = 1,
                 AutoIncrementStep = 1
             });
+
             if (oListValue != null)
             {
                 DataRow dr = null;
@@ -739,6 +740,38 @@ namespace ODBCWrapper
                     dr[colNameKey] = obj.Key;
                     dr[colNameValue] = obj.Value;
                     table.Rows.Add(dr);
+                }
+            }
+
+            return table;
+        }
+        
+        public void AddOrderKeyListParameter<T>(string sKey, ICollection<T> oListValue, string colName)
+        {
+            m_Parameters.Add(sKey, CreateOrderedKeyDataTable<T>(oListValue, colName));
+
+            Utils.CheckDBReadWrite(sKey, oListValue, procedureName, m_bIsWritable, ref Utils.UseWritable);
+        }      
+
+        private object CreateOrderedKeyDataTable<T>(IEnumerable<T> ids, string colName)
+
+        {
+            DataTable table = new DataTable();
+            table.Columns.Add(colName, typeof(T));            
+            table.Columns.Add(new DataColumn()
+            {
+                ColumnName = "Ordered",
+                DataType = System.Type.GetType("System.Int32"),
+                AutoIncrement = true,
+                AutoIncrementSeed = 1,
+                AutoIncrementStep = 1
+            });
+
+            if (ids != null)
+            {
+                foreach (T id in ids)
+                {
+                    table.Rows.Add(id);
                 }
             }
 

@@ -1151,7 +1151,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.ParentCategoryId, opt => opt.MapFrom(src => src.ParentCategoryId))
-              .ForMember(dest => dest.ChildCategoriesIds, opt => opt.MapFrom(src => src.GetChildCategoriesIds()))
+              .ForMember(dest => dest.ChildCategoriesIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.ChildCategoriesIds) ? src.GetItemsIn<List<long>, long>(src.ChildCategoriesIds, "KalturaCategoryItem.childCategoriesIds", true) : null))
               .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData)));
 

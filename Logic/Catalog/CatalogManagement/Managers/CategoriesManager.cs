@@ -1,24 +1,15 @@
-﻿using ApiLogic.Api.Managers;
-using ApiLogic.Catalog;
+﻿using ApiLogic.Catalog;
 using ApiObjects;
-using ApiObjects.Catalog;
 using ApiObjects.Response;
-using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
-using Core.Catalog.Response;
 using DAL;
 using KLogMonitor;
-using Newtonsoft.Json;
-using QueueWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
-using TVinciShared;
-using MetaType = ApiObjects.MetaType;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -62,7 +53,7 @@ namespace Core.Catalog.CatalogManagement
                     foreach (DataRow dr in dt.Rows)
                     {
                         long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                        CategoryParentCache categoryParentCache = new CategoryParentCache() 
+                        CategoryParentCache categoryParentCache = new CategoryParentCache()
                         {
                             ParentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_CATEGORY_ID"),
                             Order = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER_NUM")
@@ -236,7 +227,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.Error($"Failed getting GetCategoryItem from LayeredCache, groupId: {groupId}, key: {key}");
                 }
-                
+
                 if (result != null)
                 {
                     result.ParentCategoryId = null;
@@ -258,7 +249,7 @@ namespace Core.Catalog.CatalogManagement
         internal static List<long> GetCategoryItemAncestors(int groupId, long id)
         {
             List<long> ancestors = new List<long>();
-            
+
             /*
             var categories = GetGroupCategoriesIds(groupId);
             if (categories?.Count > 0 && categories.ContainsKey(id))
@@ -293,10 +284,10 @@ namespace Core.Catalog.CatalogManagement
         internal static List<long> GetCategoryItemSuccessors(int groupId, long id)
         {
             List<long> successors = new List<long>();
-            
+
             var categories = GetGroupCategoriesIds(groupId);
             GetCategoryItemSuccessors(categories, id, successors);
-            
+
             return successors;
         }
 
@@ -311,79 +302,84 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        internal static Status HandleCategoryChildUpdate(int groupId, long id, List<long> newChildCategoriesIds, List<long> oldChildCategoriesIds, ref List<long> categoriesToRemove, out bool updateChildCategories)
+        internal static Status HandleCategoryChildUpdate(int groupId, long id, List<long> newChildCategoriesIds, List<long> oldChildCategoriesIds,
+            ref List<long> categoriesToRemove, out bool updateChildCategories)
         {
-            Status status = new Status();
             updateChildCategories = false;
             categoriesToRemove = new List<long>();
-            
-            if (newChildCategoriesIds != null)
+
+            if (newChildCategoriesIds == null)
             {
-                if (newChildCategoriesIds.Count == 0)
+                return new Status(eResponseStatus.OK);
+            }
+
+            if (newChildCategoriesIds.Count == 0)
+            {
+                categoriesToRemove = oldChildCategoriesIds;
+                return new Status(eResponseStatus.OK);
+            }
+            else
+            {
+                if (newChildCategoriesIds.Contains(id))
                 {
-                    categoriesToRemove = oldChildCategoriesIds;
+                    return new Status(eResponseStatus.ChildCategoryCannotBeTheCategoryItself, "A child category cannot be the category itself.");
+                }
+
+                //validate ChildCategoriesIds
+                var groupCategories = GetGroupCategoriesIds(groupId, newChildCategoriesIds);
+
+                if (groupCategories == null || groupCategories.Count != newChildCategoriesIds.Count)
+                {
+                    return new Status(eResponseStatus.ChildCategoryNotExist, "Child Category does not exist.");
+                }
+
+                foreach (var item in groupCategories)
+                {
+                    if (item.Value.ParentId == 0)
+                    {
+                        var successors = GetCategoryItemSuccessors(groupId, item.Key);
+                        if (successors.Contains(id))
+                        {
+                            return new Status(eResponseStatus.ParentIdShouldNotPointToItself, "Circle alert!!!!");
+                        }
+                    }
+
+                    if (item.Value.ParentId > 0 && item.Value.ParentId != id)
+                    {
+                        return new Status(eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory, $"Child Category contains other parent. id = {item.Key}");
+                    }
+                }
+
+                if (oldChildCategoriesIds.Count == 0)
+                {
+                    updateChildCategories = true;
                 }
                 else
                 {
-                    //validate ChildCategoriesIds
-                    var groupCategories = GetGroupCategoriesIds(groupId, newChildCategoriesIds);
-
-                    if (groupCategories == null || groupCategories.Count != newChildCategoriesIds.Count)
-                    {   
-                        return new Status(eResponseStatus.Error, $"Child Category does not exist.");
+                    Dictionary<long, int> ccim = new Dictionary<long, int>();
+                    for (int i = 0; i < newChildCategoriesIds.Count; i++)
+                    {
+                        long item = newChildCategoriesIds[i];
+                        ccim.Add(item, i);
                     }
 
-                    foreach (var item in groupCategories)
+                    for (int i = 0; i < oldChildCategoriesIds.Count; i++)
                     {
-                        if (item.Value.ParentId == 0)
+                        long item = oldChildCategoriesIds[i];
+
+                        if (!ccim.ContainsKey(item))
                         {
-                            var successors = GetCategoryItemSuccessors(groupId, item.Key);
-                            if (successors.Contains(id))
-                            {
-                                //TODO error
-                                return new Status(eResponseStatus.Error, $"Circle alert!!!!");
-                            }
+                            categoriesToRemove.Add(item);
                         }
-
-                        if (item.Value.ParentId > 0 && item.Value.ParentId != id)
+                        else if (ccim[item] != i)
                         {
-                            //TODO error
-                            return new Status(eResponseStatus.Error, $"Child Category contains other parent. id = {item.Key}");
-                        }
-                    }
-
-                    if (oldChildCategoriesIds.Count == 0)
-                    {
-                        updateChildCategories = true;
-                    }
-                    else
-                    {
-
-                        Dictionary<long, int> ccim = new Dictionary<long, int>();
-                        for (int i = 0; i < newChildCategoriesIds.Count; i++)
-                        {
-                            long item = newChildCategoriesIds[i];
-                            ccim.Add(item, i);
-                        }
-
-                        for (int i = 0; i < oldChildCategoriesIds.Count; i++)
-                        {
-                            long item = oldChildCategoriesIds[i];
-
-                            if (!ccim.ContainsKey(item))
-                            {
-                                categoriesToRemove.Add(item);
-                            }
-                            else if (ccim[item] != i)
-                            {
-                                updateChildCategories = true;
-                            }
+                            updateChildCategories = true;
                         }
                     }
                 }
             }
 
-            return status;
+            return new Status(eResponseStatus.OK);
         }
     }
 }
