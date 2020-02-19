@@ -31,6 +31,11 @@ namespace WebAPI.Filters
 
             // get request ID
             HttpContext.Current.Items[Constants.REQUEST_ID_KEY] = request.GetCorrelationId();
+            var requestIdFromRequestHeader = HttpContext.Current.Request.Headers[Constants.REQUEST_ID_KEY];
+            if (!string.IsNullOrEmpty(requestIdFromRequestHeader))
+            {
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] = requestIdFromRequestHeader;
+            }
 
             byte[] requestBody = await request.Content.ReadAsByteArrayAsync();
             HttpContext.Current.Items["body"] = requestBody;
