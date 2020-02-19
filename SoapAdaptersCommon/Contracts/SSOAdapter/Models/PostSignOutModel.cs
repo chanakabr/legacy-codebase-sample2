@@ -3,7 +3,7 @@
 namespace SSOAdapter.Models
 {
     [DataContract]
-    public partial class PostSignOutModel/* : SignOutModel*/
+    public partial class PostSignOutModel
     {
         [DataMember]
         public User AuthenticatedUser;

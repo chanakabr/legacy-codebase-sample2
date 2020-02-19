@@ -9,41 +9,39 @@
 
 namespace APILogic.SSOAdapaterService
 {
-    using System;
-    using System.Collections.Generic;
     using System.Runtime.Serialization;
-    using System.Threading.Tasks;
-
+    
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "AdapterStatusCode", Namespace = "http://schemas.datacontract.org/2004/07/AdapaterCommon.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AdapterStatusCode", Namespace="http://schemas.datacontract.org/2004/07/AdapaterCommon.Models")]
     public enum AdapterStatusCode : int
     {
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         OK = 0,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         Error = 1,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         SignatureMismatch = 2,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         NoConfigurationFound = 3,
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "SSOImplementationsResponse", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SSOImplementationsResponse", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public partial class SSOImplementationsResponse : object
     {
-
+        
         private APILogic.SSOAdapaterService.eSSOMethods[] ImplementedMethodsField;
-
+        
         private bool SendWelcomeEmailField;
-
+        
         private APILogic.SSOAdapaterService.AdapterStatusCode StatusField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.eSSOMethods[] ImplementedMethods
         {
@@ -56,7 +54,7 @@ namespace APILogic.SSOAdapaterService
                 this.ImplementedMethodsField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool SendWelcomeEmail
         {
@@ -69,7 +67,7 @@ namespace APILogic.SSOAdapaterService
                 this.SendWelcomeEmailField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.AdapterStatusCode Status
         {
@@ -83,59 +81,59 @@ namespace APILogic.SSOAdapaterService
             }
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "eSSOMethods", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eSSOMethods", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public enum eSSOMethods : int
     {
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         PerSignIn = 0,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         PostSignIn = 1,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         PreGetUserData = 2,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         PostGetUserData = 3,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         PreSignOut = 4,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         PostSignOut = 5,
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "PreSignInModel", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PreSignInModel", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public partial class PreSignInModel : object
     {
-
+        
         private System.Collections.Generic.Dictionary<string, string> CustomParamsField;
-
+        
         private string DeviceIdField;
-
+        
         private int GroupIdField;
-
+        
         private string IPAddressField;
-
+        
         private int LockMinField;
-
+        
         private int MaxFailCountField;
-
+        
         private string PasswordField;
-
+        
         private bool PreventDoubleLoginField;
-
+        
         private string SessionIdField;
-
+        
         private int UserIdField;
-
+        
         private string UserNameField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.Dictionary<string, string> CustomParams
         {
@@ -148,7 +146,7 @@ namespace APILogic.SSOAdapaterService
                 this.CustomParamsField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string DeviceId
         {
@@ -161,7 +159,7 @@ namespace APILogic.SSOAdapaterService
                 this.DeviceIdField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int GroupId
         {
@@ -174,7 +172,7 @@ namespace APILogic.SSOAdapaterService
                 this.GroupIdField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string IPAddress
         {
@@ -187,7 +185,7 @@ namespace APILogic.SSOAdapaterService
                 this.IPAddressField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int LockMin
         {
@@ -200,7 +198,7 @@ namespace APILogic.SSOAdapaterService
                 this.LockMinField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int MaxFailCount
         {
@@ -213,7 +211,7 @@ namespace APILogic.SSOAdapaterService
                 this.MaxFailCountField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Password
         {
@@ -226,7 +224,7 @@ namespace APILogic.SSOAdapaterService
                 this.PasswordField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool PreventDoubleLogin
         {
@@ -239,7 +237,7 @@ namespace APILogic.SSOAdapaterService
                 this.PreventDoubleLoginField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string SessionId
         {
@@ -252,7 +250,7 @@ namespace APILogic.SSOAdapaterService
                 this.SessionIdField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int UserId
         {
@@ -265,7 +263,7 @@ namespace APILogic.SSOAdapaterService
                 this.UserIdField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string UserName
         {
@@ -279,25 +277,25 @@ namespace APILogic.SSOAdapaterService
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "PreSignInResponse", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PreSignInResponse", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public partial class PreSignInResponse : object
     {
-
+        
         private APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatusField;
-
+        
         private string PasswordField;
-
+        
         private System.Collections.Generic.Dictionary<string, string> PriviligesField;
-
+        
         private APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatusField;
-
+        
         private int UserIdField;
-
+        
         private string UsernameField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatus
         {
@@ -310,7 +308,7 @@ namespace APILogic.SSOAdapaterService
                 this.AdapterStatusField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Password
         {
@@ -323,7 +321,7 @@ namespace APILogic.SSOAdapaterService
                 this.PasswordField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.Dictionary<string, string> Priviliges
         {
@@ -336,7 +334,7 @@ namespace APILogic.SSOAdapaterService
                 this.PriviligesField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatus
         {
@@ -349,7 +347,7 @@ namespace APILogic.SSOAdapaterService
                 this.SSOResponseStatusField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int UserId
         {
@@ -362,7 +360,7 @@ namespace APILogic.SSOAdapaterService
                 this.UserIdField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Username
         {
@@ -376,19 +374,19 @@ namespace APILogic.SSOAdapaterService
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "SSOResponseStatus", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SSOResponseStatus", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public partial class SSOResponseStatus : object
     {
-
+        
         private int ExternalCodeField;
-
+        
         private string ExternalMessageField;
-
+        
         private APILogic.SSOAdapaterService.eSSOUserResponseStatus ResponseStatusField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int ExternalCode
         {
@@ -401,7 +399,7 @@ namespace APILogic.SSOAdapaterService
                 this.ExternalCodeField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string ExternalMessage
         {
@@ -414,7 +412,7 @@ namespace APILogic.SSOAdapaterService
                 this.ExternalMessageField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.eSSOUserResponseStatus ResponseStatus
         {
@@ -428,107 +426,107 @@ namespace APILogic.SSOAdapaterService
             }
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "eSSOUserResponseStatus", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eSSOUserResponseStatus", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public enum eSSOUserResponseStatus : int
     {
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         OK = 0,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserExists = 1,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserDoesNotExist = 2,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         WrongPasswordOrUserName = 3,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         InsideLockTime = 4,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         NotImplementedYet = 5,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserNotActivated = 6,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserAlreadyLoggedIn = 7,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserDoubleLogIn = 8,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         SessionLoggedOut = 9,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         DeviceNotRegistered = 10,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ErrorOnSendingMail = 11,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserEmailAlreadyExists = 12,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ErrorOnUpdatingUserType = 13,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserTypeNotExist = 14,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserNotMasterApproved = 15,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ErrorOnInitUser = 16,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ErrorOnSaveUser = 17,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserNotIndDomain = 18,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         TokenNotFound = 19,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserAlreadyMasterApproved = 20,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserWithNoDomain = 21,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         LoginServerDown = 22,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserSuspended = 23,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         UserCreatedWithNoRole = 24,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ExternalIdAlreadyExists = 25,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ExternalError = 26,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         InternalError = 999,
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "PostSignInModel", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PostSignInModel", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public partial class PostSignInModel : object
     {
-
+        
         private APILogic.SSOAdapaterService.User AuthenticatedUserField;
-
+        
         private System.Collections.Generic.Dictionary<string, string> CustomParamsField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.User AuthenticatedUser
         {
@@ -541,7 +539,7 @@ namespace APILogic.SSOAdapaterService
                 this.AuthenticatedUserField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.Dictionary<string, string> CustomParams
         {
@@ -555,47 +553,47 @@ namespace APILogic.SSOAdapaterService
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "User", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="User", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public partial class User : object
     {
-
+        
         private string AddressField;
-
+        
         private string CityField;
-
+        
         private System.Nullable<int> CountryIdField;
-
+        
         private System.Collections.Generic.Dictionary<string, string> DynamicDataField;
-
+        
         private string EmailField;
-
+        
         private string ExternalIdField;
-
+        
         private string FirstNameField;
-
+        
         private System.Nullable<int> HouseholdIDField;
-
+        
         private int IdField;
-
+        
         private System.Nullable<bool> IsHouseholdMasterField;
-
+        
         private string LastNameField;
-
+        
         private string PhoneField;
-
+        
         private APILogic.SSOAdapaterService.eHouseholdSuspensionState SuspensionStateField;
-
+        
         private APILogic.SSOAdapaterService.eUserState UserStateField;
-
+        
         private APILogic.SSOAdapaterService.UserType UserTypeField;
-
+        
         private string UsernameField;
-
+        
         private string ZipField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Address
         {
@@ -608,7 +606,7 @@ namespace APILogic.SSOAdapaterService
                 this.AddressField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string City
         {
@@ -621,7 +619,7 @@ namespace APILogic.SSOAdapaterService
                 this.CityField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Nullable<int> CountryId
         {
@@ -634,7 +632,7 @@ namespace APILogic.SSOAdapaterService
                 this.CountryIdField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.Dictionary<string, string> DynamicData
         {
@@ -647,7 +645,7 @@ namespace APILogic.SSOAdapaterService
                 this.DynamicDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Email
         {
@@ -660,7 +658,7 @@ namespace APILogic.SSOAdapaterService
                 this.EmailField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string ExternalId
         {
@@ -673,7 +671,7 @@ namespace APILogic.SSOAdapaterService
                 this.ExternalIdField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string FirstName
         {
@@ -686,7 +684,7 @@ namespace APILogic.SSOAdapaterService
                 this.FirstNameField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Nullable<int> HouseholdID
         {
@@ -699,7 +697,7 @@ namespace APILogic.SSOAdapaterService
                 this.HouseholdIDField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int Id
         {
@@ -712,7 +710,7 @@ namespace APILogic.SSOAdapaterService
                 this.IdField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Nullable<bool> IsHouseholdMaster
         {
@@ -725,7 +723,7 @@ namespace APILogic.SSOAdapaterService
                 this.IsHouseholdMasterField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string LastName
         {
@@ -738,7 +736,7 @@ namespace APILogic.SSOAdapaterService
                 this.LastNameField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Phone
         {
@@ -751,7 +749,7 @@ namespace APILogic.SSOAdapaterService
                 this.PhoneField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.eHouseholdSuspensionState SuspensionState
         {
@@ -764,7 +762,7 @@ namespace APILogic.SSOAdapaterService
                 this.SuspensionStateField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.eUserState UserState
         {
@@ -777,7 +775,7 @@ namespace APILogic.SSOAdapaterService
                 this.UserStateField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.UserType UserType
         {
@@ -790,7 +788,7 @@ namespace APILogic.SSOAdapaterService
                 this.UserTypeField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Username
         {
@@ -803,7 +801,7 @@ namespace APILogic.SSOAdapaterService
                 this.UsernameField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Zip
         {
@@ -817,17 +815,17 @@ namespace APILogic.SSOAdapaterService
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "UserType", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="UserType", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public partial class UserType : object
     {
-
+        
         private string DescriptionField;
-
+        
         private int IdField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Description
         {
@@ -840,7 +838,7 @@ namespace APILogic.SSOAdapaterService
                 this.DescriptionField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int Id
         {
@@ -854,49 +852,49 @@ namespace APILogic.SSOAdapaterService
             }
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "eHouseholdSuspensionState", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eHouseholdSuspensionState", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public enum eHouseholdSuspensionState : int
     {
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         NOT_SUSPENDED = 0,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         SUSPENDED = 1,
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "eUserState", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eUserState", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public enum eUserState : int
     {
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ok = 0,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         user_with_no_household = 1,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         user_created_with_no_role = 2,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         user_not_activated = 3,
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "UserResponse", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="UserResponse", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public partial class UserResponse : object
     {
-
+        
         private APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatusField;
-
+        
         private APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatusField;
-
+        
         private APILogic.SSOAdapaterService.User UserField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatus
         {
@@ -909,7 +907,7 @@ namespace APILogic.SSOAdapaterService
                 this.AdapterStatusField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatus
         {
@@ -922,7 +920,7 @@ namespace APILogic.SSOAdapaterService
                 this.SSOResponseStatusField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.User User
         {
@@ -936,15 +934,19 @@ namespace APILogic.SSOAdapaterService
             }
         }
     }
-
-    public abstract class SignOutModel
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PreSignOutModel", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    public partial class PreSignOutModel : object
     {
+        
         private string DeviceUdidField;
-
+        
         private int HouseholdIdField;
-
+        
         private int UserIdField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string DeviceUdid
         {
@@ -957,7 +959,7 @@ namespace APILogic.SSOAdapaterService
                 this.DeviceUdidField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int HouseholdId
         {
@@ -970,7 +972,7 @@ namespace APILogic.SSOAdapaterService
                 this.HouseholdIdField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int UserId
         {
@@ -984,141 +986,204 @@ namespace APILogic.SSOAdapaterService
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "PreSignOutModel", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
-    public partial class PreSignOutModel : SignOutModel
+    [System.Runtime.Serialization.DataContractAttribute(Name="PostSignOutModel", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    public partial class PostSignOutModel : object
     {
+        
+        private APILogic.SSOAdapaterService.User AuthenticatedUserField;
+        
+        private string DeviceUdidField;
+        
+        private int HouseholdIdField;
+        
+        private int UserIdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public APILogic.SSOAdapaterService.User AuthenticatedUser
+        {
+            get
+            {
+                return this.AuthenticatedUserField;
+            }
+            set
+            {
+                this.AuthenticatedUserField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string DeviceUdid
+        {
+            get
+            {
+                return this.DeviceUdidField;
+            }
+            set
+            {
+                this.DeviceUdidField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int HouseholdId
+        {
+            get
+            {
+                return this.HouseholdIdField;
+            }
+            set
+            {
+                this.HouseholdIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int UserId
+        {
+            get
+            {
+                return this.UserIdField;
+            }
+            set
+            {
+                this.UserIdField = value;
+            }
+        }
     }
-
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "PostSignOutModel", Namespace = "http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
-    public partial class PostSignOutModel : SignOutModel
-    {
-    }
-
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName = "APILogic.SSOAdapaterService.IService")]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="APILogic.SSOAdapaterService.IService")]
     public interface IService
     {
-
-        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/SetConfiguration", ReplyAction = "http://tempuri.org/IService/SetConfigurationResponse")]
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SetConfiguration", ReplyAction="http://tempuri.org/IService/SetConfigurationResponse")]
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.AdapterStatusCode> SetConfigurationAsync(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature);
-
-        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/GetConfiguration", ReplyAction = "http://tempuri.org/IService/GetConfigurationResponse")]
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetConfiguration", ReplyAction="http://tempuri.org/IService/GetConfigurationResponse")]
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.SSOImplementationsResponse> GetConfigurationAsync(int adapterId);
-
-        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PreSignIn", ReplyAction = "http://tempuri.org/IService/PreSignInResponse")]
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PreSignIn", ReplyAction="http://tempuri.org/IService/PreSignInResponse")]
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.PreSignInResponse> PreSignInAsync(int adapterId, APILogic.SSOAdapaterService.PreSignInModel preSignInData, string signature);
-
-        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PostSignIn", ReplyAction = "http://tempuri.org/IService/PostSignInResponse")]
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PostSignIn", ReplyAction="http://tempuri.org/IService/PostSignInResponse")]
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostSignInAsync(int adapterId, APILogic.SSOAdapaterService.PostSignInModel postSignInData, string signature);
-
-        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PreGetUserData", ReplyAction = "http://tempuri.org/IService/PreGetUserDataResponse")]
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PreGetUserData", ReplyAction="http://tempuri.org/IService/PreGetUserDataResponse")]
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PreGetUserDataAsync(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
-
-        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PostGetUserData", ReplyAction = "http://tempuri.org/IService/PostGetUserDataResponse")]
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PostGetUserData", ReplyAction="http://tempuri.org/IService/PostGetUserDataResponse")]
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostGetUserDataAsync(int adapterId, APILogic.SSOAdapaterService.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
-
-        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PreSignOutAsync", ReplyAction = "http://tempuri.org/IService/PostPreSignOutAsync")]
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PreSignOut", ReplyAction="http://tempuri.org/IService/PreSignOutResponse")]
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PreSignOutAsync(int adapterId, APILogic.SSOAdapaterService.PreSignOutModel preSignOutData, string signature);
-
-        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PostSignOutAsync", ReplyAction = "http://tempuri.org/IService/PostSignOutAsync")]
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PostSignOut", ReplyAction="http://tempuri.org/IService/PostSignOutResponse")]
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostSignOutAsync(int adapterId, APILogic.SSOAdapaterService.PostSignOutModel postSignOutData, string signature);
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     public interface IServiceChannel : APILogic.SSOAdapaterService.IService, System.ServiceModel.IClientChannel
     {
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     public partial class ServiceClient : System.ServiceModel.ClientBase<APILogic.SSOAdapaterService.IService>, APILogic.SSOAdapaterService.IService
     {
-
-        /// <summary>
-        /// Implement this partial method to configure the service endpoint.
-        /// </summary>
-        /// <param name="serviceEndpoint">The endpoint to configure</param>
-        /// <param name="clientCredentials">The client credentials</param>
-        static partial void ConfigureEndpoint(System.ServiceModel.Description.ServiceEndpoint serviceEndpoint, System.ServiceModel.Description.ClientCredentials clientCredentials);
-
-        public ServiceClient() :
+        
+    /// <summary>
+    /// Implement this partial method to configure the service endpoint.
+    /// </summary>
+    /// <param name="serviceEndpoint">The endpoint to configure</param>
+    /// <param name="clientCredentials">The client credentials</param>
+    static partial void ConfigureEndpoint(System.ServiceModel.Description.ServiceEndpoint serviceEndpoint, System.ServiceModel.Description.ClientCredentials clientCredentials);
+        
+        public ServiceClient() : 
                 base(ServiceClient.GetDefaultBinding(), ServiceClient.GetDefaultEndpointAddress())
         {
             this.Endpoint.Name = EndpointConfiguration.BasicHttpBinding_IService.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
-
-        public ServiceClient(EndpointConfiguration endpointConfiguration) :
+        
+        public ServiceClient(EndpointConfiguration endpointConfiguration) : 
                 base(ServiceClient.GetBindingForEndpoint(endpointConfiguration), ServiceClient.GetEndpointAddress(endpointConfiguration))
         {
             this.Endpoint.Name = endpointConfiguration.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
-
-        public ServiceClient(EndpointConfiguration endpointConfiguration, string remoteAddress) :
+        
+        public ServiceClient(EndpointConfiguration endpointConfiguration, string remoteAddress) : 
                 base(ServiceClient.GetBindingForEndpoint(endpointConfiguration), new System.ServiceModel.EndpointAddress(remoteAddress))
         {
             this.Endpoint.Name = endpointConfiguration.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
-
-        public ServiceClient(EndpointConfiguration endpointConfiguration, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public ServiceClient(EndpointConfiguration endpointConfiguration, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(ServiceClient.GetBindingForEndpoint(endpointConfiguration), remoteAddress)
         {
             this.Endpoint.Name = endpointConfiguration.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
-
-        public ServiceClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public ServiceClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(binding, remoteAddress)
         {
         }
-
+        
         public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.AdapterStatusCode> SetConfigurationAsync(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature)
         {
             return base.Channel.SetConfigurationAsync(adapterId, partnerId, configuration, signature);
         }
-
+        
         public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.SSOImplementationsResponse> GetConfigurationAsync(int adapterId)
         {
             return base.Channel.GetConfigurationAsync(adapterId);
         }
-
+        
         public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.PreSignInResponse> PreSignInAsync(int adapterId, APILogic.SSOAdapaterService.PreSignInModel preSignInData, string signature)
         {
             return base.Channel.PreSignInAsync(adapterId, preSignInData, signature);
         }
-
+        
         public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostSignInAsync(int adapterId, APILogic.SSOAdapaterService.PostSignInModel postSignInData, string signature)
         {
             return base.Channel.PostSignInAsync(adapterId, postSignInData, signature);
         }
-
+        
         public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PreGetUserDataAsync(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature)
         {
             return base.Channel.PreGetUserDataAsync(adapterId, userId, ipAddress, customParams, signature);
         }
-
+        
         public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostGetUserDataAsync(int adapterId, APILogic.SSOAdapaterService.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature)
         {
             return base.Channel.PostGetUserDataAsync(adapterId, userData, customParams, signature);
         }
-
+        
+        public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PreSignOutAsync(int adapterId, APILogic.SSOAdapaterService.PreSignOutModel preSignOutData, string signature)
+        {
+            return base.Channel.PreSignOutAsync(adapterId, preSignOutData, signature);
+        }
+        
+        public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostSignOutAsync(int adapterId, APILogic.SSOAdapaterService.PostSignOutModel postSignOutData, string signature)
+        {
+            return base.Channel.PostSignOutAsync(adapterId, postSignOutData, signature);
+        }
+        
         public virtual System.Threading.Tasks.Task OpenAsync()
         {
             return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen));
         }
-
+        
         public virtual System.Threading.Tasks.Task CloseAsync()
         {
             return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose));
         }
-
+        
         private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(EndpointConfiguration endpointConfiguration)
         {
             if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding_IService))
@@ -1132,39 +1197,29 @@ namespace APILogic.SSOAdapaterService
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
-
+        
         private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration)
         {
             if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding_IService))
             {
-                return new System.ServiceModel.EndpointAddress("http://localhost:90/SSOAdapter/Service.svc");
+                return new System.ServiceModel.EndpointAddress("http://localhost:5006/SSOAdapter/Service.svc");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
-
+        
         private static System.ServiceModel.Channels.Binding GetDefaultBinding()
         {
             return ServiceClient.GetBindingForEndpoint(EndpointConfiguration.BasicHttpBinding_IService);
         }
-
+        
         private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress()
         {
             return ServiceClient.GetEndpointAddress(EndpointConfiguration.BasicHttpBinding_IService);
         }
-
-        public Task<UserResponse> PreSignOutAsync(int adapterId, PreSignOutModel preSignOutData, string signature)
-        {
-            return base.Channel.PreSignOutAsync(adapterId, preSignOutData, signature);
-        }
-
-        public Task<UserResponse> PostSignOutAsync(int adapterId, PostSignOutModel postSignOutModel, string signature)
-        {
-            return base.Channel.PostSignOutAsync(adapterId, postSignOutModel, signature);
-        }
-
+        
         public enum EndpointConfiguration
         {
-
+            
             BasicHttpBinding_IService,
         }
     }
