@@ -471,7 +471,8 @@ namespace Core.Users
                 {
                     UserId = siteGuid,
                     DeviceUdid = deviceUdid,
-                    HouseholdId = domainId
+                    HouseholdId = domainId,
+                    AuthenticatedUser = new SSOAdapaterUser() { HouseholdID = domainId, Id = siteGuid }
                 };
 
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, postSignOutModel.UserId);
