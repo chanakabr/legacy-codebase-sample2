@@ -400,14 +400,16 @@ namespace Core.Notification
             {
                 if (filter.MessageAnnouncementIds != null && filter.MessageAnnouncementIds.Count > 0)
                 {
-                    if (pageIndex != 1)
+                    if (pageIndex != 0)
                     {
                         ret.Status.Set(eResponseStatus.InvalidValue, "Page index value must be 1.");
+                        return ret;
                     }
 
-                    if (pageSize != filter.MessageAnnouncementIds.Count)
+                    if (pageSize < filter.MessageAnnouncementIds.Count)
                     {
-                        ret.Status.Set(eResponseStatus.InvalidValue, "Page size must to be equal to the size of MessageAnnouncement.Ids");
+                        ret.Status.Set(eResponseStatus.InvalidValue, "Page size must to be greater or equal to the size of MessageAnnouncement.Ids");
+                        return ret;
                     }
 
                     foreach (var id in filter.MessageAnnouncementIds)
