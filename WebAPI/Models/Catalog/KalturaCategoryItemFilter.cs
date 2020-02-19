@@ -72,7 +72,7 @@ namespace WebAPI.Models.Catalog
         }
     }
 
-    public partial class KalturaCategoryItemByKsqlFilter : KalturaCategoryItemFilter
+    public partial class KalturaCategoryItemByKsqlRootFilter : KalturaCategoryItemFilter
     {
         /// <summary>
         /// KSQL expression
@@ -82,6 +82,15 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "kSql", IsNullable = false)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string Ksql { get; set; }
+
+        /// <summary>
+        /// Root only
+        /// </summary>
+        [DataMember(Name = "rootOnly")]
+        [JsonProperty("rootOnly")]
+        [XmlElement(ElementName = "rootOnly", IsNullable = false)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string RootOnly { get; set; }
 
         public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
         {
@@ -96,35 +105,13 @@ namespace WebAPI.Models.Catalog
             }
         }
 
-        public KalturaCategoryItemByKsqlFilter() : base()
+        public KalturaCategoryItemByKsqlRootFilter() : base()
         {
         }
 
         public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
         {
-            var coreFilter = AutoMapper.Mapper.Map<CategoryItemByKsqlFilter>(this);
-            return CategoryItemHandler.Instance.List(contextData, coreFilter);
-        }
-    }
-
-    public partial class KalturaCategoryItemByRootFilter : KalturaCategoryItemFilter
-    {
-        public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
-        {
-            return KalturaCategoryItemOrderBy.NONE;
-        }
-
-        public override void Validate()
-        {
-        }
-
-        public KalturaCategoryItemByRootFilter() : base()
-        {
-        }
-
-        public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
-        {
-            var coreFilter = AutoMapper.Mapper.Map<CategoryItemByRootFilter>(this);
+            var coreFilter = AutoMapper.Mapper.Map<CategoryItemByKsqlRootFilter>(this);
             return CategoryItemHandler.Instance.List(contextData, coreFilter);
         }
     }

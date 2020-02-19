@@ -1208,11 +1208,13 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaCategoryItemByKsqlFilter":
+                case "KalturaCategoryItemByKsqlRootFilter":
                     switch(property.Name)
                     {
                         case "Ksql":
                             return "kSql";
+                        case "RootOnly":
+                            return "rootOnly";
                     }
                     break;
                     

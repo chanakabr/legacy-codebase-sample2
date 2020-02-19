@@ -38,14 +38,12 @@ namespace ApiLogic.Catalog
         }
     }
 
-       
 
-    public class CategoryItemByKsqlFilter : CategoryItemFilter
+
+    public class CategoryItemByKsqlRootFilter : CategoryItemFilter
     {
         public string Ksql { get; set; }
-    }
 
-    public class CategoryItemByRootFilter : CategoryItemFilter
-    {
+        public bool RootOnly { get; set; }
     }
 }

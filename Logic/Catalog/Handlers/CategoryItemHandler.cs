@@ -336,7 +336,7 @@ namespace Core.Catalog.Handlers
 
             return response;
         }
-        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemByRootFilter filter)
+        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemByKsqlRootFilter filter)
         {
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
             CategoryItem categoryItem = null;

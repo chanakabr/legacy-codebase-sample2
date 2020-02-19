@@ -422,11 +422,8 @@ namespace WebAPI.Reflection
                 case "KalturaCategoryItemByIdInFilter":
                     return new KalturaCategoryItemByIdInFilter(parameters);
                     
-                case "KalturaCategoryItemByKsqlFilter":
-                    return new KalturaCategoryItemByKsqlFilter(parameters);
-                    
-                case "KalturaCategoryItemByRootFilter":
-                    return new KalturaCategoryItemByRootFilter(parameters);
+                case "KalturaCategoryItemByKsqlRootFilter":
+                    return new KalturaCategoryItemByKsqlRootFilter(parameters);
                     
                 case "KalturaCategoryItemFilter":
                     return new KalturaCategoryItemFilter(parameters);
@@ -11659,9 +11656,9 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
-    public partial class KalturaCategoryItemByKsqlFilter
+    public partial class KalturaCategoryItemByKsqlRootFilter
     {
-        public KalturaCategoryItemByKsqlFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryItemByKsqlRootFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11669,13 +11666,11 @@ namespace WebAPI.Models.Catalog
                 {
                     Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
                 }
+                if (parameters.ContainsKey("rootOnly") && parameters["rootOnly"] != null)
+                {
+                    RootOnly = (String) Convert.ChangeType(parameters["rootOnly"], typeof(String));
+                }
             }
-        }
-    }
-    public partial class KalturaCategoryItemByRootFilter
-    {
-        public KalturaCategoryItemByRootFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
         }
     }
     public partial class KalturaCategoryItemFilter
