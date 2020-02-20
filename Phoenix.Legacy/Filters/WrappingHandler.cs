@@ -31,6 +31,11 @@ namespace WebAPI.Filters
 
             // get request ID
             HttpContext.Current.Items[Constants.REQUEST_ID_KEY] = request.GetCorrelationId();
+            var requestIdFromRequestHeader = HttpContext.Current.Request.Headers[Constants.REQUEST_ID_KEY];
+            if (!string.IsNullOrEmpty(requestIdFromRequestHeader))
+            {
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] = requestIdFromRequestHeader;
+            }
 
             byte[] requestBody = await request.Content.ReadAsByteArrayAsync();
             HttpContext.Current.Items["body"] = requestBody;
@@ -109,10 +114,11 @@ namespace WebAPI.Filters
                 //We never return 500. even on errors/warning. update - only if specifically changed
                 response.StatusCode = System.Net.HttpStatusCode.OK;
             }
+
             Guid reqID = request.GetCorrelationId();
             var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, executionTime, content, message));
 
-            newResponse.Headers.Add("X-Kaltura-Session", reqID.ToString());
+            newResponse.Headers.Add("X-Kaltura-Session", HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
             newResponse.Headers.Add("Access-Control-Allow-Origin", "*");
 
             foreach (var header in response.Headers)
