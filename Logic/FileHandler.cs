@@ -158,8 +158,6 @@ namespace ApiLogic
     public class S3FileHandler : FileHandler
     {
         public int NumberOfRetries { get; private set; }
-        public string AccessKey { get; private set; }
-        public string SecretKey { get; private set; }
         public string Region { get; private set; }
         public string BucketName { get; private set; }
         public string Path { get; private set; }
@@ -169,8 +167,6 @@ namespace ApiLogic
 
         protected override void Initialize()
         {
-            AccessKey = ApplicationConfiguration.Current.FileUpload.S3.AccessKey.Value;
-            SecretKey = ApplicationConfiguration.Current.FileUpload.S3.SecretKey.Value;
             Region = ApplicationConfiguration.Current.FileUpload.S3.Region.Value;
             BucketName = ApplicationConfiguration.Current.FileUpload.S3.BucketName.Value;
             NumberOfRetries = ApplicationConfiguration.Current.FileUpload.S3.NumberOfRetries.Value;
@@ -182,7 +178,7 @@ namespace ApiLogic
             GenericResponse<string> saveResponse = new GenericResponse<string>();
             for (int i = 0; i < NumberOfRetries; i++)
             {
-                using (var client = new AmazonS3Client(AccessKey, SecretKey, Amazon.RegionEndpoint.GetBySystemName(Region)))
+                using (var client = new AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(Region)))
                 {
                     try
                     {
@@ -224,7 +220,7 @@ namespace ApiLogic
             var deleteResponse = new Status((int)eResponseStatus.Error);
             for (int i = 0; i < NumberOfRetries; i++)
             {
-                using (var client = new AmazonS3Client(AccessKey, SecretKey, Amazon.RegionEndpoint.GetBySystemName(Region)))
+                using (var client = new AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(Region)))
                 {
                     try
                     {
