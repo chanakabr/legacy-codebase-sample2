@@ -2,6 +2,8 @@
 using ApiObjects.Billing;
 using ApiObjects.Rules;
 using AutoMapper.Configuration;
+using System.Collections.Generic;
+using System.Linq;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
@@ -113,6 +115,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             #endregion KalturaObjectVirtualAssetPartnerConfig
+
+            cfg.CreateMap<KalturaCommercePartnerConfig, CommercePartnerConfig>()
+                .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.GetBookmarkEventThresholds()));
+
+            cfg.CreateMap<CommercePartnerConfig, KalturaCommercePartnerConfig>()
+                .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.BookmarkEventThresholds));
+
+            cfg.CreateMap<KeyValuePair<eTransactionType, int>, KalturaBookmarkEventThreshold>()
+                .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => src.Key))
+                .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Value));
+
+            //cfg.CreateMap<IGrouping<eTransactionType, DbCustomProperty>, DTOCustomProperty>()
+            //.ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
+            //.ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value)));
         }
 
         private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationType type)

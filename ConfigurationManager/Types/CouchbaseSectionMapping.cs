@@ -15,7 +15,7 @@ namespace ConfigurationManager
         public BaseValue<string> EPG = new BaseValue<string>("epg", "epg_channels_schedule");
         public BaseValue<string> MediaMarks = new BaseValue<string>("mediamark", "MediaMarks");
         public BaseValue<string> DomainConcurrency = new BaseValue<string>("domain_concurrency", "domain_concurrency");
-        public BaseValue<string> MediaHits = new BaseValue<string>("media_hit", "media_hit");
+        public BaseValue<string> MediaHits = new BaseValue<string>("media_hits", "media_hit");
         public BaseValue<string> Statistics = new BaseValue<string>("statistics", "statistics");
         public BaseValue<string> Recordings = new BaseValue<string>("recordings", "OTT_Apps");
         public BaseValue<string> Cache = new BaseValue<string>("cache","Cache");

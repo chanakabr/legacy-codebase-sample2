@@ -1,7 +1,6 @@
 ﻿using KLogMonitor;
 using System;
 using System.Reflection;
-using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
@@ -25,12 +24,12 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public static bool Dispatch(KalturaEventNotificationScope scope)
         {
-            var ks = KSManager.GetKSFromRequest();
-            var groupId = ks.GroupId;
+
+            var groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
-                return ClientsManager.NotificationClient().DispatchEventNotification(groupId, scope);
+                return scope.NotifyEvent(groupId);
             }
             catch (ClientException ex)
             {

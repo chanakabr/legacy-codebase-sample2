@@ -918,6 +918,38 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBookmarkEvent":
+                    switch(property.Name)
+                    {
+                        case "Action":
+                            return "action";
+                        case "AssetId":
+                            return "assetId";
+                        case "FileId":
+                            return "fileId";
+                        case "HouseholdId":
+                            return "householdId";
+                        case "Position":
+                            return "position";
+                        case "ProductId":
+                            return "productId";
+                        case "ProductType":
+                            return "productType";
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
+                case "KalturaBookmarkEventThreshold":
+                    switch(property.Name)
+                    {
+                        case "Threshold":
+                            return "threshold";
+                        case "TransactionType":
+                            return "transactionType";
+                    }
+                    break;
+                    
                 case "KalturaBookmarkFilter":
                     switch(property.Name)
                     {
@@ -1415,6 +1447,14 @@ namespace WebAPI.Reflection
                     {
                         case "Collections":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaCommercePartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "BookmarkEventThresholds":
+                            return "bookmarkEventThresholds";
                     }
                     break;
                     
@@ -5532,6 +5572,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSegmentValueFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaSegmentValues":
                     switch(property.Name)
                     {
@@ -6902,6 +6950,10 @@ namespace WebAPI.Reflection
                         case "getplaybackcontext":
                             RolesManager.ValidateActionPermitted("asset", "getPlaybackContext", false);
                             return AssetController.GetPlaybackContext((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2], (string) methodParams[3]);
+                            
+                        case "getplaybackmanifest":
+                            RolesManager.ValidateActionPermitted("asset", "getPlaybackManifest", false);
+                            return AssetController.GetPlaybackManifest((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2], (string) methodParams[3]);
                             
                         case "list":
                             if(isOldVersion)
@@ -9592,7 +9644,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("segmentationType", "list", false);
-                            return SegmentationTypeController.List((KalturaSegmentationTypeFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            return SegmentationTypeController.List((KalturaBaseSegmentationTypeFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("segmentationType", "update", false);
@@ -11341,6 +11393,29 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "getplaybackcontext":
+                            ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("assetType", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaAssetType),
+                            });
+                            ret.Add("contextDataParams", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPlaybackContextOptions),
+                            });
+                            ret.Add("sourceType", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "getplaybackmanifest":
                             ret.Add("assetId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
@@ -17008,7 +17083,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaSegmentationTypeFilter),
+                                Type = typeof(KalturaBaseSegmentationTypeFilter),
                             });
                             ret.Add("pager", new MethodParam(){
                                 NewName = newParamName,

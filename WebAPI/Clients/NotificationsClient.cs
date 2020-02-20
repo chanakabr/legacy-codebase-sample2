@@ -72,24 +72,15 @@ namespace WebAPI.Clients
             }
         }
 
-        internal bool DispatchEventNotification(int groupId, KalturaEventNotificationScope scope)
+        internal bool DispatchEventNotification(int groupId, KalturaEventNotificationObjectScope scope)
         {
-            try
-            {
-                EventNotificationScope ens = AutoMapper.Mapper.Map<EventNotificationScope>(scope);
-                
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    return Core.Notification.Module.DispatchEventNotification(groupId, ens);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling dispatching event notification. exception: {0}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
+            Func<bool> notifyFunc = () => { 
+                var eneot = Mapper.Map<EventNotificationObjectScope>(scope);
+                eneot.EventObject.GroupId = groupId;
+                return eneot.EventObject.Notify(type: eneot.EventObject.GetType().Name.ToLower());
+            };
 
-            return false;
+            return ClientUtils.GetBoolResponseFromWS(notifyFunc);
         }
 
         internal bool SendEmail(int groupId, KalturaEmailMessage emailMessage)

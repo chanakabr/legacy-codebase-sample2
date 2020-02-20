@@ -20,6 +20,7 @@ namespace ApiLogic.Api.Managers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region internal methods 
+
         internal static GenericListResponse<ObjectVirtualAssetPartnerConfig> GetObjectVirtualAssetPartnerConfiguration(int groupId)
         {
             GenericListResponse<ObjectVirtualAssetPartnerConfig> response = new GenericListResponse<ObjectVirtualAssetPartnerConfig>();
@@ -33,9 +34,9 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
                 if (partnerConfig != null)
-                {                    
+                {
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    if(partnerConfig.ObjectVirtualAssets?.Count > 0)
+                    if (partnerConfig.ObjectVirtualAssets?.Count > 0)
                     {
                         response.Objects.Add(partnerConfig);
                     }
@@ -189,7 +190,7 @@ namespace ApiLogic.Api.Managers
                     if (defaultRegion == null)
                     {
                         log.ErrorFormat("Error while update generalPartnerConfig. DefaultRegion {0} not exist in groupId: {1}", partnerConfigToUpdate.DefaultRegion.Value, groupId);
-                        response.Set((int)eResponseStatus.RegionDoesNotExist, eResponseStatus.DlmNotExist.ToString());
+                        response.Set((int)eResponseStatus.RegionDoesNotExist, eResponseStatus.RegionDoesNotExist.ToString());
                         return response;
                     }
                     else
@@ -362,13 +363,113 @@ namespace ApiLogic.Api.Managers
             {
                 objectVirtualAssetInfo = objectVirtualAssetPartnerConfig.Objects[0].ObjectVirtualAssets.FirstOrDefault(x => x.Type == objectVirtualAssetInfoType);
             }
-            
+
             return objectVirtualAssetInfo;
+        }
+
+        public static GenericListResponse<CommercePartnerConfig> GetCommercePartnerConfigList(int groupId)
+        {
+            var response = new GenericListResponse<CommercePartnerConfig>();
+            var commercePartnerConfig = GetCommercePartnerConfig(groupId);
+            
+            if (commercePartnerConfig.HasObject())
+            {
+                response.Objects.Add(commercePartnerConfig.Object);
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+
+            return response;
+        }
+
+        internal static GenericResponse<CommercePartnerConfig> GetCommercePartnerConfig(int groupId)
+        {
+            var response = new GenericResponse<CommercePartnerConfig>();
+
+            try
+            {
+                CommercePartnerConfig commercePartnerConfig = null;
+                string key = LayeredCacheKeys.GetCommercePartnerConfigKey(groupId);
+                var invalidationKey = new List<string>() { LayeredCacheKeys.GetCommercePartnerConfigInvalidationKey(groupId) };
+                if (!LayeredCache.Instance.Get(key,
+                                               ref commercePartnerConfig,
+                                               GetCommercePartnerConfigDB,
+                                               new Dictionary<string, object>() { { "groupId", groupId } },
+                                               groupId,
+                                               LayeredCacheConfigNames.GET_COMMERCE_PARTNER_CONFIG,
+                                               invalidationKey))
+                {
+                    log.Error($"Failed getting GetCommercePartnerConfig from LayeredCache, groupId: {groupId}, key: {key}");
+                }
+                else
+                {
+                    if (commercePartnerConfig == null)
+                    {
+                        response.SetStatus(eResponseStatus.PartnerConfigurationDoesNotExist, "Commerce partner configuration does not exist.");
+                    }
+                    else
+                    {
+                        response.Object = commercePartnerConfig;
+                        response.SetStatus(eResponseStatus.OK);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed GetCommercePartnerConfig for groupId: {groupId}", ex);
+            }
+
+            return response;
+        }
+
+        public static Status UpdateCommerceConfig(int groupId, CommercePartnerConfig commercePartnerConfig)
+        {
+            Status response = new Status(eResponseStatus.Error);
+
+            try
+            {
+                var needToUpdate = false;
+                var oldCommerceConfig = GetCommercePartnerConfig(groupId);
+
+                if (!oldCommerceConfig.HasObject())
+                {
+                    needToUpdate = true;
+                }
+                else
+                {
+                    needToUpdate = commercePartnerConfig.SetUnchangedProperties(oldCommerceConfig.Object);
+                }
+
+                if (needToUpdate)
+                {
+                    if (!ApiDAL.SaveCommercePartnerConfig(groupId, commercePartnerConfig))
+                    {
+                        log.Error($"Error while save CommercePartnerConfig. groupId: {groupId}.");
+                        return response;
+                    }
+
+                    string invalidationKey = LayeredCacheKeys.GetCommercePartnerConfigInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.Error($"Failed to set invalidation key for CommercePartnerConfig with invalidationKey: {invalidationKey}.");
+                    }
+                }
+
+                response.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                response.Set(eResponseStatus.Error);
+                log.Error($"An Exception was occurred in UpdateCommerceConfig. groupId:{groupId}.", ex);
+            }
+
+            return response;
         }
 
         #endregion
 
         #region private methods
+
         private static GeneralPartnerConfig GetGeneralPartnerConfig(int groupId)
         {
             GeneralPartnerConfig generalPartnerConfig = null;
@@ -628,6 +729,29 @@ namespace ApiLogic.Api.Managers
 
             return new Tuple<int, bool>(groupDefaultCurrencyId, res);
         }
+
+        private static Tuple<CommercePartnerConfig, bool> GetCommercePartnerConfigDB(Dictionary<string, object> funcParams)
+        {
+            CommercePartnerConfig commercePartnerConfig = null;
+            bool result = false;
+
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue)
+                {
+                    commercePartnerConfig = ApiDAL.GetCommercePartnerConfig(groupId.Value);
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetCommercePartnerConfigDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<CommercePartnerConfig, bool>(commercePartnerConfig, result);
+        }
+
         #endregion
     }
 }

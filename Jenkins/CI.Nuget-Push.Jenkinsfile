@@ -32,6 +32,7 @@ pipeline {
                 bat "dotnet pack Core/TCMClient/TCMClient.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/StaticHttpContextForNetCore/StaticHttpContextForNetCore.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/KLogMonitor/KLogMonitor.csproj -o ${WORKSPACE}/nugets/" 
+				bat "dotnet pack Core/KlogMonitorHelper/KlogMonitorHelper.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/CouchBaseExtensions/CouchBaseExtensions.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/CouchbaseManager/CouchbaseManager.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/ODBCWrapper/ODBCWrapper.csproj -o ${WORKSPACE}/nugets/" 
@@ -44,6 +45,11 @@ pipeline {
                 bat "dotnet pack Core/RabbitQueueWrapper/RabbitQueueWrapper.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/LogReloader/LogReloader.csproj -o ${WORKSPACE}/nugets/"
 				bat "dotnet pack Core/KSWrapper/KSWrapper.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/Core.Middleware/Core.Middleware.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/ServiceExtensions/ServiceExtensions.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/SoapAdaptersCommon/SoapAdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/RestAdaptersCommon/RestAdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/AdaptersCommon/AdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
             }        
         }
         stage("Publish Nugets"){
@@ -53,6 +59,7 @@ pipeline {
                     bat "nuget push TCMClient*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push StaticHttpContextForNetCore*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push KLogMonitor*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push KlogMonitorHelper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push CouchBaseExtensions*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push CouchbaseManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push ODBCWrapper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
@@ -65,6 +72,11 @@ pipeline {
                     bat "nuget push RabbitQueueWrapper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push LogReloader*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
 					bat "nuget push KSWrapper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push Core.Middleware*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+                    bat "nuget push ServiceExtensions*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
+                    bat "nuget push SoapAdaptersCommon*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
+                    bat "nuget push RestAdaptersCommon*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
+                    bat "nuget push AdaptersCommon*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
                 }
             }
         }

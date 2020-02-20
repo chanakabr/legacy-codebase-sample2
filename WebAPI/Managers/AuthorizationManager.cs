@@ -393,7 +393,10 @@ namespace WebAPI.Managers
                             KSVersion.V2,
                             ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets);
 
-            // 11. build the response from the ks:
+            //11. update last login date
+            ClientsManager.UsersClient().UpdateLastLoginDate(groupId, userId);
+
+            // 12. build the response from the ks:
             response = new KalturaSessionInfo(ks);
 
             return response;
@@ -506,7 +509,7 @@ namespace WebAPI.Managers
             }
 
             string userId = KSManager.GetKSFromRequest().UserId;
-            if (appToken.SessionUserId.CompareTo(userId) != 0 && !RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.DELETE_ALL_APP_TOKENS))
+            if (appToken.SessionUserId.CompareTo(userId) != 0 || !RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.DELETE_ALL_APP_TOKENS))
             {
                 // Because the user is not allowed to get or delete app-tokens that owned and created by other users, we throw object not found on purpose.
                 throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Application-token", id);

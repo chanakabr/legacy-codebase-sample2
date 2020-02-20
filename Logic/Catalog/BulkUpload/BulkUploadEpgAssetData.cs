@@ -9,6 +9,8 @@ using System.Linq;
 using ApiObjects.EventBus;
 using KLogMonitor;
 using System.Reflection;
+using Synchronizer;
+using ConfigurationManager;
 
 namespace Core.Catalog
 {
@@ -51,6 +53,13 @@ namespace Core.Catalog
                 RequestId = KLogger.GetRequestId(),
             });
 
+            // Lock all dates before starting the ingest
+            var jobData = bulkUpload.JobData as BulkUploadIngestJobData;
+            var locker = new DistributedLock();
+            var epgV2Config = ApplicationConfiguration.Current.EPGIngestV2Configuration;
+            var isLocked = locker.Lock(jobData.LockKeys, epgV2Config.LockNumOfRetries.Value, epgV2Config.LockRetryIntervalMS.Value, epgV2Config.LockTTLSeconds.Value, $"BulkUpload_{bulkUpload.Id}");
+           
+            if (!isLocked) { throw new Exception("Failed to aquire lock on ingest dates"); }
             publisher.Publish(bulkUploadIngestEvents);
         }
 

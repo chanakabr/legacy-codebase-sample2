@@ -10986,7 +10986,8 @@ namespace Core.ConditionalAccess
                                                                              devicePlayDataToInsert.MediaConcurrencyRuleIds, devicePlayDataToInsert.AssetMediaConcurrencyRuleIds,
                                                                              devicePlayDataToInsert.AssetEpgConcurrencyRuleIds, devicePlayDataToInsert.AssetId,
                                                                              devicePlayDataToInsert.ProgramId, deviceFamilyId, devicePlayDataToInsert.GetPlayType(),
-                                                                             devicePlayDataToInsert.NpvrId, ttl);
+                                                                             devicePlayDataToInsert.NpvrId, ttl, MediaPlayActions.NONE, devicePlayDataToInsert.BookmarkEventThreshold, 
+                                                                             devicePlayDataToInsert.ProductType, devicePlayDataToInsert.ProductId);
             }
 
             if (devicePlayDataToInsert != null && !string.IsNullOrEmpty(devicePlayDataToInsert.PlayCycleKey))
@@ -11028,9 +11029,9 @@ namespace Core.ConditionalAccess
             {
                 ValidationResponseObject validationResponse = new ValidationResponseObject();
 
-                int bmID = 0;
+                int businessModuleId = 0;
                 bool success = false;
-                eBusinessModule eBM = eBusinessModule.PPV;
+                var businessModule = eBusinessModule.PPV;
 
                 // Get AssetRules
                 response.Data.AssetMediaConcurrencyRuleIds = Utils.GetAssetMediaRuleIds(this.m_nGroupID, mediaId);
@@ -11040,23 +11041,47 @@ namespace Core.ConditionalAccess
                 List<int> mediaConcurrencyRuleIds = new List<int>();
                 if (prices != null && prices.Length > 0)
                 {
-                    if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased)
+                    if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices.Length > 0)
                     {
-                        success = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
-                    }
-                    else if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased)
-                    {
-                        success = int.TryParse(prices[0].m_oItemPrices[0].m_relevantSub.m_SubscriptionCode, out bmID);
-                        eBM = eBusinessModule.Subscription;
-                    }
+                        var currPrice = prices[0].m_oItemPrices[0];
+                        eTransactionType? transactionType = null;
+                        
+                        if (currPrice.m_PriceReason == PriceReason.PPVPurchased)
+                        {
+                            success = int.TryParse(currPrice.m_sPPVModuleCode, out businessModuleId);
+                            transactionType = eTransactionType.PPV;
+                        }
+                        else if (currPrice.m_PriceReason == PriceReason.SubscriptionPurchased)
+                        {
+                            success = int.TryParse(currPrice.m_relevantSub.m_SubscriptionCode, out businessModuleId);
+                            businessModule = eBusinessModule.Subscription;
+                            transactionType = eTransactionType.Subscription;
+                        }
+                        else if (currPrice.m_PriceReason == PriceReason.CollectionPurchased)
+                        {
+                            transactionType = eTransactionType.Collection;
+                            int.TryParse(currPrice.m_relevantCol.m_CollectionCode, out businessModuleId);
+                        }
 
+                        if (transactionType.HasValue && businessModuleId > 0)
+                        {
+                            var commerceConfig = PartnerConfigurationManager.GetCommercePartnerConfig(this.m_nGroupID);
+                            if (commerceConfig.HasObject() && commerceConfig.Object.BookmarkEventThresholds?.Count > 0 && commerceConfig.Object.BookmarkEventThresholds.ContainsKey(transactionType.Value))
+                            {
+                                response.Data.BookmarkEventThreshold = commerceConfig.Object.BookmarkEventThresholds[transactionType.Value];
+                                response.Data.ProductType = transactionType.Value;
+                                response.Data.ProductId = businessModuleId;
+                            }
+                        }
+                    }
+                    
                     if (!success)
                     {
                         return response;
                     }
 
                     // Get Media Concurrency Rules
-                    List<MediaConcurrencyRule> mediaConcurrencyRules = Core.Api.Module.GetMediaConcurrencyRules(m_nGroupID, mediaId, bmID, eBM);
+                    List<MediaConcurrencyRule> mediaConcurrencyRules = Core.Api.Module.GetMediaConcurrencyRules(m_nGroupID, mediaId, businessModuleId, businessModule);
 
                     // get domain limit Id (whether we have domain Id or not)
                     DomainResponse domainResponse = null;
@@ -11086,7 +11111,7 @@ namespace Core.ConditionalAccess
                             mediaConcurrencyRuleIds.AddRange(mediaConcurrencyRules.Where(rule => limitationModulesRules.Contains(rule.RuleID)).Select(x => x.RuleID));
 
                             log.DebugFormat("MediaConcurrencyRule for userId:{0}, mediaId:{1}, BusinessModule:{2}, rules:{3}", userId, mediaId,
-                                            eBM.ToString(), string.Join(",", mediaConcurrencyRules.ConvertAll(x => x.RuleID)));
+                                            businessModule.ToString(), string.Join(",", mediaConcurrencyRules.ConvertAll(x => x.RuleID)));
                         }
                     }
                 }
@@ -17150,10 +17175,19 @@ namespace Core.ConditionalAccess
 
         public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType,
                                                           string mediaProtocol, PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice,
-                                                          UrlType urlType, string sourceType = null)
+                                                          UrlType urlType, string sourceType = null, bool isPlaybackManifest = false)
         {
-            return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid,
-                                                      out filePrice, urlType, sourceType);
+            filePrice = null;
+            
+            if (isPlaybackManifest)
+            {                
+                return PlaybackManager.GetPlaybackManifest(m_nGroupID,assetId, assetType, fileIds, streamerType, mediaProtocol, context, sourceType);
+            }
+            else
+            {
+                return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid,
+                                                          out filePrice, urlType, sourceType);
+            }
         }
 
         public PlayContextType? FilterNotAllowedServices(long domainId, PlayContextType context)
@@ -17281,9 +17315,9 @@ namespace Core.ConditionalAccess
                     foreach (DataRow dr in dt.Rows)
                     {
                         long proccessId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                        int status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
+                        int count = ODBCWrapper.Utils.GetIntSafeVal(dr, "sp_count");
 
-                        if (proccessId > 0 && status != 2)
+                        if (proccessId > 0 && count > 0)
                         {
                             unifiedProcessIds.Add(proccessId);
                         }
@@ -17372,17 +17406,20 @@ namespace Core.ConditionalAccess
                         DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                         int state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
                         ProcessUnifiedState processPurchasesState = (ProcessUnifiedState)state;
-                        int status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
+                        int count = ODBCWrapper.Utils.GetIntSafeVal(dr, "sp_count");
 
-                        if (proccessId > 0 && status != 2 && endDate < DateTime.UtcNow)
+                        if (proccessId > 0 && count > 0 && endDate < DateTime.UtcNow)
                         {
                             if (!RenewManager.HandleRenewUnifiedSubscriptionPending(m_nGroupID, householdId, endDate, 0, proccessId))
                             {
                                 log.ErrorFormat("Failed to resume entitlements. householdId = {0}, proccessId = {1}", householdId, proccessId);
                             }
                         }
+
                     }
                 }
+
+                HandleSingleSuspendPurchases((int)householdId, paymentGatewayId);
             }
             catch (Exception ex)
             {
@@ -17391,6 +17428,47 @@ namespace Core.ConditionalAccess
             }
 
             return response;
+        }
+
+        private void HandleSingleSuspendPurchases(int householdId, int paymentGatewayId)
+        {
+            var res = GetDomainEntitlements(householdId, eTransactionType.Subscription);
+            if (res != null && res.entitelments?.Count > 0)
+            {
+                DateTime now = DateTime.UtcNow;
+                var suspended = res.entitelments.Where(x => x.IsSuspended && x.paymentGatewayId == paymentGatewayId && x.UnifiedPaymentId == 0 && x.endDate < now).Select(z => z.purchaseID).ToList();
+                foreach (var purchaseId in suspended)
+                {
+                    // get subscription purchase 
+                    DataRow subscriptionRenealDataRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseNextRenewal(m_nGroupID, purchaseId);
+
+                    // validate subscription received
+                    if (subscriptionRenealDataRow == null)
+                    {
+                        continue;
+                    }
+
+                    var renewDetails = new RenewDetails()
+                    {
+                        ProductId = ODBCWrapper.Utils.ExtractInteger(subscriptionRenealDataRow, "SUBSCRIPTION_CODE"), // AKA subscription ID/CODE
+                        PurchaseId = purchaseId,
+                        BillingGuid = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "billing_Guid"),
+
+                        UserId = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "site_user_guid"),
+                        DomainId = householdId,
+                        ShouldSwitchToMasterUser = false,
+                        GroupId = m_nGroupID,
+                        Currency = "n/a",
+
+                        PaymentNumber = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRenealDataRow, "PAYMENT_NUMBER"),
+                        NumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRenealDataRow, "number_of_payments"),
+                        CustomData = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "CUSTOMDATA"),
+                        EndDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionRenealDataRow, "END_DATE")
+                    };
+
+                    RenewManager.HandleRenewSubscriptionPending(this, renewDetails, now, string.Empty);
+                }
+            }
         }
 
         internal EntitlementRenewalResponse GetEntitlementNextRenewal(long householdId, int purchaseId, long userId)

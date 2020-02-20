@@ -665,6 +665,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("group_segmentation_types_of_action_{0}_{1}", groupId, cacheKey);
         }
 
+        public static string GetCommercePartnerConfigKey(int groupId)
+        {
+            return string.Format("commerce_partner_config_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1182,6 +1187,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupSegmentationTypeIdsOfActionInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_group_segmentation_type_of_action_{0}", groupId);
+        }
+
+        public static string GetCommercePartnerConfigInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_{0}", GetCommercePartnerConfigKey(groupId));
         }
 
         #endregion
