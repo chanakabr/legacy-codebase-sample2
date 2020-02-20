@@ -4,9 +4,11 @@ using ApiObjects.BulkUpload;
 using ApiObjects.EventBus;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using EventBus.RabbitMQ;
 using KLogMonitor;
 using QueueWrapper;
+using Synchronizer;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -694,6 +696,12 @@ namespace Core.Catalog.CatalogManagement
                     else
                     {
                         log.Error($"UpdateBulkUploadInSqlAndInvalidateKeys > Failed to send notification to consumers, failed to detch updated bulkUpload object.");
+                    }
+
+                    if (bulkUpload.JobData is BulkUploadIngestJobData ingestJobData)
+                    {
+                        var locker = new DistributedLock();
+                        locker.Unlock(ingestJobData.LockKeys);
                     }
                 }
             }
