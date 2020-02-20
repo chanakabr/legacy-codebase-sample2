@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -25,7 +26,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaCDVRAdapterProfile> list = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -54,7 +55,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaCDVRAdapterProfile> response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -84,7 +85,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
             
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -117,7 +118,7 @@ namespace WebAPI.Controllers
         {
             KalturaCDVRAdapterProfile response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -152,7 +153,7 @@ namespace WebAPI.Controllers
         {
             KalturaCDVRAdapterProfile response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             adapter.Id = adapterId;
 
             try
@@ -189,7 +190,7 @@ namespace WebAPI.Controllers
         {
             KalturaCDVRAdapterProfile response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -222,7 +223,7 @@ namespace WebAPI.Controllers
         {
             KalturaCDVRAdapterProfile response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {

@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Pricing;
@@ -26,7 +27,7 @@ namespace WebAPI.Controllers
         static public KalturaAssetFilePpvListResponse List(KalturaAssetFilePpvFilter filter)
         {
             KalturaAssetFilePpvListResponse response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             if (filter == null)
             {
@@ -74,7 +75,7 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");
                 }
 
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.PricingClient().AddAssetFilePpv(groupId, assetFilePpv);
 
@@ -112,7 +113,7 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "ppvModuleId");
                 }
 
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.PricingClient().DeleteAssetFilePpv(groupId, assetFileId, ppvModuleId);
 
@@ -154,7 +155,7 @@ namespace WebAPI.Controllers
                 assetFilePpv.AssetFileId = assetFileId;
                 assetFilePpv.PpvModuleId = ppvModuleId;
 
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.PricingClient().UpdateAssetFilePpv(groupId, assetFilePpv);
 

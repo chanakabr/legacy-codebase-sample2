@@ -9,6 +9,8 @@ using WebAPI.Models.Users;
 using WebAPI.Utils;
 using WebAPI.ClientManagers.Client;
 using TVinciShared;
+using KSWrapper;
+using WebAPI.Models.General;
 
 namespace WebAPI.Controllers
 {
@@ -24,11 +26,11 @@ namespace WebAPI.Controllers
         [SchemeArgument("session", RequiresPermission = true)]
         static public KalturaSession Get(string session = null)
         {
-            KS ks, ksFromRequest = KS.GetFromRequest();
+            KS ks, ksFromRequest = KSManager.GetKSFromRequest();
 
             if (session != null)
             {
-                ks = KS.ParseKS(session);
+                ks = KSManager.ParseKS(session);
 
                 if (ks.GroupId != ksFromRequest.GroupId)
                 {
@@ -40,15 +42,15 @@ namespace WebAPI.Controllers
                 ks = ksFromRequest;
             }
 
-            var payload = KSUtils.ExtractKSPayload(ks);
+            var payload = ks.ExtractKSData();
             
             return new KalturaSession()
             {
                 ks = ks.ToString(),
                 expiry = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration),
                 partnerId = ks.GroupId,
-                privileges = KS.JoinPrivileges(ks.Privileges, ",", ":"),
-                sessionType = ks.SessionType,
+                privileges = ks.JoinPrivileges(",", ":"),
+                sessionType = (KalturaSessionType)ks.SessionType,
                 userId = ks.UserId,
                 udid = payload.UDID,
                 createDate = payload.CreateDate
@@ -70,21 +72,21 @@ namespace WebAPI.Controllers
 
             if (session != null)
             {
-                ks = KS.ParseKS(session);
+                ks = KSManager.ParseKS(session);
             }
             else
             {
-                ks = KS.GetFromRequest();
+                ks = KSManager.GetKSFromRequest();
             }
 
-            var payload = KSUtils.ExtractKSPayload(ks);
+            var payload = ks.ExtractKSData();
             return new KalturaSessionInfo()
             {
                 ks = ks.ToString(),
                 expiry = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration),
                 partnerId = ks.GroupId,
-                privileges = KS.JoinPrivileges(ks.Privileges, ",", ":"),
-                sessionType = ks.SessionType,
+                privileges = ks.JoinPrivileges(",", ":"),
+                sessionType = (KalturaSessionType)ks.SessionType,
                 userId = ks.UserId,
                 udid = payload.UDID,
                 createDate = payload.CreateDate
@@ -102,7 +104,7 @@ namespace WebAPI.Controllers
         static public KalturaLoginSession SwitchUser(string userIdToSwitch)
         {
             KalturaLoginSession loginSession = null;
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             int groupId = ks.GroupId;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -124,7 +126,7 @@ namespace WebAPI.Controllers
             try
             {
                 // switch notification users
-                var payload = KSUtils.ExtractKSPayload();
+                var payload = ks.ExtractKSData();
                 ClientsManager.UsersClient().SwitchUsers(groupId, ks.UserId, userIdToSwitch, payload.UDID);
                 loginSession = AuthorizationManager.SwitchUser(userIdToSwitch, groupId, payload, ks.Privileges, group);
                 AuthorizationManager.LogOut(ks);
@@ -146,7 +148,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public bool Revoke()
         {
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             int groupId = ks.GroupId;
             string userId = ks.UserId;
 

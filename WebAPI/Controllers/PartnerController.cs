@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
         static public KalturaLoginSession ExternalLogin()
         {
             KalturaLoginSession response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             
             try
             {

@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -34,7 +35,7 @@ namespace WebAPI.Controllers
         {
             KalturaPurchaseSettings purchaseResponse = null;
 
-            int groupId = KS.GetFromRequest().GroupId;                       
+            int groupId = KSManager.GetKSFromRequest().GroupId;                       
 
             try
             {
@@ -42,7 +43,7 @@ namespace WebAPI.Controllers
 
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KS.GetFromRequest().UserId;   
+                    string userId = KSManager.GetKSFromRequest().UserId;   
 
                     // call client
                     purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, userId, householdId);
@@ -79,7 +80,7 @@ namespace WebAPI.Controllers
         {
             KalturaPurchaseSettingsResponse purchaseResponse = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -87,7 +88,7 @@ namespace WebAPI.Controllers
 
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KS.GetFromRequest().UserId;
+                    string userId = KSManager.GetKSFromRequest().UserId;
 
                     // call client
                     purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettingsOldStandard(groupId, userId, householdId);
@@ -127,13 +128,13 @@ namespace WebAPI.Controllers
         {
             KalturaPurchaseSettings response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;                       
+            int groupId = KSManager.GetKSFromRequest().GroupId;                       
 
             try
             {
                 if (entityReference == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KS.GetFromRequest().UserId;   
+                    string userId = KSManager.GetKSFromRequest().UserId;   
 
                     // call client
                     response = ClientsManager.ApiClient().SetUserPurchaseSettings(groupId, userId, (int)settings.Permission);
@@ -168,13 +169,13 @@ namespace WebAPI.Controllers
         [Obsolete]
         static public bool UpdateOldStandard(int setting, KalturaEntityReferenceBy by)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KS.GetFromRequest().UserId;
+                    string userId = KSManager.GetKSFromRequest().UserId;
 
                     // call client
                     ClientsManager.ApiClient().SetUserPurchaseSettings(groupId, userId, setting);

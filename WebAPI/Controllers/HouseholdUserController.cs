@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
@@ -32,13 +33,13 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserNotAllowed)]
         static public bool Delete(string id)
         {
-            int groupId = KS.GetFromRequest().GroupId;
-            string masterUserId = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string masterUserId = KSManager.GetKSFromRequest().UserId;
 
             try
             {                
                 int household_id = 0;
-                string requestUserId = KS.GetFromRequest().UserId;
+                string requestUserId = KSManager.GetKSFromRequest().UserId;
 
                 if (requestUserId != "0")
                 {
@@ -78,7 +79,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RequestFailed)]
         static public KalturaHouseholdUser Add(KalturaHouseholdUser householdUser)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -98,7 +99,7 @@ namespace WebAPI.Controllers
                 else if (string.IsNullOrEmpty(householdUser.HouseholdMasterUsername))
                 {
                     householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-                    masterId = KS.GetFromRequest().UserId;
+                    masterId = KSManager.GetKSFromRequest().UserId;
                 }
 
                 if (householdId > 0)
@@ -109,7 +110,7 @@ namespace WebAPI.Controllers
                 }
                 else if (!string.IsNullOrEmpty(householdUser.HouseholdMasterUsername))
                 {
-                    householdUser.UserId = KS.GetFromRequest().UserId;
+                    householdUser.UserId = KSManager.GetKSFromRequest().UserId;
                     var household = ClientsManager.DomainsClient().SubmitAddUserToDomainRequest(groupId, householdUser.UserId, householdUser.HouseholdMasterUsername);
                     householdUser.Status = KalturaHouseholdUserStatus.PENDING;
                     householdUser.HouseholdId = (int)household.Id;
@@ -145,7 +146,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserAlreadyInDomain)]
         static public bool AddOldStandard(string user_id_to_add, bool is_master = false)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -153,7 +154,7 @@ namespace WebAPI.Controllers
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 // call client
-                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domainId, user_id_to_add, KS.GetFromRequest().UserId, is_master) != null;
+                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domainId, user_id_to_add, KSManager.GetKSFromRequest().UserId, is_master) != null;
             }
             catch (ClientException ex)
             {
@@ -180,7 +181,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserAlreadyInDomain)]
         static public bool AddByOperator(string user_id_to_add, int household_id, bool is_master = false)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -216,7 +217,7 @@ namespace WebAPI.Controllers
         static public KalturaHouseholdUserListResponse List(KalturaHouseholdUserFilter filter = null)
         {
             KalturaHouseholdUserListResponse response = new KalturaHouseholdUserListResponse(); 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             try
             {
                 KalturaHousehold household = null;

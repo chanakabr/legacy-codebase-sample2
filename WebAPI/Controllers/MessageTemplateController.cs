@@ -1,6 +1,7 @@
 ﻿using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -27,7 +28,7 @@ namespace WebAPI.Controllers
         {
             KalturaMessageTemplate response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -70,7 +71,7 @@ namespace WebAPI.Controllers
         {
             KalturaMessageTemplate response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -114,7 +115,7 @@ namespace WebAPI.Controllers
         {
             KalturaMessageTemplate response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {

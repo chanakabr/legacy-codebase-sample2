@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -23,7 +24,7 @@ namespace WebAPI.Controllers
         public static string GetCurrentPermissions()
         {
             string response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -56,7 +57,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
 
                 filter.Validate();
@@ -91,7 +92,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PermissionNameAlreadyInUse)]
         static public KalturaPermission Add(KalturaPermission permission)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -126,7 +127,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PermissionNotFound)]
         static public void Delete(long id)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -151,7 +152,7 @@ namespace WebAPI.Controllers
         //{
         //    bool response = false;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+        //    int groupId = KSManager.GetKSFromRequest().GroupId;
 
         //    try
         //    {

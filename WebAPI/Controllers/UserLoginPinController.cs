@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
@@ -27,12 +28,12 @@ namespace WebAPI.Controllers
         {
             KalturaUserLoginPin response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().GenerateLoginPin(groupId, KS.GetFromRequest().UserId, secret);
+                response = ClientsManager.UsersClient().GenerateLoginPin(groupId, KSManager.GetKSFromRequest().UserId, secret);
             }
             catch (ClientException ex)
             {
@@ -60,7 +61,7 @@ namespace WebAPI.Controllers
         static public KalturaUserLoginPin Update(string pinCode, string secret = null)
         {
             KalturaUserLoginPin res = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(pinCode))
             {
@@ -70,7 +71,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                res = ClientsManager.UsersClient().SetLoginPin(groupId, KS.GetFromRequest().UserId, pinCode, secret);
+                res = ClientsManager.UsersClient().SetLoginPin(groupId, KSManager.GetKSFromRequest().UserId, pinCode, secret);
             }
             catch (ClientException ex)
             {
@@ -90,12 +91,12 @@ namespace WebAPI.Controllers
         static public bool DeleteAll()
         {
             bool res = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
                 // call client
-                res = ClientsManager.UsersClient().ClearLoginPIN(groupId, KS.GetFromRequest().UserId, null);
+                res = ClientsManager.UsersClient().ClearLoginPIN(groupId, KSManager.GetKSFromRequest().UserId, null);
             }
             catch (ClientException ex)
             {
@@ -116,7 +117,7 @@ namespace WebAPI.Controllers
         static public bool Delete(string pinCode)
         {
             bool res = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(pinCode))
             {
@@ -126,7 +127,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                res = ClientsManager.UsersClient().ClearLoginPIN(groupId, KS.GetFromRequest().UserId, pinCode);
+                res = ClientsManager.UsersClient().ClearLoginPIN(groupId, KSManager.GetKSFromRequest().UserId, pinCode);
             }
             catch (ClientException ex)
             {

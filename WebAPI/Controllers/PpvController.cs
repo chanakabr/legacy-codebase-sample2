@@ -1,6 +1,7 @@
 ﻿using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Pricing;
@@ -25,7 +26,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.PricingClient().GetPPVModuleData(groupId, id);
             }
@@ -48,7 +49,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
 
                 if (filter == null)
                     filter = new KalturaPpvFilter();

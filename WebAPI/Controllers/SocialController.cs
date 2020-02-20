@@ -106,8 +106,8 @@ namespace WebAPI.Controllers
         {
             KalturaSocial response = null;
 
-            string userId = KS.GetFromRequest().UserId;
-            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -315,8 +315,8 @@ namespace WebAPI.Controllers
             if (string.IsNullOrEmpty(token))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
 
-            string userId = KS.GetFromRequest().UserId;
-            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -390,8 +390,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MinFriendsLimitation)]
         static public KalturaSocial Unmerge(KalturaSocialNetwork type)
         {
-            string userId = KS.GetFromRequest().UserId;
-            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -429,7 +429,7 @@ namespace WebAPI.Controllers
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -465,8 +465,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userID = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userID = KSManager.GetKSFromRequest().UserId;
 
                 // call client      
                 if (type == null)
@@ -506,8 +506,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userID = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userID = KSManager.GetKSFromRequest().UserId;
                 
                 if (configuration is KalturaSocialUserConfig)
                 {

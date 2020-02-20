@@ -8,6 +8,7 @@ using System.Text;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -43,8 +44,9 @@ namespace WebAPI.Controllers
         {
             KalturaAssetInfoListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string udid = ks.ExtractKSData().UDID;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -59,7 +61,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                string userID = KSManager.GetKSFromRequest().UserId;
                 string language = Utils.Utils.GetLanguageFromRequest();
                 List<int> ids = null;
 
@@ -150,11 +152,11 @@ namespace WebAPI.Controllers
         {
             KalturaAssetListResponse response = null;
 
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             int groupId = ks.GroupId;
             string userID = ks.UserId;
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            string udid = ks.ExtractKSData().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
             string format = Utils.Utils.GetFormatFromRequest();
             KalturaBaseResponseProfile responseProfile = Utils.Utils.GetResponseProfileFromRequest();
@@ -373,10 +375,10 @@ namespace WebAPI.Controllers
 
             try
             {
-                KS ks = KS.GetFromRequest();
+                var ks = KSManager.GetKSFromRequest();
                 int groupId = ks.GroupId;
                 string userID = ks.UserId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
+                string udid = ks.ExtractKSData().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
                 bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID, true);
 
@@ -517,7 +519,8 @@ namespace WebAPI.Controllers
         {
             KalturaAssetInfo response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
 
             if (string.IsNullOrEmpty(id))
             {
@@ -529,8 +532,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
+                string userID = ks.UserId;
+                string udid = ks.ExtractKSData().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
 
                 switch (type)
@@ -638,10 +641,11 @@ namespace WebAPI.Controllers
         {
             KalturaAssetInfoListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string userID = ks.UserId;
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            string udid = ks.ExtractKSData().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
 
             if (pager == null)
@@ -689,9 +693,10 @@ namespace WebAPI.Controllers
         {
             KalturaSlimAssetInfoWrapper response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string userID = ks.UserId;
+            string udid = ks.ExtractKSData().UDID;
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
             if (size == null || size > 10 || size < 1)
@@ -737,7 +742,8 @@ namespace WebAPI.Controllers
         {
             KalturaAssetInfoListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -750,8 +756,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
+                string userID = ks.UserId;
+                string udid = ks.ExtractKSData().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
@@ -785,7 +791,8 @@ namespace WebAPI.Controllers
         {
             KalturaAssetInfoListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
             string language = Utils.Utils.GetLanguageFromRequest();
 
             if (with == null)
@@ -797,11 +804,11 @@ namespace WebAPI.Controllers
             if (pager == null)
                 pager = new KalturaFilterPager() { PageIndex = 0, PageSize = 5 };
 
-            string udid = KSUtils.ExtractKSPayload(KS.GetFromRequest()).UDID;
+            string udid = ks.ExtractKSData().UDID;
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                string userID = ks.UserId;
 
                 response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
                     language, pager.getPageIndex(), pager.PageSize, asset_id, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList(), free_param);
@@ -834,7 +841,8 @@ namespace WebAPI.Controllers
         {
             KalturaAssetInfoListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
@@ -845,11 +853,11 @@ namespace WebAPI.Controllers
             if (pager == null)
                 pager = new KalturaFilterPager() { PageIndex = 0, PageSize = 5 };
 
-            string udid = KSUtils.ExtractKSPayload(KS.GetFromRequest()).UDID;
+            string udid = ks.ExtractKSData().UDID;
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                string userID = KSManager.GetKSFromRequest().UserId;
                 string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
@@ -903,8 +911,9 @@ namespace WebAPI.Controllers
         {
             KalturaAssetInfoListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string udid = ks.ExtractKSData().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
 
             if (pager == null)
@@ -915,7 +924,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                string userID = KSManager.GetKSFromRequest().UserId;
 
                 var withList = with.Select(x => x.type).ToList();
                 response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
@@ -963,8 +972,9 @@ namespace WebAPI.Controllers
         {
             KalturaAssetInfoListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string udid = ks.ExtractKSData().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
 
             if (pager == null)
@@ -975,7 +985,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                string userID = KSManager.GetKSFromRequest().UserId;
 
                 var convertedWith = with.Select(x => x.type).ToList();
 
@@ -1014,21 +1024,21 @@ namespace WebAPI.Controllers
         {
             KalturaPlaybackContext response = null;
 
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
 
             contextDataParams.Validate(assetType, assetId);
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams, sourceType);
+                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, ks.ExtractKSData().UDID, assetId, assetType, contextDataParams, sourceType);
 
                 if (response.Sources != null && response.Sources.Count > 0)
                 {
                     DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
 
                     // Check and get PlaybackAdapter in case asset set rule and action.
-                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId, ks.UserId, assetId, assetType, 
-                        KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response, contextDataParams);
+                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId, ks.UserId, assetId, assetType, ks.ExtractKSData().UDID, Utils.Utils.GetClientIP(), response, contextDataParams);
+
                     if (adapterResponse != null)
                     {
                         response = adapterResponse;
@@ -1101,10 +1111,11 @@ namespace WebAPI.Controllers
         {
             KalturaAssetCount response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string userID = ks.UserId;
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            string udid = ks.ExtractKSData().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
 
             if (filter == null)
@@ -1168,14 +1179,14 @@ namespace WebAPI.Controllers
         {
             KalturaAdsContext response = null;
 
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             string userId = ks.UserId;
 
             contextDataParams.Validate(assetType, assetId);
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().GetAdsContext(ks.GroupId, userId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams);
+                response = ClientsManager.ConditionalAccessClient().GetAdsContext(ks.GroupId, userId, ks.ExtractKSData().UDID, assetId, assetType, contextDataParams);
             }
             catch (ClientException ex)
             {
@@ -1202,7 +1213,7 @@ namespace WebAPI.Controllers
         static public KalturaAsset Add(KalturaAsset asset)
         {
             KalturaAsset response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -1233,7 +1244,7 @@ namespace WebAPI.Controllers
         static public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
         {
             bool result = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -1270,7 +1281,7 @@ namespace WebAPI.Controllers
         static public KalturaAsset Update(long id, KalturaAsset asset)
         {
             KalturaAsset response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -1304,9 +1315,10 @@ namespace WebAPI.Controllers
         static public bool RemoveMetasAndTags(long id, KalturaAssetReferenceType assetReferenceType, string idIn)
         {
             bool result = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            string udid = ks.ExtractKSData().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
 
             HashSet<long> topicIds = new HashSet<long>();
@@ -1393,7 +1405,7 @@ namespace WebAPI.Controllers
         {
             KalturaBulkUpload bulkUpload = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -1447,13 +1459,13 @@ namespace WebAPI.Controllers
         {
             KalturaPlaybackContext response = null;
 
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
 
             contextDataParams.Validate(assetType, assetId);
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams, sourceType, true);
+                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, ks.ExtractKSData().UDID, assetId, assetType, contextDataParams, sourceType, true);
 
                 if (response.Sources != null && response.Sources.Count > 0)
                 {

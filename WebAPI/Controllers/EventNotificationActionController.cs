@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 using WebAPI.Exceptions;
-using WebAPI.Managers.Models;
+using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Utils;
@@ -24,7 +24,8 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public static bool Dispatch(KalturaEventNotificationScope scope)
         {
-            var groupId = KS.GetFromRequest().GroupId;
+
+            var groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {

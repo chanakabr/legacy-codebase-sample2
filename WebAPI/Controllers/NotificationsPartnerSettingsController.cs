@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Notification;
@@ -29,7 +30,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 // call client                
                 response = (KalturaNotificationsPartnerSettings)ClientsManager.NotificationClient().Get(groupId);
             }
@@ -57,7 +58,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.NotificationClient().Get(groupId);
             }
@@ -89,7 +90,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.NotificationClient().Update(groupId, settings);
             }
@@ -120,7 +121,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.NotificationClient().Update(groupId, settings);
             }

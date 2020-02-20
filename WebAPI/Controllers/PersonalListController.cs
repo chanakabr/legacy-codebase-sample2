@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Api;
@@ -27,8 +28,8 @@ namespace WebAPI.Controllers
         {
             KalturaPersonalListListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userID = KSManager.GetKSFromRequest().UserId;
 
             if (filter == null)
                 filter = new KalturaPersonalListFilter();
@@ -65,8 +66,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidUser)]
         static public KalturaPersonalList Add(KalturaPersonalList personalList)
         {
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userID = KSManager.GetKSFromRequest().UserId;
 
             try
             {
@@ -108,8 +109,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidUser)]
         static public void Delete(long personalListId)
         {
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userID = KSManager.GetKSFromRequest().UserId;
 
             try
             {

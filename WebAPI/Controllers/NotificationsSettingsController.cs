@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Notification;
@@ -28,8 +29,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 // call client                
                 response = (KalturaNotificationsSettings) ClientsManager.NotificationClient().Get(groupId, userId);
             }
@@ -57,8 +58,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 // call client                
                 response = ClientsManager.NotificationClient().Get(groupId, userId);
             }
@@ -87,8 +88,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 // call client                
                 response = ClientsManager.NotificationClient().Update(groupId, userId, settings);
             }
@@ -117,8 +118,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KSManager.GetKSFromRequest().GroupId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 // call client                
                 response = ClientsManager.NotificationClient().Update(groupId, userId, settings);
             }

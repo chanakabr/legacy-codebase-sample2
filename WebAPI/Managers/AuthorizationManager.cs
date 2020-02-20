@@ -17,6 +17,7 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using KSWrapper;
 
 namespace WebAPI.Managers
 {
@@ -37,7 +38,7 @@ namespace WebAPI.Managers
 
         public static KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             int groupId = ks.GroupId;
 
             // validate request parameters
@@ -88,7 +89,7 @@ namespace WebAPI.Managers
             token = new ApiToken(token, group, udid);
 
             // update the sessions data
-            var ksData = KSUtils.ExtractKSPayload(token.KsObject);
+            var ksData = token.KsObject.ExtractKSData();
             if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
             {
                 log.ErrorFormat("RefreshSession: Failed to store updated users sessions, userId = {0}", userId);
@@ -123,7 +124,7 @@ namespace WebAPI.Managers
             // get group configurations
             var group = GetGroupConfiguration(groupId);
             var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
-            var payload = new KS.KSData(udid, 0, regionId, userSegments, userRoles);
+            var payload = new KSData(udid, 0, regionId, userSegments, userRoles);
             var token = new ApiToken(userId, groupId, payload, isAdmin, group, isLoginWithPin, privileges);
             return GenerateSessionByApiToken(token, group);
         }
@@ -133,7 +134,7 @@ namespace WebAPI.Managers
             string tokenKey = string.Format(group.TokenKeyFormat, token.RefreshToken);
 
             // update the sessions data
-            var ksData = KSUtils.ExtractKSPayload(token.KsObject);
+            var ksData = token.KsObject.ExtractKSData();
             if (!UpdateUsersSessionsRevocationTime(group, token.UserId, token.Udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", token.UserId);
@@ -210,7 +211,7 @@ namespace WebAPI.Managers
             KalturaHousehold household = null;
             try
             {
-                household = ClientsManager.DomainsClient().GetDomainByUser(groupId, KS.GetFromRequest().UserId);
+                household = ClientsManager.DomainsClient().GetDomainByUser(groupId, KSManager.GetKSFromRequest().UserId);
             }
             catch (ClientException ex)
             {
@@ -374,7 +375,7 @@ namespace WebAPI.Managers
             var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
 
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
-            var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
+            var ksData = new KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
             if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)sessionDuration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
@@ -382,7 +383,15 @@ namespace WebAPI.Managers
             }
 
             // 10. build the ks:
-            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, ksData, privilagesList, KS.KSVersion.V2);
+            var ks = new KS(secret, 
+                            groupId.ToString(), 
+                            userId, 
+                            (int)sessionDuration, 
+                            (int)sessionType, 
+                            ksData, 
+                            privilagesList, 
+                            KSVersion.V2,
+                            ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets);
 
             //11. update last login date
             ClientsManager.UsersClient().UpdateLastLoginDate(groupId, userId);
@@ -397,11 +406,12 @@ namespace WebAPI.Managers
         {
             // validate partner id
             appToken.PartnerId = groupId;
+            var ksFromRequest = KSManager.GetKSFromRequest();
 
             // we currently not support app token without user
             if (string.IsNullOrEmpty(appToken.SessionUserId))
             {
-                appToken.SessionUserId = KS.GetFromRequest().UserId;
+                appToken.SessionUserId = ksFromRequest.UserId;
             }
 
             // 1. generate id for the appToken
@@ -420,7 +430,7 @@ namespace WebAPI.Managers
             appToken.Token = Utils.Utils.Generate32LengthGuid();
 
             // 3. set default values for empty properties
-            List<long> userRoles = RolesManager.GetRoleIds(KS.GetFromRequest(), false);
+            List<long> userRoles = RolesManager.GetRoleIds(ksFromRequest, false);
 
             int utcNow = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
@@ -498,7 +508,7 @@ namespace WebAPI.Managers
                 throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Application-token", id);
             }
 
-            string userId = KS.GetFromRequest().UserId;
+            string userId = KSManager.GetKSFromRequest().UserId;
             if (appToken.SessionUserId.CompareTo(userId) != 0 || !RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.DELETE_ALL_APP_TOKENS))
             {
                 // Because the user is not allowed to get or delete app-tokens that owned and created by other users, we throw object not found on purpose.
@@ -533,23 +543,10 @@ namespace WebAPI.Managers
                 Group group = GroupsManager.GetGroup(ks.GroupId);
                 int revokedKsMaxTtlSeconds = GetRevokedKsMaxTtlSeconds(group);
                 string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
-                var payload = KSUtils.ExtractKSPayload();
-
-                var revokedToken = new ApiToken()
-                {
-                    GroupID = ks.GroupId,
-                    AccessTokenExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration),
-                    KS = ks.ToString(),
-                    Udid = payload.UDID,
-                    UserId = ks.UserId,
-                    RegionId = payload.RegionId,
-                    UserSegments = payload.UserSegments,
-                    UserRoles = payload.UserRoles
-                };
-
-                string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
-
+                var revokedToken = new ApiToken(ks);
+                string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptUtils.HashMD5(ks.ToString()));
                 uint expiration = (uint)(revokedToken.RefreshTokenExpiration - DateUtils.GetUtcUnixTimestampNow());
+
                 if (revokedKsMaxTtlSeconds > 0 && revokedKsMaxTtlSeconds < expiration)
                 {
                     expiration = (uint)revokedKsMaxTtlSeconds;
@@ -612,11 +609,12 @@ namespace WebAPI.Managers
 
         internal static bool IsKsValid(KS ks, bool validateExpiration = true)
         {
+            var group = GroupsManager.GetGroup(ks.GroupId);
             // Check if KS already validated by gateway
             string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
             if (ksRandomHeader == ks.Random)
             {
-                return ValidateKsSignature(ks);
+                return ValidateKsSignature(ks, group);
             }
 
             if (validateExpiration && ks.Expiration < DateTime.UtcNow)
@@ -624,13 +622,10 @@ namespace WebAPI.Managers
                 return false;
             }
 
-            Group group = GroupsManager.GetGroup(ks.GroupId);
-
             if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
             {
                 string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
-
-                string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
+                string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptUtils.HashMD5(ks.ToString()));
 
                 ApiToken revokedToken = cbManager.Get<ApiToken>(revokedKsCbKey, true);
                 if (revokedToken != null)
@@ -644,7 +639,7 @@ namespace WebAPI.Managers
 
                 if (usersSessions != null)
                 {
-                    var ksData = KSUtils.ExtractKSPayload(ks);
+                    var ksData = ks.ExtractKSData();
 
                     if (usersSessions.UserRevocation > 0)
                     {
@@ -657,6 +652,7 @@ namespace WebAPI.Managers
                     }
                 }
             }
+
             if (ks.Privileges != null && ks.Privileges.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
             {
                 string sessionId = ks.Privileges[APP_TOKEN_PRIVILEGE_SESSION_ID];
@@ -673,18 +669,17 @@ namespace WebAPI.Managers
             return true;
         }
 
-        public static bool ValidateKsSignature(KS ks)
+        public static bool ValidateKsSignature(KS ks, Group group)
         {
-            var group = GroupsManager.GetGroup(ks.GroupId);
-            var signature = KSUtils.ExtractKSPayload(ks).Signature;
+            var signature = ks.ExtractKSData().Signature;
             var groupSecrets = ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets;
 
             if (!string.IsNullOrEmpty(signature) && group.EnforceGroupsSecret)
             {
                 for (int i = groupSecrets.Count - 1; i >= 0; i--) //LIFO
                 {
-                    var concat = string.Format(EncryptionUtils.SignatureFormat, ks.Random, groupSecrets[i]);
-                    var encryptedValue = Encoding.Default.GetString(EncryptionUtils.HashSHA1(concat));
+                    var concat = string.Format(KSData.SIGNATURE_FORMAT, ks.Random, groupSecrets[i]);
+                    var encryptedValue = Encoding.Default.GetString(EncryptUtils.HashSHA1(concat));
                     if (encryptedValue == signature)
                     {
                         log.Debug($"Matching signature was received by {ks.UserId}, index: {i}");
@@ -781,7 +776,7 @@ namespace WebAPI.Managers
             }
         }
 
-        public static KalturaLoginSession SwitchUser(string userId, int groupId, KS.KSData payload, Dictionary<string, string> privileges, Group group)
+        public static KalturaLoginSession SwitchUser(string userId, int groupId, KSData payload, Dictionary<string, string> privileges, Group group)
         {
             KalturaLoginSession loginSession = null;
 
@@ -852,15 +847,17 @@ namespace WebAPI.Managers
         public static KalturaLoginSession GenerateExternalKs(int partnerId, string secret, long expiration)
         {
             KalturaLoginSession session = new KalturaLoginSession();
+            int expirationToKs = (int)(DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(expiration)) - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
 
-            KS KsObject = new KS(secret,
-                partnerId.ToString(),
-                string.Empty,
-                (int)(DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(expiration)) - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)),
-                KalturaSessionType.ADMIN,
-                new KS.KSData(),
-                null,
-                Models.KS.KSVersion.V2);
+            var KsObject = new KS(secret,
+                                  partnerId.ToString(),
+                                  string.Empty,
+                                  expirationToKs,
+                                  (int)KalturaSessionType.ADMIN,
+                                  new KSData(),
+                                  null,
+                                  KSVersion.V2,
+                                  ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets);
 
             session.KS = KsObject.ToString();
             session.Expiry = DateUtils.DateTimeToUtcUnixTimestampSeconds(KsObject.Expiration);

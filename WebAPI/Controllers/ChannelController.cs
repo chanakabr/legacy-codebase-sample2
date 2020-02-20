@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -31,9 +32,10 @@ namespace WebAPI.Controllers
         static public KalturaChannel Get(int id)
         {
             KalturaChannel response = null;
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             int groupId = ks.GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
+            var udid = ks.ExtractKSData().UDID;
 
             try
             {
@@ -44,7 +46,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    response = ClientsManager.CatalogClient().GetChannelInfo(groupId, ks.UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID,
+                    response = ClientsManager.CatalogClient().GetChannelInfo(groupId, ks.UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
                                                                                 Utils.Utils.GetLanguageFromRequest(), id);
 
                     // if no response - return not found status 
@@ -75,13 +77,14 @@ namespace WebAPI.Controllers
         static public KalturaChannel GetOldStandard(int id)
         {
             KalturaChannel response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
+
+                string userID = ks.UserId;
+                string udid = ks.ExtractKSData().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
                 response = ClientsManager.CatalogClient().GetChannelInfo(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, id);
 
@@ -118,7 +121,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
             long userId = Utils.Utils.GetUserIdFromKs();
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -154,7 +157,7 @@ namespace WebAPI.Controllers
         {
             KalturaChannel response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
-            int groupId = KS.GetFromRequest().GroupId;            
+            int groupId = KSManager.GetKSFromRequest().GroupId;            
             bool isManualChannelOrDynamicChannel = false;
 
             // KalturaManualChannel or KalturaDynamicChannel                             
@@ -223,7 +226,7 @@ namespace WebAPI.Controllers
         {
             KalturaChannel response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             bool isManualChannelOrDynamicChannel = false;
 
             if (channel is KalturaManualChannel || channel is KalturaDynamicChannel)
@@ -284,7 +287,7 @@ namespace WebAPI.Controllers
         {
             KalturaChannelProfile response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -320,7 +323,7 @@ namespace WebAPI.Controllers
         {
             KalturaChannelProfile response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -364,7 +367,7 @@ namespace WebAPI.Controllers
                 // validate filter
                 filter.Validate();
 
-                KS ks = KS.GetFromRequest();
+                var ks = KSManager.GetKSFromRequest();
                 int groupId = ks.GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
                 bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);                

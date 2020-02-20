@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -37,12 +38,13 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaAssetsFilter.assets");
             }
 
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
+                string userID = ks.UserId;
+                string udid = ks.ExtractKSData().UDID;
                 int domain = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 response = ClientsManager.CatalogClient().GetAssetsBookmarksOldStandard(userID, groupId, domain, udid, filter.Assets);
@@ -76,12 +78,13 @@ namespace WebAPI.Controllers
 
             filter.Validate();
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
+                var ks = KSManager.GetKSFromRequest();
+                string userID = ks.UserId;
+                string udid = ks.ExtractKSData().UDID;
                 int domain = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 response = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domain, udid, filter.getAssetIn(), filter.OrderBy);
@@ -119,10 +122,11 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
+                var ks = KSManager.GetKSFromRequest();
+                int groupId = ks.GroupId;
+                string udid = ks.ExtractKSData().UDID;
                 int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-                string userId = KS.GetFromRequest().UserId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 ClientsManager.CatalogClient().AddBookmark(groupId, userId, householdId, udid, bookmark.Id, bookmark.Type, bookmark.PlayerData.getFileId(), 
                                                            bookmark.getPosition(), bookmark.PlayerData.action.ToString(), bookmark.PlayerData.getAverageBitRate(), 
                                                            bookmark.PlayerData.getTotalBitRate(), bookmark.PlayerData.getCurrentBitRate(), bookmark.ProgramId, 
@@ -160,10 +164,11 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
+                var ks = KSManager.GetKSFromRequest();
+                int groupId = ks.GroupId;
+                string udid = ks.ExtractKSData().UDID;
                 int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-                string siteGuid = KS.GetFromRequest().UserId;
+                string siteGuid = KSManager.GetKSFromRequest().UserId;
                 ClientsManager.CatalogClient().AddBookmark(groupId, siteGuid, householdId, udid, asset_id, asset_type, file_id, player_asset_data.getLocation(), 
                                                            player_asset_data.action, player_asset_data.getAverageBitRate(), player_asset_data.getTotalBitRate(), 
                                                            player_asset_data.getCurrentBitRate());

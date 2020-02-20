@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -22,7 +23,7 @@ namespace WebAPI.Controllers
         static public KalturaPlaybackProfileListResponse List(KalturaPlaybackProfileFilter filter = null)
         {
             KalturaPlaybackProfileListResponse response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -58,11 +59,11 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
-                string userId = KS.GetFromRequest().UserId;
+                string userId = KSManager.GetKSFromRequest().UserId;
 
                 // call client
                 response = ClientsManager.ApiClient().DeletePlaybackProfile(groupId, userId, id);
@@ -101,11 +102,11 @@ namespace WebAPI.Controllers
             if (string.IsNullOrWhiteSpace(playbackProfile.SystemName))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
-                string userId = KS.GetFromRequest().UserId;
+                string userId = KSManager.GetKSFromRequest().UserId;
 
                 // call client
                 response = ClientsManager.ApiClient().InsertPlaybackProfile(groupId, userId, playbackProfile);
@@ -134,7 +135,7 @@ namespace WebAPI.Controllers
         {
             KalturaPlaybackProfile response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             playbackProfile.Id = id;
 
             if (string.IsNullOrWhiteSpace(playbackProfile.AdapterUrl))
@@ -145,7 +146,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userId = KS.GetFromRequest().UserId;
+                string userId = KSManager.GetKSFromRequest().UserId;
                 // call client
                 response = ClientsManager.ApiClient().SetPlaybackProfile(groupId, userId, playbackProfile);
             }
@@ -173,7 +174,7 @@ namespace WebAPI.Controllers
         {
             KalturaPlaybackProfile response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
