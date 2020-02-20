@@ -577,30 +577,9 @@ namespace Core.Catalog.CatalogManagement
 
         private static bool EnqueueBulkUpload(int groupId, BulkUpload bulkUploadToEnqueue, long userId)
         {
-            bool result = true;
-
-            try
-            {
-                var serviceEvent = new BulkUploadRequest()
-                {
-                    BulkUploadId = bulkUploadToEnqueue.Id,
-                    GroupId = groupId,
-                    UserId = userId
-                };
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                eventBus.Publish(serviceEvent);
-                log.Error($"Successfully enqueued BulkUpload group id = {groupId} bulk upload id = {bulkUploadToEnqueue.Id}");
-
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Failed to enqueue BulkUpload group id = {groupId} bulk upload id = {bulkUploadToEnqueue.Id} ex = {ex}");
-                result = false;
-            }
-
             var queue = new GenericCeleryQueue();
             var data = new BulkUploadData(groupId, bulkUploadToEnqueue.Id, userId);
-            result &= queue.Enqueue(data, data.GetRoutingKey());
+            var result = queue.Enqueue(data, data.GetRoutingKey());
             if (!result)
             {
                 log.ErrorFormat("Failed to enqueue BulkUpload. data: {0}", data);
