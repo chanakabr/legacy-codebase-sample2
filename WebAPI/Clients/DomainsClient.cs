@@ -1154,6 +1154,7 @@ namespace WebAPI.Clients
             }
 
             KalturaHouseholdDeviceListResponse response = new KalturaHouseholdDeviceListResponse() { TotalCount = 0, Objects = new List<KalturaHouseholdDevice>() };
+
             bool checkExternal = !string.IsNullOrEmpty(externalId);
 
             foreach (KalturaDeviceFamily family in household.DeviceFamilies)

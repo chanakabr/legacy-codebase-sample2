@@ -426,7 +426,6 @@ namespace WebAPI.Controllers
                     household = HouseholdUtils.GetHouseholdFromRequest();
                 }
 
-
                 if (household == null && string.IsNullOrEmpty(filter.ExternalIdEqual))
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "householdIdEqual", "externalIdEqual");
