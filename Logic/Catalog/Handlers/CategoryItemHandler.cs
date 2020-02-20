@@ -342,6 +342,7 @@ namespace Core.Catalog.Handlers
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
 
             List<long> categoriesIds = new List<long>();
+            int totalItems = 0;
 
             //TODO Anat: ask Shay
             //if (string.IsNullOrEmpty(filter.Ksql) && !filter.RootOnly)
@@ -392,6 +393,7 @@ namespace Core.Catalog.Handlers
                 }
 
                 categoriesIds = result.ObjectIds;
+                totalItems = result.TotalItems;
             }
 
             var categoryItems = new List<CategoryItem>();
@@ -407,6 +409,7 @@ namespace Core.Catalog.Handlers
             if (categoryItems?.Count > 0)
             {
                 response.Objects = categoryItems;
+                response.TotalItems = totalItems;
             }
 
             response.SetStatus(eResponseStatus.OK);
