@@ -18,6 +18,7 @@ using System.Web;
 using APILogic.Users;
 using TVinciShared;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using Newtonsoft.Json;
 
 namespace Core.Users
 {
@@ -434,6 +435,8 @@ namespace Core.Users
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, preSignOutModel.UserId);
                 _Logger.Info($"Calling SSO adapter PreSignOut [{_AdapterConfig.Name}], group:[{_GroupId}]");
 
+                _Logger.Debug($"[PreSignOut] Adapter model object: {JsonConvert.SerializeObject(preSignOutModel)}, Signature: {signature}");
+
                 var response = _AdapterClient.PreSignOutAsync(_AdapterId, preSignOutModel, signature).ExecuteAndWait();
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
@@ -475,7 +478,9 @@ namespace Core.Users
                     AuthenticatedUser = new SSOAdapaterUser() { HouseholdID = domainId, Id = siteGuid }
                 };
 
+
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, postSignOutModel.UserId);
+                _Logger.Debug($"[PostSignOut] Adapter model object: {JsonConvert.SerializeObject(postSignOutModel)}, Signature: {signature}");
 
                 var response = _AdapterClient.PostSignOutAsync(_AdapterId, postSignOutModel, signature).ExecuteAndWait();
 
