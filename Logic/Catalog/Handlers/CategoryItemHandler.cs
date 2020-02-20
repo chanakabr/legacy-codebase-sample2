@@ -1,5 +1,6 @@
 ﻿using ApiLogic.Base;
 using ApiLogic.Catalog;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
@@ -210,7 +211,7 @@ namespace Core.Catalog.Handlers
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(contextData.GroupId));
 
-                response.Object = CategoriesManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id); 
+                response.Object = CategoriesManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id);
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -307,20 +308,20 @@ namespace Core.Catalog.Handlers
             return response;
         }
 
-        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemFilter filter)
+        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemFilter filter, CorePager pager)
         {
             throw new NotImplementedException();
         }
-        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemByIdInFilter filter)
+        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemByIdInFilter filter, CorePager pager)
         {
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
 
             List<long> categoriesIds = null;
             CategoryItem categoryItem = null;
 
-            if (filter?.GetIdIn()?.Count > 0)
+            if (filter?.IdIn?.Count > 0)
             {
-                categoriesIds = filter.GetIdIn();
+                categoriesIds = filter.IdIn;
                 foreach (var categoryId in categoriesIds)
                 {
                     categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, categoryId);
@@ -336,27 +337,98 @@ namespace Core.Catalog.Handlers
 
             return response;
         }
-        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemByKsqlRootFilter filter)
+        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemSearchFilter filter, CorePager pager)
         {
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
-            CategoryItem categoryItem = null;
+            
+            List<long> categoriesIds = new List<long>();
 
-            var categoriesMap = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId);
-            if (categoriesMap?.Count > 0)
+            if (string.IsNullOrEmpty(filter.Ksql) && !filter.RootOnly)
             {
-                List<long> categoriesIds = categoriesMap.Where(x => x.Value.ParentId == 0).Select(x => x.Key).ToList();
-                foreach (var categoryId in categoriesIds)
+                return List(contextData, new CategoryItemFilter(), pager);
+            }
+
+            if (!filter.RootOnly)
+            {
+                var categories = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId, null, true);
+                if (categories?.Count > 0)
                 {
-                    categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, categoryId);
-                    if (categoryItem != null)
+                    categoriesIds = categories.Keys.ToList();
+                }
+            }
+
+            if (!string.IsNullOrEmpty(filter.Ksql) || categoriesIds?.Count > 0)
+            {
+                AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition()
+                {
+                    Filter = filter.Ksql,
+                    UserId = contextData.UserId.Value,
+                    IsAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true) 
+                };
+
+                HashSet<long> categories = null;
+                if (categoriesIds.Count > 0)
+                {
+                    categories = new HashSet<long>();
+                    foreach (long item in categoriesIds)
                     {
-                        response.Objects.Add(categoryItem);
+                        categories.Add(item);
                     }
                 }
 
-                response.TotalItems = response.Objects.Count;
-                response.SetStatus(eResponseStatus.OK);
+                var result = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Category,
+                                                                categories, pager.PageIndex, pager.PageSize, filter.OrderBy);
+
+                if (result.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    response.SetStatus(result.Status);
+                    return response;
+                }
+
+                if (result.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                {
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+
+                categoriesIds = result.ObjectIds;
             }
+
+            if (categoriesIds?.Count > 0)
+            {
+                List<CategoryItem> categories = new List<CategoryItem>();
+                foreach (var item in categoriesIds)
+                {
+                    var categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, item);
+                    categories.Add(categoryItem);
+                }
+            }
+
+
+
+            
+
+            //int totalCount;
+            //result.Objects = SegmentationType.List(groupId, filter.ObjectIds?.ToList(), pageIndex, pageSize, out totalCount);
+            //result.TotalItems = totalCount;
+            //result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+
+            //var categoriesMap = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId);
+            //if (categoriesMap?.Count > 0)
+            //{
+            //    List<long> categoriesIds = categoriesMap.Where(x => x.Value.ParentId == 0).Select(x => x.Key).ToList();
+            //    foreach (var categoryId in categoriesIds)
+            //    {
+            //        categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, categoryId);
+            //        if (categoryItem != null)
+            //        {
+            //            response.Objects.Add(categoryItem);
+            //        }
+            //    }
+
+            //    response.TotalItems = response.Objects.Count;
+            //    response.SetStatus(eResponseStatus.OK);
+            //}
 
             return response;
         }

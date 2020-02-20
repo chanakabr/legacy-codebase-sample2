@@ -1208,7 +1208,7 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaCategoryItemByKsqlRootFilter":
+                case "KalturaCategoryItemSearchFilter":
                     switch(property.Name)
                     {
                         case "Ksql":

@@ -20,12 +20,12 @@ namespace WebAPI.Models.Catalog
         public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
         {
             var coreFilter = AutoMapper.Mapper.Map<CategoryItemFilter>(this);
-            return CategoryItemHandler.Instance.List(contextData, coreFilter);
+            return CategoryItemHandler.Instance.List(contextData, coreFilter, pager);
         }
 
         public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
         {
-            return KalturaCategoryItemOrderBy.NONE;
+            return KalturaCategoryItemOrderBy.CREATE_DATE_ASC;
         }
 
         public override void Validate()
@@ -50,7 +50,7 @@ namespace WebAPI.Models.Catalog
        
         public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
         {
-            return KalturaCategoryItemOrderBy.NONE;
+            return KalturaCategoryItemOrderBy.CREATE_DATE_ASC;
         }
 
         public override void Validate()
@@ -68,11 +68,11 @@ namespace WebAPI.Models.Catalog
         public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
         {
             var coreFilter = AutoMapper.Mapper.Map<CategoryItemByIdInFilter>(this);
-            return CategoryItemHandler.Instance.List(contextData, coreFilter);
+            return CategoryItemHandler.Instance.List(contextData, coreFilter, pager);
         }
     }
 
-    public partial class KalturaCategoryItemByKsqlRootFilter : KalturaCategoryItemFilter
+    public partial class KalturaCategoryItemSearchFilter : KalturaCategoryItemFilter
     {
         /// <summary>
         /// KSQL expression
@@ -90,11 +90,11 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("rootOnly")]
         [XmlElement(ElementName = "rootOnly", IsNullable = false)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public string RootOnly { get; set; }
+        public bool RootOnly { get; set; }
 
         public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
         {
-            return KalturaCategoryItemOrderBy.NONE;
+            return KalturaCategoryItemOrderBy.CREATE_DATE_ASC;
         }
 
         public override void Validate()
@@ -105,19 +105,22 @@ namespace WebAPI.Models.Catalog
             }
         }
 
-        public KalturaCategoryItemByKsqlRootFilter() : base()
+        public KalturaCategoryItemSearchFilter() : base()
         {
         }
 
         public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
         {
-            var coreFilter = AutoMapper.Mapper.Map<CategoryItemByKsqlRootFilter>(this);
-            return CategoryItemHandler.Instance.List(contextData, coreFilter);
+            var coreFilter = AutoMapper.Mapper.Map<CategoryItemSearchFilter>(this);
+            return CategoryItemHandler.Instance.List(contextData, coreFilter, pager);
         }
     }
 
     public enum KalturaCategoryItemOrderBy
     {
-        NONE
+        NAME_ASC,
+        NAME_DESC,
+        CREATE_DATE_ASC,
+        CREATE_DATE_DESC
     }
 }

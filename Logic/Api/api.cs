@@ -9478,9 +9478,27 @@ namespace Core.Api
         }
 
         public static UnifiedSearchResult[] SearchAssets(int groupID, string filter, int pageIndex, int pageSize, bool OnlyIsActive, int languageID, bool UseStartDate,
-            string Udid, string UserIP, string SiteGuid, int DomainId, int ExectGroupId, bool IgnoreDeviceRule, bool isAllowedToViewInactiveAssets = false, List<string> extraReturnFields = null)
+            string Udid, string UserIP, string SiteGuid, int DomainId, int ExectGroupId, bool IgnoreDeviceRule, bool isAllowedToViewInactiveAssets = false,
+            List<string> extraReturnFields = null, OrderObj order = null)
         {
-            UnifiedSearchResult[] assets = null;
+            UnifiedSearchResult[] unifiedSearchResult = new UnifiedSearchResult[0];
+
+            var response = SearchAssetsExtended(groupID, filter, pageIndex, pageSize, OnlyIsActive, languageID, UseStartDate,
+                                        Udid, UserIP, SiteGuid, DomainId, ExectGroupId, IgnoreDeviceRule, isAllowedToViewInactiveAssets,
+                                        extraReturnFields, order);
+            if (response != null)
+            {
+                unifiedSearchResult = response.searchResults.ToArray();
+            }
+
+            return unifiedSearchResult;
+        }
+
+        public static UnifiedSearchResponse SearchAssetsExtended(int groupID, string filter, int pageIndex, int pageSize, bool OnlyIsActive, int languageID, bool UseStartDate,
+        string Udid, string UserIP, string SiteGuid, int DomainId, int ExectGroupId, bool IgnoreDeviceRule, bool isAllowedToViewInactiveAssets = false,
+        List<string> extraReturnFields = null, OrderObj order = null)
+        {
+            UnifiedSearchResponse unifiedSearchResponse = new UnifiedSearchResponse();
 
             try
             {
@@ -9488,6 +9506,15 @@ namespace Core.Api
                 string catalogSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
+
+                if (order == null)
+                {
+                    order = new OrderObj()
+                    {
+                        m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
+                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                    };
+                }
 
                 try
                 {
@@ -9509,11 +9536,7 @@ namespace Core.Api
                         filterQuery = filter,
                         exactGroupId = ExectGroupId,
                         shouldIgnoreDeviceRuleID = IgnoreDeviceRule,
-                        order = new OrderObj()
-                        {
-                            m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
-                            m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
-                        },
+                        order = order,
                         m_sSiteGuid = SiteGuid,
                         domainId = DomainId,
                         isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
@@ -9521,7 +9544,7 @@ namespace Core.Api
                     };
 
                     BaseResponse response = assetRequest.GetResponse(assetRequest);
-                    assets = ((UnifiedSearchResponse)response).searchResults.ToArray();
+                    unifiedSearchResponse = (UnifiedSearchResponse)response;
                 }
                 catch (Exception ex)
                 {
@@ -9534,7 +9557,7 @@ namespace Core.Api
                 log.Error("Configuration Reading - Couldn't read values from configuration ", ex);
             }
 
-            return assets;
+            return unifiedSearchResponse;
         }
 
         public static DeviceFamilyResponse GetDeviceFamilyList()
@@ -11874,7 +11897,7 @@ namespace Core.Api
         }
 
         internal static ObjectVirtualAssetFilter GetObjectVirtualAssetObjectIds(int groupId, AssetSearchDefinition assetSearchDefinition,
-            ObjectVirtualAssetInfoType objectVirtualAssetInfoType, HashSet<long> objectIds = null, int pageIndex = 0, int pageSize = 0)
+            ObjectVirtualAssetInfoType objectVirtualAssetInfoType, HashSet<long> objectIds = null, int pageIndex = 0, int pageSize = 0, OrderObj order = null)
         {
             var objectVirtualAssetFilter = new ObjectVirtualAssetFilter();
             var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType);
@@ -11889,7 +11912,11 @@ namespace Core.Api
                 }
 
                 objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
-                objectVirtualAssetFilter.ObjectIds = objectIds?.ToList();
+                if (objectIds?.Count > 0)
+                {
+                    objectVirtualAssetFilter.ObjectIds = objectIds.ToList();
+                    objectVirtualAssetFilter.TotalItems = objectIds.Count;
+                }
                 return objectVirtualAssetFilter;
             }
            
@@ -11913,7 +11940,11 @@ namespace Core.Api
             if (string.IsNullOrEmpty(assetFilter) && string.IsNullOrEmpty(assetSearchDefinition.Filter))
             {
                 objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
-                objectVirtualAssetFilter.ObjectIds = objectIds?.ToList();
+                if (objectIds?.Count > 0)
+                {
+                    objectVirtualAssetFilter.ObjectIds = objectIds.ToList();
+                    objectVirtualAssetFilter.TotalItems = objectIds.Count;
+                }
                 return objectVirtualAssetFilter;
             }
 
@@ -11933,19 +11964,33 @@ namespace Core.Api
 
                 List<string> extraReturnFields = new List<string>() { topic.SystemName };
 
-                var assets = SearchAssets(groupId, filter, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty, assetSearchDefinition.UserId.ToString(), 0, 0, true, assetSearchDefinition.IsAllowedToViewInactiveAssets, extraReturnFields);
-                if (assets != null && assets.Length > 0)
+                int ps = pageSize;
+                int pi = pageIndex;
+
+                if (objectIds?.Count > 0)
                 {
-                    List<KeyValuePair<eAssetTypes, long>> kvp = assets.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
-                    var virtualAssets = AssetManager.GetAssets(groupId, kvp, false);
+                    ps = 0;
+                    pi = 0;
+                }
+
+                var assets = SearchAssetsExtended(groupId, filter, pi, ps, true, 0, true, string.Empty, string.Empty, 
+                    assetSearchDefinition.UserId.ToString(), 0, 0, true, assetSearchDefinition.IsAllowedToViewInactiveAssets, 
+                    extraReturnFields, order);
+
+                if (assets != null && assets.searchResults?.Count > 0)
+                {
+                    //TODO totalitems!!!!
+
 
                     objectVirtualAssetFilter.ObjectIds = new List<long>();
 
                     long objectId = 0;
-                    foreach (var virtualAsset in virtualAssets)
+                    ExtendedSearchResult esr;
+                    foreach (var item in assets.searchResults)
                     {
-                        var meta = virtualAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
-                        if (meta != null && long.TryParse(meta.m_sValue, out objectId))
+                        esr = (ExtendedSearchResult)item;
+                        string oId = GetStringParamFromExtendedSearchResult(esr, topic.SystemName);
+                        if (long.TryParse(oId, out objectId))
                         {
                             if (objectIds == null || objectIds.Count == 0 || objectIds.Contains(objectId))
                             {
@@ -11953,6 +11998,11 @@ namespace Core.Api
                                 objectVirtualAssetFilter.ObjectIds.Add(objectId);
                             }
                         }
+                    }
+
+                    if (objectVirtualAssetFilter.ObjectIds?.Count > 0 && pageSize > 0 && (pageIndex != pi || pageSize != ps))
+                    {
+                        objectVirtualAssetFilter.ObjectIds = objectVirtualAssetFilter.ObjectIds.Skip(pageIndex * pageSize).Take(pageSize).ToList();
                     }
                 }
             }
@@ -12108,6 +12158,21 @@ namespace Core.Api
                 log.Error($"Failed in GetPlaybackManifest. groupId:{groupId}");
             }
             return response;
+        }
+
+        internal static string GetStringParamFromExtendedSearchResult(ExtendedSearchResult extendedResult, string paramName)
+        {
+            string result = string.Empty;
+
+            if (extendedResult != null && extendedResult.ExtraFields != null)
+            {
+                var field = extendedResult.ExtraFields.Where(ef => ef.key.ToLower() == paramName.ToLower()).FirstOrDefault();
+                if (field != null)
+                {
+                    result = field.value;
+                }
+            }
+            return result;
         }
     }
 }

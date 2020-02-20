@@ -422,14 +422,14 @@ namespace WebAPI.Reflection
                 case "KalturaCategoryItemByIdInFilter":
                     return new KalturaCategoryItemByIdInFilter(parameters);
                     
-                case "KalturaCategoryItemByKsqlRootFilter":
-                    return new KalturaCategoryItemByKsqlRootFilter(parameters);
-                    
                 case "KalturaCategoryItemFilter":
                     return new KalturaCategoryItemFilter(parameters);
                     
                 case "KalturaCategoryItemListResponse":
                     return new KalturaCategoryItemListResponse(parameters);
+                    
+                case "KalturaCategoryItemSearchFilter":
+                    return new KalturaCategoryItemSearchFilter(parameters);
                     
                 case "KalturaCategoryTree":
                     return new KalturaCategoryTree(parameters);
@@ -11656,23 +11656,6 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
-    public partial class KalturaCategoryItemByKsqlRootFilter
-    {
-        public KalturaCategoryItemByKsqlRootFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
-                {
-                    Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
-                }
-                if (parameters.ContainsKey("rootOnly") && parameters["rootOnly"] != null)
-                {
-                    RootOnly = (String) Convert.ChangeType(parameters["rootOnly"], typeof(String));
-                }
-            }
-        }
-    }
     public partial class KalturaCategoryItemFilter
     {
         public KalturaCategoryItemFilter(Dictionary<string, object> parameters = null) : base(parameters)
@@ -11683,6 +11666,23 @@ namespace WebAPI.Models.Catalog
     {
         public KalturaCategoryItemListResponse(Dictionary<string, object> parameters = null) : base(parameters)
         {
+        }
+    }
+    public partial class KalturaCategoryItemSearchFilter
+    {
+        public KalturaCategoryItemSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
+                {
+                    Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
+                }
+                if (parameters.ContainsKey("rootOnly") && parameters["rootOnly"] != null)
+                {
+                    RootOnly = (Boolean) Convert.ChangeType(parameters["rootOnly"], typeof(Boolean));
+                }
+            }
         }
     }
     public partial class KalturaCategoryTree

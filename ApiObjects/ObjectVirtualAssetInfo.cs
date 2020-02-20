@@ -21,6 +21,7 @@ namespace ApiObjects
         public List<long> ObjectIds;
         public ObjectVirtualAssetFilterStatus ResultStatus;
         public Status Status;
+        public int TotalItems;
 
     }
 }

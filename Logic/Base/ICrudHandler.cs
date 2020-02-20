@@ -11,6 +11,5 @@ namespace ApiLogic.Base
         GenericResponse<ICrudHandeledObject> Update(ContextData contextData, ICrudHandeledObject objectToUpdate);
         Status Delete(ContextData contextData, IdentifierT id);
         GenericResponse<ICrudHandeledObject> Get(ContextData contextData, IdentifierT id);
-        GenericListResponse<ICrudHandeledObject> List(ContextData contextData, ICrudFilter filter);
     }
 }

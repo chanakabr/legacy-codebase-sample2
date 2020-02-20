@@ -1215,13 +1215,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
 
-            cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>();
+            cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
+                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src =>  CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
 
             cfg.CreateMap<KalturaCategoryItemByIdInFilter, ApiLogic.Catalog.CategoryItemByIdInFilter>()
                .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
-               .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => src.IdIn));
+               .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? src.GetItemsIn<List<long>, long>(src.IdIn, "KalturaCategoryItemByIdInFilter.IdIn", true) : null));
 
-            cfg.CreateMap<KalturaCategoryItemByKsqlRootFilter, ApiLogic.Catalog.CategoryItemByKsqlRootFilter>()
+            cfg.CreateMap<KalturaCategoryItemSearchFilter, ApiLogic.Catalog.CategoryItemSearchFilter>()
               .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
               .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
               .ForMember(dest => dest.RootOnly, opt => opt.MapFrom(src => src.RootOnly));

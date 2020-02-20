@@ -95,6 +95,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return ObjectVirtualAssetInfoType.Segment;
                         case KalturaObjectVirtualAssetInfoType.Subscription:
                             return ObjectVirtualAssetInfoType.Subscription;
+                        case KalturaObjectVirtualAssetInfoType.Category:
+                            return ObjectVirtualAssetInfoType.Category;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaObjectVirtualAssetInfoType value : {0}", type.ToString()));
                     }                   
@@ -109,6 +111,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return KalturaObjectVirtualAssetInfoType.Segment;
                         case ObjectVirtualAssetInfoType.Subscription:
                             return KalturaObjectVirtualAssetInfoType.Subscription;
+                        case ObjectVirtualAssetInfoType.Category:
+                            return KalturaObjectVirtualAssetInfoType.Category;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ObjectVirtualAssetInfoType value : {0}", type.ToString()));
                     }

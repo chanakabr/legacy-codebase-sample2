@@ -8,39 +8,15 @@ namespace ApiLogic.Catalog
 {
     public class CategoryItemFilter : ICrudFilter
     {
+        public ApiObjects.SearchObjects.OrderObj OrderBy { get; set; }
     }
 
     public class CategoryItemByIdInFilter : CategoryItemFilter
     {
-        public string IdIn { get; set; }
-
-        public List<long> GetIdIn()
-        {
-            List<long> list = new List<long>();
-            if (!string.IsNullOrEmpty(IdIn))
-            {
-                string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    int value;
-                    if (int.TryParse(stringValue, out value))
-                    {
-                        list.Add(value);
-                    }
-                    else
-                    {
-                        throw new Exception("CategoryItemByIdInFilter.idIn is invalid");
-                    }
-                }
-            }
-
-            return list;
-        }
+        public List<long> IdIn { get; set; }
     }
 
-
-
-    public class CategoryItemByKsqlRootFilter : CategoryItemFilter
+    public class CategoryItemSearchFilter : CategoryItemFilter
     {
         public string Ksql { get; set; }
 

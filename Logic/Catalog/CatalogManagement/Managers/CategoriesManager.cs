@@ -150,7 +150,7 @@ namespace Core.Catalog.CatalogManagement
             return categoryItem;
         }
 
-        internal static Dictionary<long, CategoryParentCache> GetGroupCategoriesIds(int groupId, List<long> ids = null)
+        internal static Dictionary<long, CategoryParentCache> GetGroupCategoriesIds(int groupId, List<long> ids = null, bool rootOnly = false)
         {
             // save mapping between categoryItem and Parentcategory
             Dictionary<long, CategoryParentCache> result = new Dictionary<long, CategoryParentCache>();
@@ -186,7 +186,15 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        result = groupCategoriesIds;
+                        foreach (var item in groupCategoriesIds)
+                        {
+                            result.Add(item.Key, item.Value);
+                        }
+                    }
+
+                    if (result?.Count > 0 && rootOnly)
+                    {
+                        result = result.Where(x => x.Value.ParentId == 0).ToDictionary(y => y.Key, z => z.Value);
                     }
                 }
             }

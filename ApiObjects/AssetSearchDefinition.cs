@@ -1,4 +1,6 @@
-﻿namespace ApiObjects
+﻿using ApiObjects.SearchObjects;
+
+namespace ApiObjects
 {
     public class AssetSearchDefinition
     {

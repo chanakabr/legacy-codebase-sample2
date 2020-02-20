@@ -423,5 +423,15 @@ namespace APILogic.Api.Managers
 
             return features;
         }
+
+        public static bool IsAllowedToViewInactiveAssets(int groupId, string userId, bool ignoreDoesGroupUsesTemplates = false)
+        {
+            return IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS)
+                   && (DoesGroupUsesTemplates(groupId) || ignoreDoesGroupUsesTemplates);
+        }
+        private static bool DoesGroupUsesTemplates(int groupId)
+        {
+            return Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+        }
     }
 }
