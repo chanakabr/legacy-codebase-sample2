@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers.Models;
+using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaEngagement> list = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             if (filter == null)
                 filter = new KalturaEngagementFilter();
@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaEngagement Get(int id)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -90,8 +90,9 @@ namespace WebAPI.Controllers
         static public bool Delete(int id)
         {
             bool response = false;
-            
-            int groupId = KS.GetFromRequest().GroupId;
+
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
 
             try
             {
@@ -121,7 +122,7 @@ namespace WebAPI.Controllers
         {
             KalturaEngagement response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {

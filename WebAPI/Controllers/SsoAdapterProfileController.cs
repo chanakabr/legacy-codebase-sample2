@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
@@ -24,7 +25,7 @@ namespace WebAPI.Controllers
         static public KalturaSSOAdapterProfileListResponse List()
         {
             var response = new KalturaSSOAdapterProfileListResponse();
-            var groupId = KS.GetFromRequest().GroupId;
+            var groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -54,7 +55,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SSOAdapterNotExist)]
         static public bool Delete(int ssoAdapterId)
         {
-            var ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             var groupId = ks.GroupId;
             var userId = ks.UserId;
 
@@ -93,7 +94,7 @@ namespace WebAPI.Controllers
         static public KalturaSSOAdapterProfile Add(KalturaSSOAdapterProfile ssoAdapter)
         {
             KalturaSSOAdapterProfile response = null;
-            var ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             var groupId = ks.GroupId;
             var userId = ks.UserId;
 
@@ -131,7 +132,7 @@ namespace WebAPI.Controllers
         static public KalturaSSOAdapterProfile Update(int ssoAdapterId, KalturaSSOAdapterProfile ssoAdapter)
         {
 
-            var ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             var groupId = ks.GroupId;
             var userId = ks.UserId;
             try
@@ -165,7 +166,7 @@ namespace WebAPI.Controllers
         static public KalturaSSOAdapterProfile GenerateSharedSecret(int ssoAdapterId)
         {
             KalturaSSOAdapterProfile response = null;
-            var ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             var groupId = ks.GroupId;
             var userId = ks.UserId;
 

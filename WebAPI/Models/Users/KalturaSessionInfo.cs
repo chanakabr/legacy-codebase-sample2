@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using KSWrapper;
+using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using TVinciShared;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -81,12 +83,12 @@ namespace WebAPI.Models.Users
 
         public KalturaSession(KS ks) : base(null)
         {
-            var payload = KSUtils.ExtractKSPayload(ks);
+            var payload = ks.ExtractKSData();
             this.ks = ks.ToString();
             this.expiry = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration);
             this.partnerId = ks.GroupId;
-            this.privileges = KS.JoinPrivileges(ks.Privileges, ",", ":");
-            this.sessionType = ks.SessionType;
+            this.privileges = ks.JoinPrivileges(",", ":");
+            this.sessionType = (KalturaSessionType)ks.SessionType;
             this.userId = ks.UserId;
             this.udid = payload.UDID;
             this.createDate = payload.CreateDate;

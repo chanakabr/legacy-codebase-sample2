@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -31,8 +32,9 @@ namespace WebAPI.Controllers
             List<KalturaSubscriptionPrice> subscriptionPrices = new List<KalturaSubscriptionPrice>();
             List<KalturaItemPrice> ppvPrices = new List<KalturaItemPrice>(); ;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string udid = ks.ExtractKSData().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
             
             if ((filter.SubscriptionsIds == null || filter.SubscriptionsIds.Count() == 0) && (filter.FilesIds == null || filter.FilesIds.Count() == 0))
@@ -44,15 +46,15 @@ namespace WebAPI.Controllers
                 if (filter.SubscriptionsIds != null && filter.SubscriptionsIds.Count() > 0)
                 {
                     // call client
-                    subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, filter.SubscriptionsIds.Select(x => x.value), KS.GetFromRequest().UserId, coupon_code,
-                                                                                                            udid, language, filter.getShouldGetOnlyLowest(), null);
+                    subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices
+                        (groupId, filter.SubscriptionsIds.Select(x => x.value), KSManager.GetKSFromRequest().UserId, coupon_code, udid, language, filter.getShouldGetOnlyLowest(), null);
                     productPrices.AddRange(subscriptionPrices);
                 }
 
                 if (filter.FilesIds != null && filter.FilesIds.Count() > 0)
                 {
                     // call client
-                    ppvPrices = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, filter.FilesIds.Select(x => x.value).ToList(), KS.GetFromRequest().UserId, coupon_code,
+                    ppvPrices = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, filter.FilesIds.Select(x => x.value).ToList(), ks.UserId, coupon_code,
                         udid, language, filter.getShouldGetOnlyLowest());
                     productPrices.AddRange(ppvPrices);
                 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers.Models;
+using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Utils;
@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaPremiumService> response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
         {
             KalturaHouseholdPremiumServiceListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try

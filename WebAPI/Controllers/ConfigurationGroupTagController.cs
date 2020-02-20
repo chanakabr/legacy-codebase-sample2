@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Response;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.DMS;
@@ -27,7 +28,7 @@ namespace WebAPI.Controllers
         static public KalturaConfigurationGroupTag Get(string tag)
         {
             KalturaConfigurationGroupTag response = null;
-            int partnerId = KS.GetFromRequest().GroupId;
+            int partnerId = KSManager.GetKSFromRequest().GroupId;
 
             if (string.IsNullOrWhiteSpace(tag))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
@@ -64,7 +65,7 @@ namespace WebAPI.Controllers
                 if (string.IsNullOrWhiteSpace(filter.ConfigurationGroupIdEqual))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
 
-                int partnerId = KS.GetFromRequest().GroupId;
+                int partnerId = KSManager.GetKSFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.GetConfigurationGroupTagList(partnerId, filter.ConfigurationGroupIdEqual);
@@ -100,7 +101,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int partnerId = KS.GetFromRequest().GroupId;
+                int partnerId = KSManager.GetKSFromRequest().GroupId;
                 // call client        
                 response = DMSClient.AddConfigurationGroupTag(partnerId, configurationGroupTag);
             }
@@ -133,7 +134,7 @@ namespace WebAPI.Controllers
                 if (string.IsNullOrWhiteSpace(tag))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
 
-                int partnerId = KS.GetFromRequest().GroupId;
+                int partnerId = KSManager.GetKSFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.DeleteConfigurationGroupTag(partnerId, tag);

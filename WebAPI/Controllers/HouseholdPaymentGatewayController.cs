@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Billing;
@@ -32,7 +33,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaHouseholdPaymentGateway> list = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             // get domain id      
             var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -40,7 +41,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                list = ClientsManager.BillingClient().GetHouseholdPaymentGatewaysList(groupId, KS.GetFromRequest().UserId, domainId);
+                list = ClientsManager.BillingClient().GetHouseholdPaymentGatewaysList(groupId, KSManager.GetKSFromRequest().UserId, domainId);
             }
             catch (ClientException ex)
             {
@@ -72,7 +73,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -108,7 +109,7 @@ namespace WebAPI.Controllers
         {
             string chargeId = string.Empty;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -149,11 +150,11 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                string userID = KSManager.GetKSFromRequest().UserId;
 
                 // get domain id      
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -191,11 +192,11 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                string userID = KSManager.GetKSFromRequest().UserId;
 
                 // get domain id        
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -231,7 +232,7 @@ namespace WebAPI.Controllers
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             // get domain id      
             var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -261,7 +262,7 @@ namespace WebAPI.Controllers
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
@@ -286,7 +287,7 @@ namespace WebAPI.Controllers
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try

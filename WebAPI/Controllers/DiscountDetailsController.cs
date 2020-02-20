@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Pricing;
@@ -23,7 +24,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidCurrency)]
         static public KalturaDiscountDetailsListResponse List(KalturaDiscountDetailsFilter filter = null)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             string currency = Utils.Utils.GetCurrencyFromRequest();
             List<KalturaDiscountDetails> discounts = null;
 

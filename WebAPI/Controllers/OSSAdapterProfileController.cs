@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -24,7 +25,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaOSSAdapterProfile> list = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -55,7 +56,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaOSSAdapterProfile Get(int id)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -83,7 +84,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaOSSAdapterProfile> response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -116,7 +117,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
             
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -151,7 +152,7 @@ namespace WebAPI.Controllers
         {
             KalturaOSSAdapterProfile response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -186,7 +187,7 @@ namespace WebAPI.Controllers
         {
             KalturaOSSAdapterProfile response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             ossAdapter.Id = ossAdapterId;
 
             try
@@ -223,7 +224,7 @@ namespace WebAPI.Controllers
         {
             KalturaOSSAdapterProfile response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -256,7 +257,7 @@ namespace WebAPI.Controllers
         {
             KalturaOSSAdapterProfile response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {

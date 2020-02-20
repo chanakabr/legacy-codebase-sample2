@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers.Models;
+using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
@@ -36,13 +36,13 @@ namespace WebAPI.Controllers
         {
             List<KalturaParentalRule> response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
                 if (filter.By == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KS.GetFromRequest().UserId;
+                    string userId = KSManager.GetKSFromRequest().UserId;
 
                     // call client
                     response = ClientsManager.ApiClient().GetUserParentalRules(groupId, userId);
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         static public KalturaParentalRuleListResponse List(KalturaParentalRuleFilter filter)
         {
             List<KalturaParentalRule> response = null;
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             int groupId = ks.GroupId;
 
             try
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
                 }
                 else if (filter.EntityReferenceEqual.Value == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KS.GetFromRequest().UserId;
+                    string userId = KSManager.GetKSFromRequest().UserId;
 
                     // call client
                     response = ClientsManager.ApiClient().GetUserParentalRules(groupId, userId);
@@ -133,13 +133,13 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
                 if (entityReference == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KS.GetFromRequest().UserId;
+                    string userId = KSManager.GetKSFromRequest().UserId;
 
                     // call client
                     success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, ruleId, 1);
@@ -182,13 +182,13 @@ namespace WebAPI.Controllers
         {
             bool success = false;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
                 if (entityReference == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KS.GetFromRequest().UserId;
+                    string userId = KSManager.GetKSFromRequest().UserId;
 
                     // call client
                     success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, ruleId, 0);
@@ -228,7 +228,7 @@ namespace WebAPI.Controllers
         static public bool DisableDefault(KalturaEntityReferenceBy entityReference)
         {
             bool success = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -239,7 +239,7 @@ namespace WebAPI.Controllers
                 }
                 else if (entityReference == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KS.GetFromRequest().UserId;
+                    string userId = KSManager.GetKSFromRequest().UserId;
 
                     // call client
                     success = ClientsManager.ApiClient().DisableUserDefaultParentalRule(groupId, userId);
@@ -265,7 +265,7 @@ namespace WebAPI.Controllers
         static public KalturaParentalRule Add(KalturaParentalRule parentalRule)
         {
             KalturaParentalRule response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
             if (string.IsNullOrEmpty(parentalRule.name))
             {
@@ -333,7 +333,7 @@ namespace WebAPI.Controllers
         static public KalturaParentalRule Update(long id, KalturaParentalRule parentalRule)
         {
             KalturaParentalRule response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
             if (parentalRule.name != null && parentalRule.name == string.Empty)
             {
@@ -381,7 +381,7 @@ namespace WebAPI.Controllers
         static public KalturaParentalRule Get(long id)
         {
             KalturaParentalRule response = null;
-            KS ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             int groupId = ks.GroupId;
 
             try
@@ -410,7 +410,7 @@ namespace WebAPI.Controllers
         static public bool Delete(long id)
         {
             bool result = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try

@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -24,7 +25,7 @@ namespace WebAPI.Controllers
         static public KalturaIngestProfileListResponse List()
         {
             var response = new KalturaIngestProfileListResponse();
-            var groupId = KS.GetFromRequest().GroupId;
+            var groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {
@@ -52,7 +53,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IngestProfileNotExists)]
         static public bool Delete(int ingestProfileId)
         {
-            var ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             var groupId = ks.GroupId;
             var userId = ks.UserId;
 
@@ -87,7 +88,7 @@ namespace WebAPI.Controllers
         static public KalturaIngestProfile Add(KalturaIngestProfile ingestProfile)
         {
             KalturaIngestProfile response = null;
-            var ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             var groupId = ks.GroupId;
             var userId = ks.UserId;
 
@@ -117,7 +118,7 @@ namespace WebAPI.Controllers
         static public KalturaIngestProfile Update(int ingestProfileId, KalturaIngestProfile ingestProfile)
         {
             KalturaIngestProfile response = null;
-            var ks = KS.GetFromRequest();
+            var ks = KSManager.GetKSFromRequest();
             var groupId = ks.GroupId;
             var userId = ks.UserId;
             try

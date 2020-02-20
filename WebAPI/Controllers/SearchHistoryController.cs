@@ -3,11 +3,11 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Utils;
-using WebAPI.Managers.Models;
-using WebAPI.Models.General;
+using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
+using WebAPI.Models.General;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -29,9 +29,10 @@ namespace WebAPI.Controllers
         {
             KalturaSearchHistoryListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string userId = ks.UserId;
+            string udid = ks.ExtractKSData().UDID;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -76,9 +77,9 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public bool Clean(KalturaSearchHistoryFilter filter = null)
         {
-            var ks = KS.GetFromRequest();
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
 
             try
             {
@@ -103,9 +104,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public bool Delete(string id)
         {
-            var ks = KS.GetFromRequest();
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userId = KSManager.GetKSFromRequest().UserId;
 
             try
             {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers.Models;
+using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
@@ -29,10 +29,11 @@ namespace WebAPI.Controllers
         static public KalturaFavorite Add(KalturaFavorite favorite)
         {
             KalturaFavorite response = null;
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string userId = ks.UserId;
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            string udid = ks.ExtractKSData().UDID;
             
             KalturaAsset asset = null;
             try
@@ -73,8 +74,9 @@ namespace WebAPI.Controllers
         static public bool AddOldStandard(string media_id, string media_type = null, string extra_data = null)
         {
             bool res = false;
-            int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string udid = ks.ExtractKSData().UDID;
 
             // parameters validation
             if (media_type.Trim().Length == 0)
@@ -89,7 +91,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                string userID = KSManager.GetKSFromRequest().UserId;
 
                 // call client
                 res = ClientsManager.UsersClient().AddUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, media_type,
@@ -117,12 +119,13 @@ namespace WebAPI.Controllers
         static public bool Delete(long id)
         {
             bool res = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
+                string userID = ks.UserId;
+                string udid = ks.ExtractKSData().UDID;
 
                 // call client
                 res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), new long[] {id});
@@ -150,7 +153,8 @@ namespace WebAPI.Controllers
         static public bool DeleteOldStandard(List<KalturaIntegerValue> media_ids)
         {
             bool res = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
 
             // parameters validation
             if (media_ids == null || media_ids.Count == 0)
@@ -160,8 +164,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-                string udid = KSUtils.ExtractKSPayload().UDID;
+                string userID = ks.UserId;
+                string udid = ks.ExtractKSData().UDID;
 
                 // call client
                 res = ClientsManager.UsersClient().RemoveUserFavorite(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), media_ids.Select(x => (long)x.value).ToArray());
@@ -187,16 +191,17 @@ namespace WebAPI.Controllers
         {
             List<KalturaFavorite> favorites = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+
             if (filter == null)
                 filter = new KalturaFavoriteFilter();
 
-            string udid = filter.UdidEqualCurrent.HasValue && filter.UdidEqualCurrent.Value ? KSUtils.ExtractKSPayload().UDID : null;
+            string udid = filter.UdidEqualCurrent.HasValue && filter.UdidEqualCurrent.Value ? ks.ExtractKSData().UDID : null;
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                string userID = KSManager.GetKSFromRequest().UserId;
 
                 // no media ids to filter from - use the regular favorites function
                 List<int> mediaIds = filter.getMediaIdIn();
@@ -236,7 +241,7 @@ namespace WebAPI.Controllers
             List<KalturaFavorite> favorites = null;
             List<KalturaFavorite> favoritesFinalList = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             string language = Utils.Utils.GetLanguageFromRequest();
 
             if (with == null)
@@ -247,7 +252,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
+                string userID = KSManager.GetKSFromRequest().UserId;
                 List<int> mediaIds = filter.getMediaIdIn();
 
                 // no media ids to filter from - use the regular favorites function
@@ -266,7 +271,7 @@ namespace WebAPI.Controllers
                 {
                     mediaIds = favorites.Where(m => (m.AssetId != 0) == true).Select(x => Convert.ToInt32(x.AssetId)).Distinct().ToList();
 
-                    KalturaAssetInfoListResponse assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, KS.GetFromRequest().UserId,
+                    KalturaAssetInfoListResponse assetInfoWrapper = ClientsManager.CatalogClient().GetMediaByIds(groupId, KSManager.GetKSFromRequest().UserId,
                         udid, language, 0, 0, mediaIds, with.Select(x => x.type).ToList());
 
                     favoritesFinalList = new List<KalturaFavorite>();

@@ -2,6 +2,7 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Partner;
@@ -22,7 +23,7 @@ namespace WebAPI.Controllers
         static public KalturaPartnerConfigurationListResponse List(KalturaPartnerConfigurationFilter filter)
         {
             KalturaPartnerConfigurationListResponse response = null;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
             
             try
             {
@@ -71,7 +72,7 @@ namespace WebAPI.Controllers
         static public bool Update(KalturaPartnerConfiguration configuration)
         {
             bool response = false;
-            int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
 
             try
             {

@@ -4,6 +4,7 @@ using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -29,8 +30,8 @@ namespace WebAPI.Controllers
         {
             KalturaFollowTvSeriesListResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userID = KSManager.GetKSFromRequest().UserId;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -62,8 +63,8 @@ namespace WebAPI.Controllers
         {
             KalturaListFollowDataTvSeriesResponse response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userID = KSManager.GetKSFromRequest().UserId;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -97,8 +98,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userID = KSManager.GetKSFromRequest().UserId;
 
             try
             {
@@ -124,7 +125,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidAssetId)]
         static public KalturaFollowTvSeries Add(KalturaFollowTvSeries followTvSeries)
         {
-            var contextData = KS.GetContextData();
+            var contextData = KSManager.GetContextData();
 
             try
             {
@@ -134,7 +135,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    return ClientsManager.NotificationClient().AddUserTvSeriesFollow(contextData.GroupId, KS.GetFromRequest().UserId, followTvSeries.AssetId);
+                    return ClientsManager.NotificationClient().AddUserTvSeriesFollow(contextData.GroupId, KSManager.GetKSFromRequest().UserId, followTvSeries.AssetId);
                 }
             }
             catch (ClientException ex)
@@ -160,8 +161,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidAssetId)]
         static public bool AddOldStandard(int asset_id)
         {
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            int groupId = KSManager.GetKSFromRequest().GroupId;
+            string userID = KSManager.GetKSFromRequest().UserId;
 
             try
             {

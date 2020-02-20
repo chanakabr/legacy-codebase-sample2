@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Response;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.DMS;
@@ -32,7 +33,7 @@ namespace WebAPI.Controllers
         static public KalturaConfigurationGroupDevice Get(string udid)
         {
             KalturaConfigurationGroupDevice response = null;
-            int partnerId = KS.GetFromRequest().GroupId;
+            int partnerId = KSManager.GetKSFromRequest().GroupId;
 
             if (string.IsNullOrWhiteSpace(udid))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");
@@ -74,7 +75,7 @@ namespace WebAPI.Controllers
                 if (string.IsNullOrWhiteSpace(filter.ConfigurationGroupIdEqual))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupIdEqual");
 
-                int partnerId = KS.GetFromRequest().GroupId;
+                int partnerId = KSManager.GetKSFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.GetConfigurationGroupDeviceList(partnerId, filter.ConfigurationGroupIdEqual, pager.getPageIndex() + 1, pager.getPageSize());
@@ -110,7 +111,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int partnerId = KS.GetFromRequest().GroupId;
+                int partnerId = KSManager.GetKSFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.AddConfigurationGroupDevice(partnerId, configurationGroupDevice.ConfigurationGroupId, configurationGroupDevice.Udid);
@@ -144,7 +145,7 @@ namespace WebAPI.Controllers
                 if (string.IsNullOrWhiteSpace(udid))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");
 
-                int partnerId = KS.GetFromRequest().GroupId;
+                int partnerId = KSManager.GetKSFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.DeleteConfigurationGroupDevice(partnerId, udid);

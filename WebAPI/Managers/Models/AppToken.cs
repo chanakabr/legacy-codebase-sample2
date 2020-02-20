@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
 using WebAPI.Models.General;
 
 namespace WebAPI.Managers.Models
@@ -135,13 +136,13 @@ namespace WebAPI.Managers.Models
         {
             string response = null;
 
-            string stringToHash = KS.GetFromRequest().ToString() + Token;
+            string stringToHash = KSManager.GetKSFromRequest().ToString() + Token;
 
             switch (HashType)
             {
                 case KalturaAppTokenHashType.SHA1:
                     {
-                        byte[] hashed = Utils.EncryptionUtils.HashSHA1(stringToHash);
+                        byte[] hashed = EncryptUtils.HashSHA1(stringToHash);
                         if (hashed != null && hashed.Length > 0)
                         {
                             response = hashed.Aggregate(string.Empty, (x, y) => x + y.ToString("X2").ToLower());
@@ -149,13 +150,13 @@ namespace WebAPI.Managers.Models
                     }
                     break;
                 case KalturaAppTokenHashType.SHA256:
-                    response = Utils.EncryptionUtils.HashSHA256(stringToHash);
+                    response = EncryptUtils.HashSHA256(stringToHash);
                     break;
                 case KalturaAppTokenHashType.SHA512:
-                    response = Utils.EncryptionUtils.HashSHA512(stringToHash);
+                    response = EncryptUtils.HashSHA512(stringToHash);
                     break;
                 case KalturaAppTokenHashType.MD5:
-                    response = Utils.EncryptionUtils.HashMD5(stringToHash);
+                    response = EncryptUtils.HashMD5(stringToHash);
                     break;
                 default:
                     break;

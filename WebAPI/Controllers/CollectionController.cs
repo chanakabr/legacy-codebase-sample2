@@ -10,6 +10,7 @@ using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
+using WebAPI.Managers;
 
 namespace WebAPI.Controllers
 {
@@ -44,10 +45,10 @@ namespace WebAPI.Controllers
             {
                 filter.Validate();
             }
-            
 
-            int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var ks = KSManager.GetKSFromRequest();
+            int groupId = ks.GroupId;
+            string udid = ks.ExtractKSData().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
 
             try
