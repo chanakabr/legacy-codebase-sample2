@@ -11980,7 +11980,8 @@ namespace Core.Api
                 if (assets != null && assets.searchResults?.Count > 0)
                 {
                     //TODO totalitems!!!!
-
+                    List<KeyValuePair<eAssetTypes, long>> kvp = assets.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
+                    var virtualAssets = AssetManager.GetAssets(groupId, kvp, false);
 
                     objectVirtualAssetFilter.ObjectIds = new List<long>();
 
@@ -11988,6 +11989,21 @@ namespace Core.Api
                     ExtendedSearchResult esr;
                     foreach (var item in assets.searchResults)
                     {
+                        var virtualAsset = AssetManager.GetAsset(groupId, long.Parse(item.AssetId), eAssetTypes.MEDIA, false);
+                        if (virtualAsset.HasObject())
+                        {
+                            var meta = virtualAsset.Object.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
+                            if (meta != null && long.TryParse(meta.m_sValue, out objectId))
+                            {
+                                if (objectIds == null || objectIds.Count == 0 || objectIds.Contains(objectId))
+                                {
+                                    objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
+                                    objectVirtualAssetFilter.ObjectIds.Add(objectId);
+                                }
+                            }
+                        }
+                        
+                        /*
                         esr = (ExtendedSearchResult)item;
                         string oId = GetStringParamFromExtendedSearchResult(esr, topic.SystemName);
                         if (long.TryParse(oId, out objectId))
@@ -11998,6 +12014,7 @@ namespace Core.Api
                                 objectVirtualAssetFilter.ObjectIds.Add(objectId);
                             }
                         }
+                        */
                     }
 
                     if (objectVirtualAssetFilter.ObjectIds?.Count > 0 && pageSize > 0 && (pageIndex != pi || pageSize != ps))
