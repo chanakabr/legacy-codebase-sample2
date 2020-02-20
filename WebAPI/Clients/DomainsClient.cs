@@ -1144,7 +1144,17 @@ namespace WebAPI.Clients
 
         internal KalturaHouseholdDeviceListResponse GetHouseholdDevices(int groupId, KalturaHousehold household, List<long> deviceFamilyIds, string externalId)
         {
+            if (household == null)
+            {
+                var deviceId = Device.GetDeviceIDByExternalId(groupId, externalId);
+                int.TryParse(deviceId, out int _deviceId);
+                var device = new Device(groupId);
+                device.Initialize(_deviceId);
+                household = ClientsManager.DomainsClient().GetDomainInfo(groupId, device.m_domainID);
+            }
+
             KalturaHouseholdDeviceListResponse response = new KalturaHouseholdDeviceListResponse() { TotalCount = 0, Objects = new List<KalturaHouseholdDevice>() };
+
             bool checkExternal = !string.IsNullOrEmpty(externalId);
 
             foreach (KalturaDeviceFamily family in household.DeviceFamilies)
