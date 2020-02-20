@@ -650,7 +650,7 @@ namespace TVPApiServices
                        responseData.user.m_RespStatus == ResponseStatus.UserNotMasterApproved || responseData.user.m_RespStatus == ResponseStatus.UserNotIndDomain ||
                        responseData.user.m_RespStatus == ResponseStatus.UserWithNoDomain || responseData.user.m_RespStatus == ResponseStatus.UserSuspended))
                     {
-                        APIToken accessToken = AuthorizationManager.Instance.GenerateAccessToken(responseData.user.m_user.m_sSiteGUID, groupId, false, false, initObj.UDID, initObj.Platform);
+                        APIToken accessToken = AuthorizationManager.Instance.GenerateAccessToken(responseData.user.m_user.m_sSiteGUID, groupId, false, false, initObj.UDID, initObj.Platform, responseData.user.m_user.m_domianID, responseData.user.m_user.m_oBasicData.RoleIds);
                         HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", accessToken.AccessToken, accessToken.AccessTokenExpiration));
                         HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", accessToken.RefreshToken, accessToken.RefreshTokenExpiration));
                     }

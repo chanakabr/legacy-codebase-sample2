@@ -704,9 +704,11 @@ namespace TVPApiServices
             {
                 try
                 {
-                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-                    responseData = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).
-                        SignInWithToken(token, HttpContext.Current.Session.GetSessionID(), SiteHelper.GetClientIP(), initObj.UDID, isSingleLogin);
+                    bool isSingleLogin = ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform)
+                        .SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+                    
+                    responseData = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform)
+                        .SignInWithToken(token, HttpContext.Current.Session.GetSessionID(), SiteHelper.GetClientIP(), initObj.UDID, isSingleLogin);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(responseData, groupID, initObj.UDID, initObj.Platform);
@@ -1498,7 +1500,23 @@ namespace TVPApiServices
                     // if sign in successful - generate access token
                     if (response.Status.Code == (int)eStatus.OK && response.AdminUser != null)
                     {
-                        var accessToken = AuthorizationManager.Instance.GenerateAccessToken(response.AdminUser.Id.ToString(), groupID, true, false, initObj.UDID, initObj.Platform);
+                        var userId = response.AdminUser.Id.ToString();
+                        
+                        var domainId = 0;
+                        var domainResponse = Core.Domains.Module.GetDomainByUser(groupID, userId);
+                        if (domainResponse != null && domainResponse.Status != null && domainResponse.Status.Code == (int)eStatus.OK && domainResponse.Domain != null)
+                        {
+                            domainId = domainResponse.Domain.m_nDomainID;
+                        }
+
+                        List<long> userRoleIds = null;
+                        var userRoleIdsResponse = Core.Users.Module.GetUserRoleIds(groupID, userId);
+                        if (userRoleIdsResponse != null && userRoleIdsResponse.Status != null && domainResponse.Status.Code == (int)eStatus.OK && userRoleIdsResponse.Ids != null)
+                        {
+                            userRoleIds = userRoleIdsResponse.Ids;
+                        }
+
+                        var accessToken = AuthorizationManager.Instance.GenerateAccessToken(userId, groupID, true, false, initObj.UDID, initObj.Platform, domainId, userRoleIds);
                         HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", accessToken.AccessToken, accessToken.AccessTokenExpiration));
                         HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", accessToken.RefreshToken, accessToken.RefreshTokenExpiration));
                     }
@@ -1506,8 +1524,10 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items["Error"] = ex;
-                    response = new AdminUserResponse();
-                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                    response = new AdminUserResponse
+                    {
+                        Status = ResponseUtils.ReturnGeneralErrorStatus()
+                    };
                 }
             }
             else

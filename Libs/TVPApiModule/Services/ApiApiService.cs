@@ -506,19 +506,20 @@ namespace TVPApiModule.Services
 
         public AdminUserResponse AdminSignIn(string username, string password)
         {
-            AdminUserResponse response = new TVPApiModule.Objects.Responses.AdminUserResponse(); ;
+            var response = new AdminUserResponse();
 
             AdminAccountUserResponse result = new AdminAccountUserResponse();
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     result = Core.Api.Module.AdminSignIn(m_groupID, username, password);
                 }
+
                 if (result != null && result.m_status == AdminUserStatus.OK)
                 {
                     response.AdminUser = new AdminUser(result);
-                    response.Status = new TVPApiModule.Objects.Responses.Status((int)eStatus.OK, "OK");
+                    response.Status = new Status((int)eStatus.OK, "OK");
                 }
                 else
                 {
