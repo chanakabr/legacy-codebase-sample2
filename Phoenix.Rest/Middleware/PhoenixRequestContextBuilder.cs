@@ -23,7 +23,6 @@ using WebAPI.Reflection;
 
 namespace Phoenix.Rest.Middleware
 {
-
     public class PhoenixRequestContextBuilder
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -153,9 +152,6 @@ namespace Phoenix.Rest.Middleware
             return new Dictionary<string, object>(parsedActionParams, StringComparer.OrdinalIgnoreCase);
         }
 
-
-
-
         private RequestRouteData GetRouteData(HttpRequest request)
         {
             if (TryGetRouteDataFromUrl(request, out var routeDataFromUrl)) { return routeDataFromUrl; }
@@ -232,7 +228,6 @@ namespace Phoenix.Rest.Middleware
 
             return isRoutDataFoundInUrl;
         }
-
 
         private async Task<IDictionary<string, object>> GetActionParamsFromPostBody(HttpRequest request, PhoenixRequestContext context)
         {
@@ -374,5 +369,4 @@ namespace Phoenix.Rest.Middleware
             return ksVal.Length > _LegacyAccessTokenLength;
         }
     }
-
 }

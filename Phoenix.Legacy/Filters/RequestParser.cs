@@ -21,11 +21,9 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
-//using EventManager;
 
 namespace WebAPI.Filters
 {
-
     public class RequestParser : ActionFilterAttribute
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -61,13 +59,10 @@ namespace WebAPI.Filters
             }
         }
 
-
         public static object GetRequestPayload()
         {
             return HttpContext.Current.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS];
         }
-
-        
 
         private bool Equals(byte[] source, byte[] separator, int index)
         {
@@ -202,7 +197,7 @@ namespace WebAPI.Filters
                     Version version;
                     if (!Version.TryParse((string)formData["apiVersion"], out version))
                         throw new RequestParserException(RequestParserException.INVALID_VERSION, formData["apiVersion"]);
-                    
+
                     HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION] = version;
                 }
             }
@@ -491,10 +486,6 @@ namespace WebAPI.Filters
             base.OnActionExecuting(actionContext);
         }
 
-        
-
-        
-
         private Dictionary<string, object> groupParams(Dictionary<string, object> tokens)
         {
             Dictionary<string, object> paramsDic = new Dictionary<string, object>();
@@ -582,10 +573,6 @@ namespace WebAPI.Filters
             array = tmpArr;
         }
 
-
-
-        
-
         private static void createErrorResponse(HttpActionContext actionContext, int errorCode, string msg)
         {
             //We cannot use the ApiException* concept in Filters, so we manually invoke exceptions here.
@@ -608,8 +595,5 @@ namespace WebAPI.Filters
                 actionContext.Response.StatusCode = failureHttpCode.First().HttpStatusCode;
             }
         }
-
-        
-
     }
 }
