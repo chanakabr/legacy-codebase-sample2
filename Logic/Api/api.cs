@@ -11949,8 +11949,6 @@ namespace Core.Api
                 return objectVirtualAssetFilter;
             }
 
-            string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter} {assetFilter})";
-
             if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
             {
                 log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
@@ -11962,51 +11960,27 @@ namespace Core.Api
                 objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.None;
 
                 var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
+                List<string> extraReturnFields = new List<string>() { "metas."+topic.SystemName };
 
-                List<string> extraReturnFields = new List<string>() { topic.SystemName };
+                string filterIds = GetIdsKsql(objectIds, topic.SystemName);
+                string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter} {assetFilter} {filterIds})";
 
-                int ps = pageSize;
-                int pi = pageIndex;
-
-                if (objectIds?.Count > 0)
-                {
-                    ps = 0;
-                    pi = 0;
-                }
-
-                var assets = SearchAssetsExtended(groupId, filter, pi, ps, true, 0, true, string.Empty, string.Empty, 
+                var assets = SearchAssetsExtended(groupId, filter, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty, 
                     assetSearchDefinition.UserId.ToString(), 0, 0, true, assetSearchDefinition.IsAllowedToViewInactiveAssets, 
                     extraReturnFields, order);
 
                 if (assets != null && assets.searchResults?.Count > 0)
                 {
-                    //TODO totalitems!!!!
-                    List<KeyValuePair<eAssetTypes, long>> kvp = assets.searchResults.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
-                    var virtualAssets = AssetManager.GetAssets(groupId, kvp, false);
-
+                    objectVirtualAssetFilter.TotalItems = assets.m_nTotalItems;
                     objectVirtualAssetFilter.ObjectIds = new List<long>();
-
                     long objectId = 0;
                     ExtendedSearchResult esr;
+
                     foreach (var item in assets.searchResults)
                     {
-                        var virtualAsset = AssetManager.GetAsset(groupId, long.Parse(item.AssetId), eAssetTypes.MEDIA, false);
-                        if (virtualAsset.HasObject())
-                        {
-                            var meta = virtualAsset.Object.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
-                            if (meta != null && long.TryParse(meta.m_sValue, out objectId))
-                            {
-                                if (objectIds == null || objectIds.Count == 0 || objectIds.Contains(objectId))
-                                {
-                                    objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
-                                    objectVirtualAssetFilter.ObjectIds.Add(objectId);
-                                }
-                            }
-                        }
-                        
-                        /*
                         esr = (ExtendedSearchResult)item;
-                        string oId = GetStringParamFromExtendedSearchResult(esr, topic.SystemName);
+                        string oId = GetStringParamFromExtendedSearchResult(esr, extraReturnFields[0]);
+
                         if (long.TryParse(oId, out objectId))
                         {
                             if (objectIds == null || objectIds.Count == 0 || objectIds.Contains(objectId))
@@ -12015,18 +11989,31 @@ namespace Core.Api
                                 objectVirtualAssetFilter.ObjectIds.Add(objectId);
                             }
                         }
-                        */
-                    }
-
-                    if (objectVirtualAssetFilter.ObjectIds?.Count > 0 && pageSize > 0 && (pageIndex != pi || pageSize != ps))
-                    {
-                        objectVirtualAssetFilter.ObjectIds = objectVirtualAssetFilter.ObjectIds.Skip(pageIndex * pageSize).Take(pageSize).ToList();
                     }
                 }
             }
 
             return objectVirtualAssetFilter;
-        }       
+        }
+
+        private static string GetIdsKsql(HashSet<long> ids, string meta)
+        {
+            if (ids == null || ids.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            StringBuilder response = new StringBuilder(" (or");
+
+            foreach (var id in ids)
+            {
+                response.Append($" {meta}='{id}'");
+            }
+
+            response.Append($")");
+            
+            return response.ToString();
+        }
 
         public static Status HandleBlockingSegment<T>(int groupId, string userId, string udid, string ip, int domainId,
             ObjectVirtualAssetInfoType virtualAssetInfoType, string objectId) where T : SegmentActionObjectVirtualAssetBlockAction
