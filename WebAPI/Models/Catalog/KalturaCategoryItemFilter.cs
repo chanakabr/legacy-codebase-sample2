@@ -79,7 +79,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "kSql")]
         [JsonProperty("kSql")]
-        [XmlElement(ElementName = "kSql", IsNullable = false)]
+        [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string Ksql { get; set; }
 
@@ -88,7 +88,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "rootOnly")]
         [JsonProperty("rootOnly")]
-        [XmlElement(ElementName = "rootOnly", IsNullable = false)]
+        [XmlElement(ElementName = "rootOnly", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public bool RootOnly { get; set; }
 
