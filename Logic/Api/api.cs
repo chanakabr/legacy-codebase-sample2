@@ -11937,7 +11937,7 @@ namespace Core.Api
 
             string assetFilter = GetObjectVirtualAssetsFilters(groupId, assetSearchDefinition, objectVirtualAssetInfo);
 
-            if (string.IsNullOrEmpty(assetFilter) && string.IsNullOrEmpty(assetSearchDefinition.Filter))
+            if (string.IsNullOrEmpty(assetFilter) && string.IsNullOrEmpty(assetSearchDefinition.Filter) && order == null)
             {
                 objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
                 if (objectIds?.Count > 0)
@@ -11945,6 +11945,7 @@ namespace Core.Api
                     objectVirtualAssetFilter.ObjectIds = objectIds.ToList();
                     objectVirtualAssetFilter.TotalItems = objectIds.Count;
                 }
+
                 return objectVirtualAssetFilter;
             }
 

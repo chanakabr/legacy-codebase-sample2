@@ -340,15 +340,16 @@ namespace Core.Catalog.Handlers
         public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemSearchFilter filter, CorePager pager)
         {
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
-            
+
             List<long> categoriesIds = new List<long>();
 
-            if (string.IsNullOrEmpty(filter.Ksql) && !filter.RootOnly)
-            {
-                return List(contextData, new CategoryItemFilter(), pager);
-            }
+            //TODO Anat: ask Shay
+            //if (string.IsNullOrEmpty(filter.Ksql) && !filter.RootOnly)
+            //{
+            //    return List(contextData, new CategoryItemFilter(), pager);
+            //}
 
-            if (!filter.RootOnly)
+            if (filter.RootOnly)
             {
                 var categories = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId, null, true);
                 if (categories?.Count > 0)
@@ -363,7 +364,7 @@ namespace Core.Catalog.Handlers
                 {
                     Filter = filter.Ksql,
                     UserId = contextData.UserId.Value,
-                    IsAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true) 
+                    IsAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true)
                 };
 
                 HashSet<long> categories = null;
@@ -393,42 +394,22 @@ namespace Core.Catalog.Handlers
                 categoriesIds = result.ObjectIds;
             }
 
+            var categoryItems = new List<CategoryItem>();
+
             if (categoriesIds?.Count > 0)
             {
-                List<CategoryItem> categories = new List<CategoryItem>();
                 foreach (var item in categoriesIds)
                 {
                     var categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, item);
-                    categories.Add(categoryItem);
+                    categoryItems.Add(categoryItem);
                 }
             }
+            if (categoryItems?.Count > 0)
+            {
+                response.Objects = categoryItems;
+            }
 
-
-
-            
-
-            //int totalCount;
-            //result.Objects = SegmentationType.List(groupId, filter.ObjectIds?.ToList(), pageIndex, pageSize, out totalCount);
-            //result.TotalItems = totalCount;
-            //result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-
-            //var categoriesMap = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId);
-            //if (categoriesMap?.Count > 0)
-            //{
-            //    List<long> categoriesIds = categoriesMap.Where(x => x.Value.ParentId == 0).Select(x => x.Key).ToList();
-            //    foreach (var categoryId in categoriesIds)
-            //    {
-            //        categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, categoryId);
-            //        if (categoryItem != null)
-            //        {
-            //            response.Objects.Add(categoryItem);
-            //        }
-            //    }
-
-            //    response.TotalItems = response.Objects.Count;
-            //    response.SetStatus(eResponseStatus.OK);
-            //}
+            response.SetStatus(eResponseStatus.OK);
 
             return response;
         }

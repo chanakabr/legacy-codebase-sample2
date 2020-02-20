@@ -79,7 +79,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "kSql")]
         [JsonProperty("kSql")]
-        [XmlElement(ElementName = "kSql", IsNullable = true)]
+        [XmlElement(ElementName = "kSql")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string Ksql { get; set; }
 
@@ -88,7 +88,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "rootOnly")]
         [JsonProperty("rootOnly")]
-        [XmlElement(ElementName = "rootOnly", IsNullable = true)]
+        [XmlElement(ElementName = "rootOnly")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public bool RootOnly { get; set; }
 
@@ -98,11 +98,7 @@ namespace WebAPI.Models.Catalog
         }
 
         public override void Validate()
-        {
-            if (string.IsNullOrEmpty(Ksql))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
-            }
+        {           
         }
 
         public KalturaCategoryItemSearchFilter() : base()
