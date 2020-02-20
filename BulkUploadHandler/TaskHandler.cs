@@ -17,7 +17,7 @@ namespace BulkUploadHandler
 
             try
             {
-                log.DebugFormat("starting BulkUpload task. data={0}.", data);
+                log.Debug($"starting BulkUpload task. data={data}.");
                 var request = JsonConvert.DeserializeObject<BulkUploadRequest>(data);
                 var processBulkUploadStatus = BulkUploadManager.ProcessBulkUpload(request.GroupID, request.UserId, request.BulkUploadId);
 
@@ -32,7 +32,7 @@ namespace BulkUploadHandler
             }
             catch (Exception ex)
             {
-                log.Error($"An Exception was occurred in BulkUploadHandler.HandleTask. data={data}.", ex);
+                log.Error($"An Exception was occurred in BulkUploadHandler.HandleTask. data={data}, exception: {ex.ToString()}.");
                 throw ex;
             }
 
