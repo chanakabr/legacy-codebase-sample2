@@ -11980,7 +11980,7 @@ namespace Core.Api
                 if (assets != null && assets.searchResults?.Count > 0)
                 {
                     //TODO totalitems!!!!
-                    List<KeyValuePair<eAssetTypes, long>> kvp = assets.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
+                    List<KeyValuePair<eAssetTypes, long>> kvp = assets.searchResults.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
                     var virtualAssets = AssetManager.GetAssets(groupId, kvp, false);
 
                     objectVirtualAssetFilter.ObjectIds = new List<long>();
