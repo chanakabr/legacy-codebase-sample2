@@ -6,7 +6,6 @@ using System.Web;
 using System.Web.Http.Controllers;
 using System.Web.Http.ModelBinding;
 using System.Web.Http.ModelBinding.Binders;
-using TVinciShared;
 
 namespace WebAPI.Utils
 {
@@ -36,12 +35,12 @@ namespace WebAPI.Utils
 
         public static string MaskSensitiveObject(string originalVal)
         {
-            return EncryptUtils.Encrypt(originalVal, passPhrase);
+            return EncryptionUtils.Encrypt(originalVal, passPhrase);
         }
 
         public static string UnmaskSensitiveObject(string maskedVal)
         {
-            return EncryptUtils.Decrypt(maskedVal, passPhrase);
+            return EncryptionUtils.Decrypt(maskedVal, passPhrase);
         }
     }
 }

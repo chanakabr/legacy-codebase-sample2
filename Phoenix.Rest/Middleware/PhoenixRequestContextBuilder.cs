@@ -1,6 +1,6 @@
 using ConfigurationManager;
 using KLogMonitor;
-using KSWrapper;
+using WebAPI.Managers.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
@@ -39,7 +39,7 @@ namespace Phoenix.Rest.Middleware
         {
             using var km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START);
 
-            KSManager.ClearOnRequest();
+            KS.ClearOnRequest();
             var phoenixContext = new PhoenixRequestContext();
             context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] = phoenixContext;
             context.Items[RequestContextUtils.REQUEST_TIME] = DateTime.UtcNow;
