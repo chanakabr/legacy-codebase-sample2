@@ -275,15 +275,18 @@ namespace WebAPI.App_Start
                 }
                 catch (ApiException ex)
                 {
+                    log.Error($"An ApiException was occurred in ExcelFormatter.WriteToStreamAsync. value: {value}, details:{ex.ToString()}.");
                     value = CreateStatusWrapper(ex, value);
                 }
                 catch (Exception ex)
                 {
+                    log.Error($"An Exception was occurred in ExcelFormatter.WriteToStreamAsync. value: {value}, details:{ex.ToString()}.");
                     var apiException = new ApiException(ex, HttpStatusCode.InternalServerError);
                     value = CreateStatusWrapper(apiException, value);
                 }
             }
 
+            log.Debug($"ExcelFormatter.WriteToStreamAsync invalid value is: {value}.");
             if (HttpContext.Current.Request.GetHttpMethod().Equals("POST") && HttpContext.Current.Response.StatusCode == (int)HttpStatusCode.OK)
             {
                 HttpContext.Current.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
