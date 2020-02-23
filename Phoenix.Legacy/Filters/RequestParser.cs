@@ -16,11 +16,11 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
+using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
-using TVinciShared;
 
 namespace WebAPI.Filters
 {
