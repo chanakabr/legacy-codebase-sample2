@@ -4154,7 +4154,7 @@ namespace WebAPI.Clients
 
         internal KalturaCategoryTree Duplicate(int groupId, long userId, long categoryItemId, string name)
         {
-            Func<GenericResponse<CategoryTree>> duplicateFunc = () => CategoryItemHandler.Instance.Duplicate(groupId, userId, categoryItemId);
+            Func<GenericResponse<CategoryTree>> duplicateFunc = () => CategoryItemHandler.Instance.Duplicate(groupId, userId, categoryItemId, name);
 
             KalturaCategoryTree response =
                 ClientUtils.GetResponseFromWS<KalturaCategoryTree, CategoryTree>(duplicateFunc);

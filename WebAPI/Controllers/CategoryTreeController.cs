@@ -15,7 +15,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Duplicate category Item
         /// </summary>        
-        /// <param name="categoryItemId">Category item identifier</param>        
+        /// <param name="categoryItemId">Category item identifier</param>  
+        /// <param name="name">Root category name</param>  
         [Action("duplicate")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public KalturaCategoryTree Duplicate(long categoryItemId, string name)
@@ -27,7 +28,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().Duplicate(groupId, long.Parse(userId), categoryItemId);
+                response = ClientsManager.CatalogClient().Duplicate(groupId, long.Parse(userId), categoryItemId, name);
             }
             catch (ClientException ex)
             {
