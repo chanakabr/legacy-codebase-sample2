@@ -1243,7 +1243,7 @@ namespace CachingProvider.LayeredCache
             return $"invalidationKey_groupCategoriesKey_groupId_{groupId}";
         }      
 
-        public static string GetCategoryIdInvalidationKey(int categoryId)
+        public static string GetCategoryIdInvalidationKey(long categoryId)
         {
             return $"invalidationKey_categoryId_{categoryId}";
         }

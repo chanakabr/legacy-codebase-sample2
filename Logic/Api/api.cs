@@ -2301,8 +2301,8 @@ namespace Core.Api
 
             }
             return res;
-        }       
-        
+        }
+
         public static List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
             List<EPGChannelProgrammeObject> res = new List<EPGChannelProgrammeObject>();
@@ -11919,7 +11919,7 @@ namespace Core.Api
                 }
                 return objectVirtualAssetFilter;
             }
-           
+
             if (assetSearchDefinition == null)
             {
                 assetSearchDefinition = new AssetSearchDefinition() { Filter = string.Empty };
@@ -11960,13 +11960,13 @@ namespace Core.Api
                 objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.None;
 
                 var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
-                List<string> extraReturnFields = new List<string>() { "metas."+topic.SystemName };
+                List<string> extraReturnFields = new List<string>() { "metas." + topic.SystemName };
 
                 string filterIds = GetIdsKsql(objectIds, topic.SystemName);
                 string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter} {assetFilter} {filterIds})";
 
-                var assets = SearchAssetsExtended(groupId, filter, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty, 
-                    assetSearchDefinition.UserId.ToString(), 0, 0, true, assetSearchDefinition.IsAllowedToViewInactiveAssets, 
+                var assets = SearchAssetsExtended(groupId, filter, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty,
+                    assetSearchDefinition.UserId.ToString(), 0, 0, true, assetSearchDefinition.IsAllowedToViewInactiveAssets,
                     extraReturnFields, order);
 
                 if (assets != null && assets.searchResults?.Count > 0)
@@ -12011,7 +12011,7 @@ namespace Core.Api
             }
 
             response.Append($")");
-            
+
             return response.ToString();
         }
 
@@ -12078,9 +12078,9 @@ namespace Core.Api
             {
                 segmentsIds.AddRange(userSegments.Select(x => x.SegmentId).ToList());
             }
-            
-            var user = Users.Module.GetUserData(groupId, userId, string.Empty);            
-            
+
+            var user = Users.Module.GetUserData(groupId, userId, string.Empty);
+
             if (user != null && user.m_user != null && user.m_user.m_domianID > 0)
             {
                 var householdSegments = HouseholdSegment.List(groupId, user.m_user.m_domianID, out totalCount);
@@ -12092,7 +12092,7 @@ namespace Core.Api
 
             if (segmentsIds?.Count > 0)
             {
-                var  segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(segmentsIds);
+                var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(segmentsIds);
 
                 if (segmentTypeIds?.Count > 0)
                 {
@@ -12105,7 +12105,7 @@ namespace Core.Api
 
         private static string GetObjectVirtualAssetsFilters(int groupId, AssetSearchDefinition assetSearchDefinition, ObjectVirtualAssetInfo objectVirtualAssetInfo)
         {
-            if(assetSearchDefinition == null || assetSearchDefinition.UserId == 0)
+            if (assetSearchDefinition == null || assetSearchDefinition.UserId == 0 || assetSearchDefinition.NoSegmentsFilter)
             {
                 return string.Empty;
             }

@@ -58,8 +58,6 @@ namespace Core.Catalog.Handlers
                     }
                 }
 
-                List<KeyValuePair<long, int>> channels = null;
-
                 if (objectToAdd.UnifiedChannels?.Count > 0)
                 {
                     if (!IsUnifiedChannelsValid(contextData.GroupId, contextData.UserId.HasValue ? contextData.UserId.Value : 0, objectToAdd.UnifiedChannels))
@@ -67,40 +65,14 @@ namespace Core.Catalog.Handlers
                         response.SetStatus(eResponseStatus.ChannelDoesNotExist, "Channel does not exist");
                         return response;
                     }
-
-                    channels = objectToAdd.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
                 }
 
-                long id = CatalogDAL.InsertCategory(contextData.GroupId, contextData.UserId, objectToAdd.Name, channels, objectToAdd.DynamicData);
-
-                if (id == 0)
+                if (!CategoriesManager.Add(contextData.GroupId, contextData.UserId.Value, objectToAdd))
                 {
-                    log.Error($"Error while InsertCategory. contextData: {contextData.ToString()}.");
+                    response.SetStatus(eResponseStatus.Error, "Failed to add item");
                     return response;
                 }
 
-                // set child category's order
-                if (objectToAdd.ChildCategoriesIds?.Count > 0 && !CatalogDAL.UpdateCategoryOrderNum(contextData.GroupId, contextData.UserId, id, objectToAdd.ChildCategoriesIds))
-                {
-                    log.Error($"Error while order child categories. contextData: {contextData.ToString()}. new categoryId: {id}");
-                    response.SetStatus(eResponseStatus.Error);
-                    return response;
-                }
-
-                // Add VirtualAssetInfo for new category 
-                var virtualAssetInfo = new VirtualAssetInfo()
-                {
-                    Type = ObjectVirtualAssetInfoType.Category,
-                    Id = id,
-                    Name = objectToAdd.Name,
-                    UserId = contextData.UserId.Value
-                };
-
-                api.AddVirtualAsset(contextData.GroupId, virtualAssetInfo);
-
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
-
-                objectToAdd.Id = id;
                 response.Object = objectToAdd;
                 response.Status.Set(eResponseStatus.OK);
             }
@@ -207,9 +179,21 @@ namespace Core.Catalog.Handlers
                 if (updateChildCategories || categoriesToRemove.Count > 0)
                 {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
+                    foreach (var item in categoriesToRemove)
+                    {
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item));
+                    }
+
+                    if (objectToUpdate.ChildCategoriesIds?.Count > 0)
+                    {
+                        foreach (var item in objectToUpdate.ChildCategoriesIds)
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item));
+                        }
+                    }
                 }
 
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(contextData.GroupId));
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(objectToUpdate.Id));
 
                 response.Object = CategoriesManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id);
                 response.Status.Set(eResponseStatus.OK);
@@ -312,6 +296,7 @@ namespace Core.Catalog.Handlers
         {
             throw new NotImplementedException();
         }
+
         public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemByIdInFilter filter, CorePager pager)
         {
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
@@ -337,79 +322,50 @@ namespace Core.Catalog.Handlers
 
             return response;
         }
+
         public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemSearchFilter filter, CorePager pager)
         {
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
 
             List<long> categoriesIds = new List<long>();
-            int totalItems = 0;
-
-            //TODO Anat: ask Shay
-            //if (string.IsNullOrEmpty(filter.Ksql) && !filter.RootOnly)
-            //{
-            //    return List(contextData, new CategoryItemFilter(), pager);
-            //}
 
             if (filter.RootOnly)
             {
-                var categories = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId, null, true);
-                if (categories?.Count > 0)
+                var groupCategories = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId, null, true);
+                if (groupCategories?.Count > 0)
                 {
-                    categoriesIds = categories.Keys.ToList();
+                    categoriesIds = groupCategories.Keys.ToList();
                 }
-            }
-
-            if (!string.IsNullOrEmpty(filter.Ksql) || categoriesIds?.Count > 0)
-            {
-                AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition()
+                else
                 {
-                    Filter = filter.Ksql,
-                    UserId = contextData.UserId.Value,
-                    IsAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true)
-                };
-
-                HashSet<long> categories = null;
-                if (categoriesIds.Count > 0)
-                {
-                    categories = new HashSet<long>();
-                    foreach (long item in categoriesIds)
-                    {
-                        categories.Add(item);
-                    }
-                }
-
-                var result = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Category,
-                                                                categories, pager.PageIndex, pager.PageSize, filter.OrderBy);
-
-                if (result.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
-                {
-                    response.SetStatus(result.Status);
+                    response.SetStatus(eResponseStatus.OK);
                     return response;
                 }
-
-                if (result.ResultStatus == ObjectVirtualAssetFilterStatus.None)
-                {
-                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-
-                categoriesIds = result.ObjectIds;
-                totalItems = result.TotalItems;
             }
 
-            var categoryItems = new List<CategoryItem>();
+            AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition()
+            {
+                Filter = filter.Ksql,
+                UserId = contextData.UserId.Value,
+                IsAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true),
+                NoSegmentsFilter = true
+            };
 
-            if (categoriesIds?.Count > 0)
+            var categories = new HashSet<long>(categoriesIds);
+
+            var result = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Category,
+                                                            categories, pager.PageIndex, pager.PageSize, filter.OrderBy);
+
+            if (result.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
             {
-                foreach (var item in categoriesIds)
-                {
-                    var categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, item);
-                    categoryItems.Add(categoryItem);
-                }
+                response.SetStatus(result.Status);
+                return response;
             }
-            if (categoryItems?.Count > 0)
+
+            if (result.ObjectIds?.Count > 0)
             {
-                response.Objects = categoryItems;
-                response.TotalItems = totalItems;
+                response.Objects = categoriesIds.Select(x => CategoriesManager.GetCategoryItem(contextData.GroupId, x)).ToList();
+                response.TotalItems = result.TotalItems;
             }
 
             response.SetStatus(eResponseStatus.OK);
@@ -417,31 +373,27 @@ namespace Core.Catalog.Handlers
             return response;
         }
 
-        public GenericResponse<CategoryTree> Duplicate(int groupId, long userId, long id)
+        public GenericResponse<CategoryTree> Duplicate(int groupId, long userId, long id, string name)
         {
             var response = new GenericResponse<CategoryTree>();
 
             try
             {
-                // Get category to duplicate
-                //var categoryToDuplicate = CatalogManagement.CategoriesManagerGetGroupCategory(groupId, id);
-                //if (categoryToDuplicate == null)
-                //{
-                //    response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
-                //    return response;
-                //}
+                CategoryItem root = CategoriesManager.GetCategoryItem(groupId, id);
 
-                //long newCategoryId = CatalogDAL.InsertCategory(groupId, userId, categoryToDuplicate.Name, categoryToDuplicate.ParentCategoryId, categoryToDuplicate.DynamicData);
+                if (root == null)
+                {
+                    response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
+                    return response;
+                }
 
-                //if (newCategoryId == 0)
-                //{
-                //    log.Error($"Error while DuplicateCategory. groupId: {groupId} id: {id}.");
-                //    return response;
-                //}
+                root.Name = name;
 
-                //categoryToDuplicate.Id = newCategoryId;
-                //response.Object = new CategoryTree() { Id = newCategoryId, Name = categoryToDuplicate.Name };
-                //response.Status.Set(eResponseStatus.OK);
+                Dictionary<long, long> newTreeMap = new Dictionary<long, long>();
+
+                DuplicateChildren(groupId, userId, root, newTreeMap);
+
+                response = GetCategoryTree(groupId, userId, newTreeMap[id]);
             }
             catch (Exception ex)
             {
@@ -451,57 +403,137 @@ namespace Core.Catalog.Handlers
             return response;
         }
 
-        public GenericResponse<CategoryTree> GetCategoryTree(int groupId, long userId, long categoryItemId)
+        private void DuplicateChildren(int groupId, long userId, CategoryItem parent, Dictionary<long, long> newTreeMap)
+        {
+            List<long> children = new List<long>();
+            if (parent.ChildCategoriesIds?.Count < 0)
+            {
+                CategoryItem ci;
+                foreach (var item in parent.ChildCategoriesIds)
+                {
+                    ci = CategoriesManager.GetCategoryItem(groupId, item);
+                    DuplicateChildren(groupId, userId, ci, newTreeMap);
+                    if (newTreeMap.ContainsKey(item))
+                    {
+                        children.Add(newTreeMap[item]);
+                    }
+                }
+            }
+
+            CategoryItem newItem = new CategoryItem()
+            {
+                ChildCategoriesIds = children,
+                DynamicData = parent.DynamicData,
+                Name = parent.Name,
+                UnifiedChannels = parent.UnifiedChannels
+            };
+
+            if (CategoriesManager.Add(groupId, userId, newItem))
+            {
+                newTreeMap.Add(parent.Id, newItem.Id);
+            }
+        }
+
+        public GenericResponse<CategoryTree> GetCategoryTree(int groupId, long userId, long id)
         {
             GenericResponse<CategoryTree> response = new GenericResponse<CategoryTree>();
 
             CategoryTree categoryTree = null;
 
             // Get the current category
-            var categoryItem = CategoriesManager.GetCategoryItem(groupId, categoryItemId);
+            var categoryItem = CategoriesManager.GetCategoryItem(groupId, id);
             if (categoryItem == null)
             {
                 response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
                 return response;
             }
 
-            categoryTree = new CategoryTree()
+            if (categoryItem.ParentCategoryId > 0)
             {
-                Id = categoryItem.Id,
-                DynamicData = categoryItem.DynamicData,
-                Name = categoryItem.Name
-                //UnifiedChannels = categoryItem.UnifiedChannels                
-            };
-
-            if (categoryItem.ChildCategoriesIds?.Count > 0)
-            {
-                categoryTree.Children = new List<CategoryTree>();
-                //TODO anat: images
-
-                foreach (var categoryId in categoryItem.ChildCategoriesIds)
-                {
-
-                }
+                response.SetStatus(eResponseStatus.Error, "Category must be root");
+                return response;
             }
 
-            //TODO anat: images
+            categoryTree = BuildCategoryTree(groupId, categoryItem);
+
+            if (categoryItem?.ChildCategoriesIds?.Count > 0)
+            {
+                List<CategoryItem> childern = categoryItem.ChildCategoriesIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
+                categoryTree.Children = FindTreeChildren(groupId, childern, categoryTree.Id);
+            }
 
             response.Object = categoryTree;
             response.SetStatus(eResponseStatus.OK);
+
             return response;
+        }
+
+        private List<CategoryTree> FindTreeChildren(int groupId, List<CategoryItem> children, long parentCategoryID)
+        {
+            List<CategoryTree> response = new List<CategoryTree>();
+            CategoryTree ct;
+            foreach (var c in children)
+            {
+                ct = BuildCategoryTree(groupId, c);
+                var ch = c.ChildCategoriesIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
+                ct.Children = FindTreeChildren(groupId, ch, c.Id);
+                response.Add(ct);
+            }
+
+            return response;
+        }
+
+        private CategoryTree BuildCategoryTree(int groupId, CategoryItem categoryItem)
+        {
+            CategoryTree categoryTree = new CategoryTree(categoryItem);
+
+            //1. channels
+            if (categoryItem.UnifiedChannels?.Count > 0)
+            {
+                categoryTree.UnifiedChannels = new List<UnifiedChannelInfo>();
+                var uci = GetUnifiedChannelsInfo(groupId, 0, categoryItem.UnifiedChannels);
+
+                foreach (var item in categoryItem.UnifiedChannels)
+                {
+                    if (uci.ContainsKey($"{item.Id}_{item.Type}"))
+                    {
+                        categoryTree.UnifiedChannels.Add(uci[$"{item.Id}_{item.Type}"]);
+                    }
+                }
+            }
+
+            //2. images
+
+            return categoryTree;
         }
 
         private bool IsUnifiedChannelsValid(int groupId, long userId, List<UnifiedChannel> unifiedChannels)
         {
+            var unifiedChannelInfo = GetUnifiedChannelsInfo(groupId, userId, unifiedChannels);
+            return unifiedChannelInfo != null && unifiedChannels.Count == unifiedChannelInfo.Count;
+        }
+
+        private Dictionary<string, UnifiedChannelInfo> GetUnifiedChannelsInfo(int groupId, long userId, List<UnifiedChannel> unifiedChannels)
+        {
+            Dictionary<string, UnifiedChannelInfo> channelsInfo = new Dictionary<string, UnifiedChannelInfo>();
+
             List<long> externalChannels = unifiedChannels.Where(x => x.Type == UnifiedChannelType.External).Select(y => y.Id).ToList();
             List<long> intenalChannels = unifiedChannels.Where(x => x.Type == UnifiedChannelType.Internal).Select(y => y.Id).ToList();
 
             //check external channel exist
             foreach (var channelId in externalChannels)
             {
-                if (CatalogDAL.GetExternalChannelById(groupId, (int)channelId) == null)
+                var ec = CatalogDAL.GetExternalChannelById(groupId, (int)channelId);
+
+                if (ec != null)
                 {
-                    return false;
+                    UnifiedChannelInfo uci = new UnifiedChannelInfo()
+                    {
+                        Id = channelId,
+                        Type = UnifiedChannelType.External,
+                        Name = ec.Name
+                    };
+                    channelsInfo.Add($"{channelId}_{UnifiedChannelType.External}", uci);
                 }
             }
 
@@ -509,12 +541,19 @@ namespace Core.Catalog.Handlers
             foreach (var channelId in intenalChannels)
             {
                 var channel = ChannelManager.GetChannelById(groupId, (int)channelId, true, userId);
-                if (!channel.HasObject())
+                if (channel.HasObject())
                 {
-                    return false;
+                    UnifiedChannelInfo uci = new UnifiedChannelInfo()
+                    {
+                        Id = channelId,
+                        Type = UnifiedChannelType.Internal,
+                        Name = channel.Object.m_sName
+                    };
+                    channelsInfo.Add($"{channelId}_{UnifiedChannelType.Internal}", uci);
                 }
             }
-            return true;
+
+            return channelsInfo; ;
         }
     }
 }

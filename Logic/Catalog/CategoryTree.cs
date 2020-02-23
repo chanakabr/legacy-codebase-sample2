@@ -12,5 +12,13 @@ namespace ApiLogic.Catalog
         public Dictionary<string,string> DynamicData { get; set; }
         
         public List<Picture> Images;
+
+        public CategoryTree(CategoryItem categoryItem)
+        {
+            this.Id = categoryItem.Id;
+            this.Name = categoryItem.Name;
+            this.DynamicData = categoryItem.DynamicData;
+            //this.UnifiedChannels = categoryItem.UnifiedChannels;
+        }
     }
 }

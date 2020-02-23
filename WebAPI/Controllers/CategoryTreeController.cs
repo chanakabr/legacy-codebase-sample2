@@ -18,7 +18,7 @@ namespace WebAPI.Controllers
         /// <param name="categoryItemId">Category item identifier</param>        
         [Action("duplicate")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public KalturaCategoryTree Duplicate(long categoryItemId)
+        static public KalturaCategoryTree Duplicate(long categoryItemId, string name)
         {
             KalturaCategoryTree response = null;
 

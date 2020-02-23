@@ -2,6 +2,7 @@
 using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using Core.Api;
 using DAL;
 using KLogMonitor;
 using System;
@@ -224,7 +225,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 string key = LayeredCacheKeys.GetCategoryItemKey(groupId, id);
-                string invalidationKey = LayeredCacheKeys.GetCategoryIdInvalidationKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetCategoryIdInvalidationKey(id);
                 if (!LayeredCache.Instance.Get<CategoryItem>(key,
                                                             ref result,
                                                         BuildCategoryItem,
@@ -236,15 +237,6 @@ namespace Core.Catalog.CatalogManagement
                     log.Error($"Failed getting GetCategoryItem from LayeredCache, groupId: {groupId}, key: {key}");
                 }
 
-                if (result != null)
-                {
-                    result.ParentCategoryId = null;
-                    var groupCategories = GetGroupCategoriesIds(groupId, new List<long>() { id });
-                    if (groupCategories.ContainsKey(id) && groupCategories[id].ParentId > 0)
-                    {
-                        result.ParentCategoryId = groupCategories[id].ParentId;
-                    }
-                }
             }
             catch (Exception ex)
             {
@@ -388,6 +380,71 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return new Status(eResponseStatus.OK);
+        }
+
+        internal static bool Add(int groupId, long userId, CategoryItem objectToAdd)
+        {
+            bool result = false;
+            try
+            {
+                List<KeyValuePair<long, int>> channels = null;
+
+                if (objectToAdd.UnifiedChannels?.Count > 0)
+                {
+                    channels = objectToAdd.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
+                }
+
+                long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, channels, objectToAdd.DynamicData);
+
+                if (id == 0)
+                {
+                    log.Error($"Error while InsertCategory");
+                    return result;
+                }
+
+                // set child category's order
+                bool invalidateChilds = false;
+                if (objectToAdd.ChildCategoriesIds?.Count > 0)
+                {
+                    if (!CatalogDAL.UpdateCategoryOrderNum(groupId, userId, id, objectToAdd.ChildCategoriesIds))
+                    {
+                        log.Error($"Error while order child categories. new categoryId: {id}");
+                    }
+                    else
+                    {
+                        invalidateChilds = true;
+                    }
+                }
+
+                // Add VirtualAssetInfo for new category 
+                var virtualAssetInfo = new VirtualAssetInfo()
+                {
+                    Type = ObjectVirtualAssetInfoType.Category,
+                    Id = id,
+                    Name = objectToAdd.Name,
+                    UserId = userId
+                };
+
+                api.AddVirtualAsset(groupId, virtualAssetInfo);
+
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(groupId));
+                if (invalidateChilds)
+                {
+                    foreach (var item in objectToAdd.ChildCategoriesIds)
+                    {
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item));
+                    }
+                }
+
+                objectToAdd.Id = id;
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in CategoryItem add. Name:{objectToAdd.Name}", ex);
+            }
+
+            return result;
         }
     }
 }
