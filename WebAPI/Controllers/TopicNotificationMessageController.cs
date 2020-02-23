@@ -4,7 +4,6 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -28,9 +27,8 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var ks = KSManager.GetKSFromRequest();
-                int groupId = ks.GroupId;
-                string userId = ks.UserId;
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
 
                 if (string.IsNullOrEmpty(topicNotificationMessage.Message))
                 {
@@ -63,8 +61,8 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                string userId = KSManager.GetKSFromRequest().UserId;
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
 
                 if (topicNotificationMessage.Message == string.Empty)
                 {
@@ -94,8 +92,8 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                string userId = KSManager.GetKSFromRequest().UserId;
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
 
                 ClientsManager.NotificationClient().DeleteTopicNotificationMessage(groupId, id, userId);
             }
@@ -126,7 +124,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 response = ClientsManager.NotificationClient().GetTopicNotificationMessages(groupId, filter.TopicNotificationIdEqual, pager.getPageSize(), pager.getPageIndex());
             }
 

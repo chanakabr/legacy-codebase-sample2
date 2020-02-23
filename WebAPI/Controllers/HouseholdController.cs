@@ -30,10 +30,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.HouseholdUserFailed)]
         static public KalturaHousehold Get(int? id = null)
         {
-            var ks = KSManager.GetKSFromRequest();
+            var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             if (!id.HasValue)
                 id = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
@@ -69,10 +69,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.HouseholdUserFailed)]
         static public KalturaHousehold GetOldStandard(List<KalturaHouseholdWithHolder> with = null)
         {
-            var ks = KSManager.GetKSFromRequest();
+            var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             var user = ClientsManager.UsersClient().GetUsersData(groupId, new List<string>() { ks.UserId });
 
@@ -116,10 +116,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.HouseholdUserFailed)]
         static public KalturaHousehold GetByOperator(KalturaIdentifierTypeFilter filter, List<KalturaHouseholdWithHolder> with = null)
         {
-            var ks = KSManager.GetKSFromRequest();
+            var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(filter.Identifier))
             {
@@ -192,10 +192,10 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaHousehold.description");
             }
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
-            var userRoles = RolesManager.GetRoleIds(KSManager.GetKSFromRequest(), false);
+            var userRoles = RolesManager.GetRoleIds(KS.GetFromRequest(), false);
             if (userRoles.Where(ur => ur > RolesManager.MASTER_ROLE_ID).Count() > 0)
             {
                 throw new BadRequestException(BadRequestException.UNABLE_TO_CREATE_HOUSEHOLD_FOR_USER_ROLE);
@@ -237,8 +237,8 @@ namespace WebAPI.Controllers
         {
             KalturaHousehold response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             try
             {
@@ -277,7 +277,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -310,7 +310,7 @@ namespace WebAPI.Controllers
         {
             string chargeId = string.Empty;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -362,7 +362,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "payment_method_external_id");
             }
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -399,7 +399,7 @@ namespace WebAPI.Controllers
         {
             KalturaHousehold household = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -424,7 +424,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RegionDoesNotExist)]
         static public KalturaHousehold Update(KalturaHousehold household)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             // no household to update - return forbidden
@@ -465,7 +465,7 @@ namespace WebAPI.Controllers
         {
             KalturaHousehold household = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
@@ -506,9 +506,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainNotExists)]
         static public bool Delete(int? id = null)
         {
-            var ks = KSManager.GetKSFromRequest();
+            var ks = KS.GetFromRequest();
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -565,9 +565,9 @@ namespace WebAPI.Controllers
         [Obsolete]
         static public bool DeleteByOperator(KalturaIdentifierTypeFilter filter)
         {
-            var ks = KSManager.GetKSFromRequest();
+            var ks = KS.GetFromRequest();
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(filter.Identifier))
             {
@@ -612,8 +612,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainAlreadySuspended)]
         static public bool Suspend(int? roleId = null)
         {
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -641,8 +641,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainAlreadyActive)]
         static public bool Resume()
         {
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -671,9 +671,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainNotExists)]
         static public bool Purge(int id)
         {
-            var ks = KSManager.GetKSFromRequest();
+            var ks = KS.GetFromRequest();
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (id == 0)
             {

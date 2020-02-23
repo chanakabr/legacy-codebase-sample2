@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
@@ -39,8 +38,8 @@ namespace WebAPI.Controllers
         {
             KalturaUserInterest response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string user = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string user = KS.GetFromRequest().UserId;
 
             try
             {
@@ -69,8 +68,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string user = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string user = KS.GetFromRequest().UserId;
 
             try
             {
@@ -97,8 +96,8 @@ namespace WebAPI.Controllers
         {
             List<KalturaUserInterest> list = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string user = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string user = KS.GetFromRequest().UserId;
 
             try
             {

@@ -3,7 +3,6 @@ using System;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -24,7 +23,7 @@ namespace WebAPI.Controllers
         static public KalturaImageListResponse List(KalturaImageFilter filter)
         {
             KalturaImageListResponse response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (filter == null)
             {
@@ -70,7 +69,7 @@ namespace WebAPI.Controllers
         {
             KalturaImage response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             if (!image.ImageObjectType.HasValue)
@@ -111,7 +110,7 @@ namespace WebAPI.Controllers
         static public bool Delete(long id)
         {
             bool result = false;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -141,7 +140,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidUrlForImage)]
         static public void SetContent(long id, KalturaContentResource content)
         {            
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try

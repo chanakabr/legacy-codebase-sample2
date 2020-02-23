@@ -1,7 +1,6 @@
 ﻿using ApiObjects.Response;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.DMS;
@@ -28,7 +27,7 @@ namespace WebAPI.Controllers
         static public KalturaConfigurationGroup Get(string id)
         {
             KalturaConfigurationGroup response = null;
-            int partnerId = KSManager.GetKSFromRequest().GroupId;
+            int partnerId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrWhiteSpace(id))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
@@ -61,7 +60,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int partnerId = KSManager.GetKSFromRequest().GroupId;
+                int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.GetConfigurationGroupList(partnerId);
@@ -90,7 +89,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int partnerId = KSManager.GetKSFromRequest().GroupId;
+                int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.AddConfigurationGroup(partnerId, configurationGroup);
@@ -124,7 +123,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int partnerId = KSManager.GetKSFromRequest().GroupId;
+                int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.UpdateConfigurationGroup(partnerId, id, configurationGroup);
@@ -157,7 +156,7 @@ namespace WebAPI.Controllers
                 if (string.IsNullOrWhiteSpace(id))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
 
-                int partnerId = KSManager.GetKSFromRequest().GroupId;
+                int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.DeleteConfigurationGroup(partnerId, id);

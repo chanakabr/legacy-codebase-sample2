@@ -1,4 +1,5 @@
-﻿using ApiObjects.Base;
+﻿using ApiLogic.Base;
+using ApiObjects.Base;
 using ApiObjects.Response;
 using KLogMonitor;
 using System;
@@ -6,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
             try
             {
                 objectToAdd.ValidateForAdd();
-                var contextData = KSManager.GetContextData();
+                var contextData = KS.GetContextData();
                 GenericResponse<ICrudHandeledObject> addFunc(ICrudHandeledObject coreObjectToAdd) => 
                     objectToAdd.Handler.Add(contextData, coreObjectToAdd);
                 response = GetResponseFromCore(objectToAdd, addFunc);
@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
             {
                 objectToUpdate.SetId(id);
                 objectToUpdate.ValidateForUpdate();
-                var contextData = KSManager.GetContextData();
+                var contextData = KS.GetContextData();
                 GenericResponse<ICrudHandeledObject> updateFunc(ICrudHandeledObject coreObjectToUpdate) =>
                      objectToUpdate.Handler.Update(contextData, coreObjectToUpdate);
                 response = GetResponseFromCore(objectToUpdate, updateFunc);
@@ -96,7 +96,7 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)StatusCode.NotImplemented, string.Format("Default Handler was not defined for object:{0}", DefaultObject.GetType().Name));
                 }
 
-                var contextData = KSManager.GetContextData();
+                var contextData = KS.GetContextData();
                 GetResponseStatusFromCore(() => DefaultObject.Handler.Delete(contextData, id));
             }
             catch (ClientException ex)
@@ -123,7 +123,7 @@ namespace WebAPI.Controllers
                     throw new ClientException((int)StatusCode.NotImplemented, string.Format("Default Handler was not defined for object:{0}", DefaultObject.GetType().Name));
                 }
 
-                var contextData = KSManager.GetContextData();
+                var contextData = KS.GetContextData();
                 response = GetResponseFromCore(() => DefaultObject.Handler.Get(contextData, id));
             }
             catch (ClientException ex)
@@ -151,7 +151,7 @@ namespace WebAPI.Controllers
                     filter.Validate();
                 }
                 
-                var contextData = KSManager.GetContextData();
+                var contextData = KS.GetContextData();
                 response = GetResponseListFromCore(filter, contextData);
 
                 var responseProfile = Utils.Utils.GetResponseProfileFromRequest();

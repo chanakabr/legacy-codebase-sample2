@@ -3,7 +3,6 @@ using ApiObjects.Response;
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -35,7 +34,7 @@ namespace WebAPI.Controllers
             KalturaUserSegmentListResponse response = null;
             bool isAllowedToViewInactiveAssets = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -83,7 +82,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 return ClientsManager.ApiClient().AddUserSegment(groupId, userSegment);
             }
             catch (ClientException ex)
@@ -109,7 +108,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
 
                 response = ClientsManager.
                     ApiClient().DeleteUserSegment(groupId, userId, segmentId);

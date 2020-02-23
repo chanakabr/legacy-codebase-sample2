@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -27,7 +26,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaRecommendationProfile> response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -60,7 +59,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -93,7 +92,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -126,7 +125,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {

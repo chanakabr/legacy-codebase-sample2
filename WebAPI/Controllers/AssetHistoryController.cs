@@ -10,7 +10,6 @@ using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
-using WebAPI.Managers;
 
 namespace WebAPI.Controllers
 {
@@ -31,11 +30,9 @@ namespace WebAPI.Controllers
         static public KalturaAssetHistoryListResponse List(KalturaAssetHistoryFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaAssetHistoryListResponse response = null;
-
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string userId = ks.UserId;
-            string udid = ks.ExtractKSData().UDID;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -107,10 +104,9 @@ namespace WebAPI.Controllers
         static public KalturaWatchHistoryAssetWrapper ListOldStandard(KalturaAssetHistoryFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaWatchHistoryAssetWrapper response = null;
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string userId = ks.UserId;
-            string udid = ks.ExtractKSData().UDID;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -171,9 +167,9 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public bool CleanOldStandard(KalturaAssetsFilter filter = null)
         {
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             try
             {
@@ -199,10 +195,10 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public void Clean(KalturaAssetHistoryFilter filter = null)
         {
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string userId = ks.UserId;
-            string udid = ks.ExtractKSData().UDID;
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (filter == null)
             {

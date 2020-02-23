@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -40,8 +39,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                string userId = KSManager.GetKSFromRequest().UserId;
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
 
                 if (reminder.GetType() == typeof(KalturaAssetReminder))
                 {
@@ -94,8 +93,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                string userId = KSManager.GetKSFromRequest().UserId;
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
 
                 response = ClientsManager.NotificationClient().DeleteReminder(int.Parse(userId), groupId, id, type);
             }
@@ -154,8 +153,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                string userId = KSManager.GetKSFromRequest().UserId;
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
                 if (filter is KalturaSeasonsReminderFilter)
                 {
                     KalturaSeasonsReminderFilter seasonsReminderFilter = filter as KalturaSeasonsReminderFilter;

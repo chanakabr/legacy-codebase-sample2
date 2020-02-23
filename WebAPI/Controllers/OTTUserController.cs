@@ -441,7 +441,7 @@ namespace WebAPI.Controllers
         [WebAPI.Managers.Scheme.ValidationException(WebAPI.Managers.Scheme.SchemeValidationType.ACTION_NAME)]
         static public void updatePassword(int userId, string password)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (userId <= 0)
             {
@@ -516,7 +516,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(username))
             {
@@ -566,9 +566,9 @@ namespace WebAPI.Controllers
         {
             List<KalturaOTTUser> response = null;
 
-            string userId = KSManager.GetKSFromRequest().UserId;
+            string userId = KS.GetFromRequest().UserId;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -604,9 +604,9 @@ namespace WebAPI.Controllers
         {
             List<KalturaOTTUser> response = null;
 
-            string userId = KSManager.GetKSFromRequest().UserId;
+            string userId = KS.GetFromRequest().UserId;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -644,10 +644,10 @@ namespace WebAPI.Controllers
         {
             KalturaOTTUser response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             if (string.IsNullOrEmpty(id))
             {
-                id = KSManager.GetKSFromRequest().UserId;
+                id = KS.GetFromRequest().UserId;
             }
 
             try
@@ -688,8 +688,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             try
             {
@@ -734,8 +734,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            int userId = int.Parse(KSManager.GetKSFromRequest().UserId);
+            int groupId = KS.GetFromRequest().GroupId;
+            int userId = int.Parse(KS.GetFromRequest().UserId);
 
             try
             {
@@ -766,10 +766,10 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            var ks = KSManager.GetKSFromRequest();
+            KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
             int userId = int.Parse(ks.UserId);
-            string udid = ks.ExtractKSData().UDID;
+            string udid = KSUtils.ExtractKSPayload().UDID;
             string ip = Utils.Utils.GetClientIP();
             
             try
@@ -852,7 +852,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userId = KSManager.GetKSFromRequest().UserId;
+                string userId = KS.GetFromRequest().UserId;
                 string key = ApplicationConfiguration.Current.OTTUserControllerConfiguration.UserIdEncryptionKey.Value;
                 string iv = ApplicationConfiguration.Current.OTTUserControllerConfiguration.UserIdEncryptionIV.Value;
 
@@ -863,7 +863,7 @@ namespace WebAPI.Controllers
 
                 response = new KalturaStringValue()
                 {
-                    value = Convert.ToBase64String(EncryptUtils.AesEncrypt(userId, iv, key))
+                    value = Convert.ToBase64String(Utils.EncryptionUtils.AesEncrypt(userId, iv, key))
                 };
             }
             catch (ClientException ex)
@@ -888,7 +888,7 @@ namespace WebAPI.Controllers
         {
             KalturaOTTUserListResponse response = null;
 
-            var ks = KSManager.GetKSFromRequest();
+            var ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
 
             if (filter == null)
@@ -943,8 +943,8 @@ namespace WebAPI.Controllers
                 else // empty filter (can have roleIds)
                 {
                     response = new KalturaOTTUserListResponse();
-                    string userId = ks.UserId;
-                    string originalUserId = ks.OriginalUserId;
+                    string userId = KS.GetFromRequest().UserId;
+                    string originalUserId = KS.GetFromRequest().OriginalUserId;
                     if (string.IsNullOrEmpty(originalUserId))
                     {
                         originalUserId = userId;
@@ -1007,11 +1007,11 @@ namespace WebAPI.Controllers
         {
             KalturaOTTUserDynamicData response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                response = ClientsManager.UsersClient().SetUserDynamicData(groupId, KSManager.GetKSFromRequest().UserId, key, value);
+                response = ClientsManager.UsersClient().SetUserDynamicData(groupId, KS.GetFromRequest().UserId, key, value);
             }
             catch (ClientException ex)
             {

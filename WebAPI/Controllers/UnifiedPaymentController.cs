@@ -1,7 +1,6 @@
 ﻿using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -21,9 +20,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaUnifiedPaymentRenewal GetNextRenewal(int id)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-            long userId = long.Parse(KSManager.GetKSFromRequest().UserId);
+            long userId = long.Parse(KS.GetFromRequest().UserId);
 
             try
             {

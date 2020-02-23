@@ -3,7 +3,6 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -26,7 +25,7 @@ namespace WebAPI.Controllers
          static public KalturaLanguageListResponse List(KalturaLanguageFilter filter)
          {
              KalturaLanguageListResponse response = null;
-             int groupId = KSManager.GetKSFromRequest().GroupId;
+             int groupId = KS.GetFromRequest().GroupId;
 
             filter.Validate();
 

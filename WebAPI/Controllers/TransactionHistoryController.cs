@@ -3,7 +3,6 @@ using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -28,7 +27,7 @@ namespace WebAPI.Controllers
         {
             KalturaBillingTransactionListResponse response = new KalturaBillingTransactionListResponse();
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (filter == null)
             {
@@ -42,7 +41,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KSManager.GetKSFromRequest().UserId;
+                string userID = KS.GetFromRequest().UserId;
                 DateTime startDate = new DateTime(1753, 1, 1);
                 DateTime endDate = DateTime.MaxValue;
 
@@ -97,7 +96,7 @@ namespace WebAPI.Controllers
         {
             KalturaBillingTransactionListResponse response = new KalturaBillingTransactionListResponse();
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (filter == null)
             {
@@ -106,7 +105,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KSManager.GetKSFromRequest().UserId;
+                string userID = KS.GetFromRequest().UserId;
                 DateTime startDate = new DateTime(1753, 1, 1);
                 DateTime endDate = DateTime.MaxValue;
 

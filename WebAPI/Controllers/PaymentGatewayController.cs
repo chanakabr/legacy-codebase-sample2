@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Utils;
@@ -32,7 +31,7 @@ namespace WebAPI.Controllers
         {
             List<Models.Billing.KalturaPaymentGatewayBaseProfile> response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             // get domain id      
             var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -40,7 +39,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetHouseholdPaymentGateways(groupId, KSManager.GetKSFromRequest().UserId, domainId);
+                response = ClientsManager.BillingClient().GetHouseholdPaymentGateways(groupId, KS.GetFromRequest().UserId, domainId);
             }
             catch (ClientException ex)
             {
@@ -71,11 +70,11 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                string userID = KSManager.GetKSFromRequest().UserId;
+                string userID = KS.GetFromRequest().UserId;
 
                 // get domain id      
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -112,11 +111,11 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                string userID = KSManager.GetKSFromRequest().UserId;
+                string userID = KS.GetFromRequest().UserId;
 
                 // get domain id        
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -156,11 +155,11 @@ namespace WebAPI.Controllers
             bool response = false;
 
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                string userID = KSManager.GetKSFromRequest().UserId;
+                string userID = KS.GetFromRequest().UserId;
 
                 // get domain id      
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -199,11 +198,11 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                string userID = KSManager.GetKSFromRequest().UserId;
+                string userID = KS.GetFromRequest().UserId;
 
                 // get domain id      
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -241,11 +240,11 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                string userID = KSManager.GetKSFromRequest().UserId;
+                string userID = KS.GetFromRequest().UserId;
 
                 // get domain id      
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);

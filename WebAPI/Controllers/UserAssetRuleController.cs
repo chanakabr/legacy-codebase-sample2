@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
@@ -29,9 +29,8 @@ namespace WebAPI.Controllers
         {
             List<KalturaGenericRule> response = null;
 
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string udid = ks.ExtractKSData().UDID;
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (filter.AssetId == 0)
             {
@@ -44,7 +43,7 @@ namespace WebAPI.Controllers
             }
             try
             {
-                string userID = KSManager.GetKSFromRequest().UserId;
+                string userID = KS.GetFromRequest().UserId;
 
                 if ((AssetType)filter.AssetType == AssetType.epg)
                 {
@@ -84,9 +83,8 @@ namespace WebAPI.Controllers
         {
             List<KalturaUserAssetRule> response = null;
 
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string udid = ks.ExtractKSData().UDID;
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
             
             if (filter.AssetIdEqual == 0)
             {
@@ -99,7 +97,7 @@ namespace WebAPI.Controllers
             }
             try
             {
-                string userID = KSManager.GetKSFromRequest().UserId;
+                string userID = KS.GetFromRequest().UserId;
 
                 if ((AssetType)filter.AssetTypeEqual == AssetType.epg)
                 {

@@ -3,7 +3,7 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
@@ -33,15 +33,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                var ks = KSManager.GetKSFromRequest();
-                
+                int groupId = KS.GetFromRequest().GroupId;
                 string language = Utils.Utils.GetLanguageFromRequest();
-                
-                string udid = ks.ExtractKSData().UDID;
-                int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(ks.GroupId);
+                string userId = KS.GetFromRequest().UserId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
+                int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-                response = ClientsManager.CatalogClient().GetAssetCommentsList
-                    (ks.GroupId, language, filter.AssetIdEqual, filter.AssetTypeEqual, ks.UserId, domainId, udid, pager.getPageIndex(), pager.PageSize, filter.OrderBy);
+                response = ClientsManager.CatalogClient().GetAssetCommentsList(groupId, language, filter.AssetIdEqual, filter.AssetTypeEqual, userId, domainId, udid, pager.getPageIndex(), pager.PageSize,
+                    filter.OrderBy);
 
                 // if no response - return not found status 
                 if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -76,11 +75,10 @@ namespace WebAPI.Controllers
 
             try
             {
-                var ks = KSManager.GetKSFromRequest();
-                int groupId = ks.GroupId;
-                string userId = ks.UserId;
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);     
-                string udid = ks.ExtractKSData().UDID;
+                string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
                 
                 // call client

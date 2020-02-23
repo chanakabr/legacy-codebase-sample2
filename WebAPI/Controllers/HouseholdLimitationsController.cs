@@ -1,7 +1,7 @@
 ﻿using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
 using WebAPI.Utils;
@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         {
             KalturaHouseholdLimitations response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         static public KalturaHouseholdLimitationsListResponse List()
         {
             KalturaHouseholdLimitationsListResponse response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {

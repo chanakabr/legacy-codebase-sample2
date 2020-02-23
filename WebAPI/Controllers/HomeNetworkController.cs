@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
 using WebAPI.Utils;
@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
         {
             KalturaHomeNetwork response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaHomeNetwork> list = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
@@ -88,7 +88,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaHomeNetwork> response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
@@ -119,7 +119,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         static public KalturaHomeNetwork Update(string externalId, KalturaHomeNetwork homeNetwork)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
@@ -151,7 +151,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         static public bool UpdateOldStandard(KalturaHomeNetwork home_network)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
@@ -185,7 +185,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try

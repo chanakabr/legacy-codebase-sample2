@@ -2,7 +2,6 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -35,7 +34,7 @@ namespace WebAPI.Controllers
         {
             KalturaPin pinResponse = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -43,7 +42,7 @@ namespace WebAPI.Controllers
 
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KSManager.GetKSFromRequest().UserId;
+                    string userId = KS.GetFromRequest().UserId;
 
                     if (type == KalturaPinType.parental)
                     {
@@ -100,13 +99,13 @@ namespace WebAPI.Controllers
         {
             KalturaPin response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KSManager.GetKSFromRequest().UserId;
+                    string userId = KS.GetFromRequest().UserId;
 
                     if (type == KalturaPinType.parental)
                     {
@@ -160,7 +159,7 @@ namespace WebAPI.Controllers
         {
             KalturaPinResponse pinResponse = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -168,7 +167,7 @@ namespace WebAPI.Controllers
 
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KSManager.GetKSFromRequest().UserId;
+                    string userId = KS.GetFromRequest().UserId;
 
                     if (type == KalturaPinType.parental)
                     {
@@ -221,13 +220,13 @@ namespace WebAPI.Controllers
         [Obsolete]
         static public bool UpdateOldStandard(string pin, KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 if (by == KalturaEntityReferenceBy.user)
                 {
-                    string userId = KSManager.GetKSFromRequest().UserId;
+                    string userId = KS.GetFromRequest().UserId;
 
                     if (type == KalturaPinType.parental)
                     {
@@ -286,7 +285,7 @@ namespace WebAPI.Controllers
         {
             bool success = false;
             
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
             if (string.IsNullOrEmpty(pin))
@@ -296,7 +295,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userId = KSManager.GetKSFromRequest().UserId;
+                string userId = KS.GetFromRequest().UserId;
 
                 if (type == KalturaPinType.parental)
                 {

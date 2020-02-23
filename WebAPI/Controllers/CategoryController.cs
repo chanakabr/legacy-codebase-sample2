@@ -2,7 +2,6 @@
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -19,13 +18,13 @@ namespace WebAPI.Controllers
         static public KalturaOTTCategory Get(int id)
         {
             KalturaOTTCategory response = null;
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
+
+            int groupId = KS.GetFromRequest().GroupId;
             
             try
             {
-                string userID = ks.UserId;
-                string udid = ks.ExtractKSData().UDID;
+                string userID = KS.GetFromRequest().UserId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.CatalogClient().GetCategory(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, id);

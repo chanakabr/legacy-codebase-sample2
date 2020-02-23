@@ -9,7 +9,7 @@ using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
         {
             KalturaAssetFileContext response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(id))
             {
@@ -45,9 +45,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                var ks = KSManager.GetKSFromRequest();
-                string userID = ks.UserId;
-                string udid = ks.ExtractKSData().UDID;
+                string userID = KS.GetFromRequest().UserId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.ConditionalAccessClient().GetAssetFileContext(groupId, userID, id, udid, language, contextType);
@@ -106,14 +105,14 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "assetType", "contextType");
             }
 
-            var ksObject = KSManager.GetKSFromRequest();
+            KS ksObject = KS.GetFromRequest();
 
             KalturaAssetFile response = new KalturaAssetFile();
 
             try
             {
                 string userId = ksObject != null ? ksObject.UserId : "0";
-                string udid = ksObject != null ? ksObject.ExtractKSData().UDID : string.Empty;
+                string udid = ksObject != null ? KSUtils.ExtractKSPayload(ksObject).UDID : string.Empty;
 
                 bool isTokenizedUrl = !string.IsNullOrEmpty(tokenizedUrl);
                 response.Url = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType, assetFileId, udid, contextType, isTokenizedUrl);

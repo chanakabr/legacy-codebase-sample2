@@ -1,7 +1,7 @@
 ﻿using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Utils;
@@ -26,10 +26,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                var ks = KSManager.GetKSFromRequest();
-                int groupId = ks.GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-                string userId = ks.UserId;
+                string userId = KS.GetFromRequest().UserId;
 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().GetDomainQuota(groupId, userId, domainId);

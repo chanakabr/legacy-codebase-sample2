@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Utils;
@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
         {
             KalturaExportTask response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -65,7 +65,7 @@ namespace WebAPI.Controllers
         {
             KalturaExportTask response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             
             try
             {
@@ -95,7 +95,7 @@ namespace WebAPI.Controllers
         [Obsolete]
         static public bool UpdateOldStandard(KalturaExportTask task)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -121,7 +121,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -146,7 +146,7 @@ namespace WebAPI.Controllers
         {
             KalturaExportTask response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -176,7 +176,7 @@ namespace WebAPI.Controllers
         {
             KalturaExportTaskListResponse response = new KalturaExportTaskListResponse();
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (filter == null)
             {
@@ -211,7 +211,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaExportTask> response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (filter == null)
             {

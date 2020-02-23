@@ -2,7 +2,6 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -29,7 +28,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;                
+                int groupId = KS.GetFromRequest().GroupId;                
                 // call client                
                 response = ClientsManager.ApiClient().GetTimeShiftedTvPartnerSettings(groupId);
             }
@@ -58,8 +57,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                string userId = KSManager.GetKSFromRequest().UserId;
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
 
                 // call client
                 response = ClientsManager.ApiClient().UpdateTimeShiftedTvPartnerSettings(groupId, settings);

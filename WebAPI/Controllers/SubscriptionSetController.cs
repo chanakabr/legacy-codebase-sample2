@@ -9,7 +9,6 @@ using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using ApiObjects.Response;
-using WebAPI.Managers;
 
 namespace WebAPI.Controllers
 {
@@ -37,7 +36,7 @@ namespace WebAPI.Controllers
             }
 
             KalturaSubscriptionSetListResponse response = new KalturaSubscriptionSetListResponse();            
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -90,7 +89,7 @@ namespace WebAPI.Controllers
         static public KalturaSubscriptionSet Add(KalturaSubscriptionSet subscriptionSet)
         {
             KalturaSubscriptionSet response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(subscriptionSet.Name))
             {
@@ -145,7 +144,7 @@ namespace WebAPI.Controllers
         static public KalturaSubscriptionSet Update(long id, KalturaSubscriptionSet subscriptionSet)
         {
             KalturaSubscriptionSet response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -189,7 +188,7 @@ namespace WebAPI.Controllers
         static public bool Delete(long id)
         {
             bool result = false;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {                
@@ -216,7 +215,7 @@ namespace WebAPI.Controllers
         static public KalturaSubscriptionSet Get(long id)
         {
             KalturaSubscriptionSet response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {

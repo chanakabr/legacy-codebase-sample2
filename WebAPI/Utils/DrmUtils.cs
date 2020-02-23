@@ -1,16 +1,13 @@
 ﻿using ApiObjects;
 using ConfigurationManager;
-using KSWrapper;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
-using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
@@ -29,7 +26,7 @@ namespace WebAPI.Utils
         {
             string response = null;
 
-            var ks = KSManager.GetKSFromRequest();
+            KS ks = KS.GetFromRequest();
             Group group = GroupsManager.GetGroup(ks.GroupId);
 
             CencCustomData customData = new CencCustomData()
@@ -40,7 +37,7 @@ namespace WebAPI.Utils
                 UserToken = ks.ToString(),
                 ContentId = fileExternalId.ToString(),
                 AdditionalCasSystem = ks.GroupId,
-                UDID = ks.ExtractKSData().UDID
+                UDID = KSUtils.ExtractKSPayload().UDID
             };
 
             response = JsonConvert.SerializeObject(customData);
@@ -52,12 +49,12 @@ namespace WebAPI.Utils
         {
             string response = null;
 
-            var ks = KSManager.GetKSFromRequest();
+            KS ks = KS.GetFromRequest();
             Group group = GroupsManager.GetGroup(ks.GroupId);
 
             response = string.Concat(group.AccountPrivateKey, customDataString);
 
-            return Convert.ToBase64String(EncryptUtils.HashSHA1(Encoding.ASCII.GetBytes(response)));
+            return Convert.ToBase64String(EncryptionUtils.HashSHA1(Encoding.ASCII.GetBytes(response)));
         }
 
         internal static string BuildUDrmUrl(Group group, KalturaDrmSchemeName schemeName, string customDataString, string signature)
@@ -191,7 +188,7 @@ namespace WebAPI.Utils
                     }
 
                     string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, drmAssetId, assetType, source.Id.Value,
-                        source.ExternalId, ks.ExtractKSData().UDID, contextDataParams.Context, recordingId, out code, out message);
+                        source.ExternalId, KSUtils.ExtractKSPayload().UDID, contextDataParams.Context, recordingId, out code, out message);
 
                     // no errors
                     if (string.IsNullOrEmpty(code))

@@ -3,7 +3,6 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -40,13 +39,12 @@ namespace WebAPI.Controllers
              }
 
              filter.validate();
-             var ks = KSManager.GetKSFromRequest();
-             int groupId = ks.GroupId;
+             int groupId = KS.GetFromRequest().GroupId;
 
              try
              {
-                 response = ClientsManager.SocialClient().GetFriendsActions(groupId, ks.UserId, filter.AssetIdEqual ?? 0, 
-                     filter.AssetTypeEqual ?? 0, filter.GetActionTypeIn(), pager.getPageSize(), pager.getPageIndex());
+                 response = ClientsManager.SocialClient().GetFriendsActions(groupId, KS.GetFromRequest().UserId, filter.AssetIdEqual.HasValue ? filter.AssetIdEqual.Value : 0, 
+                     filter.AssetTypeEqual.HasValue ? filter.AssetTypeEqual.Value : 0, filter.GetActionTypeIn(), pager.getPageSize(), pager.getPageIndex());
              }
              catch (ClientException ex)
              {

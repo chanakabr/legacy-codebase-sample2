@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
@@ -31,13 +31,12 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(new WebAPI.Exceptions.ApiException.ApiExceptionType(WebAPI.Managers.Models.StatusCode.BadRequest, "ids cannot be empty", null));
             }
 
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string udid = ks.ExtractKSData().UDID;
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             try
             {
-                string userID = ks.UserId;
+                string userID = KS.GetFromRequest().UserId;
 
                 switch (filter.Type)
                 {

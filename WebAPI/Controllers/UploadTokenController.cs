@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaUploadToken Add(KalturaUploadToken uploadToken = null)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
         static public KalturaUploadToken Upload(string uploadTokenId, KalturaOTTFile fileData)
         {
             KalturaUploadToken uploadToken = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {

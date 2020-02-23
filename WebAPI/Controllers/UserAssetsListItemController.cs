@@ -2,7 +2,6 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
@@ -24,8 +23,8 @@ namespace WebAPI.Controllers
         {
             KalturaUserAssetsListItem response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             if (userAssetsListItem.ListType == KalturaUserAssetsListType.all || userAssetsListItem.Type == KalturaUserAssetsListItemType.all)
             {
@@ -66,8 +65,8 @@ namespace WebAPI.Controllers
         {
             KalturaUserAssetsListItem response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             try
             {
@@ -97,8 +96,8 @@ namespace WebAPI.Controllers
         {
             KalturaUserAssetsListItem response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             if (string.IsNullOrEmpty(userAssetsListItem.Id))
             {
@@ -133,8 +132,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             if (listType == KalturaUserAssetsListType.all)
             {
@@ -169,8 +168,8 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
             if (userAssetsListItem.ListType == KalturaUserAssetsListType.all || userAssetsListItem.Type == KalturaUserAssetsListItemType.all)
             {

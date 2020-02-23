@@ -2,7 +2,6 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -33,7 +32,7 @@ namespace WebAPI.Controllers
         static public KalturaMediaFile Add(KalturaMediaFile mediaFile)
         {
             KalturaMediaFile response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             if (mediaFile.AssetId <= 0)
@@ -77,7 +76,7 @@ namespace WebAPI.Controllers
         static public bool Delete(long id)
         {
             bool result = false;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -110,7 +109,7 @@ namespace WebAPI.Controllers
         static public KalturaMediaFile Update(long id, KalturaMediaFile mediaFile)
         {
             KalturaMediaFile response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -142,7 +141,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 filter.Validate();
 
                 // call client      

@@ -2,7 +2,6 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -29,7 +28,7 @@ namespace WebAPI.Controllers
         {
             KalturaStringValueArray result = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -90,7 +89,7 @@ namespace WebAPI.Controllers
         {
             KalturaCouponsGroup couponsGroup = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -137,7 +136,7 @@ namespace WebAPI.Controllers
 
                 couponsGroup.Id = id.ToString();
 
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.PricingClient().UpdateCouponsGroup(groupId, id, couponsGroup);
 
@@ -159,7 +158,7 @@ namespace WebAPI.Controllers
         {
             KalturaCouponsGroupListResponse couponsGroups = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -186,7 +185,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -246,7 +245,7 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "maxUsesNumber");
                 }
 
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.PricingClient().AddCouponsGroup(groupId, couponsGroup);
 

@@ -3,7 +3,7 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Utils;
@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         static public KalturaCurrencyListResponse List(KalturaCurrencyFilter filter)
         {
             KalturaCurrencyListResponse response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             filter.Validate();
 

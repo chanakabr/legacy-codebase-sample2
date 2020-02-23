@@ -4,7 +4,6 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -30,7 +29,7 @@ namespace WebAPI.Controllers
         {
             KalturaAssetUserRuleListResponse response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if(filter == null)
             {
@@ -44,7 +43,7 @@ namespace WebAPI.Controllers
 
                 if (filter != null && filter.AttachedUserIdEqualCurrent.HasValue && filter.AttachedUserIdEqualCurrent.Value)
                 {
-                    long userId = long.Parse(KSManager.GetKSFromRequest().UserId);
+                    long userId = long.Parse(KS.GetFromRequest().UserId);
                     response = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId, filter.ActionsContainType.Value, true);
                 }
                 else
@@ -70,7 +69,7 @@ namespace WebAPI.Controllers
         {
             KalturaAssetUserRule response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -105,7 +104,7 @@ namespace WebAPI.Controllers
         {
             KalturaAssetUserRule response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -120,7 +119,7 @@ namespace WebAPI.Controllers
                 }
 
                 long userId = 0;
-                long.TryParse(KSManager.GetKSFromRequest().UserId, out userId);
+                long.TryParse(KS.GetFromRequest().UserId, out userId);
                 response = ClientsManager.ApiClient().UpdateAssetUserRule(groupId, id, assetUserRule, userId);
             }
             catch (ClientException ex)
@@ -141,12 +140,12 @@ namespace WebAPI.Controllers
         [SchemeArgument("id", MinLong = 1)]
         static public void Delete(long id)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 long userId = 0;
-                long.TryParse(KSManager.GetKSFromRequest().UserId, out userId);
+                long.TryParse(KS.GetFromRequest().UserId, out userId);
                 ClientsManager.ApiClient().DeleteAssetUserRule(groupId, id, userId);
             }
             catch (ClientException ex)
@@ -168,10 +167,9 @@ namespace WebAPI.Controllers
         [SchemeArgument("ruleId", MinLong = 1)]
         static public void AttachUser(long ruleId)
         {
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string userId = ks.UserId;
-            string originalUserId = ks.OriginalUserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+            string originalUserId = KS.GetFromRequest().OriginalUserId;
 
             if (string.IsNullOrEmpty(originalUserId)  || !string.IsNullOrEmpty(originalUserId) && originalUserId == userId)
             {
@@ -200,10 +198,9 @@ namespace WebAPI.Controllers
         [SchemeArgument("ruleId", MinLong = 1)]
         static public void DetachUser(long ruleId)
         {
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string userId = ks.UserId;
-            string originalUserId = ks.OriginalUserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+            string originalUserId = KS.GetFromRequest().OriginalUserId;
 
             if (string.IsNullOrEmpty(originalUserId) || !string.IsNullOrEmpty(originalUserId) && originalUserId == userId)
             {

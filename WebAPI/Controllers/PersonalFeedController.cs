@@ -1,7 +1,6 @@
 ﻿using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -28,9 +27,8 @@ namespace WebAPI.Controllers
         {
             KalturaPersonalFeedListResponse response = null;
 
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string userID = ks.UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -63,8 +61,8 @@ namespace WebAPI.Controllers
         {
             KalturaPersonalFollowFeedResponse response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userID = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
 
             if (pager == null)
                 pager = new KalturaFilterPager();

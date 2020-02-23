@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Utils;
@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaExternalChannelProfile> list = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
             try
             {
@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaExternalChannelProfile> response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -86,7 +86,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -124,7 +124,7 @@ namespace WebAPI.Controllers
         {
             KalturaExternalChannelProfile response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -163,7 +163,7 @@ namespace WebAPI.Controllers
         {
             KalturaExternalChannelProfile response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             externalChannel.Id = externalChannelId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
@@ -203,7 +203,7 @@ namespace WebAPI.Controllers
         {
             KalturaExternalChannelProfile response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try

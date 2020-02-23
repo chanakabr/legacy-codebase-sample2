@@ -12,7 +12,6 @@ using WebAPI;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using Newtonsoft.Json;
-using KSWrapper;
 
 namespace Phoenix.Context
 {

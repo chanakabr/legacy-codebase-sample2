@@ -2,7 +2,6 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -22,7 +21,7 @@ namespace WebAPI.Controllers
         static public KalturaRatioListResponse List()
         {
             KalturaRatioListResponse response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -47,7 +46,7 @@ namespace WebAPI.Controllers
         static public KalturaRatio Add(KalturaRatio ratio)
         {
             KalturaRatio response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             if (string.IsNullOrEmpty(ratio.Name))
@@ -81,7 +80,7 @@ namespace WebAPI.Controllers
         static public KalturaRatio Update(long id, KalturaRatio ratio)
         {
             KalturaRatio response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
             
             try

@@ -2,7 +2,6 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -28,7 +27,7 @@ namespace WebAPI.Controllers
         {
             KalturaRegionListResponse response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             // parameters validation
             if (pager == null)
@@ -64,8 +63,8 @@ namespace WebAPI.Controllers
 
             region.Validate(true);
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            long userId = long.Parse(KSManager.GetKSFromRequest().UserId);
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = long.Parse(KS.GetFromRequest().UserId);
 
             try
             {
@@ -96,8 +95,8 @@ namespace WebAPI.Controllers
 
             region.Validate();
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            long userId = long.Parse(KSManager.GetKSFromRequest().UserId);
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = long.Parse(KS.GetFromRequest().UserId);
 
             region.Id = id;
 
@@ -125,8 +124,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CannotDeleteRegionInUse)]
         static public void Delete(int id)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            long userId = long.Parse(KSManager.GetKSFromRequest().UserId);
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = long.Parse(KS.GetFromRequest().UserId);
 
             try
             {

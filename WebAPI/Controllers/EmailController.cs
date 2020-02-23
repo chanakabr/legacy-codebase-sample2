@@ -3,7 +3,6 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Notification;
@@ -32,8 +31,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                KSManager.GetKSFromRequest().ToString();
+                int groupId = KS.GetFromRequest().GroupId;
+                KS.GetFromRequest().ToString();
                 
                 if (emailMessage == null)
                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "sendMessage");

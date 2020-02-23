@@ -1,7 +1,6 @@
 ﻿using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -31,7 +30,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 // call client                
                 response = ClientsManager.NotificationClient().GetTopic(groupId, id);
             }
@@ -58,8 +57,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                string userId = KSManager.GetKSFromRequest().UserId;
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
 
                 if (pager == null)
                     pager = new KalturaFilterPager();
@@ -91,8 +90,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                string userId = KSManager.GetKSFromRequest().UserId;
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
 
                 if (pager == null)
                     pager = new KalturaFilterPager();
@@ -121,7 +120,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -158,8 +157,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                string userId = KSManager.GetKSFromRequest().UserId;
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
 
                 // call client                
                 response = ClientsManager.NotificationClient().UpdateTopic(groupId, id, automaticIssueNotification);

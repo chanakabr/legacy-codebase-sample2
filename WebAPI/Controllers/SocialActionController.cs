@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Social;
@@ -27,10 +27,9 @@ namespace WebAPI.Controllers
         {
             KalturaUserSocialActionResponse response = null;
 
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string userId = ks.UserId;
-            string udid = ks.ExtractKSData().UDID;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             try
             {
@@ -74,8 +73,8 @@ namespace WebAPI.Controllers
         {
             KalturaSocialActionListResponse response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
 
              // parameters validation
             if (pager == null)
@@ -109,8 +108,8 @@ namespace WebAPI.Controllers
         {
             List<KalturaNetworkActionStatus> response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userId = KSManager.GetKSFromRequest().UserId;           
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;           
 
             try
             {

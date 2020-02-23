@@ -2,7 +2,6 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -23,7 +22,7 @@ namespace WebAPI.Controllers
         static public KalturaAssetStructMetaListResponse List(KalturaAssetStructMetaFilter filter)
         {
             KalturaAssetStructMetaListResponse response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (filter == null)
             {
@@ -70,7 +69,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "ingestReferencePath", "defaultIngestValue", "protectFromIngest", "isInherited");
             }
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try

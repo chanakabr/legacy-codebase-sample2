@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Billing;
@@ -28,7 +27,7 @@ namespace WebAPI.Controllers
         {
             KalturaPaymentGatewayProfileListResponse response = new KalturaPaymentGatewayProfileListResponse();
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -59,7 +58,7 @@ namespace WebAPI.Controllers
         {
             List<Models.Billing.KalturaPaymentGatewayProfile> response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -90,7 +89,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
             
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -124,7 +123,7 @@ namespace WebAPI.Controllers
         {
             KalturaPaymentGatewayProfile response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -159,7 +158,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoPaymentGatewayToInsert)]
         static public bool AddOldStandard(KalturaPaymentGatewayProfile paymentGateway)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -196,7 +195,7 @@ namespace WebAPI.Controllers
         {
             KalturaPaymentGatewayProfile response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -235,7 +234,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         static public bool UpdateOldStandard(int paymentGatewayId, KalturaPaymentGatewayProfile paymentGateway)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -268,7 +267,7 @@ namespace WebAPI.Controllers
         {
             KalturaPaymentGatewayProfile response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -303,7 +302,7 @@ namespace WebAPI.Controllers
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             // get domain id      
             var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);

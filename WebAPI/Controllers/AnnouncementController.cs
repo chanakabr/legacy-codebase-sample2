@@ -11,7 +11,6 @@ using WebAPI.Models.Notifications;
 using WebAPI.Utils;
 using ApiObjects.Response;
 using TVinciShared;
-using WebAPI.Managers;
 
 namespace WebAPI.Controllers
 {
@@ -48,7 +47,7 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "KalturaAnnouncement.startTime");
                 }
 
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 return ClientsManager.NotificationClient().AddAnnouncement(groupId, announcement);
             }
 
@@ -90,7 +89,7 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "KalturaAnnouncement.startTime");
                 }
 
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 ClientsManager.NotificationClient().AddAnnouncement(groupId, announcement);
             }
 
@@ -125,7 +124,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
 
                 // validate announcement start date
                 if (announcement.getStartTime() > 0 &&
@@ -170,7 +169,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 
                 // validate announcement start date
                 if (announcement.getStartTime() > 0 &&
@@ -210,7 +209,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 response = ClientsManager.NotificationClient().UpdateAnnouncementStatus(groupId, id, status);
             }
 
@@ -238,7 +237,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 response = ClientsManager.NotificationClient().DeleteAnnouncement(groupId, id);
             }
 
@@ -266,7 +265,7 @@ namespace WebAPI.Controllers
             bool response = false;
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 response = ClientsManager.NotificationClient().CreateSystemAnnouncement(groupId);
             }
 
@@ -298,7 +297,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 response = ClientsManager.NotificationClient().GetAnnouncements(groupId, pager.getPageSize(), pager.getPageIndex());
             }
 
@@ -330,7 +329,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 response = ClientsManager.NotificationClient().GetAllAnnouncements(groupId, pager.getPageSize(), pager.getPageIndex());
             }
 

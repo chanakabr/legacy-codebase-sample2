@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -25,8 +24,8 @@ namespace WebAPI.Controllers
         {
             List<KalturaAssetStatistics> response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
-            string userID = KSManager.GetKSFromRequest().UserId;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
             
             query.Validate();
 

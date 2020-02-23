@@ -1,5 +1,4 @@
 ﻿using KLogMonitor;
-using KSWrapper;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ using System.Web;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
@@ -103,7 +102,7 @@ namespace WebAPI
                         string action = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION]);
                         string language = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_LANGUAGE]);
                         string userId = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_USER_ID]);
-                        string deviceId = KSManager.GetKSFromRequest().ExtractKSData().UDID;
+                        string deviceId = KSUtils.ExtractKSPayload().UDID;
                         int groupId = Convert.ToInt32(HttpContext.Current.Items[RequestContextUtils.REQUEST_GROUP_ID]);
 
                         object ksObject = HttpContext.Current.Items[RequestContextUtils.REQUEST_KS];

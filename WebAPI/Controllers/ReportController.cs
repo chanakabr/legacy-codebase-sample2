@@ -1,7 +1,6 @@
 ﻿using ApiObjects.Response;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.DMS;
@@ -28,7 +27,7 @@ namespace WebAPI.Controllers
         static public KalturaReport Get(string udid)
         {
             KalturaReport response = null;
-            int partnerId = KSManager.GetKSFromRequest().GroupId;
+            int partnerId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrWhiteSpace(udid))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");
@@ -71,7 +70,7 @@ namespace WebAPI.Controllers
                 if (deviceReportFilter.LastAccessDateGreaterThanOrEqual < 0)
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "lastAccessDateGreaterThanOrEqual");
 
-                int partnerId = KSManager.GetKSFromRequest().GroupId;
+                int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.GetDevicesReport(partnerId, deviceReportFilter.LastAccessDateGreaterThanOrEqual, pager.getPageIndex() + 1, pager.getPageSize());

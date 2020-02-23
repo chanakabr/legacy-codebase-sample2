@@ -1,6 +1,6 @@
 ﻿using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
@@ -25,10 +25,9 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string userId = ks.UserId;
-            string udid = ks.ExtractKSData().UDID;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             try
             {
@@ -63,8 +62,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                KSManager.GetKSFromRequest().ToString();
+                int groupId = KS.GetFromRequest().GroupId;
+                KS.GetFromRequest().ToString();
 
                 if (string.IsNullOrEmpty(identifier))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "identifier");
@@ -97,7 +96,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client                
-                response = ClientsManager.NotificationClient().Register(groupId, type, identifier, KSManager.GetKSFromRequest().ToString(), Utils.Utils.GetClientIP());
+                response = ClientsManager.NotificationClient().Register(groupId, type, identifier, KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
             }
             catch (ClientException ex)
             {
@@ -124,8 +123,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
-                KSManager.GetKSFromRequest().ToString();
+                int groupId = KS.GetFromRequest().GroupId;
+                KS.GetFromRequest().ToString();
 
                 if (userId == 0)
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userId");
@@ -164,9 +163,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                var ks = KSManager.GetKSFromRequest();
-                int groupId = ks.GroupId;
-                int userId = int.Parse(ks.UserId);
+                int groupId = KS.GetFromRequest().GroupId;
+                int userId = int.Parse(KS.GetFromRequest().UserId);
 
                 if (string.IsNullOrEmpty(message))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "message");

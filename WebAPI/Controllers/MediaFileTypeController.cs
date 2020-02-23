@@ -3,10 +3,10 @@ using System;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using ApiObjects.Response;
-using WebAPI.Managers;
 
 namespace WebAPI.Controllers
 {
@@ -24,9 +24,8 @@ namespace WebAPI.Controllers
         {
             KalturaMediaFileTypeListResponse response = new KalturaMediaFileTypeListResponse();
 
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string udid = ks.ExtractKSData().UDID;
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             try
             {
@@ -52,7 +51,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
         static public KalturaMediaFileType Add(KalturaMediaFileType mediaFileType)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             mediaFileType.validateForInsert();
@@ -81,7 +80,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
         static public KalturaMediaFileType Update(int id, KalturaMediaFileType mediaFileType)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -106,7 +105,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
         static public bool Delete(int id)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try

@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using KSWrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web;
 using TVinciShared;
-using WebAPI.Managers;
+using WebAPI.ClientManagers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 
@@ -184,7 +183,7 @@ namespace WebAPI.Utils
             return format != null ? format.ToString() : null;
         }
 
-        internal static KalturaBaseResponseProfile GetResponseProfileFromRequest()
+        internal static WebAPI.Models.General.KalturaBaseResponseProfile GetResponseProfileFromRequest()
         {
             KalturaBaseResponseProfile responseProfile = (KalturaBaseResponseProfile)HttpContext.Current.Items[RequestContextUtils.REQUEST_RESPONSE_PROFILE];
                         
@@ -207,12 +206,11 @@ namespace WebAPI.Utils
             return baseUrl;
         }
 
-        // TODO - PUT IN GET CONTEXXT DATA AND REMOVE FROM HERE
         public static long GetUserIdFromKs(KS ks = null)
         {
             if (ks == null)
             {
-                ks = KSManager.GetKSFromRequest();
+                ks = KS.GetFromRequest();
             }
 
             if (ks == null)

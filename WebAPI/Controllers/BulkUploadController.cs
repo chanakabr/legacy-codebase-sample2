@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -29,7 +28,7 @@ namespace WebAPI.Controllers
         public static KalturaBulkUploadListResponse List(KalturaBulkUploadFilter filter, KalturaFilterPager pager = null)
         {
             KalturaBulkUploadListResponse response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -64,7 +63,7 @@ namespace WebAPI.Controllers
         static public KalturaBulkUpload Get(long id)
         {
             KalturaBulkUpload response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {

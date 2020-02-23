@@ -2,7 +2,6 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -23,7 +22,7 @@ namespace WebAPI.Controllers
         static public KalturaImageTypeListResponse List(KalturaImageTypeFilter filter = null)
         {
             KalturaImageTypeListResponse response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (filter == null)
             {
@@ -68,7 +67,7 @@ namespace WebAPI.Controllers
         {
             KalturaImageType response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
 
@@ -115,7 +114,7 @@ namespace WebAPI.Controllers
         static public KalturaImageType Update(long id, KalturaImageType imageType)
         {
             KalturaImageType response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try
@@ -142,7 +141,7 @@ namespace WebAPI.Controllers
         static public bool Delete(long id)
         {
             bool result = false;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try

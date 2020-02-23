@@ -6,7 +6,6 @@ using System.Reflection;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -33,16 +32,15 @@ namespace WebAPI.Controllers
         {
             List<KalturaEPGChannelAssets> response = null;
 
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
             
             try
             {
-                string userID = ks.UserId;
-                string udid = ks.ExtractKSData().UDID;
+                string userID = KS.GetFromRequest().UserId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 0, 

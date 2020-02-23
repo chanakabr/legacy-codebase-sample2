@@ -2,7 +2,6 @@
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -44,7 +43,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 filter.Validate();
 
                 if (!string.IsNullOrEmpty(filter.IdIn))
@@ -85,7 +84,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KSManager.GetKSFromRequest().GroupId;
+                int groupId = KS.GetFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
 
                 if (tag.Tag != null)
@@ -128,7 +127,7 @@ namespace WebAPI.Controllers
         static public KalturaTag Update(long id, KalturaTag tag)
         {
             KalturaTag response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             if (tag.Tag != null)
@@ -171,7 +170,7 @@ namespace WebAPI.Controllers
         static public bool Delete(long id)
         {
             bool result = false;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
 
             try

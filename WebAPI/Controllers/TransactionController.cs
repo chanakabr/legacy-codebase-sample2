@@ -1,9 +1,8 @@
 ﻿using ApiObjects.Response;
-using KSWrapper;
 using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Utils;
@@ -52,16 +51,16 @@ namespace WebAPI.Controllers
         static public KalturaTransaction Upgrade(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string udid = ks.ExtractKSData().UDID;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             purchase.Validate();
 
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().UpgradeSubscription(groupId, KSManager.GetKSFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
+                response = ClientsManager.ConditionalAccessClient().UpgradeSubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
                                                                                                         purchase.Currency, purchase.ProductId, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
                                                                                                         purchase.getPaymentMethodId(), purchase.AdapterData);
             }
@@ -110,16 +109,15 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
         static public void Downgrade(KalturaPurchase purchase)
         {
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string udid = ks.ExtractKSData().UDID;
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             purchase.Validate();
 
             try
             {
                 // call client
-                ClientsManager.ConditionalAccessClient().DowngradeSubscription(groupId, KSManager.GetKSFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
+                ClientsManager.ConditionalAccessClient().DowngradeSubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
                                                                                                         purchase.Currency, purchase.ProductId, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
                                                                                                         purchase.getPaymentMethodId(), purchase.AdapterData);
             }
@@ -172,16 +170,16 @@ namespace WebAPI.Controllers
         static public KalturaTransaction Purchase(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string udid = ks.ExtractKSData().UDID;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             purchase.Validate();
             
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KSManager.GetKSFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price, purchase.Currency, 
+                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price, purchase.Currency, 
                     purchase.getContentId(), purchase.ProductId, purchase.ProductType, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(), purchase.getPaymentMethodId(), purchase.AdapterData);
             }
             catch (ClientException ex)
@@ -224,9 +222,8 @@ namespace WebAPI.Controllers
         {
             KalturaTransaction response = new KalturaTransaction();
 
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
-            string udid = ks.ExtractKSData().UDID;
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             // validate purchase token
             if (string.IsNullOrEmpty(currency))
@@ -246,7 +243,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KSManager.GetKSFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), price, currency, content_id, product_id, product_type, coupon, udid, payment_gateway_id, payment_method_id.Value, adapterData);
+                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), price, currency, content_id, product_id, product_type, coupon, udid, payment_gateway_id, payment_method_id.Value, adapterData);
             }
             catch (ClientException ex)
             {
@@ -271,7 +268,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public void UpdateStatus(string paymentGatewayId, string externalTransactionId, string signature, KalturaTransactionStatus status)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -305,7 +302,7 @@ namespace WebAPI.Controllers
         [Obsolete]
         static public void UpdateState(string payment_gateway_id, int adapter_transaction_state, string external_transaction_id, string external_status, string external_message, int fail_reason, string signature)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -334,8 +331,8 @@ namespace WebAPI.Controllers
         static public KalturaTransaction ValidateReceipt(KalturaExternalReceipt externalReceipt)
         {
             KalturaTransaction response = null;
-            KS ks = KSManager.GetKSFromRequest();
-            string udid = ks.ExtractKSData().UDID;
+            KS ks = KS.GetFromRequest();
+            string udid = KSUtils.ExtractKSPayload(ks).UDID;
 
             externalReceipt.Validate();
 
@@ -375,8 +372,8 @@ namespace WebAPI.Controllers
                                                         int content_id = 0)
         {
             KalturaTransaction response = null;
-            KS ks = KSManager.GetKSFromRequest();
-            string udid = ks.ExtractKSData().UDID;
+            KS ks = KS.GetFromRequest();
+            string udid = KSUtils.ExtractKSPayload(ks).UDID;
 
             // validate purchase token
             if (string.IsNullOrEmpty(purchase_receipt))
@@ -419,7 +416,7 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             try
             {
 
@@ -433,7 +430,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().WaiverTransaction(groupId, (int)domain, KSManager.GetKSFromRequest().UserId, assetId, transactionType);
+                response = ClientsManager.ConditionalAccessClient().WaiverTransaction(groupId, (int)domain, KS.GetFromRequest().UserId, assetId, transactionType);
             }
             catch (ClientException ex)
             {
@@ -460,15 +457,14 @@ namespace WebAPI.Controllers
         {
             long response = 0;
 
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 purchaseSession.Validate();
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GetCustomDataId(groupId, ks.UserId, ks.ExtractKSData().UDID, purchaseSession.Price, purchaseSession.Currency, purchaseSession.ProductId, purchaseSession.getContentId(),
+                response = ClientsManager.ConditionalAccessClient().GetCustomDataId(groupId, KS.GetFromRequest().UserId, KSUtils.ExtractKSPayload().UDID, purchaseSession.Price, purchaseSession.Currency, purchaseSession.ProductId, purchaseSession.getContentId(),
                     purchaseSession.Coupon, purchaseSession.ProductType, purchaseSession.getPreviewModuleId());
             }
             catch (ClientException ex)
@@ -498,13 +494,13 @@ namespace WebAPI.Controllers
         static public long PurchaseSessionIdOldStandard(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int preview_module_id = 0)
         {
             long response = 0;
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
+
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GetCustomDataId(groupId, ks.UserId, ks.ExtractKSData().UDID, price, currency, product_id, content_id,
+                response = ClientsManager.ConditionalAccessClient().GetCustomDataId(groupId, KS.GetFromRequest().UserId, KSUtils.ExtractKSPayload().UDID, price, currency, product_id, content_id,
                     coupon, product_type, preview_module_id);
             }
             catch (ClientException ex)

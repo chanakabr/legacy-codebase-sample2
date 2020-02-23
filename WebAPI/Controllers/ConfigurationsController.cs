@@ -1,7 +1,6 @@
 ﻿using ApiObjects.Response;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.DMS;
@@ -41,9 +40,9 @@ namespace WebAPI.Controllers
             if (partnerId == 0)
             {
                 //check if KS was given
-                var ks = KSManager.GetKSFromRequest();
+                var ks = KS.GetFromRequest();
                 if (ks != null)
-                    partnerId = KSManager.GetKSFromRequest().GroupId;
+                    partnerId = KS.GetFromRequest().GroupId;
                 else
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "partnerId");
             }       
@@ -90,7 +89,7 @@ namespace WebAPI.Controllers
         {
             KalturaConfigurations response = null;
 
-            int partnerId = KSManager.GetKSFromRequest().GroupId;
+            int partnerId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrWhiteSpace(id))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
@@ -127,7 +126,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int partnerId = KSManager.GetKSFromRequest().GroupId;
+                int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.GetConfigurationList(partnerId, filter.ConfigurationGroupIdEqual);
@@ -170,7 +169,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int partnerId = KSManager.GetKSFromRequest().GroupId;
+                int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.AddConfiguration(partnerId, configurations);
@@ -217,7 +216,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int partnerId = KSManager.GetKSFromRequest().GroupId;
+                int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client                        
                 response = DMSClient.UpdateConfiguration(partnerId, id, configurations);
@@ -250,7 +249,7 @@ namespace WebAPI.Controllers
                 if (string.IsNullOrWhiteSpace(id))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
 
-                int partnerId = KSManager.GetKSFromRequest().GroupId;
+                int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
                 response = DMSClient.DeleteConfiguration(partnerId, id);

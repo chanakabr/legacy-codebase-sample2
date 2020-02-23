@@ -4,13 +4,14 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Web;
+
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
 using KlogMonitorHelper;
+
 using WebAPI.Filters;
 using TVinciShared;
-using WebAPI.Managers;
 
 namespace WebAPI
 {
@@ -193,7 +194,7 @@ namespace WebAPI
 
         private static void SetKsContext(IDictionary<string, object> requestParams, bool globalScope)
         {
-            KSManager.ClearOnRequest();
+            KS.ClearOnRequest();
             if (requestParams.ContainsKey("ks") && requestParams["ks"] != null)
             {
                 string ks;
@@ -226,14 +227,19 @@ namespace WebAPI
             // the supplied ks is in KS forma (project phoenix's)
             if (IsKsFormat(ksVal))
             {
-                var ks = KSManager.ParseKS(ksVal);
-                KSManager.SaveOnRequest(ks, true);
+                parseKS(ksVal);
             }
             // the supplied is in access token format (TVPAPI's)
             else
             {
                 GetUserDataFromCB(ksVal);
             }
+        }
+
+        private static void parseKS(string ksVal)
+        {
+            KS ks = KS.ParseKS(ksVal);
+            ks.SaveOnRequest();
         }
 
         private static bool IsKsFormat(string ksVal)
@@ -252,14 +258,14 @@ namespace WebAPI
                 throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
             }
 
-            var ks = token.CreateKS(ksVal);
+            KS ks = KS.CreateKSFromApiToken(token, ksVal);
 
-            if (!AuthorizationManager.IsKsValid(ks))
+            if (!ks.IsValid)
             {
                 throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
             }
 
-            KSManager.SaveOnRequest(ks, true);
+            ks.SaveOnRequest();
         }
 
         private static void SetRequestVersion(IDictionary<string, object> requestParams)

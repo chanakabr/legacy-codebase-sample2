@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -29,7 +28,7 @@ namespace WebAPI.Controllers
         {
             List<KalturaUserAssetsList> response = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -37,7 +36,7 @@ namespace WebAPI.Controllers
                 switch (filter.By)
                 {
                     case KalturaEntityReferenceBy.user:
-                        response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string>() { KSManager.GetKSFromRequest().UserId}, filter.ListTypeEqual, filter.AssetTypeEqual);
+                        response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string>() { KS.GetFromRequest().UserId}, filter.ListTypeEqual, filter.AssetTypeEqual);
                         break;
                     case KalturaEntityReferenceBy.household:
                         List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);

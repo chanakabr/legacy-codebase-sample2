@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
         static public bool Delete(string udid)
         {
             bool res = false;
-            var ks = KSManager.GetKSFromRequest();
+            KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
         {
             KalturaHouseholdDevice device = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(pin))
             {
@@ -109,9 +109,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoUsersInDomain)]
         static public KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-            string userId = KSManager.GetKSFromRequest().UserId;
+            string userId = KS.GetFromRequest().UserId;
 
             try
             {
@@ -155,7 +155,7 @@ namespace WebAPI.Controllers
         {
             KalturaHousehold household = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -189,12 +189,12 @@ namespace WebAPI.Controllers
         {
             KalturaHouseholdDevice device = null;
 
-            var ks = KSManager.GetKSFromRequest();
+            KS ks = KS.GetFromRequest();
 
             int householdId = 0;
             if (udid.IsNullOrEmptyOrWhiteSpace())
             {
-                udid = ks.ExtractKSData().UDID;
+                udid = KSUtils.ExtractKSPayload().UDID;
                 householdId = (int)HouseholdUtils.GetHouseholdIDByKS(ks.GroupId);
             }
 
@@ -226,12 +226,12 @@ namespace WebAPI.Controllers
         static public KalturaDeviceRegistrationStatusHolder GetStatus(string udid = null)
         {
             KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;
-            var ks = KSManager.GetKSFromRequest();
-            int groupId = ks.GroupId;
+
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(udid))
             {
-                udid = ks.ExtractKSData().UDID;
+                udid = KSUtils.ExtractKSPayload().UDID;
             }
             if (string.IsNullOrEmpty(udid))
             {
@@ -264,7 +264,7 @@ namespace WebAPI.Controllers
         {
             KalturaDevicePin devicePin = null;
 
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrEmpty(udid))
             {
@@ -295,7 +295,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotExists)]
         static public KalturaHouseholdDevice Update(string udid, KalturaHouseholdDevice device)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -332,7 +332,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotExists)]
         static public bool UpdateOldStandard(string device_name, string udid)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
@@ -367,7 +367,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExceededLimit)]
         static public bool UpdateStatus(string udid, KalturaDeviceStatus status)
         {
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
             int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
@@ -407,7 +407,7 @@ namespace WebAPI.Controllers
         static public KalturaHouseholdDeviceListResponse List(KalturaHouseholdDeviceFilter filter = null)
         {
             KalturaHouseholdDeviceListResponse response = null;
-            int groupId = KSManager.GetKSFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
