@@ -16,8 +16,6 @@ using TVPPro.SiteManager.Helper;
 using Domain = Core.Users.Domain;
 using TVinciShared;
 using ConfigurationManager;
-using KSWrapper;
-using System.Net;
 
 namespace TVPApiModule.Manager
 {
@@ -137,9 +135,9 @@ namespace TVPApiModule.Manager
             return groupConfig;
         }
 
-        public APIToken GenerateAccessToken(string userId, int groupId, bool isAdmin, bool isSTB, string udid, PlatformType platform, int domainId, List<long> userRoleIds)
+        public APIToken GenerateAccessToken(string siteGuid, int groupId, bool isAdmin, bool isSTB, string udid, PlatformType platform)
         {
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(siteGuid))
             {
                 logger.ErrorFormat("GenerateAccessToken: siteGuid is missing");
                 returnError(400);
@@ -150,7 +148,7 @@ namespace TVPApiModule.Manager
             GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
             if (groupConfig == null)
             {
-                logger.Error($"GenerateAccessToken: group configuration was not found for groupId = {groupId}");
+                logger.ErrorFormat("GenerateAccessToken: group configuration was not found for groupId = {0}", groupId);
                 returnError(500);
                 return null;
             }
@@ -158,20 +156,16 @@ namespace TVPApiModule.Manager
             // check if session revocation is allowed and udid is not empty
             if (groupConfig.SessionRevocationEnabled && string.IsNullOrEmpty(udid))
             {
-                logger.Error($"GenerateAccessToken: UDID cannot be empty when session revocation is enabled. siteGuid = {userId}");
+                logger.ErrorFormat("GenerateAccessToken: UDID cannot be empty when session revocation is enabled. siteGuid = {0}", siteGuid);
                 returnError(403);
                 return null;
             }
-
-            var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
-            var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
-            var payload = new KSData(udid, 0, regionId, userSegments, userRoleIds);
 
             if (groupConfig.UseKs && !isAdmin)
             {
                 try
                 {
-                    var session = GenerateSession(groupConfig, userId, groupId, isAdmin, isSTB, payload);
+                    var session = GenerateSession(groupConfig, siteGuid, groupId, isAdmin, isSTB, udid);
                     return new APIToken()
                     {
                         AccessToken = session.KS,
@@ -189,7 +183,7 @@ namespace TVPApiModule.Manager
             }
 
             // generate access token and refresh token pair
-            APIToken apiToken = new APIToken(userId, groupId, payload, isAdmin, groupConfig, isSTB, platform);
+            APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig, isSTB, udid, platform);
             RefreshToken refreshToken = new RefreshToken(apiToken);
 
             // try store access token doc in CB, will return false if the same token already exists
@@ -211,10 +205,10 @@ namespace TVPApiModule.Manager
             // handle session revocation if turned on for the group
             if (groupConfig.SessionRevocationEnabled)
             {
-                string sessionInfoString = string.Format("userId = {0}, udid = {1}, IP = {2}, groupId = {3}", userId, udid, SiteHelper.GetClientIP(), groupId);
+                string sessionInfoString = string.Format("userId = {0}, udid = {1}, IP = {2}, groupId = {3}", siteGuid, udid, SiteHelper.GetClientIP(), groupId);
 
                 // check if the user already logged in from the same device by getting the user device tokens view
-                string viewId = UserDeviceTokensView.GetViewId(userId, udid);
+                string viewId = UserDeviceTokensView.GetViewId(siteGuid, udid);
                 UserDeviceTokensView view = cbManager.Get<UserDeviceTokensView>(viewId, true);
                 if (view != null)
                 {
@@ -244,7 +238,7 @@ namespace TVPApiModule.Manager
                     view = new UserDeviceTokensView()
                     {
                         UDID = udid,
-                        SiteGuid = userId,
+                        SiteGuid = siteGuid,
                         GroupID = groupId,
                     };
                 }
@@ -283,18 +277,14 @@ namespace TVPApiModule.Manager
             }
         }
 
-        public void AddTokenToHeadersForValidNotAdminUser(ApiUsersService.LogInResponseData signInResponse, int groupId, string udid, PlatformType platform)
+        public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId, string udid, PlatformType platform)
         {
             if (HttpContext.Current.Items.ContainsKey("tokenization") && signInResponse.UserData != null &&
-                (signInResponse.LoginStatus == ResponseStatus.OK || 
-                 signInResponse.LoginStatus == ResponseStatus.UserNotActivated || 
-                 signInResponse.LoginStatus == ResponseStatus.DeviceNotRegistered ||
-                 signInResponse.LoginStatus == ResponseStatus.UserNotMasterApproved || 
-                 signInResponse.LoginStatus == ResponseStatus.UserNotIndDomain || 
-                 signInResponse.LoginStatus == ResponseStatus.UserWithNoDomain ||
-                 signInResponse.LoginStatus == ResponseStatus.UserSuspended))
+                (signInResponse.LoginStatus == ResponseStatus.OK || signInResponse.LoginStatus == ResponseStatus.UserNotActivated || signInResponse.LoginStatus == ResponseStatus.DeviceNotRegistered ||
+                signInResponse.LoginStatus == ResponseStatus.UserNotMasterApproved || signInResponse.LoginStatus == ResponseStatus.UserNotIndDomain || signInResponse.LoginStatus == ResponseStatus.UserWithNoDomain ||
+                signInResponse.LoginStatus == ResponseStatus.UserSuspended))
             {
-                var token = GenerateAccessToken(signInResponse.SiteGuid, groupId, false, false, udid, platform, signInResponse.DomainID, signInResponse.UserData.m_oBasicData.RoleIds);
+                var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false, false, udid, platform);
                 if (token != null)
                 {
                     HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", token.AccessToken, token.AccessTokenExpiration));
@@ -531,7 +521,7 @@ namespace TVPApiModule.Manager
             {
                 try
                 {
-                    var ks = KSManager.ParseKS(accessToken);
+                    KS ks = KS.ParseKS(accessToken);
                     siteGuid = ks.UserId;
                     isAdmin = false;
                     bool isKsValid = IsKsValid(ks, true);
@@ -925,7 +915,7 @@ namespace TVPApiModule.Manager
             return Instance.GetTokenResponseObject(apiToken);
         }
 
-        public static Objects.Domain GetSiteGuidsDomain(string siteGuid, Objects.Domain[] domains)
+        public static TVPApiModule.Objects.Domain GetSiteGuidsDomain(string siteGuid, TVPApiModule.Objects.Domain[] domains)
         {
             TVPApiModule.Objects.Domain siteGuidsDomain = null;
 
@@ -942,18 +932,20 @@ namespace TVPApiModule.Manager
             return siteGuidsDomain;
         }
 
-        public KalturaLoginSession GenerateSession(GroupConfiguration groupConfig, string userId, int groupId, bool isAdmin, bool isLoginWithPin, KSData ksData, Dictionary<string, string> privileges = null)
+        public KalturaLoginSession GenerateSession(GroupConfiguration groupConfig, string userId, int groupId, bool isAdmin, bool isLoginWithPin, string udid = null, Dictionary<string, string> privileges = null)
         {
+            KalturaLoginSession session = new KalturaLoginSession();
+
             // get group configurations
             Group group = GetGroupConfiguration(groupId);
 
             // generate access token and refresh token pair
-            APIToken token = new APIToken(userId, groupId, ksData, isAdmin, groupConfig, isLoginWithPin, group, privileges);
+            APIToken token = new APIToken(userId, groupId, udid, isAdmin, group, groupConfig, isLoginWithPin, privileges);
             string tokenKey = string.Format(group.TokenKeyFormat, token.RefreshToken);
 
             // update the sessions data
-            ksData = token.KsObject.ExtractKSData();
-            if (!UpdateUsersSessionsRevocationTime(group, userId, ksData.UDID, ksData.CreateDate, (int)token.AccessTokenExpiration))
+            var ksData = KSUtils.ExtractKSPayload(token.KsObject);
+            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
             {
                 returnError(500);
                 return null;
@@ -963,17 +955,15 @@ namespace TVPApiModule.Manager
             if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
             {
                 logger.ErrorFormat("GenerateSession: Failed to store refreshed token");
-                returnError((int)HttpStatusCode.InternalServerError);
+                returnError(500);
                 return null;
             }
 
-            var session = new KalturaLoginSession
-            {
-                RefreshToken = token.RefreshToken,
-                RefreshTokenExpiry = token.RefreshTokenExpiration,
-                KS = token.AccessToken,
-                Expiry = (long)TimeHelper.ConvertToUnixTimestamp(token.KsObject.Expiration)
-            };
+            session.RefreshToken = token.RefreshToken;
+            session.RefreshTokenExpiry = token.RefreshTokenExpiration;
+
+            session.KS = token.AccessToken;
+            session.Expiry = (long)TimeHelper.ConvertToUnixTimestamp(token.KsObject.Expiration);
 
             return session;
         }
@@ -1027,7 +1017,7 @@ namespace TVPApiModule.Manager
 
                 if (usersSessions != null)
                 {
-                    var ksData = ks.ExtractKSData();
+                    var ksData = KSUtils.ExtractKSPayload(ks);
 
                     if (usersSessions.UserRevocation > 0)
                     {
@@ -1114,7 +1104,7 @@ namespace TVPApiModule.Manager
 
         public KalturaLoginSession RefreshSession(GroupConfiguration groupConfig, string ksStr, string refreshToken, PlatformType platform, string udid = null)
         {
-            var ks = KSManager.ParseKS(ksStr);
+            KS ks = KS.ParseKS(ksStr);
 
             int groupId = ks.GroupId;
 
@@ -1170,7 +1160,7 @@ namespace TVPApiModule.Manager
             token = new APIToken(token, group, groupConfig, udid);
 
             // update the sessions data
-            var ksData = token.KsObject.ExtractKSData();
+            var ksData = KSUtils.ExtractKSPayload(token.KsObject);
             if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
             {
                 logger.ErrorFormat("RefreshSession: Failed to store updated users sessions, userId = {0}", userId);

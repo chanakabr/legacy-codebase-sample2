@@ -17,7 +17,6 @@
     <PackageReference Include="Common.Logging" Version="3.4.1" />
     <PackageReference Include="Common.Logging.Core" Version="3.4.1" />
     <PackageReference Include="DeepCloner" Version="0.10.2" />
-    <PackageReference Include="KSWrapper" Version="5.3.1.14593" />
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />

@@ -674,17 +674,14 @@ namespace TVPApiServices
                     }
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
-                    if (AuthorizationManager.IsTokenizationEnabled() && 
-                        response.Status != null && response.Status.Code == (int)eStatus.OK && response.Result != null && response.Result.user != null && response.Result.user.m_user != null &&
-                       (response.Result.user.m_RespStatus != ResponseStatus.OK || 
-                        response.Result.user.m_RespStatus != ResponseStatus.UserNotActivated ||
-                        response.Result.user.m_RespStatus != ResponseStatus.DeviceNotRegistered || 
-                        response.Result.user.m_RespStatus != ResponseStatus.UserNotMasterApproved ||
-                        response.Result.user.m_RespStatus != ResponseStatus.UserNotIndDomain || 
-                        response.Result.user.m_RespStatus != ResponseStatus.UserWithNoDomain ||
-                        response.Result.user.m_RespStatus != ResponseStatus.UserSuspended))
+                    if (AuthorizationManager.IsTokenizationEnabled() && response.Status != null && response.Status.Code == (int)eStatus.OK &&
+                       response.Result != null && response.Result.user != null && response.Result.user.m_user != null &&
+                       (response.Result.user.m_RespStatus != ResponseStatus.OK || response.Result.user.m_RespStatus != ResponseStatus.UserNotActivated ||
+                       response.Result.user.m_RespStatus != ResponseStatus.DeviceNotRegistered || response.Result.user.m_RespStatus != ResponseStatus.UserNotMasterApproved ||
+                       response.Result.user.m_RespStatus != ResponseStatus.UserNotIndDomain || response.Result.user.m_RespStatus != ResponseStatus.UserWithNoDomain ||
+                       response.Result.user.m_RespStatus != ResponseStatus.UserSuspended))
                     {
-                        var token = AuthorizationManager.Instance.GenerateAccessToken(response.Result.user.m_user.m_sSiteGUID, groupID, false, true, initObj.UDID, initObj.Platform, response.Result.user.m_user.m_domianID, response.Result.user.m_user.m_oBasicData.RoleIds);
+                        var token = AuthorizationManager.Instance.GenerateAccessToken(response.Result.user.m_user.m_sSiteGUID, groupID, false, true, initObj.UDID, initObj.Platform);
 
                         HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", token.AccessToken, token.AccessTokenExpiration));
                         HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", token.RefreshToken, token.RefreshTokenExpiration));

@@ -1,7 +1,12 @@
-﻿using ApiObjects.CouchbaseWrapperObjects;
-using Newtonsoft.Json;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Newtonsoft.Json;
+using ApiObjects.CouchbaseWrapperObjects;
+using TVPApiModule.Helper;
 using TVPApi;
+
 
 namespace TVPApiModule.Objects.Authorization
 {
@@ -34,18 +39,6 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("platform")]
         public PlatformType Platform { get; set; }
 
-        [JsonProperty("regionId")]
-        public int RegionId { get; set; }
-
-        [JsonProperty("UserSegments")]
-        public List<long> UserSegments { get; set; }
-
-        [JsonProperty("UserRoles")]
-        public List<long> UserRoles { get; set; }
-
-        [JsonProperty("Signature")]
-        public string Signature { get; set; }
-
         [JsonIgnore]
         public override string Id
         {
@@ -67,14 +60,9 @@ namespace TVPApiModule.Objects.Authorization
             IsLongRefreshExpiration = token.IsLongRefreshExpiration;
             UDID = token.UDID;
             Platform = token.Platform;
-            RegionId = token.RegionId;
-            UserSegments = token.UserSegments;
-            UserRoles = token.UserRoles;
-            Signature = token.Signature;
         }
 
-        public RefreshToken(string siteGuid, int groupId, string accessTokenId, string refreshToken, long refreshTokenExpiration, bool isAdmin, bool isLongRefreshExpiration, string udid, 
-                            PlatformType platform, int regionId, List<long> userSegments, List<long> userRoles, string signature)
+        public RefreshToken(string siteGuid, int groupId, string accessTokenId, string refreshToken, long refreshTokenExpiration, bool isAdmin, bool isLongRefreshExpiration, string udid, PlatformType platform)
         {
             AccessTokenId = accessTokenId;
             RefreshTokenValue = refreshToken;
@@ -85,10 +73,6 @@ namespace TVPApiModule.Objects.Authorization
             IsLongRefreshExpiration = isLongRefreshExpiration;
             UDID = udid;
             Platform = platform;
-            RegionId = regionId;
-            UserSegments = userSegments;
-            UserRoles = userRoles;
-            Signature = signature;
         }
 
         public static string GetRefreshTokenId(string refreshToken)

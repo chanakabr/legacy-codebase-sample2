@@ -1072,6 +1072,20 @@ Global
 		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.test|Any CPU.Build.0 = Debug|Any CPU
 		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.Yes|Any CPU.ActiveCfg = Debug|Any CPU
 		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.Yes|Any CPU.Build.0 = Debug|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.AllClients|Any CPU.ActiveCfg = Release|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.AllClients|Any CPU.Build.0 = Release|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.debug32|Any CPU.Build.0 = Debug|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.Local|Any CPU.Build.0 = Release|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.test|Any CPU.ActiveCfg = Release|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.test|Any CPU.Build.0 = Release|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.Yes|Any CPU.ActiveCfg = Release|Any CPU
+		{27B8AB82-1D17-430C-A86F-4F305DC40FAD}.Yes|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1150,7 +1164,7 @@ Global
 		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3} = {80535B55-CED9-4B4A-9040-933D6AC84B2E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {5604D01E-691A-49EC-9DF9-EECBFAFD1E19}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {5604D01E-691A-49EC-9DF9-EECBFAFD1E19}
 	EndGlobalSection
 EndGlobal
