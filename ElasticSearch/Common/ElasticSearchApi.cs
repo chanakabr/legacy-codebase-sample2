@@ -58,7 +58,7 @@ namespace ElasticSearch.Common
 
                 // Get source index mappings
                 var urlGetMappings = string.Format("{0}/{1}/_mapping", baseUrl, source);
-                var mappingResponse = SendGetHttpReq(urlGetSettings, ref nStatus);
+                var mappingResponse = SendGetHttpReq(urlGetMappings, ref nStatus);
                 var mappingsJobject = JObject.Parse(mappingResponse).First.First["mappings"];
 
 
