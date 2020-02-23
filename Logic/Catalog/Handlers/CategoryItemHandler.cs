@@ -213,7 +213,8 @@ namespace Core.Catalog.Handlers
             try
             {
                 //Check if category exist
-                if (!CategoriesManager.IsCategoryExist(contextData.GroupId, id))
+                var item = CategoriesManager.GetCategoryItem(contextData.GroupId, id);
+                if (item == null)
                 {
                     response.Set(eResponseStatus.CategoryNotExist, "Category does not exist");
                     return response;
@@ -256,6 +257,10 @@ namespace Core.Catalog.Handlers
                 api.DeleteVirtualAsset(contextData.GroupId, virtualAssetInfo);
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
+                if (item.ParentCategoryId > 0)
+                {
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item.ParentCategoryId.Value));
+                }
 
                 response.Set(eResponseStatus.OK);
             }
@@ -364,7 +369,7 @@ namespace Core.Catalog.Handlers
 
             if (result.ObjectIds?.Count > 0)
             {
-                response.Objects = categoriesIds.Select(x => CategoriesManager.GetCategoryItem(contextData.GroupId, x)).ToList();
+                response.Objects = result.ObjectIds.Select(x => CategoriesManager.GetCategoryItem(contextData.GroupId, x)).ToList();
                 response.TotalItems = result.TotalItems;
             }
 
@@ -406,7 +411,7 @@ namespace Core.Catalog.Handlers
         private void DuplicateChildren(int groupId, long userId, CategoryItem parent, Dictionary<long, long> newTreeMap)
         {
             List<long> children = new List<long>();
-            if (parent.ChildCategoriesIds?.Count < 0)
+            if (parent.ChildCategoriesIds?.Count > 0)
             {
                 CategoryItem ci;
                 foreach (var item in parent.ChildCategoriesIds)
