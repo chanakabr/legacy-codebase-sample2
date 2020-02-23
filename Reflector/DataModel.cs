@@ -278,7 +278,7 @@ namespace Reflector
             file.WriteLine("        ");
         }
         
-        private void WriteActionParams(ActionAttribute actionAttribute, MethodInfo action, List<PropertyInfo> schemeArgumentProperties, ServiceAttribute serviceAttribute, HashSet<string> optionalParameters = null)
+        private void WriteActionParams(ActionAttribute actionAttribute, MethodInfo action, List<PropertyInfo> schemeArgumentProperties, ServiceAttribute serviceAttribute, Dictionary<string, bool> optionalParameters = null)
         {
             file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
 
@@ -288,6 +288,12 @@ namespace Reflector
 
             foreach (var parameter in parameters)
             {
+                var isParameterOptional = SchemeManager.IsParameterOptional(parameter, optionalParameters);
+                if (!isParameterOptional.HasValue)
+                {
+                    continue;
+                }
+
                 string paramName = "paramName";
                 bool hasOldStandard = false;
                 if (oldStandardAttributesMap.ContainsKey(parameter.Name))
@@ -330,7 +336,7 @@ namespace Reflector
 
                 file.WriteLine("                            ret.Add(" + paramName + ", new MethodParam(){");
                 file.WriteLine("                                NewName = newParamName,");
-                if (SchemeManager.IsParameterOptional(parameter, optionalParameters))
+                if (isParameterOptional.Value)
                 {
                     file.WriteLine("                                IsOptional = true,");
                     file.WriteLine("                                DefaultValue = " + SchemeManager.VarToString(parameter.DefaultValue) + ",");

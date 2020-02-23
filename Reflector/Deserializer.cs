@@ -27,6 +27,7 @@ namespace Reflector
             types.Remove(typeof(KalturaOTTObject));
             types.Remove(typeof(KalturaApiExceptionArg));
             types.Remove(typeof(KalturaFilter<>));
+            types.Remove(typeof(KalturaCrudFilter<,>));
             types.Remove(typeof(KalturaGenericListResponse<>));
         }
         

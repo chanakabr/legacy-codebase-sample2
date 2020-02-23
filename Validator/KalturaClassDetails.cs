@@ -45,7 +45,7 @@ namespace Validator
     {
         public string Name { get; set; }
         public Dictionary<string, string> ParameterTypes { get; set; }
-        public bool IsOptional { get; set; }
+        public bool? IsOptional { get; set; }
         public string DefaultValue { get; set; }
         public string Description { get; set; }
 

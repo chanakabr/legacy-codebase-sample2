@@ -12,6 +12,7 @@ pipeline {
                 )
             }
         }
+        
         stage('Push Phoenix dockers'){
             steps {
                 script {

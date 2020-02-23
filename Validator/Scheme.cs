@@ -673,6 +673,11 @@ namespace Validator.Managers.Scheme
 
             foreach (var param in action.Prameters)
             {
+                if (!param.IsOptional.HasValue)
+                {
+                    continue;
+                }
+
                 writer.WriteStartElement("param");
                 writer.WriteAttributeString("name", param.Name);
                 foreach (var prameterType in param.ParameterTypes)
@@ -680,13 +685,13 @@ namespace Validator.Managers.Scheme
                     writer.WriteAttributeString(prameterType.Key, prameterType.Value);
                 }
                 
-                if (param.IsOptional)
+                if (param.IsOptional.Value)
                 {
                     writer.WriteAttributeString("default", param.DefaultValue);
                 }
 
                 writer.WriteAttributeString("description", param.Description);
-                writer.WriteAttributeString("optional", param.IsOptional ? "1" : "0");
+                writer.WriteAttributeString("optional", param.IsOptional.Value ? "1" : "0");
                 writer.WriteEndElement(); // param
             }
 
@@ -977,7 +982,11 @@ namespace Validator.Managers.Scheme
             var parameters = method.GetParameters();
             foreach (var parameter in parameters)
             {
-                crudActionDetails.Prameters.Add(GetCrudPrameterDetails(parameter, method, actionAttribute));
+                var crudPrameter = GetCrudPrameterDetails(parameter, method, actionAttribute);
+                if(crudPrameter.IsOptional.HasValue)
+                {
+                    crudActionDetails.Prameters.Add(crudPrameter);
+                }
             }
 
             if (method.ReturnType != typeof(void))
@@ -1070,7 +1079,7 @@ namespace Validator.Managers.Scheme
                 Description = actionAttribute.GetDescription(parameter.Name),
             };
 
-            if (prameterDetails.IsOptional)
+            if (prameterDetails.IsOptional.HasValue && prameterDetails.IsOptional.Value)
             {
                 prameterDetails.DefaultValue = SchemeManager.VarToString(parameter.DefaultValue);
             }
