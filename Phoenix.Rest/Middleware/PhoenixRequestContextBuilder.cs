@@ -1,5 +1,6 @@
 using ConfigurationManager;
 using KLogMonitor;
+using WebAPI.Managers.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
@@ -13,10 +14,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TVinciShared;
 using WebAPI;
 using WebAPI.Filters;
-using TVinciShared;
-using WebAPI.Managers.Models;
+using WebAPI.Managers;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
 
@@ -95,6 +96,8 @@ namespace Phoenix.Rest.Middleware
 
             if (context.Items.TryGetValue(RequestContextUtils.REQUEST_GLOBAL_KS, out var ks))
             {
+
+
                 _PhoenixContext.Ks = ks as KS;
             }
 
