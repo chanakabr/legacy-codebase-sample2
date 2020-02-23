@@ -419,7 +419,7 @@ namespace Tvinci.Data.DataLoader
         object ILoaderAdapter.Execute(eExecuteBehaivor behaivor)
         {
             
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return BCExecute(behaivor);
             }
@@ -437,7 +437,7 @@ namespace Tvinci.Data.DataLoader
         object ILoaderAdapter.Execute()
         {
             
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return BCExecute(eExecuteBehaivor.None);
             }

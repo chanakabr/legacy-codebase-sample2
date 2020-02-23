@@ -97,7 +97,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 // Store in Cache the medias from Catalog
                 Log("Got MediaResponse from Catalog", oMediaResponse);
                 Log("Storing Medias in Cache", oMediaResponse.m_lObj);
-                int duration = ApplicationConfiguration.TVPApiConfiguration.CacheLiteDurationInMinutes.IntValue;
+                int duration = ApplicationConfiguration.Current.TVPApiConfiguration.CacheLiteDurationInMinutes.Value;
                 CacheManager.Cache.StoreObjects(oMediaResponse.m_lObj, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language), duration);
             }
 

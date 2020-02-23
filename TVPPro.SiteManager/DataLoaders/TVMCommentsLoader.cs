@@ -167,7 +167,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override MediaComments Execute()
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCommentsListLoader = new MediaCommentsListLoader(int.Parse(MediaID), m_tvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex)
                 {
@@ -185,7 +185,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCommentsListLoader.TryGetItemsCount(out count);
             }

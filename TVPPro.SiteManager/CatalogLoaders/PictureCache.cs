@@ -93,7 +93,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 // Store in Cache the pictures from Catalog
                 Log("Got PicResponse from Catalog", oPicResponse);
                 Log("Storing Pictures in Cache", oPicResponse.m_lObj);
-                int duration = ApplicationConfiguration.TVPApiConfiguration.CacheLiteDurationInMinutes.IntValue;
+                int duration = ApplicationConfiguration.Current.TVPApiConfiguration.CacheLiteDurationInMinutes.Value;
                 CacheManager.Cache.StoreObjects(oPicResponse.m_lObj, CACHE_KEY_PREFIX, duration);
             }
             else if (providerResult != eProviderResult.Success)

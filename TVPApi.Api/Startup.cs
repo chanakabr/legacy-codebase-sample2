@@ -31,7 +31,7 @@ namespace TVPApi.Web
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = ApplicationConfiguration.WebServicesConfiguration.Catalog.SignatureKey.Value;
+            Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.SignatureKey.Value;
             app.MapEndpoint("Gateways/JsonPostGW.aspx", apiApp =>
             {
                 apiApp.UseTvpApi();

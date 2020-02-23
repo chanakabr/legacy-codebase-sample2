@@ -39,7 +39,7 @@ namespace TVPApi
         {
             bool retVal = false;
 
-            bool isOfflineSync = ApplicationConfiguration.TVPApiConfiguration.OfflineFavoriteSyncGroups.IsOfflineSync(groupID);
+            bool isOfflineSync = ApplicationConfiguration.Current.TVPApiConfiguration.OfflineFavoriteSyncGroups.Value.Contains(groupID);
 
             switch (action)
             {

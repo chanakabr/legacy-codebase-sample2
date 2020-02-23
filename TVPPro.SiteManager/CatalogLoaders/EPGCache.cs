@@ -32,7 +32,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public EPGCache(List<SearchResult> programIDs, int groupID, string userIP, Filter filter) :
             base(groupID, userIP, 0, 0)
         {
-            Duration = ApplicationConfiguration.TVPApiConfiguration.CacheLiteDurationInMinutes.IntValue;
+            Duration = ApplicationConfiguration.Current.TVPApiConfiguration.CacheLiteDurationInMinutes.Value;
 
             ProgramIDs = programIDs;
             m_oFilter = filter;

@@ -6,12 +6,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
   </ItemGroup>
 
@@ -21,6 +20,7 @@
     <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\Libs\TVPApiModule\TVPApiModule.csproj" />
     <ProjectReference Include="..\TVPApi.Common\TVPApi.Common.csproj" />
+    <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

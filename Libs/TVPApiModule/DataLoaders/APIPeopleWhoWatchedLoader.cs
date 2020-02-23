@@ -106,7 +106,7 @@ namespace TVPApi
 
         public override dsItemInfo Execute()
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oPeopleWhoWatchedLoader = new TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader((int)MediaID, 0, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize)
                 {
@@ -127,7 +127,7 @@ namespace TVPApi
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oPeopleWhoWatchedLoader.TryGetItemsCount(out count);
             }

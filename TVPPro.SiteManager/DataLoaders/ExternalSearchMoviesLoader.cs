@@ -196,7 +196,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override List<BaseObject> Execute()
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogExternalSearchLoader = new ExternalSearchMediaLoader(Query, new List<int>(), TvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex)
                 {
@@ -277,7 +277,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCatalogExternalSearchLoader.TryGetItemsCount(out count);
             }

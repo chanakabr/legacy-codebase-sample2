@@ -162,7 +162,7 @@ namespace TVPPro.SiteManager.DataLoaders
         public override bool Execute()
         {
             
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 MediaCommentLoader commentLoader = new MediaCommentLoader(
                     m_tvmUser, 

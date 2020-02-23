@@ -83,7 +83,7 @@ namespace TVPApiModule.DataLoaders
         public override dsItemInfo Execute()
         {
             
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 List<int> mediaIDs = new List<int>();
                 foreach (var id in MediaArrayID)

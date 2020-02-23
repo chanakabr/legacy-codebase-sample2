@@ -23,7 +23,7 @@ namespace TVPApi.ODBCWrapper
             m_myDataSet = new System.Data.DataSet();
             command = null;
 
-            m_nCachedSec = ApplicationConfiguration.TVPApiConfiguration.OdbcCacheSeconds.IntValue;
+            m_nCachedSec = ApplicationConfiguration.Current.TVPApiConfiguration.OdbcCacheSeconds.Value;
 
             if (m_nCachedSec == 0)
                 m_nCachedSec = 60;

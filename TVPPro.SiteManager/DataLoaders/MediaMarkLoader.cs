@@ -331,7 +331,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override String Execute()
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 CatalogLoaders.MediaMarkLoader mediaMarkLoader = 
                     new CatalogLoaders.MediaMarkLoader(PageData.Instance.GetTVMAccountByUserName(TvmUser).BaseGroupID, SiteHelper.GetClientIP(), UsersService.Instance.GetUserID(),

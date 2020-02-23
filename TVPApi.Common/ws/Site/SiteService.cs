@@ -455,8 +455,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    string privateKey = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidKey.Value;
-                    string IV = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidIV.Value;
+                    string privateKey = ApplicationConfiguration.Current.TVPApiConfiguration.SecureSiteGuidKey.Value;
+                    string IV = ApplicationConfiguration.Current.TVPApiConfiguration.SecureSiteGuidIV.Value;
                     sRet = SecurityHelper.EncryptSiteGuid(privateKey, IV, initObj.SiteGuid);
                 }
                 catch (Exception ex)
@@ -612,8 +612,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    string privateKey = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidKey.Value;
-                    string IV = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidIV.Value;
+                    string privateKey = ApplicationConfiguration.Current.TVPApiConfiguration.SecureSiteGuidKey.Value;
+                    string IV = ApplicationConfiguration.Current.TVPApiConfiguration.SecureSiteGuidIV.Value;
                     sRet = SecurityHelper.DecryptSiteGuid(privateKey, IV, encSiteGuid);
 
                     // Tokenization: validate siteGuid

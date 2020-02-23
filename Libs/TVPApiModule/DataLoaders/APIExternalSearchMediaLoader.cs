@@ -119,7 +119,7 @@ using ApiObjects.Response;
 
 //        public override List<BaseObject> Execute()
 //        {
-//            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+//            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
 //            {
 //                m_oCatalogExternalSearchLoader = new TVPApiModule.CatalogLoaders.APIExternalSearchMediaLoader(
 //                    Query,
