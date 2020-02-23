@@ -67,6 +67,6 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "images")]
         [XmlArray(ElementName = "images", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaMediaImage> Images { get; set; }
+        public List<KalturaImage> Images { get; set; }
     }
 }

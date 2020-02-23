@@ -11762,11 +11762,11 @@ namespace WebAPI.Models.Catalog
                 {
                     if (parameters["images"] is JArray)
                     {
-                        Images = buildList<KalturaMediaImage>(typeof(KalturaMediaImage), (JArray) parameters["images"]);
+                        Images = buildList<KalturaImage>(typeof(KalturaImage), (JArray) parameters["images"]);
                     }
                     else if (parameters["images"] is IList)
                     {
-                        Images = buildList(typeof(KalturaMediaImage), parameters["images"] as object[]);
+                        Images = buildList(typeof(KalturaImage), parameters["images"] as object[]);
                     }
                 }
             }

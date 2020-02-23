@@ -459,7 +459,7 @@ namespace Core.Catalog.Handlers
             if (categoryItem?.ChildCategoriesIds?.Count > 0)
             {
                 List<CategoryItem> childern = categoryItem.ChildCategoriesIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
-                categoryTree.Children = FindTreeChildren(groupId, childern, categoryTree.Id);
+                categoryTree.Children = FindTreeChildren(groupId, childern);
             }
 
             response.Object = categoryTree;
@@ -468,7 +468,7 @@ namespace Core.Catalog.Handlers
             return response;
         }
 
-        private List<CategoryTree> FindTreeChildren(int groupId, List<CategoryItem> children, long parentCategoryID)
+        private List<CategoryTree> FindTreeChildren(int groupId, List<CategoryItem> children)
         {
             List<CategoryTree> response = new List<CategoryTree>();
             CategoryTree ct;
@@ -476,7 +476,7 @@ namespace Core.Catalog.Handlers
             {
                 ct = BuildCategoryTree(groupId, c);
                 var ch = c.ChildCategoriesIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
-                ct.Children = FindTreeChildren(groupId, ch, c.Id);
+                ct.Children = FindTreeChildren(groupId, ch);
                 response.Add(ct);
             }
 
@@ -503,6 +503,11 @@ namespace Core.Catalog.Handlers
             }
 
             //2. images
+            var images = Catalog.CatalogManagement.ImageManager.GetImagesByObject(groupId, categoryItem.Id, eAssetImageType.Category);
+            if (images.HasObjects())
+            {
+                categoryTree.Images = images.Objects;
+            }
 
             return categoryTree;
         }

@@ -9,16 +9,14 @@ namespace ApiLogic.Catalog
         public string Name { get; set; }
         public List<CategoryTree> Children { get; set; }
         public List<UnifiedChannelInfo> UnifiedChannels { get; set; }
-        public Dictionary<string,string> DynamicData { get; set; }
-        
-        public List<Picture> Images;
+        public Dictionary<string, string> DynamicData { get; set; }
+        public List<Image> Images { get; set; }
 
         public CategoryTree(CategoryItem categoryItem)
         {
             this.Id = categoryItem.Id;
             this.Name = categoryItem.Name;
             this.DynamicData = categoryItem.DynamicData;
-            //this.UnifiedChannels = categoryItem.UnifiedChannels;
         }
     }
 }
