@@ -402,9 +402,10 @@ namespace Validator.Managers.Scheme
             {
                 return !strict;
             }
- 
-            var methods = controller.GetMethods().Where(x => x.IsPublic && x.DeclaringType.Namespace == "WebAPI.Controllers").OrderBy(method => method.Name).ToList();
+
             var hasValidActions = false;
+            var methods = controller.GetMethods().Where(x => x.IsPublic && x.DeclaringType.Namespace == "WebAPI.Controllers").OrderBy(method => method.Name).ToList();
+            
             if (methods.Count == 0)
             {
                 hasValidActions = true;
@@ -417,7 +418,45 @@ namespace Validator.Managers.Scheme
                 };
             }
             
+            if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
+            {
+                foreach (var crudActionAttribute in crudActionAttributes)
+                {
+                    if (crudActions.ContainsKey(crudActionAttribute.Key))
+                    {
+                        var crudAction = GetCrudActionDetails(crudActionAttribute.Value, crudActions[crudActionAttribute.Key]);
+                        hasValidActions = ValidateCrudMethod(crudAction, controller) || hasValidActions;
+                    }
+                }
+            }
+
             return valid && hasValidActions;
+        }
+
+        private static bool ValidateCrudMethod(KalturaActionDetails crudAction, Type controller)
+        {
+            if (crudAction.Prameters.Count > 1)
+            {
+                var prevIsOptional = false;
+                string optionalParameter = string.Empty;
+                for (int i = 1; i < crudAction.Prameters.Count; i++)
+                {
+                    if (crudAction.Prameters[i -1].IsOptional)
+                    {
+                        prevIsOptional = true;
+                        optionalParameter = crudAction.Prameters[i - 1].Name;
+                    }
+
+                    if (!crudAction.Prameters[i].IsOptional && prevIsOptional)
+                    {
+                        logError("Error", controller, $"Action {controller.Name}.{crudAction.LoweredName} has optional parameter [{optionalParameter}] before required parameter [{crudAction.Prameters[i].Name}].");
+
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private static bool ValidateAttribute(Type declaringClass, Type attribute, string description, bool strict)
@@ -521,7 +560,7 @@ namespace Validator.Managers.Scheme
 
             if (actionAttribute == null)
             {
-                logError("Error", controller, string.Format("Action {0}.{1} ({2}) has no action attribute", serviceId, method.Name, controller.Name));
+                logError("Error", controller, $"Action {serviceId}.{method.Name} ({controller.Name}) has no action attribute");
                 return false;
             }
 
@@ -774,11 +813,11 @@ namespace Validator.Managers.Scheme
         public static bool? IsParameterOptional(ParameterInfo parameter, Dictionary<string, bool> optionalParameters)
         {
             bool? isParamOptional = null;
-            if (parameter.IsOptional || optionalParameters == null)
+            if (optionalParameters == null)
             {
                 isParamOptional = parameter.IsOptional;
             }
-            else if (optionalParameters != null && optionalParameters.ContainsKey(parameter.Name))
+            else if (optionalParameters.ContainsKey(parameter.Name))
             {
                 isParamOptional = optionalParameters[parameter.Name];
             }
@@ -832,6 +871,152 @@ namespace Validator.Managers.Scheme
             }
 
             return classNode[0].InnerText.Trim();
+        }
+
+        public static KalturaActionDetails GetCrudActionDetails(CrudActionAttribute actionAttribute, MethodInfo method)
+        {
+            var crudActionDetails = new KalturaActionDetails()
+            {
+                LoweredName = actionAttribute.GetName(),
+                RealName = method.Name,
+                Description = actionAttribute.Summary,
+                IsGenericMethod = false,
+                IsDeprecated = false,
+                IsSessionRequired = true,
+            };
+
+            var parameters = method.GetParameters();
+            foreach (var parameter in parameters)
+            {
+                var crudPrameter = GetCrudPrameterDetails(parameter, method, actionAttribute);
+                if (crudPrameter != null)
+                {
+                    crudActionDetails.Prameters.Add(crudPrameter);
+                }
+            }
+
+            if (method.ReturnType != typeof(void))
+            {
+                crudActionDetails.ReturnedTypes = GetParameterTypes(method.ReturnType);
+            }
+
+            // write throws
+            if (actionAttribute.ApiThrows != null && actionAttribute.ApiThrows.Length > 0)
+            {
+                crudActionDetails.ApiThrows.AddRange(actionAttribute.ApiThrows);
+            }
+
+            if ((actionAttribute.ClientThrows != null && actionAttribute.ClientThrows.Length > 0))
+            {
+                crudActionDetails.ClientThrows.AddRange(actionAttribute.ClientThrows);
+            }
+
+            return crudActionDetails;
+        }
+
+        internal static KalturaPrameterDetails GetCrudPrameterDetails(ParameterInfo parameter, MethodInfo method, CrudActionAttribute actionAttribute)
+        {
+            var isOptional = SchemeManager.IsParameterOptional(parameter, actionAttribute.GetOptionalParameters());
+            if (!isOptional.HasValue) { return null; } // parameter does not exist
+
+            var prameterDetails = new KalturaPrameterDetails()
+            {
+                ParameterType = parameter.ParameterType,
+                Name = parameter.Name,
+                ParameterTypes = GetParameterTypes(parameter.ParameterType),
+                IsOptional = isOptional.Value,
+                Description = actionAttribute.GetDescription(parameter.Name),
+                Position = parameter.Position
+            };
+
+            if (prameterDetails.IsOptional)
+            {
+                prameterDetails.DefaultValue = SchemeManager.VarToString(parameter.DefaultValue);
+            }
+
+            return prameterDetails;
+        }
+
+        internal static Dictionary<string, string> GetParameterTypes(Type type)
+        {
+            var parameterTypes = new Dictionary<string, string>();
+
+            //Handling nullables
+            if (Nullable.GetUnderlyingType(type) != null)
+            {
+                type = type.GetGenericArguments()[0];
+            }
+
+            //Handling Enums
+            if (type.IsEnum)
+            {
+                bool isIntEnum = type.GetCustomAttribute<KalturaIntEnumAttribute>() != null;
+                var etype = isIntEnum ? "int" : "string";
+                parameterTypes.Add("type", isIntEnum ? "int" : "string");
+                parameterTypes.Add("enumType", GetTypeName(type));
+                return parameterTypes;
+            }
+
+            //Handling arrays
+            if (type.IsArray)
+            {
+                parameterTypes.Add("type", "array");
+                parameterTypes.Add("arrayType", GetTypeName(type.GetElementType()));
+                return parameterTypes;
+            }
+
+            if (type.IsGenericType)
+            {
+                var genericTypeDefinition = type.GetGenericTypeDefinition();
+
+                if (genericTypeDefinition == typeof(List<>))
+                {
+                    parameterTypes.Add("type", "array");
+                    parameterTypes.Add("arrayType", GetTypeName(type.GetGenericArguments()[0]));
+                    return parameterTypes;
+                }
+
+                if (genericTypeDefinition == typeof(Dictionary<,>) || genericTypeDefinition == typeof(SerializableDictionary<,>))
+                {
+                    parameterTypes.Add("type", "map");
+                    parameterTypes.Add("arrayType", GetTypeName(type.GetGenericArguments()[1]));
+                    return parameterTypes;
+                }
+            }
+
+            parameterTypes.Add("type", GetTypeName(type));
+            return parameterTypes;
+        }
+
+        internal static string GetTypeName(Type type)
+        {
+            if (type == typeof(String))
+                return "string";
+            if (type == typeof(DateTime))
+                return "int";
+            if (type == typeof(long) || type == typeof(Int64))
+                return "bigint";
+            if (type == typeof(Int32))
+                return "int";
+            if (type == typeof(double) || type == typeof(float))
+                return "float";
+            if (type == typeof(bool))
+                return "bool";
+            if (type.IsEnum)
+                return type.Name;
+
+            if (type == typeof(KalturaOTTFile))
+                return "file";
+
+            if (type == typeof(KalturaOTTObject))
+                return "KalturaObject";
+
+            if (typeof(KalturaRenderer).IsAssignableFrom(type))
+                return "file";
+
+            Regex regex = new Regex("^[^`]+");
+            Match match = regex.Match(type.Name);
+            return match.Value;
         }
     }
 }

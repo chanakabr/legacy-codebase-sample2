@@ -9,6 +9,7 @@ using WebAPI.Models.General;
 using WebAPI.Controllers;
 using System.Net;
 using Validator.Managers.Scheme;
+using Validator;
 
 namespace Reflector
 {
@@ -519,7 +520,9 @@ namespace Reflector
                 file.WriteLine(tab + "                            HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVE_CONTENT_TYPE] = \"" + serve.ContentType + "\";");
             }
 
-            string args = String.Join(", ", action.GetParameters().Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
+            string args = String.Join(", ", action.GetParameters()
+                .Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
+
             if (action.IsGenericMethod)
             {
                 file.WriteLine(tab + "                            return ServiceController.ExecGeneric(typeof(" + controller.Name + ").GetMethod(\"" + action.Name + "\"), methodParams);");
@@ -636,7 +639,8 @@ namespace Reflector
                     {
                         if (crudActions.ContainsKey(crudActionAttribute.Key))
                         {
-                            WriteCrudAction(controller, serviceName, crudActionAttribute.Value, crudActions[crudActionAttribute.Key]);
+                            var crudAction = SchemeManager.GetCrudActionDetails(crudActionAttribute.Value, crudActions[crudActionAttribute.Key]);
+                            WriteCrudAction(crudAction, controller, serviceName);
                         }
                     }
                 }
@@ -653,25 +657,26 @@ namespace Reflector
             file.WriteLine("        ");
         }
 
-        private void WriteCrudAction(Type controller, string serviceName, CrudActionAttribute crudActionAttribute, MethodInfo crudAction)
+        private void WriteCrudAction(KalturaActionDetails crudAction, Type controller, string serviceName)
         {
-            var actionName = crudActionAttribute.GetName();
-            file.WriteLine("                        case \"" + actionName + "\":");
-            file.WriteLine("                            RolesManager.ValidateActionPermitted(\"" + serviceName + "\", \"" + actionName + "\");");
-            
-            string args = String.Join(", ", crudAction.GetParameters().Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
+            file.WriteLine("                        case \"" + crudAction.LoweredName + "\":");
+            file.WriteLine("                            RolesManager.ValidateActionPermitted(\"" + serviceName + "\", \"" + crudAction.LoweredName + "\");");
+
+            string args = String.Join(", ", crudAction.Prameters.Select(param => 
+                "(" + GetTypeName(param.ParameterType, true) + ") methodParams[" + param.Position + "]"));
+
             if (crudAction.IsGenericMethod)
             {
-                file.WriteLine("                            return ServiceController.ExecGeneric(typeof(" + controller.Name + ").GetMethod(\"" + crudAction.Name + "\"), methodParams);");
+                file.WriteLine("                            return ServiceController.ExecGeneric(typeof(" + controller.Name + ").GetMethod(\"" + crudAction.RealName + "\"), methodParams);");
             }
-            else if (crudAction.ReturnType == typeof(void))
+            else if (crudAction.ReturnedTypes.Count == 0)
             {
-                file.WriteLine("                            " + controller.Name + "." + crudAction.Name + "(" + args + ");");
+                file.WriteLine("                            " + controller.Name + "." + crudAction.RealName + "(" + args + ");");
                 file.WriteLine("                            return null;");
             }
             else
             {
-                file.WriteLine("                            return " + controller.Name + "." + crudAction.Name + "(" + args + ");");
+                file.WriteLine("                            return " + controller.Name + "." + crudAction.RealName + "(" + args + ");");
             }
             
             file.WriteLine("                            ");

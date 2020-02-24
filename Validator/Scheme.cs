@@ -304,7 +304,7 @@ namespace Validator.Managers.Scheme
                 return;
             }
 
-            string typeName = GetTypeName(type);
+            string typeName = SchemeManager.GetTypeName(type);
             if (typeof(IKalturaOTTObject).IsAssignableFrom(type) && !Field.loadedTypes.ContainsKey(typeName))
             {
                 Field.loadedTypes.Add(typeName, new Field(type));
@@ -647,7 +647,7 @@ namespace Validator.Managers.Scheme
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Exception while writeAction for service. controller:{controller.ServiceId}, action:{action.Name}, ex:{ex.ToString()}");
+                    Console.WriteLine($"Exception while writeAction for service. controller:{controller.ServiceId}, action:{action.LoweredName}, ex:{ex.ToString()}");
                     throw;
                 }
             }
@@ -658,7 +658,7 @@ namespace Validator.Managers.Scheme
         private void writeAction(KalturaActionDetails action, KalturaControllerDetails controller)
         {
             writer.WriteStartElement("action");
-            writer.WriteAttributeString("name", action.Name);
+            writer.WriteAttributeString("name", action.LoweredName);
             writer.WriteAttributeString("enableInMultiRequest", action.IsGenericMethod ? "0" : "1");
             writer.WriteAttributeString("supportedRequestFormats", "json");
             writer.WriteAttributeString("supportedResponseFormats", "json,xml");
@@ -673,11 +673,6 @@ namespace Validator.Managers.Scheme
 
             foreach (var param in action.Prameters)
             {
-                if (!param.IsOptional.HasValue)
-                {
-                    continue;
-                }
-
                 writer.WriteStartElement("param");
                 writer.WriteAttributeString("name", param.Name);
                 foreach (var prameterType in param.ParameterTypes)
@@ -685,13 +680,13 @@ namespace Validator.Managers.Scheme
                     writer.WriteAttributeString(prameterType.Key, prameterType.Value);
                 }
                 
-                if (param.IsOptional.Value)
+                if (param.IsOptional)
                 {
                     writer.WriteAttributeString("default", param.DefaultValue);
                 }
 
                 writer.WriteAttributeString("description", param.Description);
-                writer.WriteAttributeString("optional", param.IsOptional.Value ? "1" : "0");
+                writer.WriteAttributeString("optional", param.IsOptional ? "1" : "0");
                 writer.WriteEndElement(); // param
             }
 
@@ -861,7 +856,7 @@ namespace Validator.Managers.Scheme
                 var etype = isIntEnum ? "int" : "string";
 
                 writer.WriteAttributeString("type", isIntEnum ? "int" : "string");
-                writer.WriteAttributeString("enumType", GetTypeName(type));
+                writer.WriteAttributeString("enumType", SchemeManager.GetTypeName(type));
                 return;
             }
 
@@ -869,7 +864,7 @@ namespace Validator.Managers.Scheme
             if (type.IsArray)
             {
                 writer.WriteAttributeString("type", "array");
-                writer.WriteAttributeString("arrayType", GetTypeName(type.GetElementType()));
+                writer.WriteAttributeString("arrayType", SchemeManager.GetTypeName(type.GetElementType()));
                 return;
             }
 
@@ -880,57 +875,28 @@ namespace Validator.Managers.Scheme
                 if (genericTypeDefinition == typeof(List<>))
                 {
                     writer.WriteAttributeString("type", "array");
-                    writer.WriteAttributeString("arrayType", GetTypeName(type.GetGenericArguments()[0]));
+                    writer.WriteAttributeString("arrayType", SchemeManager.GetTypeName(type.GetGenericArguments()[0]));
                     return;
                 }
 
                 if (genericTypeDefinition == typeof(Dictionary<,>) || genericTypeDefinition == typeof(SerializableDictionary<,>))
                 {
                     writer.WriteAttributeString("type", "map");
-                    writer.WriteAttributeString("arrayType", GetTypeName(type.GetGenericArguments()[1]));
+                    writer.WriteAttributeString("arrayType", SchemeManager.GetTypeName(type.GetGenericArguments()[1]));
                     return;
                 }
             }
 
-            writer.WriteAttributeString("type", GetTypeName(type));
-        }
-
-        private string GetTypeName(Type type)
-        {
-            if (type == typeof(String))
-                return "string";
-            if (type == typeof(DateTime))
-                return "int";
-            if (type == typeof(long) || type == typeof(Int64))
-                return "bigint";
-            if (type == typeof(Int32))
-                return "int";
-            if (type == typeof(double) || type == typeof(float))
-                return "float";
-            if (type == typeof(bool))
-                return "bool";
-            if (type.IsEnum)
-                return type.Name;
-
-            if (type == typeof(KalturaOTTFile))
-                return "file";
-
-            if (type == typeof(KalturaOTTObject))
-                return "KalturaObject";
-
-            if (typeof(KalturaRenderer).IsAssignableFrom(type))
-                return "file";
-
-            Regex regex = new Regex("^[^`]+");
-            Match match = regex.Match(type.Name);
-            return match.Value;
+            writer.WriteAttributeString("type", SchemeManager.GetTypeName(type));
         }
 
         private KalturaControllerDetails GetControllerDetails(Type controllerType)
         {
             var controllerDetails = new KalturaControllerDetails()
             {
+                ServiceType = controllerType,
                 ServiceId = SchemeManager.getServiceId(controllerType),
+                IsAbstract = controllerType.IsAbstract
             };
 
             if (SchemeManager.IsCrudController(controllerType, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
@@ -940,7 +906,8 @@ namespace Validator.Managers.Scheme
                 {
                     if (crudActions.ContainsKey(crudActionAttribute.Key))
                     {
-                        controllerDetails.Actions.Add(GetCrudActionDetails(crudActionAttribute.Value, crudActions[crudActionAttribute.Key]));
+                        var crudActionDetails = SchemeManager.GetCrudActionDetails(crudActionAttribute.Value, crudActions[crudActionAttribute.Key]);
+                        controllerDetails.Actions.Add(crudActionDetails);
                     }
                 }
             }
@@ -968,50 +935,11 @@ namespace Validator.Managers.Scheme
             return controllerDetails;
         }
 
-        private KalturaActionDetails GetCrudActionDetails(CrudActionAttribute actionAttribute, MethodInfo method)
-        {
-            var crudActionDetails = new KalturaActionDetails()
-            {
-                Name = actionAttribute.GetName(),
-                Description = actionAttribute.Summary,
-                IsGenericMethod = false,
-                IsDeprecated = false,
-                IsSessionRequired = true,
-            };
-
-            var parameters = method.GetParameters();
-            foreach (var parameter in parameters)
-            {
-                var crudPrameter = GetCrudPrameterDetails(parameter, method, actionAttribute);
-                if(crudPrameter.IsOptional.HasValue)
-                {
-                    crudActionDetails.Prameters.Add(crudPrameter);
-                }
-            }
-
-            if (method.ReturnType != typeof(void))
-            {
-                crudActionDetails.ReturnedTypes = GetParameterTypes(method.ReturnType);
-            }
-
-            // write throws
-            if (actionAttribute.ApiThrows != null && actionAttribute.ApiThrows.Length > 0)
-            {
-                crudActionDetails.ApiThrows.AddRange(actionAttribute.ApiThrows);
-            }
-
-            if ((actionAttribute.ClientThrows != null && actionAttribute.ClientThrows.Length > 0))
-            {
-                crudActionDetails.ClientThrows.AddRange(actionAttribute.ClientThrows);
-            }
-
-            return crudActionDetails;
-        }
-
         private KalturaActionDetails GetActionDetails(MethodInfo method)
         {
             var actionDetails = new KalturaActionDetails()
             {
+                RealName = method.Name,
                 IsGenericMethod = method.IsGenericMethod,
                 Description = SchemeManager.GetMethodDescription(method, assemblyXml),
                 IsDeprecated = method.GetCustomAttribute<ObsoleteAttribute>() != null,
@@ -1021,7 +949,7 @@ namespace Validator.Managers.Scheme
             var actionAttribute = method.GetCustomAttribute<ActionAttribute>(false);
             if (actionAttribute != null)
             {
-                actionDetails.Name = actionAttribute.Name;
+                actionDetails.LoweredName = actionAttribute.Name;
             }
 
             var parameters = method.GetParameters();
@@ -1032,7 +960,7 @@ namespace Validator.Managers.Scheme
 
             if (method.ReturnType != typeof(void))
             {
-                actionDetails.ReturnedTypes = GetParameterTypes(method.ReturnType);
+                actionDetails.ReturnedTypes = SchemeManager.GetParameterTypes(method.ReturnType);
             }
 
             IEnumerable<ThrowsAttribute> actionErrors = method.GetCustomAttributes<ThrowsAttribute>(false);
@@ -1055,10 +983,12 @@ namespace Validator.Managers.Scheme
         {
             var prameterDetails = new KalturaPrameterDetails()
             {
+                ParameterType = parameter.ParameterType,
                 Name = parameter.Name,
-                ParameterTypes = GetParameterTypes(parameter.ParameterType),
+                ParameterTypes = SchemeManager.GetParameterTypes(parameter.ParameterType),
                 IsOptional = parameter.IsOptional,
-                Description = GetParameterDescription(parameter, method)
+                Description = GetParameterDescription(parameter, method),
+                Position = parameter.Position
             };
 
             if (parameter.IsOptional)
@@ -1069,29 +999,11 @@ namespace Validator.Managers.Scheme
             return prameterDetails;
         }
 
-        private KalturaPrameterDetails GetCrudPrameterDetails(ParameterInfo parameter, MethodInfo method, CrudActionAttribute actionAttribute)
-        {
-            var prameterDetails = new KalturaPrameterDetails()
-            {
-                Name = parameter.Name,
-                ParameterTypes = GetParameterTypes(parameter.ParameterType),
-                IsOptional = SchemeManager.IsParameterOptional(parameter, actionAttribute.GetOptionalParameters()),
-                Description = actionAttribute.GetDescription(parameter.Name),
-            };
-
-            if (prameterDetails.IsOptional.HasValue && prameterDetails.IsOptional.Value)
-            {
-                prameterDetails.DefaultValue = SchemeManager.VarToString(parameter.DefaultValue);
-            }
-
-            return prameterDetails;
-        }
-
         private KalturaClassDetails GetClassDetails(Type classType)
         {
             var kalturaClassDetails = new KalturaClassDetails()
             {
-                Name = GetTypeName(classType),
+                Name = SchemeManager.GetTypeName(classType),
                 Description = GetTypeDescription(classType),
                 IsAbstract = classType.IsInterface || classType.IsAbstract
             };
@@ -1099,11 +1011,11 @@ namespace Validator.Managers.Scheme
             var schemeBaseAttribute = classType.GetCustomAttribute<SchemeBaseAttribute>();
             if (schemeBaseAttribute != null)
             {
-                kalturaClassDetails.BaseName = GetTypeName(schemeBaseAttribute.BaseType);
+                kalturaClassDetails.BaseName = SchemeManager.GetTypeName(schemeBaseAttribute.BaseType);
             }
             else if (classType.BaseType != null && classType.BaseType != typeof(KalturaOTTObject))
             {
-                kalturaClassDetails.BaseName = GetTypeName(classType.BaseType);
+                kalturaClassDetails.BaseName = SchemeManager.GetTypeName(classType.BaseType);
             }
 
             var properties = classType.GetProperties().ToList();
@@ -1204,57 +1116,6 @@ namespace Validator.Managers.Scheme
             propertyDetails.Name = propertyDetails.DataMember != null ? propertyDetails.DataMember.Name : null;
 
             return propertyDetails;
-        }
-
-        private Dictionary<string, string> GetParameterTypes(Type type)
-        {
-            var parameterTypes = new Dictionary<string, string>();
-
-            //Handling nullables
-            if (Nullable.GetUnderlyingType(type) != null)
-            {
-                type = type.GetGenericArguments()[0];
-            }
-
-            //Handling Enums
-            if (type.IsEnum)
-            {
-                bool isIntEnum = type.GetCustomAttribute<KalturaIntEnumAttribute>() != null;
-                var etype = isIntEnum ? "int" : "string";
-                parameterTypes.Add("type", isIntEnum ? "int" : "string");
-                parameterTypes.Add("enumType", GetTypeName(type));
-                return parameterTypes;
-            }
-
-            //Handling arrays
-            if (type.IsArray)
-            {
-                parameterTypes.Add("type", "array");
-                parameterTypes.Add("arrayType", GetTypeName(type.GetElementType()));
-                return parameterTypes;
-            }
-
-            if (type.IsGenericType)
-            {
-                var genericTypeDefinition = type.GetGenericTypeDefinition();
-
-                if (genericTypeDefinition == typeof(List<>))
-                {
-                    parameterTypes.Add("type", "array");
-                    parameterTypes.Add("arrayType", GetTypeName(type.GetGenericArguments()[0]));
-                    return parameterTypes;
-                }
-
-                if (genericTypeDefinition == typeof(Dictionary<,>) || genericTypeDefinition == typeof(SerializableDictionary<,>))
-                {
-                    parameterTypes.Add("type", "map");
-                    parameterTypes.Add("arrayType", GetTypeName(type.GetGenericArguments()[1]));
-                    return parameterTypes;
-                }
-            }
-
-            parameterTypes.Add("type", GetTypeName(type));
-            return parameterTypes;
         }
 
         private string GetParameterDescription(ParameterInfo param, MethodInfo method)
