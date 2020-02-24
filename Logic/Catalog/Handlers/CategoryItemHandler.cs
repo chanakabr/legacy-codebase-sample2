@@ -425,7 +425,7 @@ namespace Core.Catalog.Handlers
                 }
             }
 
-            CategoryItem newItem = new CategoryItem()
+            CategoryItem newICategory = new CategoryItem()
             {
                 ChildCategoriesIds = children,
                 DynamicData = parent.DynamicData,
@@ -433,9 +433,11 @@ namespace Core.Catalog.Handlers
                 UnifiedChannels = parent.UnifiedChannels
             };
 
-            if (CategoriesManager.Add(groupId, userId, newItem))
+            if (CategoriesManager.Add(groupId, userId, newICategory))
             {
-                newTreeMap.Add(parent.Id, newItem.Id);
+                newTreeMap.Add(parent.Id, newICategory.Id);
+
+                DuplicateCategoryImages(groupId, userId, parent.Id, newICategory.Id);
             }
         }
 
@@ -564,6 +566,44 @@ namespace Core.Catalog.Handlers
             }
 
             return channelsInfo; ;
+        }
+
+        private void DuplicateCategoryImages(int groupId, long userId, long categoryFromId, long categoryToId)
+        {
+            var images = Catalog.CatalogManagement.ImageManager.GetImagesByObject(groupId, categoryFromId, eAssetImageType.Category);
+            if (images.HasObjects())
+            {
+                HashSet<long> imageTypeIds = new HashSet<long>();
+
+                foreach (var image in images.Objects)
+                {
+                    if (imageTypeIds.Contains(image.ImageTypeId))
+                    {
+                        continue;
+                    }
+
+                    Image newImage = new Image()
+                    {
+                        ImageTypeId = image.ImageTypeId,
+                        ImageObjectId = categoryToId,
+                        ImageObjectType = image.ImageObjectType
+                    };
+
+                    var newImageresponse = Catalog.CatalogManagement.ImageManager.AddImage(groupId, newImage, userId);
+                    if (newImageresponse.HasObject())
+                    {
+                        imageTypeIds.Add(image.ImageTypeId);
+
+                        string imageOriginalUrl = $"{image.Url}/width/0/height/0";
+
+                        var status = Catalog.CatalogManagement.ImageManager.SetContent(groupId, userId, newImageresponse.Object.Id, imageOriginalUrl);
+                        if (!status.IsOkStatusCode())
+                        {
+                            log.Error($"Failed to set image for category id:{categoryToId}, url:{imageOriginalUrl}");
+                        }
+                    }
+                }
+            }
         }
     }
 }
