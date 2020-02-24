@@ -30,6 +30,7 @@ namespace TVPApi.Web.Middleware
         /// </summary>
         public static IApplicationBuilder UseTvpApi(this IApplicationBuilder app)
         {
+            AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
 
             app.UseCoreConcurrencyLimiter();

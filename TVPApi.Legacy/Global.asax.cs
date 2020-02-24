@@ -45,10 +45,11 @@ namespace WAP_TVPApi
 
             ConfigurationManager.ApplicationConfiguration.Init();
 
+            AutoMapperConfig.RegisterMappings();
+            EventNotificationsConfig.SubscribeConsumers();
+
             // This line is here to avoid error while deserilizing json that was serlizied using net core with TypeNameHandling
             AssemblyUtils.RedirectAssembly("System.Private.CoreLib", "mscorlib");
-
-            EventNotificationsConfig.SubscribeConsumers();
         }
 
         protected void Session_Start(object sender, EventArgs e)
