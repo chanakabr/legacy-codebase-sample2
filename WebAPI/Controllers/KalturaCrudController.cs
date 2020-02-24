@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
         
         [Action(ListActionAttribute.Name)]
         [ApiAuthorize]
-        public static KalturaListResponseT List(KalturaFilterT filter, KalturaFilterPager pager)
+        public static KalturaListResponseT List(KalturaFilterT filter, KalturaFilterPager pager = null)
         {
             KalturaListResponseT response = null;
             

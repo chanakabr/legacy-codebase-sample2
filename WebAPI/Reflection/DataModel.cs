@@ -7888,7 +7888,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("eventnotification", "list");
-                            return EventNotificationController.List((KalturaEventNotificationFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            return EventNotificationController.List((KalturaEventNotificationFilter) methodParams[0]);
                             
                     }
                     break;
@@ -8201,7 +8201,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("householdcoupon", "list");
-                            return HouseholdCouponController.List((KalturaHouseholdCouponFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            return HouseholdCouponController.List((KalturaHouseholdCouponFilter) methodParams[0]);
                             
                     }
                     break;
@@ -8412,7 +8412,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("householdsegment", "list");
-                            return HouseholdSegmentController.List((KalturaHouseholdSegmentFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            return HouseholdSegmentController.List((KalturaHouseholdSegmentFilter) methodParams[0]);
                             
                     }
                     break;
@@ -9104,7 +9104,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("passwordpolicy", "list");
-                            return PasswordPolicyController.List((KalturaPasswordPolicyFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            return PasswordPolicyController.List((KalturaPasswordPolicyFilter) methodParams[0]);
                             
                     }
                     break;
@@ -12411,6 +12411,8 @@ namespace WebAPI.Reflection
                             });
                             ret.Add("pager", new MethodParam(){
                                 NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
                             });
