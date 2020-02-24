@@ -497,14 +497,14 @@ namespace Core.Catalog.CatalogManagement
             {
                 var originalStatus = bulkUploadToUpdate.Status;
                 response.Object = bulkUploadToUpdate;
-                response.Object.Status = newStatus;
 
                 BulkUploadJobStatus updatedStatus;
                 if (!CatalogDAL.SaveBulkUploadStatusAndErrorsCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 {
-                    log.ErrorFormat("UpdateBulkUploadStatusWithVersionCheck - Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
+                    log.ErrorFormat("UpdateBulkUploadStatusWithVersionCheck > Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
                 }
-                response.Object.Status = updatedStatus;
+                log.Debug($"UpdateBulkUploadStatusWithVersionCheck > status by results is:[{updatedStatus}], status to set:[{newStatus}]");
+                response.Object.Status = newStatus;
 
                 UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
                 response.SetStatus(eResponseStatus.OK);
