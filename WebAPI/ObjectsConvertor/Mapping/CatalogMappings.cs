@@ -494,7 +494,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_CDVR == 1))
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_CATCH_UP == 1))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_START_OVER == 1))
-                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_TRICK_PLAY == 1));
+                .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_TRICK_PLAY == 1))
+
+                // backward compatibility
+                .ForMember(dest => dest.EnableCatchUp, opt => opt.MapFrom(src => src.m_oProgram.LINEAR_MEDIA_ID > 0 ? (long?)src.m_oProgram.LINEAR_MEDIA_ID : null))
+                .ForMember(dest => dest.EnableCdvr, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_CDVR == 1))
+                .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_START_OVER == 1))
+                .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_TRICK_PLAY == 1))
+                ;
+
 
             //RecordingObj to KalturaRecordingAsset
             cfg.CreateMap<RecordingObj, KalturaRecordingAsset>()
