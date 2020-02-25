@@ -34,9 +34,20 @@ namespace SoapAdaptersCommon.Middleware
             action = action.Substring(action.LastIndexOf('/') + 1).TrimEnd('"');
             action = action ?? "null";
 
-            var reqid = TryGetHeader(message.Headers, Constants.REQUEST_ID_KEY, _HttpContexAccessor.HttpContext.TraceIdentifier);
-            var ks = TryGetHeader(message.Headers, Constants.KS, null);
-            
+            var reqid = _HttpContexAccessor.HttpContext.TraceIdentifier;
+            if (message.Headers.FindHeader(Constants.REQUEST_ID_KEY, string.Empty) > 0)
+            {
+                reqid = message.Headers.GetHeader<string>(Constants.REQUEST_ID_KEY, string.Empty);
+            }
+
+            reqid = reqid ?? _HttpContexAccessor.HttpContext.TraceIdentifier;
+
+            string ks = null;
+            if (message.Headers.FindHeader(Constants.KS, string.Empty) > 0)
+            {
+                ks = message.Headers.GetHeader<string>(Constants.KS, string.Empty);
+            }
+
             _HttpContexAccessor.HttpContext.Items[Constants.REQUEST_ID_KEY] = reqid;
             _HttpContexAccessor.HttpContext.Items[Constants.KS] = ks;
             _HttpContexAccessor.HttpContext.Items[Constants.ACTION] = action;
@@ -47,18 +58,6 @@ namespace SoapAdaptersCommon.Middleware
 
         public void BeforeSendReply(ref Message reply, object correlationState)
         {
-        }
-
-        private string TryGetHeader(MessageHeaders messageHeaders, string requestIdKey, string fallbackValue)
-        {
-            try
-            {
-                return messageHeaders.GetHeader<string>(requestIdKey, string.Empty);
-            }
-            catch (Exception)
-            {
-                return fallbackValue;
-            }
         }
 
         private XmlDocument GetDocument(Message request)
