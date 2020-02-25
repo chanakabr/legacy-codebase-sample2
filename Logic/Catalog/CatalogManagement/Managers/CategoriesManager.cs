@@ -109,10 +109,15 @@ namespace Core.Catalog.CatalogManagement
                     categoryItem = new CategoryItem()
                     {
                         Id = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID"),
-                        ParentCategoryId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "PARENT_CATEGORY_ID"),
+                        ParentId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "PARENT_CATEGORY_ID"),
                         Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "CATEGORY_NAME"),
-                        HasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA"),
                     };
+
+                    bool hasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA");
+                    if (hasDynamicData)
+                    {
+                        categoryItem.DynamicData = CatalogDAL.GetCategoryDynamicData(id);
+                    }
 
                     if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                     {
@@ -134,12 +139,7 @@ namespace Core.Catalog.CatalogManagement
                     var groupCategoriesIds = GetGroupCategoriesIds(groupId);
                     if (groupCategoriesIds != null)
                     {
-                        categoryItem.ChildCategoriesIds = groupCategoriesIds.Where(x => x.Value.ParentId == id).OrderBy(y => y.Value.Order).Select(z => z.Key).ToList();
-                    }
-
-                    if (categoryItem.HasDynamicData)
-                    {
-                        categoryItem.DynamicData = CatalogDAL.GetCategoryDynamicData(id);
+                        categoryItem.ChildrenIds = groupCategoriesIds.Where(x => x.Value.ParentId == id).OrderBy(y => y.Value.Order).Select(z => z.Key).ToList();
                     }
                 }
             }
@@ -400,9 +400,9 @@ namespace Core.Catalog.CatalogManagement
 
                 // set child category's order
                 bool invalidateChilds = false;
-                if (objectToAdd.ChildCategoriesIds?.Count > 0)
+                if (objectToAdd.ChildrenIds?.Count > 0)
                 {
-                    if (!CatalogDAL.UpdateCategoryOrderNum(groupId, userId, id, objectToAdd.ChildCategoriesIds))
+                    if (!CatalogDAL.UpdateCategoryOrderNum(groupId, userId, id, objectToAdd.ChildrenIds))
                     {
                         log.Error($"Error while order child categories. new categoryId: {id}");
                     }
@@ -426,7 +426,7 @@ namespace Core.Catalog.CatalogManagement
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(groupId));
                 if (invalidateChilds)
                 {
-                    foreach (var item in objectToAdd.ChildCategoriesIds)
+                    foreach (var item in objectToAdd.ChildrenIds)
                     {
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item));
                     }

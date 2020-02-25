@@ -38,19 +38,19 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Category parent identifier 
         /// </summary>
-        [DataMember(Name = "parentCategoryId")]
-        [JsonProperty(PropertyName = "parentCategoryId")]
-        [XmlElement(ElementName = "parentCategoryId")]
+        [DataMember(Name = "parentId")]
+        [JsonProperty(PropertyName = "parentId")]
+        [XmlElement(ElementName = "parentId")]
         [SchemeProperty(ReadOnly = true)]
-        public long ParentCategoryId { get; set; }
+        public long ParentId { get; set; }
 
         /// <summary>
         /// Comma separated list of child categories' Ids.
         /// </summary>
-        [DataMember(Name = "childCategoriesIds")]
-        [JsonProperty(PropertyName = "childCategoriesIds")]
-        [XmlElement(ElementName = "childCategoriesIds")]        
-        public string ChildCategoriesIds { get; set; }
+        [DataMember(Name = "childrenIds")]
+        [JsonProperty(PropertyName = "childrenIds")]
+        [XmlElement(ElementName = "childrenIds")]        
+        public string ChildrenIds { get; set; }
 
         /// <summary>
         /// List of unified Channels.

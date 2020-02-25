@@ -38,17 +38,17 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                if (objectToAdd.ChildCategoriesIds?.Count > 0)
+                if (objectToAdd.ChildrenIds?.Count > 0)
                 {
-                    var groupCategories = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId, objectToAdd.ChildCategoriesIds);
+                    var groupCategories = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId, objectToAdd.ChildrenIds);
 
-                    if (groupCategories == null || groupCategories.Count != objectToAdd.ChildCategoriesIds.Count)
+                    if (groupCategories == null || groupCategories.Count != objectToAdd.ChildrenIds.Count)
                     {
                         response.SetStatus(eResponseStatus.ChildCategoryNotExist, "Child category does not exist.");
                         return response;
                     }
 
-                    foreach (long childCategoryId in objectToAdd.ChildCategoriesIds)
+                    foreach (long childCategoryId in objectToAdd.ChildrenIds)
                     {
                         if (groupCategories[childCategoryId].ParentId > 0)
                         {
@@ -118,8 +118,8 @@ namespace Core.Catalog.Handlers
 
                 bool updateChildCategories = false;
                 List<long> categoriesToRemove = new List<long>();
-                var status = CategoriesManager.HandleCategoryChildUpdate(contextData.GroupId, objectToUpdate.Id, objectToUpdate.ChildCategoriesIds,
-                                                                        currentCategory.ChildCategoriesIds, ref categoriesToRemove, out updateChildCategories);
+                var status = CategoriesManager.HandleCategoryChildUpdate(contextData.GroupId, objectToUpdate.Id, objectToUpdate.ChildrenIds,
+                                                                        currentCategory.ChildrenIds, ref categoriesToRemove, out updateChildCategories);
                 if (!status.IsOkStatusCode())
                 {
                     response.SetStatus(status);
@@ -163,7 +163,7 @@ namespace Core.Catalog.Handlers
                 // set child category's order
                 if (categoriesToRemove?.Count > 0 || updateChildCategories)
                 {
-                    if (!CatalogDAL.UpdateCategoryOrderNum(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.ChildCategoriesIds, categoriesToRemove))
+                    if (!CatalogDAL.UpdateCategoryOrderNum(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.ChildrenIds, categoriesToRemove))
                     {
                         log.Error($"Error while re-order child categories. contextData: {contextData.ToString()}. new categoryId: {objectToUpdate.Id}");
                         response.SetStatus(eResponseStatus.Error);
@@ -184,9 +184,9 @@ namespace Core.Catalog.Handlers
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item));
                     }
 
-                    if (objectToUpdate.ChildCategoriesIds?.Count > 0)
+                    if (objectToUpdate.ChildrenIds?.Count > 0)
                     {
-                        foreach (var item in objectToUpdate.ChildCategoriesIds)
+                        foreach (var item in objectToUpdate.ChildrenIds)
                         {
                             LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item));
                         }
@@ -233,9 +233,9 @@ namespace Core.Catalog.Handlers
                 }                
                 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
-                if (item.ParentCategoryId > 0)
+                if (item.ParentId > 0)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item.ParentCategoryId.Value));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item.ParentId.Value));
                 }
 
                 response.Set(eResponseStatus.OK);
@@ -409,10 +409,10 @@ namespace Core.Catalog.Handlers
         private void DuplicateChildren(int groupId, long userId, CategoryItem parent, Dictionary<long, long> newTreeMap)
         {
             List<long> children = new List<long>();
-            if (parent.ChildCategoriesIds?.Count > 0)
+            if (parent.ChildrenIds?.Count > 0)
             {
                 CategoryItem ci;
-                foreach (var item in parent.ChildCategoriesIds)
+                foreach (var item in parent.ChildrenIds)
                 {
                     ci = CategoriesManager.GetCategoryItem(groupId, item);
                     DuplicateChildren(groupId, userId, ci, newTreeMap);
@@ -425,7 +425,7 @@ namespace Core.Catalog.Handlers
 
             CategoryItem newICategory = new CategoryItem()
             {
-                ChildCategoriesIds = children,
+                ChildrenIds = children,
                 DynamicData = parent.DynamicData,
                 Name = parent.Name,
                 UnifiedChannels = parent.UnifiedChannels
@@ -453,7 +453,7 @@ namespace Core.Catalog.Handlers
                 return response;
             }
 
-            if (categoryItem.ParentCategoryId > 0)
+            if (categoryItem.ParentId > 0)
             {
                 response.SetStatus(eResponseStatus.Error, "Category must be root");
                 return response;
@@ -461,9 +461,9 @@ namespace Core.Catalog.Handlers
 
             categoryTree = BuildCategoryTree(groupId, categoryItem);
 
-            if (categoryItem?.ChildCategoriesIds?.Count > 0)
+            if (categoryItem?.ChildrenIds?.Count > 0)
             {
-                List<CategoryItem> childern = categoryItem.ChildCategoriesIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
+                List<CategoryItem> childern = categoryItem.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
                 categoryTree.Children = FindTreeChildren(groupId, childern);
             }
 
@@ -480,7 +480,7 @@ namespace Core.Catalog.Handlers
             foreach (var c in children)
             {
                 ct = BuildCategoryTree(groupId, c);
-                var ch = c.ChildCategoriesIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
+                var ch = c.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
                 ct.Children = FindTreeChildren(groupId, ch);
                 response.Add(ct);
             }

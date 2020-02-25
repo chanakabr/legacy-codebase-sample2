@@ -10755,9 +10755,9 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(ChildCategoriesIds != null)
+            if(ChildrenIds != null)
             {
-                ret.Add("childCategoriesIds", "\"childCategoriesIds\": " + "\"" + EscapeJson(ChildCategoriesIds) + "\"");
+                ret.Add("childrenIds", "\"childrenIds\": " + "\"" + EscapeJson(ChildrenIds) + "\"");
             }
             if(DynamicData != null)
             {
@@ -10769,7 +10769,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
-            ret.Add("parentCategoryId", "\"parentCategoryId\": " + ParentCategoryId);
+            ret.Add("parentId", "\"parentId\": " + ParentId);
             if(UnifiedChannels != null)
             {
                 propertyValue = "[" + String.Join(", ", UnifiedChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -10784,9 +10784,9 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(ChildCategoriesIds != null)
+            if(ChildrenIds != null)
             {
-                ret.Add("childCategoriesIds", "<childCategoriesIds>" + EscapeXml(ChildCategoriesIds) + "</childCategoriesIds>");
+                ret.Add("childrenIds", "<childrenIds>" + EscapeXml(ChildrenIds) + "</childrenIds>");
             }
             if(DynamicData != null)
             {
@@ -10798,7 +10798,7 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            ret.Add("parentCategoryId", "<parentCategoryId>" + ParentCategoryId + "</parentCategoryId>");
+            ret.Add("parentId", "<parentId>" + ParentId + "</parentId>");
             if(UnifiedChannels != null)
             {
                 propertyValue = UnifiedChannels.Count > 0 ? "<item>" + String.Join("</item><item>", UnifiedChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";

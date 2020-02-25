@@ -11585,7 +11585,7 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ParentCategoryIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
+        private static RuntimeSchemePropertyAttribute ParentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -11613,17 +11613,17 @@ namespace WebAPI.Models.Catalog
                 {
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
-                if (parameters.ContainsKey("parentCategoryId") && parameters["parentCategoryId"] != null)
+                if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        ParentCategoryIdSchemaProperty.Validate("parentCategoryId", parameters["parentCategoryId"]);
+                        ParentIdSchemaProperty.Validate("parentId", parameters["parentId"]);
                     }
-                    ParentCategoryId = (Int64) Convert.ChangeType(parameters["parentCategoryId"], typeof(Int64));
+                    ParentId = (Int64) Convert.ChangeType(parameters["parentId"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("childCategoriesIds") && parameters["childCategoriesIds"] != null)
+                if (parameters.ContainsKey("childrenIds") && parameters["childrenIds"] != null)
                 {
-                    ChildCategoriesIds = (String) Convert.ChangeType(parameters["childCategoriesIds"], typeof(String));
+                    ChildrenIds = (String) Convert.ChangeType(parameters["childrenIds"], typeof(String));
                 }
                 if (parameters.ContainsKey("unifiedChannels") && parameters["unifiedChannels"] != null)
                 {

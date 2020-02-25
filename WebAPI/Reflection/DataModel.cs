@@ -1185,16 +1185,16 @@ namespace WebAPI.Reflection
                 case "KalturaCategoryItem":
                     switch(property.Name)
                     {
-                        case "ChildCategoriesIds":
-                            return "childCategoriesIds";
+                        case "ChildrenIds":
+                            return "childrenIds";
                         case "DynamicData":
                             return "dynamicData";
                         case "Id":
                             return "id";
                         case "Name":
                             return "name";
-                        case "ParentCategoryId":
-                            return "parentCategoryId";
+                        case "ParentId":
+                            return "parentId";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                     }
