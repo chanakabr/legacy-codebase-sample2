@@ -265,7 +265,7 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         ancestors.Add(parentId);
-                        parentId = categories[id].ParentId;
+                        parentId = categories[parentId].ParentId;
                     }
                     else
                     {

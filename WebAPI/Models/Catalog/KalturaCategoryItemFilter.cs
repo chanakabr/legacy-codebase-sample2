@@ -129,16 +129,8 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(MinInteger = 1)]
         public long Id { get; set; }
-
-        public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
-        {
-            return KalturaCategoryItemOrderBy.CREATE_DATE_ASC;
-        }
-
-        public override void Validate()
-        {
-        }
 
         public KalturaCategoryItemAncestorsFilter() : base()
         {
