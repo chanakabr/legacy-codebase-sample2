@@ -22,4 +22,9 @@ namespace ApiLogic.Catalog
 
         public bool RootOnly { get; set; }
     }
+
+    public class CategoryItemAncestorsFilter : CategoryItemFilter
+    {
+        public long Id { get; set; }
+    }
 }

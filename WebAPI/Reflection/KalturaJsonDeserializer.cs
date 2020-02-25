@@ -419,6 +419,9 @@ namespace WebAPI.Reflection
                 case "KalturaCategoryItem":
                     return new KalturaCategoryItem(parameters);
                     
+                case "KalturaCategoryItemAncestorsFilter":
+                    return new KalturaCategoryItemAncestorsFilter(parameters);
+                    
                 case "KalturaCategoryItemByIdInFilter":
                     return new KalturaCategoryItemByIdInFilter(parameters);
                     
@@ -11639,6 +11642,19 @@ namespace WebAPI.Models.Catalog
                     {
                         DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaCategoryItemAncestorsFilter
+    {
+        public KalturaCategoryItemAncestorsFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
             }
         }

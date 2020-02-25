@@ -1200,6 +1200,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCategoryItemAncestorsFilter":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                    }
+                    break;
+                    
                 case "KalturaCategoryItemByIdInFilter":
                     switch(property.Name)
                     {

@@ -119,4 +119,37 @@ namespace WebAPI.Models.Catalog
         CREATE_DATE_ASC,
         CREATE_DATE_DESC
     }
+
+    public partial class KalturaCategoryItemAncestorsFilter : KalturaCategoryItemFilter
+    {
+        /// <summary>
+        /// KSQL expression
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public long Id { get; set; }
+
+        public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaCategoryItemOrderBy.CREATE_DATE_ASC;
+        }
+
+        public override void Validate()
+        {
+        }
+
+        public KalturaCategoryItemAncestorsFilter() : base()
+        {
+        }
+
+        public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
+        {
+            var coreFilter = AutoMapper.Mapper.Map<CategoryItemAncestorsFilter>(this);
+            return CategoryItemHandler.Instance.List(contextData, coreFilter, pager);
+        }
+    }
+
+
 }

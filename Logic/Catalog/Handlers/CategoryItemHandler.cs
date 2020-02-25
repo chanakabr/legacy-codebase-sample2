@@ -220,42 +220,18 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
+                if (!DeleteCategoryItem(contextData.GroupId, contextData.UserId.Value, id))
+                {
+                    return response;
+                }
+
                 // need to check if category is a root category. In case it is, all the sub categories should removed as well
                 var successors = CategoriesManager.GetCategoryItemSuccessors(contextData.GroupId, id);
                 foreach (long successor in successors)
                 {
-                    if (!CatalogDAL.DeleteCategory(contextData.GroupId, contextData.UserId, id))
-                    {
-                        log.Error($"Error while DeleteCategory. contextData: {contextData.ToString()} id: {successor}.");
-                    }
-
-                    // Delete the virtual asset
-                    var vai = new VirtualAssetInfo()
-                    {
-                        Type = ObjectVirtualAssetInfoType.Category,
-                        Id = successor,
-                        UserId = long.Parse(contextData.UserId.ToString())
-                    };
-
-                    api.DeleteVirtualAsset(contextData.GroupId, vai);
-                }
-
-                if (!CatalogDAL.DeleteCategory(contextData.GroupId, contextData.UserId, id))
-                {
-                    log.Error($"Error while DeleteCategory. contextData: {contextData.ToString()} id: {id}.");
-                    return response;
-                }
-
-                // Delete the virtual asset
-                var virtualAssetInfo = new VirtualAssetInfo()
-                {
-                    Type = ObjectVirtualAssetInfoType.Category,
-                    Id = id,
-                    UserId = long.Parse(contextData.UserId.ToString())
-                };
-
-                api.DeleteVirtualAsset(contextData.GroupId, virtualAssetInfo);
-
+                    DeleteCategoryItem(contextData.GroupId, contextData.UserId.Value, id);
+                }                
+                
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
                 if (item.ParentCategoryId > 0)
                 {
@@ -300,6 +276,28 @@ namespace Core.Catalog.Handlers
         public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemFilter filter, CorePager pager)
         {
             throw new NotImplementedException();
+        }
+
+        public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemAncestorsFilter filter, CorePager pager)
+        {
+            GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
+
+            CategoryItem ci = CategoriesManager.GetCategoryItem(contextData.GroupId, filter.Id);
+
+            if (ci == null)
+            {
+                response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
+                return response;
+            }
+
+            var ancestors = CategoriesManager.GetCategoryItemAncestors(contextData.GroupId, filter.Id);
+            if (ancestors?.Count > 0)
+            {
+                response.Objects = ancestors.Select(x => CategoriesManager.GetCategoryItem(contextData.GroupId, x)).ToList();
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+            return response;
         }
 
         public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemByIdInFilter filter, CorePager pager)
@@ -604,6 +602,37 @@ namespace Core.Catalog.Handlers
                     }
                 }
             }
+        }
+
+        private bool DeleteCategoryItem(int groupId, long userId, long id)
+        {
+            if (!CatalogDAL.DeleteCategory(groupId, userId, id))
+            {
+                log.Error($"Error while DeleteCategory. id: {id}");
+                return false;
+            }
+
+            // Delete the virtual asset
+            var vai = new VirtualAssetInfo()
+            {
+                Type = ObjectVirtualAssetInfoType.Category,
+                Id = id,
+                UserId = userId
+            };
+
+            api.DeleteVirtualAsset(groupId, vai);
+
+            //delete images
+            var images = Catalog.CatalogManagement.ImageManager.GetImagesByObject(groupId, id, eAssetImageType.Category);
+            if (images.HasObjects())
+            {
+                foreach (var image in images.Objects)
+                {
+                    Catalog.CatalogManagement.ImageManager.DeleteImage(groupId, image.Id, userId);
+                }
+            }
+
+            return true;
         }
     }
 }

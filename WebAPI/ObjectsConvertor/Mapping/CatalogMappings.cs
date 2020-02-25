@@ -1226,7 +1226,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
               .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
               .ForMember(dest => dest.RootOnly, opt => opt.MapFrom(src => src.RootOnly));
-            
+
+            cfg.CreateMap<KalturaCategoryItemAncestorsFilter, ApiLogic.Catalog.CategoryItemAncestorsFilter>()
+              .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+
             #endregion CategoryItem
         }
 

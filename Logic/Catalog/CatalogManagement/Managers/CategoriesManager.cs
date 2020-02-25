@@ -250,7 +250,6 @@ namespace Core.Catalog.CatalogManagement
         {
             List<long> ancestors = new List<long>();
 
-            /*
             var categories = GetGroupCategoriesIds(groupId);
             if (categories?.Count > 0 && categories.ContainsKey(id))
             {
@@ -266,17 +265,14 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         ancestors.Add(parentId);
-                        parentId = 
-                        id = categories[id].ParentId;
+                        parentId = categories[id].ParentId;
                     }
                     else
                     {
                         break;
                     }
-
                 }
             }
-            */
 
             return ancestors;
         }
