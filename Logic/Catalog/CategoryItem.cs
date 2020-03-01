@@ -1,4 +1,5 @@
-﻿using ApiObjects.Base;
+﻿using ApiObjects;
+using ApiObjects.Base;
 using System.Collections.Generic;
 
 namespace ApiLogic.Catalog
@@ -7,6 +8,7 @@ namespace ApiLogic.Catalog
     {
         public long Id { get; set; }
         public string Name { get; set; }
+        public List<LanguageContainer> NamesInOtherLanguages { get; set; }
         public long? ParentId { get; set; }
         public List<long> ChildrenIds { get; set; }
         public List<UnifiedChannel> UnifiedChannels { get; set; }

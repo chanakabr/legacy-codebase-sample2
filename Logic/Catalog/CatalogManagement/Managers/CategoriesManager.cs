@@ -390,7 +390,16 @@ namespace Core.Catalog.CatalogManagement
                     channels = objectToAdd.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
                 }
 
-                long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, channels, objectToAdd.DynamicData);
+                //set NamesInOtherLanguages
+                var status = HandleNamesInOtherLanguages(groupId, objectToAdd.NamesInOtherLanguages, out List<KeyValuePair<long, string>> languageCodeToName);
+
+                if (!status.IsOkStatusCode())
+                {
+                    log.Error($"Error while HandleNamesInOtherLanguages");
+                    return result;
+                }
+
+                long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, channels, objectToAdd.DynamicData);
 
                 if (id == 0)
                 {
@@ -441,6 +450,29 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        private static Status HandleNamesInOtherLanguages(int groupId, List<LanguageContainer> namesInOtherLanguages, out List<KeyValuePair<long, string>> languageCodeToName)
+        {
+            languageCodeToName = null;
+            if (namesInOtherLanguages != null && namesInOtherLanguages.Count > 0)
+            {
+                CatalogGroupCache catalogGroupCache = null;
+
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling HandleNamesInOtherLanguages");
+                    return new Status(eResponseStatus.Error);
+                }
+
+                languageCodeToName = new List<KeyValuePair<long, string>>();
+                foreach (LanguageContainer language in namesInOtherLanguages)
+                {
+                    languageCodeToName.Add(new KeyValuePair<long, string>(catalogGroupCache.LanguageMapByCode[language.m_sLanguageCode3].ID, language.m_sValue));
+                }
+            }
+
+            return new Status(eResponseStatus.OK);
         }
     }
 }

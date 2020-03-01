@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -33,7 +32,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
+        public KalturaMultilingualString Name { get; set; }
 
         /// <summary>
         /// Category parent identifier 
@@ -49,7 +48,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "childrenIds")]
         [JsonProperty(PropertyName = "childrenIds")]
-        [XmlElement(ElementName = "childrenIds")]        
+        [XmlElement(ElementName = "childrenIds")]
         public string ChildrenIds { get; set; }
 
         /// <summary>
@@ -84,18 +83,15 @@ namespace WebAPI.Models.Catalog
 
         internal override void ValidateForAdd()
         {
-            if (string.IsNullOrEmpty(this.Name))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-            }
+            this.Name.Validate("multilingualName");
         }
 
         internal override void ValidateForUpdate()
         {
-            if (this.Name !=null && this.Name.Trim() == "")
+            if (this.Name != null)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-            }           
+                this.Name.Validate("multilingualName");
+            }
         }
 
         public KalturaCategoryItem() : base() { }

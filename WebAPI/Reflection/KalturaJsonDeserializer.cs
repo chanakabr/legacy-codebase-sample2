@@ -11609,9 +11609,16 @@ namespace WebAPI.Models.Catalog
                     }
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
                 {
-                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                    if (parameters["multilingualName"] is JArray)
+                    {
+                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
+                    }
+                    else if (parameters["multilingualName"] is IList)
+                    {
+                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
+                    }
                 }
                 if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
                 {

@@ -1,4 +1,5 @@
-﻿using Core.Catalog;
+﻿using ApiObjects;
+using Core.Catalog;
 using System.Collections.Generic;
 
 namespace ApiLogic.Catalog
@@ -7,6 +8,7 @@ namespace ApiLogic.Catalog
     {
         public long Id { get; set; }
         public string Name { get; set; }
+        public List<LanguageContainer> NamesInOtherLanguages { get; set; }
         public List<CategoryTree> Children { get; set; }
         public List<UnifiedChannelInfo> UnifiedChannels { get; set; }
         public Dictionary<string, string> DynamicData { get; set; }
@@ -16,6 +18,7 @@ namespace ApiLogic.Catalog
         {
             this.Id = categoryItem.Id;
             this.Name = categoryItem.Name;
+            this.NamesInOtherLanguages = categoryItem.NamesInOtherLanguages;
             this.DynamicData = categoryItem.DynamicData;
         }
     }

@@ -6037,7 +6037,7 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, int>> channels,
+        public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels,
             Dictionary<string, string> dynamicData)
         {
             try
@@ -6046,6 +6046,8 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", name);
+                sp.AddParameter("@namesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
+                sp.AddKeyValueListParameter<long, string>("@namesInOtherLanguages", namesInOtherLanguages, "idKey", "value");
                 sp.AddParameter("@hasMetadata", dynamicData == null || dynamicData.Count == 0? 0 : 1);
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
                 sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");

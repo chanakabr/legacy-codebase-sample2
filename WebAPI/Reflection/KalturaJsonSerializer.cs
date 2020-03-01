@@ -10765,9 +10765,10 @@ namespace WebAPI.Models.Catalog
                 ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
             }
             ret.Add("id", "\"id\": " + Id);
-            if(Name != null)
+            propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+            if(propertyValue != null)
             {
-                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+                ret.Add("name", propertyValue);
             }
             ret.Add("parentId", "\"parentId\": " + ParentId);
             if(UnifiedChannels != null)
@@ -10794,10 +10795,7 @@ namespace WebAPI.Models.Catalog
                 ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
             }
             ret.Add("id", "<id>" + Id + "</id>");
-            if(Name != null)
-            {
-                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
-            }
+            ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             ret.Add("parentId", "<parentId>" + ParentId + "</parentId>");
             if(UnifiedChannels != null)
             {
