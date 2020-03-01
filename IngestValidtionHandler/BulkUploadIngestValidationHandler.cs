@@ -67,16 +67,15 @@ namespace IngestValidtionHandler
                 SetStatusToAllCurrentResults(statusToSetForResults);
 
                 BulkUploadManager.UpdateBulkUploadResults(_EventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus newStatus);
-                BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, newStatus);
 
                 // Need to refresh the data from the bulk upload ibject after updating with the validation result
                 _BulkUploadObject = BulkUploadMethods.GetBulkUploadData(eventData.GroupId, eventData.BulkUploadId);
 
                 // All seperated jobs of bulkUpload were completed, we are the last one, we need to switch the alias and commit the chanages.
-                if (_BulkUploadObject.IsProcessCompleted)
+                if (BulkUpload.IsProcessCompletedByStatus(newStatus))
                 {
                     var retryCount = 5;
-                    if (_BulkUploadObject.Status == BulkUploadJobStatus.Success)
+                    if (newStatus == BulkUploadJobStatus.Success)
                     {
                         var policy = RetryPolicy.Handle<Exception>()
                             .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
@@ -90,19 +89,27 @@ namespace IngestValidtionHandler
                         {
                             SwitchAliases();
                             InvalidateEpgAssets();
+                            BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Success);
                         });
 
                     }
+                    else
+                    {
+                        // If job is not success we will have to set the final status to the relevent failed\fatal
+                        BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, newStatus);
+                    }
+
+                    try
+                    {
+                        TriggerElasticIndexCleanerForPartner(_BulkUploadObject, eventData);
+                    }
+                    catch (Exception e)
+                    {
+                        _Logger.Error($"Error while running ElasticIndexCleaner", e);
+                    }
                 }
 
-                try
-                {
-                    TriggerElasticIndexCleanerForPartner(_BulkUploadObject, eventData);
-                }
-                catch (Exception e)
-                {
-                    _Logger.Error($"Error while running ElasticIndexCleaner", e);
-                }
+
             }
             catch (Exception ex)
             {

@@ -123,7 +123,7 @@ namespace IngestHandler
                 if (!isCloneSuccess)
                 {
                     _Logger.Error($"Failed cloning Index, bulkId:[{_BulkUploadObject.Id}], groupId:[{_BulkUploadObject.GroupId}]");
-                    UpdateBulkUploadObjectStatusAndResults();
+                    UpdateBulkUploadObjectStatusAndResults(BulkUploadJobStatus.Failed);
                     return;
                 }
 
@@ -141,14 +141,16 @@ namespace IngestHandler
                 if (isErrorInEpg)
                 {
                     _Logger.Error($"Failed Ingest due to errors in some of the results, bulkId:[{_BulkUploadObject.Id}], groupId:[{_BulkUploadObject.GroupId}]");
-                    UpdateBulkUploadObjectStatusAndResults();
+                    UpdateBulkUploadObjectStatusAndResults(BulkUploadJobStatus.Failed);
                     return;
                 }
 
 
+                // in case there are no errors update the results and set status according to them before sending for validation
+                UpdateBulkUploadObjectStatusAndResults();
+
                 // publish using EventBus to a new consumer with a new event ValidateIngest
                 var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-
                 var bulkUploadIngestValidationEvent = new BulkUploadIngestValidationEvent
                 {
                     BulkUploadId = serviceEvent.BulkUploadId,
@@ -196,7 +198,7 @@ namespace IngestHandler
             if (!isOverlapValid || !isGapValid)
             {
                 _Logger.Debug($"Overlaps or gaps are not valid by ingest profile, bulkId:[{_BulkUploadObject.Id}], groupId:[{_BulkUploadObject.GroupId}]");
-                UpdateBulkUploadObjectStatusAndResults();
+                UpdateBulkUploadObjectStatusAndResults(BulkUploadJobStatus.Failed);
                 isValid = false;
                 return crudOperationsForChannel;
             }
@@ -205,18 +207,14 @@ namespace IngestHandler
             return crudOperationsForChannel;
         }
 
-        private void UpdateBulkUploadObjectStatusAndResults()
+        private void UpdateBulkUploadObjectStatusAndResults(BulkUploadJobStatus? statusToSet = null)
         {
             var resultsToUpdate = _ResultsDictionary.Values.SelectMany(r => r.Values).ToList();
-
             BulkUploadManager.UpdateBulkUploadResults(resultsToUpdate, out var jobStatusByResultStatus);
-
-            // in case there was any other logic that decided that the entire bulk upload has failed we should update final status to faild and
-            // ignore the status that is based on results
-            // for instance when we found a gap but non of the result object were causing the gap, we will put a general error and faild status
-            // but all results will be OK
-            var jobStatus = _BulkUploadObject.Status == BulkUploadJobStatus.Failed ? BulkUploadJobStatus.Failed : jobStatusByResultStatus;
-            BulkUploadManager.UpdateBulkUpload(_BulkUploadObject, jobStatus);
+            var jobStatus = statusToSet?? jobStatusByResultStatus;
+            
+            _Logger.Debug($"UpdateBulkUploadObjectStatusAndResults > updated results, calculated status by results: [{jobStatusByResultStatus}], requested status to set:[{statusToSet}], setting status:[{jobStatus}]");
+            BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, jobStatus);
         }
 
         private bool CalculateGapsByPolicy(CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
@@ -278,7 +276,6 @@ namespace IngestHandler
                                 {
                                     //This means we found an unxplainable gap and we cannot identify what was the root cause for it, so we put a general error;
                                     _BulkUploadObject.AddError(eResponseStatus.EPGSProgramDatesError, errorMessage);
-                                    _BulkUploadObject.Status = BulkUploadJobStatus.Failed;
                                 }
                             }
                         });
