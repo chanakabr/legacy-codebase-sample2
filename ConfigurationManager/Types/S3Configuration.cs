@@ -9,8 +9,6 @@ namespace ConfigurationManager.Types
         public override string[] TcmPath => new string[] { TcmObjectKeys.FileUpload, TcmKey };
 
         public BaseValue<string> Region = new BaseValue<string>("region", "region", false, "region");
-        public BaseValue<string> AccessKey = new BaseValue<string>("accessKey", "accessKey", false, "accessKey");
-        public BaseValue<string> SecretKey = new BaseValue<string>("secretKey", "secretKey", false, "secretKey");
         public BaseValue<string> BucketName = new BaseValue<string>("bucketName", "bucketName", false, "bucketName");
         public BaseValue<string> Path = new BaseValue<string>("path", "path", false, "path");
         public BaseValue<int> NumberOfRetries = new BaseValue<int>("numberOfRetries", 90, false, "NumberOfRetries");

@@ -78,32 +78,14 @@ namespace Core.Catalog.Request
                 CheckSignature(mediaSearchRequest);
 
                 int totalItems;
-                List<RecommendationResult> results;
+                List<UnifiedSearchResult> searchResultsList;
 
-                Status status = CatalogLogic.GetExternalSearchAssets(mediaSearchRequest, out totalItems, out results, out response.requestId);
+                Status status = CatalogLogic.GetExternalSearchAssets(mediaSearchRequest, out totalItems, out searchResultsList, out response.requestId);
                 if (status.Code != 0)
                 {
                     response.status = status;
                     return response;
                 }
-
-                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-
-                var allRecommendations = results.Select(result =>
-                new RecommendationSearchResult()
-                {
-                    AssetId = result.id,
-                    AssetType = (eAssetTypes)result.type,
-                    m_dUpdateDate = DateTime.MinValue,
-                    TagsExtraData = result.TagsExtarData,
-                }
-                ).ToList();
-
-                List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
-                int tempTotalItems = 0;
-                if (allRecommendations != null && allRecommendations.Count > 0)
-                    searchResultsList = searcher.FillUpdateDates(mediaSearchRequest.m_nGroupID, allRecommendations.Select(x => (UnifiedSearchResult)x).ToList(), ref tempTotalItems,
-                                                                    mediaSearchRequest.m_nPageSize, mediaSearchRequest.m_nPageIndex, true);
 
                 response.m_nTotalItems = totalItems;
                 response.searchResults = searchResultsList;
