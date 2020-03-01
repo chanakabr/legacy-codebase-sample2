@@ -32,7 +32,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
+        public KalturaMultilingualString Name { get; set; }
 
         /// <summary>
         /// List of category tree

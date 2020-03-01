@@ -1206,7 +1206,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryTree, KalturaCategoryTree>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
                 .ForMember(dest => dest.Children, opt => opt.MapFrom(src => src.Children))
                 .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
@@ -1214,7 +1214,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaCategoryTree, ApiLogic.Catalog.CategoryTree>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
+                .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
                 .ForMember(dest => dest.Children, opt => opt.MapFrom(src => src.Children))
                 .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))

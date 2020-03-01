@@ -10949,9 +10949,10 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "[" + String.Join(", ", Images.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("images", "\"images\": " + propertyValue);
             }
-            if(Name != null)
+            propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+            if(propertyValue != null)
             {
-                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+                ret.Add("name", propertyValue);
             }
             if(UnifiedChannels != null)
             {
@@ -10983,10 +10984,7 @@ namespace WebAPI.Models.Catalog
                 propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
             }
-            if(Name != null)
-            {
-                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
-            }
+            ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             if(UnifiedChannels != null)
             {
                 propertyValue = UnifiedChannels.Count > 0 ? "<item>" + String.Join("</item><item>", UnifiedChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
