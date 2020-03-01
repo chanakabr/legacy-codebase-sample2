@@ -1680,7 +1680,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<KalturaPlaybackContextOptions, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>()                
-            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.AdapterData)))
+            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.AdapterData, false)))
             .ForMember(dest => dest.AssetFileIds, opt => opt.MapFrom(src => src.AssetFileIds))
             .ForMember(dest => dest.Context, opt => opt.MapFrom(src => src.Context))
             .ForMember(dest => dest.UrlType, opt => opt.MapFrom(src => src.UrlType));

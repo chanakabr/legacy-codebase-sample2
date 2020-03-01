@@ -1139,13 +1139,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region CategoryItem
-            cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
-               .ForMember(dest => dest.ChildrenIds, opt => opt.MapFrom(src => src.ChildrenIds != null ? string.Join(",", src.ChildrenIds) : null))
-               .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
-               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null));
 
             cfg.CreateMap<KalturaCategoryItem, ApiLogic.Catalog.CategoryItem>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1153,7 +1146,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
               .ForMember(dest => dest.ChildrenIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.ChildrenIds) ? src.GetItemsIn<List<long>, long>(src.ChildrenIds, "KalturaCategoryItem.childCategoriesIds", true) : null))
               .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
-              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData)));
+              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)));
+
+            cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
+               .ForMember(dest => dest.ChildrenIds, opt => opt.MapFrom(src => src.ChildrenIds != null ? string.Join(",", src.ChildrenIds) : null))
+               .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
+               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null));
 
             cfg.CreateMap<ApiLogic.Catalog.UnifiedChannelType, KalturaChannelType>()
                 .ConvertUsing(type =>

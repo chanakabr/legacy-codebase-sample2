@@ -260,7 +260,7 @@ namespace WebAPI.Utils
             return str.Replace('_', '/');
         }
 
-        internal static Dictionary<string, string> ConvertSerializeableDictionary(SerializableDictionary<string, KalturaStringValue> dict)
+        internal static Dictionary<string, string> ConvertSerializeableDictionary(SerializableDictionary<string, KalturaStringValue> dict, bool setNullIfEmpty)
         {
             Dictionary<string, string> res = new Dictionary<string, string>();
 
@@ -280,6 +280,10 @@ namespace WebAPI.Utils
                         }
                     }
                 }
+            }
+            else if (setNullIfEmpty)
+            {
+                res = null;
             }
 
             return res;
