@@ -73,6 +73,17 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
+                // set child category's order
+                if (objectToAdd.ChildrenIds?.Count > 0 )
+                {
+                    if (!CatalogDAL.UpdateCategoryOrderNum(contextData.GroupId, contextData.UserId, objectToAdd.Id, objectToAdd.ChildrenIds, null))
+                    {
+                        log.Error($"Error while re-order child categories. contextData: {contextData.ToString()}. new categoryId: {objectToAdd.Id}");
+                        response.SetStatus(eResponseStatus.Error);
+                        return response;
+                    }
+                }
+
                 response.Object = objectToAdd;
                 response.Status.Set(eResponseStatus.OK);
             }
@@ -137,6 +148,8 @@ namespace Core.Catalog.Handlers
                 }
                 else
                 {
+                    channels = new List<KeyValuePair<long, int>>();
+
                     if (objectToUpdate.UnifiedChannels?.Count > 0)
                     {
                         if (!IsUnifiedChannelsValid(contextData.GroupId, contextData.UserId.HasValue ? contextData.UserId.Value : 0, objectToUpdate.UnifiedChannels))
@@ -146,7 +159,7 @@ namespace Core.Catalog.Handlers
                         }
 
                         channels = objectToUpdate.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
-                    }
+                    }                   
                 }
 
                 if (objectToUpdate.DynamicData == null)

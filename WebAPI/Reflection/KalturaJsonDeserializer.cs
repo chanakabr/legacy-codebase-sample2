@@ -11648,12 +11648,29 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCategoryItemAncestorsFilter
     {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItemAncestorsFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
         public KalturaCategoryItemAncestorsFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
             }

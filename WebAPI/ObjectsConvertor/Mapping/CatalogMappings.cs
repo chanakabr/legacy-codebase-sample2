@@ -1144,9 +1144,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
-              .ForMember(dest => dest.ChildrenIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.ChildrenIds) ? src.GetItemsIn<List<long>, long>(src.ChildrenIds, "KalturaCategoryItem.childCategoriesIds", true) : null))
+              .ForMember(dest => dest.ChildrenIds, opt => opt.ResolveUsing(src => src.GetItemsIn<List<long>, long>(src.ChildrenIds, "KalturaCategoryItem.childCategoriesIds")))
+              .AfterMap((src, dest) => dest.ChildrenIds = src.ChildrenIds != null ? dest.ChildrenIds : null)
               .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
-              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)));
+              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
+              .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null);
+
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1217,7 +1220,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
 
             cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
-                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src =>  CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
+                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
 
             cfg.CreateMap<KalturaCategoryItemByIdInFilter, ApiLogic.Catalog.CategoryItemByIdInFilter>()
                .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
