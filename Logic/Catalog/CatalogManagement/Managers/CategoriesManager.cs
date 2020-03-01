@@ -135,6 +135,27 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
+                    if (ds.Tables.Count > 2 && ds.Tables[2].Rows.Count > 0)
+                    {
+                        categoryItem.NamesInOtherLanguages = new List<LanguageContainer>();
+
+                        CatalogGroupCache catalogGroupCache = null;
+                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        {
+                            log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling HandleNamesInOtherLanguages");
+                            return null;
+                        }
+
+                        foreach (DataRow dr in ds.Tables[2].Rows)
+                        {
+                            categoryItem.NamesInOtherLanguages.Add(new LanguageContainer()
+                            {
+                                m_sValue = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
+                                m_sLanguageCode3 = catalogGroupCache.LanguageMapById[ODBCWrapper.Utils.GetIntSafeVal(dr, "LANGUAGE_ID")].Code
+                            });
+                        }
+                    }
+
                     // Set ChildCategoriesIds
                     var groupCategoriesIds = GetGroupCategoriesIds(groupId);
                     if (groupCategoriesIds != null)
@@ -452,13 +473,12 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Status HandleNamesInOtherLanguages(int groupId, List<LanguageContainer> namesInOtherLanguages, out List<KeyValuePair<long, string>> languageCodeToName)
+        internal static Status HandleNamesInOtherLanguages(int groupId, List<LanguageContainer> namesInOtherLanguages, out List<KeyValuePair<long, string>> languageCodeToName)
         {
             languageCodeToName = null;
             if (namesInOtherLanguages != null && namesInOtherLanguages.Count > 0)
             {
                 CatalogGroupCache catalogGroupCache = null;
-
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling HandleNamesInOtherLanguages");

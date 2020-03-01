@@ -74,7 +74,7 @@ namespace Core.Catalog.Handlers
                 }
 
                 // set child category's order
-                if (objectToAdd.ChildrenIds?.Count > 0 )
+                if (objectToAdd.ChildrenIds?.Count > 0)
                 {
                     if (!CatalogDAL.UpdateCategoryOrderNum(contextData.GroupId, contextData.UserId, objectToAdd.Id, objectToAdd.ChildrenIds, null))
                     {
@@ -159,7 +159,7 @@ namespace Core.Catalog.Handlers
                         }
 
                         channels = objectToUpdate.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
-                    }                   
+                    }
                 }
 
                 if (objectToUpdate.DynamicData == null)
@@ -167,9 +167,32 @@ namespace Core.Catalog.Handlers
                     objectToUpdate.DynamicData = currentCategory.DynamicData;
                 }
 
-                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, channels, objectToUpdate.DynamicData))
+                //set NamesInOtherLanguages
+                List<KeyValuePair<long, string>> languageCodeToName = null;
+                if (objectToUpdate.NamesInOtherLanguages == null)
                 {
-                    log.Error($"Error while InsertCategory. contextData: {contextData.ToString()}.");
+                    if (currentCategory.NamesInOtherLanguages != null)
+                    {
+                        objectToUpdate.NamesInOtherLanguages = currentCategory.NamesInOtherLanguages;
+                    }
+                }
+                else
+                {
+                    languageCodeToName = new List<KeyValuePair<long, string>>();
+                    if (objectToUpdate.NamesInOtherLanguages?.Count > 0)
+                    {
+                        status = CategoriesManager.HandleNamesInOtherLanguages(contextData.GroupId, objectToUpdate.NamesInOtherLanguages, out languageCodeToName);
+                        if (!status.IsOkStatusCode())
+                        {
+                            response.SetStatus(status);
+                            return response;
+                        }
+                    }
+                }
+
+                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, languageCodeToName, channels, objectToUpdate.DynamicData))
+                {
+                    log.Error($"Error while updateCategory. contextData: {contextData.ToString()}.");
                     return response;
                 }
 
@@ -243,8 +266,8 @@ namespace Core.Catalog.Handlers
                 foreach (long successor in successors)
                 {
                     DeleteCategoryItem(contextData.GroupId, contextData.UserId.Value, id);
-                }                
-                
+                }
+
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
                 if (item.ParentId > 0)
                 {

@@ -6069,7 +6069,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, int>> channels, Dictionary<string, string> dynamicData)
+        public static bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels, Dictionary<string, string> dynamicData)
         {
             try
             {
@@ -6079,6 +6079,9 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@hasMetadata", dynamicData != null && dynamicData.Count > 0);
+                sp.AddParameter("@namesInOtherLanguagesExist", namesInOtherLanguages == null && namesInOtherLanguages.Count == 0 ? 0 : 1);
+                sp.AddParameter("@needToDeletenamesInOtherLanguages", namesInOtherLanguages != null && namesInOtherLanguages.Count == 0 ? 1 : 0);
+                sp.AddKeyValueListParameter<long, string>("@namesInOtherLanguages", namesInOtherLanguages, "idKey", "value");
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
                 sp.AddParameter("@needToDeleteCategoriesChannels", channels != null && channels.Count == 0 ? 1 : 0);
                 sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
