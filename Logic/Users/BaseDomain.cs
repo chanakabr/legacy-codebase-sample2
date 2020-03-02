@@ -337,11 +337,16 @@ namespace Core.Users
             if (string.IsNullOrEmpty(udid))
                 return response;
 
-            var deviceId = Device.GetDeviceIDByExternalId(groupId, externalId);
+            var device_Id = Device.GetDeviceIDByExternalId(groupId, externalId);
 
             //device with same external Id already exists
-            if (!string.IsNullOrEmpty(deviceId))
+            if (!string.IsNullOrEmpty(device_Id))
+            {
+                response.Status = new ApiObjects.Response.Status(eResponseStatus.ExternalIdAlreadyExists,
+                    $"External Id: '{externalId}' Already Exists in Group {groupId}");
                 return response;
+            }
+
 
             DomainResponseStatus domainResponseStatus = DomainResponseStatus.OK;
 
@@ -1928,29 +1933,14 @@ namespace Core.Users
                 return response;
             }
 
-            Device device = new Device(deviceUdid, brandID, m_nGroupID, deviceName, domainID);
+            var device = new Device(deviceUdid, brandID, m_nGroupID, deviceName, domainID);
 
-            //Already exists
+            //externalId already exists
             if (!string.IsNullOrEmpty(Device.GetDeviceIDByExternalId(m_nGroupID, externalId)))
             {
+                response.Status = new ApiObjects.Response.Status(eResponseStatus.ExternalIdAlreadyExists,
+                $"External Id: '{externalId}' Already Exists in Group {m_nGroupID}");
                 return response;
-            }
-
-            //already exists
-            if (!string.IsNullOrEmpty(deviceUdid))
-            {
-                var ret = new DeviceResponseObject();
-                ret.m_oDeviceResponseStatus = DeviceResponseStatus.Error;
-                if (device != null)
-                {
-                    ret.m_oDevice = device;
-                    if (device.m_state == DeviceState.Error)
-                    {
-                        ret.m_oDeviceResponseStatus = DeviceResponseStatus.ExternalIdAlreadyExists;
-                        return new DeviceResponse
-                        { Device = ret, Status = new ApiObjects.Response.Status(eResponseStatus.Error, DeviceResponseStatus.ExternalIdAlreadyExists.ToString()) };
-                    }
-                }
             }
 
             if (!string.IsNullOrEmpty(externalId))

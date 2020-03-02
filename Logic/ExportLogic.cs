@@ -247,11 +247,17 @@ namespace APILogic
                     if (mediaId > 0)
                     {
                         var status = ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS");
-                        var isActive = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE");
-                        var action = status == 2 ? "delete" : isActive == 1 ? "expired" : "update";
+                        var isActive = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE") == 1;
+                        var action = "delete";
+                        if (status != 2)
+                        {
+                            action = "update";
+                            isActive = false;
+                        }
+                        
                         var coGuid = ProtocolsFuncs.XMLEncode(ODBCWrapper.Utils.GetSafeStr(row, "CO_GUID"), true);
                         var entryId = ProtocolsFuncs.XMLEncode(ODBCWrapper.Utils.GetSafeStr(row, "ENTRY_ID"), true);
-                        var isActiveFromXml = ProtocolsFuncs.XMLEncode((isActive == 1 ? true : false).ToString(), true);
+                        var isActiveFromXml = ProtocolsFuncs.XMLEncode((isActive).ToString(), true);
                         var mediaIdFromXml = ProtocolsFuncs.XMLEncode(mediaId.ToString(), true);
 
                         // attributes

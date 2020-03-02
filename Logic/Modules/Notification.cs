@@ -369,7 +369,6 @@ namespace Core.Notification
         /// Add a Message Announcement to DB and send to rabbit.
         /// </summary>
         /// <returns></returns>
-        // TODO
         public static AddMessageAnnouncementResponse AddMessageAnnouncement(int nGroupID, MessageAnnouncement announcement)
         {
             AddMessageAnnouncementResponse response = null;
@@ -507,12 +506,12 @@ namespace Core.Notification
             return response;
         }
 
-        public static GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(int nGroupID, int pageSize, int pageIndex)
+        public static GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(int nGroupID, int pageSize, int pageIndex, MessageAnnouncementFilter filter = null)
         {
             GetAllMessageAnnouncementsResponse response = null;
             try
             {
-                response = AnnouncementManager.Get_AllMessageAnnouncements(nGroupID, pageSize, pageIndex);
+                response = AnnouncementManager.Get_AllMessageAnnouncements(nGroupID, pageSize, pageIndex, filter);
             }
             catch (Exception ex)
             {

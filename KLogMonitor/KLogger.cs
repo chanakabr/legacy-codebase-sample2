@@ -60,7 +60,7 @@ namespace KLogMonitor
 
 
         [Obsolete("This CTOR is no longer relveant, all loggers are now seperate")]
-        public KLogger(string className, string separateLoggerName = null) : this(separateLoggerName?? className) { }
+        public KLogger(string className, string separateLoggerName = null) : this(separateLoggerName ?? className) { }
 
         public KLogger(string className)
         {
@@ -385,13 +385,42 @@ namespace KLogMonitor
         {
             LogContextData[Constants.CLASS_NAME] = this.ClassName;
             LogContextData[Constants.SERVER] = this.Server;
-            LogContextData[Constants.CLIENT_TAG] = HttpContext.Current?.Items[Constants.CLIENT_TAG];
-            LogContextData[Constants.HOST_IP] = HttpContext.Current?.Items[Constants.HOST_IP];
-            LogContextData[Constants.REQUEST_ID_KEY] = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY];
-            LogContextData[Constants.GROUP_ID] = HttpContext.Current?.Items[Constants.GROUP_ID];
-            LogContextData[Constants.ACTION] = HttpContext.Current?.Items[Constants.ACTION];
-            LogContextData[Constants.USER_ID] = HttpContext.Current?.Items[Constants.USER_ID];
-            LogContextData[Constants.TOPIC] = HttpContext.Current?.Items[Constants.TOPIC];
+
+
+            if (HttpContext.Current?.Items[Constants.CLIENT_TAG] != null)
+            {
+                LogContextData[Constants.CLIENT_TAG] = HttpContext.Current?.Items[Constants.CLIENT_TAG];
+            }
+
+            if (HttpContext.Current?.Items[Constants.HOST_IP] != null)
+            {
+                LogContextData[Constants.HOST_IP] = HttpContext.Current?.Items[Constants.HOST_IP];
+            }
+
+            if ( HttpContext.Current?.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                LogContextData[Constants.REQUEST_ID_KEY] = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY];
+            }
+
+            if (HttpContext.Current?.Items[Constants.GROUP_ID] != null)
+            {
+                LogContextData[Constants.GROUP_ID] = HttpContext.Current?.Items[Constants.GROUP_ID];
+            }
+
+            if (HttpContext.Current?.Items[Constants.ACTION] != null)
+            {
+                LogContextData[Constants.ACTION] = HttpContext.Current?.Items[Constants.ACTION];
+            }
+
+            if (HttpContext.Current?.Items[Constants.USER_ID] != null)
+            {
+                LogContextData[Constants.USER_ID] = HttpContext.Current?.Items[Constants.USER_ID];
+            }
+
+            if (HttpContext.Current?.Items[Constants.TOPIC] != null)
+            {
+                LogContextData[Constants.TOPIC] = HttpContext.Current?.Items[Constants.TOPIC];
+            }
         }
 
         bool Microsoft.Extensions.Logging.ILogger.IsEnabled(LogLevel logLevel)
