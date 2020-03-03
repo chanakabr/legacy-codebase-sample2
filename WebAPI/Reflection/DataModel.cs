@@ -126,6 +126,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAnnouncementFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaAnnouncementListResponse":
                     switch(property.Name)
                     {

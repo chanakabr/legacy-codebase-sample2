@@ -5860,8 +5860,7 @@ namespace Tvinci.Core.DAL
                 foreach (var resultToSave in resultsToSave)
                 {
                     bulkUpload.Results[resultToSave.Index] = resultToSave;
-                    bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
-                    statusAfterUpdate = bulkUpload.Status;
+                    statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
 
                     log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
                 }
@@ -5920,7 +5919,7 @@ namespace Tvinci.Core.DAL
             }
 
             var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
-
+        
             if (!isAnyInError)
             {
                 newStatus = BulkUploadJobStatus.Success;

@@ -111,10 +111,15 @@ namespace ApiObjects.BulkUpload
             AddError(errorStatus);
         }
 
-        public bool IsProcessCompleted => Status == BulkUploadJobStatus.Success 
-            || Status == BulkUploadJobStatus.Failed 
-            || Status == BulkUploadJobStatus.Partial 
-            || Status == BulkUploadJobStatus.Fatal;
+        public bool IsProcessCompleted => IsProcessCompletedByStatus(Status);
+
+        public static bool IsProcessCompletedByStatus(BulkUploadJobStatus status)
+        {
+            return status == BulkUploadJobStatus.Success
+            || status == BulkUploadJobStatus.Failed
+            || status == BulkUploadJobStatus.Partial
+            || status == BulkUploadJobStatus.Fatal;
+        }
 
         public override CoreObject CoreClone()
         {
@@ -135,5 +140,5 @@ namespace ApiObjects.BulkUpload
         {
             throw new NotImplementedException();
         }
-    }
+            }
 }
