@@ -46,11 +46,11 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "idIn")]
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = false)]
-        public string IdIn { get; set; }              
-       
+        public string IdIn { get; set; }
+
         public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
         {
-            return KalturaCategoryItemOrderBy.CREATE_DATE_ASC;
+            return KalturaCategoryItemOrderBy.NONE;
         }
 
         public override void Validate()
@@ -58,6 +58,11 @@ namespace WebAPI.Models.Catalog
             if(string.IsNullOrEmpty(IdIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
+            }
+
+            if (OrderBy != GetDefaultOrderByValue())
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "OrderBy");
             }
         }
 
@@ -113,11 +118,12 @@ namespace WebAPI.Models.Catalog
     }
 
     public enum KalturaCategoryItemOrderBy
-    {
+    {        
         NAME_ASC,
         NAME_DESC,
         CREATE_DATE_ASC,
-        CREATE_DATE_DESC
+        CREATE_DATE_DESC,
+        NONE
     }
 
     public partial class KalturaCategoryItemAncestorsFilter : KalturaCategoryItemFilter
@@ -131,6 +137,19 @@ namespace WebAPI.Models.Catalog
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         [SchemeProperty(MinInteger = 1)]
         public long Id { get; set; }
+
+        public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaCategoryItemOrderBy.NONE;
+        }
+
+        public override void Validate()
+        {
+            if (OrderBy != GetDefaultOrderByValue())
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "OrderBy");
+            }
+        }
 
         public KalturaCategoryItemAncestorsFilter() : base()
         {

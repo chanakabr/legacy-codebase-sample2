@@ -32,7 +32,8 @@ namespace WebAPI.Controllers
             eResponseStatus.ChildCategoryNotExist,
             eResponseStatus.ParentIdShouldNotPointToItself,
             eResponseStatus.ChildCategoryCannotBeTheCategoryItself,
-            eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory }
+            eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory,
+            eResponseStatus.InvalidValue}
     )]
 
     [DeleteAction(Summary = "Remove category",

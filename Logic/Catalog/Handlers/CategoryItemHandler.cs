@@ -318,6 +318,12 @@ namespace Core.Catalog.Handlers
         {
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
 
+            if (pager.PageIndex != 0)
+            {
+                response.Status.Set(eResponseStatus.InvalidValue, "Page index value must be 1.");
+                return response;
+            }
+
             CategoryItem ci = CategoriesManager.GetCategoryItem(contextData.GroupId, filter.Id);
 
             if (ci == null)
@@ -345,6 +351,18 @@ namespace Core.Catalog.Handlers
 
             if (filter?.IdIn?.Count > 0)
             {
+                if (pager.PageIndex != 0)
+                {
+                    response.Status.Set(eResponseStatus.InvalidValue, "Page index value must be 1.");
+                    return response;
+                }
+
+                if (pager.PageSize < filter.IdIn.Count)
+                {
+                    response.Status.Set(eResponseStatus.InvalidValue, "Page size must to be greater or equal to the size of CategoryItemIds");
+                    return response;
+                }
+
                 categoriesIds = filter.IdIn;
                 foreach (var categoryId in categoriesIds)
                 {
