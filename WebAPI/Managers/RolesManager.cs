@@ -605,38 +605,47 @@ namespace WebAPI.Managers
 
         public static bool IsManagerAllowedUpdateAction(string userId, List<long> roleIds)
         {
+            if (roleIds == null || roleIds.Count == 0)
+            {
+                return true;
+            }
+
             // check role's hierarchy 
             var ks = KS.GetFromRequest();
 
-            bool isManager = GetRoleIds(ks).Any(ur => ur == MANAGER_ROLE_ID);
+            var ksRoleIds = GetRoleIds(ks);
+
+            if (ksRoleIds == null)
+            {
+                return false;
+            }
+
+            bool isAdmin = ksRoleIds.Any(ur => ur == ADMINISTRATOR_ROLE_ID);
+            bool isManager = ksRoleIds.Any(ur => ur == MANAGER_ROLE_ID);
+
             if (isManager)
             {
                 List<long> userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, userId);
 
-                if (userRoleIds.Any(x => x > MANAGER_ROLE_ID))
+                if (!isAdmin && userRoleIds?.Count > 0 && userRoleIds.Any(x => x == ADMINISTRATOR_ROLE_ID))
                 {
                     return false;
                 }
 
-                if (roleIds != null)
+                //check if update needed
+                if (userRoleIds?.Count > 0 && userRoleIds.Count == roleIds.Count)
                 {
-                    // Get External editor Role Id. ( manager should be able to update it's role)
-                    long? externalEditorRole = GetEERole(ks);
+                    int intersect = roleIds.Intersect(userRoleIds).Count<long>();
+                    if (intersect == roleIds.Count)
+                    {
+                        //no changes
+                        return true;
+                    }
+                }
 
-                    if (externalEditorRole.HasValue)
-                    {
-                        if (roleIds.Any(x => x > MANAGER_ROLE_ID && x != externalEditorRole.Value))
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        if (roleIds.Any(x => x > MANAGER_ROLE_ID))
-                        {
-                            return false;
-                        }
-                    }
+                if (!isAdmin && roleIds.Any(x => x == ADMINISTRATOR_ROLE_ID))
+                {
+                    return false;
                 }
             }
 
