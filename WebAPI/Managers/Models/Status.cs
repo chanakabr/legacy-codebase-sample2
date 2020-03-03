@@ -182,6 +182,7 @@ namespace WebAPI.Managers.Models
         PropertyIsOpcSupported = 500082,
         TypeNotSupported = 500083,
         FormatNotSupported = 500084,
-        GroupMissMatch = 500085
+        GroupMissMatch = 500085,
+        KeyCannotBeEmptyOrNull = 500086
     }
 }

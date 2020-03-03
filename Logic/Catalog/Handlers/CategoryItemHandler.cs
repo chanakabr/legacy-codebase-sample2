@@ -265,7 +265,8 @@ namespace Core.Catalog.Handlers
                 var successors = CategoriesManager.GetCategoryItemSuccessors(contextData.GroupId, id);
                 foreach (long successor in successors)
                 {
-                    DeleteCategoryItem(contextData.GroupId, contextData.UserId.Value, id);
+                    DeleteCategoryItem(contextData.GroupId, contextData.UserId.Value, successor);
+
                 }
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));

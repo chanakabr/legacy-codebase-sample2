@@ -57,7 +57,8 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType UNABLE_TO_CREATE_HOUSEHOLD_FOR_USER_ROLE = new ApiExceptionType(StatusCode.UnableToCreateHouseholdForRole, StatusCode.BadRequest, "Unable to create household for role");
         public static ApiExceptionType HTTP_METHOD_NOT_SUPPORTED = new ApiExceptionType(StatusCode.HttpMethodNotSupported, StatusCode.BadRequest, "HTTP [@argument@] method not supported", "argument" );
         public static ApiExceptionType PROPERTY_IS_OPC_SUPPORTED = new ApiExceptionType(StatusCode.PropertyIsOpcSupported, StatusCode.InvalidActionParameters, "Property [@property@] is supported only for OPC accounts", "property");
-
+        public static ApiExceptionType KEY_CANNOT_BE_EMPTY_OR_NULL = new ApiExceptionType(StatusCode.KeyCannotBeEmptyOrNull, StatusCode.BadRequest, "Key of [@property@] cannot be empty or null", "property");
+        
         public BadRequestException()
             : this(BAD_REQUEST)
         {

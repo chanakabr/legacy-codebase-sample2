@@ -4,8 +4,10 @@ using Core.Catalog.Handlers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -84,6 +86,15 @@ namespace WebAPI.Models.Catalog
         internal override void ValidateForAdd()
         {
             this.Name.Validate("multilingualName");
+
+            if (DynamicData?.Count > 0)
+            {
+                var isEmptyOrNullKeyExist = DynamicData.Any(x => string.IsNullOrEmpty(x.Key));
+                if (isEmptyOrNullKeyExist)
+                {
+                    throw new BadRequestException(BadRequestException.KEY_CANNOT_BE_EMPTY_OR_NULL, "dynamicData");
+                }
+            }
         }
 
         internal override void ValidateForUpdate()
@@ -91,6 +102,15 @@ namespace WebAPI.Models.Catalog
             if (this.Name != null)
             {
                 this.Name.Validate("multilingualName");
+            }
+
+            if (DynamicData?.Count > 0)
+            {
+                var isEmptyOrNullKeyExist = DynamicData.Any(x => string.IsNullOrEmpty(x.Key));
+                if (isEmptyOrNullKeyExist)
+                {
+                    throw new BadRequestException(BadRequestException.KEY_CANNOT_BE_EMPTY_OR_NULL, "dynamicData");
+                }
             }
         }
 
