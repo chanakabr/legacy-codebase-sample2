@@ -55,14 +55,15 @@ namespace WebAPI.Models.Catalog
 
         public override void Validate()
         {
-            if(string.IsNullOrEmpty(IdIn))
+            if (string.IsNullOrEmpty(IdIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
             }
 
-            if (OrderBy != GetDefaultOrderByValue())
+            var orderBy = GetDefaultOrderByValue();
+            if (OrderBy != orderBy)
             {
-                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "OrderBy");
+                throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "orderBy", orderBy);
             }
         }
 
@@ -103,7 +104,7 @@ namespace WebAPI.Models.Catalog
         }
 
         public override void Validate()
-        {           
+        {
         }
 
         public KalturaCategoryItemSearchFilter() : base()
@@ -118,7 +119,7 @@ namespace WebAPI.Models.Catalog
     }
 
     public enum KalturaCategoryItemOrderBy
-    {        
+    {
         NAME_ASC,
         NAME_DESC,
         CREATE_DATE_ASC,
@@ -145,9 +146,10 @@ namespace WebAPI.Models.Catalog
 
         public override void Validate()
         {
-            if (OrderBy != GetDefaultOrderByValue())
+            var orderBy = GetDefaultOrderByValue();
+            if (OrderBy != orderBy)
             {
-                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "OrderBy");
+                throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "orderBy", orderBy);
             }
         }
 
