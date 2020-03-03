@@ -668,6 +668,9 @@ namespace Core.Catalog.Handlers
                 }
             }
 
+            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(groupId));
+            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(id));
+
             return true;
         }
     }

@@ -14,25 +14,32 @@ namespace WebAPI.Controllers
     [AddAction(Summary = "categoryItem add",
         ObjectToAddDescription = "categoryItem details",
         ClientThrows = new eResponseStatus[]{
-                   eResponseStatus.NameRequired,
-                   eResponseStatus.CategoryNotExist,
-                   eResponseStatus.ChannelDoesNotExist}
+                    eResponseStatus.NameRequired,
+                    eResponseStatus.CategoryNotExist,
+                    eResponseStatus.ChannelDoesNotExist,
+                    eResponseStatus.ChildCategoryNotExist,
+                    eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory
+        }
      )]
 
     [UpdateAction(Summary = "categoryItem update",
         IdDescription = "Category identifier",
         ObjectToUpdateDescription = "categoryItem details",
-        ClientThrows = new eResponseStatus[] { 
+        ClientThrows = new eResponseStatus[] {
             eResponseStatus.CategoryNotExist,
             eResponseStatus.NameRequired,
             eResponseStatus.ChannelDoesNotExist,
-            eResponseStatus.ParentIdShouldNotPointToItself}
+            eResponseStatus.ChildCategoryNotExist,
+            eResponseStatus.ParentIdShouldNotPointToItself,
+            eResponseStatus.ChildCategoryCannotBeTheCategoryItself,
+            eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory }
     )]
 
     [DeleteAction(Summary = "Remove category",
         IdDescription = "Category identifier",
         ClientThrows = new eResponseStatus[] { 
-            eResponseStatus.CategoryNotExist }
+            eResponseStatus.CategoryNotExist,
+            eResponseStatus.ImageDoesNotExist}
     )]
 
     [ListAction(Summary = "Gets all categoryItem items", IsFilterOptional = true, IsPagerOptional = true)]

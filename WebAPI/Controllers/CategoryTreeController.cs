@@ -1,5 +1,4 @@
-﻿using ApiLogic.Catalog;
-using Core.Catalog.Handlers;
+﻿using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -18,6 +17,7 @@ namespace WebAPI.Controllers
         /// <param name="categoryItemId">Category item identifier</param>  
         /// <param name="name">Root category name</param>  
         [Action("duplicate")]
+        [Throws(eResponseStatus.CategoryNotExist)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public KalturaCategoryTree Duplicate(long categoryItemId, string name)
         {
@@ -43,6 +43,7 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="categoryItemId">Category item identifier</param>        
         [Action("get")]
+        [Throws(eResponseStatus.CategoryNotExist)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public KalturaCategoryTree Get(long categoryItemId)
         {
