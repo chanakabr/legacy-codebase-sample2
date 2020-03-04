@@ -1345,10 +1345,10 @@ namespace TVinciShared
                         {
                             sVal = PageUtils.ReWriteTableValue(sVal);
                         }
-                        else if (stringColumns.ContainsKey(sName.ToUpper()) && sName.StartsWith("0"))
+                        else if (stringColumns.ContainsKey(sName.ToUpper()) && sVal.StartsWith("0"))
                         {
-                            //https://stackoverflow.com/questions/54311793/how-to-create-a-csv-file-in-c-sharp-for-downloading-and-set-column-type-to-text
-                            sVal = $"={sVal}";
+                            //https://stackoverflow.com/questions/2261787/how-to-prevent-automatic-truncation-of-leading-zeros-in-excel-cell
+                            sVal = $"'{sVal}";
                         }
                         sTable.Append("<td ");
                         if (sVal.Length < 22)
@@ -1671,7 +1671,7 @@ namespace TVinciShared
             return sTable;
         }
 
-        #if NETFRAMEWORK
+#if NETFRAMEWORK
         public string OpenCSV()
         {
             if (m_theDataTable == null)
@@ -1706,7 +1706,7 @@ namespace TVinciShared
             HttpContext.Current.Response.End();
             return "";
         }
-        #endif
+#endif
 
         public DataTable GetDT()
         {
