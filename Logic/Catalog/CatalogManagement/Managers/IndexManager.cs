@@ -89,15 +89,7 @@ namespace Core.Catalog.CatalogManagement
                             string nullValue = string.Empty;
                             eESFieldType metaType;
                             ApiObjects.MetaType topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
-
-                            if (isEpg)
-                            {
-                                metaType = eESFieldType.STRING;
-                            }
-                            else
-                            {
-                                serializer.GetMetaType(topicMetaType, out metaType, out nullValue);
-                            }
+                            serializer.GetMetaType(topicMetaType, out metaType, out nullValue);
 
                             if (topicMetaType == ApiObjects.MetaType.Number && !metasToPad.Contains(topics.Key.ToLower()))
                             {
@@ -106,7 +98,7 @@ namespace Core.Catalog.CatalogManagement
 
                             if (!metas.ContainsKey(topics.Key.ToLower()))
                             {
-                                metas.Add(topics.Key.ToLower(), new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                                metas.Add(topics.Key.ToLower(), new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
                             }
                             else
                             {
@@ -147,6 +139,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
+                    var realMetasType = new Dictionary<string, eESFieldType>();
                     if (group.m_oMetasValuesByGroupId != null)
                     {
                         foreach (Dictionary<string, string> metaMap in group.m_oMetasValuesByGroupId.Values)
@@ -155,19 +148,13 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 string nullValue = string.Empty;
                                 eESFieldType metaType;
-
-                                if (isEpg)
+                                serializer.GetMetaType(meta.Key, out metaType, out nullValue);
+                                
+                                var metaName = meta.Value.ToLower();
+                                if (!metas.ContainsKey(metaName))
                                 {
-                                    metaType = eESFieldType.STRING;
-                                }
-                                else
-                                {
-                                    serializer.GetMetaType(meta.Key, out metaType, out nullValue);
-                                }
-
-                                if (!metas.ContainsKey(meta.Value.ToLower()))
-                                {
-                                    metas.Add(meta.Value.ToLower(), new KeyValuePair<eESFieldType, string>(metaType, nullValue));
+                                    realMetasType.Add(metaName, metaType);
+                                    metas.Add(metaName, new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
                                 }
                                 else
                                 {
@@ -183,23 +170,17 @@ namespace Core.Catalog.CatalogManagement
                         {
                             string nullValue = string.Empty;
                             eESFieldType metaType;
-
-                            if (isEpg)
+                            serializer.GetMetaType(epgMeta, out metaType, out nullValue);
+                            
+                            var epgMetaName = epgMeta.ToLower();
+                            if (!metas.ContainsKey(epgMetaName))
                             {
-                                metaType = eESFieldType.STRING;
+                                realMetasType.Add(epgMetaName, metaType);
+                                metas.Add(epgMetaName, new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
                             }
                             else
                             {
-                                serializer.GetMetaType(epgMeta, out metaType, out nullValue);
-                            }
-
-                            if (!metas.ContainsKey(epgMeta.ToLower()))
-                            {
-                                metas.Add(epgMeta.ToLower(), new KeyValuePair<eESFieldType, string>(metaType, nullValue));
-                            }
-                            else
-                            {
-                                var mediaMetaType = metas[epgMeta].Key;
+                                var mediaMetaType = realMetasType[epgMetaName];
 
                                 // If the metas is numeric for media and it exists also for epg, we will have problems with sorting 
                                 // (since epg metas are string and there will be a type mismatch)
@@ -208,7 +189,7 @@ namespace Core.Catalog.CatalogManagement
                                     mediaMetaType == eESFieldType.DOUBLE ||
                                     mediaMetaType == eESFieldType.LONG)
                                 {
-                                    metasToPad.Add(epgMeta.ToLower());
+                                    metasToPad.Add(epgMetaName);
                                 }
                                 else
                                 {
