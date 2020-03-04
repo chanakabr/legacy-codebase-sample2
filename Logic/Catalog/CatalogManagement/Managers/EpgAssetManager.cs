@@ -413,7 +413,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // Delete Index
-            bool indexingResult = IndexManager.DeleteProgram(groupId, new List<long>() { epgId });
+            bool indexingResult = IndexManager.DeleteProgram(groupId, new List<long>() { epgId }, epgCbList.Select(x => x.ChannelID.ToString()));
             if (!indexingResult)
             {
                 log.ErrorFormat("Failed to delete epg index for assetId: {0}, groupId: {1} after DeleteEpgAsset", epgId, groupId);
@@ -511,7 +511,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        internal static void InvalidateEpgs(int groupId, IEnumerable<long> epgIds, bool doesGroupUsesTemplates, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
+        internal static void InvalidateEpgs(int groupId, IEnumerable<long> epgIds, bool doesGroupUsesTemplates, IEnumerable<string> epgChannelIds, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
         {
             if (epgIds != null)
             {
@@ -531,6 +531,18 @@ namespace Core.Catalog.CatalogManagement
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to invalidate epg with invalidationKey: {0} after {1}.", invalidationKey, callingMethod);
+                    }
+                }
+            }
+
+            if (epgChannelIds != null)
+            {
+                foreach (var epgChannelId in epgChannelIds)
+                {
+                    var invalidationKey = LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.Error($"Failed to invalidate AdjacentPrograms with invalidationKey: {invalidationKey} after {callingMethod}.");
                     }
                 }
             }

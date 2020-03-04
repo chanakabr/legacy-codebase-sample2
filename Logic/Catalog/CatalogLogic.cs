@@ -3288,7 +3288,7 @@ namespace Core.Catalog
                         break;
                     case eObjectType.EPG:
                         // invalidate epg's for OPC and NON-OPC accounts
-                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
+                        EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
                         break;
                     case eObjectType.EpgChannel:
                         break;
@@ -3302,13 +3302,13 @@ namespace Core.Catalog
             return isUpdateIndexSucceeded;
         }
 
-        private static bool UpdateEpg(List<long> ids, int groupId, eObjectType objectType, eAction action)
+        private static bool UpdateEpg(List<long> ids, int groupId, eObjectType objectType, eAction action, IEnumerable<string> epgChannelIds)
         {
             bool isUpdateIndexSucceeded = false;
 
             if (ids != null && ids.Count > 0)
             {
-                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
 
                 if (!doesGroupUsesTemplates)
                 {
@@ -3320,9 +3320,7 @@ namespace Core.Catalog
 
                 if (groupId > 0)
                 {
-                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupId,
-                        ids, objectType, action, DateTime.UtcNow);
-
+                    var data = new CeleryIndexingData(groupId, ids, objectType, action, DateTime.UtcNow);
                     var queue = new CatalogQueue();
 
                     isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupId, objectType.ToString()));
@@ -3339,7 +3337,7 @@ namespace Core.Catalog
                         legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupId, objectType.ToString()));
 
                         // invalidate epg's for OPC and NON-OPC accounts
-                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
+                        EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates, epgChannelIds);
                     }
                 }
             }
