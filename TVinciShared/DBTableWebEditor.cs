@@ -1345,7 +1345,11 @@ namespace TVinciShared
                         {
                             sVal = PageUtils.ReWriteTableValue(sVal);
                         }
-
+                        else if (stringColumns.ContainsKey(sName.ToUpper()) && sName.StartsWith("0"))
+                        {
+                            //https://stackoverflow.com/questions/54311793/how-to-create-a-csv-file-in-c-sharp-for-downloading-and-set-column-type-to-text
+                            sVal = $"={sVal}";
+                        }
                         sTable.Append("<td ");
                         if (sVal.Length < 22)
                             sTable.Append(" nowrap=\"nowrap\" ");
@@ -1683,7 +1687,6 @@ namespace TVinciShared
             }
 
             GridView gv = new GridView();
-
             gv.DataSource = m_theDataTable;
             gv.DataBind();
             HttpContext.Current.Response.Clear();
