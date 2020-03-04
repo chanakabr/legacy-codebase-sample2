@@ -612,7 +612,6 @@ namespace WebAPI.Managers
 
             // check role's hierarchy 
             var ks = KS.GetFromRequest();
-
             var ksRoleIds = GetRoleIds(ks);
 
             if (ksRoleIds == null)
