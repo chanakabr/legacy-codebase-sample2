@@ -7366,9 +7366,11 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "duplicate":
+                            RolesManager.ValidateActionPermitted("categoryTree", "duplicate", false);
                             return CategoryTreeController.Duplicate((long) methodParams[0], (string) methodParams[1]);
                             
                         case "get":
+                            RolesManager.ValidateActionPermitted("categoryTree", "get", false);
                             return CategoryTreeController.Get((long) methodParams[0]);
                             
                     }

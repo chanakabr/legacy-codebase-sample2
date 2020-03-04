@@ -17,8 +17,9 @@ namespace WebAPI.Controllers
         /// <param name="categoryItemId">Category item identifier</param>  
         /// <param name="name">Root category name</param>  
         [Action("duplicate")]
-        [Throws(eResponseStatus.CategoryNotExist)]
+        [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.CategoryNotExist)]
         static public KalturaCategoryTree Duplicate(long categoryItemId, string name)
         {
             KalturaCategoryTree response = null;
@@ -43,8 +44,9 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="categoryItemId">Category item identifier</param>        
         [Action("get")]
-        [Throws(eResponseStatus.CategoryNotExist)]
+        [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.CategoryNotExist)]
         static public KalturaCategoryTree Get(long categoryItemId)
         {
             KalturaCategoryTree response = null;
