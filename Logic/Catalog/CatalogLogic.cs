@@ -5110,67 +5110,23 @@ namespace Core.Catalog
             lMedia.Add(new KeyValuePair<string, int>("fileDuration", fileDuration));
         }
 
-        internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref int fileDuration, ref long recordingId, int groupId, int domainId)
+        internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref int fileDuration, int groupId, int domainId)
         {
             bool result = false;
-            bool shouldGoToCas = false;
-            bool shouldCache = false;
-            recordingId = 0;
 
-            CatalogCache catalogCache = CatalogCache.Instance();
-            string key = string.Format("Recording_{0}", domainRecordingId);
+            var recording = ConditionalAccess.Module.GetRecordingByDomainRecordingId(groupId, domainId, domainRecordingId);
 
-            if (!ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseHitCache.Value)
+            // Validate recording
+            if (recording != null && recording.Status != null && recording.Status.Code == 0)
             {
-                shouldGoToCas = true;
+                fileDuration = (int)((recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
+
+                result = true;
             }
             else
             {
-                shouldCache = true;
-                object cacheDuration = catalogCache.Get(key);
-
-                if (cacheDuration != null)
-                {
-                    fileDuration = Convert.ToInt32(cacheDuration);
-                    result = true;
-                }
-                else
-                {
-                    shouldGoToCas = true;
-                }
-            }
-
-            if (shouldGoToCas)
-            {
-                var recording = ConditionalAccess.Module.GetRecordingByDomainRecordingId(groupId, domainId, domainRecordingId);
-
-                // Validate recording
-                if (recording != null && recording.Status != null && recording.Status.Code == 0)
-                {
-                    fileDuration = (int)((recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
-                    recordingId = recording.Id;
-
-                    if (shouldCache)
-                    {
-                        double timeInCache = (double)(fileDuration / 60);
-
-                        bool setResult = catalogCache.Set(key, fileDuration, timeInCache);
-
-                        if (!setResult)
-                        {
-                            log.ErrorFormat("Failed setting file duration of recording {0} in cache", domainRecordingId);
-                        }
-                    }
-
-                    result = true;
-                }
-                else
-                {
-                    // if recording is invalid, still cache that this recording is invalid
-
-                    result = false;
-                    catalogCache.Set(key, 0, 10);
-                }
+                // if recording is invalid, still cache that this recording is invalid
+                result = false;
             }
 
             return result;
@@ -6335,12 +6291,12 @@ namespace Core.Catalog
             return status;
         }
 
-        internal static ApiObjects.Response.Status GetExternalSearchAssets(MediaSearchExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
+        internal static ApiObjects.Response.Status GetExternalSearchAssets(MediaSearchExternalRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList, out string requestId)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             totalItems = 0;
             requestId = "";
-            resultsList = new List<RecommendationResult>();
+            searchResultsList = new List<UnifiedSearchResult>();
 
             BaseResponse respone = new BaseResponse();
 
@@ -6369,9 +6325,7 @@ namespace Core.Catalog
                 }
 
                 Dictionary<string, string> enrichments = CatalogLogic.GetEnrichments(request, enrichmentsToSend);
-
                 List<RecommendationResult> recommendations = null;
-
                 try
                 {
                     recommendations =
@@ -6412,9 +6366,6 @@ namespace Core.Catalog
                     return status;
                 }
 
-                resultsList = recommendations;
-                //totalItems = recommendations.Count;
-
                 if (recommendations == null)
                 {
                     status.Code = (int)(eResponseStatus.AdapterAppFailure);
@@ -6426,6 +6377,9 @@ namespace Core.Catalog
                 {
                     return status;
                 }
+
+                searchResultsList = GetValidateRecommendationsAssets(recommendations, request.m_nGroupID);
+                totalItems = searchResultsList.Count;
             }
             return status;
         }

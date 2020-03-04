@@ -78,7 +78,7 @@ namespace CouchbaseManager
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private static ParallelOptions PARALLEL_OPTIONS = new ParallelOptions { MaxDegreeOfParallelism = 1 };
         private static DateTime lastInitializationTime = DateTime.MinValue;
-        
+
         protected static Couchbase.Core.Serialization.DefaultSerializer serializer;
 
 
@@ -558,7 +558,7 @@ namespace CouchbaseManager
         /// <param name="value"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public bool Add(string key, object value, uint expiration = 0, bool asJson = false)
+        public bool Add(string key, object value, uint expiration = 0, bool asJson = false, bool suppressErrors = false)
         {
             bool result = false;
 
@@ -583,12 +583,12 @@ namespace CouchbaseManager
 
                 if (insertResult != null)
                 {
-                    if (insertResult.Exception != null)
+                    if (!suppressErrors && insertResult.Exception != null)
                         HandleException(key, insertResult);
 
                     if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
                         result = insertResult.Success;
-                    else
+                    else if (!suppressErrors)
                     {
                         eResultStatus status = eResultStatus.ERROR;
                         HandleStatusCode(insertResult, ref status, key);
@@ -621,7 +621,7 @@ namespace CouchbaseManager
         /// <param name="value"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public bool Add<T>(string key, T value, uint expiration = 0, bool asJson = false)
+        public bool Add<T>(string key, T value, uint expiration = 0, bool asJson = false, bool suppressErrors = false)
         {
             bool result = false;
 
@@ -646,12 +646,12 @@ namespace CouchbaseManager
 
                 if (insertResult != null)
                 {
-                    if (insertResult.Exception != null)
+                    if (!suppressErrors && insertResult.Exception != null)
                         HandleException(key, insertResult);
 
                     if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
                         result = insertResult.Success;
-                    else
+                    else if (!suppressErrors)
                     {
                         eResultStatus status = eResultStatus.ERROR;
                         HandleStatusCode(insertResult, ref status, key);
@@ -1131,7 +1131,7 @@ namespace CouchbaseManager
 
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         HandleException(key, getResult);
-                    
+
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
                         if (!string.IsNullOrEmpty(getResult.Value))
@@ -1189,7 +1189,7 @@ namespace CouchbaseManager
 
             return res;
         }
-        
+
         public T Get<T>(string key, out eResultStatus status, int inMemoryCacheTTL)
         {
             T result = default(T);
@@ -1229,7 +1229,7 @@ namespace CouchbaseManager
 
             return result;
         }
-        
+
         public T Get<T>(string key, bool withLock, out ulong cas, out eResultStatus status)
         {
             T result = default(T);
@@ -1641,7 +1641,7 @@ namespace CouchbaseManager
                     if (!(setResult.Exception is CasMismatchException))
                         HandleException(key, setResult);
                 }
-                
+
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
                     result = setResult.Success;
                 else

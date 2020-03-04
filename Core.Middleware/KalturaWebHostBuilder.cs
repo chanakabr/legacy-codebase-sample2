@@ -15,7 +15,6 @@ namespace Core.Middleware
         public static Task RunWebServerAsync<TStartup>(WebServerConfiguration config) where TStartup : class
         {
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, config.DefaultLogDirectoryPath);
-            ConfigurationManager.ApplicationConfiguration.Init();
             var webHost = WebHost.CreateDefaultBuilder(config.CommandlineArgs)
                 .ConfigureLogging((context, logging) =>
                 {

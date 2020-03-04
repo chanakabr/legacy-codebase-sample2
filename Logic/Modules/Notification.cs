@@ -97,17 +97,6 @@ namespace Core.Notification
             }
         }
 
-        public static bool DispatchEventNotification(int groupId, EventNotificationScope ens)
-        {
-            if (ens is EventNotificationObjectScope eneot)
-            {
-                eneot.EventObject.Notify(type: eneot.EventObject.GetType().Name.ToLower());
-                return true;
-            }
-
-            return false;
-        }
-
         public static bool HandleEpgEvent(int partnerId, List<ulong> programIds)
         {
             // get group ID
@@ -380,7 +369,6 @@ namespace Core.Notification
         /// Add a Message Announcement to DB and send to rabbit.
         /// </summary>
         /// <returns></returns>
-        // TODO
         public static AddMessageAnnouncementResponse AddMessageAnnouncement(int nGroupID, MessageAnnouncement announcement)
         {
             AddMessageAnnouncementResponse response = null;
@@ -518,12 +506,12 @@ namespace Core.Notification
             return response;
         }
 
-        public static GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(int nGroupID, int pageSize, int pageIndex)
+        public static GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(int nGroupID, int pageSize, int pageIndex, MessageAnnouncementFilter filter = null)
         {
             GetAllMessageAnnouncementsResponse response = null;
             try
             {
-                response = AnnouncementManager.Get_AllMessageAnnouncements(nGroupID, pageSize, pageIndex);
+                response = AnnouncementManager.Get_AllMessageAnnouncements(nGroupID, pageSize, pageIndex, filter);
             }
             catch (Exception ex)
             {

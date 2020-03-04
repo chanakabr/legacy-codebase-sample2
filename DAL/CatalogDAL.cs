@@ -4108,7 +4108,8 @@ namespace Tvinci.Core.DAL
 
         public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
                                                               List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType,
-                                                              string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE)
+                                                              string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE, 
+                                                              int? bookmarkEventThreshold = null, eTransactionType? productType = null, int? productId = null)
         {
             DevicePlayData devicePlayData = GetDevicePlayData(udid);
             if (devicePlayData != null)
@@ -4124,12 +4125,16 @@ namespace Tvinci.Core.DAL
                 devicePlayData.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
                 devicePlayData.AssetMediaConcurrencyRuleIds = assetMediaRuleIds;
                 devicePlayData.AssetEpgConcurrencyRuleIds = assetEpgRuleIds;
+                devicePlayData.BookmarkEventThreshold = bookmarkEventThreshold;
+                devicePlayData.ProductType = productType;
+                devicePlayData.ProductId = productId;
             }
             // save firstPlay in cache 
             else if (deviceFamilyId > 0)
             {
                 devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
-                                                    domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds);
+                                                    domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, bookmarkEventThreshold, 
+                                                    productType, productId);
             }
 
             if (devicePlayData != null)
@@ -5854,8 +5859,7 @@ namespace Tvinci.Core.DAL
                 foreach (var resultToSave in resultsToSave)
                 {
                     bulkUpload.Results[resultToSave.Index] = resultToSave;
-                    bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
-                    statusAfterUpdate = bulkUpload.Status;
+                    statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
 
                     log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
                 }
@@ -5914,7 +5918,7 @@ namespace Tvinci.Core.DAL
             }
 
             var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
-
+        
             if (!isAnyInError)
             {
                 newStatus = BulkUploadJobStatus.Success;

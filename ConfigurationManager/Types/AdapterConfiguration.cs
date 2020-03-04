@@ -9,6 +9,7 @@ namespace ConfigurationManager.Types
         public BaseValue<int?> SendTimeout = new BaseValue<int?>("sendTimeout", 10);
         public BaseValue<int?> CloseTimeout = new BaseValue<int?>("closeTimeout", 60);
         public BaseValue<long?> MaxReceivedMessageSize = new BaseValue<long?>("maxReceivedMessageSize", 2147483647);
+        public BaseValue<System.ServiceModel.HttpClientCredentialType?> HttpClientCredentialType = new BaseValue<System.ServiceModel.HttpClientCredentialType?>("httpClientCredentialType", System.ServiceModel.HttpClientCredentialType.None);
 
         internal static  AdapterConfiguration Copy(AdapterConfiguration copyFrom)
         {
@@ -18,8 +19,10 @@ namespace ConfigurationManager.Types
                 MaxReceivedMessageSize = copyFrom.MaxReceivedMessageSize,
                 OpenTimeout = copyFrom.OpenTimeout,
                 ReceiveTimeout = copyFrom.ReceiveTimeout,
-                SendTimeout = copyFrom.SendTimeout
+                SendTimeout = copyFrom.SendTimeout,
+                HttpClientCredentialType = copyFrom.HttpClientCredentialType
             };
+
             return res;
         }
     }

@@ -2301,8 +2301,8 @@ namespace Core.Api
 
             }
             return res;
-        }
-
+        }       
+        
         public static List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
             List<EPGChannelProgrammeObject> res = new List<EPGChannelProgrammeObject>();
@@ -11519,7 +11519,8 @@ namespace Core.Api
         }
 
         public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackAdapterContext(long adapterId, int groupId, string userId, string udid, string ip,
-                                                                                ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, Dictionary<string, string> adapterData)
+                                                                                ApiObjects.PlaybackAdapter.PlaybackContext playbackContext,
+                                                                                ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
         {
             GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> response = new GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>();
 
@@ -11532,7 +11533,7 @@ namespace Core.Api
                     return response;
                 }
 
-                playbackContext = PlaybackAdapterController.GetInstance().GetPlaybackContext(groupId, adapter, userId, udid, ip, playbackContext, adapterData);
+                playbackContext = PlaybackAdapterController.GetInstance().GetPlaybackContext(groupId, adapter, userId, udid, ip, playbackContext, requestPlaybackContextOptions);
 
                 if (playbackContext == null)
                 {
@@ -12073,6 +12074,40 @@ namespace Core.Api
             }
             
             return ksqls.Count > 0 ? $" (or {string.Join(" ", ksqls)})" : string.Empty;
+        }
+
+        internal static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackAdapterManifest(long adapterId, int groupId, 
+            ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
+        {
+            GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> response = new GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>();
+
+            try
+            {
+                PlaybackProfile adapter = GetPlaybackAdapter(groupId, adapterId, true);
+                if (adapter == null)
+                {
+                    response.SetStatus((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                playbackContext = PlaybackAdapterController.GetInstance().GetPlaybackManifest(groupId, adapter, playbackContext, requestPlaybackContextOptions);
+
+                if (playbackContext == null)
+                {
+                    log.Error($"Error while GetPlaybackManifest. groupId:{groupId}, adapter:{adapter.Id}");
+                }
+                else
+                {
+                    response.Object = playbackContext;
+                    response.SetStatus(eResponseStatus.OK);
+                }
+            }
+            catch (Exception)
+            {
+                response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error($"Failed in GetPlaybackManifest. groupId:{groupId}");
+            }
+            return response;
         }
     }
 }

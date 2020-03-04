@@ -1027,7 +1027,8 @@ namespace WebAPI.Controllers
                     DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
 
                     // Check and get PlaybackAdapter in case asset set rule and action.
-                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId, ks.UserId, assetId, assetType, KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response, contextDataParams.AdapterData);
+                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId, ks.UserId, assetId, assetType, 
+                        KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response, contextDataParams);
                     if (adapterResponse != null)
                     {
                         response = adapterResponse;
@@ -1425,6 +1426,64 @@ namespace WebAPI.Controllers
             }
 
             return bulkUpload;        
+        }
+
+        /// <summary>
+        /// This action delivers all data relevant for player
+        /// </summary>
+        /// <param name="assetId">Asset identifier</param>
+        /// <param name="assetType">Asset type</param>
+        /// <param name="contextDataParams">Parameters for the request</param>
+        /// <param name="sourceType">Filter sources by type</param>
+        [Action("getPlaybackManifest")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.ProgramDoesntExist)]
+        [Throws(eResponseStatus.AdapterAppFailure)]
+        [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]        
+        static public KalturaPlaybackContext GetPlaybackManifest(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams, string sourceType = null)
+        {
+            KalturaPlaybackContext response = null;
+
+            KS ks = KS.GetFromRequest();
+
+            contextDataParams.Validate(assetType, assetId);
+
+            try
+            {
+                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams, sourceType, true);
+
+                if (response.Sources != null && response.Sources.Count > 0)
+                {
+                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterManifest(ks.GroupId, assetId, assetType, response, contextDataParams);
+                    if (adapterResponse != null)
+                    {
+                        response = adapterResponse;
+                    }
+
+                    if (response.Messages == null)
+                    {
+                        response.Messages = new List<KalturaAccessControlMessage>();
+                    }
+
+                    if (response.Messages.Count == 0)
+                    {
+                        response.Messages.Add(new KalturaAccessControlMessage()
+                        {
+                            Code = StatusCode.OK.ToString(),
+                            Message = StatusCode.OK.ToString(),
+                        });
+                    }
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
     }
 }

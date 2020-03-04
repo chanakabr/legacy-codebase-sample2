@@ -6817,6 +6817,10 @@ namespace WebAPI.Models.Notification
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
             return ret;
         }
         
@@ -6826,6 +6830,10 @@ namespace WebAPI.Models.Notification
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
             return ret;
         }
     }
@@ -6876,6 +6884,42 @@ namespace WebAPI.Models.Notification
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            return ret;
+        }
+    }
+    public partial class KalturaBookmarkEvent
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("action", "\"action\": " + "\"" + Enum.GetName(typeof(KalturaBookmarkActionType), Action) + "\"");
+            ret.Add("assetId", "\"assetId\": " + AssetId);
+            ret.Add("fileId", "\"fileId\": " + FileId);
+            ret.Add("householdId", "\"householdId\": " + HouseholdId);
+            ret.Add("position", "\"position\": " + Position);
+            ret.Add("productId", "\"productId\": " + ProductId);
+            ret.Add("productType", "\"productType\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), ProductType) + "\"");
+            ret.Add("userId", "\"userId\": " + UserId);
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaBookmarkActionType), Action) + "" + "</action>");
+            ret.Add("assetId", "<assetId>" + AssetId + "</assetId>");
+            ret.Add("fileId", "<fileId>" + FileId + "</fileId>");
+            ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
+            ret.Add("position", "<position>" + Position + "</position>");
+            ret.Add("productId", "<productId>" + ProductId + "</productId>");
+            ret.Add("productType", "<productType>" + "" + Enum.GetName(typeof(KalturaTransactionType), ProductType) + "" + "</productType>");
+            ret.Add("userId", "<userId>" + UserId + "</userId>");
             return ret;
         }
     }
@@ -21867,6 +21911,26 @@ namespace WebAPI.Models.Segmentation
             return ret;
         }
     }
+    public partial class KalturaBaseSegmentationTypeFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
     public partial class KalturaBaseSegmentCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -22715,6 +22779,34 @@ namespace WebAPI.Models.Segmentation
             if(Value != null)
             {
                 ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaSegmentValueFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
             }
             return ret;
         }
@@ -24547,6 +24639,60 @@ namespace WebAPI.Models.Partner
             if(Value != null)
             {
                 ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaBookmarkEventThreshold
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("threshold", "\"threshold\": " + Threshold);
+            ret.Add("transactionType", "\"transactionType\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), TransactionType) + "\"");
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("threshold", "<threshold>" + Threshold + "</threshold>");
+            ret.Add("transactionType", "<transactionType>" + "" + Enum.GetName(typeof(KalturaTransactionType), TransactionType) + "" + "</transactionType>");
+            return ret;
+        }
+    }
+    public partial class KalturaCommercePartnerConfig
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(BookmarkEventThresholds != null)
+            {
+                propertyValue = "[" + String.Join(", ", BookmarkEventThresholds.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("bookmarkEventThresholds", "\"bookmarkEventThresholds\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(BookmarkEventThresholds != null)
+            {
+                propertyValue = BookmarkEventThresholds.Count > 0 ? "<item>" + String.Join("</item><item>", BookmarkEventThresholds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("bookmarkEventThresholds", "<bookmarkEventThresholds>" + propertyValue + "</bookmarkEventThresholds>");
             }
             return ret;
         }

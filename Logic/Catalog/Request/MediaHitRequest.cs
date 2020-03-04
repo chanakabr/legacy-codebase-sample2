@@ -103,16 +103,14 @@ namespace Core.Catalog.Request
             int fileDuration = 0;
             int assetId = 0;
 
-            if (m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.NPVR)
+            if (m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.NPVR && long.TryParse(this.m_oMediaPlayRequestData.m_sAssetID, out recordingId))
             {
                 assetId = int.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
                 NPVR.INPVRProvider npvrProvider;
+        
+                bool isGroupHaveNPVRImpl = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null);
 
-                if (NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null))
-                {
-                    recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
-                }
-                else if (!CatalogLogic.GetNPVRMarkHitInitialData(assetId, ref fileDuration, ref recordingId, this.m_nGroupID, this.domainId))
+                if (!isGroupHaveNPVRImpl && !CatalogLogic.GetNPVRMarkHitInitialData(assetId, ref fileDuration, this.m_nGroupID, this.domainId))
                 {
                     response.m_sStatus = eResponseStatus.RecordingNotFound.ToString();
                     response.m_sDescription = "Recording doesn't exist";

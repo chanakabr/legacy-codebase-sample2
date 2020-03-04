@@ -287,31 +287,36 @@ namespace Core.Users
         private static SSOAdapaterUser ConvertUserToSSOUser(User userData)
         {
             if (userData == null) { return null; }
-            var user = new SSOAdapaterUser();
+            var user = new SSOAdapaterUser
+            {
+                Id = int.Parse(userData.m_sSiteGUID),
+                ExternalId = userData.m_oBasicData.m_CoGuid,
+                HouseholdID = userData.m_domianID,
+                IsHouseholdMaster = userData.m_isDomainMaster,
+                Username = userData.m_oBasicData.m_sUserName,
+                FirstName = userData.m_oBasicData.m_sFirstName,
+                LastName = userData.m_oBasicData.m_sLastName,
+                Email = userData.m_oBasicData.m_sEmail,
+                City = userData.m_oBasicData.m_sCity,
+                CountryId = userData.m_oBasicData.m_Country != null ? userData.m_oBasicData.m_Country.m_nObjecrtID : (int?)null,
+                Zip = userData.m_oBasicData.m_sZip,
+                Phone = userData.m_oBasicData.m_sPhone,
+                Address = userData.m_oBasicData.m_sAddress,
+                UserState = (eUserState)(int)userData.m_eUserState,
+                SuspensionState = (eHouseholdSuspensionState)(int)userData.m_eSuspendState,
+                UserType = new SSOAdapterUserType
+                {
+                    Id = userData.m_oBasicData.m_UserType.ID ?? 0,
+                    Description = userData.m_oBasicData.m_UserType.Description
+                }
+            };
 
-            user.Id = int.Parse(userData.m_sSiteGUID);
-            user.ExternalId = userData.m_oBasicData.m_CoGuid;
-            user.HouseholdID = userData.m_domianID;
-            user.IsHouseholdMaster = userData.m_isDomainMaster;
-            user.Username = userData.m_oBasicData.m_sUserName;
-            user.FirstName = userData.m_oBasicData.m_sFirstName;
-            user.LastName = userData.m_oBasicData.m_sLastName;
-            user.Email = userData.m_oBasicData.m_sEmail;
-            user.City = userData.m_oBasicData.m_sCity;
-            user.CountryId = userData.m_oBasicData.m_Country != null ? userData.m_oBasicData.m_Country.m_nObjecrtID : (int?)null;
-            user.Zip = userData.m_oBasicData.m_sZip;
-            user.Phone = userData.m_oBasicData.m_sPhone;
-            user.Address = userData.m_oBasicData.m_sAddress;
-            user.UserState = (eUserState)(int)userData.m_eUserState;
-            if (userData.m_oDynamicData != null && userData.m_oDynamicData.m_sUserData != null)
+            if (userData.m_oDynamicData?.m_sUserData != null)
             {
                 user.DynamicData = userData.m_oDynamicData.m_sUserData.ToDictionary(k => k.m_sDataType, k => k.m_sValue);
             }
 
-            user.SuspensionState = (eHouseholdSuspensionState)(int)userData.m_eSuspendState;
-            user.UserType = new SSOAdapterUserType();
-            user.UserType.Id = userData.m_oBasicData.m_UserType.ID ?? 0;
-            user.UserType.Description = userData.m_oBasicData.m_UserType.Description;
+
             return user;
         }
 
@@ -337,33 +342,36 @@ namespace Core.Users
             }
 
             ioUser.Id = userData.Id;
-            ioUser.m_oBasicData = new UserBasicData
-            {
-                m_CoGuid = userData.ExternalId,
-                m_sUserName = userData.Username,
-                m_sFirstName = userData.FirstName,
-                m_sLastName = userData.LastName,
-                m_sEmail = userData.Email,
-                m_sCity = userData.City,
-                m_Country = userData.CountryId.HasValue && userData.CountryId.Value > 0 ? new Country { m_nObjecrtID = userData.CountryId.Value } : null,   //BEO-7091
-                m_sZip = userData.Zip,
-                m_sPhone = userData.Phone,
-                m_sAddress = userData.Address,
-                m_UserType = new ApiObjects.UserType
-                {
-                    ID = userData.UserType.Id > 0 ? userData.UserType.Id : (int?)null,  //BEO-7091
-                    Description = userData.UserType.Description,
-                },
-            };
             ioUser.m_domianID = userData.HouseholdID ?? 0;
             ioUser.m_isDomainMaster = userData.IsHouseholdMaster ?? false;
             ioUser.m_eUserState = (UserState)(int)userData.UserState;
-            ioUser.m_oDynamicData = new UserDynamicData
-            {
-                m_sUserData = dynamicData,
-                UserId = userData.Id,
-            };
             ioUser.m_eSuspendState = (DomainSuspentionStatus)(int)userData.SuspensionState;
+
+            //m_oBasicData
+            ioUser.m_oBasicData = ioUser.m_oBasicData ?? new UserBasicData();//only if null
+            ioUser.m_oBasicData.m_CoGuid = ioUser.m_oBasicData.m_CoGuid ?? userData.ExternalId;
+            ioUser.m_oBasicData.m_sUserName = ioUser.m_oBasicData.m_sUserName ?? userData.Username;
+            ioUser.m_oBasicData.m_sFirstName = ioUser.m_oBasicData.m_sFirstName ?? userData.FirstName;
+            ioUser.m_oBasicData.m_sLastName = ioUser.m_oBasicData.m_sLastName ?? userData.LastName;
+            ioUser.m_oBasicData.m_sEmail = ioUser.m_oBasicData.m_sEmail ?? userData.Email;
+            ioUser.m_oBasicData.m_sCity = ioUser.m_oBasicData.m_sCity ?? userData.City;
+            if (ioUser.m_oBasicData.m_Country == null)
+            {
+                ioUser.m_oBasicData.m_Country = userData.CountryId.HasValue && userData.CountryId.Value > 0 ? new Country { m_nObjecrtID = userData.CountryId.Value } : null;   //BEO-7091
+            }
+            ioUser.m_oBasicData.m_sZip = ioUser.m_oBasicData.m_sZip ?? userData.Zip;
+            ioUser.m_oBasicData.m_sPhone = ioUser.m_oBasicData.m_sPhone ?? userData.Phone;
+            ioUser.m_oBasicData.m_sAddress = ioUser.m_oBasicData.m_sAddress ?? userData.Address;
+            ioUser.m_oBasicData.m_UserType = new ApiObjects.UserType
+            {
+                ID = userData.UserType.Id > 0 ? userData.UserType.Id : (int?)null,  //BEO-7091
+                Description = userData.UserType.Description
+            };
+
+            //m_oDynamicData
+            ioUser.m_oDynamicData = ioUser.m_oDynamicData ?? new UserDynamicData();
+            ioUser.m_oDynamicData.m_sUserData = ioUser.m_oDynamicData.m_sUserData ?? dynamicData;
+            ioUser.m_oDynamicData.UserId = ioUser.m_oDynamicData.UserId == default ? userData.Id : ioUser.m_oDynamicData.UserId;
         }
 
         private bool ValidateConfigurationIsSet(AdapterStatusCode responseStatus)

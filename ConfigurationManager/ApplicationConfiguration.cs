@@ -91,6 +91,7 @@ namespace ConfigurationManager
         public GroupsManagerConfiguration GroupsManagerConfiguration = new GroupsManagerConfiguration();
         public RequestParserConfiguration RequestParserConfiguration = new RequestParserConfiguration();
         public OTTUserControllerConfiguration OTTUserControllerConfiguration = new OTTUserControllerConfiguration();
+        public EPGIngestV2Configuration EPGIngestV2Configuration = new EPGIngestV2Configuration();
         public UsersCacheConfiguration UsersCacheConfiguration = new UsersCacheConfiguration();
         public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
         public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();

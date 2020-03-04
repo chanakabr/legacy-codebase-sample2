@@ -744,51 +744,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleType));
 
-            cfg.CreateMap<KalturaTransactionType?, eTransactionType>()
-                .ConvertUsing(kalturaTransactionType =>
-                {
-                    if (kalturaTransactionType.HasValue)
-                    {
-                        switch (kalturaTransactionType.Value)
-                        {
-                            case KalturaTransactionType.ppv:
-                                return eTransactionType.PPV;
-                                break;
-                            case KalturaTransactionType.subscription:
-                                return eTransactionType.Subscription;
-                                break;
-                            case KalturaTransactionType.collection:
-                                return eTransactionType.Collection;
-                                break;
-                            default:
-                                throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown kalturaTransactionType value : {0}", kalturaTransactionType.ToString()));
-                                break;
-                        }
-                    }
-
-                    throw new ClientException((int)StatusCode.ArgumentCannotBeEmpty, string.Format("Argument {0} cannot be empty", "KalturaTransactionType"));
-                });
-
-            cfg.CreateMap<eTransactionType, KalturaTransactionType>()
-                .ConvertUsing(transactionType =>
-                {
-                    switch (transactionType)
-                    {
-                        case eTransactionType.PPV:
-                            return KalturaTransactionType.ppv;
-                            break;
-                        case eTransactionType.Subscription:
-                            return KalturaTransactionType.subscription;
-                            break;
-                        case eTransactionType.Collection:
-                            return KalturaTransactionType.collection;
-                            break;
-                        default:
-                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown eTransactionType value : {0}", transactionType.ToString()));
-                            break;
-                    }
-                });
-
             cfg.CreateMap<KalturaSegmentsCondition, SegmentsCondition>()
                .IncludeBase<KalturaCondition, RuleBaseCondition<ISegmentsConditionScope>>()
                .ForMember(dest => dest.SegmentIds, opt => opt.MapFrom(src => src.getSegmentsIds()));
@@ -1376,7 +1331,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaBusinessModuleRuleFilter, APILogic.ConditionalAccess.ConditionScope>()
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleIdApplied.HasValue ? src.BusinessModuleIdApplied.Value : 0))
-                .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConditionalAccessMappings.ConvertTransactionType(src.BusinessModuleTypeApplied)))
+                .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleTypeApplied))
                 .ForMember(dest => dest.SegmentIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? src.GetItemsIn<List<long>, long>(src.SegmentIdsApplied, "filter.segmentIdsApplied") : null))
                 .ForMember(dest => dest.FilterBySegments, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? true : false));
 
@@ -1718,6 +1673,47 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             break;
                     }
                 });
+
+            cfg.CreateMap<KalturaPlaybackContextOptions, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>()                
+            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => ConvertSerializeableDictionary(src.AdapterData)))
+            .ForMember(dest => dest.AssetFileIds, opt => opt.MapFrom(src => src.AssetFileIds))
+            .ForMember(dest => dest.Context, opt => opt.MapFrom(src => src.Context))
+            .ForMember(dest => dest.UrlType, opt => opt.MapFrom(src => src.UrlType));
+
+            cfg.CreateMap<KalturaPlaybackContextType, ApiObjects.PlayContextType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case KalturaPlaybackContextType.CATCHUP:
+                            return ApiObjects.PlayContextType.CatchUp;
+                        case KalturaPlaybackContextType.DOWNLOAD:
+                            return ApiObjects.PlayContextType.Download;
+                        case KalturaPlaybackContextType.PLAYBACK:
+                            return ApiObjects.PlayContextType.Playback;
+                        case KalturaPlaybackContextType.START_OVER:
+                            return ApiObjects.PlayContextType.StartOver;
+                        case KalturaPlaybackContextType.TRAILER:
+                            return ApiObjects.PlayContextType.Trailer;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown PlayContextType value : {0}", type.ToString()));
+                    }
+                });
+
+            cfg.CreateMap<KalturaUrlType, ApiObjects.UrlType>()
+               .ConvertUsing(type =>
+               {
+                   switch (type)
+                   {
+                       case KalturaUrlType.DIRECT:
+                           return ApiObjects.UrlType.direct;
+                       case KalturaUrlType.PLAYMANIFEST:  
+                           return ApiObjects.UrlType.playmanifest;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown UrlType value : {0}", type.ToString()));
+                   }
+               });
+
             #endregion
 
             #region EventNotification
@@ -1731,6 +1727,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectId))
                 .ForMember(dest => dest.EventObjectType, opt => opt.MapFrom(src => src.ObjectType))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                ;
+
+            cfg.CreateMap<KalturaEventNotification, EventNotificationAction>()
+                .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => src.ActionType))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectId))
+                .ForMember(dest => dest.ObjectType, opt => opt.MapFrom(src => src.EventObjectType))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 ;
 
@@ -1777,10 +1784,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             //EventNotificationScope, KalturaEventNotificationScope
-            cfg.CreateMap<KalturaEventNotificationScope, EventNotificationScope>()
-                .Include<KalturaEventNotificationObjectScope, EventNotificationObjectScope>();
+            cfg.CreateMap<KalturaEventNotificationScope, EventNotificationScope>();
 
             cfg.CreateMap<KalturaEventNotificationObjectScope, EventNotificationObjectScope>()
+                .IncludeBase<KalturaEventNotificationScope, EventNotificationScope>()
                 .ForMember(dest => dest.EventObject, opt => opt.MapFrom(src => src.EventObject));
 
             #endregion
@@ -1788,7 +1795,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         #region Private Convertors
 
-       
+
 
         internal static StatsType ConvertAssetTypeToStatsType(AssetType type)
         {

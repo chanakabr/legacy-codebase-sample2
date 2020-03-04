@@ -11,6 +11,7 @@ using WebAPI.Models.Notifications;
 using AutoMapper.Configuration;
 using TVinciShared;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using ApiObjects.Catalog;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -36,8 +37,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
-                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
-                 ;
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled));
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
             cfg.CreateMap<KalturaPartnerNotificationSettings, NotificationPartnerSettings>()
@@ -117,20 +117,110 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.EnableMail, opt => opt.MapFrom(src => src.MailEnabled))
                  .ForMember(dest => dest.EnableSms, opt => opt.MapFrom(src => src.SmsEnabled));
 
+            cfg.CreateMap<KalturaAnnouncement, MessageAnnouncement>()
+                 .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.getEnabled()))
+                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                 .ForMember(dest => dest.MessageAnnouncementId, opt => opt.MapFrom(src => src.getId()))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.Recipients, opt => opt.MapFrom(src => src.Recipients))
+                 .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.getStartTime()))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                 .ForMember(dest => dest.Timezone, opt => opt.MapFrom(src => src.Timezone))
+                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
+                 .ForMember(dest => dest.IncludeMail, opt => opt.MapFrom(src => src.IncludeMail))
+                 .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
+                 .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
+                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms));
+
+            cfg.CreateMap<KalturaAnnouncementRecipientsType, eAnnouncementRecipientsType>()
+                .ConvertUsing(KalturaRecipientsType =>
+                {
+                    switch (KalturaRecipientsType)
+                    {
+                        case KalturaAnnouncementRecipientsType.All:
+                            return eAnnouncementRecipientsType.All;
+                        case KalturaAnnouncementRecipientsType.LoggedIn:
+                            return eAnnouncementRecipientsType.LoggedIn;
+                        case KalturaAnnouncementRecipientsType.Guests:
+                            return eAnnouncementRecipientsType.Guests;
+                        case KalturaAnnouncementRecipientsType.Other:
+                            return eAnnouncementRecipientsType.Other;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaAnnouncementRecipientsType value: {KalturaRecipientsType}");
+                    }
+                });
+
+            cfg.CreateMap<KalturaAnnouncementStatus, eAnnouncementStatus>()
+                .ConvertUsing(KalturaAnnouncementStatus =>
+                {
+                    switch (KalturaAnnouncementStatus)
+                    {
+                        case KalturaAnnouncementStatus.NotSent:
+                            return eAnnouncementStatus.NotSent;
+                        case KalturaAnnouncementStatus.Sending:
+                            return eAnnouncementStatus.Sending;
+                        case KalturaAnnouncementStatus.Sent:
+                            return eAnnouncementStatus.Sent;
+                        case KalturaAnnouncementStatus.Aborted:
+                            return eAnnouncementStatus.Aborted;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaAnnouncementStatus value: {KalturaAnnouncementStatus}");
+                    }
+                });
+
             cfg.CreateMap<MessageAnnouncement, KalturaAnnouncement>()
                  .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.MessageAnnouncementId))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                 .ForMember(dest => dest.Recipients, opt => opt.ResolveUsing(src => ConvertRecipientsType(src.Recipients)))
+                 .ForMember(dest => dest.Recipients, opt => opt.MapFrom(src => src.Recipients))
                  .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                  .ForMember(dest => dest.Timezone, opt => opt.MapFrom(src => src.Timezone))
                  .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
                  .ForMember(dest => dest.IncludeMail, opt => opt.MapFrom(src => src.IncludeMail))
-                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms))
-                 .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
                  .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
-                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertAnnouncementStatusType(src.Status)));
+                 .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
+                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms));
+
+            cfg.CreateMap<eAnnouncementRecipientsType, KalturaAnnouncementRecipientsType>()
+                .ConvertUsing(recipientsType =>
+                {
+                    switch (recipientsType)
+                    {
+                        case eAnnouncementRecipientsType.All:
+                            return KalturaAnnouncementRecipientsType.All;
+                        case eAnnouncementRecipientsType.LoggedIn:
+                            return KalturaAnnouncementRecipientsType.LoggedIn;
+                        case eAnnouncementRecipientsType.Guests:
+                            return KalturaAnnouncementRecipientsType.Guests;
+                        case eAnnouncementRecipientsType.Other:
+                            return KalturaAnnouncementRecipientsType.Other;
+                        default:
+                            throw new ClientException((int)StatusCode.Error, "Unknown recipients Type");
+                    }
+                });
+
+            cfg.CreateMap<eAnnouncementStatus, KalturaAnnouncementStatus>()
+                .ConvertUsing(announcementStatus =>
+                {
+                    switch (announcementStatus)
+                    {
+                        case eAnnouncementStatus.NotSent:
+                            return KalturaAnnouncementStatus.NotSent;
+                        case eAnnouncementStatus.Sending:
+                            return KalturaAnnouncementStatus.Sending;
+                        case eAnnouncementStatus.Sent:
+                            return KalturaAnnouncementStatus.Sent;
+                        case eAnnouncementStatus.Aborted:
+                            return KalturaAnnouncementStatus.Aborted;
+                        default:
+                            throw new ClientException((int)StatusCode.Error, "Unknown status Type");
+                    }
+                });
+
+            cfg.CreateMap<KalturaAnnouncementFilter, MessageAnnouncementFilter>()
+                 .ForMember(dest => dest.MessageAnnouncementIds, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.IdIn, "KalturaAnnouncementFilter.idIn", true, true)));
 
             //MessageTemplate to KalturaMessageTemplate
             cfg.CreateMap<MessageTemplate, KalturaMessageTemplate>()
@@ -294,16 +384,115 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId));
 
-            cfg.CreateMap<KalturaOTTObject, CoreObject>()
-                .Include<KalturaConcurrencyViolation, ConcurrencyViolation>();
+            cfg.CreateMap<KalturaOTTObject, CoreObject>();
+            cfg.CreateMap<CoreObject, KalturaOTTObject>();
 
             cfg.CreateMap<KalturaConcurrencyViolation, ConcurrencyViolation>()
+                .IncludeBase<KalturaOTTObject, CoreObject>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
                 .ForMember(dest => dest.UDID, opt => opt.MapFrom(src => src.UDID))
                 .ForMember(dest => dest.ViolationRule, opt => opt.MapFrom(src => src.ViolationRule))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+
+            cfg.CreateMap<KalturaBookmarkEvent, BookmarkEvent>()
+                .IncludeBase<KalturaOTTObject, CoreObject>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.FileId))
+                .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Position))
+                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+                .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => src.ProductType))
+                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId));
+
+            cfg.CreateMap<BookmarkEvent, KalturaBookmarkEvent>()
+               .IncludeBase<CoreObject, KalturaOTTObject>()
+               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+               .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
+               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+               .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.FileId))
+               .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Position))
+               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+               .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => src.ProductType))
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId));
+
+            cfg.CreateMap<KalturaBookmarkActionType, MediaPlayActions>()
+                .ConvertUsing(bookmarkActionType =>
+                {
+                    switch (bookmarkActionType)
+                    {
+                        case KalturaBookmarkActionType.HIT:
+                            return MediaPlayActions.HIT;
+                        case KalturaBookmarkActionType.PLAY:
+                            return MediaPlayActions.PLAY;
+                        case KalturaBookmarkActionType.STOP:
+                            return MediaPlayActions.STOP;
+                        case KalturaBookmarkActionType.PAUSE:
+                            return MediaPlayActions.PAUSE;
+                        case KalturaBookmarkActionType.FIRST_PLAY:
+                            return MediaPlayActions.FIRST_PLAY;
+                        case KalturaBookmarkActionType.SWOOSH:
+                            return MediaPlayActions.SWOOSH;
+                        case KalturaBookmarkActionType.FULL_SCREEN:
+                            return MediaPlayActions.FULL_SCREEN;
+                        case KalturaBookmarkActionType.SEND_TO_FRIEND:
+                            return MediaPlayActions.SEND_TO_FRIEND;
+                        case KalturaBookmarkActionType.LOAD:
+                            return MediaPlayActions.LOAD;
+                        case KalturaBookmarkActionType.FULL_SCREEN_EXIT:
+                            return MediaPlayActions.FULL_SCREEN_EXIT;
+                        case KalturaBookmarkActionType.FINISH:
+                            return MediaPlayActions.FINISH;
+                        case KalturaBookmarkActionType.BITRATE_CHANGE:
+                            return MediaPlayActions.BITRATE_CHANGE;
+                        case KalturaBookmarkActionType.ERROR:
+                            return MediaPlayActions.ERROR;
+                        case KalturaBookmarkActionType.NONE:
+                            return MediaPlayActions.NONE;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaBookmarkActionType value: {bookmarkActionType}");
+                    }
+                });
+
+            cfg.CreateMap<MediaPlayActions, KalturaBookmarkActionType>()
+                .ConvertUsing(mediaPlayAction =>
+                {
+                    switch (mediaPlayAction)
+                    {
+                        case MediaPlayActions.HIT:
+                            return KalturaBookmarkActionType.HIT;
+                        case MediaPlayActions.PLAY:
+                            return KalturaBookmarkActionType.PLAY;
+                        case MediaPlayActions.STOP:
+                            return KalturaBookmarkActionType.STOP;
+                        case MediaPlayActions.PAUSE:
+                            return KalturaBookmarkActionType.PAUSE;
+                        case MediaPlayActions.FIRST_PLAY:
+                            return KalturaBookmarkActionType.FIRST_PLAY;
+                        case MediaPlayActions.SWOOSH:
+                            return KalturaBookmarkActionType.SWOOSH;
+                        case MediaPlayActions.FULL_SCREEN:
+                            return KalturaBookmarkActionType.FULL_SCREEN;
+                        case MediaPlayActions.SEND_TO_FRIEND:
+                            return KalturaBookmarkActionType.SEND_TO_FRIEND;
+                        case MediaPlayActions.LOAD:
+                            return KalturaBookmarkActionType.LOAD;
+                        case MediaPlayActions.FULL_SCREEN_EXIT:
+                            return KalturaBookmarkActionType.FULL_SCREEN_EXIT;
+                        case MediaPlayActions.FINISH:
+                            return KalturaBookmarkActionType.FINISH;
+                        case MediaPlayActions.BITRATE_CHANGE:
+                            return KalturaBookmarkActionType.BITRATE_CHANGE;
+                        case MediaPlayActions.ERROR:
+                            return KalturaBookmarkActionType.ERROR;
+                        case MediaPlayActions.NONE:
+                            return KalturaBookmarkActionType.NONE;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown MediaPlayActions value: {mediaPlayAction}");
+                    }
+                });
 
             #region Engagement Adapter
 
@@ -628,7 +817,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return userFollowSettings.FollowSettings.EnablePush;
         }
 
-        public static KalturaAnnouncementRecipientsType ConvertRecipientsType(eAnnouncementRecipientsType recipients)
+        // TODO SHIR - DELETE AFTER SET MAPPING
+        public static KalturaAnnouncementRecipientsType ConvertRecipientsType1(eAnnouncementRecipientsType recipients)
         {
             KalturaAnnouncementRecipientsType result;
             switch (recipients)
@@ -651,8 +841,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return result;
         }
-
-        public static KalturaAnnouncementStatus ConvertAnnouncementStatusType(eAnnouncementStatus status)
+        // TODO SHIR - DELETE AFTER SET MAPPING
+        public static KalturaAnnouncementStatus ConvertAnnouncementStatusType1(eAnnouncementStatus status)
         {
             KalturaAnnouncementStatus result;
             switch (status)

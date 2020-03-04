@@ -31,7 +31,7 @@ namespace WebAPI.Clients
 
         public KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, Dictionary<string, KalturaStringValue> extraParams, bool shouldSupportSingleLogin)
         {
-            GenericResponse<UserResponseObject> userResponse = null;            
+            GenericResponse<UserResponseObject> userResponse = null;
 
             try
             {
@@ -108,7 +108,7 @@ namespace WebAPI.Clients
         public KalturaOTTUser SignUp(int groupId, KalturaOTTUser userData, string password)
         {
             GenericResponse<UserResponseObject> response = null;
-            
+
             try
             {
                 UserBasicData userBasicData = Mapper.Map<UserBasicData>(userData);
@@ -127,7 +127,7 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while SignUp. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
-            
+
             if (!response.IsOkStatusCode())
             {
                 if (response.Status.Code == (int)eResponseStatus.UserExternalError)
@@ -139,12 +139,12 @@ namespace WebAPI.Clients
                     throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
                 }
             }
-            
+
             if (response.Object == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
-            
+
             var user = Mapper.Map<KalturaOTTUser>(response.Object);
             return user;
         }
@@ -339,7 +339,7 @@ namespace WebAPI.Clients
         public KalturaOTTUser CheckPasswordToken(int groupId, string token)
         {
             GenericResponse<UserResponseObject> response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -491,13 +491,13 @@ namespace WebAPI.Clients
 
             return users;
         }
-        
+
         public KalturaOTTUser UpdateOTTUser(int groupId, string siteGuid, KalturaOTTUser user)
         {
             GenericResponse<UserResponseObject> response = null;
             UserBasicData userBasicData = Mapper.Map<UserBasicData>(user);
             UserDynamicData userDynamicData = Mapper.Map<UserDynamicData>(user.DynamicData);
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -748,7 +748,7 @@ namespace WebAPI.Clients
         internal bool AddRoleToUser(int groupId, string userId, long roleId)
         {
             ApiObjects.Response.Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -944,7 +944,7 @@ namespace WebAPI.Clients
 
             return listItem;
         }
-        
+
         internal bool DeleteItemFromUsersList(int groupId, string userId, string assetId, KalturaUserAssetsListType listType)
         {
             ApiObjects.Response.Status response = null;
@@ -1115,7 +1115,7 @@ namespace WebAPI.Clients
         {
             KalturaOTTUserListResponse listUser = null;
             GenericResponse<UserResponseObject> response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1153,7 +1153,7 @@ namespace WebAPI.Clients
         internal KalturaOTTUserListResponse GetUserByName(int groupId, string userName)
         {
             GenericResponse<UserResponseObject> response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1181,7 +1181,7 @@ namespace WebAPI.Clients
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
-            
+
             KalturaOTTUser User = Mapper.Map<KalturaOTTUser>(response.Object);
             var listUser = new KalturaOTTUserListResponse()
             {
@@ -1499,7 +1499,7 @@ namespace WebAPI.Clients
 
         internal ApiObjects.Response.Status DeleteSSOAdapater(int groupId, int ssoAdapterId, int updaterId)
         {
-            var response = new ApiObjects.Response.Status((int) eResponseStatus.Error, "Could not delete SSO adapter");
+            var response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Could not delete SSO adapter");
             try
             {
                 using (var km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1546,6 +1546,28 @@ namespace WebAPI.Clients
             }
 
             return Mapper.Map<KalturaSSOAdapterProfile>(response.SSOAdapter);
+        }
+
+        internal bool UpdateLastLoginDate(int groupId, string userId)
+        {
+            var response = false;
+
+            var initializedUser = new User();
+            int.TryParse(userId, out int _userId);
+
+            var isUserInitialized = initializedUser.Initialize(_userId, groupId);
+
+            if (isUserInitialized && initializedUser?.m_oBasicData != null)
+            {
+                response = User.UpdateLoginViaStartSession(groupId, 0, _userId, initializedUser, true);
+            }
+
+            if (!response)
+            {
+                log.Error($"Failed to update last login date for user: {userId}, user init status: {isUserInitialized }, Method: [UpdateLastLoginDate]");
+            }
+
+            return response;
         }
     }
 }

@@ -58,7 +58,7 @@ namespace ElasticSearch.Common
 
                 // Get source index mappings
                 var urlGetMappings = string.Format("{0}/{1}/_mapping", baseUrl, source);
-                var mappingResponse = SendGetHttpReq(urlGetSettings, ref nStatus);
+                var mappingResponse = SendGetHttpReq(urlGetMappings, ref nStatus);
                 var mappingsJobject = JObject.Parse(mappingResponse).First.First["mappings"];
 
 
@@ -697,6 +697,40 @@ namespace ElasticSearch.Common
                 string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
                 log.DebugFormat("Status - DeleteDocsByQuery. Returned JSON from ES: {0}, Query: {1}", sResult, sQuery);
                 bResult = nStatus == 200;
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at DeleteDocsByQuery.");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Index: ", sIndex));
+                sb.Append(String.Concat(" Type: ", sType));
+                sb.Append(String.Concat(" Query: ", sQuery));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                log.Error("Exception - " + sb.ToString(), ex);
+                bResult = false;
+            }
+
+            return bResult;
+        }
+
+        public bool DeleteDocsByQuery(string sIndex, string sType, ref string sQuery, out int countDeleted)
+        {
+            countDeleted = 0;
+            bool bResult = true;
+            try
+            {
+                string sUrl = string.Format("{0}/{1}/{2}/_query", baseUrl, sIndex, sType);
+                int nStatus = 0;
+
+                string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
+                log.DebugFormat("Status - DeleteDocsByQuery. Returned JSON from ES: {0}, Query: {1}", sResult, sQuery);
+                bResult = nStatus == 200;
+                var jsonResult = JObject.Parse(sResult);
+                if (jsonResult != null)
+                {
+                    countDeleted = jsonResult["_indices"]["_all"]["deleted"].Value<int>();
+                }
             }
             catch (Exception ex)
             {

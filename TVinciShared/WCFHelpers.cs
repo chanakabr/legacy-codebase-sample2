@@ -35,14 +35,13 @@ namespace TVinciShared
             bindingBase.CloseTimeout = TimeSpan.FromSeconds(adapterConfiguration.CloseTimeout.Value.GetValueOrDefault());
             bindingBase.ReceiveTimeout = TimeSpan.FromSeconds(adapterConfiguration.ReceiveTimeout.Value.GetValueOrDefault());
             bindingBase.MaxBufferSize = (int)bindingBase.MaxReceivedMessageSize;
-
+            
             if (serviceToConfigure.Endpoint.Address.Uri.Scheme.ToLower().Equals("https"))
             {
                 var securityMode = serviceToConfigure.Endpoint.Binding as BasicHttpBinding;
                 securityMode.Security.Mode = BasicHttpSecurityMode.Transport;
-                securityMode.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
+                securityMode.Security.Transport.ClientCredentialType = adapterConfiguration.HttpClientCredentialType != null ? adapterConfiguration.HttpClientCredentialType.Value.Value : HttpClientCredentialType.None;
             }
-
         }
 
         private static AdapterConfiguration GetCurrentConfiguration(string adapterNamespace)
@@ -57,6 +56,7 @@ namespace TVinciShared
                 defaultConfiguration.OpenTimeout = specificConfiguration.OpenTimeout ?? defaultConfiguration.OpenTimeout;
                 defaultConfiguration.ReceiveTimeout = specificConfiguration.ReceiveTimeout ?? defaultConfiguration.ReceiveTimeout;
                 defaultConfiguration.SendTimeout = specificConfiguration.SendTimeout ?? defaultConfiguration.SendTimeout;
+                defaultConfiguration.HttpClientCredentialType = specificConfiguration.HttpClientCredentialType ?? defaultConfiguration.HttpClientCredentialType;
             }
 
             return defaultConfiguration;
