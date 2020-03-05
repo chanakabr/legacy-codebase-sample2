@@ -36,12 +36,11 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
         static public bool Cancel(int assetId, KalturaTransactionType productType)
         {
-            bool response = false;
+            var response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
             try
             {
-
                 // get domain       
                 var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
@@ -51,8 +50,10 @@ namespace WebAPI.Controllers
                     throw new ForbiddenException(ForbiddenException.HOUSEHOLD_FORBIDDEN, domain);
                 }
 
+                var userId = KS.GetFromRequest().UserId;
+
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, false, KSUtils.ExtractKSPayload().UDID);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, false, KSUtils.ExtractKSPayload().UDID, userId);
             }
             catch (ClientException ex)
             {
@@ -100,8 +101,10 @@ namespace WebAPI.Controllers
                     throw new ForbiddenException(ForbiddenException.HOUSEHOLD_FORBIDDEN, domain);
                 }
 
+                var userId = KS.GetFromRequest().UserId;
+
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, true, KSUtils.ExtractKSPayload().UDID);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, true, KSUtils.ExtractKSPayload().UDID, userId);
             }
             catch (ClientException ex)
             {
