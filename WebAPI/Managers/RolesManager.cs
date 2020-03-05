@@ -30,6 +30,7 @@ namespace WebAPI.Managers
         public const long OPERATOR_ROLE_ID = 3;
         public const long MANAGER_ROLE_ID = 4;
         public const long ADMINISTRATOR_ROLE_ID = 5;
+        public const long SYSTEM_ADMINISTRATOR_ROLE_ID = 9;
         public const string EXTERNAL_EDITOR_ROLE_NAME = "ExternalEditor";
 
         #region Private Methods
@@ -617,38 +618,57 @@ namespace WebAPI.Managers
 
         public static bool IsManagerAllowedUpdateAction(string userId, List<long> roleIds)
         {
+            if (roleIds == null || roleIds.Count == 0)
+            {
+                return true;
+            }
+
             // check role's hierarchy 
             var ks = KS.GetFromRequest();
+            var ksRoleIds = GetRoleIds(ks);
 
-            bool isManager = GetRoleIds(ks).Any(ur => ur == MANAGER_ROLE_ID);
+            if (ksRoleIds == null)
+            {
+                return false;
+            }
+
+            bool isSysAdmin = ksRoleIds.Any(ur => ur == SYSTEM_ADMINISTRATOR_ROLE_ID);
+            bool isAdmin = ksRoleIds.Any(ur => ur == ADMINISTRATOR_ROLE_ID);
+            bool isManager = ksRoleIds.Any(ur => ur == MANAGER_ROLE_ID);
+
             if (isManager)
             {
                 List<long> userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, userId);
 
-                if (userRoleIds.Any(x => x > MANAGER_ROLE_ID))
+                if (!isSysAdmin && userRoleIds?.Count > 0 && userRoleIds.Any(x => x == SYSTEM_ADMINISTRATOR_ROLE_ID))
                 {
                     return false;
                 }
 
-                if (roleIds != null)
+                if (!isAdmin && userRoleIds?.Count > 0 && userRoleIds.Any(x => x == ADMINISTRATOR_ROLE_ID))
                 {
-                    // Get External editor Role Id. ( manager should be able to update it's role)
-                    long? externalEditorRole = GetEERole(ks);
+                    return false;
+                }
 
-                    if (externalEditorRole.HasValue)
+                //check if update needed
+                if (userRoleIds?.Count > 0 && userRoleIds.Count == roleIds.Count)
+                {
+                    int intersect = roleIds.Intersect(userRoleIds).Count<long>();
+                    if (intersect == roleIds.Count)
                     {
-                        if (roleIds.Any(x => x > MANAGER_ROLE_ID && x != externalEditorRole.Value))
-                        {
-                            return false;
-                        }
+                        //no changes
+                        return true;
                     }
-                    else
-                    {
-                        if (roleIds.Any(x => x > MANAGER_ROLE_ID))
-                        {
-                            return false;
-                        }
-                    }
+                }
+
+                if (!isSysAdmin && roleIds.Any(x => x == SYSTEM_ADMINISTRATOR_ROLE_ID))
+                {
+                    return false;
+                }
+
+                if (!isAdmin && roleIds.Any(x => x == ADMINISTRATOR_ROLE_ID))
+                {
+                    return false;
                 }
             }
 
