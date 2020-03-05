@@ -14,6 +14,7 @@ using WebAPI.App_Start;
 using WebAPI.Filters;
 using Microsoft.AspNetCore.ConcurrencyLimiter;
 using Core.Middleware;
+using HealthCheck;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -30,12 +31,13 @@ namespace Phoenix.Rest.Middleware
         /// </summary>
         public static IServiceCollection ConfigurePhoenix(this IServiceCollection services)
         {
+            services.AddHealthCheckService();
             services.AddCoreConcurrencyLimiter();
             services.AddHttpContextAccessor();
             services.AddStaticHttpContextAccessor();
             services.AddSingleton<IResponseFromatterProvider, ResponseFromatterProvider>();
             services.AddApiExceptionHandler<PhoenixExceptionHandler>();
-            
+
             return services;
         }
 
@@ -48,6 +50,7 @@ namespace Phoenix.Rest.Middleware
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
 
+            app.UseHealthCheck("/api_v3/service/system/action/health");
             app.UseCoreConcurrencyLimiter();
             app.UseApiExceptionHandler();
             app.UseKloggerSessionIdBuilder();

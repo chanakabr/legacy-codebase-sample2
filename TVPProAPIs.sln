@@ -315,7 +315,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogReloader", "..\Core\LogR
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoapAdaptersCommon", "..\Core\SoapAdaptersCommon\SoapAdaptersCommon.csproj", "{5F6A9AB7-1773-4CCC-8654-A09FD59ECDEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdaptersCommon", "..\core\AdaptersCommon\AdaptersCommon.csproj", "{25F85DA5-F9CA-4A21-A66A-22D5619397B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaptersCommon", "..\core\AdaptersCommon\AdaptersCommon.csproj", "{25F85DA5-F9CA-4A21-A66A-22D5619397B4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck", "..\Core\HealthCheck\HealthCheck.csproj", "{D7D62DCC-85E5-4E9B-99CD-269338824BD4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -876,6 +878,16 @@ Global
 		{25F85DA5-F9CA-4A21-A66A-22D5619397B4}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{25F85DA5-F9CA-4A21-A66A-22D5619397B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25F85DA5-F9CA-4A21-A66A-22D5619397B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
+		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -939,9 +951,10 @@ Global
 		{5E2ED761-71DE-4803-B4F2-9827B2D6E434} = {428EC7F8-E16E-4BB8-B773-36AED1D370D9}
 		{5F6A9AB7-1773-4CCC-8654-A09FD59ECDEE} = {936D213B-2884-4167-A81E-057314A3B514}
 		{25F85DA5-F9CA-4A21-A66A-22D5619397B4} = {936D213B-2884-4167-A81E-057314A3B514}
+		{D7D62DCC-85E5-4E9B-99CD-269338824BD4} = {A48B9A9E-0752-4B6D-A2ED-6F42CADAACD4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 	EndGlobalSection
 EndGlobal
