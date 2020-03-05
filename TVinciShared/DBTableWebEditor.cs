@@ -1345,11 +1345,6 @@ namespace TVinciShared
                         {
                             sVal = PageUtils.ReWriteTableValue(sVal);
                         }
-                        else if (stringColumns.ContainsKey(sName.ToUpper()) && sVal.StartsWith("0"))
-                        {
-                            //https://stackoverflow.com/questions/2261787/how-to-prevent-automatic-truncation-of-leading-zeros-in-excel-cell
-                            sVal = $"'{sVal}";
-                        }
                         sTable.Append("<td ");
                         if (sVal.Length < 22)
                             sTable.Append(" nowrap=\"nowrap\" ");
