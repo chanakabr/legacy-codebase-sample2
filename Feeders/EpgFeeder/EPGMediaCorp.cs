@@ -288,7 +288,7 @@ namespace EpgFeeder
                         if (nCount >= nCountPackage)
                         {
                             ulProgram.Add(epg.EpgID);
-                            bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, ApiObjects.eAction.Update);
+                            bool resultEpgIndex = UpdateEpgIndex(ulProgram, nGroupID, eAction.Update);
                             ulProgram = new List<ulong>();
                             nCount = 0;
                         }

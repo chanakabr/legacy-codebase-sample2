@@ -690,7 +690,7 @@ namespace EpgFeeder
             bool result = false;
             try
             {
-                result = ImporterImpl.UpdateEpg(epgIDs, nGroupID, action);
+                result = ImporterImpl.UpdateEpg(epgIDs, nGroupID, action, null, false);
                 return result;
             }
             catch (Exception ex)

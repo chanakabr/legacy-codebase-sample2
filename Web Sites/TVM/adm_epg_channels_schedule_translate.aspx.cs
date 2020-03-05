@@ -80,7 +80,7 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
 
                 bool result = false;
 
-                result = ImporterImpl.UpdateEpg(new List<ulong>() { epg.EpgID }, groupId, eAction.Update);
+                result = ImporterImpl.UpdateEpg(new List<ulong>() { epg.EpgID }, groupId, eAction.Update, null, false);
 
                 return;
             }

@@ -81,7 +81,7 @@ namespace EpgFeeder
         private void SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType)
         {
             // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
-
+            var epgChannelIds = new List<string>() { kalturaChannelID.ToString() };
             int nCount = 0;
             int nPicID = 0;
             List<ulong> epgIds = new List<ulong>();
@@ -268,7 +268,7 @@ namespace EpgFeeder
                         {
                             epgIds.Add(epg.Value.EpgID);
                         }
-                        bool resultEpgIndex = UpdateEpgIndex(epgIds, m_Channels.parentgroupid, ApiObjects.eAction.Update);
+                        bool resultEpgIndex = UpdateEpgIndex(epgIds, m_Channels.parentgroupid, eAction.Update, epgChannelIds);
                         epgIds = new List<ulong>();
                         nCount = 0;
                     }
@@ -286,7 +286,7 @@ namespace EpgFeeder
 
             if (nCount > 0 && epgIds != null && epgIds.Count > 0)
             {
-                bool resultEpgIndex = UpdateEpgIndex(epgIds, m_Channels.parentgroupid, ApiObjects.eAction.Update);
+                bool resultEpgIndex = UpdateEpgIndex(epgIds, m_Channels.parentgroupid, eAction.Update, epgChannelIds);
             }
 
             //start Upload proccess Queue
@@ -343,12 +343,12 @@ namespace EpgFeeder
             }
         }
 
-        private bool UpdateEpgIndex(List<ulong> epgIDs, int groupID, eAction action)
+        private bool UpdateEpgIndex(List<ulong> epgIDs, int groupID, eAction action, List<string> epgChannelIds)
         {
             bool result = false;
             try
             {
-                result = ImporterImpl.UpdateEpg(epgIDs, groupID, action);
+                result = ImporterImpl.UpdateEpg(epgIDs, groupID, action, epgChannelIds, false);
                 return result;
             }
             catch (Exception ex)

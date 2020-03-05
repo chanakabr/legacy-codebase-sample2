@@ -94,14 +94,14 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                                 {
                                     oEpgBL.RemoveEpg(uID);
                                     bool result = false;
-                                    result = ImporterImpl.UpdateEpg(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Delete);
+                                    result = ImporterImpl.UpdateEpg(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Delete, null, false);
                                 }
                                 else if (epgCB.Status == 1)
                                 {
                                     epgCB.Status = 4;
                                     bool res = oEpgBL.UpdateEpg(epgCB, null);
                                     bool result = false;
-                                    result = ImporterImpl.UpdateEpg(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
+                                    result = ImporterImpl.UpdateEpg(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update, null, false);
                                 }
                             }
                             else // cancel button
@@ -109,7 +109,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                                 epgCB.Status = 1;
                                 bool res = oEpgBL.UpdateEpg(epgCB, null);
                                 bool result = false;
-                                result = ImporterImpl.UpdateEpg(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
+                                result = ImporterImpl.UpdateEpg(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update, null, false);
                             }
 
                             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");

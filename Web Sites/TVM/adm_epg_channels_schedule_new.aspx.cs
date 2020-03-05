@@ -88,7 +88,7 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
 
                     bool result = false;
 
-                    result = ImporterImpl.UpdateEpg(new List<ulong>() { epg.EpgID }, nParentGroupID, eAction.Update, true, true);
+                    result = ImporterImpl.UpdateEpg(new List<ulong>() { epg.EpgID }, nParentGroupID, eAction.Update, null, false, true, true);
                 }
                 return;
             }
