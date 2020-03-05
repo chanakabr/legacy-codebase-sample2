@@ -72,24 +72,23 @@ namespace Core.Users
         {
             DeviceResponseObject ret = new DeviceResponseObject();
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
-            device.Initialize(sDeviceUDID);
+            var init = device.Initialize(sDeviceUDID);
+
+            if (!init)
+            {
+                ret.m_oDeviceResponseStatus = DeviceResponseStatus.DeviceNotExists;
+                return ret;
+            }
 
             //Check if external id already exists
-            var deviceId = Device.GetDeviceIDByExternalId(nGroupID, externalId);
+            var device_Id = Device.GetDeviceIDByExternalId(nGroupID, externalId);
 
             //already exists
-            if (!string.IsNullOrEmpty(deviceId) && device?.m_id != deviceId)
+            if (!string.IsNullOrEmpty(device_Id) && device.m_id != device_Id)
             {
-                ret.m_oDeviceResponseStatus = DeviceResponseStatus.Error;
-                if (device != null)
-                {
-                    ret.m_oDevice = device;
-                    if (device.m_state == DeviceState.Error)
-                    {
-                        ret.m_oDeviceResponseStatus = DeviceResponseStatus.ExternalIdAlreadyExists;
-                        return ret;
-                    }
-                }
+                ret.m_oDevice = device;
+                ret.m_oDeviceResponseStatus = DeviceResponseStatus.ExternalIdAlreadyExists;
+                return ret;
             }
 
             bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, externalId, allowNullExternalId);
