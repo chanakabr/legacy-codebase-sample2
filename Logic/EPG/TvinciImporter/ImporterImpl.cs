@@ -5683,9 +5683,8 @@ namespace TvinciImporter
             }
             return isUpdateChannelIndexSucceeded;
         }
-
     
-        public static bool UpdateEpg(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool datesUpdates = true, bool isCalledFromTvm = false)
+        public static bool UpdateEpg(List<ulong> epgIds, int groupId, eAction action, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds, bool datesUpdates = true, bool isCalledFromTvm = false)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -5697,7 +5696,7 @@ namespace TvinciImporter
             try
             {
                 #region Update EPG Index (Catalog)
-                isUpdateIndexSucceeded = UpdateEPGIndex(epgIds, groupId, action);
+                isUpdateIndexSucceeded = UpdateEPGIndex(epgIds, groupId, action, epgChannelIds, shouldGetChannelIds);
 
                 #endregion
 
@@ -5739,7 +5738,7 @@ namespace TvinciImporter
             }
         }
 
-        public static bool UpdateEPGIndex(List<ulong> epgIds, int groupId, ApiObjects.eAction action)
+        public static bool UpdateEPGIndex(List<ulong> epgIds, int groupId, eAction action, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -5752,7 +5751,7 @@ namespace TvinciImporter
                 {
                     try
                     {
-                        isUpdateIndexSucceeded = Core.Catalog.Module.UpdateEpgIndex(epgIds, parentGroupID, action);
+                        isUpdateIndexSucceeded = Core.Catalog.Module.UpdateEpgIndex(epgIds, parentGroupID, action, epgChannelIds, shouldGetChannelIds);
                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                         log.DebugFormat("Update index {0} in catalog for epg ids {1}", sInfo, string.Join(",", epgIds));
 

@@ -946,7 +946,7 @@ namespace Core.Catalog.CatalogManagement
                                         else
                                         {
                                             temporaryResult &= true;
-                                            EpgAssetManager.InvalidateEpgs(groupId, bulkRequests.Select(x => (long)x.docID), doesGroupUsesTemplates, epgChannelIds);
+                                            EpgAssetManager.InvalidateEpgs(groupId, bulkRequests.Select(x => (long)x.docID), doesGroupUsesTemplates, epgChannelIds, false);
 
                                         }
 
@@ -975,7 +975,7 @@ namespace Core.Catalog.CatalogManagement
                             else
                             {
                                 temporaryResult &= true;
-                                EpgAssetManager.InvalidateEpgs(groupId, bulkRequests.Select(x => (long)x.docID), doesGroupUsesTemplates, epgChannelIds);
+                                EpgAssetManager.InvalidateEpgs(groupId, bulkRequests.Select(x => (long)x.docID), doesGroupUsesTemplates, epgChannelIds, false);
                             }
 
                             result = temporaryResult;
@@ -1049,7 +1049,7 @@ namespace Core.Catalog.CatalogManagement
             if (result)
             {
                 // invalidate epg's for OPC and NON-OPC accounts
-                EpgAssetManager.InvalidateEpgs(groupId, epgIds, doesGroupUsesTemplates, epgChannelIds);
+                EpgAssetManager.InvalidateEpgs(groupId, epgIds, doesGroupUsesTemplates, epgChannelIds, true);
             }
 
             return result;

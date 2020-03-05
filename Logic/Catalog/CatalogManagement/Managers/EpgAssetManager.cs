@@ -511,10 +511,19 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        internal static void InvalidateEpgs(int groupId, IEnumerable<long> epgIds, bool doesGroupUsesTemplates, IEnumerable<string> epgChannelIds, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
+        internal static void InvalidateEpgs(int groupId, IEnumerable<long> epgIds, bool doesGroupUsesTemplates, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
         {
             if (epgIds != null)
             {
+                if (shouldGetChannelIds && epgChannelIds == null && epgIds.Count() > 0)
+                {
+                    var epgList = GetEpgAssetsFromCache(epgIds.ToList(), groupId);
+                    if (epgList != null && epgList.Count > 0)
+                    {
+                        epgChannelIds = epgList.Where(x => x.EpgChannelId.HasValue && x.EpgChannelId.Value > 0).Select(x => x.EpgChannelId.Value.ToString()).ToList();
+                    }
+                }
+
                 string assetType = eAssetTypes.EPG.ToString();
                 foreach (var currEpgId in epgIds)
                 {
@@ -533,16 +542,16 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat("Failed to invalidate epg with invalidationKey: {0} after {1}.", invalidationKey, callingMethod);
                     }
                 }
-            }
 
-            if (epgChannelIds != null)
-            {
-                foreach (var epgChannelId in epgChannelIds)
+                if (epgChannelIds != null)
                 {
-                    var invalidationKey = LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    foreach (var epgChannelId in epgChannelIds)
                     {
-                        log.Error($"Failed to invalidate AdjacentPrograms with invalidationKey: {invalidationKey} after {callingMethod}.");
+                        var invalidationKey = LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.Error($"Failed to invalidate AdjacentPrograms with invalidationKey: {invalidationKey} after {callingMethod}.");
+                        }
                     }
                 }
             }
