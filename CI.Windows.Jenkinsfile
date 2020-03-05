@@ -90,7 +90,6 @@ pipeline {
 
 def report(){
     def authors = currentBuild.changeSets.collectMany { it.toList().collect { it.author } }.unique()
-    authors
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
     def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "cd tvmapps && git rev-parse HEAD", returnStdout: true).trim();
     def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA", returnStdout: true)
