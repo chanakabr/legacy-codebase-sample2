@@ -5919,7 +5919,7 @@ namespace Tvinci.Core.DAL
             }
 
             var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
-        
+
             if (!isAnyInError)
             {
                 newStatus = BulkUploadJobStatus.Success;
@@ -6047,7 +6047,7 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@namesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
                 sp.AddKeyValueListParameter<long, string>("@namesInOtherLanguages", namesInOtherLanguages, "idKey", "value");
-                sp.AddParameter("@hasMetadata", dynamicData == null || dynamicData.Count == 0? 0 : 1);
+                sp.AddParameter("@hasMetadata", dynamicData == null || dynamicData.Count == 0 ? 0 : 1);
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
                 sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
                 sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
@@ -6172,6 +6172,35 @@ namespace Tvinci.Core.DAL
                 log.Error($"Error while UpdateCategoryOrderNum from DB, groupId: {groupId}, Id: {id}", ex);
                 return false;
             }
+        }
+
+        public static DataSet GetExternalChannelsByIds(int groupId, List<int> channelIds, bool getAlsoInactive)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalChannelsByIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter<int>("@channelIds", channelIds, "Id");
+            sp.AddParameter("@alsoInactive", getAlsoInactive ? 1 : 0);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static List<ExternalChannel> SetExternalChannels(DataSet ds)
+        {
+            List<ExternalChannel> externalChannels = null;
+            ExternalChannel externalChannelBase = null;
+
+            if (ds != null && ds.Tables?.Count > 0)
+            {
+                externalChannels = new List<ExternalChannel>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    externalChannelBase = SetExternalChannel(dr);
+                    externalChannels.Add(externalChannelBase);
+                }
+            }
+
+            return externalChannels;
         }
     }
 }

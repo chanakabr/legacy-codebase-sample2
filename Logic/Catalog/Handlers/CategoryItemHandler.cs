@@ -588,7 +588,7 @@ namespace Core.Catalog.Handlers
             //check external channel exist
             foreach (var channelId in externalChannels)
             {
-                var ec = CatalogDAL.GetExternalChannelById(groupId, (int)channelId);
+                var ec = ExternalChannelManager.GetChannelById(groupId, (int)channelId,true, userId);
 
                 if (ec != null)
                 {
@@ -596,7 +596,7 @@ namespace Core.Catalog.Handlers
                     {
                         Id = channelId,
                         Type = UnifiedChannelType.External,
-                        Name = ec.Name
+                        Name = ec.Object.Name
                     };
                     channelsInfo.Add($"{channelId}_{UnifiedChannelType.External}", uci);
                 }

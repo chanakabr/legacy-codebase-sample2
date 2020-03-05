@@ -967,7 +967,7 @@ namespace CachingProvider.LayeredCache
             }
 
             return result;
-        }
+        }        
 
         public static string GetUserParentalRuleInvalidationKey(string siteGuid)
         {
@@ -1309,6 +1309,46 @@ namespace CachingProvider.LayeredCache
         public static string GetAllLanguageListKey()
         {
             return "allLanguageList";
+        }
+
+        public static Dictionary<string, string> GetExternalChannelsKeysMap(int groupId, List<int> channelIds)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (channelIds != null && channelIds.Count > 0)
+            {
+                channelIds = channelIds.Distinct().ToList();
+                foreach (int id in channelIds)
+                {
+                    result.Add(GetExternalChannelKey(groupId, id), id.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public static string GetExternalChannelKey(int groupId, int channelId)
+        {
+            return $"ExternalChannel_groupId_{groupId}_Id_{channelId}";
+        }
+
+        public static Dictionary<string, List<string>> GetExternalChannelsInvalidationKeysMap(int groupId, List<int> channelIds)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (channelIds != null && channelIds.Count > 0)
+            {
+                channelIds = channelIds.Distinct().ToList();
+                foreach (int id in channelIds)
+                {
+                    result.Add(GetExternalChannelKey(groupId, id), new List<string>() { GetExternalChannelInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;
+        }
+
+        public static string GetExternalChannelInvalidationKey(int groupId, int channelId)
+        {
+            return $"invalidationKey_ExternalChannel_groupId_{groupId}_Id_{channelId}";
         }
     }
 }

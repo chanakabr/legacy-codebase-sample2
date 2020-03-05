@@ -7692,6 +7692,13 @@ namespace Core.Api
                     string.Format("{0}_external_channel_{1}_{2}", version, groupId, externalChannelId)
                 };
 
+                // invalidate external channel
+                var key = LayeredCacheKeys.GetExternalChannelInvalidationKey(groupId, externalChannelId);
+                if (!LayeredCache.Instance.SetInvalidationKey(key))
+                {
+                    log.Error($"Failed to invalidate external channel with id: {externalChannelId}, invalidationKey: {key} after deleting external channel");
+                }
+
                 QueueUtils.UpdateCache(groupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
             }
             catch (Exception ex)
@@ -7814,6 +7821,13 @@ namespace Core.Api
                 else
                 {
                     response.Status = new Status((int)eResponseStatus.Error, "external channel failed set changes");
+                }                
+
+                // invalidate external channel
+                var key = LayeredCacheKeys.GetExternalChannelInvalidationKey(groupId, response.ExternalChannel.ID);
+                if (!LayeredCache.Instance.SetInvalidationKey(key))
+                {
+                    log.Error($"Failed to invalidate external channel with id: {response.ExternalChannel.ID}, invalidationKey: {key} after update external channel");
                 }
 
                 string version = ApplicationConfiguration.Current.Version.Value;
@@ -12127,11 +12141,11 @@ namespace Core.Api
                     }
                 }
             }
-            
+
             return ksqls.Count > 0 ? $" (or {string.Join(" ", ksqls)})" : string.Empty;
         }
 
-        internal static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackAdapterManifest(long adapterId, int groupId, 
+        internal static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackAdapterManifest(long adapterId, int groupId,
             ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
         {
             GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> response = new GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>();
