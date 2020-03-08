@@ -77,6 +77,15 @@ namespace Core.Pricing
             {
                 nextCharacter = GetRandomCharacter();
 
+                //avoid leading char is 0, BEO-7720
+                if (i == 0)
+                {
+                    while (nextCharacter == '0')
+                    {
+                        nextCharacter = GetRandomCharacter();
+                    }
+                }
+
                 if (false == this.ConsecutiveCharacters)
                 {
                     while (lastCharacter == nextCharacter)
