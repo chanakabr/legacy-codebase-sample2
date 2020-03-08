@@ -38,6 +38,8 @@ namespace TVinciShared
 
                 return null;
             };
+
+            AppDomain.CurrentDomain.AssemblyResolve += handler;
         }
     }
 }

@@ -36,14 +36,26 @@ namespace ApiLogic.Api.Managers
                     return new Status((int)eResponseStatus.DefaultRegionCannotBeDeleted, "Default region cannot be deleted");
                 }
 
-                // TODO: what if the region is a parent??
-
                 // check if region in use
                 if (DomainDal.IsRegionInUse(groupId, id))
                 {
                     log.Error($"Region in use cannot be deleted. groupId:{groupId}, id:{id}");
                     return new Status((int)eResponseStatus.CannotDeleteRegionInUse, "Region in use cannot be deleted");
                 }
+
+                // TODO: what if the region is a parent??
+                if (region.parentId == 0)
+                {
+                    var subRegions = GetRegions(groupId, new RegionFilter() { ParentId = region.id });
+                    if (subRegions.HasObjects())
+                    {
+                        foreach (var subRegion in subRegions.Objects)
+                        {
+                            var status = DeleteRegion(groupId, subRegion.id, userId);
+                        }
+                    }
+                }
+
 
                 if (!ApiDAL.DeleteRegion(groupId, id, userId))
                 {
@@ -490,9 +502,13 @@ namespace ApiLogic.Api.Managers
 
                         foreach (var item in result.Objects)
                         {
-                            if(item.parentId > 0)
+                            if (item.parentId > 0)
                             {
-                                item.linearChannels = regionsCache.Regions[item.parentId].linearChannels;
+                                item.linearChannels = new List<ApiObjects.KeyValuePair>();
+                                if (regionsCache.Regions.ContainsKey(item.parentId))
+                                {
+                                    item.linearChannels = regionsCache.Regions[item.parentId].linearChannels;
+                                }
                             }
                         }
                     }
@@ -614,12 +630,11 @@ namespace ApiLogic.Api.Managers
 
                             foreach (var key in regionsCache.ParentIdsToRegionIdsMapping.Keys)
                             {
-                                Region parent = regionsCache.Regions[key];
-                                parent.childrenCount = regionsCache.ParentIdsToRegionIdsMapping[key].Count;
-                                //foreach (var item in regionsCache.ParentIdsToRegionIdsMapping[key])
-                                //{
-                                //    regionsCache.Regions[item].linearChannels = parent.linearChannels;
-                                //}
+                                if (regionsCache.Regions.ContainsKey(key))
+                                {
+                                    Region parent = regionsCache.Regions[key];
+                                    parent.childrenCount = regionsCache.ParentIdsToRegionIdsMapping[key].Count;
+                                }
                             }
                         }
                     }

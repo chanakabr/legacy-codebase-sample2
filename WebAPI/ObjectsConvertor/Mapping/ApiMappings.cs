@@ -1730,6 +1730,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 ;
 
+            cfg.CreateMap<KalturaEventNotification, EventNotificationAction>()
+                .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => src.ActionType))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectId))
+                .ForMember(dest => dest.ObjectType, opt => opt.MapFrom(src => src.EventObjectType))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                ;
+
             cfg.CreateMap<KalturaEventNotificationFilter, EventNotificationActionFilter>()
                 .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectIdEqual))
                 .ForMember(dest => dest.ObjectType, opt => opt.MapFrom(src => src.EventObjectTypeEqual))
@@ -1784,7 +1795,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         #region Private Convertors
 
-       
+
 
         internal static StatsType ConvertAssetTypeToStatsType(AssetType type)
         {
