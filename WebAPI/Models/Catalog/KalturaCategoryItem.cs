@@ -70,6 +70,15 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "dynamicData", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
 
+        /// <summary>
+        /// Specifies when was the Category last updated. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
         internal override ICrudHandler<CategoryItem, long, CategoryItemFilter> Handler
         {
             get

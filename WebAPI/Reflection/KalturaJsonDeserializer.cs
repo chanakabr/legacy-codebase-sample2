@@ -11602,6 +11602,16 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaCategoryItem(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -11656,6 +11666,14 @@ namespace WebAPI.Models.Catalog
                     {
                         DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
+                }
+                if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
+                    }
+                    UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
         }

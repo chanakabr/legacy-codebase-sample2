@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Base;
+using System;
 using System.Collections.Generic;
 
 namespace ApiLogic.Catalog
@@ -13,6 +14,7 @@ namespace ApiLogic.Catalog
         public List<long> ChildrenIds { get; set; }
         public List<UnifiedChannel> UnifiedChannels { get; set; }
         public Dictionary<string, string> DynamicData { get; set; }
+        public DateTime? UpdateDate { get; set; }
 
         public CategoryItem()
         {

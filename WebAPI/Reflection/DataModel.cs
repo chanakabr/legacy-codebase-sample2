@@ -1205,6 +1205,8 @@ namespace WebAPI.Reflection
                             return "parentId";
                         case "UnifiedChannels":
                             return "unifiedChannels";
+                        case "UpdateDate":
+                            return "updateDate";
                     }
                     break;
                     

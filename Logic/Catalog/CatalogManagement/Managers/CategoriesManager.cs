@@ -111,6 +111,7 @@ namespace Core.Catalog.CatalogManagement
                         Id = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID"),
                         ParentId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "PARENT_CATEGORY_ID"),
                         Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "CATEGORY_NAME"),
+                        UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[0].Rows[0], "UPDATE_DATE")
                     };
 
                     bool hasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA");
@@ -462,6 +463,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
+                objectToAdd.UpdateDate = null;
                 objectToAdd.Id = id;
                 result = true;
             }
