@@ -567,7 +567,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetSSOAdapaterImplementationsKey(int adapterId)
         {
-            return string.Format("sso_adapter_implementations_{0}", adapterId);
+            return string.Format("sso_adapter_implementations_v1_{0}", adapterId);
         }
 
         public static string GetQueryCacheDefinitionsKey()
