@@ -54,7 +54,7 @@ namespace Core.Users
 
         public override UserResponseObject PreSignIn(ref int siteGuid, ref string userName, ref string password, ref int maxFailCount, ref int lockMin, ref int groupId, ref string sessionId, ref string ip, ref string deviceId, ref bool preventDoubleLogin, ref List<KeyValuePair> keyValueList)
         {
-            if (!_ImplementedMethodsExtend.Contains((int)eSSOMethods.PerSignIn))
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PerSignIn))
             {
                 return base.PreSignIn(ref siteGuid, ref userName, ref password, ref maxFailCount, ref lockMin, ref groupId, ref sessionId, ref ip, ref deviceId, ref preventDoubleLogin, ref keyValueList);
             }
@@ -117,7 +117,7 @@ namespace Core.Users
 
         public override void PostSignIn(ref UserResponseObject authenticatedUser, ref List<KeyValuePair> keyValueList)
         {
-            if (!_ImplementedMethodsExtend.Contains((int)eSSOMethods.PostSignIn))
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PostSignIn))
             {
                 base.PostSignIn(ref authenticatedUser, ref keyValueList);
                 return;
@@ -162,7 +162,7 @@ namespace Core.Users
 
         public override UserResponseObject PreGetUserData(string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP)
         {
-            if (!_ImplementedMethodsExtend.Contains((int)eSSOMethods.PreGetUserData))
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PreGetUserData))
             {
                 return base.PreGetUserData(sSiteGUID, ref keyValueList, userIP);
             }
@@ -202,7 +202,7 @@ namespace Core.Users
 
         public override void PostGetUserData(ref UserResponseObject userResponse, string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP)
         {
-            if (!_ImplementedMethodsExtend.Contains((int)eSSOMethods.PostGetUserData))
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PostGetUserData))
             {
                 base.PostGetUserData(ref userResponse, sSiteGUID, ref keyValueList, userIP);
                 return;
@@ -423,7 +423,7 @@ namespace Core.Users
 
         public override UserResponseObject PreSignOut(ref int siteGuid, ref int groupId, ref string sessionId, ref string ip, ref string deviceUdid, ref List<KeyValuePair> keyValueList)
         {
-            if (!_ImplementedMethodsExtend.Contains(4))
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PreSignOut))
             {
                 return base.PreSignOut(ref siteGuid, ref groupId, ref sessionId, ref ip, ref deviceUdid, ref keyValueList);
             }
@@ -466,7 +466,7 @@ namespace Core.Users
 
         public override void PostSignOut(ref UserResponseObject userResponse, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, ref List<KeyValuePair> keyValueList)
         {
-            if (!_ImplementedMethodsExtend.Contains(5))
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PostSignOut))
             {
                 base.PostSignOut(ref userResponse, siteGuid, groupId, sessionId, ip, deviceUdid, ref keyValueList);
                 return;
