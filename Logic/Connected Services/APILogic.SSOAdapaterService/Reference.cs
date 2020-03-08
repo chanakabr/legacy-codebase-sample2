@@ -38,6 +38,8 @@ namespace APILogic.SSOAdapaterService
         
         private APILogic.SSOAdapaterService.eSSOMethods[] ImplementedMethodsField;
         
+        private int[] ImplementedMethodsExtendField;
+        
         private bool SendWelcomeEmailField;
         
         private APILogic.SSOAdapaterService.AdapterStatusCode StatusField;
@@ -52,6 +54,19 @@ namespace APILogic.SSOAdapaterService
             set
             {
                 this.ImplementedMethodsField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int[] ImplementedMethodsExtend
+        {
+            get
+            {
+                return this.ImplementedMethodsExtendField;
+            }
+            set
+            {
+                this.ImplementedMethodsExtendField = value;
             }
         }
         
@@ -98,12 +113,6 @@ namespace APILogic.SSOAdapaterService
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         PostGetUserData = 3,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        PreSignOut = 4,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        PostSignOut = 5,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]

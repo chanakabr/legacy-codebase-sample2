@@ -26,8 +26,8 @@ namespace Core.Users
         private readonly int _GroupId;
         private readonly SSOAdapter _AdapterConfig;
         private readonly ServiceClient _AdapterClient;
-        //[Obsolete("Use _ImplementedMethodsInt Instead")]
-        //private eSSOMethods[] _ImplementedMethods;
+        [Obsolete("Use _ImplementedMethodsExtend Instead")]
+        private eSSOMethods[] _ImplementedMethods;
         private int[] _ImplementedMethodsExtend;
         private int _AdapterId;
 
@@ -40,14 +40,14 @@ namespace Core.Users
 
             var implementationsResponse = GetSSOImplementations();
 
-            //if (implementationsResponse.ImplementedMethodsExtend == null || implementationsResponse.ImplementedMethodsExtend.Count == 0)
-            //{
-            //    _ImplementedMethodsExtend = implementationsResponse.ImplementedMethods.Select(val => (int)val).ToArray();
-            //}
-            //else
-            //{
-            //    _ImplementedMethodsExtend = implementationsResponse.ImplementedMethodsExtend;
-            //}
+            if (implementationsResponse.ImplementedMethodsExtend == null || implementationsResponse.ImplementedMethodsExtend.Count() == 0)
+            {
+                _ImplementedMethodsExtend = implementationsResponse.ImplementedMethods.Select(val => (int)val).ToArray();
+            }
+            else
+            {
+                _ImplementedMethodsExtend = implementationsResponse.ImplementedMethodsExtend;
+            }
 
             base.ShouldSendWelcomeMail = implementationsResponse.SendWelcomeEmail;
         }
