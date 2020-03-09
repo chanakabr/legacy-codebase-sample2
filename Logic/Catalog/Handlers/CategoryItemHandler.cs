@@ -590,7 +590,7 @@ namespace Core.Catalog.Handlers
             {
                 var ec = ExternalChannelManager.GetChannelById(groupId, (int)channelId,true, userId);
 
-                if (ec != null)
+                if (ec != null && ec.IsOkStatusCode())
                 {
                     UnifiedChannelInfo uci = new UnifiedChannelInfo()
                     {

@@ -6083,7 +6083,7 @@ namespace Tvinci.Core.DAL
                 sp.AddKeyValueListParameter<long, string>("@namesInOtherLanguages", namesInOtherLanguages, "idKey", "value");
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
                 sp.AddParameter("@needToDeleteCategoriesChannels", channels != null && channels.Count == 0 ? 1 : 0);
-                sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
+                sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "idKey", "value");
                 sp.AddParameter("@updaterId", userId);
 
                 var result = sp.ExecuteReturnValue<int>() > 0;
@@ -6174,12 +6174,12 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static DataSet GetExternalChannelsByIds(int groupId, List<int> channelIds, bool getAlsoInactive)
+        public static DataSet GetExternalChannelsByIds(int groupId, List<long> channelIds, bool getAlsoInactive)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalChannelsByIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddIDListParameter<int>("@channelIds", channelIds, "Id");
+            sp.AddParameter("@groupID", groupId);
+            sp.AddIDListParameter<long>("@channelIds", channelIds, "Id");
             sp.AddParameter("@alsoInactive", getAlsoInactive ? 1 : 0);
 
             return sp.ExecuteDataSet();

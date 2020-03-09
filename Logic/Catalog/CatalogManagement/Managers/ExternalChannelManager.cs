@@ -38,8 +38,9 @@ namespace Core.Catalog.CatalogManagement
                     response.Object = null;
                     return response;
                 }
+
+                response.SetStatus(eResponseStatus.OK);
             }
-            response.SetStatus(eResponseStatus.OK);
             return response;
         }
 
@@ -102,7 +103,7 @@ namespace Core.Catalog.CatalogManagement
                     List<ExternalChannel> channels = new List<ExternalChannel>();
                     if (channelIds != null && groupId.HasValue && isAllowedToViewInactiveAssets.HasValue)
                     {
-                        DataSet ds = CatalogDAL.GetExternalChannelsByIds(groupId.Value, channelIds, isAllowedToViewInactiveAssets.Value);
+                        DataSet ds = CatalogDAL.GetExternalChannelsByIds(groupId.Value, channelIds.Select(x => (long)x).ToList<long>(), isAllowedToViewInactiveAssets.Value);
                         channels = CatalogDAL.SetExternalChannels(ds);
 
                         // to avoid null reference exception... :|
