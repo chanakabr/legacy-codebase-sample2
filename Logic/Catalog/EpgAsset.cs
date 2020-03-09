@@ -125,7 +125,24 @@ namespace Core.Catalog
                 if (isDefaultLanguage) { tagToUpdate.m_lValues = tag.Value; }
 
                 var valuesTranslations = tag.Value.Select(value => new LanguageContainer(epgCb.Language, value, isDefaultLanguage)).ToArray();
-                tagToUpdate.Values.Add(valuesTranslations);
+                for (int i = 0; i < valuesTranslations.Length; i++)
+                {
+                    // Every Tag Value at the same index has to have all of its translations so we search
+                    // to see if we already have a value in this index
+                    var tagValueTranslations = tagToUpdate.Values.ElementAtOrDefault(i);
+                    if (tagValueTranslations != null)
+                    {
+                        // This is very unefficient but the datamodel is an ARRAY!! so we have to concat ad re-allocate :\ 
+                        // all because we have value -> with all translations and not the other way around..
+                        tagToUpdate.Values[i] = tagValueTranslations.Concat(new[] { valuesTranslations[i] }).ToArray();
+                    }
+                    else
+                    {
+                        tagToUpdate.Values.Add(new[] { valuesTranslations[i] });
+                    }
+
+                }
+
             }
         }
 
