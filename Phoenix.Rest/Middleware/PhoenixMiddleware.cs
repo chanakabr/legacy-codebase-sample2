@@ -15,6 +15,8 @@ using WebAPI.Filters;
 using Microsoft.AspNetCore.ConcurrencyLimiter;
 using Core.Middleware;
 using HealthCheck;
+using System.Collections.Generic;
+using ConfigurationManager;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -22,8 +24,6 @@ namespace Phoenix.Rest.Middleware
 
     public static class PhoenixMiddleware
     {
-        
-
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
@@ -31,7 +31,11 @@ namespace Phoenix.Rest.Middleware
         /// </summary>
         public static IServiceCollection ConfigurePhoenix(this IServiceCollection services)
         {
-            services.AddHealthCheckService();
+            var tcmHealthCheckDefinitions = ApplicationConfiguration.Current.HealthCheckConfiguration.Value;
+            List<HealthCheck.HealthCheckDefinition> healthCheckDefinitions = tcmHealthCheckDefinitions.Select(defintion =>
+                new HealthCheck.HealthCheckDefinition(defintion)).ToList();
+
+            services.AddHealthCheckService(healthCheckDefinitions);
             services.AddCoreConcurrencyLimiter();
             services.AddHttpContextAccessor();
             services.AddStaticHttpContextAccessor();
@@ -40,7 +44,6 @@ namespace Phoenix.Rest.Middleware
 
             return services;
         }
-
         
         /// <summary>
         /// Using custom middleware for Phoenix Api convention
