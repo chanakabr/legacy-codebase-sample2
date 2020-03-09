@@ -6817,6 +6817,10 @@ namespace WebAPI.Models.Notification
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
             return ret;
         }
         
@@ -6826,6 +6830,10 @@ namespace WebAPI.Models.Notification
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
             return ret;
         }
     }

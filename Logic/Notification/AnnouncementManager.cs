@@ -137,11 +137,13 @@ namespace Core.Notification
                 }
             }
         }
-
+        
         public static MessageAnnouncementResponse UpdateMessageAnnouncement(int groupId, int announcementId, MessageAnnouncement announcement, bool enforceMsgAllowedTime = false, bool validateMsgStartTime = true)
         {
-            MessageAnnouncementResponse response = new MessageAnnouncementResponse();
-            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            var response = new MessageAnnouncementResponse
+            {
+                Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            };
 
             if (validateMsgStartTime)
                 response.Status = ValidateAnnouncement(groupId, announcement);
@@ -153,21 +155,18 @@ namespace Core.Notification
             if (response.Status.Code != (int)eResponseStatus.OK)
                 return response;
 
-            DataRow dr = DAL.NotificationDal.Get_MessageAnnouncement(announcementId);
-            if (dr == null)
+            var messageAnnouncementResponse = GetMessageAnnouncement(groupId, announcementId);
+            if (!messageAnnouncementResponse.HasObject())
             {
-                log.ErrorFormat("Announcement not exist in DB: group: {0} Id: {1}", groupId, announcementId);
-                response.Status = new Status((int)eResponseStatus.AnnouncementNotFound, ANNOUNCEMENT_NOT_FOUND);
+                response.Status = messageAnnouncementResponse.Status;
                 return response;
             }
 
-            DateTime? startTime = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "start_time");
-
             if (validateMsgStartTime)
             {
-                if (!startTime.HasValue || startTime.Value < DateTime.UtcNow)
+                if (messageAnnouncementResponse.Object.StartTime < DateUtils.GetUtcUnixTimestampNow())
                 {
-                    log.ErrorFormat("Announcement start time passed Id: {0} start time: {1}", announcementId, startTime);
+                    log.Error($"Announcement start time passed Id: {announcementId} start time: {messageAnnouncementResponse.Object.StartTime}");
                     response.Status = new Status((int)eResponseStatus.AnnouncementUpdateNotAllowed, "Announcement Update Not Allowed");
                     return response;
                 }
@@ -179,15 +178,14 @@ namespace Core.Notification
                 EnforceAllowedStartTime(groupId, announcement);
             }
 
-            int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
             DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
 
-            DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(id, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null,
+            DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(announcementId, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null,
                 announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject);
-            announcement = Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
+            announcement = Utils.GetMessageAnnouncementFromDataRow(row);
 
             // add a new message to queue when new time updated
-            if (DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime) != startTime)
+            if (announcement.StartTime != messageAnnouncementResponse.Object.StartTime)
             {
                 if (!AddMessageAnnouncementToQueue(groupId, announcement))
                 {
@@ -200,7 +198,7 @@ namespace Core.Notification
             response.Announcement = announcement;
             return response;
         }
-
+        
         public static Status UpdateMessageSystemAnnouncementStatus(int groupId, long id, bool status)
         {
             // validate system announcements are enabled
@@ -233,20 +231,13 @@ namespace Core.Notification
         public static Status DeleteMessageAnnouncement(int groupId, long id)
         {
             // validate system announcements are enabled
-            if (!NotificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
+            var messageAnnouncementResponse = GetMessageAnnouncement(groupId, id);
+            if (!messageAnnouncementResponse.HasObject())
             {
-                log.ErrorFormat("DeleteMessageAnnouncement  - partner system announcements are disabled. groupID = {0}", groupId);
-                return new Status((int)eResponseStatus.FeatureDisabled, "Feature Disabled");
+                return messageAnnouncementResponse.Status;
             }
 
-            DataRow dr = DAL.NotificationDal.Get_MessageAnnouncement(id);
-            if (dr == null)
-            {
-                log.ErrorFormat("Announcement not exist in DB: group: {0} Id: {1}", groupId, id);
-                return new Status((int)eResponseStatus.AnnouncementNotFound, ANNOUNCEMENT_NOT_FOUND);
-            }
-
-            DAL.NotificationDal.Delete_MessageAnnouncement(id, groupId);
+            NotificationDal.Delete_MessageAnnouncement(id, groupId);
 
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
@@ -388,7 +379,7 @@ namespace Core.Notification
             return true;
         }
 
-        public static GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex)
+        public static GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex, MessageAnnouncementFilter filter)
         {
             GetAllMessageAnnouncementsResponse ret = new GetAllMessageAnnouncementsResponse
             {
@@ -398,56 +389,54 @@ namespace Core.Notification
             // validate system announcements are enabled
             if (!NotificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
             {
-                log.ErrorFormat("CreateSystemAnnouncement  - partner system announcements are disabled. groupID = {0}", groupId);
+                log.Error($"Get_AllMessageAnnouncements  - partner system announcements are disabled. groupID = {groupId}");
                 ret.Status = new Status((int)eResponseStatus.FeatureDisabled, "Feature Disabled");
                 return ret;
             }
 
             ret.messageAnnouncements = new List<MessageAnnouncement>();
 
-            List<DataRow> rows = DAL.NotificationDal.Get_MessageAllAnnouncements(groupId, pageSize, pageIndex);
+            if (filter != null)
+            {
+                if (filter.MessageAnnouncementIds != null && filter.MessageAnnouncementIds.Count > 0)
+                {
+                    if (pageIndex != 0)
+                    {
+                        ret.Status.Set(eResponseStatus.InvalidValue, "Page index value must be 1.");
+                        return ret;
+                    }
+
+                    if (pageSize < filter.MessageAnnouncementIds.Count)
+                    {
+                        ret.Status.Set(eResponseStatus.InvalidValue, "Page size must to be greater or equal to the size of MessageAnnouncement.Ids");
+                        return ret;
+                    }
+
+                    foreach (var id in filter.MessageAnnouncementIds)
+                    {
+                        var msgResponse = GetMessageAnnouncement(groupId, id);
+                        if (msgResponse.HasObject())
+                        {
+                            ret.messageAnnouncements.Add(msgResponse.Object);
+                        }
+                    }
+
+                    ret.totalCount = ret.messageAnnouncements.Count;
+                    return ret;
+                }
+            }
+
+            List<DataRow> rows = NotificationDal.Get_MessageAllAnnouncements(groupId, pageSize, pageIndex);
 
             if (rows != null)
             {
                 foreach (DataRow row in rows)
                 {
-                    string timezone = ODBCWrapper.Utils.GetSafeStr(row, "timezone");
-
-                    DateTime convertedTime = ODBCWrapper.Utils.ConvertFromUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "start_time"), timezone);
-                    long startTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(convertedTime);
-                    ApiObjects.eAnnouncementRecipientsType recipients = ApiObjects.eAnnouncementRecipientsType.Other;
-                    int dbRecipients = ODBCWrapper.Utils.GetIntSafeVal(row, "recipients");
-                    if (Enum.IsDefined(typeof(ApiObjects.eAnnouncementRecipientsType), dbRecipients))
-                        recipients = (ApiObjects.eAnnouncementRecipientsType)dbRecipients;
-
-                    eAnnouncementStatus status = eAnnouncementStatus.NotSent;
-                    int dbStatus = ODBCWrapper.Utils.GetIntSafeVal(row, "sent");
-                    if (Enum.IsDefined(typeof(eAnnouncementStatus), dbStatus))
-                        status = (eAnnouncementStatus)dbStatus;
-
-                    MessageAnnouncement msg = new MessageAnnouncement()
-                    {
-                        Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
-                        Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
-                        Enabled = (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
-                        StartTime = startTime,
-                        Timezone = timezone,
-                        Recipients = recipients,
-                        Status = status,
-                        ImageUrl = ODBCWrapper.Utils.GetSafeStr(row, "image_url"),
-                        MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
-                        MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
-                        IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false),
-                        IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false)
-
-                    };
-
-                    msg.MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
-
+                    var msg = Utils.GetMessageAnnouncementFromDataRow(row);
                     ret.messageAnnouncements.Add(msg);
                 }
 
-                ret.totalCount = DAL.NotificationDal.Get_MessageAllAnnouncementsCount(groupId);
+                ret.totalCount = NotificationDal.Get_MessageAllAnnouncementsCount(groupId);
             }
 
             return ret;
@@ -1642,6 +1631,39 @@ namespace Core.Notification
             }
 
             return Status.Ok;
+        }
+
+        public static GenericResponse<MessageAnnouncement> GetMessageAnnouncement(int groupId, long id)
+        {
+            var response = new GenericResponse<MessageAnnouncement>();
+
+            try
+            {
+                // validate system announcements are enabled
+                if (!NotificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
+                {
+                    log.Error($"GetMessageAnnouncement - partner system announcements are disabled. groupId={groupId}");
+                    response.SetStatus(eResponseStatus.FeatureDisabled, "Feature Disabled");
+                    return response;
+                }
+
+                DataRow dr = NotificationDal.Get_MessageAnnouncement(id, groupId);
+                if (dr == null)
+                {
+                    log.Error($"Announcement not exist in DB: group: {groupId}, Id: {id}");
+                    response.SetStatus(eResponseStatus.AnnouncementNotFound, ANNOUNCEMENT_NOT_FOUND);
+                }
+
+                response.Object = Utils.GetMessageAnnouncementFromDataRow(dr);
+                response.SetStatus(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus(eResponseStatus.Error);
+                log.Error($"An Exception was occurred in GetMessageAnnouncement. groupId:{groupId}, id:{id}.", ex);
+            }
+
+            return response;
         }
     }
 }

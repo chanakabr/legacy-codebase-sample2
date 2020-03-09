@@ -431,7 +431,7 @@ namespace Core.Users
             return (int)DeviceDal.Get_IDInDevicesByDeviceUDID(sUDID, nGroupID);
         }
 
-        public static string GetDeviceIDByExternalId(int nGroupID, string externalId)
+        public static string GetDeviceIDByExternalId(int nGroupID, string externalId, string columnNmae = "id")
         {
             if (string.IsNullOrEmpty(externalId))
                 return string.Empty;
@@ -441,7 +441,7 @@ namespace Core.Users
             if (exists)
             {
                 DataRow dr = dtDeviceInfo.Rows[0];
-                return ODBCWrapper.Utils.GetIntSafeVal(dr["id"]).ToString();
+                return ODBCWrapper.Utils.ExtractValue<string>(dr, columnNmae);
             }
 
             return string.Empty;
@@ -476,7 +476,6 @@ namespace Core.Users
                 // Device found
 
                 DataRow dr = dtDeviceInfo.Rows[0];
-                //TODO MATAN - add to the sp select part
                 int nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dr["id"]);
                 m_id = nDeviceID.ToString();
                 m_deviceUDID = ODBCWrapper.Utils.GetSafeStr(dr["device_id"]);

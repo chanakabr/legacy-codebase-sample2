@@ -20,7 +20,7 @@ namespace CachingProvider
          * 2. MemoryCache should be properly disposed.
          */
 
-        private static readonly string DEFAULT_CACHE_NAME = "Cache";        
+        private static readonly string DEFAULT_CACHE_NAME = "SVInMemoryCache";        
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private MemoryCache cache = null;
 
@@ -48,10 +48,6 @@ namespace CachingProvider
 
         private string GetCacheName()
         {
-            string res = ApplicationConfiguration.Current.SingleInMemoryCacheName.Value;
-
-            if (res.Length > 0)
-                return res;
             return DEFAULT_CACHE_NAME;
         }
 

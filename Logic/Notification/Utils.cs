@@ -48,22 +48,23 @@ namespace Core.Notification
 
         public static MessageAnnouncement GetMessageAnnouncementFromDataRow(DataRow row)
         {
-            string timezone = ODBCWrapper.Utils.GetSafeStr(row, "timezone");
+            var timezone = ODBCWrapper.Utils.GetSafeStr(row, "timezone");
+            var convertedTime = ODBCWrapper.Utils.ConvertFromUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "start_time"), timezone);
+            var startTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(convertedTime);
 
-            DateTime convertedTime = ODBCWrapper.Utils.ConvertFromUtc(ODBCWrapper.Utils.GetDateSafeVal(row, "start_time"), timezone);
-            long startTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(convertedTime);
-            ApiObjects.eAnnouncementRecipientsType recipients = ApiObjects.eAnnouncementRecipientsType.Other;
+            var recipients = eAnnouncementRecipientsType.Other;
             int dbRecipients = ODBCWrapper.Utils.GetIntSafeVal(row, "recipients");
-            if (Enum.IsDefined(typeof(ApiObjects.eAnnouncementRecipientsType), dbRecipients))
-                recipients = (ApiObjects.eAnnouncementRecipientsType)dbRecipients;
+            if (Enum.IsDefined(typeof(eAnnouncementRecipientsType), dbRecipients))
+                recipients = (eAnnouncementRecipientsType)dbRecipients;
 
-            eAnnouncementStatus status = eAnnouncementStatus.NotSent;
+            var status = eAnnouncementStatus.NotSent;
             int dbStatus = ODBCWrapper.Utils.GetIntSafeVal(row, "sent");
             if (Enum.IsDefined(typeof(eAnnouncementStatus), dbStatus))
                 status = (eAnnouncementStatus)dbStatus;
 
-            MessageAnnouncement msg = new MessageAnnouncement()
+            var msg = new MessageAnnouncement()
             {
+                MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
                 Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                 Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
                 Enabled = (ODBCWrapper.Utils.GetIntSafeVal(row, "is_active") == 0) ? false : true,
@@ -79,8 +80,6 @@ namespace Core.Notification
                 IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false),
                 IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false)
             };
-
-            msg.MessageAnnouncementId = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
 
             return msg;
         }

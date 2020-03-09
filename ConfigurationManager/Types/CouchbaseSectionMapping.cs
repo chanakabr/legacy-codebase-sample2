@@ -25,8 +25,6 @@ namespace ConfigurationManager
         public BaseValue<string> Notifications = new BaseValue<string>("notification", "OTT_Apps");
         public BaseValue<string> OTTApps = new BaseValue<string>("ott_apps", "OTT_Apps");
 
- 
-
         public Dictionary<string, string> GetDictionary()
         {
             Dictionary<string, string> result = new Dictionary<string, string>();

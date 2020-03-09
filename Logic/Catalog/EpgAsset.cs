@@ -103,45 +103,46 @@ namespace Core.Catalog
             }
         }
 
-        private void SetTags(EpgCB epgCb, bool IsDefaultLanguage)
+        private void SetTags(EpgCB epgCb, bool isDefaultLanguage)
         {
-            if (this.Tags == null)
-            {
-                this.Tags = new List<Tags>();
-            }
+            if (Tags == null) { Tags = new List<Tags>(); }
 
-            if (epgCb.Tags != null && epgCb.Tags.Count > 0)
+            // We have nothing to add here ...
+            if (epgCb.Tags == null || epgCb.Tags.Count <= 0) { return; }
+
+            var onlyTagsWithValues = epgCb.Tags.Where(t => t.Value?.Any() == true);
+            foreach (var tag in onlyTagsWithValues)
             {
-                foreach (var tag in epgCb.Tags)
+                var tagToUpdate = Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.Equals(tag.Key));
+                if (tagToUpdate == null)
                 {
-                    // check if Genre exist
-                    int index = this.Tags.FindIndex(x => x.m_oTagMeta.m_sName.Equals(tag.Key));
-                    if (index == -1)
-                    {
-                        // not exist 
-                        List<string> mainValues = IsDefaultLanguage ? tag.Value : null;
-                        List<LanguageContainer[]> languageContainers = new List<LanguageContainer[]>
-                            (tag.Value.Select(v => SetTagLanguageContainer(null, v, epgCb.Language, IsDefaultLanguage)));
+                    var newTagInfo = new TagMeta(tag.Key, MetaType.Tag.ToString());
+                    var newTag = new Tags(newTagInfo, null, null);
+                    Tags.Add(newTag);
+                    tagToUpdate = newTag;
+                }
 
-                        this.Tags.Add(new Tags(new TagMeta(tag.Key, MetaType.Tag.ToString()), mainValues, languageContainers));
+                if (isDefaultLanguage) { tagToUpdate.m_lValues = tag.Value; }
+
+                var valuesTranslations = tag.Value.Select(value => new LanguageContainer(epgCb.Language, value, isDefaultLanguage)).ToArray();
+                for (int i = 0; i < valuesTranslations.Length; i++)
+                {
+                    // Every Tag Value at the same index has to have all of its translations so we search
+                    // to see if we already have a value in this index
+                    var tagValueTranslations = tagToUpdate.Values.ElementAtOrDefault(i);
+                    if (tagValueTranslations != null)
+                    {
+                        // This is very unefficient but the datamodel is an ARRAY!! so we have to concat ad re-allocate :\ 
+                        // all because we have value -> with all translations and not the other way around..
+                        tagToUpdate.Values[i] = tagValueTranslations.Concat(new[] { valuesTranslations[i] }).ToArray();
                     }
                     else
                     {
-                        // exist 
-                        if (IsDefaultLanguage)
-                        {
-                            this.Tags[index].m_lValues = tag.Value;
-                        }
-
-                        for (int i = 0; i < this.Tags[index].Values.Count; i++)
-                        {
-                            if (i < tag.Value.Count)
-                            {
-                                this.Tags[index].Values[i] = SetTagLanguageContainer(this.Tags[index].Values[i], tag.Value[i], epgCb.Language, IsDefaultLanguage);
-                            }
-                        }
+                        tagToUpdate.Values.Add(new[] { valuesTranslations[i] });
                     }
+
                 }
+
             }
         }
 
@@ -191,20 +192,6 @@ namespace Core.Catalog
             {
                 langContainers.AddRange(newLanguageValues.Select(x => new LanguageContainer(languageCode, x, isDefault)));
             }
-
-            return langContainers.ToArray();
-        }
-
-        private LanguageContainer[] SetTagLanguageContainer(LanguageContainer[] sourceLanguageValues, string newLanguageValue, string languageCode, bool isDefault)
-        {
-            List<LanguageContainer> langContainers = new List<LanguageContainer>();
-
-            if (sourceLanguageValues != null && sourceLanguageValues.Length > 0)
-            {
-                langContainers.AddRange(sourceLanguageValues);
-            }
-
-            langContainers.Add(new LanguageContainer(languageCode, newLanguageValue, isDefault));
 
             return langContainers.ToArray();
         }

@@ -2273,8 +2273,6 @@ namespace TvinciImporter
             }
 
             //check for epg_image default threshold value
-            int pendingThresholdInMinutes = ApplicationConfiguration.Current.EpgImagePendingThresholdInMinutes.Value;
-            int activeThresholdInMinutes = ApplicationConfiguration.Current.EpgImageActiveThresholdInMinutes.Value;
 
             GetEpgPicNameAndId(thumb, groupID, channelID, ratioID, out picName, out picId);
 
@@ -5651,9 +5649,6 @@ namespace TvinciImporter
         {
             bool isUpdateChannelIndexSucceeded = false;
 
-            string sUseElasticSearch = ApplicationConfiguration.Current.SearchIndexType.Value; // Indexer - ES / Lucene
-            if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES"))
-            {
                 try
                 {
                     int nParentGroupID = UtilsDal.GetParentGroupID(nGroupId);
@@ -5673,14 +5668,6 @@ namespace TvinciImporter
                     log.Error("process failed", ex);
                 }
 
-            }
-            else
-            {
-                if (lChannelIds != null && lChannelIds.Count > 0)
-                {
-                    isUpdateChannelIndexSucceeded = UpdateChannelInLucene(nGroupId, lChannelIds[0]);
-                }
-            }
             return isUpdateChannelIndexSucceeded;
         }
 
@@ -5745,29 +5732,26 @@ namespace TvinciImporter
 
             int parentGroupID = UtilsDal.GetParentGroupID(groupId);
 
-            string sUseElasticSearch = ApplicationConfiguration.Current.SearchIndexType.Value;  // Indexer - ES / Lucene
-            if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
+            try
             {
                 try
                 {
-                    try
-                    {
-                        isUpdateIndexSucceeded = Core.Catalog.Module.UpdateEpgIndex(epgIds, parentGroupID, action);
-                        string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                        log.DebugFormat("Update index {0} in catalog for epg ids {1}", sInfo, string.Join(",", epgIds));
-
-                    }
-                    catch (Exception ex)
-                    {
-                        log.ErrorFormat("Couldn't update catalog due to the following error: {0}", ex.Message);
-                    }
+                    isUpdateIndexSucceeded = Core.Catalog.Module.UpdateEpgIndex(epgIds, parentGroupID, action);
+                    string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                    log.DebugFormat("Update index {0} in catalog for epg ids {1}", sInfo, string.Join(",", epgIds));
 
                 }
                 catch (Exception ex)
                 {
-                    log.Error("process failed", ex);
+                    log.ErrorFormat("Couldn't update catalog due to the following error: {0}", ex.Message);
                 }
+
             }
+            catch (Exception ex)
+            {
+                log.Error("process failed", ex);
+            }
+
             return isUpdateIndexSucceeded;
         }
 
@@ -5792,34 +5776,29 @@ namespace TvinciImporter
         {
             bool isUpdateIndexSucceeded = false;
 
-            string sUseElasticSearch = ApplicationConfiguration.Current.SearchIndexType.Value; // Indexer - ES / Lucene
-
-            if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
+            try
             {
-                try
+                int nParentGroupID = UtilsDal.GetParentGroupID(groupID);
+                if (epgChannels != null && epgChannels.Count > 0 && nParentGroupID > 0)
                 {
-                    int nParentGroupID = UtilsDal.GetParentGroupID(groupID);
-                    if (epgChannels != null && epgChannels.Count > 0 && nParentGroupID > 0)
+
+                    try
                     {
+                        isUpdateIndexSucceeded = Core.Catalog.Module.UpdateEpgChannelIndex(epgChannels, nParentGroupID, action);
 
-                        try
-                        {
-                            isUpdateIndexSucceeded = Core.Catalog.Module.UpdateEpgChannelIndex(epgChannels, nParentGroupID, action);
+                        string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                        log.DebugFormat("Update index {0} in catalog", sInfo);
 
-                            string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                            log.DebugFormat("Update index {0} in catalog", sInfo);
-
-                        }
-                        catch (Exception ex)
-                        {
-                            log.ErrorFormat("Couldn't update catalog due to the following error: {0}", ex.Message);
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Couldn't update catalog due to the following error: {0}", ex.Message);
                     }
                 }
-                catch (Exception ex)
-                {
-                    log.Error("process failed", ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("process failed", ex);
             }
 
             return isUpdateIndexSucceeded;
