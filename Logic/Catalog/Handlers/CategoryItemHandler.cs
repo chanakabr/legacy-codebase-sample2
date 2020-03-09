@@ -508,12 +508,6 @@ namespace Core.Catalog.Handlers
                 return response;
             }
 
-            if (categoryItem.ParentId > 0)
-            {
-                response.SetStatus(eResponseStatus.Error, "Category must be root");
-                return response;
-            }
-
             categoryTree = BuildCategoryTree(groupId, categoryItem);
 
             if (categoryItem?.ChildrenIds?.Count > 0)
