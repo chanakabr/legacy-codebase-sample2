@@ -52,12 +52,6 @@ namespace Core.Billing
                 AdyenUtils.GetWSCredentials(m_nGroupID, ref sUN, ref sPass, ref merchAcc, ref merchPurchesAccount, 2);
                 RecurringDetailsResult recRes = GetAdyenContract(merchAcc, sSiteGUID, sUN, sPass);
 
-                if (recRes.details == null || recRes.details.Length == 0)
-                {
-                    AdyenUtils.GetTvinciWSCredentials(ref sUN, ref sPass, ref merchAcc);
-                    recRes = GetAdyenContract(merchAcc, sSiteGUID, sUN, sPass);
-                }
-
                 log.Info(string.Format("WSCredentials : GroupID={0}, sUN={1}, sPass={2},merchAcc={3},merchPurchesAccount={4},PurchesType={5}", m_nGroupID, sUN, sPass, merchAcc, merchPurchesAccount, 2));
                 if (recRes.details != null && recRes.details.Length > 0)
                 {
