@@ -1,6 +1,7 @@
 ﻿using ConfigurationManager.Types;
 using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 using System;
+using System.Collections.Generic;
 
 namespace ConfigurationManager
 {
@@ -82,6 +83,9 @@ namespace ConfigurationManager
         public BaseValue<bool> ShouldAddInvalidationKeysToHeader = new BaseValue<bool>("add_invalidation_keys_to_header", false);
         public BaseValue<bool> TVMSkipLoginIPCheck = new BaseValue<bool>("SKIP_LOGIN_IP_CHECK", false, false, "TVM key, whether IP check during login should be skipped or not.");
         public BaseValue<bool> EnableHttpLogin = new BaseValue<bool>("EnableHttpLogin", true);
+        public BaseValue<List<HealthCheckDefinition>> HealthCheckConfiguration = 
+            new BaseValue<List<HealthCheckDefinition>>(TcmObjectKeys.HealthCheckConfiguration, new List<HealthCheckDefinition>(), true, 
+            "List of definitions of health check that this application will use");
 
         public AuthorizationManagerConfiguration AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration();
         public FileUploadConfiguration FileUpload = new FileUploadConfiguration();

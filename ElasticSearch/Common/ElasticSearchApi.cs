@@ -1479,16 +1479,43 @@ namespace ElasticSearch.Common
         #region HealthCheck
         public bool HealthCheck()
         {
-            var url = $"{baseUrl}/{"_cluster/health"}";
-            var status = 0;
-            var ret = SendGetHttpReq(url, ref status);
-            log.Info($"Elasticsearch HealthCheck > response:[{ret}]");
-            if (status != 200)
+            bool result = false;
+            try
             {
-                return false;
+                var url = $"{baseUrl}/{"_cluster/health"}";
+                var status = 0;
+                var ret = SendGetHttpReq(url, ref status);
+                log.Info($"Elasticsearch HealthCheck > response:[{ret}]");
+
+                if (status != 200)
+                {
+                    return false;
+                }
+
+                var json = JObject.Parse(ret);
+
+                if (json != null)
+                {
+                    var healthStatus = json["status"];
+
+                    if (healthStatus != null)
+                    {
+                        var healthStatusValue = healthStatus.Value<string>().ToLower();
+
+                        if (healthStatusValue == "yellow" || healthStatusValue == "green")
+                        {
+                            result = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error when checking ElasticSearch healthcheck. ex = {ex}");
+                result = false;
             }
 
-            return true;
+            return result;
         }
         #endregion
 

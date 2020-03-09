@@ -375,8 +375,14 @@ namespace TCMClient
                             m_SettingsLoweredKeys.Add(record.Key.ToLower(), ParseNestedObjects((JObject)record.Value, true));
                             m_SettingsOriginalKeys.Add(record.Key, ParseNestedObjects((JObject)record.Value, false));
                         }
+                        else if (record.Value is JArray)
+                        {
+                            m_SettingsLoweredKeys.Add(record.Key.ToLower(), record.Value as JArray);
+                            m_SettingsOriginalKeys.Add(record.Key, record.Value as JArray);
+                        }
                         else
                         {
+                            
                             string _key = record.Key;
                             m_SettingsLoweredKeys.Add(_key.ToLower(), new JValue(record.Value));
                             m_SettingsOriginalKeys.Add(_key, new JValue(record.Value));
