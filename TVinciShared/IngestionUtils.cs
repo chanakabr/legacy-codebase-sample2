@@ -675,10 +675,6 @@ namespace TVinciShared
         {
             ThreadPool.QueueUserWorkItem(delegate
                 {
-                    string ftpUrl = ApplicationConfiguration.Current.IngestFtpUrl.Value;
-                    string ftpUser = ApplicationConfiguration.Current.IngestFtpUser.Value;
-                    string ftpPass = ApplicationConfiguration.Current.IngestFtpPass.Value;
-
                     byte[] zip = ZipUtils.Compress(files);
 
                     bool shouldRetry = true;
@@ -686,27 +682,27 @@ namespace TVinciShared
 
                     try
                     {
-                        while (shouldRetry && retryCount < 10)
-                        {
-                            FtpWebRequest request = (FtpWebRequest)FtpWebRequest.Create(string.Format("{0}/Ingest-{1}.zip", ftpUrl, ingestID));
-                            request.Credentials = new NetworkCredential(ftpUser, ftpPass);
-                            request.Method = WebRequestMethods.Ftp.UploadFile;
-                            request.KeepAlive = false;
-                            request.UsePassive = false;
-                            request.UseBinary = true;
-                            request.ContentLength = zip.Length;
-                            request.GetResponse();
-                            Stream requestStream = request.GetRequestStream();
-                            requestStream.Write(zip, 0, zip.Length);
-                            requestStream.Close();
-                            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-                            response.Close();
-                            shouldRetry = false;
-                        }
-                        if (retryCount == 10)
-                        {
-                            log.Error("Failed to upload files to FTP Ingest ID = " + ingestID);
-                        }
+                        //while (shouldRetry && retryCount < 10)
+                        //{
+                        //    FtpWebRequest request = (FtpWebRequest)FtpWebRequest.Create(string.Format("{0}/Ingest-{1}.zip", ftpUrl, ingestID));
+                        //    request.Credentials = new NetworkCredential(ftpUser, ftpPass);
+                        //    request.Method = WebRequestMethods.Ftp.UploadFile;
+                        //    request.KeepAlive = false;
+                        //    request.UsePassive = false;
+                        //    request.UseBinary = true;
+                        //    request.ContentLength = zip.Length;
+                        //    request.GetResponse();
+                        //    Stream requestStream = request.GetRequestStream();
+                        //    requestStream.Write(zip, 0, zip.Length);
+                        //    requestStream.Close();
+                        //    FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                        //    response.Close();
+                        //    shouldRetry = false;
+                        //}
+                        //if (retryCount == 10)
+                        //{
+                        //    log.Error("Failed to upload files to FTP Ingest ID = " + ingestID);
+                        //}
                     }
                     catch (Exception ex)
                     {

@@ -772,7 +772,8 @@ namespace CachingProvider.LayeredCache
                 HashSet<string> keysToGet = new HashSet<string>(KeyToOriginalValueMap.Keys);
                 Dictionary<string, Tuple<T, long>> resultsToAdd = new Dictionary<string, Tuple<T, long>>();
                 tupleResults = new Dictionary<string, Tuple<T, long>>();
-                if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
+                var shouldGoToCache = ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig);
+                if (shouldGoToCache)
                 {
                     Dictionary<string, long> inValidationKeysMaxDateMapping = null;
                     bool hasMaxInvalidationDates = false;

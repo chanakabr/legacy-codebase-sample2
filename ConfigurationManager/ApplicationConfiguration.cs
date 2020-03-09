@@ -37,32 +37,18 @@ namespace ConfigurationManager
         public BaseValue<string> GraceNoteALUIdConvertion = new BaseValue<string>("GraceNote_ALU_IDConvertion", TcmObjectKeys.Stub, true, "Remote tasks configuration for EPG XDTV Transformation.");
         public BaseValue<string> DMSUrl = new BaseValue<string>("dms_url", TcmObjectKeys.Stub, true, "Address of DMS server.");
         public BaseValue<string> CatalogSignatureKey = new BaseValue<string>("CatalogSignatureKey", "liat regev", false, "liat regev");
-        public BaseValue<string> SingleInMemoryCacheName = new BaseValue<string>("single_in_memory_cache_name", "SVInMemoryCache");
         public BaseValue<string> ExcludePsDllImplementation = new BaseValue<string>("EXCLUDE_PS_DLL_IMPLEMENTATION", TcmObjectKeys.Stub, true);
         public BaseValue<string> UsersAssemblyLocation = new BaseValue<string>("USERS_ASSEMBLY_LOCATION", TcmObjectKeys.Stub, true, null);
         public BaseValue<string> FriendsActivityViewStaleState = new BaseValue<string>("FRIENDS_ACTIVITY_VIEW_STALE_STATE", "None", false, "Corresponding to ViewStaleState enum. Possible values: None, False, Ok, UpdateAfter");
-        public BaseValue<string> EPGUrl = new BaseValue<string>("EPGUrl", TcmObjectKeys.Stub, true, "Use in yes epg BL");
         public BaseValue<string> EncryptorService = new BaseValue<string>("EncryptorService", TcmObjectKeys.Stub, true);
         public BaseValue<string> EncryptorPassword = new BaseValue<string>("EncryptorPassword", TcmObjectKeys.Stub, true);
         public BaseValue<string> PicsBasePath = new BaseValue<string>("pics_base_path", TcmObjectKeys.Stub, true);
-        public BaseValue<string> IngestFtpPass = new BaseValue<string>("IngestFtpPass", TcmObjectKeys.Stub, true);
-        public BaseValue<string> IngestFtpUrl = new BaseValue<string>("IngestFtpUrl", TcmObjectKeys.Stub, true);
-        public BaseValue<string> IngestFtpUser = new BaseValue<string>("IngestFtpUser", TcmObjectKeys.Stub, true);
-        public BaseValue<string> AdyenWSUser = new BaseValue<string>("TvinciAdyenWS_User", TcmObjectKeys.Stub, true);
-        public BaseValue<string> AdyenWSPass = new BaseValue<string>("TvinciAdyenWS_Pass", TcmObjectKeys.Stub, true);
-        public BaseValue<string> AdyenWSMerchAccount = new BaseValue<string>("TvinciAdyenWS_MerchAccount", TcmObjectKeys.Stub, true);
         public BaseValue<string> AdyenPSPReferenceRegexOverride = new BaseValue<string>("AdyenPSPReferenceRegexOverride", TcmObjectKeys.Stub, true);
         public BaseValue<string> MetaFeaturesPattern = new BaseValue<string>("meta_features_pattern", @"\W|[^ ]{64}[^ ]", false);
         public BaseValue<string> LogConfigurationDocumentKey = new BaseValue<string>("log_configuration_document_key", "phoenix_log_configuration", false, "Document key in Couchbase from which the log reloader mechanism will read the configuration of log4net.config");
-        public BaseValue<string> SearchIndexType = new BaseValue<string>("search_index_type", "ES", false, "Used in TVM, for transition between Lucene and ElasticSearch. " +
-        "Today we use ES exclusively. Only valid value is 'ES', otherwise Lucene is used");
-
-
-        public BaseValue<int> EpgImagePendingThresholdInMinutes = new BaseValue<int>("epgImagePendingThresholdInMinutes", 120);
-        public BaseValue<int> EpgImageActiveThresholdInMinutes = new BaseValue<int>("epgImageActiveThresholdInMinutes", 43200);
         public BaseValue<int> PwwawpMaxResultsSize = new BaseValue<int>("PWWAWP_MAX_RESULTS_SIZE", 8);
         public BaseValue<int> PwlalPMaxResultsSize = new BaseValue<int>("PWLALP_MAX_RESULTS_SIZE", 8);
-        public BaseValue<int> PreviewModuleNumOfCancelOrRefundAttempts = new BaseValue<int>("PreviewModuleNumOfCancelOrRefundAttempts", 120);
+        public BaseValue<int> PreviewModuleNumOfCancelOrRefundAttempts = new BaseValue<int>("PreviewModuleNumOfCancelOrRefundAttempts", 4, false, "Number of attempts when Adyen Direct Debit sends a cancel or refund request to the payment port client"); 
         public BaseValue<int> EPGDocumentExpiry = new BaseValue<int>("epg_doc_expiry", 7);
         public BaseValue<int> DomainCacheDocTimeout = new BaseValue<int>("DomainCacheDocTimeout", 1440);
         public BaseValue<int> PlayCycleDocumentExpiryMinutes = new BaseValue<int>("playCycle_doc_expiry_min", 60, false, "TTL for CouchBase documents of play cycle data in minutes.");
