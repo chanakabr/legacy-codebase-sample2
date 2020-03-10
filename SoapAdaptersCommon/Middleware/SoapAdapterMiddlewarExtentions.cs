@@ -53,7 +53,7 @@ namespace SoapAdaptersCommon.Middleware
             foreach (var adapterConfig in options.Adapters)
             {
                 _Logger.Info($"Configuring adapter: {adapterConfig}");
-                services.TryAddSingleton(adapterConfig.AdapaterInterface, adapterConfig.AdapaterType);
+                services.TryAddScoped(adapterConfig.AdapaterInterface, adapterConfig.AdapaterType);
             }
 
             return services;
