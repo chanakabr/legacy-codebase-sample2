@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CouchbaseManager;
 
 namespace HealthCheck
 {
@@ -11,7 +12,17 @@ namespace HealthCheck
     {
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(HealthCheckResult.Healthy("Couchbase is healthy"));
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            bool isHealthy = couchbaseManager.HealthCheck();
+
+            if (isHealthy)
+            {
+                return Task.FromResult(HealthCheckResult.Healthy("CouchBase is healthy"));
+            }
+            else
+            {
+                return Task.FromResult(HealthCheckResult.Unhealthy("CouchBase is unhealthy"));
+            }
         }
     }
 }

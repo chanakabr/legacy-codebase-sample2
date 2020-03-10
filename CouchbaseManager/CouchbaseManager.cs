@@ -551,6 +551,29 @@ namespace CouchbaseManager
 
         #region Public Methods
 
+        public bool HealthCheck()
+        {
+            bool result = false;
+
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                var pingReport = bucket.Ping();
+
+                // basic check for ping
+                if (pingReport != null && !string.IsNullOrEmpty(pingReport.Id) && pingReport.Version > 0)
+                {
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Health check failed for CouchBase. ex = {ex}");
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// 
         /// </summary>
