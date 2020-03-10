@@ -197,6 +197,7 @@ namespace EpgIngest
 
         private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType, IngestResponse ingestResponse, DateTime dPublishDate)
         {
+            var epgChannelIds = new List<string>() { kalturaChannelID.ToString() };
             // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
             bool success = false;
             int nCount = 0;
@@ -472,7 +473,7 @@ namespace EpgIngest
             {
                 List<string> docIds = Utils.BuildDocIdsToRemoveGroupPrograms(lProgramsID, lLanguage);
                 oEpgBL.RemoveGroupPrograms(docIds);
-                bool resultEpgIndex = UpdateEpgIndex(lProgramsID.Select(i => (ulong)i).ToList(), m_Channels.parentgroupid, ApiObjects.eAction.Delete);
+                bool resultEpgIndex = UpdateEpgIndex(lProgramsID.Select(i => (ulong)i).ToList(), m_Channels.parentgroupid, eAction.Delete, epgChannelIds, false);
                 if (resultEpgIndex)
                     log.DebugFormat("Succeeded. delete programIds:[{0}], kalturaChannelID:{1}", string.Join(",", lProgramsID), kalturaChannelID);
                 else
@@ -499,7 +500,6 @@ namespace EpgIngest
                     }
                     else
                     {
-
                         bool bInsert = oEpgBL.InsertEpg(epg.Value, isMainLang, out epgID);
                         if (bInsert)
                             log.DebugFormat("Succeeded. insert EpgProgram to CB. EpgID:{0}, EpgIdentifier:{1}, CoGuid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
@@ -517,7 +517,7 @@ namespace EpgIngest
                         {
                             epgIds.Add(epg.Value.EpgID);
                         }
-                        bool resultEpgIndex = UpdateEpgIndex(epgIds, m_Channels.parentgroupid, ApiObjects.eAction.Update);
+                        bool resultEpgIndex = UpdateEpgIndex(epgIds, m_Channels.parentgroupid, eAction.Update, epgChannelIds, false);
                         if (resultEpgIndex)
                             log.DebugFormat("Succeeded. insert EpgProgram to ES. EpgID:{0}, EpgIdentifier:{1}, CoGuid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
                         else
@@ -540,7 +540,7 @@ namespace EpgIngest
 
             if (nCount > 0 && epgIds != null && epgIds.Count > 0)
             {
-                bool resultEpgIndex = UpdateEpgIndex(epgIds, m_Channels.parentgroupid, ApiObjects.eAction.Update);
+                bool resultEpgIndex = UpdateEpgIndex(epgIds, m_Channels.parentgroupid, eAction.Update, epgChannelIds, false);
                 if (resultEpgIndex)
                     log.DebugFormat("Succeeded. insert EpgProgram to ES. parent GID:{0}, epgIds Count:{1}", m_Channels.parentgroupid, epgIds.Count);
                 else
@@ -1308,12 +1308,12 @@ namespace EpgIngest
             return epgIds;
         }
 
-        private bool UpdateEpgIndex(List<ulong> epgIDs, int groupID, eAction action)
+        private bool UpdateEpgIndex(List<ulong> epgIDs, int groupID, eAction action, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds)
         {
             bool result = false;
             try
             {
-                result = ImporterImpl.UpdateEpg(epgIDs, groupID, action);
+                result = ImporterImpl.UpdateEpg(epgIDs, groupID, action, epgChannelIds, shouldGetChannelIds);
                 return result;
             }
             catch (Exception ex)

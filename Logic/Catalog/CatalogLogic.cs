@@ -3214,14 +3214,14 @@ namespace Core.Catalog
             return Update(lMediaIds, nGroupId, eObjectType.Media, eAction);
         }
 
-        public static bool UpdateEpgIndex(List<long> lEpgIds, int nGroupId, eAction eAction)
+        public static bool UpdateEpgIndex(List<long> lEpgIds, int nGroupId, eAction eAction, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds)
         {
-            return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction);
+            return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction, epgChannelIds, shouldGetChannelIds);
         }
 
         public static bool UpdateEpgChannelIndex(List<long> ids, int groupId, eAction action)
         {
-            return UpdateEpg(ids, groupId, eObjectType.EpgChannel, action);
+            return UpdateEpg(ids, groupId, eObjectType.EpgChannel, action, null, false);
         }
 
         public static bool UpdateChannelIndex(List<long> lChannelIds, int nGroupId, eAction eAction)
@@ -3288,7 +3288,7 @@ namespace Core.Catalog
                         break;
                     case eObjectType.EPG:
                         // invalidate epg's for OPC and NON-OPC accounts
-                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
+                        EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates, null, true);
                         break;
                     case eObjectType.EpgChannel:
                         break;
@@ -3302,13 +3302,13 @@ namespace Core.Catalog
             return isUpdateIndexSucceeded;
         }
 
-        private static bool UpdateEpg(List<long> ids, int groupId, eObjectType objectType, eAction action)
+        private static bool UpdateEpg(List<long> ids, int groupId, eObjectType objectType, eAction action, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds)
         {
             bool isUpdateIndexSucceeded = false;
 
             if (ids != null && ids.Count > 0)
             {
-                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
 
                 if (!doesGroupUsesTemplates)
                 {
@@ -3320,9 +3320,7 @@ namespace Core.Catalog
 
                 if (groupId > 0)
                 {
-                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupId,
-                        ids, objectType, action, DateTime.UtcNow);
-
+                    var data = new CeleryIndexingData(groupId, ids, objectType, action, DateTime.UtcNow);
                     var queue = new CatalogQueue();
 
                     isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupId, objectType.ToString()));
@@ -3339,7 +3337,7 @@ namespace Core.Catalog
                         legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupId, objectType.ToString()));
 
                         // invalidate epg's for OPC and NON-OPC accounts
-                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
+                        EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates, epgChannelIds, shouldGetChannelIds);
                     }
                 }
             }
@@ -8832,9 +8830,10 @@ namespace Core.Catalog
                 epgBL.RemoveGroupPrograms(lProgramsID.ConvertAll<int>(x => (int)x));
                 // Delete from ES
                 bool resultEpgIndex;
+                var epgChannelIds = new List<string>() { epgChannelID.ToString() };
                 if (lProgramsID != null && lProgramsID.Count > 0)
                 {
-                    resultEpgIndex = UpdateEpgIndex(lProgramsID, groupId, ApiObjects.eAction.Delete);
+                    resultEpgIndex = UpdateEpgIndex(lProgramsID, groupId, eAction.Delete, epgChannelIds, false);
                 }
                 #endregion
 
@@ -8857,7 +8856,7 @@ namespace Core.Catalog
                     if (nCount >= nCountPackage)
                     {
                         epgIds.Add((long)epg.EpgID);
-                        resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Update);
+                        resultEpgIndex = UpdateEpgIndex(epgIds, groupId, eAction.Update, epgChannelIds, false);
                         epgIds = new List<long>();
                         nCount = 0;
                     }
@@ -8866,7 +8865,7 @@ namespace Core.Catalog
 
                 if (nCount > 0 && epgIds != null && epgIds.Count > 0)
                 {
-                    resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Update);
+                    resultEpgIndex = UpdateEpgIndex(epgIds, groupId, eAction.Update, epgChannelIds, false);
                 }
 
                 #endregion
@@ -8890,7 +8889,7 @@ namespace Core.Catalog
                 {
                     BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
                     epgBL.RemoveGroupPrograms(epgIds.ConvertAll<int>(x => (int)x));
-                    bool resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Delete);
+                    bool resultEpgIndex = UpdateEpgIndex(epgIds, groupId, eAction.Delete, new List<string>() { epgChannelID.ToString() }, false);
                 }
                 return true;
             }

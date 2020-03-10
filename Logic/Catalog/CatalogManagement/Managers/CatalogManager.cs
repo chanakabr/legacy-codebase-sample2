@@ -968,7 +968,7 @@ namespace Core.Catalog.CatalogManagement
             if (epgIds != null && epgIds.Count > 0)
             {
                 // update epgs index
-                if (!Core.Catalog.Module.UpdateEpgIndex(epgIds.Cast<ulong>().ToList(), groupId, eAction.Update))
+                if (!Module.UpdateEpgIndex(epgIds.Cast<ulong>().ToList(), groupId, eAction.Update, null, false))
                 {
                     result = false;
                     log.ErrorFormat("Error while update Epg index. groupId:{0}, epgIds:{1}", groupId, string.Join(",", epgIds));
@@ -1001,7 +1001,7 @@ namespace Core.Catalog.CatalogManagement
             if (epgIds != null && epgIds.Count > 0)
             {
                 // update epgs index
-                if (!Core.Catalog.Module.UpdateEpgIndex(epgIds.Cast<ulong>().ToList(), groupId, eAction.Update))
+                if (!Module.UpdateEpgIndex(epgIds.Cast<ulong>().ToList(), groupId, eAction.Update, null, false))
                 {
                     result = false;
                     log.ErrorFormat("Error while update Epg index. groupId:{0}, epgIds:{1}", groupId, string.Join(",", epgIds));

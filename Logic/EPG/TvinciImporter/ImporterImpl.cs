@@ -5670,9 +5670,8 @@ namespace TvinciImporter
 
             return isUpdateChannelIndexSucceeded;
         }
-
     
-        public static bool UpdateEpg(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool datesUpdates = true, bool isCalledFromTvm = false)
+        public static bool UpdateEpg(List<ulong> epgIds, int groupId, eAction action, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds, bool datesUpdates = true, bool isCalledFromTvm = false)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -5684,7 +5683,7 @@ namespace TvinciImporter
             try
             {
                 #region Update EPG Index (Catalog)
-                isUpdateIndexSucceeded = UpdateEPGIndex(epgIds, groupId, action);
+                isUpdateIndexSucceeded = UpdateEPGIndex(epgIds, groupId, action, epgChannelIds, shouldGetChannelIds);
 
                 #endregion
 
@@ -5726,7 +5725,7 @@ namespace TvinciImporter
             }
         }
 
-        public static bool UpdateEPGIndex(List<ulong> epgIds, int groupId, ApiObjects.eAction action)
+        public static bool UpdateEPGIndex(List<ulong> epgIds, int groupId, eAction action, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -5734,22 +5733,13 @@ namespace TvinciImporter
 
             try
             {
-                try
-                {
-                    isUpdateIndexSucceeded = Core.Catalog.Module.UpdateEpgIndex(epgIds, parentGroupID, action);
-                    string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                    log.DebugFormat("Update index {0} in catalog for epg ids {1}", sInfo, string.Join(",", epgIds));
-
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Couldn't update catalog due to the following error: {0}", ex.Message);
-                }
-
+                isUpdateIndexSucceeded = Core.Catalog.Module.UpdateEpgIndex(epgIds, parentGroupID, action, epgChannelIds, shouldGetChannelIds);
+                string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                log.DebugFormat("Update index {0} in catalog for epg ids {1}", sInfo, string.Join(",", epgIds));
             }
             catch (Exception ex)
             {
-                log.Error("process failed", ex);
+                log.ErrorFormat("Couldn't update catalog due to the following error: {0}", ex.Message);
             }
 
             return isUpdateIndexSucceeded;
