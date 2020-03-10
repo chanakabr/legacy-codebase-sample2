@@ -4,6 +4,19 @@ using System;
 
 namespace ConfigurationManager
 {
+    /*
+     * TCM Example:
+    health_check: 
+    - Type: ElasticSearch
+    - Type: CouchBase
+    - Type: RabbitMQ
+    - Type: SQL
+    - Type: ThirdParty
+    - Args:
+      - {name}
+      - {url}
+     */
+
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class HealthCheckDefinition
