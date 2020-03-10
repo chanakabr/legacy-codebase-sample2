@@ -129,7 +129,7 @@ namespace WebAPI.WebServices
 
         public bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction)
         {
-            return Core.Catalog.Module.UpdateEpgIndex(lEpgIds.Cast<ulong>().ToList(), nGroupId, eAction);
+            return Core.Catalog.Module.UpdateEpgIndex(lEpgIds.Cast<ulong>().ToList(), nGroupId, eAction, null, true);
         }
 
         public bool UpdateEpgChannelIndex(List<int> lEpgChannelIds, int nGroupId, eAction eAction)

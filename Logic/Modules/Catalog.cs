@@ -199,8 +199,7 @@ namespace Core.Catalog
             return bIsUpdateIndexSucceeded;
         }
 
-
-        public static bool UpdateEpgIndex(List<ulong> lEpgIds, int nGroupId, eAction eAction)
+        public static bool UpdateEpgIndex(List<ulong> lEpgIds, int nGroupId, eAction eAction, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds)
         {
             // get group ID
             MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupId);
@@ -211,7 +210,7 @@ namespace Core.Catalog
             {
                 try
                 {
-                    bIsUpdateIndexSucceeded = CatalogLogic.UpdateEpgIndex(lEpgIds.ConvertAll<long>(i => (long)i), nGroupId, eAction);
+                    bIsUpdateIndexSucceeded = CatalogLogic.UpdateEpgIndex(lEpgIds.ConvertAll<long>(i => (long)i), nGroupId, eAction, epgChannelIds, shouldGetChannelIds);
                 }
                 catch
                 {
