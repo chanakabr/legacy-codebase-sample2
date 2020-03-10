@@ -3,16 +3,20 @@ using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ConfigurationManager;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using TVinciShared;
 
 namespace Core.Catalog
 {
     public class EpgAsset : Asset
     {
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public string EpgIdentifier { get; set; }
         public long? EpgChannelId { get; set; }
         public long? RelatedMediaId { get; set; }
@@ -80,6 +84,8 @@ namespace Core.Catalog
                     SetImages(defaultEpgCB.pictures, groupEpgPicturesSizes, groupId);
                 }
 
+                var tagsToSet = BuildTagsForDefaultLanguageDocument(defaultEpgCB);
+
                 foreach (var epgCb in epgCBList)
                 {
                     bool IsDefaultLanguage = epgCb.Language.Equals(defaultLanguageCode);
@@ -91,11 +97,22 @@ namespace Core.Catalog
                     else
                     {
                         SetNoneDefaultNameAndDescription(epgCb);
+                        SetTagValuesTranslations(tagsToSet, epgCb);
                     }
 
                     SetMetas(epgCb, IsDefaultLanguage);
-                    SetTags(epgCb, IsDefaultLanguage);
                 }
+
+
+                Tags = tagsToSet.Select(t =>
+                {
+                    var newTagInfo = new TagMeta(t.Key, MetaType.Tag.ToString());
+                    var defaultValues = defaultEpgCB.Tags[t.Key];
+                    var translationValues = t.Value.Select(v => v.ToArray());
+                    var newTag = new Tags(newTagInfo, defaultValues, translationValues);
+                    return newTag;
+                }).ToList();
+
             }
             else
             {
@@ -103,30 +120,48 @@ namespace Core.Catalog
             }
         }
 
-        private void SetTags(EpgCB epgCb, bool isDefaultLanguage)
+        private void SetTagValuesTranslations(Dictionary<string, List<List<LanguageContainer>>> tagsToSet, EpgCB epgCb)
         {
-            if (Tags == null) { Tags = new List<Tags>(); }
+            var onlyTagsWithTranslationValues = epgCb.Tags.Where(t => t.Value?.Any() == true);
+            foreach (var translationTag in onlyTagsWithTranslationValues)
+            {
+                var tagValuesDefaultLanaguage = translationTag.Value.Select(tagTranslationValue => new LanguageContainer(epgCb.Language, tagTranslationValue)).ToList();
+                if (tagsToSet.ContainsKey(translationTag.Key))
+                {
+                    for (int i = 0; i < tagValuesDefaultLanaguage.Count; i++)
+                    {
+                        if (tagsToSet[translationTag.Key].Count > i)
+                        {
+                            tagsToSet[translationTag.Key][i].Add(tagValuesDefaultLanaguage[i]);
+                        }
+                        else
+                        {
+                            _Logger.Warn($"Missing default language value of tag:[{translationTag.Key}], translation value:[{translationTag.Value}], asset:[{Id}]");
+                        }
+                    }
+                }
+                else
+                {
+                    _Logger.Warn($"Missing default language tag:[{translationTag.Key}], asset:[{Id}]");
+                }
+            }
+        }
 
-            // We have nothing to add here ...
-            if (epgCb.Tags == null || epgCb.Tags.Count <= 0) { return; }
-
-            var onlyTagsWithValues = epgCb.Tags.Where(t => t.Value?.Any() == true);
+        private static Dictionary<string, List<List<LanguageContainer>>> BuildTagsForDefaultLanguageDocument(EpgCB defaultEpgCB)
+        {
+            var tagsToSet = new Dictionary<string, List<List<LanguageContainer>>>();
+            var onlyTagsWithValues = defaultEpgCB.Tags.Where(t => t.Value?.Any() == true);
             foreach (var tag in onlyTagsWithValues)
             {
-                var tagToUpdate = Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.Equals(tag.Key));
-                if (tagToUpdate == null)
+                tagsToSet[tag.Key] = new List<List<LanguageContainer>>();
+                var tagValuesDefaultLanaguage = tag.Value.Select(tagValue => new LanguageContainer(defaultEpgCB.Language, tagValue)).ToList();
+                foreach (var tagValueDefaultLang in tagValuesDefaultLanaguage)
                 {
-                    var newTagInfo = new TagMeta(tag.Key, MetaType.Tag.ToString());
-                    var newTag = new Tags(newTagInfo, null, null);
-                    Tags.Add(newTag);
-                    tagToUpdate = newTag;
+                    tagsToSet[tag.Key].Add(new List<LanguageContainer>() { tagValueDefaultLang });
                 }
-
-                if (isDefaultLanguage) { tagToUpdate.m_lValues = tag.Value; }
-
-                var valuesTranslations = tag.Value.Select(value => new LanguageContainer(epgCb.Language, value, isDefaultLanguage)).ToArray();
-                tagToUpdate.Values.Add(valuesTranslations);
             }
+
+            return tagsToSet;
         }
 
         private void SetMetas(EpgCB epgCb, bool IsDefaultLanguage)

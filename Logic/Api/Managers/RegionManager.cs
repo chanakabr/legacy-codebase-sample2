@@ -699,7 +699,7 @@ namespace ApiLogic.Api.Managers
             var res = api.SearchAssets(groupId, ksql, 0, 0, true, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
             if (res?.Length > 0)
             {
-                result = CatalogLogic.UpdateEpgIndex(res.Select(x => long.Parse(x.AssetId)).ToList(), groupId, eAction.Update);
+                result = CatalogLogic.UpdateEpgIndex(res.Select(x => long.Parse(x.AssetId)).ToList(), groupId, eAction.Update, null, false);
             }
 
             return result;

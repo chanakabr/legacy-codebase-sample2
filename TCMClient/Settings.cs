@@ -231,9 +231,9 @@ namespace TCMClient
             }
         }
 
-        public JToken GetJsonString(string[] keys)
+        public JToken GetJsonString(string[] keys, bool isLowercase = true)
         {
-            JToken token = m_SettingsLoweredKeys;
+            JToken token = isLowercase ? m_SettingsLoweredKeys : m_SettingsOriginalKeys;
 
             if (keys != null && keys.Any())
             {
