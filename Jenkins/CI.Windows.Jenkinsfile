@@ -29,6 +29,7 @@ pipeline {
                         def defaultGeneratorBranch = sh(label:"Get Default Branch From Github", script: getDefaultBranchCmd, , returnStdout: true).trim()
                         echo("Identified default clients-generator branch as: [${defaultGeneratorBranch}]")
                         dir('clients-generator'){ git(url: 'https://github.com/kaltura/clients-generator.git', branch:"${client_generator_branch}", credentialsId: "github-ott-ci-cd") }
+                        echo "Using branch ${client_generator_branch} for client-generator!!"
                     }
                 }
             }
