@@ -16,6 +16,9 @@ namespace SSOAdapter.Models
         public IEnumerable<eSSOMethods> ImplementedMethods { get; set; }
 
         [DataMember]
+        public IEnumerable<int> ImplementedMethodsExtend { get; set; }
+
+        [DataMember]
         public bool SendWelcomeEmail { get; set; }
 
     }

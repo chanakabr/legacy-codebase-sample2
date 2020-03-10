@@ -12,6 +12,6 @@ namespace SSOAdapter.Models
         [EnumMember]
         PreGetUserData = 2,
         [EnumMember]
-        PostGetUserData = 3,
+        PostGetUserData = 3
     }
 }
