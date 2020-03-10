@@ -13,6 +13,7 @@ pipeline {
         string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch')
         booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
         booleanParam(name: 'publish', defaultValue: false, description: 'Publush api client libs ?')
+        string(name: 'client_generator_branch', defaultValue: 'Orion-15.19.0', description: 'client_generator_branch')
     }
     stages {
         stage("Checkout"){
@@ -27,7 +28,7 @@ pipeline {
                         def getDefaultBranchCmd = "curl --silent -i ott-ci-cd:${TOKEN} https://api.github.com/repos/kaltura/clients-generator | grep 'default_branch' | cut -f4 -d'\"'"
                         def defaultGeneratorBranch = sh(label:"Get Default Branch From Github", script: getDefaultBranchCmd, , returnStdout: true).trim()
                         echo("Identified default clients-generator branch as: [${defaultGeneratorBranch}]")
-                        dir('clients-generator'){ git(url: 'https://github.com/kaltura/clients-generator.git', branch:"${defaultGeneratorBranch}", credentialsId: "github-ott-ci-cd") }
+                        dir('clients-generator'){ git(url: 'https://github.com/kaltura/clients-generator.git', branch:"${client_generator_branch}", credentialsId: "github-ott-ci-cd") }
                     }
                 }
             }
