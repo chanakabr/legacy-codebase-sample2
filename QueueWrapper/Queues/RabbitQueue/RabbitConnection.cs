@@ -494,6 +494,45 @@ namespace QueueWrapper
             }
         }
 
+        internal bool HealthCheck(RabbitConfigurationData configuration)
+        {
+            bool result = false;
+            int retryCount = 0;
+
+            while (retryCount < this.failCounterLimit && !result)
+            {
+                try
+                {
+                    bool instanecExists = false;
+                    IConnection connection;
+                    instanecExists = this.GetInstance(configuration, QueueAction.Publish, ref retryCount, out connection);
+
+                    if (connection != null && instanecExists)
+                    {
+                        IModel model = null;
+
+                        model = this.GetModel(configuration.Host, connection);
+
+                        if (model == null)
+                        {
+                            log.Error($"Could not get model when doing health check to host {configuration.Host} on retry number {retryCount}");
+                            retryCount++;
+                        }
+                        else
+                        {
+                            result = true;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Error when doing health check to host {configuration.Host}, ex = {ex}");
+                }
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Private Methods

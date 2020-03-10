@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using QueueWrapper;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,7 +12,17 @@ namespace HealthCheck
     {
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(HealthCheckResult.Healthy("RabbitMQ is healthy"));
+            RabbitQueue queue = new RabbitQueue();
+            bool isHealthy = queue.HealthCheck();
+
+            if (isHealthy)
+            {
+                return Task.FromResult(HealthCheckResult.Healthy("RabbitMQ is healthy"));
+            }
+            else
+            {
+                return Task.FromResult(HealthCheckResult.Unhealthy("RabbitMQ is unhealthy"));
+            }
         }
     }
 }

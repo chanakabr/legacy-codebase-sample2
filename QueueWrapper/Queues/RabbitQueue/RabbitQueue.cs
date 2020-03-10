@@ -207,6 +207,24 @@ namespace QueueWrapper
             return false;
         }
 
+        public virtual bool HealthCheck()
+        {
+            bool result = false;
+
+            try
+            {
+                RabbitConfigurationData configurationData = CreateRabbitConfigurationData();
+
+                result = RabbitConnection.Instance.HealthCheck(configurationData);
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+
+            return result;
+        }
+
         private void ReadRabbitParameters()
         {
             hostName = ApplicationConfiguration.Current.RabbitConfiguration.Default.HostName.Value;
