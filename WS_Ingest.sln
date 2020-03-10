@@ -115,6 +115,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ingest.Common", "IngestComm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Middleware", "..\Core\Core.Middleware\Core.Middleware.csproj", "{5BB57D83-5289-49D8-A2C7-2B6D635A5D29}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck", "..\Core\HealthCheck\HealthCheck.csproj", "{E7F9AC38-315A-4A19-B810-6D26C2D17211}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -507,6 +509,14 @@ Global
 		{5BB57D83-5289-49D8-A2C7-2B6D635A5D29}.Local|Any CPU.Build.0 = Debug|Any CPU
 		{5BB57D83-5289-49D8-A2C7-2B6D635A5D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BB57D83-5289-49D8-A2C7-2B6D635A5D29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7F9AC38-315A-4A19-B810-6D26C2D17211}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7F9AC38-315A-4A19-B810-6D26C2D17211}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{E7F9AC38-315A-4A19-B810-6D26C2D17211}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7F9AC38-315A-4A19-B810-6D26C2D17211}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7F9AC38-315A-4A19-B810-6D26C2D17211}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7F9AC38-315A-4A19-B810-6D26C2D17211}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{E7F9AC38-315A-4A19-B810-6D26C2D17211}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7F9AC38-315A-4A19-B810-6D26C2D17211}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -557,6 +567,7 @@ Global
 		{DCBF813F-A7E7-44AD-BA60-1127F5E709FA} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
 		{5BB57D83-5289-49D8-A2C7-2B6D635A5D29} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
+		{E7F9AC38-315A-4A19-B810-6D26C2D17211} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AEAD6934-E9AC-43F3-A1C5-2A0E43A479C6}

@@ -12,6 +12,8 @@ using Ingest;
 using System.ServiceModel;
 using Core.Middleware;
 using System.Reflection;
+using HealthCheck;
+using ConfigurationManager;
 
 namespace IngetsNetCore
 {
@@ -21,6 +23,11 @@ namespace IngetsNetCore
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            var tcmHealthCheckDefinitions = ApplicationConfiguration.Current.HealthCheckConfiguration.Value;
+            List<HealthCheck.HealthCheckDefinition> healthCheckDefinitions = tcmHealthCheckDefinitions.Select(defintion =>
+                new HealthCheck.HealthCheckDefinition(defintion)).ToList();
+
+            services.AddHealthCheckService(healthCheckDefinitions);
             services.AddHttpContextAccessor();
             services.AddStaticHttpContextAccessor();
             services.TryAddSingleton<IService, IngestService>();            
@@ -30,6 +37,8 @@ namespace IngetsNetCore
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseHealthCheck("/health");
+
             // see explanation inside class regarding BOM
             app.UseBomKiller();
 			app.UseKloggerSessionIdBuilder();
