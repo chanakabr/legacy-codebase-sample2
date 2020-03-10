@@ -230,24 +230,24 @@ namespace Phoenix.Rest.Middleware
 
             routeData.UrlParams = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
             // in case url contains params
-            if (urlSegments.Length > 4)
-            {
-                string key = string.Empty;
-                // url params starts after action, so we start on i = 5
-                for (int i = 5; i < urlSegments.Length; i++)
-                {
-                    if (i % 2 == 0)
-                    {
-                        key = urlSegments.ElementAtOrDefault(i);
-                    }
-                    else if (!routeData.UrlParams.ContainsKey(key))
-                    {
-                        routeData.UrlParams.Add(key, urlSegments.ElementAtOrDefault(i));
-                    }
-                }
+            if (urlSegments.Length <= 4) return isRoutDataFoundInUrl;
 
-                routeData.PathData = string.Join('/', urlSegments.Skip(5));
+            string parameterKey = string.Empty;
+            // url params starts after action, so we start on i = 5
+            for (int i = 5; i < urlSegments.Length; i++)
+            {
+                /*odd numbers are the keys*/
+                if (i % 2 ==1)
+                {
+                    parameterKey = urlSegments.ElementAtOrDefault(i);
+                }
+                else if (!routeData.UrlParams.ContainsKey(parameterKey))
+                {
+                    routeData.UrlParams.Add(parameterKey, urlSegments.ElementAtOrDefault(i));
+                }
             }
+
+            routeData.PathData = string.Join('/', urlSegments.Skip(5));
 
             return isRoutDataFoundInUrl;
         }
