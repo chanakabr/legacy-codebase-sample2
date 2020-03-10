@@ -508,6 +508,11 @@ namespace Core.Catalog.Handlers
                 return response;
             }
 
+            if (categoryItem.ParentId > 0)
+            {
+                log.DebugFormat("Tree for not root item");
+            }
+
             categoryTree = BuildCategoryTree(groupId, categoryItem);
 
             if (categoryItem?.ChildrenIds?.Count > 0)
