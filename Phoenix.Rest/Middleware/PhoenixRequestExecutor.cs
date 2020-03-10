@@ -45,6 +45,8 @@ namespace Phoenix.Rest.Middleware
                 : await _ServiceController.Action(phoenixContext.RouteData.Service, phoenixContext.RouteData.Action);
 
             phoenixContext.Response = response;
+            PhoenixResponseContext phoenixResponseContext = new PhoenixResponseContext() { StatusCode = context.Response.StatusCode };
+            context.Items[PhoenixResponseContext.PHOENIX_RESPONSE_CONTEXT_KEY] = phoenixResponseContext;
 
             context.Response.OnStarting(HandleResponse, context);
 
@@ -55,8 +57,9 @@ namespace Phoenix.Rest.Middleware
         {
             var context = ctx as HttpContext;
             var phoenixContext = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
+            var phoenixResponseContext = context.Items[PhoenixResponseContext.PHOENIX_RESPONSE_CONTEXT_KEY] as PhoenixResponseContext;
             // These should never happen at this point, but better be safe than sorry
-            if (phoenixContext == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
+            if (phoenixContext == null || phoenixResponseContext == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
             if (context == null) throw new SystemException("HttpContext lost");
 
             var wrappedResponse = new StatusWrapper
@@ -69,7 +72,7 @@ namespace Phoenix.Rest.Middleware
             var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), phoenixContext.Format);
 
             context.Response.ContentType = formatter.AcceptContentTypes[0];
-            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            context.Response.StatusCode = phoenixResponseContext.StatusCode;
 
             try
             {
