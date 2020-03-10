@@ -275,10 +275,12 @@ namespace WebAPI.App_Start
                 }
                 catch (ApiException ex)
                 {
+                    log.Error($"An ApiException was occurred in ExcelFormatter.WriteToStreamAsync. value: {JsonConvert.SerializeObject(value)}, details:{ex.ToString()}.");
                     value = CreateStatusWrapper(ex, value);
                 }
                 catch (Exception ex)
                 {
+                    log.Error($"An Exception was occurred in ExcelFormatter.WriteToStreamAsync. value: {JsonConvert.SerializeObject(value)}, details:{ex.ToString()}.");
                     var apiException = new ApiException(ex, HttpStatusCode.InternalServerError);
                     value = CreateStatusWrapper(apiException, value);
                 }
@@ -289,10 +291,13 @@ namespace WebAPI.App_Start
                 HttpContext.Current.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
 
+            var serializedValue = JsonConvert.SerializeObject(value);
+            log.Debug($"ExcelFormatter.WriteToStreamAsync invalid value is: {serializedValue}.");
+
             using (var streamWriter = new StreamWriter(writeStream))
             {
                 HttpContext.Current.Response.ContentType = "application/json";
-                streamWriter.Write(JsonConvert.SerializeObject(value));
+                streamWriter.Write(serializedValue);
                 return Task.FromResult(writeStream);
             }
         }
