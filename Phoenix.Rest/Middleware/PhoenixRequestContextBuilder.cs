@@ -98,7 +98,7 @@ namespace Phoenix.Rest.Middleware
             {
 
 
-                _PhoenixContext.Ks = ks as KS;
+                _PhoenixContext.Ks = KS.ParseKS(ks as string);
             }
 
             if (context.Items.TryGetValue(RequestContextUtils.REQUEST_VERSION, out var version))
@@ -148,7 +148,7 @@ namespace Phoenix.Rest.Middleware
                 var bodyParsedActionParams = await GetActionParamsFromPostBody(request, context);
                 bodyParsedActionParams.ToList().ForEach(bodyParam => parsedActionParams[bodyParam.Key]= bodyParam.Value);
             }
-            else if (httpMethod == HttpMethods.Get && !string.IsNullOrEmpty(context.RouteData.PathData))
+            else if (httpMethod == HttpMethods.Get && context.RouteData.UrlParams != null)
             {
                 parsedActionParams = context.RouteData.UrlParams;
             }
