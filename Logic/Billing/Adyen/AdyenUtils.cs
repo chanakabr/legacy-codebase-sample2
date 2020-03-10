@@ -104,13 +104,6 @@ namespace Core.Billing
             }
         }
 
-        public static void GetTvinciWSCredentials(ref string userName, ref string password, ref string merchAccount)
-        {
-            userName = ApplicationConfiguration.Current.AdyenWSUser.Value;
-            password = ApplicationConfiguration.Current.AdyenWSPass.Value;
-            merchAccount = ApplicationConfiguration.Current.AdyenWSMerchAccount.Value;
-        }
-
         public static void SendAdyenPurchaseMail(int nGroupID, string sCustomData, double dChargePrice, string sCurrencyCode, string sPaymentMethod, string sSiteGuid,
             long lBillingTransactionID, string sPSPReference, bool isFail)
         {

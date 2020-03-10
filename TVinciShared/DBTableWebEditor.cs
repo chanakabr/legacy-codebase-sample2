@@ -1345,7 +1345,6 @@ namespace TVinciShared
                         {
                             sVal = PageUtils.ReWriteTableValue(sVal);
                         }
-
                         sTable.Append("<td ");
                         if (sVal.Length < 22)
                             sTable.Append(" nowrap=\"nowrap\" ");
@@ -1667,7 +1666,7 @@ namespace TVinciShared
             return sTable;
         }
 
-        #if NETFRAMEWORK
+#if NETFRAMEWORK
         public string OpenCSV()
         {
             if (m_theDataTable == null)
@@ -1683,7 +1682,6 @@ namespace TVinciShared
             }
 
             GridView gv = new GridView();
-
             gv.DataSource = m_theDataTable;
             gv.DataBind();
             HttpContext.Current.Response.Clear();
@@ -1703,7 +1701,7 @@ namespace TVinciShared
             HttpContext.Current.Response.End();
             return "";
         }
-        #endif
+#endif
 
         public DataTable GetDT()
         {
