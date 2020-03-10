@@ -9544,7 +9544,7 @@ namespace Core.Api
                         },
                         m_sSignature = catalogSignature,
                         m_sSignString = catalogSignString,
-                        m_nPageIndex = 0,
+                        m_nPageIndex = pageIndex,
                         m_nPageSize = pageSize,
                         m_sUserIP = UserIP,
                         filterQuery = filter,
