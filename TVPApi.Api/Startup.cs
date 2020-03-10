@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TVPApi.Web.Middleware;
 using Core.Middleware;
 using System.Reflection;
+using HealthCheck;
 
 namespace TVPApi.Web
 {
@@ -27,11 +28,19 @@ namespace TVPApi.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.ConfigureTvpapi();
+            var tcmHealthCheckDefinitions = ApplicationConfiguration.Current.HealthCheckConfiguration.Value;
+            List<HealthCheck.HealthCheckDefinition> healthCheckDefinitions = tcmHealthCheckDefinitions.Select(defintion =>
+                new HealthCheck.HealthCheckDefinition(defintion)).ToList();
+
+            services.AddHealthCheckService(healthCheckDefinitions);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.SignatureKey.Value;
+
+            app.UseHealthCheck("/health");
+
             app.MapEndpoint("Gateways/JsonPostGW.aspx", apiApp =>
             {
                 apiApp.UseTvpApi();
