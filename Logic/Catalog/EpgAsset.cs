@@ -122,27 +122,30 @@ namespace Core.Catalog
 
         private void SetTagValuesTranslations(Dictionary<string, List<List<LanguageContainer>>> tagsToSet, EpgCB epgCb)
         {
-            var onlyTagsWithTranslationValues = epgCb.Tags.Where(t => t.Value?.Any() == true);
-            foreach (var translationTag in onlyTagsWithTranslationValues)
+            if (epgCb.Tags?.Count > 0)
             {
-                var tagValuesDefaultLanaguage = translationTag.Value.Select(tagTranslationValue => new LanguageContainer(epgCb.Language, tagTranslationValue)).ToList();
-                if (tagsToSet.ContainsKey(translationTag.Key))
+                var onlyTagsWithTranslationValues = epgCb.Tags.Where(t => t.Value?.Any() == true);
+                foreach (var translationTag in onlyTagsWithTranslationValues)
                 {
-                    for (int i = 0; i < tagValuesDefaultLanaguage.Count; i++)
+                    var tagValuesDefaultLanaguage = translationTag.Value.Select(tagTranslationValue => new LanguageContainer(epgCb.Language, tagTranslationValue)).ToList();
+                    if (tagsToSet.ContainsKey(translationTag.Key))
                     {
-                        if (tagsToSet[translationTag.Key].Count > i)
+                        for (int i = 0; i < tagValuesDefaultLanaguage.Count; i++)
                         {
-                            tagsToSet[translationTag.Key][i].Add(tagValuesDefaultLanaguage[i]);
-                        }
-                        else
-                        {
-                            _Logger.Warn($"Missing default language value of tag:[{translationTag.Key}], translation value:[{translationTag.Value}], asset:[{Id}]");
+                            if (tagsToSet[translationTag.Key].Count > i)
+                            {
+                                tagsToSet[translationTag.Key][i].Add(tagValuesDefaultLanaguage[i]);
+                            }
+                            else
+                            {
+                                _Logger.Warn($"Missing default language value of tag:[{translationTag.Key}], translation value:[{translationTag.Value}], asset:[{Id}]");
+                            }
                         }
                     }
-                }
-                else
-                {
-                    _Logger.Warn($"Missing default language tag:[{translationTag.Key}], asset:[{Id}]");
+                    else
+                    {
+                        _Logger.Warn($"Missing default language tag:[{translationTag.Key}], asset:[{Id}]");
+                    }
                 }
             }
         }
@@ -150,14 +153,17 @@ namespace Core.Catalog
         private static Dictionary<string, List<List<LanguageContainer>>> BuildTagsForDefaultLanguageDocument(EpgCB defaultEpgCB)
         {
             var tagsToSet = new Dictionary<string, List<List<LanguageContainer>>>();
-            var onlyTagsWithValues = defaultEpgCB.Tags.Where(t => t.Value?.Any() == true);
-            foreach (var tag in onlyTagsWithValues)
+            if (defaultEpgCB.Tags?.Count > 0)
             {
-                tagsToSet[tag.Key] = new List<List<LanguageContainer>>();
-                var tagValuesDefaultLanaguage = tag.Value.Select(tagValue => new LanguageContainer(defaultEpgCB.Language, tagValue)).ToList();
-                foreach (var tagValueDefaultLang in tagValuesDefaultLanaguage)
+                var onlyTagsWithValues = defaultEpgCB.Tags.Where(t => t.Value?.Any() == true);
+                foreach (var tag in onlyTagsWithValues)
                 {
-                    tagsToSet[tag.Key].Add(new List<LanguageContainer>() { tagValueDefaultLang });
+                    tagsToSet[tag.Key] = new List<List<LanguageContainer>>();
+                    var tagValuesDefaultLanaguage = tag.Value.Select(tagValue => new LanguageContainer(defaultEpgCB.Language, tagValue)).ToList();
+                    foreach (var tagValueDefaultLang in tagValuesDefaultLanaguage)
+                    {
+                        tagsToSet[tag.Key].Add(new List<LanguageContainer>() { tagValueDefaultLang });
+                    }
                 }
             }
 
