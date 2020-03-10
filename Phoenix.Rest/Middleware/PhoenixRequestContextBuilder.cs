@@ -236,7 +236,7 @@ namespace Phoenix.Rest.Middleware
                 // url params starts after action, so we start on i = 5
                 for (int i = 5; i < urlSegments.Length; i++)
                 {
-                    if (i % 2 != 0)
+                    if (i % 2 == 0)
                     {
                         key = urlSegments.ElementAtOrDefault(i);
                     }
