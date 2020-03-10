@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -56,42 +58,34 @@ namespace HealthCheck
         {
             context.Response.ContentType = "application/json; charset=utf-8";
 
-            var options = new JsonWriterOptions
-            {
-                Indented = true
-            };
+            var jsonResponse = new JObject();
 
-            using (var stream = new MemoryStream())
+            var unHealthyComponents = new JArray();
+            var degradedComponents = new JArray();
+
+            jsonResponse["status"] = result.Status.ToString();
+
+            foreach (var entry in result.Entries)
             {
-                using (var writer = new Utf8JsonWriter(stream, options))
+                switch (entry.Value.Status)
                 {
-                    writer.WriteStartObject();
-                    writer.WriteString("status", result.Status.ToString());
-                    writer.WriteStartObject("results");
-                    foreach (var entry in result.Entries)
-                    {
-                        writer.WriteStartObject(entry.Key);
-                        writer.WriteString("status", entry.Value.Status.ToString());
-                        writer.WriteString("description", entry.Value.Description);
-                        writer.WriteStartObject("data");
-                        foreach (var item in entry.Value.Data)
-                        {
-                            writer.WritePropertyName(item.Key);
-                            JsonSerializer.Serialize(
-                                writer, item.Value, item.Value?.GetType() ??
-                                typeof(object));
-                        }
-                        writer.WriteEndObject();
-                        writer.WriteEndObject();
-                    }
-                    writer.WriteEndObject();
-                    writer.WriteEndObject();
+                    case HealthStatus.Unhealthy:
+                        unHealthyComponents.Add(entry.Key);
+                        break;
+                    case HealthStatus.Degraded:
+                        degradedComponents.Add(entry.Key);
+                        break;
+                    case HealthStatus.Healthy:
+                        break;
+                    default:
+                        break;
                 }
-
-                var json = Encoding.UTF8.GetString(stream.ToArray());
-
-                return context.Response.WriteAsync(json);
             }
+
+            jsonResponse["unhealthy"] = unHealthyComponents;
+            jsonResponse["degraded"] = degradedComponents;
+
+            return context.Response.WriteAsync(jsonResponse.ToString());
         }
     }
 }
