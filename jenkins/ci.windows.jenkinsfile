@@ -111,9 +111,12 @@ pipeline {
                                 + " -p:OutDir=\"${WORKSPACE}\\published\\permissions\\"
                         )
 
-                        dir("${WORKSPACE}/published/permissions"){
-                            bat("PermissionsDeployment.exe e=permissions.xml")
-                        }
+
+                        // Cant build permission in 5_2_6 in new jenkins as it will read wrong permissions from the DB
+                        // This is not the right way to build this
+                        // dir("${WORKSPACE}/published/permissions"){
+                        //     bat("PermissionsDeployment.exe e=permissions.xml")
+                        // }
                     }
                 }
             }        
