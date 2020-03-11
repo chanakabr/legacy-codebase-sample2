@@ -5,6 +5,8 @@ pipeline {
     options {
         buildDiscarder(logRotator(numToKeepStr:'50'))
         skipDefaultCheckout true
+        disableConcurrentBuilds()
+        quietPeriod(50)
     }
     environment {
         MSBUILD = tool name: 'default', type: 'hudson.plugins.msbuild.MsBuildInstallation'
