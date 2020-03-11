@@ -10,9 +10,11 @@ namespace Validator
 {
     public class KalturaControllerDetails
     {
+        public Type ServiceType { get; set; }
         public string ServiceId { get; set; }
         public List<KalturaActionDetails> Actions { get; set; }
         public bool IsCrudController { get; set; }
+        public bool IsAbstract { get; set; }
 
         public KalturaControllerDetails()
         {
@@ -23,7 +25,8 @@ namespace Validator
     public class KalturaActionDetails
     {
         public bool IsGenericMethod { get; set; }
-        public string Name { get; set; }
+        public string LoweredName { get; set; }
+        public string RealName { get; set; }
         public string Description { get; set; }
         public bool IsDeprecated { get; set; }
         public bool IsSessionRequired { get; set; }
@@ -43,11 +46,13 @@ namespace Validator
 
     public class KalturaPrameterDetails
     {
+        public Type ParameterType { get; set; }
         public string Name { get; set; }
         public Dictionary<string, string> ParameterTypes { get; set; }
         public bool IsOptional { get; set; }
         public string DefaultValue { get; set; }
         public string Description { get; set; }
+        public int Position { get; set; }
 
         public KalturaPrameterDetails()
         {

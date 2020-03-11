@@ -98,7 +98,7 @@ namespace Phoenix.Rest.Middleware
             {
 
 
-                _PhoenixContext.Ks = ks as KS;
+                _PhoenixContext.Ks = KS.ParseKS(ks as string);
             }
 
             if (context.Items.TryGetValue(RequestContextUtils.REQUEST_VERSION, out var version))
@@ -147,6 +147,10 @@ namespace Phoenix.Rest.Middleware
             {
                 var bodyParsedActionParams = await GetActionParamsFromPostBody(request, context);
                 bodyParsedActionParams.ToList().ForEach(bodyParam => parsedActionParams[bodyParam.Key]= bodyParam.Value);
+            }
+            else if (httpMethod == HttpMethods.Get && context.RouteData.UrlParams != null)
+            {
+                parsedActionParams = context.RouteData.UrlParams;
             }
 
             return new Dictionary<string, object>(parsedActionParams, StringComparer.OrdinalIgnoreCase);
@@ -224,7 +228,26 @@ namespace Phoenix.Rest.Middleware
                 routeData.Action = urlSegments.ElementAtOrDefault(4);
             }
 
-            routeData.PathData = string.Join('/', urlSegments.Skip(4));
+            routeData.UrlParams = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+            // in case url contains params
+            if (urlSegments.Length <= 4) return isRoutDataFoundInUrl;
+
+            string parameterKey = string.Empty;
+            // url params starts after action, so we start on i = 5
+            for (int i = 5; i < urlSegments.Length; i++)
+            {
+                /*odd numbers are the keys*/
+                if (i % 2 ==1)
+                {
+                    parameterKey = urlSegments.ElementAtOrDefault(i);
+                }
+                else if (!routeData.UrlParams.ContainsKey(parameterKey))
+                {
+                    routeData.UrlParams.Add(parameterKey, urlSegments.ElementAtOrDefault(i));
+                }
+            }
+
+            routeData.PathData = string.Join('/', urlSegments.Skip(5));
 
             return isRoutDataFoundInUrl;
         }

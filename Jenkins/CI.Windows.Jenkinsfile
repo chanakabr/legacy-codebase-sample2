@@ -13,6 +13,7 @@ pipeline {
         string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch')
         booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
         booleanParam(name: 'publish', defaultValue: false, description: 'Publush api client libs ?')
+        string(name: 'client_generator_branch', defaultValue: 'Orion-15.19.0', description: 'client_generator_branch')
     }
     stages {
         stage("Checkout"){
@@ -28,6 +29,7 @@ pipeline {
                         def defaultGeneratorBranch = sh(label:"Get Default Branch From Github", script: getDefaultBranchCmd, , returnStdout: true).trim()
                         echo("Identified default clients-generator branch as: [${defaultGeneratorBranch}]")
                         dir('clients-generator'){ git(url: 'https://github.com/kaltura/clients-generator.git', branch:"${defaultGeneratorBranch}", credentialsId: "github-ott-ci-cd") }
+                        echo "Using branch ${defaultGeneratorBranch} for client-generator!!"
                     }
                 }
             }
@@ -77,6 +79,8 @@ pipeline {
                     dir("bin/Release/netcoreapp3.1"){
                         bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
                         bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
+                        sh (label:"upload to s3", script:"aws s3 cp KalturaClient.xml s3://clientlibs/${BRANCH_NAME}/kalturaxml/")
+
                     }
                 }
             }
