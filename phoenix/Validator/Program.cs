@@ -16,6 +16,9 @@ namespace Validator
         {
             bool valid = SchemeManager.Validate();
 
+            // We can no longer validate tcm in new jenkins its an Single Version tcm
+            //valid &= ApplicationConfiguration.Validate();
+
             Console.Read();
 
             if (valid)
