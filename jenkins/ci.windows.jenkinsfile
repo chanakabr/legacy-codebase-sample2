@@ -170,7 +170,10 @@ pipeline {
                         [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
                     ]
                 )
-                component = "${env_JOB_NAME}"
+                script {
+                    component = "${env_JOB_NAME}"
+
+                }
             }
         }
     }
