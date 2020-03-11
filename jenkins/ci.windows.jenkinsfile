@@ -21,7 +21,8 @@ pipeline {
         }
         stage("Checkout"){
             steps{
-                // cleanWs()
+                cleanWs()
+                checkout scm
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 // dir('ott-backend'){ git(url: 'https://github.com/kaltura/ott-backend', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
 
@@ -38,7 +39,7 @@ pipeline {
         stage("Version Patch"){
             steps{
                     dir("Core"){ 
-                        // bat "sh DllVersioning.Core.sh ." 
+                        bat "sh DllVersioning.Core.sh ." 
                     }
                     dir("phoenix"){ 
                         bat "sh ../Core/DllVersioning.Core.sh ." 
