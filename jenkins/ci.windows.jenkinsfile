@@ -3,7 +3,7 @@ pipeline {
         label 'Windows'
     }
     options {
-        buildDiscarder(logRotator(numToKeepStr:'10'))
+        buildDiscarder(logRotator(numToKeepStr:'50'))
         skipDefaultCheckout true
     }
     environment {
@@ -21,47 +21,28 @@ pipeline {
         }
         stage("Checkout"){
             steps{
-                cleanWs()
-                checkout scm
+                //cleanWs()
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
-                // dir('ott-backend'){ git(url: 'https://github.com/kaltura/ott-backend', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                git(url: 'https://github.com/kaltura/ott-backend', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
 
-                script{
-                    withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
-                        def getDefaultBranchCmd = "curl --silent -i ott-ci-cd:${TOKEN} https://api.github.com/repos/kaltura/clients-generator | grep 'default_branch' | cut -f4 -d'\"'"
-                        def defaultGeneratorBranch = sh(label:"Get Default Branch From Github", script: getDefaultBranchCmd, , returnStdout: true).trim()
-                        echo("Identified default clients-generator branch as: [${defaultGeneratorBranch}]")
-                        dir('clients-generator'){ git(url: 'https://github.com/kaltura/clients-generator.git', branch:"${defaultGeneratorBranch}", credentialsId: "github-ott-ci-cd") }
-                    }
-                }
+                // script{
+                //     withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
+                //         def getDefaultBranchCmd = "curl --silent -i ott-ci-cd:${TOKEN} https://api.github.com/repos/kaltura/clients-generator | grep 'default_branch' | cut -f4 -d'\"'"
+                //         def defaultGeneratorBranch = sh(label:"Get Default Branch From Github", script: getDefaultBranchCmd, , returnStdout: true).trim()
+                //         echo("Identified default clients-generator branch as: [${defaultGeneratorBranch}]")
+                //         dir('clients-generator'){ git(url: 'https://github.com/kaltura/clients-generator.git', branch:"${defaultGeneratorBranch}", credentialsId: "github-ott-ci-cd") }
+                //     }
+                // }
             }
         }
         stage("Version Patch"){
             steps{
-                    dir("Core"){ 
-                        bat "sh DllVersioning.Core.sh ."
-                        powershell "DllVersioning.ps1 ." 
-                    }
-                    dir("phoenix"){ 
-                        bat "sh ../Core/DllVersioning.Core.sh ." 
-                        powershell "../Core/DllVersioning.ps1 ."
-                    }
-                    dir("RemoteTasks") { 
-                        bat "sh ../Core/DllVersioning.Core.sh ."
-                        powershell "../Core/DllVersioning.ps1 ."
-                    }
-                    dir("tvpapi") { 
-                        bat "sh ../Core/DllVersioning.Core.sh ."
-                        powershell "../Core/DllVersioning.ps1 ."
-                    }
-                    dir("WS_Ingest") { 
-                        bat "sh ../Core/DllVersioning.Core.sh ."
-                        powershell "../Core/DllVersioning.ps1 ."
-                    }
-                    dir("tvmapps") { 
-                        bat "sh ../Core/DllVersioning.Core.sh ."
-                        powershell "../Core/DllVersioning.ps1 ."
-                    }
+                    dir("Core"){ bat "sh DllVersioning.Core.sh ." }
+                    dir("phoenix"){ bat "sh ../Core/DllVersioning.Core.sh ." }
+                    dir("RemoteTasks") { bat "sh ../Core/DllVersioning.Core.sh ."}
+                    dir("tvpapi") { bat "sh ../Core/DllVersioning.Core.sh ."}
+                    dir("WS_Ingest") { bat "sh ../Core/DllVersioning.Core.sh ."}
+                    dir("tvmapps") { bat "sh ../Core/DllVersioning.Core.sh ."}
             }        
         }
         stage("Nuget Restore"){
@@ -204,7 +185,7 @@ def buildMsProject(projectFilePath, outputPath){
             + " -p:DeleteExistingFiles=True"
             + " -p:publishUrl=\"${WORKSPACE}/${outputPath}"
     )
-
+                
 }
 
 def report(){
