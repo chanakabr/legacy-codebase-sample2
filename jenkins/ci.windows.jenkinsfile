@@ -39,22 +39,28 @@ pipeline {
         stage("Version Patch"){
             steps{
                     dir("Core"){ 
-                        bat "sh DllVersioning.Core.sh ." 
+                        bat "sh DllVersioning.Core.sh ."
+                        powershell "DllVersioning.ps1 ." 
                     }
                     dir("phoenix"){ 
                         bat "sh ../Core/DllVersioning.Core.sh ." 
+                        powershell "../Core/DllVersioning.ps1 ."
                     }
                     dir("RemoteTasks") { 
                         bat "sh ../Core/DllVersioning.Core.sh ."
+                        powershell "../Core/DllVersioning.ps1 ."
                     }
                     dir("tvpapi") { 
                         bat "sh ../Core/DllVersioning.Core.sh ."
+                        powershell "../Core/DllVersioning.ps1 ."
                     }
                     dir("WS_Ingest") { 
                         bat "sh ../Core/DllVersioning.Core.sh ."
+                        powershell "../Core/DllVersioning.ps1 ."
                     }
                     dir("tvmapps") { 
                         bat "sh ../Core/DllVersioning.Core.sh ."
+                        powershell "../Core/DllVersioning.ps1 ."
                     }
             }        
         }
