@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" Inherits="clear_cache" Codebehind="clear_cache.aspx.cs" %>

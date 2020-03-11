@@ -1,0 +1,120 @@
+﻿using System;
+using System.Collections;
+using System.Configuration;
+using System.Data;
+using System.Linq;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.HtmlControls;
+using System.Web.UI.WebControls;
+using System.Web.UI.WebControls.WebParts;
+using System.Xml.Linq;
+using TVinciShared;
+
+public partial class adm_finance_config_affiliates_new : System.Web.UI.Page
+{
+    protected string m_sMenu;
+    protected string m_sSubMenu;
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (AMS.Web.RemoteScripting.InvokeMethod(this))
+            return;
+        if (LoginManager.CheckLogin() == false)
+            Response.Redirect("login.html");
+        Int32 nMenuID = 0;
+        if (!IsPostBack)
+        {
+            m_sMenu = TVinciShared.Menu.GetMainMenu(2, true, ref nMenuID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
+            if (Request.QueryString["fr_entity_id"] != null &&
+                Request.QueryString["fr_entity_id"].ToString() != "")
+            {
+                Session["fr_entity_id"] = int.Parse(Request.QueryString["fr_entity_id"].ToString());
+
+                Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("fr_financial_entities", "group_id", int.Parse(Session["fr_entity_id"].ToString())).ToString());
+                Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+                if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
+                {
+                    LoginManager.LogoutFromSite("login.html");
+                    return;
+                }
+            }
+            else
+                Session["fr_entity_id"] = 0;
+
+            if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
+                DBManipulator.DoTheWork();
+        }
+    }
+
+    protected void GetMainMenu()
+    {
+        Response.Write(m_sMenu);
+    }
+
+    public void GetHeader()
+    {
+        string sRet = PageUtils.GetPreHeader() + ": Affiliate";
+        
+        if (Session["fr_entity_id"] != null && Session["fr_entity_id"].ToString() != "" && Session["fr_entity_id"].ToString() != "0")
+            sRet += " - Edit";
+        else
+            sRet += " - New";
+        Response.Write(sRet);
+    }
+
+    protected void GetSubMenu()
+    {
+        Response.Write(m_sSubMenu);
+    }
+
+    public string GetPageContent(string sOrderBy, string sPageNum)
+    {
+        if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
+        {
+            Session["error_msg"] = "";
+            return Session["last_page_html"].ToString();
+        }
+        object t = null; ;
+        if (Session["fr_entity_id"] != null && Session["fr_entity_id"].ToString() != "" && int.Parse(Session["fr_entity_id"].ToString()) != 0)
+            t = Session["fr_entity_id"];
+        string sBack = "adm_finance_config_affiliates.aspx?search_save=1";
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("fr_financial_entities", "adm_table_pager", sBack, "", "ID", t, sBack, "");
+
+        DataRecordShortTextField dr_d = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_d.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
+        theRecord.AddRecord(dr_d);
+
+        DataRecordShortTextField dr_pixel_reg = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_pixel_reg.Initialize("Registration Pixel", "adm_table_header_nbg", "FormInput", "PIXLE_REG", false);
+        theRecord.AddRecord(dr_pixel_reg);
+
+        DataRecordShortTextField dr_pixel_ppv = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_pixel_ppv.Initialize("PPV Pixel", "adm_table_header_nbg", "FormInput", "PIXLE_PPV_PURCHASE", false);
+        theRecord.AddRecord(dr_pixel_ppv);
+
+        DataRecordShortTextField dr_pixel_sub = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_pixel_sub.Initialize("Subscription Pixel", "adm_table_header_nbg", "FormInput", "PIXLE_SUB_PURCHASE", false);
+        theRecord.AddRecord(dr_pixel_sub);
+
+        DataRecordLongTextField dr_description = new DataRecordLongTextField("ltr", true, 60, 4);
+        dr_description.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", false);
+        theRecord.AddRecord(dr_description);
+
+        DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+        dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+        theRecord.AddRecord(dr_groups);
+
+        DataRecordShortIntField dr_et = new DataRecordShortIntField(false, 9, 9);
+        dr_et.Initialize("Group", "adm_table_header_nbg", "FormInput", "ENTITY_TYPE", false);
+        dr_et.SetValue("2");
+        theRecord.AddRecord(dr_et);
+
+
+        string sTable = theRecord.GetTableHTML("adm_finance_config_affiliates_new.aspx?submited=1");
+
+        return sTable;
+    }
+}

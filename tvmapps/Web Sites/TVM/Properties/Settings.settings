@@ -1,0 +1,24 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TVM.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="TVM_WebReference1_UsersService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://192.168.192.146/webservices/users/module.asmx</Value>
+    </Setting>
+    <Setting Name="TVM_WebReference2_mdoule" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://192.168.192.146/webservices/pricing/module.asmx</Value>
+    </Setting>
+    <Setting Name="TVM_WebReference3_module" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://192.168.192.146/webservices/domains/module.asmx</Value>
+    </Setting>
+    <Setting Name="TVM_apiWS_API" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost:1026/rest/api.asmx</Value>
+    </Setting>
+    <Setting Name="TVM_Billing_module" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost:1026/rest/ws_billing_module.asmx</Value>
+    </Setting>
+    <Setting Name="TVM_ca_ws_module" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost:1026/rest/ws_cas_module.asmx</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
