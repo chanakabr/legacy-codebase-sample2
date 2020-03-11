@@ -1,0 +1,503 @@
+﻿using ApiObjects.Response;
+using System;
+using System.Linq;
+using TVinciShared;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
+using WebAPI.Managers;
+using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.Domains;
+using WebAPI.Models.Users;
+using WebAPI.Utils;
+
+
+namespace WebAPI.Controllers
+{
+    [Service("householdDevice")]
+    public class HouseholdDeviceController : IKalturaController
+    {
+        /// <summary>
+        /// Removes a device from household
+        /// </summary>        
+        /// <param name="udid">device UDID</param>
+        /// <remarks>Possible status codes: 
+        /// Device not in Household = 1003,  Household suspended = 1009, Limitation period = 1014</remarks>
+        [Action("delete")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.LimitationPeriod)]
+        [Throws(eResponseStatus.DeviceNotExists)]
+        static public bool Delete(string udid)
+        {
+            bool res = false;
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                var userRoles = RolesManager.GetRoleIds(ks);
+                if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
+                {
+                    res = ClientsManager.DomainsClient().DeleteDevice(groupId, udid);
+                }
+                else
+                {
+                    res = ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)householdId, udid);
+                }
+
+                AuthorizationManager.RevokeDeviceSessions(groupId, householdId, udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return res;
+        }
+
+        /// <summary>
+        /// Registers a device to a household using pin code    
+        /// </summary>                
+        /// <param name="deviceName">Device name</param>
+        /// <param name="pin">Pin code</param>
+        /// <remarks>Possible status codes: 
+        /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
+        [Action("addByPin")]
+        [ApiAuthorize]
+        [OldStandardArgument("deviceName", "device_name")]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.ExceededLimit)]
+        [Throws(eResponseStatus.DuplicatePin)]
+        [Throws(eResponseStatus.DeviceNotExists)]
+        static public KalturaHouseholdDevice AddByPin(string deviceName, string pin)
+        {
+            KalturaHouseholdDevice device = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (string.IsNullOrEmpty(pin))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pin");
+            }
+
+            try
+            {
+                // call client
+                device = ClientsManager.DomainsClient().RegisterDeviceByPin(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), deviceName, pin);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return device;
+        }
+
+        /// <summary>
+        /// Add device to household
+        /// </summary>                
+        /// <param name="device">Device</param>
+        /// <remarks>Possible status codes: 
+        /// Household does not exist = 1006, Household suspended = 1009, Device exists in other household = 1016 , Device already exists = 1015, No users in household = 1017</remarks>
+        [Action("add")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
+        [Throws(eResponseStatus.NoUsersInDomain)]
+        static public KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                if (HouseholdUtils.IsUserMaster())
+                {
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId);
+                }
+                else if (device.HouseholdId != 0)
+                {
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId);
+                }
+                else
+                {
+                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device.Udid, device.Name, device.getBrandId(), device.ExternalId);
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return device;
+        }
+
+        /// <summary>
+        /// Add device to household
+        /// </summary>                
+        /// <param name="device_name">Device name</param>
+        /// <param name="device_brand_id">Device brand identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <remarks>Possible status codes: 
+        /// Household does not exist = 1006, Household suspended = 1009, Device exists in other household = 1016 , Device already exists = 1015</remarks>
+        [Action("addOldStandard")]
+        [ApiAuthorize]
+        [OldStandardAction("add")]
+        [Obsolete]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
+        [Throws(eResponseStatus.NoUsersInDomain)]
+        static public KalturaHousehold AddOldStandard(string device_name, int device_brand_id, string udid)
+        {
+            KalturaHousehold household = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                household = ClientsManager.DomainsClient().AddDeviceToDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), device_name, udid, device_brand_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return household;
+        }
+
+        /// <summary>
+        /// Returns device registration status to the supplied household
+        /// </summary>
+        /// <param name="udid">device id</param>
+        /// <returns></returns><remarks>Possible status codes: 
+        /// Device does not exist = 1019, Device not in household = 1003, Device exists in other household = 1016</remarks>
+        [Action("get")]
+        [ApiAuthorize]
+        [SchemeArgument("udid", RequiresPermission = true)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [Throws(eResponseStatus.DeviceNotExists)]
+        [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
+        [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.AdapterAppFailure)]
+        static public KalturaHouseholdDevice Get(string udid = null)
+        {
+            KalturaHouseholdDevice device = null;
+
+            KS ks = KS.GetFromRequest();
+
+            int householdId = 0;
+            if (udid.IsNullOrEmptyOrWhiteSpace())
+            {
+                udid = KSUtils.ExtractKSPayload().UDID;
+                householdId = (int)HouseholdUtils.GetHouseholdIDByKS(ks.GroupId);
+            }
+
+            if (string.IsNullOrEmpty(udid))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");
+            }
+
+            try
+            {
+                // call client
+                device = ClientsManager.DomainsClient().GetDevice(ks.GroupId, householdId, udid, ks.UserId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return device;
+        }
+
+        /// <summary>
+        /// Returns device registration status to the supplied household
+        /// </summary>
+        /// <returns></returns>
+        [Action("getStatus")]
+        [ApiAuthorize]
+        [Obsolete]
+        static public KalturaDeviceRegistrationStatusHolder GetStatus(string udid = null)
+        {
+            KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (string.IsNullOrEmpty(udid))
+            {
+                udid = KSUtils.ExtractKSPayload().UDID;
+            }
+            if (string.IsNullOrEmpty(udid))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");
+            }
+
+            try
+            {
+                // call client
+                status = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return new KalturaDeviceRegistrationStatusHolder() { Status = status };
+        }
+
+        /// <summary>
+        /// Generates device pin to use when adding a device to household by pin
+        /// </summary>
+        /// <param name="brandId">Device brand identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <returns></returns>
+        [Action("generatePin")]
+        [ApiAuthorize]
+        [OldStandardArgument("brandId", "brand_id")]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        static public KalturaDevicePin GeneratePin(string udid, int brandId)
+        {
+            KalturaDevicePin devicePin = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (string.IsNullOrEmpty(udid))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");
+            }
+
+            try
+            {
+                // call client
+                devicePin = ClientsManager.DomainsClient().GetPinForDevice(groupId, udid, brandId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return devicePin;
+        }
+
+        /// <summary>
+        /// Update the name of the device by UDID
+        /// </summary>                
+        /// <param name="udid">Device UDID</param>
+        /// <param name="device">Device object</param>
+        /// <remarks>Possible status codes: 
+        /// Device not exists = 1019</remarks>
+        [Action("update")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.DeviceNotExists)]
+        static public KalturaHouseholdDevice Update(string udid, KalturaHouseholdDevice device)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // check device registration status - return forbidden if device not in domain        
+                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
+                {
+                    throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
+                }
+
+                var allowNullExternalId = device.NullableProperties != null && device.NullableProperties.Contains("externalid");
+
+                // call client
+                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.ExternalId, allowNullExternalId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Update the name of the device by UDID
+        /// </summary>                
+        /// <param name="device_name">Device name</param>
+        /// <param name="udid">Device UDID</param>
+        /// <remarks>Possible status codes: 
+        /// Device not exists = 1019</remarks>
+        [Action("updateOldStandard")]
+        [ApiAuthorize]
+        [OldStandardAction("update")]
+        [Obsolete]
+        [Throws(eResponseStatus.DeviceNotExists)]
+        static public bool UpdateOldStandard(string device_name, string udid)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // check device registration status - return forbidden if device not in domain        
+                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
+                {
+                    throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
+                }
+
+                // call client
+                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid, string.Empty);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Update the name of the device by UDID
+        /// </summary>                
+        /// <param name="udid">Device UDID</param>
+        /// <param name="status">Device status</param>
+        /// <remarks>Possible status codes: 
+        /// Limitation period = 1014, Exceeded limit = 1001 </remarks>
+        [Action("updateStatus")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.LimitationPeriod)]
+        [Throws(eResponseStatus.ExceededLimit)]
+        static public bool UpdateStatus(string udid, KalturaDeviceStatus status)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                // check device registration status - return forbidden if device not in domain        
+                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
+                {
+                    throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
+                }
+
+                if (status == KalturaDeviceStatus.PENDING)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "status", "KalturaDeviceStatus.PENDING");
+                }
+
+                // call client
+                return ClientsManager.DomainsClient().ChangeDeviceDomainStatus(groupId, householdId, udid, status);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the devices within the household
+        /// </summary>
+        /// <param name="filter">Household devices filter</param>
+        /// <returns></returns><remarks>Possible status codes:
+        /// Household does not exist = 1006, Household user failed = 1007
+        /// </remarks>
+        [Action("list")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.DeviceNotExists)]
+        static public KalturaHouseholdDeviceListResponse List(KalturaHouseholdDeviceFilter filter = null)
+        {
+            KalturaHouseholdDeviceListResponse response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                KalturaHousehold household = null;
+                if (filter == null)
+                {
+                    filter = new KalturaHouseholdDeviceFilter();
+                }
+
+                if (filter.HouseholdIdEqual.HasValue && filter.HouseholdIdEqual.Value > 0)
+                {
+                    household = ClientsManager.DomainsClient().GetDomainInfo(groupId, filter.HouseholdIdEqual.Value);
+                }
+                else
+                {
+                    household = HouseholdUtils.GetHouseholdFromRequest();
+                }
+
+                if (household == null && string.IsNullOrEmpty(filter.ExternalIdEqual))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "householdIdEqual", "externalIdEqual");
+                }
+
+                // call client
+                response = ClientsManager.DomainsClient().GetHouseholdDevices(groupId, household, filter.ConvertDeviceFamilyIdIn(), filter.ExternalIdEqual);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// User sign-in via a time-expired sign-in PIN.        
+        /// </summary>
+        /// <param name="partnerId">Partner Identifier</param>
+        /// <param name="pin">pin code</param>
+        /// <param name="secret">Additional security parameter to validate the login</param>
+        /// <param name="udid">Device UDID</param>
+        /// <remarks>Possible status codes: 
+        /// UserNotInDomain = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, NoValidPin = 2006, SecretIsWrong = 2008, 
+        /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWithNoDomain = 2024, User does not exist = 2000
+        /// </remarks>
+        [Action("loginWithPin")]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.PinNotExists)]
+        [Throws(eResponseStatus.PinExpired)]
+        [Throws(eResponseStatus.NoValidPin)]
+        [Throws(eResponseStatus.SecretIsWrong)]
+        [Throws(eResponseStatus.LoginViaPinNotAllowed)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.InsideLockTime)]
+        [Throws(eResponseStatus.UserNotActivated)]
+        [Throws(eResponseStatus.UserAllreadyLoggedIn)]
+        [Throws(eResponseStatus.UserDoubleLogIn)]
+        [Throws(eResponseStatus.DeviceNotRegistered)]
+        [Throws(eResponseStatus.ErrorOnInitUser)]
+        [Throws(eResponseStatus.UserNotMasterApproved)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.DeviceNotExists)]
+        [Throws(eResponseStatus.PinNotExists)]
+        [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.MasterUserNotFound)]
+        [Throws(eResponseStatus.NoValidPin)]
+        static public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null)
+        {
+            KalturaOTTUser response = null;
+
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().LoginWithDevicePin(partnerId, udid, pin);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaLoginResponse()
+            {
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), udid, response.GetRoleIds()),
+                User = response
+            };
+        }
+    }
+}
