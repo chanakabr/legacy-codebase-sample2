@@ -1,0 +1,73 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using keygen4Lib;
+using System.Net;
+using System.Web;
+using KLogMonitor;
+using System.Reflection;
+using System.Runtime.Caching;
+
+namespace CDNetworksVault
+{
+    public class MediaVault
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        protected string m_sPrivateKey;
+        protected string m_sUser_ID;
+        protected Int32 m_nTTl;
+        public MediaVault(string sPrivateKey, string sUser_ID, Int32 nTTl)
+        {
+            m_sPrivateKey = sPrivateKey;
+            m_sUser_ID = sUser_ID;
+            m_nTTl = nTTl;
+        }
+
+        protected string GetServerIP()
+        {
+            if (CachingManager.CachingManager.Exist("___server_ip") == true)
+            {
+                return CachingManager.CachingManager.GetCachedData("___server_ip").ToString();
+            }
+            string whatIsMyIp = "https://platform-us.tvinci.com/whatismyip.aspx?onlyip=1";
+            WebClient wc = new WebClient();
+            string response = System.Text.UTF8Encoding.UTF8.GetString(wc.DownloadData(whatIsMyIp));
+            CachingManager.CachingManager.SetCachedData("___server_ip", response, 80000, CacheItemPriority.Default, 0, true);
+            return response;
+        }
+
+        public string GetURL(string sBaseURL)
+        {
+            log.Debug("Get URL - " + sBaseURL);
+            string sIP = TVinciShared.PageUtils.GetCallerIP();
+            System.Uri u = new Uri(sBaseURL);
+            string[] sSegments = u.Segments;
+            string sPath = "";
+            string sSchema = u.Scheme;
+            string sHost = u.Host;
+            string sFileName = "";
+            for (int i = 0; i < sSegments.Length; i++)
+            {
+                string sSeg = sSegments[i];
+                if (i < sSegments.Length - 2)
+                    sPath += sSeg;
+                else
+                    sFileName += sSeg;
+            }
+            string sRtmp = sSchema + "://" + sHost + sPath;
+            string sContent_url = sRtmp + sFileName;
+            log.Debug("Get URL - Before New");
+            Ikeygen authobj = new keygen4Lib.keygen();
+            log.Debug("Get URL - After New");
+            //IPHostEntry host = Dns.Resolve(Dns.GetHostName());
+            //string sServer_ip = host.AddressList[0].ToString();
+            string sServer_ip = GetServerIP();
+            String authkey = authobj.GetCode(sContent_url, m_sUser_ID, m_nTTl.ToString(), sIP, sServer_ip, m_sPrivateKey);
+            //authkey = "$filmoadmin";
+            string sRet = sRtmp + sFileName + "?key=" + authkey;
+            return sRet;
+        }
+    }
+}

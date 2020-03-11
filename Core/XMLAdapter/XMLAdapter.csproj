@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{42FB923F-D2ED-4B68-94FD-EA8C5A86D28C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XMLAdapter</RootNamespace>
+    <AssemblyName>XMLAdapter</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
+    <OutputPath>bin\Local\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|x86'">
+    <OutputPath>bin\x86\Local\</OutputPath>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="XML_Adapter\ADI3Adapter\ADI3Adapter.cs" />
+    <Compile Include="XML_Adapter\BaseXMLAdapter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XML_Adapter\DmlAdapter\DmlAdapter.cs" />
+    <Compile Include="XML_Adapter\MCAdapter\MCAdapter.cs" />
+    <Compile Include="XML_Adapter\RoviAdapter\RoviAdapter.cs" />
+    <Compile Include="XSLT_transform_handler\ADI3_Transform\ADI3Transform.cs" />
+    <Compile Include="XSLT_transform_handler\BaseTransformHandler.cs" />
+    <Compile Include="XSLT_transform_handler\Dml_Transform\DmlTransform.cs" />
+    <Compile Include="XSLT_transform_handler\MC_transform\MCTransform.cs" />
+    <Compile Include="XSLT_transform_handler\Rovi_transform\RoviTransform.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="XSLT_Files\ADI3_transform.xsl" />
+    <Content Include="XSLT_Files\ADI3_transform_removeMedia.xsl" />
+    <Content Include="XSLT_Files\ADI3_transform_series.xsl" />
+    <Content Include="XSLT_Files\Dml_transform.xsl" />
+    <Content Include="XSLT_Files\MC_transform.xsl" />
+    <Content Include="XSLT_Files\MC_transform_series.xsl" />
+    <Content Include="XSLT_Files\MultiCategoriesToCategories.xslt" />
+    <Content Include="XSLT_Files\MultiCategoriesToChannels.xslt" />
+    <Content Include="XSLT_Files\Rovi_CMT_transform.xsl" />
+    <Content Include="XSLT_Files\Rovi_episode_transform.xsl" />
+    <Content Include="XSLT_Files\Rovi_movie_transform.xsl" />
+    <Content Include="XSLT_Files\Rovi_series_transform.xsl" />
+    <Content Include="XSLT_transform_handler\XSLT_Transforms\ADI3_transform.xsl">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="XSLT_transform_handler\XSLT_Transforms\Dml_transform.xsl">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="XML_Adapter\ADI3Adapter\Genre.xlsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{932109FA-5260-4709-BD4B-4A8D77E4CF01}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj">
+      <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
+      <Name>KLogMonitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
+      <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
+      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; powershell -NonInteractive -ExecutionPolicy Unrestricted ..\..\Core\DllVersioning.ps1 $(ProjectDir) )</PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
