@@ -1,0 +1,247 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.Users
+{
+    /// <summary>
+    /// User
+    /// </summary>
+    [DataContract(Name = "user")]
+    public partial class KalturaOTTUser : KalturaBaseOTTUser
+    {
+        /// <summary>
+        /// Household identifier
+        /// </summary>
+        [DataMember(Name = "householdId")]
+        [JsonProperty("householdId")]
+        [XmlElement(ElementName = "householdId")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("household_id")]
+        public int? HouseholdID { get; set; }
+
+        /// <summary>
+        /// Email
+        /// </summary>
+        [DataMember(Name = "email")]
+        [JsonProperty("email")]
+        [XmlElement(ElementName = "email")]
+        public string Email { get; set; }
+
+        /// <summary>
+        /// Address
+        /// </summary>
+        [DataMember(Name = "address")]
+        [JsonProperty("address")]
+        [XmlElement(ElementName = "address")]
+        public string Address { get; set; }
+
+        /// <summary>
+        /// City
+        /// </summary>
+        [DataMember(Name = "city")]
+        [JsonProperty("city")]
+        [XmlElement(ElementName = "city")]
+        public string City { get; set; }
+
+        /// <summary>
+        /// Country
+        /// </summary>
+        [DataMember(Name = "country")]
+        [JsonProperty("country")]
+        [XmlElement(ElementName = "country", IsNullable = true)]
+        [Obsolete]
+        public KalturaCountry Country { get; set; }
+
+        /// <summary>
+        /// Country identifier
+        /// </summary>
+        [DataMember(Name = "countryId")]
+        [JsonProperty("countryId")]
+        [XmlElement(ElementName = "countryId", IsNullable = true)]
+        public int? CountryId { get; set; }
+
+        /// <summary>
+        /// Zip code
+        /// </summary>
+        [DataMember(Name = "zip")]
+        [JsonProperty("zip")]
+        [XmlElement(ElementName = "zip")]
+        public string Zip { get; set; }
+
+        /// <summary>
+        /// Phone
+        /// </summary>
+        [DataMember(Name = "phone")]
+        [JsonProperty("phone")]
+        [XmlElement(ElementName = "phone")]
+        public string Phone { get; set; }
+
+        /// <summary>
+        /// Facebook identifier
+        /// </summary>
+        [DataMember(Name = "facebookId")]
+        [JsonProperty("facebookId")]
+        [XmlElement(ElementName = "facebookId")]
+        [OldStandardProperty("facebook_id")]
+        [Obsolete]
+        public string FacebookId { get; set; }
+
+        /// <summary>
+        /// Facebook image
+        /// </summary>
+        [DataMember(Name = "facebookImage")]
+        [JsonProperty("facebookImage")]
+        [XmlElement(ElementName = "facebookImage")]
+        [OldStandardProperty("facebook_image")]
+        [Obsolete]
+        public string FacebookImage { get; set; }
+
+        /// <summary>
+        /// Affiliate code
+        /// </summary>
+        [DataMember(Name = "affiliateCode")]
+        [JsonProperty("affiliateCode")]
+        [XmlElement(ElementName = "affiliateCode")]
+        [SchemeProperty(InsertOnly = true)]
+        [OldStandardProperty("affiliate_code")]
+        public string AffiliateCode { get; set; }
+
+        /// <summary>
+        /// Facebook token
+        /// </summary>
+        [DataMember(Name = "facebookToken")]
+        [JsonProperty("facebookToken")]
+        [XmlElement(ElementName = "facebookToken")]
+        [OldStandardProperty("facebook_token")]
+        [Obsolete]
+        public string FacebookToken { get; set; }
+
+        /// <summary>
+        /// External user identifier
+        /// </summary>
+        [DataMember(Name = "externalId")]
+        [JsonProperty("externalId")]
+        [XmlElement(ElementName = "externalId")]
+        [OldStandardProperty("external_id")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.UPDATE)]
+        public string ExternalId { get; set; }
+
+        /// <summary>
+        /// User type
+        /// </summary>
+        [DataMember(Name = "userType")]
+        [JsonProperty("userType")]
+        [XmlElement(ElementName = "userType", IsNullable = true)]
+        [OldStandardProperty("user_type")]
+        public KalturaOTTUserType UserType { get; set; }
+
+        /// <summary>
+        /// Dynamic data
+        /// </summary>
+        [DataMember(Name = "dynamicData")]
+        [JsonProperty("dynamicData")]
+        [XmlElement(ElementName = "dynamicData", IsNullable = true)]
+        [OldStandardProperty("dynamic_data")]
+        public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
+
+        /// <summary>
+        /// Is the user the household master
+        /// </summary>
+        [DataMember(Name = "isHouseholdMaster")]
+        [JsonProperty("isHouseholdMaster")]
+        [XmlElement(ElementName = "isHouseholdMaster")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_household_master")]
+        public bool? IsHouseholdMaster { get; set; }
+
+        /// <summary>
+        /// Suspension state
+        /// </summary>
+        [DataMember(Name = "suspentionState")]
+        [JsonProperty("suspentionState")]
+        [XmlElement(ElementName = "suspentionState")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("suspention_state")]
+        [Obsolete]
+        public KalturaHouseholdSuspentionState SuspentionState { get; set; }
+        
+        /// <summary>
+        /// Suspension state
+        /// </summary>
+        [DataMember(Name = "suspensionState")]
+        [JsonProperty("suspensionState")]
+        [XmlElement(ElementName = "suspensionState")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaHouseholdSuspensionState SuspensionState { get; set; }
+
+        /// <summary>
+        /// User state
+        /// </summary>
+        [DataMember(Name = "userState")]
+        [JsonProperty("userState")]
+        [XmlElement(ElementName = "userState")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("user_state")]
+        public KalturaUserState UserState { get; set; }
+
+        /// <summary>
+        /// Comma separated list of role Ids.
+        /// </summary>
+        [DataMember(Name = "roleIds")]
+        [JsonProperty("roleIds")]
+        [XmlElement(ElementName = "roleIds")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        public string RoleIds { get; set; }
+
+        /// <summary>
+        /// User create date
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// User last update date
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
+        /// <summary>
+        ///  The date of the last successful login 
+        /// </summary>
+        [DataMember(Name = "lastLoginDate")]
+        [JsonProperty("lastLoginDate")]
+        [XmlElement(ElementName = "lastLoginDate")]
+        [SchemeProperty(ReadOnly = true, RequiresPermission = (int)RequestType.READ)]
+        public long LastLoginDate { get; set; }
+
+        /// <summary>
+        ///  The number of failed login attempts since the last successful login 
+        /// </summary>
+        [DataMember(Name = "failedLoginCount")]
+        [JsonProperty("failedLoginCount")]
+        [XmlElement(ElementName = "failedLoginCount")]
+        [SchemeProperty(ReadOnly = true, RequiresPermission = (int)RequestType.READ)]
+        public int FailedLoginCount { get; set; }
+
+        internal int getHouseholdID()
+        {
+            return HouseholdID.HasValue ? (int) HouseholdID : 0;
+        }
+
+        internal List<long> GetRoleIds()
+        {
+            return GetItemsIn<List<long>, long>(RoleIds, "KalturaOTTUser.roleIds", true, true);
+        }
+    }
+}

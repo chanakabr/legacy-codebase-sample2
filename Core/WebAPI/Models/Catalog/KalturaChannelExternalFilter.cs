@@ -1,0 +1,37 @@
+﻿using Newtonsoft.Json;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
+
+namespace WebAPI.Models.Catalog
+{
+    public partial class KalturaChannelExternalFilter : KalturaAssetFilter
+    {
+        /// <summary>
+        ///External Channel Id. 
+        /// </summary>
+        [DataMember(Name = "idEqual")]
+        [JsonProperty("idEqual")]
+        [XmlElement(ElementName = "idEqual")]
+        [SchemeProperty(MinInteger = 1)]
+        public int IdEqual { get; set; }
+        
+        /// <summary>
+        /// UtcOffsetEqual 
+        /// </summary>
+        [DataMember(Name = "utcOffsetEqual")]
+        [JsonProperty("utcOffsetEqual")]
+        [XmlElement(ElementName = "utcOffsetEqual")]
+        [SchemeProperty(MinFloat = -12, MaxFloat = 12)]
+        public float UtcOffsetEqual { get; set; }
+
+        /// <summary>
+        ///FreeTextEqual
+        /// </summary>
+        [DataMember(Name = "freeText")]
+        [JsonProperty("freeText")]
+        [XmlElement(ElementName = "freeText", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string FreeText { get; set; }
+    }
+}

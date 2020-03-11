@@ -1,0 +1,68 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUser_ExternalId_Update",
+      "object": "KalturaOTTUser",
+      "parameter": "externalId",
+      "action": "UPDATE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Manager",
+        "Administrator",
+        "MANAGER_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUser_RoleIds_Insert",
+      "object": "KalturaOTTUser",
+      "parameter": "roleIds",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Manager",
+        "Administrator",
+        "MANAGER_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUser_RoleIds_Update",
+      "object": "KalturaOTTUser",
+      "parameter": "roleIds",
+      "action": "UPDATE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUser_LastLoginDate_Read",
+      "object": "KalturaOTTUser",
+      "parameter": "lastLoginDate",
+      "action": "READ",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUser_FailedLoginCount_Read",
+      "object": "KalturaOTTUser",
+      "parameter": "failedLoginCount",
+      "action": "READ",
+      "type": "Parameter"
+    }
+  ],
+  "type": "Parameter"
+}
