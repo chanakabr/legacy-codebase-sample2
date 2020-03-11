@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "IngestTransformationHandler": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "CONCURRENT_CONSUMERS": "1"
+      }
+    }
+  }
+}
