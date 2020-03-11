@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by ori (EMBRACE) -->
+<xs:schema xmlns="http://tempuri.org/Pics.xsd" xmlns:mstns="http://tempuri.org/Pics.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://tempuri.org/Pics.xsd" elementFormDefault="qualified" id="Pics">
+	<xs:element name="Pics">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="request">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="pic" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:attribute name="id"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="type" default="pics"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="flashvars">
+								<xs:complexType>
+									<xs:attribute name="player_un" use="required"/>
+									<xs:attribute name="player_pass" use="required"/>
+									<xs:attribute name="pic_size1" use="required"/>
+									<xs:attribute name="pic_size2"/>
+									<xs:attribute name="lang"/>
+									<xs:attribute name="no_cache"/>
+									<xs:attribute name="timer"/>
+									<xs:attribute name="file_format"/>
+									<xs:attribute name="file_quality">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="low"/>
+												<xs:enumeration value="medium"/>
+												<xs:enumeration value="high"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+									<xs:attribute name="zip" type="xs:string" use="optional" default="0"/>
+									<xs:attribute name="pic_size1_format"/>
+									<xs:attribute name="pic_size1_quality"/>
+									<xs:attribute name="pic_size2_format" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size2_quality" type="xs:string" use="optional"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="pic" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:attribute name="id" type="xs:string"/>
+									<xs:attribute name="pic_size1" type="xs:string"/>
+									<xs:attribute name="pic_size2" type="xs:string"/>
+									<xs:attribute name="pic_size3" type="xs:string"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="type"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

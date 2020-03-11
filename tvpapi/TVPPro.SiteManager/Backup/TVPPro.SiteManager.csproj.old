@@ -1,0 +1,826 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1DF66DB2-D5D1-4B31-A7A0-5BEB650DA85F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TVPPro.SiteManager</RootNamespace>
+    <AssemblyName>TVPPro.SiteManager</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>false</SignAssembly>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <PublishUrl>http://localhost/TVPPro.SiteManager/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Yes|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Yes\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Facebook, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\Facebook.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook.Web, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\Facebook.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseClass\BaseUrlShortenHelper.cs" />
+    <Compile Include="CatalogLoaders\AssetsBookmarksLoader.cs" />
+    <Compile Include="CatalogLoaders\AssetStatsLoader.cs" />
+    <Compile Include="CatalogLoaders\BundleContainingMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\BundleMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\BuzzMeterLoader.cs" />
+    <Compile Include="CatalogLoaders\CategoryLoader.cs" />
+    <Compile Include="CatalogLoaders\ChannelMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\ChannelsListsLoader.cs" />
+    <Compile Include="CatalogLoaders\CrowdsourceFeedLoader.cs" />
+    <Compile Include="CatalogLoaders\EPGAutoCompleteLoader.cs" />
+    <Compile Include="CatalogLoaders\EPGCache.cs" />
+    <Compile Include="CatalogLoaders\EPGLoader.cs" />
+    <Compile Include="CatalogLoaders\EpgProgramDetailsLoader.cs" />
+    <Compile Include="CatalogLoaders\EPGProgramsByProgramsIdentefierLoader.cs" />
+    <Compile Include="CatalogLoaders\EPGProgramsByScidsLoader.cs" />
+    <Compile Include="CatalogLoaders\EPGSearchContentLoader.cs" />
+    <Compile Include="CatalogLoaders\EPGSearchLoader.cs" />
+    <Compile Include="CatalogLoaders\ExternalRelatedMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\ExternalSearchMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\MediaAutoCompleteLoader.cs" />
+    <Compile Include="CatalogLoaders\MediaCommentLoader.cs" />
+    <Compile Include="CatalogLoaders\MediaCommentsListLoader.cs" />
+    <Compile Include="CatalogLoaders\EPGCommentsListLoader.cs" />
+    <Compile Include="CatalogLoaders\EPGCommentLoader.cs" />
+    <Compile Include="CatalogLoaders\MediaHitLoader.cs" />
+    <Compile Include="CatalogLoaders\MediaLastPositionLoader.cs" />
+    <Compile Include="CatalogLoaders\MediaMarkLoader.cs" />
+    <Compile Include="CatalogLoaders\NPVRRetrieveLoader.cs" />
+    <Compile Include="CatalogLoaders\NPVRSeriesLoader.cs" />
+    <Compile Include="DataLoaders\ExternalRelatedMoviesLoader.cs" />
+    <Compile Include="DataLoaders\ExternalSearchMoviesLoader.cs" />
+    <Compile Include="Helper\CatalogExtensions.cs" />
+    <Compile Include="CatalogLoaders\FlashMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\MediaCache.cs" />
+    <Compile Include="CatalogLoaders\MediaLoader.cs" />
+    <Compile Include="CatalogLoaders\MultiMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\PeopleWhoLikedLoader.cs" />
+    <Compile Include="CatalogLoaders\PeopleWhoWatchedLoader.cs" />
+    <Compile Include="CatalogLoaders\PersonalLastWatchedLoader.cs" />
+    <Compile Include="CatalogLoaders\PersonalRecommendedLoader.cs" />
+    <Compile Include="CatalogLoaders\PictureCache.cs" />
+    <Compile Include="CatalogLoaders\PicturesLoader.cs" />
+    <Compile Include="CatalogLoaders\RelatedMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\SearchMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\SubscriptionMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\UserSocialMediaLoader.cs" />
+    <Compile Include="Context\Constants.cs" />
+    <Compile Include="Context\Enums.cs" />
+    <Compile Include="Context\FlashLoaderParams.cs" />
+    <Compile Include="Controls\MainMenuDataPart.cs" />
+    <Compile Include="Controls\RichGalleryControl.cs" />
+    <Compile Include="DataEntities\dsCategory.cs">
+      <DependentUpon>dsCategory.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsCategory.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsCategory.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsChannels.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsChannels.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsComments.cs">
+      <DependentUpon>dsComments.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsComments.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsComments.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsFavorites.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsFavorites.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsGalleryLinks.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsGalleryLinks.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsItemInfo.cs">
+      <DependentUpon>dsItemInfo.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsItemInfo.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsItemInfo.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsMainMenu.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsMainMenu.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsMediaTypes.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsMediaTypes.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsMenu.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsMenu.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsMovies.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsMovies.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsPackages.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsPackages.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsPageData.cs">
+      <DependentUpon>dsPageData.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsPageData.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsPageData.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsProfiles.cs">
+      <DependentUpon>dsProfiles.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsProfiles.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsProfiles.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsSession.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsSession.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsShows.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsShows.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsShowSeasons.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsShowSeasons.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsSideGalleries1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsSideGalleries.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsTabularLinks2.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsTabularLinks.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsTags.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsTags.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsTVMGallery.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsTVMGallery.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataEntities\dsTVMMediaInfo1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dsTVMMediaInfo.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="DataLoaders\AutoCompleteLoader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DataLoaders\ChannelsListLoader.cs" />
+    <Compile Include="DataLoaders\SendToFriendLoader.cs" />
+    <Compile Include="DataLoaders\VastLoader.cs" />
+    <Compile Include="DataLoaders\CategoryTreeLoader.cs" />
+    <Compile Include="DataLoaders\FullCategoryTreeLoader.cs" />
+    <Compile Include="DataLoaders\CustomAutoCompleteLoader.cs" />
+    <Compile Include="DataLoaders\CustomLayoutLoader.cs" />
+    <Compile Include="DataLoaders\FixedGalleryLoader.cs" />
+    <Compile Include="DataLoaders\GalleryLinksLoader.cs" />
+    <Compile Include="DataLoaders\LastWatchedLoader.cs" />
+    <Compile Include="DataLoaders\LettersLoader.cs" />
+    <Compile Include="DataLoaders\MediaHitLoader.cs" />
+    <Compile Include="DataLoaders\MediaMarkLoader.cs" />
+    <Compile Include="DataLoaders\MenuLoader.cs" />
+    <Compile Include="DataLoaders\ListLoader.cs" />
+    <Compile Include="DataLoaders\MediasContentTypeLoader.cs" />
+    <Compile Include="DataLoaders\MostViewedLoader.cs" />
+    <Compile Include="DataLoaders\PageDataLoader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DataLoaders\PeopleWhoWatchedLoader.cs" />
+    <Compile Include="DataLoaders\PersonalRecommendedLoader.cs" />
+    <Compile Include="DataLoaders\PicLoader.cs" />
+    <Compile Include="DataLoaders\ProfileLoader.cs" />
+    <Compile Include="DataLoaders\RelatedMoviesLoader.cs" />
+    <Compile Include="DataLoaders\SearchMediaIDLoader.cs" />
+    <Compile Include="DataLoaders\SearchMediaLoader.cs" />
+    <Compile Include="DataLoaders\ShowInformationLoader.cs" />
+    <Compile Include="DataLoaders\ShowsEpisodeLoader.cs" />
+    <Compile Include="DataLoaders\SideGalleriesLoader.cs" />
+    <Compile Include="DataLoaders\TabularLinksLoader.cs" />
+    <Compile Include="DataLoaders\TagSidebarLoader.cs" />
+    <Compile Include="DataLoaders\TVMChannelInfoLoader.cs" />
+    <Compile Include="DataLoaders\TVMChannelLoader.cs" />
+    <Compile Include="DataLoaders\TVMCommentsLoader.cs" />
+    <Compile Include="DataLoaders\TVMCommentsSave.cs" />
+    <Compile Include="DataLoaders\TVMFlashChannelLoader.cs" />
+    <Compile Include="DataLoaders\TVMFlashMediaLoader.cs" />
+    <Compile Include="DataLoaders\TVMFlashSearchRelatedLoader.cs" />
+    <Compile Include="DataLoaders\TVMMediaLoader.cs" />
+    <Compile Include="DataLoaders\TVMMultiChanelLoader.cs" />
+    <Compile Include="DataLoaders\TVMMultiMediaLoader.cs" />
+    <Compile Include="DataLoaders\TVMRentalMultiMediaLoader.cs" />
+    <Compile Include="DataLoaders\TVMSubscriptionMediaLoader.cs" />
+    <Compile Include="DataLoaders\TVMTagLoader.cs" />
+    <Compile Include="DataLoaders\UserSocialMediasLoader.cs" />
+    <Compile Include="Helper\BitlyHelper.cs" />
+    <Compile Include="Helper\BrandingHelper.cs" />
+    <Compile Include="Helper\CatalogHelper.cs" />
+    <Compile Include="Helper\CookiesHelper.cs" />
+    <Compile Include="Helper\DataHelper.cs" />
+    <Compile Include="Helper\DateHelper.cs" />
+    <Compile Include="Helper\DeviceDNAHelper.cs" />
+    <Compile Include="Helper\EnumAsStringValue.cs" />
+    <Compile Include="Helper\FacebookHelper.cs" />
+    <Compile Include="Helper\FastPassSSO\FastPass.cs" />
+    <Compile Include="Helper\FastPassSSO\FastPassCLI.cs" />
+    <Compile Include="Helper\FastPassSSO\OAuthBase.cs" />
+    <Compile Include="Helper\FavoritesHelper.cs" />
+    <Compile Include="Helper\MediaCorpAddressHelper.cs" />
+    <Compile Include="Helper\MediaMappingHelper.cs" />
+    <Compile Include="Helper\ORCAHelper.cs" />
+    <Compile Include="Helper\PackageHelper.cs" />
+    <Compile Include="Helper\PriceHelper.cs" />
+    <Compile Include="Helper\SearchProtocolHelper.cs" />
+    <Compile Include="Helper\SecurityHelper.cs" />
+    <Compile Include="Helper\SessionHelper.cs" />
+    <Compile Include="Helper\SiteHelper.cs" />
+    <Compile Include="Helper\TVPApiHelper.cs" />
+    <Compile Include="Helper\VotesHelper.cs" />
+    <Compile Include="Helper\WatchLaterHelper.cs" />
+    <Compile Include="Helper\WebRequestHelper.cs" />
+    <Compile Include="Manager\FacebookAuthentication.cs" />
+    <Compile Include="Manager\Locale.cs" />
+    <Compile Include="Manager\MainMenu\MenuManager.cs" />
+    <Compile Include="Manager\MediaTypes.cs" />
+    <Compile Include="Manager\OmnitureManager.cs" />
+    <Compile Include="Manager\PageData.cs" />
+    <Compile Include="Manager\RSSManager.cs" />
+    <Compile Include="Manager\SiteManager.cs" />
+    <Compile Include="Manager\TechnicalManager.cs" />
+    <Compile Include="Manager\TextLocalization.cs" />
+    <Compile Include="Objects\AssetPositionObject.cs" />
+    <Compile Include="Objects\EPGComment.cs" />
+    <Compile Include="Objects\EPGMultiChannelProgrammeObject.cs" />
+    <Compile Include="Objects\MediaCorpAddressEntity.cs" />
+    <Compile Include="Objects\MediaCorpBuildingEntity.cs" />
+    <Compile Include="Objects\MediaCorpPostcodeEntity.cs" />
+    <Compile Include="Objects\MediaCorpStreetEntity.cs" />
+    <Compile Include="Objects\MediaCorpWalkupEntity.cs" />
+    <Compile Include="Objects\MediaMarkObject.cs" />
+    <Compile Include="Objects\ORCAGalleryResponse.cs" />
+    <Compile Include="Objects\PlayerAssetData.cs" />
+    <Compile Include="Objects\RatedMediaEntity.cs" />
+    <Compile Include="Objects\RSSEntity.cs" />
+    <Compile Include="Objects\VoteCycleEntity.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Services\ApiService.cs" />
+    <Compile Include="Services\BillingService.cs" />
+    <Compile Include="Services\ConditionalAccessService.cs" />
+    <Compile Include="Services\DomainsService.cs" />
+    <Compile Include="Services\FacebookService.cs" />
+    <Compile Include="Services\PricingService.cs" />
+    <Compile Include="Services\SocialService.cs" />
+    <Compile Include="Services\UsersService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
+      <Project>{80E18813-371F-4F6C-8646-6D70FACEB219}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj">
+      <Project>{18062be9-51db-414a-9372-9cdf8b5ddd3c}</Project>
+      <Name>KLogMonitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
+      <Project>{30b747e2-22e4-407e-bb76-83b3479c8132}</Project>
+      <Name>ApiLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj">
+      <Project>{d29ef6ea-805e-4a3a-8af0-7e360ec12c12}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataLoader\Tvinci.Data.DataLoader.csproj">
+      <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
+      <Name>Tvinci.Data.DataLoader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Localization\Localization.csproj">
+      <Project>{e53bae81-a07c-4112-a42d-4e899d6a52fc}</Project>
+      <Name>Localization</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ODBCWrapper\TVPApi.ODBCWrapper.csproj">
+      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
+      <Name>TVPApi.ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Configuration\Tvinci.Configuration.csproj">
+      <Project>{b7ddd3f9-1844-41b1-ae65-68cfe6f95915}</Project>
+      <Name>Tvinci.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj">
+      <Project>{209ee212-3a89-4966-951e-0173dcc76bb0}</Project>
+      <Name>Tvinci.Data.Loaders</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Helpers.Link\Tvinci.Helpers.Link.csproj">
+      <Project>{53d79e6c-fe76-40fd-8c8e-6256d9de79a3}</Project>
+      <Name>Tvinci.Helpers.Link</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Helpers\Tvinci.Helpers.csproj">
+      <Project>{b76f07e3-91c2-44a7-b80b-eb60bfb07825}</Project>
+      <Name>Tvinci.Helpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.MultiClient\Tvinci.MultiClient.csproj">
+      <Project>{9c98db15-9efb-47a4-8be1-9bb873518e8c}</Project>
+      <Name>Tvinci.MultiClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TVinci.TimePeriod\TVinci.TimePeriod.csproj">
+      <Project>{9d2abb52-e0a0-4dfa-9e24-7e0b98d3557d}</Project>
+      <Name>TVinci.TimePeriod</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj">
+      <Project>{bead66e3-143b-4c83-9352-50afb0aa62fa}</Project>
+      <Name>Tvinci.Data.TVMDataLoader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj">
+      <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
+      <Name>TVPPro.Configuration</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DataEntities\dsChannels.xsc">
+      <DependentUpon>dsChannels.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsChannels.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsChannels.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="DataEntities\dsChannels.xss">
+      <DependentUpon>dsChannels.xsd</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DataEntities\.svn\all-wcprops" />
+    <None Include="DataEntities\.svn\entries" />
+    <None Include="DataEntities\.svn\prop-base\dsChannelMedia.xsc.svn-base" />
+    <None Include="DataEntities\.svn\prop-base\dsChannelMedia.xss.svn-base" />
+    <None Include="DataEntities\.svn\prop-base\dsTags.xsc.svn-base" />
+    <None Include="DataEntities\.svn\prop-base\dsTags.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsBrowseByABC.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsBrowseByABC.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsBrowseByABC.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsBrowseByABC2.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsChanelMedia.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsChanelMedia.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsChannelMedia.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsChannelMedia.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsChannelMedia.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsChannelMedia.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsChannelMedia.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsFavorites.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsFavorites.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsFavorites.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsFavorites.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsFavorites1.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsItemInfo.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsItemInfo.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsItemInfo.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsItemInfo.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsMainMenu.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsMainMenu.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsMainMenu.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsMainMenu.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsMovies.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsMovies.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsMovies.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsMovies.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsMovies1.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsPackages.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsPackages.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsPackages.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsPackages.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsPackages1.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsPageData.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsPageData.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsPageData.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsPageData.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsPageData.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSearchResult.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSearchResult.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSearchResult.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSearchResult.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSearchResult.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSearchResult1.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSession.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSession.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSession.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSession.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSession1.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsShowSeasons.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsShowSeasons.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsShowSeasons.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsShowSeasons.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsShowSeasons1.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSideGalleries.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSideGalleries.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSideGalleries.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSideGalleries.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsSideGalleries.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTabularLinks.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTabularLinks.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTabularLinks.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTabularLinks.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTabularLinks1.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTags.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTags.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTags.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTags.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTVMGallery.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTVMGallery.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTVMGallery.xss.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTVMGallery2.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTVMMediaInfo.Designer.cs.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTVMMediaInfo.xsc.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTVMMediaInfo.xsd.svn-base" />
+    <None Include="DataEntities\.svn\text-base\dsTVMMediaInfo.xss.svn-base" />
+    <None Include="DataEntities\.svn\tmp\tempfile.2.tmp" />
+    <None Include="DataEntities\.svn\tmp\tempfile.3.tmp" />
+    <None Include="DataEntities\.svn\tmp\tempfile.4.tmp" />
+    <None Include="DataEntities\.svn\tmp\tempfile.5.tmp" />
+    <None Include="DataEntities\.svn\tmp\tempfile.6.tmp" />
+    <None Include="DataEntities\.svn\tmp\tempfile.7.tmp" />
+    <None Include="DataEntities\.svn\tmp\tempfile.8.tmp" />
+    <None Include="DataEntities\.svn\tmp\tempfile.tmp" />
+    <None Include="DataEntities\dsFavorites.xsc">
+      <DependentUpon>dsFavorites.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsFavorites.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsFavorites.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsFavorites.xss">
+      <DependentUpon>dsFavorites.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsGalleryLinks.xsc">
+      <DependentUpon>dsGalleryLinks.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsGalleryLinks.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsGalleryLinks.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="DataEntities\dsGalleryLinks.xss">
+      <DependentUpon>dsGalleryLinks.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsItemInfo.xsc">
+      <DependentUpon>dsItemInfo.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsItemInfo.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsItemInfo.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsItemInfo.xss">
+      <DependentUpon>dsItemInfo.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsMainMenu.xsc">
+      <DependentUpon>dsMainMenu.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsMainMenu.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsMainMenu.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsMainMenu.xss">
+      <DependentUpon>dsMainMenu.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsMediaTypes.xsc">
+      <DependentUpon>dsMediaTypes.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsMediaTypes.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsMediaTypes.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="DataEntities\dsMediaTypes.xss">
+      <DependentUpon>dsMediaTypes.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsMenu.xsc">
+      <DependentUpon>dsMenu.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsMenu.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsMenu.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="DataEntities\dsMenu.xss">
+      <DependentUpon>dsMenu.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsMovies.xsc">
+      <DependentUpon>dsMovies.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsMovies.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsMovies.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsMovies.xss">
+      <DependentUpon>dsMovies.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsPackages.xsc">
+      <DependentUpon>dsPackages.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsPackages.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsPackages.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsPackages.xss">
+      <DependentUpon>dsPackages.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsPageData.xsc">
+      <DependentUpon>dsPageData.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsPageData.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>dsPageData.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="DataEntities\dsPageData.xss">
+      <DependentUpon>dsPageData.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsSession.xsc">
+      <DependentUpon>dsSession.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsSession.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsSession.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsSession.xss">
+      <DependentUpon>dsSession.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsShows.xsc">
+      <DependentUpon>dsShows.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsShows.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsShows.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsShows.xss">
+      <DependentUpon>dsShows.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsShowSeasons.xsc">
+      <DependentUpon>dsShowSeasons.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsShowSeasons.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsShowSeasons.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsShowSeasons.xss">
+      <DependentUpon>dsShowSeasons.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsSideGalleries.xsc">
+      <DependentUpon>dsSideGalleries.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsSideGalleries.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsSideGalleries1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsSideGalleries.xss">
+      <DependentUpon>dsSideGalleries.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsTabularLinks.xsc">
+      <DependentUpon>dsTabularLinks.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsTabularLinks.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsTabularLinks2.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsTabularLinks.xss">
+      <DependentUpon>dsTabularLinks.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsTags.xsc">
+      <DependentUpon>dsTags.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsTags.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsTags.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsTags.xss">
+      <DependentUpon>dsTags.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsTVMGallery.xsc">
+      <DependentUpon>dsTVMGallery.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsTVMGallery.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsTVMGallery.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsTVMGallery.xss">
+      <DependentUpon>dsTVMGallery.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsTVMMediaInfo.xsc">
+      <DependentUpon>dsTVMMediaInfo.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsTVMMediaInfo.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsTVMMediaInfo1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsTVMMediaInfo.xss">
+      <DependentUpon>dsTVMMediaInfo.xsd</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DataEntities\dsProfiles.xsc">
+      <DependentUpon>dsProfiles.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsProfiles.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsProfiles.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="DataEntities\dsProfiles.xss">
+      <DependentUpon>dsProfiles.xsd</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DataEntities\dsCategory.xsc">
+      <DependentUpon>dsCategory.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsCategory.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsCategory.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="DataEntities\dsCategory.xss">
+      <DependentUpon>dsCategory.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsComments.xsc">
+      <DependentUpon>dsComments.xsd</DependentUpon>
+    </None>
+    <None Include="DataEntities\dsComments.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsComments.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="DataEntities\dsComments.xss">
+      <DependentUpon>dsComments.xsd</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DataEntities\.svn\props\" />
+    <Folder Include="DataEntities\.svn\tmp\prop-base\" />
+    <Folder Include="DataEntities\.svn\tmp\props\" />
+    <Folder Include="DataEntities\.svn\tmp\text-base\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
