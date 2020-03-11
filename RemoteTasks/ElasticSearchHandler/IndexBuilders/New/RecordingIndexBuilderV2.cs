@@ -1,0 +1,170 @@
+﻿using ApiObjects;
+using ApiObjects.TimeShiftedTv;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using EpgBL;
+using ElasticSearch.Common;
+using Core.Catalog.CatalogManagement;
+using Core.Catalog;
+
+namespace ElasticSearchHandler.IndexBuilders
+{
+    public class RecordingIndexBuilderV2 : EpgIndexBuilderV2
+    {
+        #region Data Members
+
+        public static readonly string RECORDING = "recording";
+        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        protected Dictionary<long, long> epgToRecordingMapping = null;
+        
+        #endregion
+
+        #region Ctor
+
+        public RecordingIndexBuilderV2(int groupId)
+            : base(groupId)
+        {
+            serializer = new ESSerializerV2();
+            epgToRecordingMapping = new Dictionary<long, long>();
+            shouldAddRouting = false;
+        }
+
+        #endregion
+
+        #region Override Methods
+
+        protected override string GetNewIndexName()
+        {
+            return ElasticsearchTasksCommon.Utils.GetNewRecordingIndexStr(this.groupId);
+        }
+
+        protected override void PopulateIndex(string newIndexName, GroupsCacheManager.Group group)
+        {
+            List<int> statuses = new List<int>() { (int)RecordingInternalStatus.OK, (int)RecordingInternalStatus.Waiting,
+            (int)RecordingInternalStatus.Canceled, (int)RecordingInternalStatus.Failed};
+
+            // Get information about relevant recordings
+            epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMapByRecordingStatuses(this.groupId, statuses);
+            List<string> epgIds = new List<string>();
+
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            CatalogGroupCache catalogGroupCache = null;
+            Dictionary<ulong, Dictionary<string, EpgCB>> programs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
+            List<LanguageObj> languages = new List<LanguageObj>();
+            if (doesGroupUsesTemplates)
+            {
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling PopulateEpgIndex", groupId);
+                    return;
+                }
+
+                languages = catalogGroupCache.LanguageMapByCode.Values.ToList();
+            }
+            else
+            {
+                languages = group.GetLangauges();
+            }
+
+            List<EpgCB> epgs = new List<EpgCB>();
+            EpgBL.TvinciEpgBL epgBL = new TvinciEpgBL(this.groupId);
+
+            foreach (var programId in epgToRecordingMapping.Keys)
+            {
+                // for main language
+                epgIds.Add(programId.ToString());
+
+                //Build list of keys with language
+                foreach (var language in languages)
+                {
+                    string docID = string.Format("epg_{0}_lang_{1}", programId, language.Code.ToLower());
+                    epgIds.Add(docID);
+                }
+
+                // Work in bulks so we don't chocke the Couchbase. every time get only a bulk of EPGs
+                if (epgIds.Count >= sizeOfBulk)
+                {
+                    // Get EPG objects
+                    epgs.AddRange(epgBL.GetEpgs(epgIds));
+                    epgIds.Clear();
+                }
+            }
+
+            // Finish off what's left to get from CB
+            if (epgIds.Count >= 0)
+            {
+                epgs.AddRange(epgBL.GetEpgs(epgIds));
+            }
+
+            Dictionary<ulong, Dictionary<string, EpgCB>> epgDictionary = BuildEpgsLanguageDictionary(epgs);
+
+            this.AddEPGsToIndex(newIndexName, RECORDING, epgDictionary, group, doesGroupUsesTemplates, catalogGroupCache);
+        }
+
+        /// <summary>
+        /// Do nothing when it comes to recordings
+        /// </summary>
+        /// <param name="groupManager"></param>
+        /// <param name="group"></param>
+        /// <param name="newIndexName"></param>
+        protected override void InsertChannelsQueries(GroupsCacheManager.GroupManager groupManager, GroupsCacheManager.Group group, string newIndexName, bool doesGroupUsesTemplates)
+        {
+            
+        }
+
+        protected override string GetAlias()
+        {
+            return ElasticsearchTasksCommon.Utils.GetRecordingGroupAliasStr(this.groupId);
+        }
+
+        protected override string SerializeEPGObject(ApiObjects.EpgCB epg, string suffix = null, bool doesGroupUsesTemplates = false)
+        {
+            long recordingId = (long)(epgToRecordingMapping[(int)epg.EpgID]);
+
+            return serializer.SerializeRecordingObject(epg, recordingId, suffix, doesGroupUsesTemplates);
+        }
+
+        protected override ulong GetDocumentId(ulong epgId)
+        {
+            return (ulong)(epgToRecordingMapping[(int)epgId]);
+        }
+
+        /// <summary>
+        /// Document ID will be the recording ID and not the EPG ID
+        /// </summary>
+        /// <param name="epg"></param>
+        /// <returns></returns>
+        protected override ulong GetDocumentId(ApiObjects.EpgCB epg)
+        {
+            ulong result = base.GetDocumentId(epg);
+
+            result = (ulong)(epgToRecordingMapping[(long)epg.EpgID]);
+
+            return result;
+        }
+
+        protected override string GetIndexType(LanguageObj language)
+        {
+            return (language.IsDefault) ? IndexManager.RECORDING_IDEX_TYPE : string.Concat(IndexManager.RECORDING_IDEX_TYPE, "_", language.Code);
+        }
+
+        protected override string GetIndexType()
+        {
+            return IndexManager.RECORDING_IDEX_TYPE;
+        }
+
+        protected override bool ShouldSetTTL()
+        {
+            return false;
+        }
+
+        #endregion
+    }
+}

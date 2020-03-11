@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{.Chart.Name}}-tcm-required-fields
+  labels: 
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    kaltura-type: tcm-required-fields
+    app: {{ .Chart.Name }}
+data:
+  required-fields.yaml: |
+    - path: Version
+      regex: '^{{.Chart.Version | replace "." "" }}$'
+    - path: couchbase_client_config/Servers
+    - path: couchbase_client_config/BucketConfigs/Cache/bucketName
+      regex: .+
+    - path: couchbase_client_config/BucketConfigs/social/bucketName
+      regex: .+
+    - path: couchbase_client_config/BucketConfigs/OTT_Apps/bucketName
+      regex: .+
+    - path: couchbase_client_config/BucketConfigs/MediaMarks/bucketName
+      regex: .+
+    - path: couchbase_client_config/BucketConfigs/scheduled_tasks/bucketName
+      regex: .+
+    - path: couchbase_client_config/BucketConfigs/epg_channels_schedule/bucketName
+      regex: .+
+    - path: database_configuration
+    - path: rabbit_configuration/default/hostName
+      regex: .+
+      validateHostname: true
+    - path: rabbit_configuration/event_bus/hostName
+      regex: .+
+      validateHostname: true
+    - path: rabbit_configuration/social_feed/exchange
+      regex: .+
+    - path: rabbit_configuration/professional_services/exchange
+      regex: .+

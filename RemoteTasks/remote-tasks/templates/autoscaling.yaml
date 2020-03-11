@@ -1,0 +1,31 @@
+
+{{- $chartName := .Chart.Name -}}
+{{- $chartAppVersion := .Chart.AppVersion -}}
+{{- $releaseName := .Release.Name -}}
+{{- $releaseService := .Release.Service -}}
+{{- $envTag := .Values.env.tag -}}
+{{- $envRepository := .Values.env.repository -}}
+{{- $firstHandler := (first .Values.handlers).name -}}
+
+{{- range .Values.handlers }}
+{{ if not (eq $firstHandler .name) }}
+---
+{{ end }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .name }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: {{ .name }}
+  minReplicas: 2
+  maxReplicas: 30
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 80
+
+{{- end }}

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "IngestHandler": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "CONCURRENT_CONSUMERS": "4"
+      }
+    }
+  }
+}
