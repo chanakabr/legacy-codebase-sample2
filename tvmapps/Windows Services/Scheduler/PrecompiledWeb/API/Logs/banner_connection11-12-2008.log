@@ -1,0 +1,566 @@
+
+12/11/2008 2:31:15 PM , THREAD-1484, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" />
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:31:16 PM , THREAD-1484, response : <response type="error"><error message="Expression must evaluate to a node-set."/></response>
+12/11/2008 2:32:16 PM , THREAD-8004, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" />
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:32:16 PM , THREAD-8004, response : <response type="error"><error message="Expression must evaluate to a node-set."/></response>
+12/11/2008 2:32:50 PM , THREAD-8004, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" />
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:33:01 PM , THREAD-8004, response : <response type="error"><error message="Expression must evaluate to a node-set."/></response>
+12/11/2008 2:33:04 PM , THREAD-8004, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" />
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:33:10 PM , THREAD-8004, response : <response type="error"><error message="Expression must evaluate to a node-set."/></response>
+12/11/2008 2:33:13 PM , THREAD-8004, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" />
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:33:56 PM , THREAD-8004, response : <response type="error"><error message="Expression must evaluate to a node-set."/></response>
+12/11/2008 2:34:35 PM , THREAD-8004, request :    <root> <request type="single_media">
+      <media id="7741" />
+      <params with_info="true" />
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:34:52 PM , THREAD-8004, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><META6_STR_NAME name="Video Item Length" value="20340000"/><META10_STR_NAME name="Service Code" value="1"/><META16_STR_NAME name="Asset ID" value="241"/><META17_STR_NAME name="Fecm Code" value="051501040000001102033234310308000000000000000000"/><META1_DOUBLE_NAME name="CP" value="1280"/><META2_DOUBLE_NAME name="AP" value="31"/><META9_DOUBLE_NAME name="File Size" value="21242496"/><META1_BOOL_NAME name="Allow Friend Recommendation" value="0"/><META2_BOOL_NAME name="Black And White" value="0"/><META3_BOOL_NAME name="Aaverage grading show" value="0"/><META4_BOOL_NAME name="Views count show" value="0"/><META5_BOOL_NAME name="Rating count show" value="0"/><META6_BOOL_NAME name="Does have Subtitles" value="0"/><META7_BOOL_NAME name="Only On Israel" value="0"/><tags_collections><tag_type id="56" name="Actors"><tag id="9829" name="דני"/></tag_type><tag_type id="60" name="Parental Control"><tag id="9835" name="8"/></tag_type><tag_type id="82" name="Sound Quality"><tag id="9836" name="Monaural"/></tag_type></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:37:14 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" />
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:37:20 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><META6_STR_NAME name="Video Item Length" value="20340000"/><META10_STR_NAME name="Service Code" value="1"/><META16_STR_NAME name="Asset ID" value="241"/><META17_STR_NAME name="Fecm Code" value="051501040000001102033234310308000000000000000000"/><META1_DOUBLE_NAME name="CP" value="1280"/><META2_DOUBLE_NAME name="AP" value="31"/><META9_DOUBLE_NAME name="File Size" value="21242496"/><META1_BOOL_NAME name="Allow Friend Recommendation" value="0"/><META2_BOOL_NAME name="Black And White" value="0"/><META3_BOOL_NAME name="Aaverage grading show" value="0"/><META4_BOOL_NAME name="Views count show" value="0"/><META5_BOOL_NAME name="Rating count show" value="0"/><META6_BOOL_NAME name="Does have Subtitles" value="0"/><META7_BOOL_NAME name="Only On Israel" value="0"/><tags_collections><tag_type id="56" name="Actors"><tag id="9829" name="דני"/></tag_type><tag_type id="60" name="Parental Control"><tag id="9835" name="8"/></tag_type><tag_type id="82" name="Sound Quality"><tag id="9836" name="Monaural"/></tag_type></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:37:37 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:37:37 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><META6_STR_NAME name="Video Item Length" value="20340000"/><META10_STR_NAME name="Service Code" value="1"/><META16_STR_NAME name="Asset ID" value="241"/><META17_STR_NAME name="Fecm Code" value="051501040000001102033234310308000000000000000000"/><META1_DOUBLE_NAME name="CP" value="1280"/><META2_DOUBLE_NAME name="AP" value="31"/><META9_DOUBLE_NAME name="File Size" value="21242496"/><META1_BOOL_NAME name="Allow Friend Recommendation" value="0"/><META2_BOOL_NAME name="Black And White" value="0"/><META3_BOOL_NAME name="Aaverage grading show" value="0"/><META4_BOOL_NAME name="Views count show" value="0"/><META5_BOOL_NAME name="Rating count show" value="0"/><META6_BOOL_NAME name="Does have Subtitles" value="0"/><META7_BOOL_NAME name="Only On Israel" value="0"/><tags_collections><tag_type id="56" name="Actors"><tag id="9829" name="דני"/></tag_type><tag_type id="60" name="Parental Control"><tag id="9835" name="8"/></tag_type><tag_type id="82" name="Sound Quality"><tag id="9836" name="Monaural"/></tag_type></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:38:07 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics=”true/false” personal=”true/false”>
+ 				<name/ >
+ 				<description/>
+				<type/>
+			</info_struct>
+
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:38:07 PM , THREAD-1484, response : <response type="error"><error message="&apos;”&apos; is an unexpected token. The expected token is &apos;&quot;&apos; or &apos;&apos;&apos;. Line 4, position 25."/></response>
+12/11/2008 2:38:35 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="false">
+ 				<name/ >
+ 				<description/>
+				<type/>
+			</info_struct>
+
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:38:35 PM , THREAD-1484, response : <response type="error"><error message="&apos;/&apos; is an unexpected token. The expected token is &apos;&gt;&apos;. Line 5, position 11."/></response>
+12/11/2008 2:38:52 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+
+
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:38:53 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><META6_STR_NAME name="Video Item Length" value="20340000"/><META10_STR_NAME name="Service Code" value="1"/><META16_STR_NAME name="Asset ID" value="241"/><META17_STR_NAME name="Fecm Code" value="051501040000001102033234310308000000000000000000"/><META1_DOUBLE_NAME name="CP" value="1280"/><META2_DOUBLE_NAME name="AP" value="31"/><META9_DOUBLE_NAME name="File Size" value="21242496"/><META1_BOOL_NAME name="Allow Friend Recommendation" value="0"/><META2_BOOL_NAME name="Black And White" value="0"/><META3_BOOL_NAME name="Aaverage grading show" value="0"/><META4_BOOL_NAME name="Views count show" value="0"/><META5_BOOL_NAME name="Rating count show" value="0"/><META6_BOOL_NAME name="Does have Subtitles" value="0"/><META7_BOOL_NAME name="Only On Israel" value="0"/><tags_collections><tag_type id="56" name="Actors"><tag id="9829" name="דני"/></tag_type><tag_type id="60" name="Parental Control"><tag id="9835" name="8"/></tag_type><tag_type id="82" name="Sound Quality"><tag id="9836" name="Monaural"/></tag_type></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:39:13 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="false">
+ 				<name/>
+ 				<description/>
+				<type/>
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:39:13 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4" /></media></response>
+12/11/2008 2:39:45 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="false">
+ 				<name/>
+ 				<description/>
+				<type/>
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:39:45 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4" /></media></response>
+12/11/2008 2:39:54 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="false">
+ 				<name/>
+ 				<description/>
+				<type/>
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:39:54 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4" /></media></response>
+12/11/2008 2:39:55 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="false">
+ 				<name/>
+ 				<description/>
+				<type/>
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:39:55 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4" /></media></response>
+12/11/2008 2:40:27 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="false" personal="false">
+ 				<name/>
+ 				<description/>
+				<type/>
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:40:27 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections></media></response>
+12/11/2008 2:40:35 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="false">
+ 				<name/>
+ 				<description/>
+				<type/>
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:40:35 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4" /></media></response>
+12/11/2008 2:40:58 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:40:58 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:42:15 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+<meta name="Director"/>
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:42:16 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:42:41 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+<meta name="director"/>
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:42:41 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:43:24 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+<meta name="Director"/> 
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:43:24 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:43:33 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+<meta name="Director"/> 
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="1" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:45:33 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:45:42 PM , THREAD-7868, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+<meta name="Video Item type"/> 
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="1" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:45:46 PM , THREAD-7868, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:46:29 PM , THREAD-7868, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+<meta name="Series Name"/> 
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="1" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:47:13 PM , THREAD-7868, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:47:16 PM , THREAD-7868, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+<meta name="Series Name"/> 
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="1" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:47:32 PM , THREAD-7868, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:47:40 PM , THREAD-1484, request :     <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+<meta name="Series Name"/> 
+			</info_struct>
+</params>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="1" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:52:35 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 2:55:17 PM , THREAD-1484, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+ 				<meta name=""/>
+			</info_struct>
+
+</params>
+
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 2:58:45 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 3:03:00 PM , THREAD-1484, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+ 				<meta name="Series Name"/>
+			</info_struct>
+
+</params>
+
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 3:03:10 PM , THREAD-1484, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 3:04:24 PM , THREAD-7180, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+ 				<meta name="Series Name"/>
+			</info_struct>
+
+</params>
+
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 3:04:24 PM , THREAD-7180, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 3:04:32 PM , THREAD-7180, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+ 				<meta name="Series Name"/>
+			</info_struct>
+
+</params>
+
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="1" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 3:04:33 PM , THREAD-7180, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><META1_STR_NAME name="Series Name" value="Bla Bla"/><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 3:05:32 PM , THREAD-7180, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+ 				<meta name="Series Name"/>
+			</info_struct>
+
+</params>
+
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 3:05:32 PM , THREAD-7180, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 3:05:47 PM , THREAD-7180, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+ 				<meta name="Series Name"/>
+			</info_struct>
+
+</params>
+
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 3:05:47 PM , THREAD-7180, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 3:05:55 PM , THREAD-7180, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+ 				<meta name="Series Name"/>
+			</info_struct>
+
+</params>
+
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="1" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 3:06:09 PM , THREAD-7180, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><META1_STR_NAME name="Series Name" value="Bla Bla"/><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 3:07:35 PM , THREAD-7180, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+ 				<meta name="Series Name"/>
+<tags>
+ 					<tag_type name="Director"/>
+</tags>
+			</info_struct>
+
+</params>
+
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="1" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 3:07:36 PM , THREAD-7180, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><META1_STR_NAME name="Series Name" value="Bla Bla"/><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 3:08:37 PM , THREAD-7180, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+ 				<meta name="Series Name"/>
+<tags>
+ 					<tag_type name="Director"/>
+</tags>
+			</info_struct>
+
+</params>
+
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 3:08:37 PM , THREAD-7180, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><META1_STR_NAME name="Series Name" value="Bla Bla"/><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 3:10:42 PM , THREAD-7180, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+ 				<meta name="Series Name"/>
+<tags>
+ 					<tag_type name="Director"/>
+</tags>
+			</info_struct>
+
+</params>
+
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="0" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 3:10:42 PM , THREAD-7180, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><META1_STR_NAME name="Series Name" value="Bla Bla"/><tags_collections></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 3:10:52 PM , THREAD-7180, request : <root><request type="single_media">
+      <media id="7741" />
+      <params with_info="true" >
+<info_struct statistics="true" personal="true">
+ 				<name/>
+ 				<description/>
+				<type/>
+ 				<meta name="Series Name"/>
+<tags>
+ 					<tag_type name="Director"/>
+</tags>
+			</info_struct>
+
+</params>
+
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" no_cache="1" file_format="gib" file_quality="high" />
+  </root>
+
+12/11/2008 3:11:18 PM , THREAD-7180, response : <response type="single_media"><playlist_schema channel_id="0"></playlist_schema><media duration="0" file_id="15049" id="7741" billing="none"  file_format="WMV"  file_quality="high"  title="Test1" block="none" cdn_id="13" cdn_impl_type="nds" notify_url="" date="25/06/2008" url="241,051501040000001102033234310308000000000000000000,20340000,1280,31"  views="0"><name value="Test1"/><type id="23" value="Movie"/><META1_STR_NAME name="Series Name" value="Bla Bla"/><tags_collections><tag_type id="24" name="Director"><tag id="18531" name="DirectorHeb"/></tag_type></tags_collections><views count="0"/><rating sum="4" count="1" avg="4"  user_voted="false" user_voted_val=""/></media></response>
+12/11/2008 3:24:14 PM , THREAD-1484, request : <root>
+    <request type="search_media">
+      <params with_info="false" />
+      <search_data cut_with="and">
+        <channel start_index="0" media_count="5" />
+        <order_values>
+          <views order_dir="asc" />
+        </order_values>
+        <cut_values exact="true">
+          <type value="23" />
+          <tags>
+            <tag_type name="Genre" value="דרמה" />
+          </tags>
+          <description />
+        </cut_values>
+      </search_data>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" pic_size1="95X130" no_cache="1" />
+  </root>
+
+12/11/2008 3:25:07 PM , THREAD-1484, response : <response type="error"><error message="Object reference not set to an instance of an object."/></response>
+12/11/2008 3:25:10 PM , THREAD-5408, request : <root>
+    <request type="search_media">
+      <params with_info="false" />
+      <search_data cut_with="and">
+        <channel start_index="0" media_count="5" />
+        <order_values>
+          <views order_dir="asc" />
+        </order_values>
+        <cut_values exact="true">
+          <type value="23" />
+          <tags>
+            <tag_type name="Genre" value="דרמה" />
+          </tags>
+          <description />
+        </cut_values>
+      </search_data>
+    </request>
+    <flashvars player_un="ocontent_site" player_pass="ocontent_site" pic_size1="95X130" no_cache="1" />
+  </root>
+
+12/11/2008 3:26:00 PM , THREAD-5408, response : <response type="error"><error message="Object reference not set to an instance of an object."/></response>

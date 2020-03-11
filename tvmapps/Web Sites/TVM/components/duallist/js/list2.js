@@ -1,0 +1,155 @@
+/* This describes a single list, the duallist, well.. uses two of these */
+var List = function (listId, listTitle) {
+    var listComponentId = listId;
+    var listComponentTitle = listTitle;
+    var listWrapper, listItems, listItemsArray, quickSearchInput;
+
+    var init = function () {
+        createListLayout();
+        bindEvents();
+    };
+
+    var bindEvents = function () {
+        safe_addEventListener(quickSearchInput, 'keyup', quickSearch);
+        safe_addEventListener(quickSearchInput, 'search', quickSearch);
+    };
+
+    /* Grabs the value from the search input and filters according */
+    var quickSearch = function () {
+        var keyword = quickSearchInput.value;
+        var listItemsChildren = listItems.children;
+        var listItemsChildrenLength = listItemsChildren.length;
+        if (listItemsChildrenLength) {
+            for (var i = 0; i < listItemsChildrenLength; i++) {
+                var listItem = listItemsChildren[i];
+                if (listItem.className.indexOf('info-wrapper') === -1) {
+                    if (listItem.innerText.indexOf(keyword) !== -1) {
+                        $(listItem).removeClass('hidden');
+                    } else {
+                        $(listItem).addClass('hidden');
+                        $(listItem).removeClass('active');
+                        $(listItem.nextSibling).addClass('hidden');
+                    }
+                }
+            }
+        }
+    };
+
+
+    var createListLayout = function () {
+        var divElmPrototype = document.createElement('div');
+        listWrapper = divElmPrototype.cloneNode(false);
+
+        listComponentId = listComponentId || "ListComponent_" + (new Date).getTime().toString();
+        listComponentTitle = listComponentTitle || "ListComponentTitle";
+        $(listWrapper).addClass('ListComponent');
+        listWrapper.setAttribute("id", listComponentId);
+
+        var listTitle = divElmPrototype.cloneNode(false);
+        listTitle.innerHTML = listComponentTitle;
+        $(listTitle).addClass('list-title');
+
+        listWrapper.appendChild(listTitle);
+
+        var quickSearch = divElmPrototype.cloneNode(false);
+        $(quickSearch).addClass('quick-search');
+
+        quickSearchInput = document.createElement('input');
+        quickSearchInput.setAttribute('type', 'search');
+        quickSearchInput.setAttribute('placeholder', 'Quick Search');
+        $(quickSearchInput).addClass('has-placeholder');
+        quickSearch.appendChild(quickSearchInput);
+
+        listWrapper.appendChild(quickSearch);
+
+        var ulListWrapper = divElmPrototype.cloneNode(false);
+        $(ulListWrapper).addClass('ul-list-wrapper');
+        listItems = document.createElement('ul');
+        $(listItems).addClass('items-list');
+
+        ulListWrapper.appendChild(listItems);
+
+        listWrapper.appendChild(ulListWrapper);
+    };
+
+    var addItemsToList = function (items, type, toChangeStatus) {
+        var itemsLength = items.length;
+        if (!listItems) {
+            throw "List Item UL is not defined";
+            return;
+        }
+        if (items && itemsLength) {
+            for (var i = 0; i < itemsLength; i++) {
+                if (items[i].Title) {
+                    var listLiItem = document.createElement('li');
+                    listLiItem.setAttribute("data-id", items[i].ID);
+                    listLiItem.innerHTML = "<span class='ppvm-text' title='" + items[i].Title + "'>" + items[i].Title + "</span>";
+                    var addRemoveIcon = document.createElement('a');
+                    $(addRemoveIcon).addClass('add-remove-icon');
+                    $(addRemoveIcon).addClass(type);
+                    addRemoveIcon.setAttribute('href', 'javascript:;');
+                    listLiItem.appendChild(addRemoveIcon);
+                    $(listLiItem).hide();
+                    if (type == 'add') {
+                        $(listLiItem).show(800).effect("slide", { direction: "left" }, 800);
+                    } else {
+                        $(listLiItem).show(800).effect("slide", { direction: "right" }, 800);
+                    }
+
+                    $(listItems).prepend($(listLiItem));
+                    
+                    // adding the number
+                    if (type == 'remove') {
+                        new Number(items[i], listLiItem);
+                    }
+                    if (toChangeStatus) {
+                        changeItemStatus(items[i].ID);
+                        items[i].ChannelNumber = "";
+
+                    }
+                }
+            }
+
+        }
+    };
+
+    var removeItemsFromList = function (itemsId, toRemoveAllItems, listType) {
+        if (toRemoveAllItems) {
+            while (listItems.firstChild) {
+                listItems.removeChild(listItems.firstChild);
+            }
+        } else {
+            var itemsLength = itemsId.length;
+            if (itemsId && itemsLength) {
+                var liItems = listItems.children;
+                var liItemsLength = liItems.length;
+                for (var j = 0; j < liItemsLength; j++) {
+                    var liItem = liItems[j];
+                    if (liItem.getAttribute('data-id') && itemsId.indexOf(parseInt(liItem.getAttribute('data-id'))) !== -1) {
+                        var direction = 'right';
+                        if (listType == 'add') {
+                            direction = 'left';
+                        }
+                        $(liItem).hide("slide", { direction: direction }, 800, function () {
+                            $(liItem).remove();
+                        });
+                        
+                        break;
+                    }
+                }
+            }
+        }
+    };
+
+    var getComponentElement = function () {
+        return listWrapper;
+    };
+
+    init();
+
+    return {
+        addItemsToList: addItemsToList,
+        removeItemsFromList: removeItemsFromList,
+        getComponentElement: getComponentElement
+    }
+};

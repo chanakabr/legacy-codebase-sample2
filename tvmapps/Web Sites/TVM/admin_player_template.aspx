@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" Inherits="admin_player_template" Codebehind="admin_player_template.aspx.cs" %>

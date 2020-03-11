@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:i0="http://lucene.dev.tvincidns.com" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="Service" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:import namespace="http://lucene.dev.tvincidns.com" location="http://localhost/LuceneWCF2.0/Service.svc?wsdl=wsdl0" />
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd1" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd0" namespace="http://lucene.dev.tvincidns.com" />
+      <xsd:import schemaLocation="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
+      <xsd:import schemaLocation="http://localhost/LuceneWCF2.0/Service.svc?xsd=xsd4" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="ISearcher_SearchMedias_InputMessage">
+    <wsdl:part name="parameters" element="tns:SearchMedias" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_SearchMedias_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SearchMediasResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetAutoCompleteList_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAutoCompleteList" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetAutoCompleteList_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAutoCompleteListResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetChannelsMedias_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetChannelsMedias" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetChannelsMedias_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetChannelsMediasResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_UpdateRecord_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateRecord" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_UpdateRecord_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateRecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_UpdateChannel_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateChannel" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_UpdateChannel_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateChannelResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_RemoveRecord_InputMessage">
+    <wsdl:part name="parameters" element="tns:RemoveRecord" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_RemoveRecord_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RemoveRecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_ClearAndBuildGroup_InputMessage">
+    <wsdl:part name="parameters" element="tns:ClearAndBuildGroup" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_ClearAndBuildGroup_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ClearAndBuildGroupResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_SearchSubscriptionMedias_InputMessage">
+    <wsdl:part name="parameters" element="tns:SearchSubscriptionMedias" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_SearchSubscriptionMedias_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SearchSubscriptionMediasResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_DoesMediaBelongToChannels_InputMessage">
+    <wsdl:part name="parameters" element="tns:DoesMediaBelongToChannels" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_DoesMediaBelongToChannels_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DoesMediaBelongToChannelsResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetSubscriptionContainingMedia_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionContainingMedia" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetSubscriptionContainingMedia_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionContainingMediaResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetDoc_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetDoc" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetDoc_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetDocResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetMediaChannels_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetMediaChannels" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetMediaChannels_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetMediaChannelsResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_SearchEpgs_InputMessage">
+    <wsdl:part name="parameters" element="tns:SearchEpgs" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_SearchEpgs_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SearchEpgsResponse" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetEpgAutoCompleteList_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetEpgAutoCompleteList" />
+  </wsdl:message>
+  <wsdl:message name="ISearcher_GetEpgAutoCompleteList_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetEpgAutoCompleteListResponse" />
+  </wsdl:message>
+  <wsdl:portType name="ISearcher">
+    <wsdl:operation name="SearchMedias">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/SearchMedias" message="tns:ISearcher_SearchMedias_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/SearchMediasResponse" message="tns:ISearcher_SearchMedias_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoCompleteList">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/GetAutoCompleteList" message="tns:ISearcher_GetAutoCompleteList_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/GetAutoCompleteListResponse" message="tns:ISearcher_GetAutoCompleteList_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsMedias">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/GetChannelsMedias" message="tns:ISearcher_GetChannelsMedias_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/GetChannelsMediasResponse" message="tns:ISearcher_GetChannelsMedias_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecord">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/UpdateRecord" message="tns:ISearcher_UpdateRecord_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/UpdateRecordResponse" message="tns:ISearcher_UpdateRecord_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateChannel">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/UpdateChannel" message="tns:ISearcher_UpdateChannel_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/UpdateChannelResponse" message="tns:ISearcher_UpdateChannel_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveRecord">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/RemoveRecord" message="tns:ISearcher_RemoveRecord_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/RemoveRecordResponse" message="tns:ISearcher_RemoveRecord_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ClearAndBuildGroup">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/ClearAndBuildGroup" message="tns:ISearcher_ClearAndBuildGroup_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/ClearAndBuildGroupResponse" message="tns:ISearcher_ClearAndBuildGroup_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchSubscriptionMedias">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/SearchSubscriptionMedias" message="tns:ISearcher_SearchSubscriptionMedias_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/SearchSubscriptionMediasResponse" message="tns:ISearcher_SearchSubscriptionMedias_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DoesMediaBelongToChannels">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/DoesMediaBelongToChannels" message="tns:ISearcher_DoesMediaBelongToChannels_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/DoesMediaBelongToChannelsResponse" message="tns:ISearcher_DoesMediaBelongToChannels_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionContainingMedia">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/GetSubscriptionContainingMedia" message="tns:ISearcher_GetSubscriptionContainingMedia_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/GetSubscriptionContainingMediaResponse" message="tns:ISearcher_GetSubscriptionContainingMedia_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDoc">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/GetDoc" message="tns:ISearcher_GetDoc_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/GetDocResponse" message="tns:ISearcher_GetDoc_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaChannels">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/GetMediaChannels" message="tns:ISearcher_GetMediaChannels_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/GetMediaChannelsResponse" message="tns:ISearcher_GetMediaChannels_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchEpgs">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/SearchEpgs" message="tns:ISearcher_SearchEpgs_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/SearchEpgsResponse" message="tns:ISearcher_SearchEpgs_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEpgAutoCompleteList">
+      <wsdl:input wsaw:Action="http://tempuri.org/ISearcher/GetEpgAutoCompleteList" message="tns:ISearcher_GetEpgAutoCompleteList_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ISearcher/GetEpgAutoCompleteListResponse" message="tns:ISearcher_GetEpgAutoCompleteList_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_ILuceneService" type="i0:ILuceneService">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetChannelMedias">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/GetChannelMedias" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchMedias">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/SearchMedias" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsMedias">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/GetChannelsMedias" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecord">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/UpdateRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateChannel">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/UpdateChannel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveRecord">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/RemoveRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ClearAndBuildGroup">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/ClearAndBuildGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchSubscriptionMedias">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/SearchSubscriptionMedias" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchEpgs">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/SearchEpgs" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveEpgRecord">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/RemoveEpgRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateEpgRecord">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/UpdateEpgRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEpgAutoCompleteList">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/GetEpgAutoCompleteList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CleanEpgGroup">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/CleanEpgGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BuildEpgByChannel">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/BuildEpgByChannel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsMediaExistsInChannels">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/IsMediaExistsInChannels" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionContainingMedia">
+      <soap:operation soapAction="http://lucene.dev.tvincidns.com/ILuceneService/GetSubscriptionContainingMedia" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="BasicHttpBinding_ISearcher" type="tns:ISearcher">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="SearchMedias">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/SearchMedias" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAutoCompleteList">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/GetAutoCompleteList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsMedias">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/GetChannelsMedias" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecord">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/UpdateRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateChannel">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/UpdateChannel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveRecord">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/RemoveRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ClearAndBuildGroup">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/ClearAndBuildGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchSubscriptionMedias">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/SearchSubscriptionMedias" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoesMediaBelongToChannels">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/DoesMediaBelongToChannels" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionContainingMedia">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/GetSubscriptionContainingMedia" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDoc">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/GetDoc" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaChannels">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/GetMediaChannels" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchEpgs">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/SearchEpgs" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEpgAutoCompleteList">
+      <soap:operation soapAction="http://tempuri.org/ISearcher/GetEpgAutoCompleteList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Service">
+    <wsdl:port name="BasicHttpBinding_ILuceneService" binding="tns:BasicHttpBinding_ILuceneService">
+      <soap:address location="http://localhost/LuceneWCF2.0/Service.svc" />
+    </wsdl:port>
+    <wsdl:port name="BasicHttpBinding_ISearcher" binding="tns:BasicHttpBinding_ISearcher">
+      <soap:address location="http://localhost/LuceneWCF2.0/Service.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
