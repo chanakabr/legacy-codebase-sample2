@@ -81,7 +81,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
     if ("${component}" == "phoenix"){
-        sh "exit 0"
+        sh "exit 1"
     }
     report("${component}")
 }
