@@ -10,7 +10,6 @@ pipeline {
         MSBUILD = tool name: 'default', type: 'hudson.plugins.msbuild.MsBuildInstallation'
     }
     parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch')
         booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
     }
     stages {
@@ -18,8 +17,7 @@ pipeline {
             steps{
                 cleanWs()
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
-                dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
-                dir('tvpapi_rest') { git(url: 'https://github.com/kaltura/Phoenix.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                dir('ott-backend'){ git(url: 'https://github.com/kaltura/ott-backend', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
 
                 script{
                     withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
@@ -33,22 +31,46 @@ pipeline {
         }
         stage("Version Patch"){
             steps{
-                dir("core"){ 
-                    bat "sh DllVersioning.Core.sh ." 
-                    powershell "DllVersioning.ps1 ."
-                }
-                dir("tvpapi_rest") { 
-                    bat "sh ../core/DllVersioning.Core.sh ."
-                    powershell "../Core/DllVersioning.ps1 ."
+                dir("ott-backend"){
+                    dir("core"){ 
+                        bat "sh DllVersioning.Core.sh ." 
+                        powershell "../Core/DllVersioning.ps1 ."
+                    }
+                    dir("RemoteTasks") { 
+                        bat "sh ../core/DllVersioning.Core.sh ."
+                        powershell "../Core/DllVersioning.ps1 ."
+                    }
+                    dir("tvpapi") { 
+                        bat "sh ../core/DllVersioning.Core.sh ."
+                        powershell "../Core/DllVersioning.ps1 ."
+                    }
+                    dir("tvplibs") { 
+                        bat "sh ../core/DllVersioning.Core.sh ."
+                        powershell "../Core/DllVersioning.ps1 ."
+                    }
+                    dir("WS_Ingest") { 
+                        bat "sh ../core/DllVersioning.Core.sh ."
+                        powershell "../Core/DllVersioning.ps1 ."
+                    }
+                    dir("tvmapps") { 
+                        bat "sh ../core/DllVersioning.Core.sh ."
+                        powershell "../Core/DllVersioning.ps1 ."
+                    }
                 }
             }        
         }
-        stage("Nuget Restore"){
-            steps{
-                dir("core"){ bat ("nuget restore") }
-                dir("tvpapi_rest"){ bat ("nuget restore") }
-            }        
-        }
+        // stage("Nuget Restore"){
+        //     steps{
+        //         dir("ott-backend"){
+        //             dir("core"){ bat ("nuget restore") }
+        //             dir("tvpapi_rest"){ bat ("nuget restore") }
+        //             dir("tvpapi"){ bat ("nuget restore") }
+        //             dir("tvplibs"){ bat ("nuget restore") }
+        //             dir("WS_Ingest"){ bat ("nuget restore") }
+        //             dir("tvmapps"){ bat ("nuget restore") }
+        //         }
+        //     }        
+        // }
         stage("Clean"){
             steps{
                 sh(label:"clean bin and obj folders", script:"find . -iname 'bin' -o -iname 'obj' | xargs rm -rf")
