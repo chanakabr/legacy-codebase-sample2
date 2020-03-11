@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Data.DataSetExtensions" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Update="ProviderConfiguration\ProvideConfiguration.cs">
+      <DependentUpon>ProvideConfiguration.xsd</DependentUpon>
+    </Compile>
+    <Compile Update="Service References\ConfigSvc\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="ProviderConfiguration\ProvideConfiguration.xsd" />
+    <None Include="Service References\ConfigSvc\Tvinci.Configuration.ConfigSvc.ConfigKeyVal.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ConfigSvc\TVPConfigSvc.wsdl" />
+    <None Include="Service References\ConfigSvc\TVPConfigSvc.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ConfigSvc\TVPConfigSvc1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ConfigSvc\TVPConfigSvc2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="helper.txt" />
+    <None Include="Service References\ConfigSvc\TVPConfigSvc.disco" />
+    <None Include="Service References\ConfigSvc\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\ConfigSvc\configuration.svcinfo" />
+    <None Include="Service References\ConfigSvc\configuration91.svcinfo" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\Tvinci.Helpers\Tvinci.Helpers.csproj" />
+  </ItemGroup>
+</Project>

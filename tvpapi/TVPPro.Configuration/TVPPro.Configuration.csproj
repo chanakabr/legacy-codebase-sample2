@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="Admin\AdminData.cs">
+      <DependentUpon>AdminData.xsd</DependentUpon>
+    </Compile>
+    <Compile Update="Omniture\Omniture.cs">
+      <DependentUpon>Omniture.xsd</DependentUpon>
+      <SubType>code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Admin\AdminData.xsd" />
+    <None Include="Media\MediaData.xsd" />
+    <None Include="Omniture\Omniture.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Online\Online.xsd" />
+    <None Include="OrcaRecommendations\OrcaRecommendationsData.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="PageStruct\PageStructData.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="PlatformServices\PlatformServicesData.xsd" />
+    <None Include="Resources\ResourceConfiguration.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Site\SiteData.xsd" />
+    <None Include="Technical\TechnicalData.xsd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\Tvinci.Configuration\Tvinci.Configuration.csproj" />
+    <ProjectReference Include="..\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Created with Liquid XML Studio - FREE Community Edition (http://www.liquid-technologies.com)-->
+<xs:schema xmlns:mstns="http://tempuri.org/Maintaince.xsd" elementFormDefault="qualified" id="Maintaince" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="OnlineConfiguration">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Modes">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SiteMaintaince">
+								<xs:complexType>
+									<xs:attribute name="Status" use="required">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="Off"/>
+												<xs:enumeration value="Trial"/>
+												<xs:enumeration value="Maintenance"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="ViewMedia" type="Mode"/>
+							<xs:element name="PurchaseMedia" type="Mode"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element minOccurs="1" maxOccurs="1" name="TVM">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element minOccurs="0" maxOccurs="1" name="AlternativeServer">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element minOccurs="0" maxOccurs="unbounded" name="Item" type="Server"/>
+									</xs:sequence>
+									<xs:attribute name="ActiveID" type="xs:string"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="MainServer" type="Server"/>
+							<xs:element minOccurs="1" maxOccurs="1" name="AuthorizedServers">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element minOccurs="1" maxOccurs="unbounded" name="IP" type="xs:string"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute default="Default" name="TVMMode">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="Default"/>
+									<xs:enumeration value="Main"/>
+									<xs:enumeration value="Alternative"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="Mode">
+		<xs:attribute default="NotDefined" name="Status">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="NotDefined"/>
+					<xs:enumeration value="On"/>
+					<xs:enumeration value="Off"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="Server">
+		<xs:sequence>
+      <xs:element name="URL" type="xs:string"/>
+      <xs:element name="TVMReadURL" type="xs:string"/>
+      <xs:element name="TVMWriteURL" type="xs:string"/>
+		</xs:sequence>
+		<xs:attribute name="ID"/>
+	</xs:complexType>
+</xs:schema>
