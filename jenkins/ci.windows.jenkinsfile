@@ -84,7 +84,7 @@ pipeline {
                         buildMsProject("Ingest/Ingest.csproj","published/kaltura_ott_api/wsingest/")
                     }
                     dir("tvmapps"){
-                        buildMsProject("\"Web Sites\\TVM\\TVM.csproj\"","published/kaltura_ott_api/tvmapps/")
+                        buildMsProject("\"Web Sites/TVM/TVM.csproj\"","published/kaltura_ott_api/tvmapps/")
                     }
             }        
         }
