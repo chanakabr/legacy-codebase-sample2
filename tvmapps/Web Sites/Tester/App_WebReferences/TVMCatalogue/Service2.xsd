@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/Catalog" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Catalog" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://192.168.16.124/TVMCatalogue/Service.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://192.168.16.124/TVMCatalogue/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/System.Collections.Generic" />
+  <xs:complexType name="ChannelRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_nChannelID" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ChannelRequest" nillable="true" type="tns:ChannelRequest" />
+  <xs:complexType name="BaseRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_PageSize" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nGroupID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nPageIndex" type="xs:int" />
+      <xs:element minOccurs="0" name="m_oFilter" nillable="true" type="tns:Filter" />
+      <xs:element minOccurs="0" name="m_sSignString" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sSignature" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sUserIP" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BaseRequest" nillable="true" type="tns:BaseRequest" />
+  <xs:complexType name="Filter">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_bOnlyActiveMedia" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_bUseFinalDate" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_bUseStartDate" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_nLanguage" type="xs:int" />
+      <xs:element minOccurs="0" name="m_sDeviceId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sPlatform" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Filter" nillable="true" type="tns:Filter" />
+  <xs:complexType name="ChannelResponse">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_lMediaResponse" nillable="true" type="tns:ArrayOfMediaResponse" />
+          <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nMediaIds" nillable="true" type="q1:ArrayOfint" />
+          <xs:element minOccurs="0" name="m_sImageUrl" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_sName" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ChannelResponse" nillable="true" type="tns:ChannelResponse" />
+  <xs:complexType name="BaseResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_nTotalItems" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BaseResponse" nillable="true" type="tns:BaseResponse" />
+  <xs:complexType name="ArrayOfMediaResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="MediaResponse" nillable="true" type="tns:MediaResponse" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMediaResponse" nillable="true" type="tns:ArrayOfMediaResponse" />
+  <xs:complexType name="MediaResponse">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="lMediaObj" nillable="true" type="tns:ArrayOfMediaObj" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediaResponse" nillable="true" type="tns:MediaResponse" />
+  <xs:complexType name="ArrayOfMediaObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="MediaObj" nillable="true" type="tns:MediaObj" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMediaObj" nillable="true" type="tns:ArrayOfMediaObj" />
+  <xs:complexType name="MediaObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_dCreationDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="m_lFiles" nillable="true" type="tns:ArrayOfFileMedia" />
+      <xs:element minOccurs="0" name="m_lMetas" nillable="true" type="tns:ArrayOfMetas" />
+      <xs:element minOccurs="0" name="m_lPicture" nillable="true" type="tns:ArrayOfPicture" />
+      <xs:element minOccurs="0" name="m_lTags" nillable="true" type="tns:ArrayOfTags" />
+      <xs:element minOccurs="0" name="m_nID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_oMediaType" nillable="true" type="tns:MediaType" />
+      <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MediaObj" nillable="true" type="tns:MediaObj" />
+  <xs:complexType name="ArrayOfFileMedia">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="FileMedia" nillable="true" type="tns:FileMedia" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfFileMedia" nillable="true" type="tns:ArrayOfFileMedia" />
+  <xs:complexType name="FileMedia">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_nDuration" type="xs:double" />
+      <xs:element minOccurs="0" name="m_nFileId" type="xs:int" />
+      <xs:element minOccurs="0" name="m_sFileFormat" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sUrl" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="FileMedia" nillable="true" type="tns:FileMedia" />
+  <xs:complexType name="ArrayOfMetas">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Metas" nillable="true" type="tns:Metas" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMetas" nillable="true" type="tns:ArrayOfMetas" />
+  <xs:complexType name="Metas">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_oTagMeta" nillable="true" type="tns:TagMeta" />
+      <xs:element minOccurs="0" name="m_sValue" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Metas" nillable="true" type="tns:Metas" />
+  <xs:complexType name="TagMeta">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_sName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sType" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="TagMeta" nillable="true" type="tns:TagMeta" />
+  <xs:complexType name="ArrayOfPicture">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Picture" nillable="true" type="tns:Picture" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPicture" nillable="true" type="tns:ArrayOfPicture" />
+  <xs:complexType name="Picture">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_sSize" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sURL" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Picture" nillable="true" type="tns:Picture" />
+  <xs:complexType name="ArrayOfTags">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Tags" nillable="true" type="tns:Tags" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfTags" nillable="true" type="tns:ArrayOfTags" />
+  <xs:complexType name="Tags">
+    <xs:sequence>
+      <xs:element xmlns:q2="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lValues" nillable="true" type="q2:ArrayOfstring" />
+      <xs:element minOccurs="0" name="m_oTagMeta" nillable="true" type="tns:TagMeta" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Tags" nillable="true" type="tns:Tags" />
+  <xs:complexType name="MediaType">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_nTypeID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_sTypeName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MediaType" nillable="true" type="tns:MediaType" />
+  <xs:complexType name="MediasProtocolRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q3="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lMediasIds" nillable="true" type="q3:ArrayOfint" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediasProtocolRequest" nillable="true" type="tns:MediasProtocolRequest" />
+  <xs:complexType name="MediaRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_bAnd" type="xs:boolean" />
+          <xs:element minOccurs="0" name="m_bExact" type="xs:boolean" />
+          <xs:element minOccurs="0" name="m_eOrderBy" type="tns:OrderBy" />
+          <xs:element minOccurs="0" name="m_eOrderDir" type="tns:OrderDir" />
+          <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/System.Collections.Generic" minOccurs="0" name="m_lMetas" nillable="true" type="q4:ArrayOfKeyValuePairOfstringstring" />
+          <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/System.Collections.Generic" minOccurs="0" name="m_lTags" nillable="true" type="q5:ArrayOfKeyValuePairOfstringstring" />
+          <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+          <xs:element minOccurs="0" name="m_nMediaType" type="xs:int" />
+          <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_sName" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediaRequest" nillable="true" type="tns:MediaRequest" />
+  <xs:simpleType name="OrderBy">
+    <xs:restriction base="xs:string" />
+  </xs:simpleType>
+  <xs:element name="OrderBy" nillable="true" type="tns:OrderBy" />
+  <xs:simpleType name="OrderDir">
+    <xs:restriction base="xs:string" />
+  </xs:simpleType>
+  <xs:element name="OrderDir" nillable="true" type="tns:OrderDir" />
+  <xs:complexType name="MediaIdsResponse">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseResponse">
+        <xs:sequence>
+          <xs:element xmlns:q6="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nMediaIds" nillable="true" type="q6:ArrayOfint" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediaIdsResponse" nillable="true" type="tns:MediaIdsResponse" />
+  <xs:complexType name="MediaRelatedRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediaRelatedRequest" nillable="true" type="tns:MediaRelatedRequest" />
+</xs:schema>

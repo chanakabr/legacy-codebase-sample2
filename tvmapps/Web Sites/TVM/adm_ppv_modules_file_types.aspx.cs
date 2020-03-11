@@ -1,0 +1,285 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Configuration;
+using TVinciShared;
+using CachingProvider.LayeredCache;
+using KLogMonitor;
+using System.Reflection;
+
+public partial class adm_ppv_modules_file_types : System.Web.UI.Page
+{
+    protected string m_sMenu;
+    protected string m_sSubMenu;
+
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (LoginManager.CheckLogin() == false)
+            Response.Redirect("login.html");
+        if (LoginManager.IsPagePermitted("adm_media.aspx") == false)
+            LoginManager.LogoutFromSite("login.html");
+        if (AMS.Web.RemoteScripting.InvokeMethod(this))
+            return;
+        if (!IsPostBack)
+        {
+            Int32 nMenuID = 0;
+            m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID, "adm_ppv_modules.aspx");
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
+            if (Request.QueryString["ppv_module_id"] != null &&
+                Request.QueryString["ppv_module_id"].ToString() != "")
+            {
+                Session["ppv_module_id"] = int.Parse(Request.QueryString["ppv_module_id"].ToString());
+                Int32 nOwnerGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("ppv_modules", "group_id", int.Parse(Session["ppv_module_id"].ToString()), "pricing_connection").ToString());
+                Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+                if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
+                {
+                    LoginManager.LogoutFromSite("login.html");
+                    return;
+                }
+            }
+            else if (Session["ppv_module_id"] == null || Session["ppv_module_id"].ToString() == "" || Session["ppv_module_id"].ToString() == "0")
+            {
+                LoginManager.LogoutFromSite("index.html");
+                return;
+            }
+        }
+    }
+
+    public void GetHeader()
+    {
+        string sRet = PageUtils.GetPreHeader() + ":";
+        Response.Write(sRet + " PPV Module (" + Session["ppv_module_id"].ToString() + ") File Types");
+    }
+
+    protected void GetMainMenu()
+    {
+        Response.Write(m_sMenu);
+    }
+
+    protected void GetSubMenu()
+    {
+        Response.Write(m_sSubMenu);
+    }
+
+    public string GetTableCSV()
+    {
+        string sOldOrderBy = "";
+        if (Session["order_by"] != null)
+            sOldOrderBy = Session["order_by"].ToString();
+        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+        FillTheTableEditor(ref theTable, sOldOrderBy);
+
+        string sCSVFile = theTable.OpenCSV();
+        theTable.Finish();
+        theTable = null;
+        return sCSVFile;
+    }
+
+    protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
+    {
+    }
+
+    protected void InsertPPVFileTypeID(Int32 nFileTypeID, Int32 nSubscriptionID, Int32 nGroupID)
+    {
+        ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ppv_modules_file_types");
+        insertQuery.SetConnectionKey("pricing_connection");
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ppv_module_id", "=", nSubscriptionID);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("FILE_TYPE_ID", "=", nFileTypeID);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+        insertQuery.Execute();
+        insertQuery.Finish();
+        insertQuery = null;
+    }
+
+    protected void UpdatePPVFileTypeID(Int32 nID, Int32 nStatus)
+    {
+        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_file_types");
+        updateQuery.SetConnectionKey("pricing_connection");
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
+        updateQuery += "where ";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
+        updateQuery.Execute();
+        updateQuery.Finish();
+        updateQuery = null;
+    }
+
+    protected Int32 GetPPVFileTypeID(Int32 nFileTypeID, Int32 nLogedInGroupID, ref Int32 nStatus)
+    {
+        Int32 nRet = 0;
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("pricing_connection");
+        selectQuery += "select id,status from ppv_modules_file_types where is_active=1 and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ppv_module_id", "=", int.Parse(Session["ppv_module_id"].ToString()));
+        selectQuery += "and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("FILE_TYPE_ID", "=", nFileTypeID);
+        selectQuery += "and";
+        Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", nLogedInGroupID).ToString());
+        if (nCommerceGroupID == 0)
+            nCommerceGroupID = LoginManager.GetLoginGroupID();
+        selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
+        //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nLogedInGroupID);
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                nStatus = int.Parse(selectQuery.Table("query").DefaultView[0].Row["STATUS"].ToString());
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+        return nRet;
+    }
+
+    public string changeItemStatus(string sID, string sAction)
+    {
+        if (Session["ppv_module_id"] == null || Session["ppv_module_id"].ToString() == "" || Session["ppv_module_id"].ToString() == "0")
+        {
+            LoginManager.LogoutFromSite("index.html");
+            return "";
+        }
+
+        int ppvModuleId = int.Parse(Session["ppv_module_id"].ToString());
+        Int32 nOwnerGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("ppv_modules", "group_id", ppvModuleId, "pricing_connection").ToString());
+        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+        if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
+        {
+            LoginManager.LogoutFromSite("login.html");
+            return "";
+        }
+        Int32 nStatus = 0;
+        Int32 nPPVFileTypeID = GetPPVFileTypeID(int.Parse(sID), nLogedInGroupID, ref nStatus);
+        if (nPPVFileTypeID != 0)
+        {
+            if (nStatus == 0)
+                UpdatePPVFileTypeID(nPPVFileTypeID, 1);
+            else
+                UpdatePPVFileTypeID(nPPVFileTypeID, 0);
+        }
+        else
+        {
+            InsertPPVFileTypeID(int.Parse(sID), ppvModuleId, nLogedInGroupID);
+        }
+
+        string invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(nLogedInGroupID);
+        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+        {
+            log.ErrorFormat("Failed to set pricing settings invalidation key for ppv module id {0}, key = {1}", ppvModuleId, invalidationKey);
+        }
+
+        return "";
+    }
+
+    public string initDualObj()
+    {
+        if (Session["ppv_module_id"] == null || Session["ppv_module_id"].ToString() == "" || Session["ppv_module_id"].ToString() == "0")
+        {
+            LoginManager.LogoutFromSite("index.html");
+            return "";
+        }
+
+        Int32 nOwnerGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("ppv_modules", "group_id", int.Parse(Session["ppv_module_id"].ToString()), "pricing_connection").ToString());
+        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+        if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
+        {
+            LoginManager.LogoutFromSite("login.html");
+            return "";
+        }
+
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Current File Types");
+        dualList.Add("SecondListTitle", "Available File Types");
+
+        object[] resultData = null;
+        List<object> ppvModulesFileTypes = new List<object>();
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select * from groups_media_type where is_active=1 and status=1 and ";
+        Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
+        if (nCommerceGroupID == 0)
+            nCommerceGroupID = LoginManager.GetLoginGroupID();
+        selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
+        //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            for (int i = 0; i < nCount; i++)
+            {
+                string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
+                string sGroupID = selectQuery.Table("query").DefaultView[i].Row["GROUP_ID"].ToString();
+                string sTitle = "";
+                if (selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != null &&
+                    selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != DBNull.Value)
+                    sTitle = selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"].ToString();
+                string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
+                sTitle += "(" + sGroupName.ToString() + ")";
+                string sDescription = sTitle;
+                bool isInList = false;
+                if (IsFileTypeBelong(int.Parse(sID)) == true)
+                {
+                    isInList = true;
+                }
+                var data = new
+                {
+                    ID = sID,
+                    Title = sTitle,
+                    Description = sDescription,
+                    InList = isInList
+                };
+                ppvModulesFileTypes.Add(data);                    
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+
+        resultData = new object[ppvModulesFileTypes.Count];
+        resultData = ppvModulesFileTypes.ToArray();
+
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_ppv_modules_file_types.aspx");
+        dualList.Add("withCalendar", false);
+
+        return dualList.ToJSON();
+    }
+
+    protected bool IsFileTypeBelong(Int32 nFileTypeID)
+    {
+        try
+        {
+            bool bRet = false;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("pricing_connection");
+            selectQuery += "select id from ppv_modules_file_types where is_active=1 and status=1 and ";
+            Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
+            if (nCommerceGroupID == 0)
+                nCommerceGroupID = LoginManager.GetLoginGroupID();
+            selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
+            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ppv_module_id", "=", int.Parse(Session["ppv_module_id"].ToString()));
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("FILE_TYPE_ID", "=", nFileTypeID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    bRet = true;
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return bRet;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
