@@ -1,0 +1,87 @@
+﻿using ApiObjects.Response;
+using System;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.Catalog;
+using WebAPI.Utils;
+
+namespace WebAPI.Controllers
+{
+    [Service("assetStructMeta")]
+    public class AssetStructMetaController : IKalturaController
+    {
+        /// <summary>
+        /// Return a list of asset struct metas for the account with optional filter
+        /// </summary>
+        /// <param name="filter">Filter parameters for filtering out the result</param>
+        /// <returns></returns>
+        [Action("list")]
+        [ApiAuthorize]
+        static public KalturaAssetStructMetaListResponse List(KalturaAssetStructMetaFilter filter)
+        {
+            KalturaAssetStructMetaListResponse response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (filter == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "filter");
+            }
+
+            filter.Validate();
+
+            try
+            {
+                response = ClientsManager.CatalogClient().GetAssetStructMetaList(groupId, filter.AssetStructIdEqual, filter.MetaIdEqual);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update Asset struct meta
+        /// </summary>
+        /// <param name="assetStructId">AssetStruct Identifier</param>
+        /// <param name="metaId">Meta Identifier</param>
+        /// <param name="assetStructMeta">AssetStructMeta Object</param>
+        /// <returns></returns>
+        [Action("update")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
+        [Throws(eResponseStatus.MetaDoesNotExist)]
+        [SchemeArgument("assetStructId", MinLong = 1)]
+        [SchemeArgument("metaId", MinLong = 1)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        static public KalturaAssetStructMeta Update(long assetStructId, long metaId, KalturaAssetStructMeta assetStructMeta)
+        {
+            KalturaAssetStructMeta response = null;
+
+            if (assetStructMeta.IngestReferencePath == null &&
+                assetStructMeta.DefaultIngestValue == null &&
+                !assetStructMeta.ProtectFromIngest.HasValue &&
+                !assetStructMeta.IsInherited.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "ingestReferencePath", "defaultIngestValue", "protectFromIngest", "isInherited");
+            }
+
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            try
+            {
+                response = ClientsManager.CatalogClient().UpdateAssetStructMeta(assetStructId, metaId, assetStructMeta, groupId, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+    }
+}
