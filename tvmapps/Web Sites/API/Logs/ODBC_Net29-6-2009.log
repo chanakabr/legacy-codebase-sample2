@@ -1,0 +1,3 @@
+
+6/29/2009 11:03:41 AM , THREAD-17380, ODBCWrapper.DirectQuery : While running : 'SET LOCK_TIMEOUT 2000()'
+ Exception accured: A transport-level error has occurred when sending the request to the server. (provider: TCP Provider, error: 0 - An existing connection was forcibly closed by the remote host.)

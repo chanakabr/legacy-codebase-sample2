@@ -1,0 +1,13 @@
+﻿<configuration>
+	<version id="1.1.1.1"/>
+	<tvm url="https://platform.tvinci.com"/>
+	<cache>
+		<tvm value="true"/>
+		<server url=""/>
+	</cache>
+	<group un="live_hp" pass="live_hp"/>
+	<media quality="HIGH"> 
+		<main format="FLV"/>
+		<!--sub format="GIB"/-->
+	</media>
+</configuration>
