@@ -40,6 +40,10 @@ pipeline {
                 dir("ott-backend"){
                     dir("core"){ 
                         bat "sh DllVersioning.Core.sh ." 
+                        powershell "DllVersioning.ps1 ."
+                    }
+                    dir("phoenix"){ 
+                        bat "sh ../Core/DllVersioning.Core.sh ." 
                         powershell "../Core/DllVersioning.ps1 ."
                     }
                     dir("RemoteTasks") { 
@@ -69,7 +73,7 @@ pipeline {
             steps{
                 dir("ott-backend"){
                     dir("core"){ bat ("nuget restore") }
-                    dir("tvpapi_rest"){ bat ("nuget restore") }
+                    dir("phoenix"){ bat ("nuget restore") }
                     dir("tvpapi"){ bat ("nuget restore") }
                     dir("tvplibs"){ bat ("nuget restore") }
                     dir("WS_Ingest"){ bat ("nuget restore") }
