@@ -1,0 +1,1 @@
+﻿<%@ Page ValidateRequest="false" Language="C#" AutoEventWireup="true" CodeBehind="sc_api.aspx.cs" Inherits="WS_Billing.sc_api" %>
