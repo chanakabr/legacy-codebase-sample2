@@ -86,6 +86,8 @@ pipeline {
             environment{
                 TCM_URL="http://tcm.service.consul:8080"
                 TCM_APP="OTT_API_SV"
+                TCM_HOST="PROD_v5_2_2"
+                TCM_SECTION="main"
             }
             steps{
                 dir("ott-backend"){
@@ -123,6 +125,12 @@ pipeline {
             }        
         }
         stage("Generate KalturaClient.xml"){
+            environment{
+                TCM_URL="http://tcm.service.consul:8080"
+                TCM_APP="OTT_API_SV"
+                TCM_HOST="PROD_v5_2_2"
+                TCM_SECTION="main"
+            }
             steps { 
                 dir("ott-backend"){
                     dir("phoenix/Generator"){
