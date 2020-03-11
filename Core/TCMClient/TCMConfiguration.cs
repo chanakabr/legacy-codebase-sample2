@@ -48,6 +48,11 @@ namespace TCMClient
                 Environment = environment;
             }
 
+            if (host != null)
+            {
+                Host = host;
+            }
+
             if (appID != null)
             {
                 AppID = appID;
