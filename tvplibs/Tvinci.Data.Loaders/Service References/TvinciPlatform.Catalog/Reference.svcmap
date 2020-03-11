@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="4b235439-f259-4cee-b72f-0012bb050b90" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="ws_catalog_service.xsd" MetadataType="Schema" ID="18fb4e1c-2daa-46e4-a222-868d47f83190" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd19" />
+    <MetadataFile FileName="ws_catalog_service1.xsd" MetadataType="Schema" ID="198719ce-bbdc-4439-9f3c-226283750468" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd1" />
+    <MetadataFile FileName="ws_catalog_service2.xsd" MetadataType="Schema" ID="05bafb58-f406-48cd-875c-a358354509e8" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd0" />
+    <MetadataFile FileName="ws_catalog_service3.xsd" MetadataType="Schema" ID="9bd1c314-0496-4f99-878f-4f8b1f4701e5" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd3" />
+    <MetadataFile FileName="ws_catalog_service4.xsd" MetadataType="Schema" ID="73f370ac-9943-4d44-abff-0819dba669e1" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd2" />
+    <MetadataFile FileName="ws_catalog_service5.xsd" MetadataType="Schema" ID="4995443e-c6fc-455b-8f3a-3aa21da78c16" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd5" />
+    <MetadataFile FileName="ws_catalog_service6.xsd" MetadataType="Schema" ID="5d02c6e4-ae5b-4716-8c35-7905383dda81" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd4" />
+    <MetadataFile FileName="ws_catalog_service7.xsd" MetadataType="Schema" ID="afe0c099-9632-4dcc-b085-6946f3f8531a" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd7" />
+    <MetadataFile FileName="ws_catalog_service8.xsd" MetadataType="Schema" ID="97ef010a-af87-4341-b802-e87e88031eb3" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd6" />
+    <MetadataFile FileName="ws_catalog_service9.xsd" MetadataType="Schema" ID="6cd5feda-dde8-4a4f-a910-78df129b65fe" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd9" />
+    <MetadataFile FileName="ws_catalog_service10.xsd" MetadataType="Schema" ID="119da3f6-190a-4a66-a7a2-da4ee7f24e2f" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd8" />
+    <MetadataFile FileName="ws_catalog_service11.xsd" MetadataType="Schema" ID="17769e78-66b0-4679-964d-f4704de4e809" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd16" />
+    <MetadataFile FileName="ws_catalog_service12.xsd" MetadataType="Schema" ID="c551c76f-fd0a-482b-b1c6-4a9cc61c508f" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd17" />
+    <MetadataFile FileName="ws_catalog_service13.xsd" MetadataType="Schema" ID="c444c4b0-54dc-4eb1-ad21-7c34a13872f3" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd13" />
+    <MetadataFile FileName="ws_catalog_service14.xsd" MetadataType="Schema" ID="72baac59-a496-4e46-824e-cc7eea0139c4" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd14" />
+    <MetadataFile FileName="ws_catalog_service.disco" MetadataType="Disco" ID="228305ea-d633-444e-9714-6335637de0af" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?disco" />
+    <MetadataFile FileName="ws_catalog_service15.xsd" MetadataType="Schema" ID="399a6550-b103-4db0-a4f6-3993df6f694e" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd12" />
+    <MetadataFile FileName="ws_catalog_service16.xsd" MetadataType="Schema" ID="0da95021-e203-4644-8e3d-84462dcf772b" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd10" />
+    <MetadataFile FileName="ws_catalog_service1.wsdl" MetadataType="Wsdl" ID="bd380c58-5f23-4f61-a9ff-a46ab706b53f" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="Service3.wsdl" MetadataType="Wsdl" ID="a5a4eb0e-80ff-4d0b-915a-42f1f3e9f268" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?wsdl" />
+    <MetadataFile FileName="ws_catalog_service17.xsd" MetadataType="Schema" ID="d1e7affa-481f-46ed-857e-688245ea49db" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd18" />
+    <MetadataFile FileName="ws_catalog_service18.xsd" MetadataType="Schema" ID="b68aa143-f8f9-4c3f-b882-3dcfcb37f785" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd15" />
+    <MetadataFile FileName="ws_catalog_service19.xsd" MetadataType="Schema" ID="f694237e-e16e-4d1f-82dc-5f794a2b4f7a" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd11" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

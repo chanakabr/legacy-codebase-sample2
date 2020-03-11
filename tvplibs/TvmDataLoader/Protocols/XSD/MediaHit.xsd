@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by Chipopo (EMBRACE) -->
+<!--Created with Liquid XML Studio (http://www.liquid-technologies.com)-->
+<xs:schema xmlns:ns0="SharedElements" xmlns:mstns="http://tempuri.org/Orange" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="MediaHit">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="request">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="watching">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="media">
+														<xs:complexType>
+															<xs:attribute name="id" use="required"/>
+															<xs:attribute name="duration" use="required"/>
+															<xs:attribute name="file_id" use="required"/>
+															<xs:attribute name="billing" use="required"/>
+															<xs:attribute name="cdn_id" use="required"/>
+															<xs:attribute name="file_quality">
+																<xs:simpleType>
+																	<xs:restriction base="xs:string">
+																		<xs:enumeration value="low"/>
+																		<xs:enumeration value="medium"/>
+																		<xs:enumeration value="high"/>
+																	</xs:restriction>
+																</xs:simpleType>
+															</xs:attribute>
+															<xs:attribute name="orig_file_format"/>
+															<xs:attribute name="avg_bit_rate_num" type="xs:string"/>
+															<xs:attribute name="current_bit_rate_num" type="xs:string"/>
+															<xs:attribute name="total_bit_rate_num" type="xs:string"/>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="location_sec"/>
+												<xs:attribute name="device_udid"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="type" fixed="hit">
+										<xs:simpleType>
+											<xs:restriction base="xs:string"/>
+										</xs:simpleType>
+									</xs:attribute>
+									<xs:attribute name="action"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="flashvars">
+								<xs:complexType>
+									<xs:attribute name="user_ip" type="xs:string"/>
+									<xs:attribute name="admin_token" type="xs:string"/>
+									<xs:attribute name="player_un"/>
+									<xs:attribute name="player_pass"/>
+									<xs:attribute name="pic_size1"/>
+									<xs:attribute name="pic_size2"/>
+									<xs:attribute name="pic_size3" type="xs:string"/>
+									<xs:attribute name="lang"/>
+									<xs:attribute name="no_cache"/>
+									<xs:attribute name="use_final_end_date"/>
+									<xs:attribute name="file_format"/>
+									<xs:attribute name="file_quality">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="low"/>
+												<xs:enumeration value="medium"/>
+												<xs:enumeration value="high"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+									<xs:attribute name="zip" type="xs:string" use="optional" default="0"/>
+									<xs:attribute name="pic_size1_format" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size1_quality" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size2_format" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size2_quality" type="xs:string" use="optional"/>
+									<xs:attribute name="pic_size3_format" type="xs:string"/>
+									<xs:attribute name="pic_size3_quality" type="xs:string"/>
+									<xs:attribute name="site_guid"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:attribute name="type"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (http://www.altova.com) by Someone (Somewhere) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="File">
+		<xs:attribute name="Type" type="xs:string"/>
+		<xs:attribute name="ID" type="xs:int"/>
+		<xs:attribute name="URL" type="xs:string"/>
+		<xs:attribute name="BillingType" type="xs:string"/>
+		<xs:attribute name="is_active" type="xs:int"/>
+		<xs:attribute name="TypeID" type="xs:int"/>
+	</xs:complexType>
+	<xs:complexType name="Media">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="File" type="File"/>
+		</xs:sequence>
+		<xs:attribute name="PicUrl"/>
+		<xs:attribute name="ID" type="xs:int"/>
+		<xs:attribute name="Title" type="xs:string"/>
+		<xs:attribute name="Type" type="xs:string"/>
+		<xs:attribute name="is_active" type="xs:int"/>
+		<xs:attribute name="TypeID" type="xs:int"/>
+		<xs:attribute name="FileCount" type="xs:int"/>
+	</xs:complexType>
+	<xs:element name="GroupMedias">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="request">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="params">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="GroupID" type="xs:int"/>
+													<xs:element name="NumOfItems" type="xs:int"/>
+													<xs:element name="PageIndex" type="xs:int"/>
+													<xs:element name="PicSize" type="xs:string"/>
+													<xs:element name="TypeID" type="xs:int"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:sequence maxOccurs="unbounded">
+							<xs:element name="Media" type="Media"/>
+						</xs:sequence>
+						<xs:attribute name="total_num_of_items" type="xs:int"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

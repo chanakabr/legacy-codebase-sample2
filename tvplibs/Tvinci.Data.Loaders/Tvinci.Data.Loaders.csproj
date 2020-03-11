@@ -1,0 +1,272 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{209EE212-3A89-4966-951E-0173DCC76BB0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Tvinci.Data.Loaders</RootNamespace>
+    <AssemblyName>Tvinci.Data.Loaders</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
+    <OutputPath>bin\Local\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Jil">
+      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
+    </Reference>
+    <Reference Include="KLogMonitor, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvincicommon\External\4.5.2\KLogMonitor.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\tvincicommon\External\4.5.2\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cache.cs" />
+    <Compile Include="CacheKey.cs" />
+    <Compile Include="CacheManeger.cs" />
+    <Compile Include="FailOverManager.cs" />
+    <Compile Include="Provider.cs" />
+    <Compile Include="CatalogRequestManager.cs" />
+    <Compile Include="Service References\TvinciPlatform.Catalog\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="TVMCatalogProvider.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj">
+      <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
+      <Name>TVPPro.Configuration</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2.wsdl" />
+    <None Include="Service References\TvinciPlatform.Catalog\service2018.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2019.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2020.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2021.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2022.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2023.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2024.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2025.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2026.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2027.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2028.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2029.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2030.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2031.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2032.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2033.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2034.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2035.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2036.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2037.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2040.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2041.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2042.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2043.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2044.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2045.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2046.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2047.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2048.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2049.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2050.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2051.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2052.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2053.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2054.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2055.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2056.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2057.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2058.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service2059.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\Service21.wsdl" />
+    <None Include="Service References\TvinciPlatform.Catalog\Service3.wsdl" />
+    <None Include="Service References\TvinciPlatform.Catalog\service4.wsdl" />
+    <None Include="Service References\TvinciPlatform.Catalog\Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgProgramResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\Tvinci.Data.Loaders.TvinciPlatform.Catalog.Response.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\Tvinci.Data.Loaders.TvinciPlatform.Catalog.Status.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\TvinciPlatform.Catalog\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TvinciPlatform.Catalog\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TvinciPlatform.Catalog\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TvinciPlatform.Catalog\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TvinciPlatform.Catalog\service1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TvinciPlatform.Catalog\service2.disco" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
