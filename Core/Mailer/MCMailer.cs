@@ -1,0 +1,81 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using ApiObjects;
+using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
+using Newtonsoft.Json;
+using ConfigurationManager;
+
+namespace Mailer
+{
+    public class MCMailer : IMailer
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+       
+
+        public bool SendMailTemplate(ApiObjects.MailRequestObj request)
+        {
+            try
+            {
+                log.DebugFormat("SendMailTemplate: SenderTo={0}, Subject={1}, TemplateName={2} ", request.m_sSenderTo, request.m_sSubject, request.m_sTemplateName);
+                bool retVal = false;
+                MCObjByTemplate mcObj = request.parseRequestToTemplate();
+                mcObj.key = ApplicationConfiguration.MailerConfiguration.MCKey.Value; // default key
+
+                if (!string.IsNullOrEmpty(request.m_emailKey))// specific key to group
+                {
+                    mcObj.key = request.m_emailKey;
+                }
+                else if (request != null && request.groupId.HasValue && request.groupId.Value > 0) // try to get mcKey from DB by groupID
+                {
+                    // get from db or from cache 
+                    string mcKey = Utils.GetGroupMcKey(request.groupId.Value);
+                    if (!string.IsNullOrEmpty(mcKey))
+                    {
+                        mcObj.key = mcKey;
+                    }
+                }
+
+                //Patch until going live!!              
+                if (mcObj.template_name.Contains("."))
+                {
+                    mcObj.template_name = mcObj.template_name.Remove(mcObj.template_name.IndexOf('.'));
+                }
+                string json = JsonConvert.SerializeObject(mcObj);
+                //log.DebugFormat("SendMailTemplate: mcObj={0} ", json);
+                string mcURL = ApplicationConfiguration.MailerConfiguration.MCURL.Value;
+                string sResp = Utils.SendPostHttpReq(mcURL, json);
+                log.DebugFormat("mailurl={0} response={1} ", mcURL + " key:" + mcObj.key, sResp);
+                if (sResp.Contains("sent"))
+                {
+                    retVal = true;
+                }
+                else
+                {
+                    if (mcObj.message != null && !string.IsNullOrEmpty(mcObj.message.bcc_address))
+                    {
+                        if (mcObj.message.to != null && mcObj.message.to.Count > 0)
+                        {
+                            mcObj.message.to[0].email = mcObj.message.bcc_address;
+                            json = JsonConvert.SerializeObject(mcObj);
+                            sResp = Utils.SendPostHttpReq(mcURL, json);
+                            if (sResp.Contains("sent"))
+                            {
+                                retVal = true;
+                            }
+                        }
+                    }
+                }
+                return retVal;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while sending mail template. template name: {0}, ex: {1}", request.m_sTemplateName, ex);
+                return false;
+            }
+        }
+    }
+}

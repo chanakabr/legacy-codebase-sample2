@@ -1,0 +1,18 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "UserAssetRule_List",
+      "service": "UserAssetRule",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,50 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "IMAGETYPE_MNG",
+        "IMAGETYPE_VIEW",
+        "MEDIAFILETYPE_VIEW",
+        "ASSETS_VIEW",
+        "BSC_ASSETS_MNG",
+        "ASSETS_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "ImageType_List",
+      "service": "ImageType",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "IMAGETYPE_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "ImageType_Add",
+      "service": "ImageType",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "IMAGETYPE_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "ImageType_Delete",
+      "service": "ImageType",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "IMAGETYPE_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "ImageType_Update",
+      "service": "ImageType",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,72 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <Version>5.2.5.0</Version>
+    <AssemblyTitle>2019-07-17 17:27:32 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-4-130-g70b92f31-dirty</AssemblyTitle>
+    <AssemblyName />
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DocumentationFile>bin\WebAPI.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Web" />
+    <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.3" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.3" />
+    <Reference Include="System.configuration" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <ProjectReference Include="..\..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
+    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
+    <ProjectReference Include="..\..\Core\CachingManager\CachingManager.csproj" />
+    <ProjectReference Include="..\..\Core\CachingProvider\CachingProvider.csproj" />
+    <ProjectReference Include="..\..\Core\CouchbaseManager\CouchbaseManager.csproj" />
+    <ProjectReference Include="..\..\Core\DAL\DAL.csproj" />
+    <ProjectReference Include="..\..\Core\EventManager\EventManager.csproj" />
+    <ProjectReference Include="..\..\Core\GoogleAPI\GoogleAPI.csproj" />
+    <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj" />
+    <ProjectReference Include="..\..\Core\KlogMonitorHelper\KlogMonitorHelper.csproj" />
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\..\Core\M1BL\M1BL.csproj" />
+    <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj" />
+    <ProjectReference Include="..\..\Core\QueueWrapper\QueueWrapper.csproj" />
+    <ProjectReference Include="..\..\Core\ScheduledTasks\ScheduledTasks.csproj" />
+    <ProjectReference Include="..\..\Core\ServiceExtensions\ServiceExtensions.csproj" />
+    <ProjectReference Include="..\..\Core\TvinciCache\TvinciCache.csproj" />
+    <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Controllers\DomainsController.cs" />
+    <Compile Remove="Controllers\EngagementAdapterSettingsController.cs" />
+    <Compile Remove="Controllers\HouseholdLimitationModuleController.cs" />
+    <Compile Remove="Managers\Models\EventNotification.cs" />
+    <Compile Remove="Models\ConditionalAccess\AdapterPlaybackContextOptions.cs" />
+    <Compile Remove="Models\General\KalturaString.cs" />
+    <Compile Remove="Models\Social\FacebookInterestData.cs" />
+    <Compile Remove="Models\Social\FacebookLocation.cs" />
+  </ItemGroup>
+</Project>

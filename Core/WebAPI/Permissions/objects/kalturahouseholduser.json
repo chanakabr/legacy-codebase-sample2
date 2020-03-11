@@ -1,0 +1,28 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaHouseholdUser_UserId_Insert",
+      "object": "KalturaHouseholdUser",
+      "parameter": "userId",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaHouseholdUser_HouseholdId_Insert",
+      "object": "KalturaHouseholdUser",
+      "parameter": "householdId",
+      "action": "INSERT",
+      "type": "Parameter"
+    }
+  ],
+  "type": "Parameter"
+}
