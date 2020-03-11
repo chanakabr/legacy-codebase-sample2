@@ -1,0 +1,16 @@
+
+4/19/2012 9:12:05 AM , THREAD-9528, Start : Job start: group: 134 | billing provider: 10
+4/19/2012 9:22:28 AM , THREAD-7444, Start : Job start: group: 134 | billing provider: 10
+4/19/2012 9:24:55 AM , THREAD-9528, Start : Job start: group: 134 | billing provider: 10
+4/19/2012 9:53:38 AM , THREAD-8776, Start : Job start: group: 134 | billing provider: 10
+4/19/2012 9:54:15 AM , THREAD-6688, Start : Job start: group: 134 | billing provider: 10
+4/19/2012 9:56:09 AM , THREAD-7768, Start : Job start: group: 134 | billing provider: 10
+4/19/2012 9:56:29 AM , THREAD-7768, Start : Job start: group: 134 | billing provider: 10
+4/19/2012 9:57:07 AM , THREAD-7768, Start : Job start: group: 134 | billing provider: 10
+4/19/2012 9:57:26 AM , THREAD-6688, Start : Job start: group: 134 | billing provider: 10
+4/19/2012 9:58:07 AM , THREAD-6688, Fail : Fail count for user 256844
+4/19/2012 9:58:11 AM , THREAD-6688, renew : SiteGUID: 256844 | price: 6.9EUR | Subscription Code: 288 | Extra params:  | Prchase ID: 4239 | Payment number : 2 | status code: Fail | status desc: No latest details found for user 256844 | reciept: 
+4/19/2012 10:36:52 AM , THREAD-4808, Start : Job start: group: 134 | billing provider: 10
+4/19/2012 11:43:06 AM , THREAD-7192, Start : Job start: group: 134 | billing provider: 10
+4/19/2012 11:44:00 AM , THREAD-7192, Fail : Fail count for user 256844
+4/19/2012 11:44:03 AM , THREAD-7192, renew : SiteGUID: 256844 | price: 6.9EUR | Subscription Code: 288 | Extra params:  | Prchase ID: 4239 | Payment number : 2 | status code: Fail | status desc: No latest details found for user 256844 | reciept: 
