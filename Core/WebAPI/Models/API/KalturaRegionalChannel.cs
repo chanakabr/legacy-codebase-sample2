@@ -1,0 +1,26 @@
+﻿using Newtonsoft.Json;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.API
+{
+    public partial class KalturaRegionalChannel : KalturaOTTObject
+    {
+        /// <summary>
+        /// The identifier of the linear media representing the channel
+        /// </summary>
+        [DataMember(Name = "linearChannelId")]
+        [JsonProperty("linearChannelId")]
+        [XmlElement(ElementName = "linearChannelId")]
+        public int LinearChannelId { get; set; }
+
+        /// <summary>
+        /// The number of the channel
+        /// </summary>
+        [DataMember(Name = "channelNumber")]
+        [JsonProperty("channelNumber")]
+        [XmlElement(ElementName = "channelNumber")]
+        public int ChannelNumber { get; set; }
+    }
+}

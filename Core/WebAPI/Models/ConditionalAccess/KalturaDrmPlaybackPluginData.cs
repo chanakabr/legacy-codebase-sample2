@@ -1,0 +1,64 @@
+﻿using Newtonsoft.Json;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.ConditionalAccess
+{
+    [XmlInclude(typeof(KalturaFairPlayPlaybackPluginData))]
+    [XmlInclude(typeof(KalturaCustomDrmPlaybackPluginData))]
+    public partial class KalturaDrmPlaybackPluginData : KalturaPluginData
+    {
+        /// <summary>
+        /// Scheme
+        /// </summary>
+        [DataMember(Name = "scheme")]
+        [JsonProperty("scheme")]
+        [XmlElement(ElementName = "scheme")]
+        public KalturaDrmSchemeName Scheme { get; set; }
+
+        /// <summary>
+        /// License URL
+        /// </summary>
+        [DataMember(Name = "licenseURL")]
+        [JsonProperty("licenseURL")]
+        [XmlElement(ElementName = "licenseURL")]
+        public string LicenseURL { get; set; }
+    }
+
+    public partial class KalturaPluginData : KalturaOTTObject
+    {
+    }
+
+    public partial class KalturaFairPlayPlaybackPluginData : KalturaDrmPlaybackPluginData
+    {
+        /// <summary>
+        /// Custom data string
+        /// </summary>
+        [DataMember(Name = "certificate")]
+        [JsonProperty("certificate")]
+        [XmlElement(ElementName = "certificate")]
+        public string Certificate { get; set; }
+    }
+
+    public partial class KalturaCustomDrmPlaybackPluginData : KalturaDrmPlaybackPluginData
+    {
+        /// <summary>
+        /// Custom DRM license data
+        /// </summary>
+        [DataMember(Name = "data")]
+        [JsonProperty("data")]
+        [XmlElement(ElementName = "data")]
+        public string Data { get; set; }
+    }
+
+    public enum KalturaDrmSchemeName
+    {
+        PLAYREADY_CENC,
+        WIDEVINE_CENC,
+        FAIRPLAY,
+        WIDEVINE,
+        PLAYREADY,
+        CUSTOM_DRM
+    }
+}

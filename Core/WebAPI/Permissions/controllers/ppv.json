@@ -1,0 +1,29 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Ppv_Get",
+      "service": "Ppv",
+      "action": "Get",
+      "type": "Action"
+    },
+	{
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Ppv_List",
+      "service": "Ppv",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}
