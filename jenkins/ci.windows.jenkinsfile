@@ -123,7 +123,7 @@ pipeline {
                     }
 
                     dir("tvmapps"){
-                        bat (label:"Run MSBuild" , script:"\"${MSBUILD}\" \"Web Sites\\TVM\\TVM.csproj\" -m:4 -nr:False -t:Restore,Build,WebPublish"
+                        bat (label:"Build TVM" , script:"\"${MSBUILD}\" \"Web Sites\\TVM\\TVM.csproj\" -m:4 -nr:False -t:Restore,Build,WebPublish"
                             + " -p:Configuration=Release"
                             + " -p:DeployOnBuild=True"
                             + " -p:WebPublishMethod=FileSystem"
@@ -270,7 +270,7 @@ def buildMsProject(projectFilePath, outputPath, targets){
 
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "cd phoenix && git rev-parse HEAD", returnStdout: true).trim();
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "cd ott-backend && git rev-parse HEAD", returnStdout: true).trim();
     def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA", returnStdout: true)
     echo "${report}"
     // return report
