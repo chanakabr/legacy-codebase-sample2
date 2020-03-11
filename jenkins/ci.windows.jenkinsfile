@@ -23,7 +23,7 @@ pipeline {
             steps{
                 // cleanWs()
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
-                dir('ott-backend'){ git(url: 'https://github.com/kaltura/ott-backend', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                // dir('ott-backend'){ git(url: 'https://github.com/kaltura/ott-backend', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
 
                 script{
                     withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
@@ -37,8 +37,7 @@ pipeline {
         }
         stage("Version Patch"){
             steps{
-                dir("ott-backend"){
-                    dir("core"){ 
+                    dir("Core"){ 
                         bat "sh DllVersioning.Core.sh ." 
                         powershell "DllVersioning.ps1 ."
                     }
@@ -54,10 +53,6 @@ pipeline {
                         bat "sh ../core/DllVersioning.Core.sh ."
                         powershell "../Core/DllVersioning.ps1 ."
                     }
-                    dir("tvplibs") { 
-                        bat "sh ../core/DllVersioning.Core.sh ."
-                        powershell "../Core/DllVersioning.ps1 ."
-                    }
                     dir("WS_Ingest") { 
                         bat "sh ../core/DllVersioning.Core.sh ."
                         powershell "../Core/DllVersioning.ps1 ."
@@ -66,50 +61,36 @@ pipeline {
                         bat "sh ../core/DllVersioning.Core.sh ."
                         powershell "../Core/DllVersioning.ps1 ."
                     }
-                }
             }        
         }
         stage("Nuget Restore"){
             steps{
-                dir("ott-backend"){
-                    dir("core"){ bat ("nuget restore") }
+                    dir("Core"){ bat ("nuget restore") }
                     dir("phoenix"){ bat ("nuget restore") }
                     dir("tvpapi"){ bat ("nuget restore") }
-                    dir("tvplibs"){ bat ("nuget restore") }
                     dir("WS_Ingest"){ bat ("nuget restore") }
+                    dir("RemoteTasks"){ bat ("nuget restore") }
                     dir("tvmapps"){ bat ("nuget restore") }
-                }
             }        
         }
         
         stage("Build"){
-            environment{
-                TCM_URL="http://tcm.service.consul:8080"
-                TCM_APP="OTT_API_SV"
-            }
             steps{
-                dir("ott-backend"){
                     dir("phoenix"){
-                        buildMsProject("Phoenix.Legacy/Phoenix.Legacy.csproj","published/kaltura_ott_api/")
-                    
-
-                        // bat (label:"Run MSBuild Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
-                        //         + " -p:Configuration=Release"
-                        //         + " -p:DeleteExistingFiles=True"
-                        //         + " -p:OutDir=\"${WORKSPACE}/published/configuration_validator/"
-                        // )
-
-                        // bat (label:"Run MSBuild Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
-                        //         + " -p:Configuration=Release"
-                        //         + " -p:DeleteExistingFiles=True"
-                        //         + " -p:OutDir=\"${WORKSPACE}/published/permissions/"
-                        // )
-
-                        // dir("${WORKSPACE}/published/permissions"){
-                        //     bat("PermissionsDeployment.exe e=permissions.xml")
-                        // }
+                        buildMsProject("Phoenix.Legacy/Phoenix.Legacy.csproj","published/kaltura_ott_api/phoenix/")
                     }
-                }
+                    dir("RemoteTasks"){
+                        buildMsProject("RemoteTasksService/RemoteTasksService.csproj","published/kaltura_ott_api/remotetasks/")
+                    }
+                    dir("tvpapi"){
+                        buildMsProject("TVPApi.Legacy/TVPApi.Legacy.csproj","published/kaltura_ott_api/tvpapi/")
+                    }
+                    dir("WS_Ingest"){
+                        buildMsProject("Ingest/Ingest.csproj","published/kaltura_ott_api/wsingest/")
+                    }
+                    dir("tvmapps"){
+                        buildMsProject("\"Web Sites\\TVM\\TVM.csproj\"","published/kaltura_ott_api/tvmapps/")
+                    }
             }        
         }
         stage("Generate KalturaClient.xml"){
@@ -123,55 +104,74 @@ pipeline {
                 }
             }
         }
-        stage("Generate Kaltura Clients"){
+        // stage("Generate Kaltura Clients"){
             
-            steps { 
-                dir("clients-generator"){
-                    bat ("php exec.php --dont-gzip -x${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\KalturaClient.xml "
-                        +"-tott java,node,ngx,php5Zend,csharp,python,ajax,android,typescript,swift,php5,php53 " 
-                        +"${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\"
-                    )
+        //     steps { 
+        //         dir("clients-generator"){
+        //             bat ("php exec.php --dont-gzip -x${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\KalturaClient.xml "
+        //                 +"-tott java,node,ngx,php5Zend,csharp,python,ajax,android,typescript,swift,php5,php53 " 
+        //                 +"${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\"
+        //             )
 
-                    // AFAIK WE dont use test-me anymore we use phoenix docs
-                    // bat ("php exec.php --dont-gzip -x${WORKSPACE}\\published\\kaltura_ott_api\\testme\\KalturaClient.xml "
-                    //     +"-tott ottTestme,testmeDoc"
-                    //     +"${WORKSPACE}\\published\\kaltura_ott_api\\testme\\"
-                    // )
-                }
-            }
-        }
-        stage("Publish Kaltura Clients"){
-            // Generate only when release branch
-            when {expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ }}
-            steps{
-                dir("clients-generator"){
-                    withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
-                        nodejs(nodeJSInstallationName: 'default') {
-                            sh (
-                                label: "Configure git user and run node script to push client lib updates", 
-                                script: """
-                                    git config --global user.email "ott.rnd.core@kaltura.com"
-                                    git config --global user.name "Backend CI"
-                                    npm install
-                                    node copyAndPush '${WORKSPACE}/published/kaltura_ott_api/clientlibs' '${BRANCH_NAME}' '${TOKEN}' 'git'
-                                """
-                            )
-                        }
-                    }
-                }
-            }
-        }
+        //             // AFAIK WE dont use test-me anymore we use phoenix docs
+        //             // bat ("php exec.php --dont-gzip -x${WORKSPACE}\\published\\kaltura_ott_api\\testme\\KalturaClient.xml "
+        //             //     +"-tott ottTestme,testmeDoc"
+        //             //     +"${WORKSPACE}\\published\\kaltura_ott_api\\testme\\"
+        //             // )
+        //         }
+        //     }
+        // }
+        // stage("Publish Kaltura Clients"){
+        //     // Generate only when release branch
+        //     when {expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ }}
+        //     steps{
+        //         dir("clients-generator"){
+        //             withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
+        //                 nodejs(nodeJSInstallationName: 'default') {
+        //                     sh (
+        //                         label: "Configure git user and run node script to push client lib updates", 
+        //                         script: """
+        //                             git config --global user.email "ott.rnd.core@kaltura.com"
+        //                             git config --global user.name "Backend CI"
+        //                             npm install
+        //                             node copyAndPush '${WORKSPACE}/published/kaltura_ott_api/clientlibs' '${BRANCH_NAME}' '${TOKEN}' 'git'
+        //                         """
+        //                     )
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
         stage("Zip and Publish"){
             environment {
                     RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: 'cd tvpapi_rest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
                     RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim();
             }
             steps{
-                dir("published"){
-                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > kaltura_ott_api/version.txt") 
-                    // sh (script: "cd ../tvpapi_rest && git rev-parse HEAD >> ../published/kaltura_ott_api/version.txt") 
+                dir("published/kaltura_ott_api/phoenix/"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
                     bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix.zip *")
                     sh (label:"upload to s3", script:"aws s3 cp phoenix.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix.zip")
+                }
+                dir("published/kaltura_ott_api/remotetasks/"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r remote-tasks.zip *")
+                    sh (label:"upload to s3", script:"aws s3 cp remote-tasks.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/remote-tasks.zip")
+                }
+                dir("published/kaltura_ott_api/tvpapi/"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r tvpapi.zip *")
+                    sh (label:"upload to s3", script:"aws s3 cp tvpapi.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvpapi.zip")
+                }
+                dir("published/kaltura_ott_api/wsingest/"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r ws-ingest.zip *")
+                    sh (label:"upload to s3", script:"aws s3 cp ws-ingest.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/ws-ingest.zip")
+                }
+                dir("published/kaltura_ott_api/tvmapps/"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r tvm.zip *")
+                    sh (label:"upload to s3", script:"aws s3 cp tvm.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvm.zip")
                 }
             }        
         }
