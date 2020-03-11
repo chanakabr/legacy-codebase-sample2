@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2009 (http://www.altova.com) by daniel (daniel) -->
+<!--Created with Liquid XML Studio - FREE Community Edition (http://www.liquid-technologies.com)-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="NowPlaying">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="request">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="params">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="info_struct" minOccurs="0">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="name" minOccurs="0"/>
+																<xs:element name="description" minOccurs="0"/>
+																<xs:element name="type" minOccurs="0"/>
+																<xs:element name="meta" minOccurs="0" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:attribute name="name" type="xs:string" use="required"/>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="tags" minOccurs="0">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="tag_type" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:attribute name="name" type="xs:string" use="required"/>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+															<xs:attribute name="statistics" type="xs:boolean" default="false"/>
+															<xs:attribute name="personal" type="xs:boolean" default="false"/>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="with_info"/>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="channel">
+											<xs:complexType>
+												<xs:attribute name="id"/>
+												<xs:attribute name="start_index"/>
+												<xs:attribute name="number_of_items"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="type" default="now_playing"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="flashvars">
+								<xs:complexType>
+									<xs:attribute name="player_un"/>
+									<xs:attribute name="player_pass"/>
+									<xs:attribute name="pic_size1"/>
+									<xs:attribute name="lang"/>
+									<xs:attribute name="no_cache"/>
+									<xs:attribute name="zip" type="xs:string" use="optional" default="0"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="playlist_schema"/>
+							<xs:element name="channel">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="media" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="description">
+														<xs:complexType>
+															<xs:attribute name="value"/>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="META8_DOUBLE_NAME">
+														<xs:complexType>
+															<xs:attribute name="name"/>
+															<xs:attribute name="value"/>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="META10_STR_NAME">
+														<xs:complexType>
+															<xs:attribute name="name"/>
+															<xs:attribute name="value"/>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="META16_STR_NAME">
+														<xs:complexType>
+															<xs:attribute name="name"/>
+															<xs:attribute name="value"/>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="tags_collections">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="tag_type" minOccurs="0" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="tag" minOccurs="0" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:attribute name="id"/>
+																					<xs:attribute name="name"/>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																		<xs:attribute name="id"/>
+																		<xs:attribute name="name"/>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="rating">
+														<xs:complexType>
+															<xs:attribute name="sum"/>
+															<xs:attribute name="count"/>
+															<xs:attribute name="avg"/>
+															<xs:attribute name="user_voted"/>
+															<xs:attribute name="user_voted_val"/>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="views">
+														<xs:complexType>
+															<xs:attribute name="count"/>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="id"/>
+												<xs:attribute name="pic_size1"/>
+												<xs:attribute name="title"/>
+												<xs:attribute name="block"/>
+												<xs:attribute name="cdn_id"/>
+												<xs:attribute name="cdn_impl_type"/>
+												<xs:attribute name="date"/>
+												<xs:attribute name="url"/>
+												<xs:attribute name="file_format"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="id"/>
+									<xs:attribute name="media_count"/>
+									<xs:attribute name="title"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="type"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

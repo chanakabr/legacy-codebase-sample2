@@ -1,0 +1,185 @@
+﻿using Core.Billing;
+using KLogMonitor;
+using System;
+using System.Reflection;
+using System.Web;
+using TVPApi;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects.Authorization;
+using TVPApiModule.Objects.Responses;
+using TVPPro.SiteManager.Helper;
+
+namespace TVPApiServices
+{
+    [System.ComponentModel.ToolboxItem(false)]
+    // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
+    public class BillingService : IBillingService
+    {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        #region public methods
+
+        [PrivateMethod]
+        public AdyenBillingDetail GetLastBillingUserInfo(InitializationObject initObj, int billingMethod)
+        {
+            AdyenBillingDetail response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLastBillingUserInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetLastBillingUserInfo(initObj.SiteGuid, billingMethod);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            }
+
+            return response;
+        }
+
+        public string GetClientMerchantSig(InitializationObject initObj, string sParamaters)
+        {
+            string response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetClientMerchantSig", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetClientMerchantSig(sParamaters);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            }
+
+            return response;
+        }
+
+        [PrivateMethod]
+        public AdyenBillingDetail GetLastBillingTypeUserInfo(InitializationObject initObj, string sSiteGuid)
+        {
+            AdyenBillingDetail response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetClientMerchantSig", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                // Tokenization: validate siteGuid
+                if (AuthorizationManager.IsTokenizationEnabled() &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, sSiteGuid, 0, null, groupID, initObj.Platform))
+                {
+                    return null;
+                }
+                try
+                {
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetLastBillingTypeUserInfo(sSiteGuid);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            }
+
+            return response;
+        }
+
+        [PrivateMethod]
+        public TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse GetChargeID(InitializationObject initObj, string pg_ext_id, int domain_id)
+        {
+            TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse response = null;
+
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetChargeID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                // Tokenization: validate domain and udid
+                if (AuthorizationManager.IsTokenizationEnabled() &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, domain_id, initObj.UDID, groupID, initObj.Platform))
+                {
+                    return null;
+                }
+
+                try
+                {
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).GetHouseholdChargeID(pg_ext_id, domain_id);
+                  
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
+        [PrivateMethod]
+        public ClientResponseStatus SetChargeID(InitializationObject initObj, string pg_ext_id, int domain_id, string charge_id)
+        {
+            ClientResponseStatus response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetChargeID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                // Tokenization: validate domain and udid
+                if (AuthorizationManager.IsTokenizationEnabled() &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, domain_id, initObj.UDID, groupID, initObj.Platform))
+                {
+                    return null;
+                }
+
+                try
+                {
+                    response = new TVPApiModule.Services.ApiBillingService(groupID, initObj.Platform).SetHouseholdChargeID(pg_ext_id,domain_id, charge_id);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new ClientResponseStatus();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new ClientResponseStatus();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
+
+        #endregion
+
+              
+    }
+}

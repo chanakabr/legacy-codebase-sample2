@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2011 sp1 (x64) (http://www.altova.com) by Tvinci (Tvinci) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:altova="http://www.altova.com/xml-schema-extensions" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="PageStruct">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="TVP">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Page" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Info" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="HeadMeta" minOccurs="0" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:string">
+																	<xs:attribute name="meta_type">
+																		<xs:simpleType>
+																			<xs:restriction base="xs:string"/>
+																		</xs:simpleType>
+																	</xs:attribute>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="Side" minOccurs="0" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="Order" minOccurs="0" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Tag" minOccurs="0" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:simpleContent>
+																						<xs:extension base="xs:string">
+																							<xs:attribute name="type">
+																								<xs:simpleType>
+																									<xs:restriction base="xs:string">
+																										<xs:enumeration value="Tag"/>
+																										<xs:enumeration value="Meta"/>
+																										<xs:enumeration value="Info"/>
+																									</xs:restriction>
+																								</xs:simpleType>
+																							</xs:attribute>
+																							<xs:attribute name="template" default="Regular">
+																								<xs:simpleType>
+																									<xs:restriction base="xs:string">
+																										<xs:enumeration value="None"/>
+																										<xs:enumeration value="Regular"/>
+																										<xs:enumeration value="Link"/>
+																										<xs:enumeration value="PageRedirect"/>
+																									</xs:restriction>
+																								</xs:simpleType>
+																							</xs:attribute>
+																							<xs:attribute name="action" default="Regular">
+																								<xs:simpleType>
+																									<xs:restriction base="xs:string">
+																										<xs:enumeration value="None"/>
+																										<xs:enumeration value="Regular"/>
+																										<xs:enumeration value="Search"/>
+																									</xs:restriction>
+																								</xs:simpleType>
+																							</xs:attribute>
+																						</xs:extension>
+																					</xs:simpleContent>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+															<xs:attribute name="Position" default="Left">
+																<xs:simpleType>
+																	<xs:restriction base="xs:string">
+																		<xs:enumeration value="Top"/>
+																		<xs:enumeration value="Right"/>
+																		<xs:enumeration value="Left"/>
+																	</xs:restriction>
+																</xs:simpleType>
+															</xs:attribute>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="media_type" type="xs:string" default="all"/>
+												<xs:attribute name="template" default="Regular">
+													<xs:simpleType>
+														<xs:restriction base="xs:string"/>
+													</xs:simpleType>
+												</xs:attribute>
+												<xs:attribute name="social_position" default="Default">
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:enumeration value="None"/>
+															<xs:enumeration value="Above"/>
+															<xs:enumeration value="Below"/>
+															<xs:enumeration value="Default"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="Galleries">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Gallery" minOccurs="0" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="Parameters">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Param" minOccurs="0" maxOccurs="unbounded">
+																				<xs:complexType>
+																					<xs:simpleContent>
+																						<xs:extension base="xs:string">
+																							<xs:attribute name="param_type" default="None">
+																								<xs:annotation>
+																									<xs:appinfo>
+																										<altova:exampleValues>
+																											<altova:example value=""/>
+																										</altova:exampleValues>
+																									</xs:appinfo>
+																								</xs:annotation>
+																								<xs:simpleType>
+																									<xs:restriction base="xs:string">
+																										<xs:enumeration value="Tag"/>
+																										<xs:enumeration value="Meta"/>
+																										<xs:enumeration value="Info"/>
+																										<xs:enumeration value="None"/>
+																										<xs:enumeration value=""/>
+																									</xs:restriction>
+																								</xs:simpleType>
+																							</xs:attribute>
+																							<xs:attribute name="name" type="xs:string"/>
+																						</xs:extension>
+																					</xs:simpleContent>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+															<xs:attribute name="Title"/>
+															<xs:attribute name="ID" type="xs:string"/>
+															<xs:attribute name="Template"/>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="token" type="xs:string"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Mapping" minOccurs="0">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="add" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:attribute name="TvmTypeId" type="xs:string"/>
+												<xs:attribute name="Controller"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

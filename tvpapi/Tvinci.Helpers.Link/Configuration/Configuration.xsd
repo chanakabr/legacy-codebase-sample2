@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2009 (http://www.altova.com) by daniel (daniel) -->
+<!--Created with Liquid XML Studio - FREE Community Edition (http://www.liquid-technologies.com)-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="QueryStringConfig">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="General">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Base64Mode" type="xs:boolean" default="false" minOccurs="0"/>
+							<xs:element name="ValidateMode" default="Never" minOccurs="0">
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:enumeration value="Never"/>
+										<xs:enumeration value="Always"/>
+										<xs:enumeration value="ClearOnly"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="FriendlyMapping">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="MappingURL" minOccurs="0">
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="ErrorURL" type="xs:string" minOccurs="0"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Base64">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Key" type="xs:string"/>
+							<xs:element name="BypassBase64">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element ref="QueryItems"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ValidQueryList">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="QueryItems"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryItem">
+		<xs:complexType>
+			<xs:attribute name="Key">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="Rule" type="xs:string"/>
+			<xs:attribute name="PredefinedRules" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryItems">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="GlobalScope" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="QueryItem" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="PageScope" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="PageItem" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element ref="QueryItem" minOccurs="0" maxOccurs="unbounded"/>
+									</xs:sequence>
+									<xs:attribute name="PagePath">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1"/>
+												<xs:maxLength value="1"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+									<xs:attribute name="Ignore" type="xs:boolean"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

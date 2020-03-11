@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2011 sp1 (x64) (http://www.altova.com) by Tvinci (Tvinci) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="Server">
+		<xs:sequence>
+			<xs:element name="URL" type="xs:string"/>
+			<xs:element name="TVMReadURL" type="xs:string"/>
+			<xs:element name="TVMWriteURL" type="xs:string"/>
+		</xs:sequence>
+		<xs:attribute name="ID"/>
+	</xs:complexType>
+	<xs:element name="TechnicalData">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="DBConfiguration">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="User" type="xs:string"/>
+							<xs:element name="Pass" type="xs:string"/>
+							<xs:element name="IP" type="xs:string"/>
+							<xs:element name="DatabaseInstance" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="TVM">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Servers">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="MainServer" type="Server"/>
+										<xs:element name="AlternativeServer" type="Server"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Configuration">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="ForceUpdatedData" type="xs:boolean"/>
+										<xs:element name="EnableTimer" type="xs:boolean"/>
+										<xs:element name="User" type="xs:string"/>
+										<xs:element name="Password" type="xs:string"/>
+										<xs:element name="EmbedUser" type="xs:string"/>
+										<xs:element name="EmberPassword" type="xs:string"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="CachingServer">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="AllowedIPs" type="xs:string"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="FlashVars">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="FileFormat" type="xs:string"/>
+										<xs:element name="SubFileFormat" type="xs:string"/>
+										<xs:element name="Branding">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="BrandingRegular" type="BrandingType"/>
+													<xs:element name="BrandingVirtual" type="BrandingType"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="TVMRssURL" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Translation">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Culture" type="xs:string"/>
+							<xs:element name="CharacterReplace">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Character" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:attribute name="OldChar" type="xs:string"/>
+												<xs:attribute name="NewChar" type="xs:string"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="SupportFeature" type="xs:boolean" default="false"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="ActionOnUnknownKey" default="ShowHyphen" minOccurs="0">
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:enumeration value="ShowHyphen"/>
+										<xs:enumeration value="ShowKey"/>
+										<xs:enumeration value="ShowNothing"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="UseTranslatedMediaType" type="xs:boolean" default="false"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Site">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="BasePictureUrl" type="xs:string"/>
+							<xs:element name="GalleryComponent">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="SWFFileBaseURL" type="xs:string"/>
+									</xs:sequence>
+									<xs:attribute name="NonAjaxGalleriesNumber" type="xs:int" default="3"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="ApplicativeBaseUri">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="SecureBaseUri" type="xs:string"/>
+										<xs:element name="BaseUri" type="xs:string"/>
+									</xs:sequence>
+									<xs:attribute name="UsePermanentURL" type="xs:boolean" default="false"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="LogBasePath" type="xs:string"/>
+							<xs:element name="CDNUrl">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Source" type="xs:string"/>
+										<xs:element name="Preloader" type="xs:string"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Billing">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Processor" type="xs:string"/>
+							<xs:element name="Account" type="xs:string"/>
+						</xs:sequence>
+						<xs:attribute name="SupportFeature" type="xs:boolean" default="false"/>
+						<xs:attribute name="HTMLProcess" type="xs:boolean" default="false"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="BrandingType">
+		<xs:sequence>
+			<xs:element name="BrandingMainFormat" type="xs:string"/>
+			<xs:element name="BrandingPicSize" type="xs:string"/>
+			<xs:element name="BrandingRepeatFormat" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
