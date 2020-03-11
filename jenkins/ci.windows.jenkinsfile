@@ -38,8 +38,7 @@ pipeline {
         stage("Version Patch"){
             steps{
                     dir("Core"){ 
-                        bat "sh DllVersioning.Core.sh ." 
-                        powershell "DllVersioning.ps1 ."
+                        // bat "sh DllVersioning.Core.sh ." 
                     }
                     dir("phoenix"){ 
                         bat "sh ../Core/DllVersioning.Core.sh ." 
