@@ -1,0 +1,5 @@
+handlers:
+  - name: ingest-transformation-handler
+    task: IngestTransformationHandler
+  - name: ingest-handler
+    task: IngestHandler

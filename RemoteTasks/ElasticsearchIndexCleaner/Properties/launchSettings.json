@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ElasticsearchIndexCleaner": {
+      "commandName": "Project",
+      //"commandLineArgs": "-g 1673"
+      "commandLineArgs": "-g 478"
+    }
+  }
+}
