@@ -28,10 +28,24 @@ pipeline {
         }
         stage('Build Docker Images'){
             steps{
-                buildDockerAndPushToEcr("phoenix","Phoenix.Dockerfile")
-                buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
-                buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
-                buildDockerAndPushToEcr("remote-tasks-handlers","RemoteTasks.Dockerfile")
+                parallel (
+                    a: {
+                        buildDockerAndPushToEcr("phoenix","Phoenix.Dockerfile")
+                    },
+                    b: {
+                        buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
+                    },
+                    c: {
+                        buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
+                    },
+                    d: {
+                        buildDockerAndPushToEcr("remote-tasks-handlers","RemoteTasks.Dockerfile")
+                    }
+                )   
+                
+
+                
+                
             }
         }
       
