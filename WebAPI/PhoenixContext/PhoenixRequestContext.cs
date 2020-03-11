@@ -20,6 +20,7 @@ namespace Phoenix.Context
         public string Service { get; set; }
         public string Action { get; set; }
         public string PathData { get; set; }
+        public Dictionary<string, object> UrlParams { get; set; }
 
         public override string ToString()
         {

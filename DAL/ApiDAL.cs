@@ -42,7 +42,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }       
+        }        
 
         public static DataTable Get_GeoBlockRuleForMediaAndCountries(int nGroupID, int nMediaID)
         {
@@ -101,7 +101,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }
+        }        
 
         public static DataSet Get_MediaDetailsForEmail(int nMediaID, int nGroupID)
         {
@@ -115,7 +115,7 @@ namespace DAL
             if (ds != null)
                 return ds;
             return null;
-        }
+        }        
 
         public static DataTable Get_GroupRules(int nGroupID)
         {
@@ -6162,6 +6162,6 @@ namespace DAL
         {
             string key = GetCommercePartnerConfigKey(groupId);
             return UtilsDal.SaveObjectInCB<CommercePartnerConfig>(eCouchbaseBucket.OTT_APPS, key, commercePartnerConfig);
-        }
+        }       
     }
 }

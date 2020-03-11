@@ -347,5 +347,34 @@ namespace WebAPI.ObjectsConvertor
             return finalResults;
         }
 
+        public static OrderObj ConvertOrderToOrderObj(KalturaCategoryItemOrderBy order)
+        {
+            OrderObj result = new OrderObj();
+
+            switch (order)
+            {
+                case KalturaCategoryItemOrderBy.NAME_ASC:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
+                    break;
+                case KalturaCategoryItemOrderBy.NAME_DESC:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                    break;
+                case KalturaCategoryItemOrderBy.CREATE_DATE_ASC:
+                    result.m_eOrderBy = OrderBy.CREATE_DATE;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
+                    break;
+                case KalturaCategoryItemOrderBy.CREATE_DATE_DESC:
+                    result.m_eOrderBy = OrderBy.CREATE_DATE;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                    break;
+                case KalturaCategoryItemOrderBy.NONE:
+                    result.m_eOrderBy = OrderBy.NONE;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                    break;
+            }
+            return result;
+        }
     }
 }

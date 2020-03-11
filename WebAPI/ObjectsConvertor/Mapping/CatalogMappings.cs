@@ -1126,7 +1126,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaBulkUploadMediaAssetData, BulkUploadMediaAssetData>()
                .IncludeBase<KalturaBulkUploadAssetData, BulkUploadAssetData>();
-            
+
             cfg.CreateMap<KalturaBulkUploadProgramAssetData, BulkUploadEpgAssetData>()
                .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>();
 
@@ -1143,6 +1143,109 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
 
             #endregion
+
+            #region CategoryItem
+
+            cfg.CreateMap<KalturaCategoryItem, ApiLogic.Catalog.CategoryItem>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
+              .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
+              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
+              .ForMember(dest => dest.ChildrenIds, opt => opt.ResolveUsing(src => src.GetItemsIn<List<long>, long>(src.ChildrenIds, "KalturaCategoryItem.childCategoriesIds")))
+              .AfterMap((src, dest) => dest.ChildrenIds = src.ChildrenIds != null ? dest.ChildrenIds : null)
+              .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
+              .AfterMap((src, dest) => dest.UnifiedChannels = src.UnifiedChannels != null ? dest.UnifiedChannels : null)
+              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
+              .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null);
+
+
+            cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
+               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
+               .ForMember(dest => dest.ChildrenIds, opt => opt.MapFrom(src => src.ChildrenIds != null ? string.Join(",", src.ChildrenIds) : null))
+               .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
+               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)));
+
+            cfg.CreateMap<ApiLogic.Catalog.UnifiedChannelType, KalturaChannelType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case ApiLogic.Catalog.UnifiedChannelType.Internal:
+                            return KalturaChannelType.Internal;
+                        case ApiLogic.Catalog.UnifiedChannelType.External:
+                            return KalturaChannelType.External;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown UnifiedChannelType value : {type.ToString()}");
+                    }
+                });
+
+            cfg.CreateMap<KalturaChannelType, ApiLogic.Catalog.UnifiedChannelType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case KalturaChannelType.Internal:
+                            return ApiLogic.Catalog.UnifiedChannelType.Internal;
+                        case KalturaChannelType.External:
+                            return ApiLogic.Catalog.UnifiedChannelType.External;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaChannelType value : {type.ToString()}");
+                    }
+                });
+
+            cfg.CreateMap<KalturaUnifiedChannel, ApiLogic.Catalog.UnifiedChannel>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
+
+            cfg.CreateMap<ApiLogic.Catalog.UnifiedChannel, KalturaUnifiedChannel>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
+
+            cfg.CreateMap<KalturaUnifiedChannelInfo, ApiLogic.Catalog.UnifiedChannelInfo>()
+                .IncludeBase<KalturaUnifiedChannel, ApiLogic.Catalog.UnifiedChannel>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            cfg.CreateMap<ApiLogic.Catalog.UnifiedChannelInfo, KalturaUnifiedChannelInfo>()
+                .IncludeBase<ApiLogic.Catalog.UnifiedChannel, KalturaUnifiedChannel>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            cfg.CreateMap<ApiLogic.Catalog.CategoryTree, KalturaCategoryTree>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.NamesInOtherLanguages, src.Name)))
+                .ForMember(dest => dest.Children, opt => opt.MapFrom(src => src.Children))
+                .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
+
+            cfg.CreateMap<KalturaCategoryTree, ApiLogic.Catalog.CategoryTree>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
+                .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
+                .ForMember(dest => dest.Children, opt => opt.MapFrom(src => src.Children))
+                .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
+
+            cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
+                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
+
+            cfg.CreateMap<KalturaCategoryItemByIdInFilter, ApiLogic.Catalog.CategoryItemByIdInFilter>()
+               .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
+               .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? src.GetItemsIn<List<long>, long>(src.IdIn, "KalturaCategoryItemByIdInFilter.IdIn", true) : null));
+
+            cfg.CreateMap<KalturaCategoryItemSearchFilter, ApiLogic.Catalog.CategoryItemSearchFilter>()
+              .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
+              .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
+              .ForMember(dest => dest.RootOnly, opt => opt.MapFrom(src => src.RootOnly));
+
+            cfg.CreateMap<KalturaCategoryItemAncestorsFilter, ApiLogic.Catalog.CategoryItemAncestorsFilter>()
+              .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+
+            #endregion CategoryItem
         }
 
         private static int? ConvertToNullableInt(bool? value)

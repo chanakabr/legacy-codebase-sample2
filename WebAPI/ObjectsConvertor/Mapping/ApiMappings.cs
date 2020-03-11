@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Notification;
@@ -26,6 +27,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
     {
         public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
+            cfg.CreateMap<KalturaFilterPager, CorePager>()
+                .ForMember(dest => dest.PageIndex, opt => opt.MapFrom(src => src.getPageIndex()))
+                .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.getPageSize()));
+
             //Language 
             cfg.CreateMap<LanguageObj, WebAPI.Managers.Models.Language>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
@@ -1675,7 +1680,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<KalturaPlaybackContextOptions, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>()                
-            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => ConvertSerializeableDictionary(src.AdapterData)))
+            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.AdapterData, false)))
             .ForMember(dest => dest.AssetFileIds, opt => opt.MapFrom(src => src.AssetFileIds))
             .ForMember(dest => dest.Context, opt => opt.MapFrom(src => src.Context))
             .ForMember(dest => dest.UrlType, opt => opt.MapFrom(src => src.UrlType));
@@ -2993,31 +2998,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return response;
-        }
-
-        internal static Dictionary<string, string> ConvertSerializeableDictionary(SerializableDictionary<string, KalturaStringValue> dict)
-        {
-            Dictionary<string, string> res = new Dictionary<string, string>();
-
-            if (dict != null && dict.Count > 0)
-            {
-                foreach (KeyValuePair<string, KalturaStringValue> pair in dict)
-                {
-                    if (!string.IsNullOrEmpty(pair.Key))
-                    {
-                        if (!res.ContainsKey(pair.Key))
-                        {
-                            res.Add(pair.Key, pair.Value.value);
-                        }
-                        else
-                        {
-                            throw new ClientException((int)StatusCode.ArgumentsDuplicate, string.Format("key {0} already exists in sent dictionary", pair.Key));
-                        }
-                    }
-                }
-            }
-
-            return res;
         }
 
         private static KalturaPermissionType ConvertPermissionType(ePermissionType type)

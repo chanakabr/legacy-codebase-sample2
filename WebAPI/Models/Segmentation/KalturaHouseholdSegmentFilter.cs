@@ -1,5 +1,7 @@
 ﻿using ApiLogic.Base;
 using ApiLogic.Users.Managers;
+using ApiObjects.Base;
+using ApiObjects.Response;
 using ApiObjects.Segmentation;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
@@ -9,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Segmentation
 {
-    public partial class KalturaHouseholdSegmentFilter : KalturaCrudFilter<KalturaHouseholdSegmentOrderBy, HouseholdSegment, long, HouseholdSegmentFilter>
+    public partial class KalturaHouseholdSegmentFilter : KalturaCrudFilter<KalturaHouseholdSegmentOrderBy, HouseholdSegment>
     {
         /// <summary>
         /// KSQL expression
@@ -19,14 +21,6 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string Ksql { get; set; }
-
-        public override ICrudHandler<HouseholdSegment, long, HouseholdSegmentFilter> Handler
-        {
-            get
-            {
-                return HouseholdSegmentManager.Instance;
-            }
-        }
 
         public override KalturaHouseholdSegmentOrderBy GetDefaultOrderByValue()
         {
@@ -39,6 +33,12 @@ namespace WebAPI.Models.Segmentation
 
         public KalturaHouseholdSegmentFilter() : base()
         {
+        }
+
+        public override GenericListResponse<HouseholdSegment> List(ContextData contextData, CorePager pager)
+        {
+            var coreFilter = AutoMapper.Mapper.Map<HouseholdSegmentFilter>(this);
+            return HouseholdSegmentManager.Instance.List(contextData, coreFilter);
         }
     }
 

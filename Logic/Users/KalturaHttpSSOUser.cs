@@ -1,6 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.Response;
-using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using System;
@@ -8,7 +6,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using ApiObjects.SSOAdapter;
 using APILogic.SSOAdapaterService;
 using CachingProvider.LayeredCache;
@@ -18,6 +15,7 @@ using System.Web;
 using APILogic.Users;
 using TVinciShared;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using Newtonsoft.Json;
 
 namespace Core.Users
 {
@@ -28,7 +26,9 @@ namespace Core.Users
         private readonly int _GroupId;
         private readonly SSOAdapter _AdapterConfig;
         private readonly ServiceClient _AdapterClient;
+        [Obsolete("Use _ImplementedMethodsExtend Instead")]
         private eSSOMethods[] _ImplementedMethods;
+        private int[] _ImplementedMethodsExtend;
         private int _AdapterId;
 
         public KalturaHttpSSOUser(int groupId, SSOAdapter adapterConfig) : base(groupId)
@@ -40,13 +40,21 @@ namespace Core.Users
 
             var implementationsResponse = GetSSOImplementations();
 
-            _ImplementedMethods = implementationsResponse.ImplementedMethods;
+            if (implementationsResponse.ImplementedMethodsExtend == null || implementationsResponse.ImplementedMethodsExtend.Count() == 0)
+            {
+                _ImplementedMethodsExtend = implementationsResponse.ImplementedMethods.Select(val => (int)val).ToArray();
+            }
+            else
+            {
+                _ImplementedMethodsExtend = implementationsResponse.ImplementedMethodsExtend;
+            }
+
             base.ShouldSendWelcomeMail = implementationsResponse.SendWelcomeEmail;
         }
 
         public override UserResponseObject PreSignIn(ref int siteGuid, ref string userName, ref string password, ref int maxFailCount, ref int lockMin, ref int groupId, ref string sessionId, ref string ip, ref string deviceId, ref bool preventDoubleLogin, ref List<KeyValuePair> keyValueList)
         {
-            if (!_ImplementedMethods.Contains(eSSOMethods.PerSignIn))
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PerSignIn))
             {
                 return base.PreSignIn(ref siteGuid, ref userName, ref password, ref maxFailCount, ref lockMin, ref groupId, ref sessionId, ref ip, ref deviceId, ref preventDoubleLogin, ref keyValueList);
             }
@@ -109,7 +117,7 @@ namespace Core.Users
 
         public override void PostSignIn(ref UserResponseObject authenticatedUser, ref List<KeyValuePair> keyValueList)
         {
-            if (!_ImplementedMethods.Contains(eSSOMethods.PostSignIn))
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PostSignIn))
             {
                 base.PostSignIn(ref authenticatedUser, ref keyValueList);
                 return;
@@ -154,7 +162,7 @@ namespace Core.Users
 
         public override UserResponseObject PreGetUserData(string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP)
         {
-            if (!_ImplementedMethods.Contains(eSSOMethods.PreGetUserData))
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PreGetUserData))
             {
                 return base.PreGetUserData(sSiteGUID, ref keyValueList, userIP);
             }
@@ -194,7 +202,7 @@ namespace Core.Users
 
         public override void PostGetUserData(ref UserResponseObject userResponse, string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP)
         {
-            if (!_ImplementedMethods.Contains(eSSOMethods.PostGetUserData))
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PostGetUserData))
             {
                 base.PostGetUserData(ref userResponse, sSiteGUID, ref keyValueList, userIP);
                 return;
@@ -413,5 +421,92 @@ namespace Core.Users
             };
         }
 
+        public override UserResponseObject PreSignOut(ref int siteGuid, ref int groupId, ref string sessionId, ref string ip, ref string deviceUdid, ref List<KeyValuePair> keyValueList)
+        {
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PreSignOut))
+            {
+                return base.PreSignOut(ref siteGuid, ref groupId, ref sessionId, ref ip, ref deviceUdid, ref keyValueList);
+            }
+
+            try
+            {
+                var domainResponse = Domains.Module.GetDomainByUser(groupId, siteGuid.ToString());
+                var domainId = domainResponse.Status.IsOkStatusCode() && domainResponse.Domain != null ? domainResponse.Domain.m_nDomainID : 0;
+                var preSignOutModel = new PreSignOutModel
+                {
+                    UserId = siteGuid,
+                    HouseholdId = domainId,
+                    DeviceUdid = deviceUdid
+                };
+
+                var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, preSignOutModel.UserId);
+                _Logger.Info($"Calling SSO adapter PreSignOut [{_AdapterConfig.Name}], group:[{_GroupId}]");
+
+                _Logger.Debug($"[PreSignOut] Adapter model object: {JsonConvert.SerializeObject(preSignOutModel)}, Signature: {signature}");
+
+                var response = _AdapterClient.PreSignOutAsync(_AdapterId, preSignOutModel, signature).ExecuteAndWait();
+                if (!ValidateConfigurationIsSet(response.AdapterStatus))
+                {
+                    response = _AdapterClient.PreSignOutAsync(_AdapterId, preSignOutModel, signature).ExecuteAndWait();
+                }
+
+                if (response.SSOResponseStatus.ResponseStatus != eSSOUserResponseStatus.OK)
+                {
+                    return CreateFromAdapterResponseStatus(response.SSOResponseStatus);
+                }
+
+                return new UserResponseObject { m_RespStatus = ResponseStatus.OK };
+            }
+            catch (Exception ex)
+            {
+                _Logger.Error($"Unexpected error during PreSignOut for user:[{siteGuid}] group:[{groupId}], ex:{ex}");
+                return new UserResponseObject { m_RespStatus = ResponseStatus.InternalError };
+            }
+        }
+
+        public override void PostSignOut(ref UserResponseObject userResponse, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, ref List<KeyValuePair> keyValueList)
+        {
+            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.PostSignOut))
+            {
+                base.PostSignOut(ref userResponse, siteGuid, groupId, sessionId, ip, deviceUdid, ref keyValueList);
+                return;
+            }
+
+            try
+            {
+                var domainResponse = Core.Domains.Module.GetDomainByUser(groupId, siteGuid.ToString());
+                var domainId = domainResponse.Status.IsOkStatusCode() && domainResponse.Domain != null ? domainResponse.Domain.m_nDomainID : 0;
+
+                var postSignOutModel = new PostSignOutModel
+                {
+                    UserId = siteGuid,
+                    DeviceUdid = deviceUdid,
+                    HouseholdId = domainId,
+                    AuthenticatedUser = new SSOAdapaterUser() { HouseholdID = domainId, Id = siteGuid }
+                };
+
+
+                var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, postSignOutModel.UserId);
+                _Logger.Debug($"[PostSignOut] Adapter model object: {JsonConvert.SerializeObject(postSignOutModel)}, Signature: {signature}");
+
+                var response = _AdapterClient.PostSignOutAsync(_AdapterId, postSignOutModel, signature).ExecuteAndWait();
+
+                _Logger.Info($"Calling SSO adapter PostSignOut [{_AdapterConfig.Name}], group:[{_GroupId}]");
+
+                if (!ValidateConfigurationIsSet(response.AdapterStatus))
+                {
+                    response = _AdapterClient.PostSignOutAsync(_AdapterId, postSignOutModel, signature).ExecuteAndWait();
+                }
+
+                if (response.AdapterStatus != AdapterStatusCode.OK)
+                {
+                    _Logger.Error($"Failed to PostSignOut, Status: {response.SSOResponseStatus} for user: [{siteGuid}] group: [{groupId}]");
+                }
+            }
+            catch (Exception ex)
+            {
+                _Logger.Error($"Unexpected error during PostSignOut for user:[{siteGuid}] group:[{groupId}], ex:{ex}");
+            }
+        }
     }
 }

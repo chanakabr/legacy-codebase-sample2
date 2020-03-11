@@ -28,4 +28,14 @@ namespace Core.Api
         SignatureMismatch = 2,
         NoConfigurationFound = 3
     }
+
+    public enum eSSOMethodsExtend
+    {
+        PerSignIn = 0,
+        PostSignIn = 1,
+        PreGetUserData = 2,
+        PostGetUserData = 3,
+        PreSignOut = 4,
+        PostSignOut = 5
+    }
 }

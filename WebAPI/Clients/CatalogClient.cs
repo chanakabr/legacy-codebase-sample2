@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Catalog;
+using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
@@ -7,6 +8,7 @@ using ApiObjects.SearchObjects;
 using AutoMapper;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
+using Core.Catalog.Handlers;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using KLogMonitor;
@@ -113,8 +115,8 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }
-        
+        }        
+
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
             Func<AssetStruct, GenericResponse<AssetStruct>> addAssetStructFunc = (AssetStruct assetStructToAdd) =>
@@ -4148,6 +4150,26 @@ namespace WebAPI.Clients
             }
 
             return excelStructure;
+        }
+
+        internal KalturaCategoryTree Duplicate(int groupId, long userId, long categoryItemId, string name)
+        {
+            Func<GenericResponse<CategoryTree>> duplicateFunc = () => CategoryItemHandler.Instance.Duplicate(groupId, userId, categoryItemId, name);
+
+            KalturaCategoryTree response =
+                ClientUtils.GetResponseFromWS<KalturaCategoryTree, CategoryTree>(duplicateFunc);
+
+            return response;
+        }
+
+        internal KalturaCategoryTree GetCategoryTree(int groupId, long userId, long categoryItemId)
+        {
+            Func<GenericResponse<CategoryTree>> treeFunc = () => CategoryItemHandler.Instance.GetCategoryTree(groupId, userId, categoryItemId);
+
+            KalturaCategoryTree response =
+                ClientUtils.GetResponseFromWS<KalturaCategoryTree, CategoryTree>(treeFunc);
+
+            return response;
         }
     }
 }

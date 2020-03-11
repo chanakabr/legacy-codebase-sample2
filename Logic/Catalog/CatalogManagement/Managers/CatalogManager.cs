@@ -1,9 +1,11 @@
 ﻿using ApiLogic.Api.Managers;
+using ApiLogic.Catalog;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Catalog.Response;
 using DAL;
 using KLogMonitor;
@@ -17,7 +19,6 @@ using System.Reflection;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
-using ConfigurationManager;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -968,7 +969,7 @@ namespace Core.Catalog.CatalogManagement
             if (epgIds != null && epgIds.Count > 0)
             {
                 // update epgs index
-                if (!Core.Catalog.Module.UpdateEpgIndex(epgIds.Cast<ulong>().ToList(), groupId, eAction.Update))
+                if (!Module.UpdateEpgIndex(epgIds.Cast<ulong>().ToList(), groupId, eAction.Update, null, false))
                 {
                     result = false;
                     log.ErrorFormat("Error while update Epg index. groupId:{0}, epgIds:{1}", groupId, string.Join(",", epgIds));
@@ -1001,7 +1002,7 @@ namespace Core.Catalog.CatalogManagement
             if (epgIds != null && epgIds.Count > 0)
             {
                 // update epgs index
-                if (!Core.Catalog.Module.UpdateEpgIndex(epgIds.Cast<ulong>().ToList(), groupId, eAction.Update))
+                if (!Module.UpdateEpgIndex(epgIds.Cast<ulong>().ToList(), groupId, eAction.Update, null, false))
                 {
                     result = false;
                     log.ErrorFormat("Error while update Epg index. groupId:{0}, epgIds:{1}", groupId, string.Join(",", epgIds));
@@ -3151,7 +3152,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling GetLinearMediaTypeIds");
             }
-            else 
+            else
             {
                 long linearMediaTypeId = -1;
                 if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(CatalogManager.LINEAR_ASSET_STRUCT_SYSTEM_NAME))

@@ -567,7 +567,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetSSOAdapaterImplementationsKey(int adapterId)
         {
-            return string.Format("sso_adapter_implementations_{0}", adapterId);
+            return string.Format("sso_adapter_implementations_v1_{0}", adapterId);
         }
 
         public static string GetQueryCacheDefinitionsKey()
@@ -668,6 +668,16 @@ namespace CachingProvider.LayeredCache
         public static string GetCommercePartnerConfigKey(int groupId)
         {
             return string.Format("commerce_partner_config_{0}", groupId);
+        }
+
+        public static string GetGroupCategoriesKey(int groupId)
+        {
+            return $"groupCategoriesKey_groupId_{groupId}";
+        }
+
+        public static string GetCategoryItemKey(int groupId, long id)
+        {
+            return $"categoryItem_{groupId}_{id}";
         }
 
         #endregion
@@ -957,7 +967,7 @@ namespace CachingProvider.LayeredCache
             }
 
             return result;
-        }
+        }        
 
         public static string GetUserParentalRuleInvalidationKey(string siteGuid)
         {
@@ -1228,6 +1238,16 @@ namespace CachingProvider.LayeredCache
             return "invalidation_key_asset_stats_sort";
         }
 
+        public static string GetGroupCategoriesInvalidationKey(int groupId)
+        {
+            return $"invalidationKey_groupCategoriesKey_groupId_{groupId}";
+        }      
+
+        public static string GetCategoryIdInvalidationKey(long categoryId)
+        {
+            return $"invalidationKey_categoryId_{categoryId}";
+        }
+
         #endregion
 
         #region Users
@@ -1289,6 +1309,46 @@ namespace CachingProvider.LayeredCache
         public static string GetAllLanguageListKey()
         {
             return "allLanguageList";
+        }
+
+        public static Dictionary<string, string> GetExternalChannelsKeysMap(int groupId, List<int> channelIds)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (channelIds != null && channelIds.Count > 0)
+            {
+                channelIds = channelIds.Distinct().ToList();
+                foreach (int id in channelIds)
+                {
+                    result.Add(GetExternalChannelKey(groupId, id), id.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public static string GetExternalChannelKey(int groupId, int channelId)
+        {
+            return $"ExternalChannel_groupId_{groupId}_Id_{channelId}";
+        }
+
+        public static Dictionary<string, List<string>> GetExternalChannelsInvalidationKeysMap(int groupId, List<int> channelIds)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (channelIds != null && channelIds.Count > 0)
+            {
+                channelIds = channelIds.Distinct().ToList();
+                foreach (int id in channelIds)
+                {
+                    result.Add(GetExternalChannelKey(groupId, id), new List<string>() { GetExternalChannelInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;
+        }
+
+        public static string GetExternalChannelInvalidationKey(int groupId, int channelId)
+        {
+            return $"invalidationKey_ExternalChannel_groupId_{groupId}_Id_{channelId}";
         }
     }
 }

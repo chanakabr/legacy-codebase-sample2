@@ -1032,6 +1032,7 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
+
         public static DataSet GetMediasStats(int nGroupID, List<int> mediaIDs, DateTime? dStartDate, DateTime? dEndDate, List<int> lSubGroupTree)
         {
             ODBCWrapper.StoredProcedure MediaStats = new ODBCWrapper.StoredProcedure("Get_MediasStats");
@@ -4108,7 +4109,7 @@ namespace Tvinci.Core.DAL
 
         public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
                                                               List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType,
-                                                              string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE, 
+                                                              string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE,
                                                               int? bookmarkEventThreshold = null, eTransactionType? productType = null, int? productId = null)
         {
             DevicePlayData devicePlayData = GetDevicePlayData(udid);
@@ -4133,7 +4134,7 @@ namespace Tvinci.Core.DAL
             else if (deviceFamilyId > 0)
             {
                 devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
-                                                    domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, bookmarkEventThreshold, 
+                                                    domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, bookmarkEventThreshold,
                                                     productType, productId);
             }
 
@@ -5828,7 +5829,7 @@ namespace Tvinci.Core.DAL
                 var affectedObjectsDictionary = bulkUpload.AffectedObjects == null
                                                 ? new Dictionary<ulong, IAffectedObject>()
                                                 : bulkUpload.AffectedObjects.ToDictionary(o => o.ObjectId);
-                
+
                 foreach (var affectedObject in affectedObjects)
                 {
                     affectedObjectsDictionary[affectedObject.ObjectId] = affectedObject;
@@ -5918,7 +5919,7 @@ namespace Tvinci.Core.DAL
             }
 
             var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
-        
+
             if (!isAnyInError)
             {
                 newStatus = BulkUploadJobStatus.Success;
@@ -6003,6 +6004,203 @@ namespace Tvinci.Core.DAL
             updateQuery = null;
 
             return res;
+        }
+
+        public static DataTable GetCategories(int groupId)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId } };
+                return UtilsDal.Execute("Get_CategoriesIds", parameters);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while Get_Categories from DB, groupId = {groupId}", ex);
+            }
+
+            return null;
+        }
+
+        public static DataSet GetCategoryItem(int groupId, long id)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@id", id } };
+                return UtilsDal.ExecuteDataSet("Get_Category", parameters);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while GetCategoryItem from DB, groupId = {groupId}", ex);
+            }
+
+            return null;
+        }
+
+        public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels,
+            Dictionary<string, string> dynamicData)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Insert_Categories");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@namesInOtherLanguagesExist", namesInOtherLanguages != null && namesInOtherLanguages.Count > 0);
+                sp.AddKeyValueListParameter<long, string>("@namesInOtherLanguages", namesInOtherLanguages, "idKey", "value");
+                sp.AddParameter("@hasMetadata", dynamicData == null || dynamicData.Count == 0 ? 0 : 1);
+                sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
+                sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
+                sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
+
+                var id = sp.ExecuteReturnValue<long>();
+                if (dynamicData?.Count > 0 && id > 0)
+                {
+                    SaveCategoryDynamicData(id, dynamicData);
+                }
+
+                return id;
+
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while InsertCategory in DB, groupId: {groupId}, name: {name}, ex:{ex} ");
+                return 0;
+            }
+        }
+
+        public static bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels, Dictionary<string, string> dynamicData)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Update_Categories");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@id", id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@hasMetadata", dynamicData != null && dynamicData.Count > 0);
+                sp.AddParameter("@namesInOtherLanguagesExist", namesInOtherLanguages == null && namesInOtherLanguages.Count == 0 ? 0 : 1);
+                sp.AddParameter("@needToDeletenamesInOtherLanguages", namesInOtherLanguages != null && namesInOtherLanguages.Count == 0 ? 1 : 0);
+                sp.AddKeyValueListParameter<long, string>("@namesInOtherLanguages", namesInOtherLanguages, "idKey", "value");
+                sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
+                sp.AddParameter("@needToDeleteCategoriesChannels", channels != null && channels.Count == 0 ? 1 : 0);
+                sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "idKey", "value");
+                sp.AddParameter("@updaterId", userId);
+
+                var result = sp.ExecuteReturnValue<int>() > 0;
+                if (result && dynamicData != null)
+                {
+                    if (dynamicData.Count > 0)
+                    {
+                        SaveCategoryDynamicData(id, dynamicData);
+                    }
+                    else
+                    {
+                        DeleteCategoryDynamicData(id);
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while UpdateCategory from DB, groupId: {groupId}, categoryId: {id})", ex);
+                return false;
+            }
+        }
+
+        public static bool DeleteCategory(int groupId, long? userId, long id)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_Categories");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@id", id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@updaterId", userId);
+                var result = sp.ExecuteReturnValue<int>() > 0;
+
+                DeleteCategoryDynamicData(id);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while DeleteCategory from DB, groupId: {groupId}, Id: {id}", ex);
+                return false;
+            }
+        }
+
+        public static void SaveCategoryDynamicData(long id, Dictionary<string, string> dynamicData)
+        {
+            var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
+            UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, new CBCategoryDynamicData { Id = id, DynamicData = dynamicData }, true);
+        }
+
+        public static Dictionary<string, string> GetCategoryDynamicData(long id)
+        {
+            var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
+            var res = UtilsDal.GetObjectFromCB<CBCategoryDynamicData>(eCouchbaseBucket.OTT_APPS, key, true);
+
+            return res.DynamicData;
+        }
+
+        public static void DeleteCategoryDynamicData(long id)
+        {
+            var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
+            UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool UpdateCategoryOrderNum(int groupId, long? userId, long id, List<long> childCategoriesIds, List<long> childCategoriesIdsToRemove = null)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Update_CategoriesOrderNum");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@id", id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@childCategoriesIdsExist", childCategoriesIds == null || childCategoriesIds.Count == 0 ? 0 : 1);
+                sp.AddOrderKeyListParameter<long>("@childCategoriesIds", childCategoriesIds, "idKey");
+                sp.AddParameter("@childCategoriesIdsToDeleteExist", childCategoriesIdsToRemove == null || childCategoriesIdsToRemove.Count == 0 ? 0 : 1);
+                sp.AddIDListParameter<long>("@childCategoriesIdsToDelete", childCategoriesIdsToRemove, "Id");
+                sp.AddParameter("@updaterId", userId);
+
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while UpdateCategoryOrderNum from DB, groupId: {groupId}, Id: {id}", ex);
+                return false;
+            }
+        }
+
+        public static DataSet GetExternalChannelsByIds(int groupId, List<long> channelIds, bool getAlsoInactive)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalChannelsByIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupId);
+            sp.AddIDListParameter<long>("@channelIds", channelIds, "Id");
+            sp.AddParameter("@alsoInactive", getAlsoInactive ? 1 : 0);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static List<ExternalChannel> SetExternalChannels(DataSet ds)
+        {
+            List<ExternalChannel> externalChannels = null;
+            ExternalChannel externalChannelBase = null;
+
+            if (ds != null && ds.Tables?.Count > 0)
+            {
+                externalChannels = new List<ExternalChannel>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    externalChannelBase = SetExternalChannel(dr);
+                    externalChannels.Add(externalChannelBase);
+                }
+            }
+
+            return externalChannels;
         }
     }
 }

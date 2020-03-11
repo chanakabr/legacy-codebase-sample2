@@ -93,38 +93,45 @@ namespace APILogic.Api.Managers
         {
             string adjacentProgramsKey = LayeredCacheKeys.GetAdjacentProgramsKey(groupId, epgChannelId);
             List<ExtendedSearchResult> adjacentPrograms = null;
+            var invalidationKey = LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId);
 
-            if (!LayeredCache.Instance.Get<List<ExtendedSearchResult>>(adjacentProgramsKey,
-                                                                    ref adjacentPrograms,
-                                                                    GetAdjacentPrograms,
-                                                                    new Dictionary<string, object>() { { "groupId", groupId }, { "epgChannelId", epgChannelId } },
-                                                                    groupId,
-                                                                    LayeredCacheConfigNames.GET_ADJACENT_PROGRAMS,
-                                                                    new List<string>() { LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId) }))
+            if (!LayeredCache.Instance.Get(adjacentProgramsKey,
+                                           ref adjacentPrograms,
+                                           GetAdjacentPrograms,
+                                           new Dictionary<string, object>() { { "groupId", groupId }, { "epgChannelId", epgChannelId } },
+                                           groupId,
+                                           LayeredCacheConfigNames.GET_ADJACENT_PROGRAMS,
+                                           new List<string>() { invalidationKey }))
             {
-                log.ErrorFormat("GetCurrentProgram - GetAdjacentPrograms - Failed get data from cache. groupId: {0}", groupId);
+                log.Error($"GetCurrentProgram.GetAdjacentPrograms - Failed get data from LayeredCache, key: {adjacentProgramsKey}.");
+                return 0;
             }
 
             if (adjacentPrograms != null && adjacentPrograms.Count > 0)
             {
-                var currentProgram = adjacentPrograms.FirstOrDefault(x => x.StartDate <= DateTime.UtcNow && x.EndDate >= DateTime.UtcNow);
+                var currentProgram = adjacentPrograms.FirstOrDefault(x => x.StartDate <= DateTime.UtcNow && x.EndDate >= DateTime.UtcNow && !string.IsNullOrEmpty(x.AssetId));
                 if (currentProgram != null)
                 {
-                    log.DebugFormat("GetCurrentProgram - found program: {0}", currentProgram.AssetId);
+                    log.Debug($"GetCurrentProgram - found program: {currentProgram.AssetId}");
                     return long.Parse(currentProgram.AssetId);
                 }
-            }
 
-            if (!isRetry)
-            {
-                log.DebugFormat("GetCurrentProgram - no program found.");
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId));
-                return GetCurrentProgram(groupId, epgChannelId, true);
+                if (!isRetry && !adjacentPrograms.Any(x => x.EndDate >= DateTime.UtcNow))
+                {
+                    log.Debug($"GetCurrentProgram - need to refresh LayeredCache. Invalidating by key: {invalidationKey}.");
+                    LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+                    return GetCurrentProgram(groupId, epgChannelId, true);
+                }
             }
 
             return 0;
         }
 
+        /// <summary>
+        /// Search all Programs from now to the next 24 hours
+        /// </summary>
+        /// <param name="funcParams"></param>
+        /// <returns></returns>
         private static Tuple<List<ExtendedSearchResult>, bool> GetAdjacentPrograms(Dictionary<string, object> funcParams)
         {
             List<ExtendedSearchResult> adjacentPrograms = null;
@@ -145,6 +152,12 @@ namespace APILogic.Api.Managers
                             if (programs != null)
                             {
                                 adjacentPrograms = new List<ExtendedSearchResult>(programs);
+
+                                if (adjacentPrograms.Count == 0)
+                                {
+                                    var nextDateToRefreshCache = DateTime.UtcNow.AddHours(24);
+                                    adjacentPrograms.Add(new ExtendedSearchResult() { EndDate = nextDateToRefreshCache });
+                                }
                             }
                         }
                     }
@@ -152,7 +165,7 @@ namespace APILogic.Api.Managers
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetAdjacentPrograms faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error($"Exception at GetAdjacentPrograms. funcParams: {string.Join(";", funcParams.Keys)}, exception: {ex.ToString()}.");
             }
 
             return new Tuple<List<ExtendedSearchResult>, bool>(adjacentPrograms, adjacentPrograms != null);
@@ -173,18 +186,17 @@ namespace APILogic.Api.Managers
 
             try
             {
-                StringBuilder ksql = new StringBuilder();
-                ksql.AppendFormat("(and epg_channel_id = '{0}' end_date > '0')", epgChannelId);
+                var ksql = $"(and epg_channel_id = '{epgChannelId}' end_date > '0')";
 
-                ExtendedSearchRequest request = new ExtendedSearchRequest()
+                var request = new ExtendedSearchRequest()
                 {
                     m_nGroupID = groupId,
                     m_dServerTime = DateTime.UtcNow,
                     m_nPageIndex = 0,
                     m_nPageSize = pageSize,
                     assetTypes = new List<int> { 0 },
-                    filterQuery = ksql.ToString(),
-                    order = new ApiObjects.SearchObjects.OrderObj()
+                    filterQuery = ksql,
+                    order = new OrderObj()
                     {
                         m_eOrderBy = orderBy,
                         m_eOrderDir = orderDir
@@ -197,19 +209,17 @@ namespace APILogic.Api.Managers
                 };
 
                 FillCatalogSignature(request);
-
                 UnifiedSearchResponse response = request.GetResponse(request) as UnifiedSearchResponse;
 
-                if (response == null || response.status == null)
+                if (response == null || response.status == null || response.searchResults == null)
                 {
-                    log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'ExtendedSearchRequest'");
+                    log.Error("Got empty response from Catalog 'GetResponse' for 'ExtendedSearchRequest'");
                     return programs;
                 }
 
                 if (response.status.Code != (int)eResponseStatus.OK)
                 {
-                    log.ErrorFormat("Got error response from catalog 'GetResponse' for 'ExtendedSearchRequest'. response: code = {0}, message = {1}",
-                                    response.status.Code, response.status.Message);
+                    log.Error($"Got error response from catalog 'GetResponse' for 'ExtendedSearchRequest'. response status: {response.status.ToString()}.");
                     return programs;
                 }
 
@@ -217,7 +227,7 @@ namespace APILogic.Api.Managers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed SearchPrograms, channelId: {0}, Exception: {1}.", epgChannelId, ex.ToString());
+                log.Error($"Failed SearchPrograms, channelId: {epgChannelId}, Exception: {ex.ToString()}.");
             }
 
             return programs;
