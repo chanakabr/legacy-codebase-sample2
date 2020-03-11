@@ -1,0 +1,41 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "InboxMessage_List",
+      "service": "InboxMessage",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "InboxMessage_Get",
+      "service": "InboxMessage",
+      "action": "Get",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "InboxMessage_UpdateStatus",
+      "service": "InboxMessage",
+      "action": "UpdateStatus",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,25 @@
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.Pricing
+{
+    /// <summary>
+    /// Subscriptions list
+    /// </summary>
+    [DataContract(Name = "Subscriptions", Namespace = "")]
+    [XmlRoot("Subscriptions")]
+    public partial class KalturaSubscriptionListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// A list of subscriptions
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaSubscription> Subscriptions { get; set; }
+    }
+}
