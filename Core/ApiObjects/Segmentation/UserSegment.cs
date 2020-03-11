@@ -15,7 +15,11 @@ namespace ApiObjects.Segmentation
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+<<<<<<< HEAD
         public static readonly int USER_SEGMENT_TTL_HOURS = ApplicationConfiguration.Current.UserSegmentTTL.Value;
+=======
+        public static readonly int USER_SEGMENT_TTL_HOURS = ApplicationConfiguration.UserSegmentTTL.IntValue;
+>>>>>>> 5_3_0
 
         #region Members
 
@@ -121,6 +125,7 @@ namespace ApiObjects.Segmentation
             List<long> segmentsToRemove = GetUserSegmentsToCleanup(GroupId, userSegments.Segments.Values.ToList());
             segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
 
+<<<<<<< HEAD
             ulong ttl = GetDocumentTTL();
             if (userSegments.Segments.Values.FirstOrDefault(x => x.UpdateDate == DateTime.MaxValue) != null)
             {
@@ -128,6 +133,9 @@ namespace ApiObjects.Segmentation
             }
 
             result = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
+=======
+            result = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTTL());
+>>>>>>> 5_3_0
 
             if (!result)
             {
@@ -195,10 +203,17 @@ namespace ApiObjects.Segmentation
 
         #region Public methods
 
+<<<<<<< HEAD
         public static List<UserSegment> List(int groupId, string userId, out int totalCount, List<long> segmentsIds = null)
         {
             List<UserSegment> result = new List<UserSegment>();
             totalCount = 0;           
+=======
+        public static List<UserSegment> List(int groupId, string userId, int pageIndex, int pageSize, out int totalCount)
+        {
+            List<UserSegment> result = new List<UserSegment>();
+            totalCount = 0;
+>>>>>>> 5_3_0
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             string userSegmentsKey = GetUserSegmentsKey(userId);
@@ -223,6 +238,7 @@ namespace ApiObjects.Segmentation
                     }
                 }
 
+<<<<<<< HEAD
                 if (segmentsIds?.Count > 0)
                 {
                     // should return only segemtns in this list
@@ -232,6 +248,19 @@ namespace ApiObjects.Segmentation
                 result = userSegments.Segments.Values.ToList();
 
                 totalCount = userSegments.Segments.Count;
+=======
+                totalCount = userSegments.Segments.Count;
+
+                if (pageSize == 0 && pageIndex == 0)
+                {
+                    result = userSegments.Segments.Values.ToList();
+                }
+                else
+                {
+                    // get only segments on current page
+                    result = userSegments.Segments.Values.ToList().Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                }
+>>>>>>> 5_3_0
             }
 
             return result;
