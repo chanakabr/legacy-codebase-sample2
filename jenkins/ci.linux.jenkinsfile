@@ -45,9 +45,10 @@ pipeline {
                         [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
                     ]
                 )
+                component = "${env.JOB_NAME}"
+
             }
         }
-        component = "${env.JOB_NAME}"
     }
     post {
         always {
