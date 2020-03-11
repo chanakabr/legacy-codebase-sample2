@@ -43,23 +43,18 @@ pipeline {
                     }
                     dir("phoenix"){ 
                         bat "sh ../Core/DllVersioning.Core.sh ." 
-                        powershell "../Core/DllVersioning.ps1 ."
                     }
                     dir("RemoteTasks") { 
-                        bat "sh ../core/DllVersioning.Core.sh ."
-                        powershell "../Core/DllVersioning.ps1 ."
+                        bat "sh ../Core/DllVersioning.Core.sh ."
                     }
                     dir("tvpapi") { 
-                        bat "sh ../core/DllVersioning.Core.sh ."
-                        powershell "../Core/DllVersioning.ps1 ."
+                        bat "sh ../Core/DllVersioning.Core.sh ."
                     }
                     dir("WS_Ingest") { 
-                        bat "sh ../core/DllVersioning.Core.sh ."
-                        powershell "../Core/DllVersioning.ps1 ."
+                        bat "sh ../Core/DllVersioning.Core.sh ."
                     }
                     dir("tvmapps") { 
-                        bat "sh ../core/DllVersioning.Core.sh ."
-                        powershell "../Core/DllVersioning.ps1 ."
+                        bat "sh ../Core/DllVersioning.Core.sh ."
                     }
             }        
         }
