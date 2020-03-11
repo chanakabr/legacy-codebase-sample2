@@ -3,6 +3,7 @@ WORKDIR /src
 
 RUN apt-get install git
 
+COPY [".git", ".git"]
 COPY ["Core", "Core"]
 COPY ["RemoteTasks", "RemoteTasks"]
 
