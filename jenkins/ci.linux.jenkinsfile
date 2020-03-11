@@ -56,7 +56,6 @@ pipeline {
 }
 
 def buildDockerAndPushToEcr(componentName, dockerfile){
-    component = componentName
     def REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/${componentName}"
     def ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
     def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
@@ -80,10 +79,10 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
     )
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
-    if ("${component}" == "phoenix"){
+    if ("${componentName}" == "phoenix"){
         sh "exit 1"
     }
-    report("${component}")
+    report("${componentName}")
 }
 
 def report(name){
