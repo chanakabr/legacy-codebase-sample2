@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (http://www.altova.com) by TeaM DJiNN (TeaM DJiNN) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:element name="MediaData">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="TVM">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="SearchValues">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Tags" type="xs:string"/>
+                    <xs:element name="Metadata" type="xs:string"/>
+                    <xs:element name="Redirect" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Mapping">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Map" minOccurs="0" maxOccurs="unbounded">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="Tag" type="xs:string"/>
+                                      <xs:element name="MediaTypeID" type="xs:string"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="MediaInfoStruct">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Tags" type="xs:string"/>
+                    <xs:element name="Metadata" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="GalleryMediaInfoStruct">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Tags" type="xs:string"/>
+                    <xs:element name="Metadata" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="FlashMediaInfoStruct">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Tags" type="xs:string"/>
+                    <xs:element name="Metadata" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="MediaListTags">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Tags" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="TagsGallery">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Tags" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="AutoCompleteValues">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Tags" type="xs:string"/>
+                    <xs:element name="Metadata" type="xs:string"/>
+                    <xs:element name="MediaTypeIDs" type="xs:string" minOccurs="0"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="AdvertisingValues">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Tags" type="xs:string"/>
+                    <xs:element name="Metas" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

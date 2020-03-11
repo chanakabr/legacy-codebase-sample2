@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (x64) (http://www.altova.com) by Irena (OK) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="Param">
+		<xs:sequence>
+			<xs:element name="key" type="xs:string"/>
+			<xs:element name="name" type="xs:string"/>
+			<xs:element name="value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GalleryTypeData">
+		<xs:sequence>
+			<xs:element name="blend" type="xs:string"/>
+			<xs:element name="type" type="xs:string"/>
+			<xs:element name="genres" type="xs:string"/>
+			<xs:element name="Params">
+				<xs:complexType>
+					<xs:sequence maxOccurs="unbounded">
+						<xs:element name="Param">
+							<xs:complexType mixed="0">
+								<xs:complexContent mixed="0">
+									<xs:extension base="Param"/>
+								</xs:complexContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="OrcaRecommendations">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="DefaultParentalLevel" type="xs:int"/>
+				<xs:element name="MaxResults" type="xs:int"/>
+				<xs:element name="EndTimeOffset" type="xs:int"/>
+				<xs:element name="EndTimeLimit" type="xs:boolean"/>
+				<xs:element name="GMTOffset" type="xs:int"/>
+				<xs:element name="VODFailOverChannelID" type="xs:int"/>
+				<xs:element name="LiveFailOverChannelID" type="xs:int"/>
+				<xs:element name="Galleries">
+					<xs:complexType>
+						<xs:sequence maxOccurs="unbounded">
+							<xs:element name="Gallery">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="GalleryTypeData" type="GalleryTypeData"/>
+									</xs:sequence>
+									<xs:attribute name="eGalleryType">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="HomeVODPersonal"/>
+												<xs:enumeration value="HomeVODPromotions"/>
+												<xs:enumeration value="HomeLivePersonal"/>
+												<xs:enumeration value="HomeLivePromotions"/>
+												<xs:enumeration value="CatalogVODPromotions"/>
+												<xs:enumeration value="CategoryCatalogVODPromotions"/>
+												<xs:enumeration value="MovieRelated"/>
+												<xs:enumeration value="SeriesRelated"/>
+												<xs:enumeration value="EpisodeRelated"/>
+												<xs:enumeration value="PersonalRecommendationsVOD"/>
+												<xs:enumeration value="PersonalRecommendationsLive"/>
+												<xs:enumeration value="EndOfMovie"/>
+												<xs:enumeration value="EndOfEpisode"/>
+												<xs:enumeration value="VODAction"/>
+												<xs:enumeration value="VODDrama"/>
+												<xs:enumeration value="VODComedy"/>
+												<xs:enumeration value="VODThriller"/>
+												<xs:enumeration value="VODDoco"/>
+												<xs:enumeration value="VODKids"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+									<xs:attribute name="eContentType">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="VOD"/>
+												<xs:enumeration value="Live"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
