@@ -1,0 +1,35 @@
+﻿using Core.Users;
+using System.Collections.Specialized;
+using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
+using TVPApi;
+using TVPApiModule.Objects;
+using TVPApiModule.Services;
+using TVPPro.Configuration.OrcaRecommendations;
+using UserResponse = TVPApiModule.Objects.UserResponse;
+using DomainResponseObject = TVPApiModule.Objects.DomainResponseObject;
+
+namespace TVPApiModule.Interfaces
+{
+    public interface IImplementation
+    {
+        ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword, NameValueCollection nameValueCollection = null);
+
+        DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID);
+
+        string MediaHit(int nMediaID, int nFileID, string sNPVRID, int nLocationID, long programId, bool isReportingMode = false);
+
+        string ChargeUserForSubscription(double dPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sIP, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV);
+
+        string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, string sNPVRID, int nLocationID, long programId, bool isReportingMode = false);
+
+        bool IsItemPurchased(int iFileID, string sUserGuid);
+
+        string GetMediaLicenseData(int iMediaFileID, int iMediaID);
+
+        TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType, string coGuid);
+
+        string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink, string clientIP);
+        
+        UserResponse SetUserDynamicData(InitializationObject initObj, int groupID, string key, string value);
+    }
+}

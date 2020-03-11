@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (http://www.altova.com) by Someone (Somewhere) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="Basic">
+		<xs:sequence>
+			<xs:element name="ID" type="xs:int" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="Name" type="xs:string"/>
+		<xs:attribute name="Description" type="xs:string"/>
+		<xs:attribute name="MediaTypeID" type="xs:int"/>
+		<xs:attribute name="StartDate" type="xs:dateTime"/>
+		<xs:attribute name="EndDate" type="xs:dateTime"/>
+		<xs:attribute name="FinalEndDate" type="xs:dateTime"/>
+		<xs:attribute name="PicUrl" type="xs:string"/>
+		<xs:attribute name="IsActive" type="xs:boolean"/>
+	</xs:complexType>
+	<xs:element name="MediaCUDItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="root">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Request">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="params">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Metas" type="Metas"/>
+													<xs:element name="Tags" type="Tags"/>
+													<xs:element name="Basic" type="Basic"/>
+													<xs:element name="GroupId" type="xs:int"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="response">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Status" type="xs:boolean"/>
+							<xs:element name="ShouldUpdate" type="xs:boolean"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="Tag">
+		<xs:attribute name="Type" type="xs:int"/>
+		<xs:attribute name="ID" type="xs:int"/>
+		<xs:attribute name="Value" type="xs:string"/>
+		<xs:attribute name="Action" type="xs:string"/>
+	</xs:complexType>
+	<xs:complexType name="Metas">
+		<xs:sequence>
+			<xs:element name="Meta" type="Meta" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Meta">
+		<xs:attribute name="MetaName"/>
+		<xs:attribute name="Value"/>
+	</xs:complexType>
+	<xs:complexType name="Tags">
+		<xs:sequence>
+			<xs:element name="Tag" type="Tag" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

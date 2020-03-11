@@ -1,0 +1,1122 @@
+﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3500A840-C10F-4904-95D8-62D9ED6A0116}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WAP_TVPApi</RootNamespace>
+    <AssemblyName>WAP_TVPApi</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AccedoSendMessage.aspx.cs">
+      <DependentUpon>AccedoSendMessage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AccedoSendMessage.aspx.designer.cs">
+      <DependentUpon>AccedoSendMessage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ClearCache.aspx.cs">
+      <DependentUpon>ClearCache.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ClearCache.aspx.designer.cs">
+      <DependentUpon>ClearCache.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DocGenerator.aspx.cs">
+      <DependentUpon>DocGenerator.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DocGenerator.aspx.designer.cs">
+      <DependentUpon>DocGenerator.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="feed.aspx.cs">
+      <DependentUpon>feed.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="feed.aspx.designer.cs">
+      <DependentUpon>feed.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Gateways\Data.aspx.cs">
+      <DependentUpon>Data.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Gateways\Data.aspx.designer.cs">
+      <DependentUpon>Data.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Gateways\DeviceInit.aspx.cs">
+      <DependentUpon>DeviceInit.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Gateways\DeviceInit.aspx.designer.cs">
+      <DependentUpon>DeviceInit.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Gateways\GetChannel.aspx.cs">
+      <DependentUpon>GetChannel.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Gateways\GetChannel.aspx.designer.cs">
+      <DependentUpon>GetChannel.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Gateways\JsonGateway.aspx.cs">
+      <DependentUpon>JsonGateway.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Gateways\JsonGateway.aspx.designer.cs">
+      <DependentUpon>JsonGateway.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Gateways\JsonPostGW.aspx.cs">
+      <DependentUpon>JsonPostGW.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Gateways\JsonPostGW.aspx.designer.cs">
+      <DependentUpon>JsonPostGW.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Gateways\Test.aspx.cs">
+      <DependentUpon>Test.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Gateways\Test.aspx.designer.cs">
+      <DependentUpon>Test.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Gateways\TestGateway.aspx.cs">
+      <DependentUpon>TestGateway.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Gateways\TestGateway.aspx.designer.cs">
+      <DependentUpon>TestGateway.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Gateways\tvinci_init.aspx.cs">
+      <DependentUpon>tvinci_init.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Gateways\tvinci_init.aspx.designer.cs">
+      <DependentUpon>tvinci_init.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Gateways\ximon_init.aspx.cs">
+      <DependentUpon>ximon_init.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Gateways\ximon_init.aspx.designer.cs">
+      <DependentUpon>ximon_init.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="MappingConfig.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MappingConfig.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Old_App_Code\BaseClasses\BaseGateway.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Old_App_Code\BaseClasses\JsonSerializer.cs" />
+    <Compile Include="Old_App_Code\GWFrontController.cs" />
+    <Compile Include="Old_App_Code\MappingManager.cs" />
+    <Compile Include="Old_App_Code\RSS\RSSWriter.cs" />
+    <Compile Include="Old_App_Code\WS_Code\CRMService.cs" />
+    <Compile Include="Old_App_Code\WS_Code\RequestDescription.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Service.cs">
+      <DependentUpon>Service.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TechnicalSupport.aspx.cs">
+      <DependentUpon>TechnicalSupport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TechnicalSupport.aspx.designer.cs">
+      <DependentUpon>TechnicalSupport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TestPage.aspx.cs">
+      <DependentUpon>TestPage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TestPage.aspx.designer.cs">
+      <DependentUpon>TestPage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\il.co.smscenter.www\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="whoami.aspx.cs">
+      <DependentUpon>whoami.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="whoami.aspx.designer.cs">
+      <DependentUpon>whoami.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="XmlModels\doPurchase.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>doPurchase.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XmlModels\GetAccountInfo.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GetAccountInfo.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XmlModels\GetAllChannels.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GetAllChannels.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XmlModels\GetChannelInfo.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GetChannelInfo.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XmlModels\GetChannelMedias.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GetChannelMedias.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XmlModels\GetMediaInfo.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GetMediaInfo.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XmlModels\GetServiceURLs.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GetServiceURLs.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XmlModels\MediaMark.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MediaMark.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XmlModels\PurchaseAuth.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PurchaseAuth.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XmlModels\PurchaseStatus.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PurchaseStatus.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XmlModels\SearchTitles.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SearchTitles.xsd</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AccedoSendMessage.aspx" />
+    <Content Include="Gateways\DefaultMediaConfiguration.config" />
+    <Content Include="Gateways\DefaultSiteConfiguration.config" />
+    <Content Include="Gateways\DefaultTechnicalConfiguration.config" />
+    <None Include="Old_App_WebReferences\il\co\smscenter\www\SendMessage.disco" />
+    <Content Include="ClearCache.aspx" />
+    <Content Include="Configuration\Klic\staging\ConnectedTV\XMLFile.xml" />
+    <Content Include="Default.aspx" />
+    <Content Include="DocGenerator.aspx" />
+    <Content Include="feed.aspx" />
+    <Content Include="Gateways\Data.aspx" />
+    <Content Include="Gateways\DeviceInit.aspx" />
+    <Content Include="Gateways\DeviceMappings\AccedoCTV.xml" />
+    <Content Include="Gateways\DeviceMappings\NetGemSTB.xml" />
+    <Content Include="Gateways\GetChannel.aspx" />
+    <Content Include="Gateways\JsonGateway.aspx" />
+    <Content Include="Gateways\JsonPostGW.aspx" />
+    <Content Include="Gateways\Test.aspx" />
+    <Content Include="Gateways\TestGateway.aspx" />
+    <Content Include="Gateways\Transformations\AccedoCTV.xslt" />
+    <Content Include="Gateways\Transformations\NetGemSTB.xslt" />
+    <Content Include="Gateways\TvinciSettings.xml" />
+    <Content Include="Gateways\tvinci_init.aspx" />
+    <Content Include="Gateways\ximon_init.aspx" />
+    <Content Include="Global.asax" />
+    <Content Include="MappingConfig.xsc">
+      <DependentUpon>MappingConfig.xsd</DependentUpon>
+    </Content>
+    <Content Include="Service.asmx" />
+    <Content Include="TechnicalSupport.aspx" />
+    <Content Include="TestPage.aspx" />
+    <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\il.co.smscenter.www\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\il.co.smscenter.www\SendMessage.disco" />
+    <Content Include="whoami.aspx" />
+    <Content Include="XML\Users.xml" />
+    <None Include="App_Data\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="App_Data\PublishProfiles\LocalDeploy.pubxml" />
+    <None Include="Old_App_WebReferences\il\co\smscenter\www\SendMessage.discomap" />
+    <None Include="Old_App_WebReferences\il\co\smscenter\www\SendMessage.wsdl" />
+    <Content Include="Configuration\AbertisWL2\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\AbertisWL2\prod\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\AbertisWL2\prod\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\AbertisWL2\prod\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\AbertisWL2\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\AbertisWL2\staging\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\AbertisWL2\staging\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\AbertisWL2\staging\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\AbertisWL2\test\MediaConfiguration.config" />
+    <Content Include="Configuration\AbertisWL2\test\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\AbertisWL2\test\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\AbertisWL2\test\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\prod\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\prod\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\prod\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\prod\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\prod\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\prod\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\staging\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\staging\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\staging\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\staging\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\staging\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\staging\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\test\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\test\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\test\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\test\MediaConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\test\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\test\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\AbertisWL\test\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Abertis\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\Abertis\prod\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Abertis\prod\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Abertis\prod\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Abertis\prod\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Abertis\staing\MediaConfiguration.config" />
+    <Content Include="Configuration\Abertis\staing\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Abertis\staing\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Abertis\staing\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Abertis\staing\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Abertis\test\MediaConfiguration.config" />
+    <Content Include="Configuration\Abertis\test\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Abertis\test\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Abertis\test\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Abertis\test\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Blink\staging\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Blink\staging\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Blink\staging\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Blink\staging\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Blink\staging\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Blink\staging\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Blink\staging\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Blink\staging\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Blink\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Blink\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Blink\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Blink\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\Blink\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\MediaConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\PageStructConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\staging\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Chellomedia\staging\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\staging\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\staging\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\staging\iPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Chellomedia\staging\iPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\staging\iPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\staging\iPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Chellomedia\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\Chellomedia\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Dori\prod\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Dori\prod\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Dori\prod\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\Dori\prod\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Dori\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\Dori\prod\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Dori\prod\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Dori\prod\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Dori\prod\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Dori\staging\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Dori\staging\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Dori\staging\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\Dori\staging\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Dori\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Dori\staging\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Dori\staging\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Dori\staging\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Dori\staging\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Dori\test\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Dori\test\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Dori\test\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\Dori\test\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Dori\test\MediaConfiguration.config" />
+    <Content Include="Configuration\Dori\test\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Dori\test\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Dori\test\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Dori\test\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Elisa\prod\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Elisa\prod\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Elisa\prod\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Elisa\prod\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Elisa\prod\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Elisa\prod\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Elisa\prod\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Elisa\prod\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Elisa\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\Elisa\staging\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Elisa\staging\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Elisa\staging\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Elisa\staging\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Elisa\staging\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Elisa\staging\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Elisa\staging\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Elisa\staging\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Elisa\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Elisa\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Elisa\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Elisa\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\Elisa\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Elisa\test\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Elisa\test\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Elisa\test\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Elisa\test\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Elisa\test\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Elisa\test\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Elisa\test\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Elisa\test\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Elisa\test\MediaConfiguration.config" />
+    <Content Include="Configuration\EutelSat\prod\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\EutelSat\prod\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\EutelSat\prod\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\EutelSat\prod\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\EutelSat\prod\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\EutelSat\prod\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\EutelSat\prod\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\EutelSat\prod\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\EutelSat\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\EutelSat\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\EutelSat\staging\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\EutelSat\staging\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\EutelSat\staging\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\EutelSat\staging\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\EutelSat\test\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\EutelSat\test\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\EutelSat\test\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\EutelSat\test\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\EutelSat\test\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\EutelSat\test\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\EutelSat\test\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\EutelSat\test\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\EutelSat\test\MediaConfiguration.config" />
+    <Content Include="Configuration\Filmotech\prod\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Filmotech\prod\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Filmotech\prod\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Filmotech\prod\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Filmotech\prod\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Filmotech\prod\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Filmotech\prod\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Filmotech\prod\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Filmotech\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\Filmotech\prod\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Filmotech\prod\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Filmotech\prod\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Filmotech\prod\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Filmotech\staging\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Filmotech\staging\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Filmotech\staging\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Filmotech\staging\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Filmotech\staging\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Filmotech\staging\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Filmotech\staging\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Filmotech\staging\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Filmotech\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Filmotech\Test\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Filmotech\Test\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Filmotech\Test\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Filmotech\Test\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Filmotech\Test\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Filmotech\Test\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Filmotech\Test\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Filmotech\Test\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Filmotech\Test\MediaConfiguration.config" />
+    <Content Include="Configuration\Filmotech\Test\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Filmotech\Test\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Filmotech\Test\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Filmotech\Test\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\GlobalAppSettings.config" />
+    <Content Include="Configuration\IBC\prod\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IBC\prod\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IBC\prod\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IBC\staging\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IBC\staging\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IBC\staging\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IBC\test\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IBC\test\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IBC\test\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IPVision\prod\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IPVision\prod\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IPVision\prod\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\IPVision\prod\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IPVision\prod\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IPVision\prod\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IPVision\prod\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\IPVision\prod\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IPVision\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\IPVision\prod\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IPVision\prod\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IPVision\prod\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\IPVision\prod\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IPVision\staging\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IPVision\staging\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IPVision\staging\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IPVision\staging\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\IPVision\staging\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IPVision\Test\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IPVision\Test\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IPVision\Test\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\IPVision\Test\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IPVision\Test\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IPVision\Test\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IPVision\Test\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\IPVision\Test\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\IPVision\Test\MediaConfiguration.config" />
+    <Content Include="Configuration\IPVision\Test\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\IPVision\Test\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\IPVision\Test\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\IPVision\Test\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\prod\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Kanguroo\prod\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\prod\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\prod\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\staging\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Kanguroo\staging\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\staging\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\staging\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Kanguroo\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\test\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Kanguroo\test\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\test\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\test\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Kanguroo\test\MediaConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Klic\staging\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Klic\staging\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\iPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Klic\staging\iPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\iPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\iPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Klic\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\Klic\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\MediaCorp\staging\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\MediaCorp\staging\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\iPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\MediaCorp\staging\iPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\iPad\SiteConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\iPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\MediaCorp\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\MediaCorp\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\OnlineConfiguration.config" />
+    <Content Include="Configuration\Orange\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\Orange\prod\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Orange\prod\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Orange\prod\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Orange\prod\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Orange\staging\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Orange\staging\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Orange\staging\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Orange\staging\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Orange\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Orange\staging\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Orange\staging\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Orange\staging\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Orange\staging\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Orange\Test\MediaConfiguration.config" />
+    <Content Include="Configuration\Orange\Test\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Orange\Test\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Orange\Test\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Orange\Test\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\QABE\staging\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\iPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\QABE\staging\iPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\iPad\SiteConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\iPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\QABE\staging\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\QABE\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\QABE\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Telecinco\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\Telecinco\prod\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Telecinco\prod\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Telecinco\prod\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Telecinco\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Telecinco\staging\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Telecinco\staging\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Telecinco\staging\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Telecinco\test\MediaConfiguration.config" />
+    <Content Include="Configuration\Telecinco\test\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Telecinco\test\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Telecinco\test\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Tikle\prod\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Tikle\prod\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Tikle\prod\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Tikle\staging\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Tikle\staging\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Tikle\staging\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Tikle\test\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Tikle\test\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Tikle\test\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turkcell\prod\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turkcell\prod\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turkcell\prod\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Turkcell\prod\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turkcell\prod\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turkcell\prod\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turkcell\prod\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Turkcell\prod\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turkcell\prod\MediaConfiguration.config" />
+    <Content Include="Configuration\Turkcell\prod\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turkcell\prod\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turkcell\prod\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Turkcell\prod\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turkcell\staging\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turkcell\staging\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turkcell\staging\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turkcell\staging\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Turkcell\staging\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turkcell\Test\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turkcell\Test\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turkcell\Test\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Turkcell\Test\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turkcell\Test\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turkcell\Test\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turkcell\Test\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Turkcell\Test\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turkcell\Test\MediaConfiguration.config" />
+    <Content Include="Configuration\Turkcell\Test\STB\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turkcell\Test\STB\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turkcell\Test\STB\SiteConfiguration.config" />
+    <Content Include="Configuration\Turkcell\Test\STB\TechnicalConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\TurnerBR\staging\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\TurnerBR\staging\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\TurnerBR\staging\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\TurnerBR\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\TurnerBR\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\Cellular\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turner\staging\Cellular\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\Cellular\SiteConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\Cellular\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\ConnectedTV\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turner\staging\ConnectedTV\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\ConnectedTV\SiteConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\ConnectedTV\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\IPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turner\staging\IPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\IPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\IPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Turner\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\Turner\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Vodafone\staging\iPad\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Vodafone\staging\iPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Vodafone\staging\iPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Vodafone\staging\iPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Vodafone\staging\MediaConfiguration.config" />
+    <Content Include="Configuration\Vodafone\staging\Web\AdditionalAppSettings.config" />
+    <Content Include="Configuration\Vodafone\staging\Web\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Vodafone\staging\Web\SiteConfiguration.config" />
+    <Content Include="Configuration\Vodafone\staging\Web\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Yes\staging\iPad\OrcaRecommendations.config" />
+    <Content Include="Configuration\Yes\staging\iPad\PlatformServicesConfiguration.config" />
+    <Content Include="Configuration\Yes\staging\iPad\SiteConfiguration.config" />
+    <Content Include="Configuration\Yes\staging\iPad\TechnicalConfiguration.config" />
+    <Content Include="Configuration\Yes\staging\MediaConfiguration.config" />
+    <Content Include="Gateways\CRMGateway.ashx" />
+    <Content Include="Gateways\NetGem.aspx.cs.exclude" />
+    <Content Include="Gateways\NetGem.aspx.exclude" />
+    <Content Include="Gateways\NetGem_ipvision.aspx.cs.exclude" />
+    <Content Include="Gateways\NetGem_ipvision.aspx.exclude" />
+    <Content Include="Gateways\NetGem_Novebox.aspx.cs.exclude" />
+    <Content Include="Gateways\NetGem_Novebox.aspx.exclude" />
+    <Content Include="Gateways\NetGem_Orange.aspx.cs.exclude" />
+    <Content Include="Gateways\NetGem_Orange.aspx.exclude" />
+    <Content Include="Gateways\orange_init.aspx.cs.exclude" />
+    <Content Include="Gateways\orange_init.aspx.exclude" />
+    <Content Include="Gateways\PTVGateway.aspx.cs.exclude" />
+    <Content Include="Gateways\PTVGateway.aspx.exclude" />
+    <Content Include="Gateways\rsstv_ipvision.ashx.exclude" />
+    <Content Include="Gateways\rsstv_ipvision_connectedtv.ashx.exclude" />
+    <Content Include="Gateways\rsstv_ipvision_stb.ashx.exclude" />
+    <Content Include="log4net.config" />
+    <None Include="MappingConfig.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>MappingConfig.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="MappingConfig.xss">
+      <DependentUpon>MappingConfig.xsd</DependentUpon>
+    </Content>
+    <Content Include="XmlModels\SearchTitles.xsc">
+      <DependentUpon>SearchTitles.xsd</DependentUpon>
+    </Content>
+    <Content Include="XmlModels\PurchaseStatus.xsc">
+      <DependentUpon>PurchaseStatus.xsd</DependentUpon>
+    </Content>
+    <Content Include="XmlModels\PurchaseAuth.xsc">
+      <DependentUpon>PurchaseAuth.xsd</DependentUpon>
+    </Content>
+    <Content Include="XmlModels\MediaMark.xsc">
+      <DependentUpon>MediaMark.xsd</DependentUpon>
+    </Content>
+    <Content Include="XmlModels\GetServiceURLs.xsc">
+      <DependentUpon>GetServiceURLs.xsd</DependentUpon>
+    </Content>
+    <Content Include="XmlModels\GetMediaInfo.xsc">
+      <DependentUpon>GetMediaInfo.xsd</DependentUpon>
+    </Content>
+    <Content Include="XmlModels\GetChannelMedias.xsc">
+      <DependentUpon>GetChannelMedias.xsd</DependentUpon>
+    </Content>
+    <Content Include="XmlModels\GetChannelInfo.xsc">
+      <DependentUpon>GetChannelInfo.xsd</DependentUpon>
+    </Content>
+    <Content Include="XmlModels\GetAllChannels.xsc">
+      <DependentUpon>GetAllChannels.xsd</DependentUpon>
+    </Content>
+    <Content Include="XmlModels\GetAccountInfo.xsc">
+      <DependentUpon>GetAccountInfo.xsd</DependentUpon>
+    </Content>
+    <Content Include="XmlModels\doPurchase.xsc">
+      <DependentUpon>doPurchase.xsd</DependentUpon>
+    </Content>
+    <Content Include="README.md" />
+    <Content Include="ssl-dev\cert.pfx" />
+    <Content Include="website.publishproj" />
+    <None Include="Web References\il.co.smscenter.www\SendMessage.wsdl" />
+    <Content Include="Web References\il.co.smscenter.www\SendMessageReturnValues.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\il.co.smscenter.www\SendSMSMessagesReturenMessageID.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="XmlModels\doPurchase.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>doPurchase.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="XmlModels\doPurchase.xss">
+      <DependentUpon>doPurchase.xsd</DependentUpon>
+    </Content>
+    <None Include="XmlModels\GetAccountInfo.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>GetAccountInfo.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="XmlModels\GetAccountInfo.xss">
+      <DependentUpon>GetAccountInfo.xsd</DependentUpon>
+    </Content>
+    <None Include="XmlModels\GetAllChannels.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>GetAllChannels.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="XmlModels\GetAllChannels.xss">
+      <DependentUpon>GetAllChannels.xsd</DependentUpon>
+    </Content>
+    <None Include="XmlModels\GetChannelInfo.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>GetChannelInfo.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="XmlModels\GetChannelInfo.xss">
+      <DependentUpon>GetChannelInfo.xsd</DependentUpon>
+    </Content>
+    <None Include="XmlModels\GetChannelMedias.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>GetChannelMedias.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="XmlModels\GetChannelMedias.xss">
+      <DependentUpon>GetChannelMedias.xsd</DependentUpon>
+    </Content>
+    <None Include="XmlModels\GetMediaInfo.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>GetMediaInfo.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="XmlModels\GetMediaInfo.xss">
+      <DependentUpon>GetMediaInfo.xsd</DependentUpon>
+    </Content>
+    <None Include="XmlModels\GetServiceURLs.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>GetServiceURLs.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="XmlModels\GetServiceURLs.xss">
+      <DependentUpon>GetServiceURLs.xsd</DependentUpon>
+    </Content>
+    <None Include="XmlModels\MediaMark.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>MediaMark.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="XmlModels\MediaMark.xss">
+      <DependentUpon>MediaMark.xsd</DependentUpon>
+    </Content>
+    <None Include="XmlModels\PurchaseAuth.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>PurchaseAuth.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="XmlModels\PurchaseAuth.xss">
+      <DependentUpon>PurchaseAuth.xsd</DependentUpon>
+    </Content>
+    <None Include="XmlModels\PurchaseStatus.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>PurchaseStatus.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="XmlModels\PurchaseStatus.xss">
+      <DependentUpon>PurchaseStatus.xsd</DependentUpon>
+    </Content>
+    <None Include="XmlModels\SearchTitles.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>SearchTitles.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="XmlModels\SearchTitles.xss">
+      <DependentUpon>SearchTitles.xsd</DependentUpon>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
+      <Project>{80e18813-371f-4f6c-8646-6d70faceb219}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{077732d7-e13b-4b91-9356-8ac454f26c65}</Project>
+      <Name>ConfigurationManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\CouchBaseExtensions\CouchBaseExtensions.csproj">
+      <Project>{1543408f-0b7c-4f47-b696-8eebdf54ba96}</Project>
+      <Name>CouchBaseExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{3c7c3f29-198b-45cc-9f31-9ace194e37e8}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj">
+      <Project>{18062be9-51db-414a-9372-9cdf8b5ddd3c}</Project>
+      <Name>KLogMonitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
+      <Project>{30B747E2-22E4-407E-BB76-83B3479C8132}</Project>
+      <Name>ApiLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\NPVR\NPVR.csproj">
+      <Project>{939556AF-A17E-4719-B87C-7C0916602FA3}</Project>
+      <Name>NPVR</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{11a50aa2-138d-46a7-ad98-e5782ec8815f}</Project>
+      <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj">
+      <Project>{bac5dc27-79d6-4bfb-8584-dfec4defd696}</Project>
+      <Name>TCMClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj">
+      <Project>{d29ef6ea-805e-4a3a-8af0-7e360ec12c12}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj">
+      <Project>{27b8ab82-1d17-430c-a86f-4f305dc40fad}</Project>
+      <Name>WebAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataLoader\Tvinci.Data.DataLoader.csproj">
+      <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
+      <Name>Tvinci.Data.DataLoader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Localization\Localization.csproj">
+      <Project>{e53bae81-a07c-4112-a42d-4e899d6a52fc}</Project>
+      <Name>Localization</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ODBCWrapper\TVPApi.ODBCWrapper.csproj">
+      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
+      <Name>TVPApi.ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Configuration\Tvinci.Configuration.csproj">
+      <Project>{b7ddd3f9-1844-41b1-ae65-68cfe6f95915}</Project>
+      <Name>Tvinci.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj">
+      <Project>{209ee212-3a89-4966-951e-0173dcc76bb0}</Project>
+      <Name>Tvinci.Data.Loaders</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Helpers.Link\Tvinci.Helpers.Link.csproj">
+      <Project>{53d79e6c-fe76-40fd-8c8e-6256d9de79a3}</Project>
+      <Name>Tvinci.Helpers.Link</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Helpers\Tvinci.Helpers.csproj">
+      <Project>{b76f07e3-91c2-44a7-b80b-eb60bfb07825}</Project>
+      <Name>Tvinci.Helpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.MultiClient\Tvinci.MultiClient.csproj">
+      <Project>{9c98db15-9efb-47a4-8be1-9bb873518e8c}</Project>
+      <Name>Tvinci.MultiClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Performance\Tvinci.Performance.csproj">
+      <Project>{d9c9d8fa-3215-4e73-8765-d573da24d6be}</Project>
+      <Name>Tvinci.Performance</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TVinci.TimePeriod\TVinci.TimePeriod.csproj">
+      <Project>{9d2abb52-e0a0-4dfa-9e24-7e0b98d3557d}</Project>
+      <Name>TVinci.TimePeriod</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj">
+      <Project>{bead66e3-143b-4c83-9352-50afb0aa62fa}</Project>
+      <Name>Tvinci.Data.TVMDataLoader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj">
+      <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
+      <Name>TVPPro.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TVPPro.SiteManager\TVPPro.SiteManager.csproj">
+      <Project>{1df66db2-d5d1-4b31-a7a0-5beb650da85f}</Project>
+      <Name>TVPPro.SiteManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Libs\TVPApiModule\TVPApiModule.csproj">
+      <Project>{2da122e7-8c17-49bc-8f28-108a4ed741e4}</Project>
+      <Name>TVPApiModule</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Proxy\Proxy.csproj">
+      <Project>{23fa1eba-d2d0-4f86-96a4-46c5be96c780}</Project>
+      <Name>Proxy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TVPApi.Common\TVPApi.Common.csproj">
+      <Project>{F2A5E10B-E848-4F0B-A730-BFCD76FE5043}</Project>
+      <Name>TVPApi.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Configuration\StagingVodafone\staging\Cellular\" />
+    <Folder Include="Configuration\StagingVodafone\staging\iPad\" />
+    <Folder Include="Configuration\StagingVodafone\staging\Web\" />
+    <Folder Include="Configuration\Vodafone - Copy\staging\iPad\" />
+    <Folder Include="Configuration\Vodafone - Copy\staging\Web\" />
+    <Folder Include="Configuration\VodafoneOno\staging\Cellular\" />
+    <Folder Include="Configuration\VodafoneOno\staging\iPad\" />
+    <Folder Include="Configuration\VodafoneOno\staging\STB\" />
+    <Folder Include="Old_App_Code\XmlModels\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="http://www.smscenter.co.il/Web/WebServices/SendMessage.asmx%3fdisco">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\il.co.smscenter.www\</RelPath>
+      <UpdateFromURL>http://www.smscenter.co.il/Web/WebServices/SendMessage.asmx%3fdisco</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>WAP_TVPApi_il_co_smscenter_www_SendSMS</CachedSettingsPropName>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>55477</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:55477/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
