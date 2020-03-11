@@ -3,16 +3,7 @@ WORKDIR /src
 
 RUN apt-get install git
 
-ARG BRANCH=master
-ARG API_VERSION
-
-ENV TCM_URL http://tcm:8080/
-ENV TCM_APP OTT_API_${API_VERSION}
-ENV TCM_HOST main
-ENV TCM_SECTION base
-ENV TCM_APP_ID 5bf8cf60
-ENV TCM_APP_SECRET 5aaa99331c18f6bad4adeef93ab770c2
-
+COPY [".git", ".git"]
 COPY ["Core", "Core"]
 COPY ["phoenix", "phoenix"]
 
@@ -22,7 +13,7 @@ RUN bash DllVersioning.Core.sh .
 RUN bash get-version-tag.sh > version
 
 WORKDIR /src/phoenix
-RUN /src/Core/DllVersioning.Core.sh .
+RUN bash /src/Core/DllVersioning.Core.sh .
 RUN dotnet publish -c Release "./Phoenix.Rest/Phoenix.Rest.csproj" -o /src/published/phoenix-rest
 
 # Cannot use alpine base runtime image because of this issue:

@@ -1,0 +1,89 @@
+pipeline {
+    agent {
+        label 'Linux'
+    }
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'50'))
+        skipDefaultCheckout true
+        disableConcurrentBuilds()
+        quietPeriod(50)
+    }
+    environment{
+        AWS_REGION="us-west-2"
+        ECR_URL ='870777418594.dkr.ecr.us-west-2.amazonaws.com'
+        REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/phoenix"
+        ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
+    }
+    stages {
+        stage('Checkout'){
+            steps{
+                script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
+                git(url: 'https://github.com/kaltura/ott-backend.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
+            }
+        }
+        stage ('ECR Login') {
+            steps{
+                sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
+            }
+        }
+        stage('Build Docker Images'){
+            steps{
+                buildDockerAndPushToEcr("phoenix","Phoenix.Dockerfile")
+                buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
+                buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
+                buildDockerAndPushToEcr("remote-tasks-handlers","RemoteTasks.Dockerfile")
+            }
+        }
+      
+        stage("Trigger Release Candidate"){
+            when { expression { params.TRIGGER_RC == true } }
+            steps{
+                build (
+                    job: "OTT-BE-Create-Release-Candidate", 
+                    wait: false,
+                    parameters: [
+                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                    ]
+                )
+            }
+        }
+    }
+    post {
+        always {
+            report()
+        }
+    }
+}
+
+def buildDockerAndPushToEcr(componentName, dockerfile){
+    def REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/${componentName}"
+    def ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
+    def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
+    def FULL_VERSION = sh(script: './Core/get-version-tag.sh', , returnStdout: true).trim()
+    sh(
+        label: "Docker build ${REPOSITORY_NAME}", 
+        script: "docker build "+
+        "-f ${dockerfile} "+
+        "-t ${ECR_REPOSITORY}:build  "+
+        "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
+        "--build-arg BRANCH=${BRANCH_NAME} "+
+        "--label 'version=${FULL_VERSION}' "+
+        "--label 'commit=${GIT_COMMIT}' "+
+        "--label 'build=${env.BUILD_NUMBER}' ."
+    )
+
+    sh(
+        label: "Verify ECR Repository Exist", 
+        script: "aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} --region ${AWS_REGION} || "+
+                "aws ecr create-repository --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}"
+    )
+    sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
+    sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
+}
+
+def report(){
+    configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim();
+    def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA", returnStdout: true)
+    echo "${reportout}"
+}
