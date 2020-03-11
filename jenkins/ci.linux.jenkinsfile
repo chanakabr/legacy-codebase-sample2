@@ -19,6 +19,7 @@ pipeline {
             steps{
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 script{
+                        git(url: 'https://github.com/kaltura/ott-backend', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
                         GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
                         FULL_VERSION = sh(script: 'Core/get-version-tag.sh', , returnStdout: true).trim()
                         components = sh(returnStdout: true, script: 'ls -d *')
