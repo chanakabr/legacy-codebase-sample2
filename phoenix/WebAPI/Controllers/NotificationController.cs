@@ -1,0 +1,185 @@
+﻿using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.Notification;
+using WebAPI.Utils;
+
+namespace WebAPI.Controllers
+{
+    [Service("notification")]
+    public class NotificationController : IKalturaController
+    {
+        /// <summary>
+        /// Registers the device push token to the push service
+        /// </summary>
+        /// <param name="pushToken">The device-application pair authentication for push delivery</param>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <returns></returns>
+        [Action("setDevicePushToken")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        static public bool SetDevicePushToken(string pushToken)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            try
+            {
+                // validate push token
+                if (string.IsNullOrWhiteSpace(pushToken))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pushToken");
+
+                response = ClientsManager.NotificationClient().SetPush(groupId, userId, udid, pushToken);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// TBD 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// </remarks>
+        /// <param name="identifier">In case type is 'announcement', identifier should be the announcement ID. In case type is 'system', identifier should be 'login' (the login topic)</param>        
+        /// <param name="type">'announcement' - TV-Series topic, 'system' - login topic</param>
+        [Action("register")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        static public KalturaRegistryResponse Register(string identifier, KalturaNotificationType type)
+        {
+            KalturaRegistryResponse response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                KS.GetFromRequest().ToString();
+
+                if (string.IsNullOrEmpty(identifier))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "identifier");
+
+                // validate input
+                switch (type)
+                {
+                    case KalturaNotificationType.announcement:
+                        long announcentId = 0;
+                        if (!long.TryParse(identifier, out announcentId))
+                            throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "identifier");
+                        break;
+
+                    case KalturaNotificationType.system:
+                        if (identifier.ToLower() != "login")
+                            throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "identifier");
+                        break;
+                    case KalturaNotificationType.Reminder:
+                        long reminderId = 0;
+                        if (!long.TryParse(identifier, out reminderId))
+                            throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "identifier");
+                        break;
+                    case KalturaNotificationType.series_reminder:
+                        long seriesReminderId = 0;
+                        if (!long.TryParse(identifier, out seriesReminderId))
+                            throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "identifier");
+                        break;
+                    default:
+                        break;
+                }
+
+                // call client                
+                response = ClientsManager.NotificationClient().Register(groupId, type, identifier, KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+
+        /// <summary>
+        /// Sends push notification to user devices  
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// </remarks>
+        /// <param name="userId">User identifications</param>        
+        /// <param name="pushMessage">Message push data</param>     
+        [Action("sendPush")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        static public bool SendPush(int userId, KalturaPushMessage pushMessage)
+        {
+            bool response = false;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                KS.GetFromRequest().ToString();
+
+                if (userId == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userId");
+
+                if (pushMessage == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pushMessage");
+
+                if (string.IsNullOrEmpty(pushMessage.Message))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pushMessage.message");
+
+                if (System.Text.ASCIIEncoding.Unicode.GetByteCount(pushMessage.Message) > 2000)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, "pushMessage.message", 2000);
+
+                // call client                
+                response = ClientsManager.NotificationClient().SendPush(groupId, userId, pushMessage);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Sends SMS notification to user
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="message">Message to send</param>     
+        [Action("sendSms")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        static public bool SendSms(string message)
+        {
+            bool response = false;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                int userId = int.Parse(KS.GetFromRequest().UserId);
+
+                if (string.IsNullOrEmpty(message))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "message");
+
+                if (System.Text.ASCIIEncoding.Unicode.GetByteCount(message) > 2000)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, "message", 2000);
+
+                // call client                
+                response = ClientsManager.NotificationClient().SendSms(groupId, userId, message);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+    }
+}

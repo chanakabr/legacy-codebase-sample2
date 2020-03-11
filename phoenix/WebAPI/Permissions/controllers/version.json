@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Version_Get",
+      "service": "Version",
+      "action": "Get",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

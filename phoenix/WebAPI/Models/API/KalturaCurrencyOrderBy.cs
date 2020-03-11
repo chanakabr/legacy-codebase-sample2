@@ -1,0 +1,10 @@
+﻿namespace WebAPI.Models.API
+{
+    public enum KalturaCurrencyOrderBy
+    {
+        NAME_ASC,
+        NAME_DESC,
+        CODE_ASC,
+        CODE_DESC
+    }
+}

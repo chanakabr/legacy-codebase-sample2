@@ -1,0 +1,155 @@
+{
+  "roles": [
+    {
+      "permissions": [
+        "Anonymous"
+      ],
+      "excluded_permissions": [],
+      "name": "Guest"
+    },
+    {
+      "permissions": [
+        "Anonymous",
+        "User",
+        "PLAYBACK_SUBSCRIPTION",
+        "PLAYBACK_PPV",
+        "PURCHASE_SUBSCRIPTION",
+        "PURCHASE_PPV",
+        "RENEW_SUBSCRIPTION",
+        "PURCHASE_SERVICE",
+        "LOGIN"
+      ],
+      "excluded_permissions": [],
+      "name": "User"
+    },
+    {
+      "permissions": [
+        "Master",
+        "PLAYBACK_SUBSCRIPTION",
+        "PLAYBACK_PPV",
+        "PURCHASE_SUBSCRIPTION",
+        "PURCHASE_PPV",
+        "RENEW_SUBSCRIPTION",
+        "PURCHASE_SERVICE",
+        "LOGIN"
+      ],
+      "excluded_permissions": [],
+      "name": "Master"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "LOGIN",
+        "DELETE_ALL_APP_TOKENS",
+        "VIEW_INACTIVE_ASSETS",
+        "ASSETSTRUCT_VIEW",
+        "IMAGETYPE_VIEW",
+        "MEDIAFILETYPE_VIEW",
+        "MY_USER_MNG",
+        "TEAM_VIEW",
+        "RULES_VIEW",
+        "PLAYBACK_PPV",
+        "PLAYBACK_SUBSCRIPTION",
+        "ASSETS_MNG",
+        "COLLECTIONS_MNG",
+        "EXT_COLLECTIONS_MNG",
+        "USER_SEG_MNG",
+        "TARGET_OFFER_MNG",
+        "OPC_PREF_VIEW",
+        "REGION_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "Operator"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "LOGIN",
+        "DELETE_ALL_APP_TOKENS",
+        "VIEW_INACTIVE_ASSETS",
+        "ASSETSTRUCT_MNG",
+        "IMAGETYPE_MNG",
+        "MEDIAFILETYPE_MNG",
+        "MANAGER_MNG",
+        "TEAM_VIEW",
+        "RULES_MNG",
+        "ASSETS_MNG",
+        "COLLECTIONS_MNG",
+        "EXT_COLLECTIONS_MNG",
+        "USER_SEG_MNG",
+        "TARGET_OFFER_MNG",
+        "GROUP_CONFIG_MNG",
+        "OPC_PREF_MNG",
+        "MY_USER_MNG",
+        "REGION_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "Manager"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator",
+        "LOGIN",
+        "DELETE_ALL_APP_TOKENS",
+        "VIEW_INACTIVE_ASSETS",
+        "ASSETSTRUCT_MNG",
+        "IMAGETYPE_MNG",
+        "MEDIAFILETYPE_MNG",
+        "ADMIN_MNG",
+        "TEAM_VIEW",
+        "RULES_MNG",
+        "ASSETS_MNG",
+        "COLLECTIONS_MNG",
+        "EXT_COLLECTIONS_MNG",
+        "USER_SEG_MNG",
+        "TARGET_OFFER_MNG",
+        "GROUP_CONFIG_MNG",
+        "OPC_PREF_MNG",
+        "ADMIN_SET_MNG",
+        "MY_USER_MNG",
+        "REGION_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "Administrator"
+    },
+    {
+      "permissions": [
+        "ExternalPaymentGateway"
+      ],
+      "excluded_permissions": [],
+      "name": "ExternalPaymentGateway"
+    },
+    {
+      "permissions": [
+        "RENEW_SUBSCRIPTION",
+        "LOGIN",
+        "OLD_SUSPEND"
+      ],
+      "excluded_permissions": [
+        "PLAYBACK_SUBSCRIPTION",
+        "PLAYBACK_PPV",
+        "PURCHASE_SUBSCRIPTION",
+        "PURCHASE_PPV",
+        "PURCHASE_SERVICE",
+        "CANCEL_SUBSCRIPTION",
+        "FAVORITES_SERVICE"
+      ],
+      "name": "DefaultSuspendedRole"
+    },
+    {
+      "permissions": [
+        "BSC_ASSETS_MNG",
+        "COLLECTIONS_MNG",
+        "EXT_COLLECTIONS_MNG",
+        "OPC_PREF_VIEW",        
+        "MY_USER_MNG",
+        "VIEW_INACTIVE_ASSETS"
+      ],
+      "excluded_permissions": [],
+      "name": "ExternalEditor"
+    }
+  ]
+}

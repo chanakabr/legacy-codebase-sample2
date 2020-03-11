@@ -1,0 +1,66 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUserFilter_IdIn_Read",
+      "object": "KalturaOTTUserFilter",
+      "parameter": "idIn",
+      "action": "READ",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUserFilter_UserNameEqual_Read",
+      "object": "KalturaOTTUserFilter",
+      "parameter": "userNameEqual",
+      "action": "READ",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUserFilter_ExternalIdEqual_Read",
+      "object": "KalturaOTTUserFilter",
+      "parameter": "externalIdEqual",
+      "action": "READ",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUserFilter_RoleIdsIn_Insert",
+      "object": "KalturaOTTUserFilter",
+      "parameter": "roleIdsIn",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUserFilter_RoleIdsIn_Update",
+      "object": "KalturaOTTUserFilter",
+      "parameter": "roleIdsIn",
+      "action": "UPDATE",
+      "type": "Parameter"
+    }
+  ],
+  "type": "Parameter"
+}

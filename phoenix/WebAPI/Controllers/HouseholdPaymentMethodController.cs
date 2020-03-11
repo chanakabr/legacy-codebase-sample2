@@ -1,0 +1,269 @@
+﻿using ApiObjects.Response;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.Billing;
+using WebAPI.Utils;
+
+namespace WebAPI.Controllers
+{
+    [Service("householdPaymentMethod")]
+    public class HouseholdPaymentMethodController : IKalturaController
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        /// <summary>
+        /// Get a list of all payment methods of the household.
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// User Suspended = 2001
+        /// </remarks>        
+        [Action("list")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.UserSuspended)]
+        static public KalturaHouseholdPaymentMethodListResponse List()
+        {
+            List<KalturaHouseholdPaymentMethod> list = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            // get domain id      
+            var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                // call client
+                list = ClientsManager.BillingClient().GetHouseholdPaymentMethods(groupId, KS.GetFromRequest().UserId, domainId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaHouseholdPaymentMethodListResponse() { Objects = list, TotalCount = list.Count };
+        }
+
+        /// <summary>
+        /// Set a payment method as default for the household. 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:  
+        /// Payment gateway not set for household = 6007, Payment gateway not valid = 6043, Payment method not set for household = 6048,
+        /// Error saving payment gateway household payment method = 6052, Payment gateway not support payment method = 6056
+        /// </remarks>
+        /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
+        /// <param name="paymentMethodId">Payment method Identifier</param> 
+        [Action("setAsDefault")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("paymentMethodId", MinInteger = 1)]
+        [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
+        [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
+        [Throws(eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod)]
+        [Throws(eResponseStatus.PaymentGatewayNotSupportPaymentMethod)]
+        static public bool SetAsDefault(int paymentGatewayId, int paymentMethodId)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // call client
+                response = ClientsManager.BillingClient().SetPaymentMethodHouseholdPaymentGateway(groupId, paymentGatewayId, userID, domainId, paymentMethodId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Removes a payment method of the household. 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:  
+        /// Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
+        /// </remarks>
+        /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
+        /// <param name="paymentMethodId">Payment method Identifier</param>
+        /// <returns></returns>
+        [Action("remove")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("paymentMethodId", MinInteger = 1)]
+        [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentMethodIsUsedByHousehold)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
+        static public bool Remove(int paymentGatewayId, int paymentMethodId)
+        {
+            bool response = false;
+            
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // call client
+                response = ClientsManager.ConditionalAccessClient().RemovePaymentMethodHouseholdPaymentGateway(paymentGatewayId, groupId, userID, domainId, paymentMethodId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Force remove of a payment method of the household. 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:  
+        /// Payment method not set for household = 6048, PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
+        /// </remarks>
+        /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
+        /// <param name="paymentMethodId">Payment method Identifier</param>
+        /// <returns></returns>
+        [Action("forceRemove")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("paymentMethodId", MinInteger = 1)]
+        [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
+        static public bool ForceRemove(int paymentGatewayId, int paymentMethodId)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // call client
+                response = ClientsManager.ConditionalAccessClient().RemovePaymentMethodHouseholdPaymentGateway(paymentGatewayId, groupId, userID, domainId, paymentMethodId, true);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Set user billing payment method identifier (payment method external id), for a specific household and a specific payment gateway
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:         
+        /// Payment gateway not set for household = 6007, Payment gateway not exist = 6008, Payment method not exist = 6049,  Error saving payment gateway household payment method = 6052, 
+        /// Payment method already set to household payment gateway = 6054, Payment gateway not support payment method = 6056
+        /// </remarks>        
+        /// <param name="paymentGatewayId">External identifier for the payment gateway  </param>
+        /// <param name="paymentMethodName"></param>      
+        /// <param name="paymentDetails"></param>      
+        /// <param name="paymentMethodExternalId"></param>        
+        [Action("setExternalId")]
+        [ApiAuthorize]
+        [Obsolete]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        static public int SetExternalId(string paymentGatewayId, string paymentMethodName, string paymentDetails, string paymentMethodExternalId)
+        {
+            int response = 0;
+
+            if (string.IsNullOrEmpty(paymentGatewayId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "paymentMethodId");
+            }
+
+            if (string.IsNullOrEmpty(paymentMethodName))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "paymentMethodName");
+            }
+
+            if (string.IsNullOrEmpty(paymentMethodExternalId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "paymentMethodExternalId");
+            }
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // call client
+                response = ClientsManager.BillingClient().SetPaymentGatewayHouseholdPaymentMethod(groupId, paymentGatewayId, (int)domainId, paymentMethodName, paymentDetails, paymentMethodExternalId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+
+        }
+
+        /// <summary>
+        /// Add a new payment method for household
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:  Payment gateway not set for household = 6007, Payment gateway not valid = 6043, Payment method not set for household = 6048,
+        /// Error saving payment gateway household payment method = 6052, Payment gateway not support payment method = 6056
+        /// </remarks>
+        /// <param name="householdPaymentMethod">Household payment method</param> 
+        /// <returns></returns>
+        [Action("add")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
+        [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
+        [Throws(eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod)]
+        [Throws(eResponseStatus.PaymentGatewayNotSupportPaymentMethod)]
+        static public KalturaHouseholdPaymentMethod Add(KalturaHouseholdPaymentMethod householdPaymentMethod)
+        {
+            KalturaHouseholdPaymentMethod response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
+            long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().AddPaymentGatewayPaymentMethodToHousehold(groupId, domainId, householdPaymentMethod);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+    }
+}

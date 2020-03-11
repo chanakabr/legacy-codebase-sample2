@@ -1,0 +1,19 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator",
+        "ASSETS_VIEW",
+        "ASSETS_MNG",
+        "RULES_VIEW",
+        "RULES_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "TvmRule_List",
+      "service": "TvmRule",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

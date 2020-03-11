@@ -1,0 +1,105 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNAdapterProfile_Add",
+      "service": "CDNAdapterProfile",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNAdapterProfile_Delete",
+      "service": "CDNAdapterProfile",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNAdapterProfile_GenerateSharedSecret",
+      "service": "CDNAdapterProfile",
+      "action": "GenerateSharedSecret",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNAdapterProfile_List",
+      "service": "CDNAdapterProfile",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNAdapterProfile_Update",
+      "service": "CDNAdapterProfile",
+      "action": "Update",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNAdapterProfile_Add",
+      "service": "CDNAdapterProfile",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNAdapterProfile_Delete",
+      "service": "CDNAdapterProfile",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNAdapterProfile_GenerateSharedSecret",
+      "service": "CDNAdapterProfile",
+      "action": "GenerateSharedSecret",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNAdapterProfile_List",
+      "service": "CDNAdapterProfile",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "CDNAdapterProfile_Update",
+      "service": "CDNAdapterProfile",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

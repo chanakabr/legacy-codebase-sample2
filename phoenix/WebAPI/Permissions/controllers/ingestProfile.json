@@ -1,0 +1,45 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "IngestProfile_List",
+      "service": "IngestProfile",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "IngestProfile_Delete",
+      "service": "IngestProfile",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "IngestProfile_Add",
+      "service": "IngestProfile",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "IngestProfile_Update",
+      "service": "IngestProfile",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -1,0 +1,1 @@
+﻿<%@ Page ValidateRequest="false" Language="C#" AutoEventWireup="true" CodeBehind="winpl_api.aspx.cs" Inherits="WS_Billing.winpl_api" %>

@@ -1,0 +1,257 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.ConditionalAccess
+{
+    /// <summary>
+    /// Entitlement
+    /// </summary>
+    [Serializable]
+    [XmlInclude(typeof(KalturaSubscriptionEntitlement))]
+    [XmlInclude(typeof(KalturaPpvEntitlement))]
+    public partial class KalturaEntitlement : KalturaOTTObject
+    {
+        /// <summary>
+        ///Purchase identifier (for subscriptions and collections only)
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
+        public int? Id { get; set; }
+
+        /// <summary>
+        ///Entitlement type
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty("type")]
+        [XmlElement(ElementName = "type")]
+        [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
+        public KalturaTransactionType Type { get; set; }
+
+        /// <summary>
+        ///Entitlement identifier
+        /// </summary>
+        [DataMember(Name = "entitlementId")]
+        [JsonProperty("entitlementId")]
+        [XmlElement(ElementName = "entitlementId")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("entitlement_id")]
+        [Deprecated("4.8.0.0")]
+        public string EntitlementId { get; set; }
+
+        /// <summary>
+        ///Product identifier
+        /// </summary>
+        [DataMember(Name = "productId")]
+        [JsonProperty("productId")]
+        [XmlElement(ElementName = "productId")]
+        [SchemeProperty(ReadOnly = true)]
+        public string ProductId { get; set; }
+
+        /// <summary>
+        ///The current number of uses 
+        /// </summary>
+        [DataMember(Name = "currentUses")]
+        [JsonProperty("currentUses")]
+        [XmlElement(ElementName = "currentUses")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("current_uses")]
+        public int? CurrentUses { get; set; }
+
+        /// <summary>
+        ///The end date of the entitlement
+        /// </summary>
+        [DataMember(Name = "endDate")]
+        [JsonProperty("endDate")]
+        [XmlElement(ElementName = "endDate")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("end_date")]
+        public long? EndDate { get; set; }
+
+        /// <summary>
+        ///Current date
+        /// </summary>
+        [DataMember(Name = "currentDate")]
+        [JsonProperty("currentDate")]
+        [XmlElement(ElementName = "currentDate")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("current_date")]
+        public long? CurrentDate { get; set; }
+
+        /// <summary>
+        ///The last date the item was viewed
+        /// </summary>
+        [DataMember(Name = "lastViewDate")]
+        [JsonProperty("lastViewDate")]
+        [XmlElement(ElementName = "lastViewDate")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("last_view_date")]
+        public long? LastViewDate { get; set; }
+
+        /// <summary>
+        ///Purchase date
+        /// </summary>
+        [DataMember(Name = "purchaseDate")]
+        [JsonProperty("purchaseDate")]
+        [XmlElement(ElementName = "purchaseDate")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("purchase_date")]
+        public long? PurchaseDate { get; set; }
+
+        /// <summary>
+        ///Purchase identifier (for subscriptions and collections only)
+        /// </summary>
+        [DataMember(Name = "purchaseId")]
+        [JsonProperty("purchaseId")]
+        [XmlElement(ElementName = "purchaseId")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("purchase_id")]
+        [Obsolete]
+        public int? PurchaseId { get; set; }
+
+        /// <summary>
+        ///Payment Method
+        /// </summary>
+        [DataMember(Name = "paymentMethod")]
+        [JsonProperty("paymentMethod")]
+        [XmlElement(ElementName = "paymentMethod")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("payment_method")]
+        public KalturaPaymentMethodType PaymentMethod { get; set; }
+
+        /// <summary>
+        ///The UDID of the device from which the purchase was made
+        /// </summary>
+        [DataMember(Name = "deviceUdid")]
+        [JsonProperty("deviceUdid")]
+        [XmlElement(ElementName = "deviceUdid")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("device_udid")]
+        public string DeviceUDID { get; set; }
+
+        /// <summary>
+        ///The name of the device from which the purchase was made
+        /// </summary>
+        [DataMember(Name = "deviceName")]
+        [JsonProperty("deviceName")]
+        [XmlElement(ElementName = "deviceName")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("device_name")]
+        public string DeviceName { get; set; }
+
+        /// <summary>
+        ///Indicates whether a cancelation window period is enabled
+        /// </summary>
+        [DataMember(Name = "isCancelationWindowEnabled")]
+        [JsonProperty("isCancelationWindowEnabled")]
+        [XmlElement(ElementName = "isCancelationWindowEnabled")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_cancelation_window_enabled")]
+        public bool? IsCancelationWindowEnabled { get; set; }
+
+        /// <summary>
+        ///The maximum number of uses available for this item (only for subscription and PPV)
+        /// </summary>
+        [DataMember(Name = "maxUses")]
+        [JsonProperty("maxUses")]
+        [XmlElement(ElementName = "maxUses")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("max_uses")]
+        public int? MaxUses { get; set; }
+
+        /// <summary>
+        ///The date of the next renewal (only for subscription)
+        /// </summary>
+        [DataMember(Name = "nextRenewalDate")]
+        [JsonProperty("nextRenewalDate")]
+        [XmlElement(ElementName = "nextRenewalDate")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("next_renewal_date")]
+        [Obsolete]
+        public long? NextRenewalDate { get; set; }
+
+        /// <summary>
+        ///Indicates whether the subscription is renewable in this purchase (only for subscription)
+        /// </summary>
+        [DataMember(Name = "isRenewableForPurchase")]
+        [JsonProperty("isRenewableForPurchase")]
+        [XmlElement(ElementName = "isRenewableForPurchase")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_renewable_for_purchase")]
+        [Obsolete]
+        public bool? IsRenewableForPurchase { get; set; }
+
+        /// <summary>
+        ///Indicates whether a subscription is renewable (only for subscription)
+        /// </summary>
+        [DataMember(Name = "isRenewable")]
+        [JsonProperty("isRenewable")]
+        [XmlElement(ElementName = "isRenewable")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_renewable")]
+        [Obsolete]
+        public bool? IsRenewable { get; set; }
+
+        /// <summary>
+        ///Media file identifier (only for PPV)
+        /// </summary>
+        [DataMember(Name = "mediaFileId")]
+        [JsonProperty("mediaFileId")]
+        [XmlElement(ElementName = "mediaFileId")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("media_file_id")]
+        [Obsolete]
+        public int? MediaFileId { get; set; }
+
+        /// <summary>
+        ///Media identifier (only for PPV)
+        /// </summary>
+        [DataMember(Name = "mediaId")]
+        [JsonProperty("mediaId")]
+        [XmlElement(ElementName = "mediaId")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("media_id")]
+        [Obsolete]
+        public int? MediaId { get; set; }
+
+        /// <summary>
+        /// Indicates whether the user is currently in his grace period entitlement (only for subscription)
+        /// </summary>
+        [DataMember(Name = "isInGracePeriod")]
+        [JsonProperty("isInGracePeriod")]
+        [XmlElement(ElementName = "isInGracePeriod")]
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_in_grace_period")]
+        [Obsolete]
+        public bool? IsInGracePeriod { get; set; }
+
+        /// <summary>
+        /// The Identifier of the purchasing user
+        /// </summary>
+        [DataMember(Name = "userId")]
+        [JsonProperty("userId")]
+        [XmlElement(ElementName = "userId")]
+        [SchemeProperty(ReadOnly = true)]
+        public string UserId { get; set; }
+
+
+        /// <summary>
+        /// The Identifier of the purchasing household
+        /// </summary>
+        [DataMember(Name = "householdId")]
+        [JsonProperty("householdId")]
+        [XmlElement(ElementName = "householdId")]
+        [SchemeProperty(ReadOnly = true)]
+        public long HouseholdId
+        {
+            get;
+            set;
+        }
+    }
+}

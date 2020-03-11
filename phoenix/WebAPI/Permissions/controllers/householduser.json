@@ -1,0 +1,55 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [
+        "OLD_SUSPEND"
+      ],
+      "name": "HouseholdUser_Add",
+      "service": "HouseholdUser",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator",
+        "ExternalPaymentGateway"
+      ],
+      "excluded_permissions": [],
+      "name": "HouseholdUser_List",
+      "service": "HouseholdUser",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [
+        "OLD_SUSPEND"
+      ],
+      "name": "HouseholdUser_Delete",
+      "service": "HouseholdUser",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "HouseholdUser_AddByOperator",
+      "service": "HouseholdUser",
+      "action": "AddByOperator",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}
