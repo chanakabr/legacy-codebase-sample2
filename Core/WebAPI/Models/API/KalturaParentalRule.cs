@@ -1,0 +1,175 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.API
+{
+    /// <summary>
+    /// Parental rule
+    /// </summary>
+    [Serializable]
+    public partial class KalturaParentalRule : KalturaOTTObject
+    {
+        /// <summary>
+        /// Unique parental rule identifier
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
+        public long id { get; set; }
+
+        /// <summary>
+        /// Rule display name
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
+        [SchemeProperty(MinLength = 1, MaxLength = 100)]
+        public string name { get; set; }
+
+        /// <summary>
+        /// Explanatory description
+        /// </summary>
+        [DataMember(Name = "description")]
+        [JsonProperty("description")]
+        [XmlElement(ElementName = "description")]
+        [SchemeProperty(MaxLength = 1024)]
+        public string description { get; set; }
+
+        /// <summary>
+        /// Rule order within the full list of rules
+        /// </summary>
+        [DataMember(Name = "order")]
+        [JsonProperty("order")]
+        [XmlElement(ElementName = "order")]
+        public int? order { get; set; }
+
+        /// <summary>
+        /// Media asset tag ID to in which to look for corresponding trigger values
+        /// </summary>
+        [DataMember(Name = "mediaTag")]
+        [JsonProperty("mediaTag")]
+        [XmlElement(ElementName = "mediaTag")]
+        [OldStandardProperty("media_tag")]
+        public int? mediaTagTypeId { get; set; }
+
+        /// <summary>
+        /// EPG asset tag ID to in which to look for corresponding trigger values
+        /// </summary>
+        [DataMember(Name = "epgTag")]
+        [JsonProperty("epgTag")]
+        [XmlElement(ElementName = "epgTag")]
+        [OldStandardProperty("epg_tag")]
+        public int? epgTagTypeId { get; set; }
+
+        /// <summary>
+        /// Content that correspond to this rule is not available for guests
+        /// </summary>
+        [DataMember(Name = "blockAnonymousAccess")]
+        [JsonProperty("blockAnonymousAccess")]
+        [XmlElement(ElementName = "blockAnonymousAccess")]
+        [OldStandardProperty("block_anonymous_access")]
+        public bool? blockAnonymousAccess { get; set; }
+
+        /// <summary>
+        /// Rule type – Movies, TV series or both
+        /// </summary>
+        [DataMember(Name = "ruleType")]
+        [JsonProperty("ruleType")]
+        [XmlElement(ElementName = "ruleType")]
+        [OldStandardProperty("rule_type")]
+        public KalturaParentalRuleType? ruleType { get; set; }
+
+        /// <summary>
+        /// Media tag values that trigger rule
+        /// </summary>
+        [DataMember(Name = "mediaTagValues")]
+        [JsonProperty("mediaTagValues")]
+        [XmlArray(ElementName = "mediaTagValues", IsNullable = true)]
+        [XmlArrayItem("item")]
+        [OldStandardProperty("media_tag_values")]
+        public List<KalturaStringValue> mediaTagValues { get; set; }
+
+        /// <summary>
+        /// EPG tag values that trigger rule
+        /// </summary>
+        [DataMember(Name = "epgTagValues")]
+        [JsonProperty("epgTagValues")]
+        [XmlArray(ElementName = "epgTagValues", IsNullable = true)]
+        [XmlArrayItem("item")]
+        [OldStandardProperty("epg_tag_values")]
+        public List<KalturaStringValue> epgTagValues { get; set; }
+
+        /// <summary>
+        /// Is the rule the default rule of the account
+        /// </summary>
+        [DataMember(Name = "isDefault")]
+        [JsonProperty("isDefault")]
+        [XmlElement(ElementName = "isDefault")]
+        [OldStandardProperty("is_default")]
+        [SchemeProperty(ReadOnly = true)]
+        public bool isDefault { get; set; }
+
+        /// <summary>
+        /// Where was this rule defined account, household or user
+        /// </summary>
+        [DataMember(Name = "origin")]
+        [JsonProperty("origin")]
+        [XmlElement(ElementName = "origin")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaRuleLevel Origin { get; set; }
+
+        /// <summary>
+        /// active status
+        /// </summary>
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive", IsNullable = true)]
+        public bool? IsActive { get; set; }
+
+        /// <summary>
+        /// Specifies when was the parental rule created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the parental rule last updated. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
+    }
+
+    /// <summary>
+    /// Rule type – Movies, TV series or both
+    /// </summary>
+    public enum KalturaParentalRuleType
+    {
+        ALL = 0,
+        MOVIES = 1,
+        TV_SERIES = 2
+    }
+
+    /// <summary>
+    /// Distinction if rule was defined at account, household or user level
+    /// </summary>
+    public enum KalturaRuleLevel
+    {
+        invalid = 0,
+        user = 1,
+        household = 2,
+        account = 3
+    }
+}
