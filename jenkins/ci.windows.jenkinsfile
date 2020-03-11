@@ -84,7 +84,7 @@ pipeline {
         
         stage("Build"){
             environment{
-                TCM_URL="http://tcm.service.consul:8080"
+                TCM_URL="https://tcm.service.consul:8443"
                 TCM_APP="OTT_API_SV"
                 TCM_HOST="PROD_v5_2_2"
                 TCM_SECTION="main"
@@ -126,7 +126,7 @@ pipeline {
         }
         stage("Generate KalturaClient.xml"){
             environment{
-                TCM_URL="http://tcm.service.consul:8080"
+                TCM_URL="https://tcm.service.consul:8443"
                 TCM_APP="OTT_API_SV"
                 TCM_HOST="PROD_v5_2_2"
                 TCM_SECTION="main"
