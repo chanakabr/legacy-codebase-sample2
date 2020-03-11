@@ -95,7 +95,7 @@ pipeline {
         }
         stage("Generate KalturaClient.xml"){
             steps { 
-                dir("tvpapi_rest/Generator"){
+                dir("phoenix/Generator"){
                     bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
                     dir("bin/Release/netcoreapp2.0"){
                         bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
