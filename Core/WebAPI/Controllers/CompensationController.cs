@@ -1,0 +1,99 @@
+﻿using ApiObjects.Response;
+using System;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.ConditionalAccess;
+using WebAPI.Utils;
+
+namespace WebAPI.Controllers
+{
+    [Service("compensation")]
+    public class CompensationController : IKalturaController
+    {
+        /// <summary>
+        /// Adds a new compensation for a household for a given number of iterations of a subscription renewal for a fixed amount / percentage of the renewal price.
+        /// </summary>
+        /// <param name="id">Purchase ID</param>
+        /// <param name="compensation">Compensation parameters</param>
+        /// <returns></returns>
+        [Action("add")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.InvalidPurchase)]
+        [Throws(eResponseStatus.SubscriptionNotRenewable)]
+        [Throws(eResponseStatus.NotEntitled)]
+        [Throws(eResponseStatus.CompensationAlreadyExists)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
+        static public KalturaCompensation Add(KalturaCompensation compensation)
+        {
+            KalturaCompensation response = null;
+
+            compensation.Validate();
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                response = ClientsManager.ConditionalAccessClient().AddCompensation(groupId, userId, compensation);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Delete a compensation by identifier
+        /// </summary>
+        /// <param name="id">Compensation identifier</param>
+        /// <returns></returns>
+        [Action("delete")]
+        [Throws(eResponseStatus.CompensationNotFound)]
+        [ApiAuthorize]
+        static public void Delete(long id)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                ClientsManager.ConditionalAccessClient().DeleteCompensation(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Get a compensation by identifier
+        /// </summary>
+        /// <param name="id">Compensation identifier</param>
+        /// <returns></returns>
+        [Action("get")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.CompensationNotFound)]
+        static public KalturaCompensation Get(long id)
+        {
+            KalturaCompensation response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                response = ClientsManager.ConditionalAccessClient().GetCompensation(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+    }
+}

@@ -1,0 +1,32 @@
+﻿using Newtonsoft.Json;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
+
+namespace WebAPI.Models.Social
+{
+    /// <summary>
+    /// Returns social configuration for the partner 
+    /// </summary>
+    public partial class KalturaSocialFacebookConfig : KalturaSocialConfig
+    {
+        /// <summary>
+        ///The application identifier
+        /// </summary>
+        [DataMember(Name = "appId")]
+        [JsonProperty("appId")]
+        [XmlElement(ElementName = "appId")]
+        [OldStandardProperty("app_id")]
+       // [SchemeProperty(ReadOnly = true)]
+        public string AppId { get; set; }
+
+        /// <summary>
+        /// List of application permissions
+        /// </summary>
+        [DataMember(Name = "permissions")]
+        [JsonProperty("permissions")]
+        [XmlElement(ElementName = "permissions")]
+       // [SchemeProperty(ReadOnly = true)]
+        public string Permissions { get; set; }
+    }
+}

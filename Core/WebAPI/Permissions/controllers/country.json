@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Country_List",
+      "service": "Country",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}
