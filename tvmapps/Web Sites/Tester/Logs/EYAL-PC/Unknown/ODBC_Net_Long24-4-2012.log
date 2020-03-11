@@ -1,0 +1,4 @@
+
+4/24/2012 9:33:13 AM , THREAD-8224, ODBCWrapper.UpdateQuery : 210.0021ms: update scheduled_tasks set  RUN_DATE=@P0, RUN_STATUS=@P1  where  id=@P2(4/24/2012 9:33:19 AM,0,0)
+4/24/2012 9:38:51 AM , THREAD-10708, ODBCWrapper.UpdateQuery : 320.005ms: update scheduled_tasks set  RUN_DATE=@P0, RUN_STATUS=@P1  where  id=@P2(4/24/2012 9:38:58 AM,0,0)
+4/24/2012 9:40:57 AM , THREAD-8224, ODBCWrapper.UpdateQuery : 142.0142ms: update scheduled_tasks set  RUN_DATE=@P0, RUN_STATUS=@P1  where  id=@P2(4/24/2012 9:41:06 AM,0,0)

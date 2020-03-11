@@ -1,0 +1,317 @@
+.component {
+    margin: 20px auto;
+}
+
+#ListComponent {
+    width: 390px;
+}
+
+.ListComponent {
+    width: 370px;
+    height: 290px;
+    padding: 14px;
+    background-color: #CCE6FF;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#selected-list {
+    padding-right: 0px;
+}
+
+#unselected-list {
+}
+
+.ListComponent .list-title {
+    text-align: left;
+    width: 100%;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.ListComponent .quick-search {
+    background-color:#fff;
+    z-index: 4;
+    position: relative;
+    width: 100%;
+    border-bottom: 1px solid rgb(222, 222, 222);
+    overflow: hidden;
+}
+
+    .ListComponent .quick-search input {
+        background-position: 11px;
+        background-repeat: no-repeat;
+        background-image: url(../images/magGray.png);
+        text-align: left;
+        border: 0;
+        outline: none;
+        margin: 0;
+        padding: 0 15px 0 35px;
+        height: 35px;
+        width: 370px;
+        color: rgb(207, 207, 207);
+        font-size: 13px;       
+        -webkit-appearance: none; 
+    }
+
+.ListComponent .items-list {
+    overflow-x: hidden;
+    overflow-y: auto;
+    top: -36px;
+    position: relative;
+    width: 100%;
+    height: 222px;
+    margin: 0;
+    padding: 36px 0 0 0;
+    list-style: none;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.ListComponent .ul-list-wrapper {
+    width: 100%;
+    height: 222px;
+    background-color: rgb(255, 255, 255);
+}
+
+    .ListComponent .items-list li {
+        padding: 10px 30px 10px 35px;
+        font-size: 13px;
+        position: relative;
+    }
+
+    .ListComponent .items-list .list-item {
+        max-height: 0;
+        opacity: 0;
+        -webkit-transform: translateX(-300px);
+        -ms-transform: translateX(-300px);
+        -o-transform: translateX(-300px);
+        -moz-transform: translateX(-300px);
+        transform: translateX(-300px);
+        -webkit-animation: openSpace 500ms ease forwards, moveIn 750ms 500ms ease forwards;
+        -o-animation: openSpace 500ms ease forwards, moveIn 750ms 500ms ease forwards;
+        -moz-animation: openSpace 500ms ease forwards, moveIn 750ms 500ms ease forwards;
+        animation: openSpace 500ms ease forwards, moveIn 750ms 500ms ease forwards;
+    }
+
+    .ListComponent .items-list li:hover {
+        background-color: #CCE6FF;
+    }
+
+    .ListComponent .items-list li .add-remove-icon.add {
+        top: 12px;
+        position: absolute;
+        background-repeat: no-repeat;
+        padding: 6px;
+        background-image: url(../images/add.png);
+        left: 12px;
+    }
+
+        .ListComponent .items-list li .add-remove-icon.add:hover {
+            background-image: url(../images/add-hover.png);
+        }
+
+    .ListComponent .items-list li .add-remove-icon.remove {
+        top: 14px;
+        position: absolute;
+        background-repeat: no-repeat;
+        padding: 6px;
+        background-image: url(../images/remove.png);
+        left: 14px;
+    }
+
+        .ListComponent .items-list li .add-remove-icon.remove:hover {
+            background-image: url(../images/remove-hover.png);
+        }
+
+    .ListComponent .items-list li .info-icon {
+        top: 11px;
+        position: absolute;
+        background-repeat: no-repeat;
+        padding: 7px;
+        background-image: url(../images/info.png);
+        right: 14px;
+    }
+
+    .ListComponent .items-list li.active .info-icon {
+        background-image: url(../images/info-active.png);
+    }
+
+    .ListComponent .items-list li .calendar-icon {
+        top: 11px;
+        position: absolute;
+        background-repeat: no-repeat;
+        padding: 7px;
+        background-image: url(../images/calendar.png);
+        right: 38px;
+    }
+
+    .ListComponent .items-list li.has-date .calendar-icon {
+        background-image: url(../images/calendar-active.png);
+    }
+
+    .ListComponent .items-list li .calendar-icon.active {
+        background-image: url(../images/calendar-active.png);
+    }
+
+    .ListComponent .items-list li .calendar-comp {
+        position: absolute;
+        display: inline-block;
+        right: 62px;
+        top: 10px;
+    }
+
+    .ListComponent .items-list li.has-date .calendar-comp > span {
+        margin: 0 10px 0 0;
+    }
+
+    .ListComponent .items-list li .calendar-comp > span {
+        margin: 5px;
+    }
+
+    .ListComponent .items-list li .calendar-comp .date {
+        display: inline-block;
+        position: relative;
+    }
+
+    .ListComponent .items-list li.has-date .calendar-comp .date input {
+        background-color: rgba(0, 0, 0, 0);
+        border: none;
+        color: rgb(75, 154, 246);
+    }
+
+    .ListComponent .items-list li .calendar-comp .date input {
+        text-align: center;
+        width: 72px;
+        height: 18px;
+        font-size: 12px;
+        border: 1px solid #DDDDDD;
+        border-radius: 3px;
+        outline: none;
+        margin: 0;
+        padding: 0px 0px 1px 0px;
+        color: #9D9D9D;
+        -webkit-appearance: none;
+    }
+
+        .ListComponent .items-list li .calendar-comp .date input:focus {
+            border: 1px solid #699ED0;
+            box-shadow: 0px 0px 5px 1px rgb(194, 222, 246);
+        }
+
+    .ListComponent .items-list .info-wrapper {
+        background-color: rgb(236, 236, 236);
+        text-align: left;
+        padding: 15px;
+        margin: 0px 10px 10px 10px;
+        color: rgb(0, 0, 0);
+        position: relative;
+        font-size:12px;
+    }
+
+        .ListComponent .items-list .info-wrapper .triangle {
+            background-image: url(../images/info-triangle.png);
+            position: absolute;
+            right: -2px;
+            top: -6px;
+            padding: 10px;
+            background-repeat: no-repeat;
+        }
+
+    .ListComponent .items-list li .add-move-up-icon {
+        top: 12px;
+        position: absolute;
+        background-repeat: no-repeat;
+        padding: 6px;
+        background-image: url(../images/move-up.png);
+        left: 32px;
+    }
+
+        .ListComponent .items-list li .add-move-up-icon:hover {
+            background-image: url(../images/move-up-hover.png);
+        }
+
+    .ListComponent .items-list li .add-move-down-icon {
+        top: 12px;
+        position: absolute;
+        background-repeat: no-repeat;
+        padding: 6px;
+        background-image: url(../images/move-down.png);
+        left: 50px;
+    }
+
+        .ListComponent .items-list li .add-move-down-icon:hover {
+            background-image: url(../images/move-down-hover.png);
+        }
+
+.tooltip {
+    color: rgb(255, 255, 255);
+    left: -14px;
+    top: -36px;
+    border-radius: 3px;
+    background-color: rgb(235, 72, 67);
+    z-index: 5;
+    font-size: 14px;
+    position: absolute;
+    padding: 5px 6px;
+    white-space: nowrap;
+}
+
+    .tooltip .tooltip-triangle {
+        position: absolute;
+        bottom: -14px;
+        left: 45px;
+        background-image: url(../images/tooltip-triangle.png);
+        background-repeat: no-repeat;
+        padding: 7px;
+    }
+
+#selected-list .ppvm-text {
+    line-height:18px;
+    width: 104px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+#selected-list .ppvm-text-withButtons {    
+    line-height:18px;
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: inline-block;
+    white-space: nowrap;
+    margin-left: 32px;
+}
+
+#unselected-list .ppvm-text {
+    line-height:18px;
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+ul::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+    background-color:#F2F2F2;
+}
+ul::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0,0,0,.5);
+    box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+
+ul::-webkit-scrollbar-track-piece:vertical:start {
+    margin-top: 36px;
+}
+ul::-webkit-scrollbar-track-piece:vertical:end {
+    /*margin-right: -6px;*/
+}
+
+.channel-number {
+    width: 60px;
+}
+
