@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "PersonalFeed_List",
+      "service": "PersonalFeed",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

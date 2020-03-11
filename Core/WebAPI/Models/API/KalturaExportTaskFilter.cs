@@ -1,0 +1,54 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Exceptions;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.API
+{
+    /// <summary>
+    /// Bulk export tasks filter
+    /// </summary>
+    public partial class KalturaExportTaskFilter : KalturaFilter<KalturaExportTaskOrderBy>
+    {
+
+        /// <summary>
+        /// Comma separated tasks identifiers
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        public string IdIn { get; set; }
+
+        public override KalturaExportTaskOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaExportTaskOrderBy.CREATE_DATE_ASC;
+        }
+
+        internal List<long> getIdIn()
+        {
+            if (string.IsNullOrEmpty(IdIn))
+                return null;
+
+            List<long> values = new List<long>();
+            string[] stringValues = IdIn.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                long value;
+                if (long.TryParse(stringValue, out value))
+                {
+                    values.Add(value);
+                }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaExportTaskFilter.IdIn");
+                }
+            }
+
+            return values;
+        }
+    }
+}

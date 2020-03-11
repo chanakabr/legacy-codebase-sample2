@@ -1,0 +1,794 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using KLogMonitor;
+using WebAPI.ClientManagers;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Models.Social;
+using WebAPI.ObjectsConvertor.Mapping;
+using WebAPI.Utils;
+using WebAPI.Models.Users;
+using WebAPI.Models.Catalog;
+using ApiObjects;
+using ApiObjects.Social;
+using Core.Social;
+using Core.Social.Requests;
+using Core.Social.SocialFeed;
+
+namespace WebAPI.Clients
+{
+    public class SocialClient : BaseClient
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public SocialClient()
+        {
+        }
+
+        internal KalturaFacebookSocial FBData(int groupId, string token)
+        {
+            FacebookResponse wsResponse = null;
+
+            // get group ID
+            
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Core.Social.Module.FBUserData(groupId, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            KalturaFacebookSocial clientResponse = AutoMapper.Mapper.Map<KalturaFacebookSocial>(wsResponse.ResponseData);
+
+            return clientResponse;
+        }
+
+        [Obsolete]
+        internal KalturaSocialResponse FBUserData(int groupId, string token)
+        {
+            FacebookResponse wsResponse = null;
+            KalturaSocialResponse clientResponse = new KalturaSocialResponse();
+
+            // get group ID
+            
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Core.Social.Module.FBUserData(groupId, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            clientResponse = AutoMapper.Mapper.Map<KalturaSocialResponse>(wsResponse.ResponseData);
+
+            return clientResponse;
+        }
+
+        internal KalturaFacebookSocial FBUserDataByUserId(int groupId, string userId)
+        {
+            FacebookResponse wsResponse = null;
+
+            // get group ID
+            
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Core.Social.Module.FBUserDataByUserId(groupId, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            KalturaFacebookSocial clientResponse = AutoMapper.Mapper.Map<KalturaFacebookSocial>(wsResponse.ResponseData);
+            return clientResponse;
+        }
+
+        internal KalturaFacebookSocial FBRegister(int groupId, string token, List<ApiObjects.KeyValuePair> extraParameters, string ip)
+        {
+            {
+                FacebookResponse wsResponse = null;
+
+                // get group ID
+                
+
+                try
+                {
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                    {
+                        // fire request
+                        wsResponse = Core.Social.Module.FBUserRegister(groupId, token, extraParameters, ip);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                    ErrorUtils.HandleWSException(ex);
+                }
+
+                if (wsResponse == null)
+                {
+                    // general exception
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+
+                if (wsResponse.Status.Code != (int)StatusCode.OK)
+                {
+                    // internal web service exception
+                    throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+                }
+
+                // convert response
+                KalturaFacebookSocial clientResponse = AutoMapper.Mapper.Map<KalturaFacebookSocial>(wsResponse.ResponseData);
+
+                return clientResponse;
+            }
+        }
+
+        [Obsolete]
+        internal KalturaSocialResponse FBUserRegister(int groupId, string token, List<ApiObjects.KeyValuePair> extraParameters, string ip)
+        {
+            {
+                FacebookResponse wsResponse = null;
+                KalturaSocialResponse clientResponse = new KalturaSocialResponse();
+
+                // get group ID
+                
+
+                try
+                {
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                    {
+                        // fire request
+                        wsResponse = Core.Social.Module.FBUserRegister(groupId, token, extraParameters, ip);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                    ErrorUtils.HandleWSException(ex);
+                }
+
+                if (wsResponse == null)
+                {
+                    // general exception
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+
+                if (wsResponse.Status.Code != (int)StatusCode.OK)
+                {
+                    // internal web service exception
+                    throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+                }
+
+                // convert response
+                clientResponse = AutoMapper.Mapper.Map<KalturaSocialResponse>(wsResponse.ResponseData);
+
+                return clientResponse;
+            }
+        }
+
+        [Obsolete]
+        internal KalturaSocialResponse FBUserMerge(int groupId, string token, string username, string password, string facebookId)
+        {
+            FacebookResponse wsResponse = null;
+            KalturaSocialResponse clientResponse = new KalturaSocialResponse();
+
+            // get group ID
+            
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Core.Social.Module.FBUserMerge(groupId, token, facebookId, username, password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            clientResponse = AutoMapper.Mapper.Map<KalturaSocialResponse>(wsResponse.ResponseData);
+
+            return clientResponse;
+        }
+
+        internal KalturaFacebookSocial FBUserMerge(int groupId, string userId, string token)
+        {
+            FacebookResponse wsResponse = null;
+
+            // get group ID
+            
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Core.Social.Module.FBUserMergeByUserId(groupId, userId, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            KalturaFacebookSocial clientResponse = AutoMapper.Mapper.Map<KalturaFacebookSocial>(wsResponse.ResponseData);
+
+            return clientResponse;
+        }
+
+        [Obsolete]
+        internal KalturaSocialResponse FBUserUnmerge(int groupId, string token, string username, string password)
+        {
+            FacebookResponse wsResponse = null;
+            KalturaSocialResponse clientResponse = new KalturaSocialResponse();
+
+            // get group ID
+            
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Core.Social.Module.FBUserUnmerge(groupId, token, username, password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            clientResponse = AutoMapper.Mapper.Map<KalturaSocialResponse>(wsResponse.ResponseData);
+
+            return clientResponse;
+        }
+
+        internal KalturaFacebookSocial FBUserUnmerge(int groupId, string userId)
+        {
+            FacebookResponse wsResponse = null;
+
+            // get group ID
+            
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Core.Social.Module.FBUserUnmergeByUserId(groupId, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            KalturaFacebookSocial clientResponse = AutoMapper.Mapper.Map<KalturaFacebookSocial>(wsResponse.ResponseData);
+
+            return clientResponse;
+        }
+
+        internal KalturaOTTUser FBUserSignin(int groupId, string token, string udid)
+        {
+            WebAPI.Models.Users.KalturaOTTUser user = null;
+            FBSignin response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Social.Module.FBUserSignin(groupId, token, Utils.Utils.GetClientIP(), udid, group.ShouldSupportSingleLogin);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.status.Code, response.status.Message, response.status.Args);
+            }
+
+            user = AutoMapper.Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
+
+            return user;
+        }
+
+        internal KalturaSocialConfig GetFacebookConfig(int groupId)
+        {
+            KalturaSocialFacebookConfig config = null;
+            FacebookConfigResponse response = null;
+            
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Social.Module.FBConfig(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            config = AutoMapper.Mapper.Map<KalturaSocialFacebookConfig>(response.FacebookConfig);
+
+            return config;
+        }
+
+        internal KalturaSocialFriendActivityListResponse GetFriendsActions(int groupId, string userId, long assetId, KalturaAssetType assetType, List<KalturaSocialActionType> actions, int pageSize, int pageIndex)
+        {
+            KalturaSocialFriendActivityListResponse friendsActivity = new KalturaSocialFriendActivityListResponse();
+            SocialActivityResponse response = null;
+            
+
+            GetFriendsActionsRequest request = new GetFriendsActionsRequest()
+            {
+                m_eAssetType = eAssetType.MEDIA,
+                m_lAssetIDs = assetId > 0 ? new List<int> { (int)assetId } : null,
+                m_nNumOfRecords = pageSize,
+                m_nStartIndex = pageIndex * pageSize,
+                m_sSiteGuid = userId,
+            };
+            eUserAction wsAction;
+            if (actions != null && actions.Count > 0)
+            {
+                var userActions = new List<eUserAction>();
+                foreach (var action in actions)
+                {
+                    wsAction = SocialMappings.ConvertSocialAction(action);
+                    userActions.Add(wsAction);
+                }
+                request.UserActions = userActions;
+            }
+            else
+            {
+                request.UserActions = new List<eUserAction>() { eUserAction.LIKE, eUserAction.RATES, eUserAction.WATCHES };
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Social.Module.GetFriendsActions(groupId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            friendsActivity.Objects = AutoMapper.Mapper.Map<List<KalturaSocialFriendActivity>>(response.SocialActivity);
+            friendsActivity.TotalCount = response.TotalCount;
+
+            return friendsActivity;
+        }
+
+        internal KalturaSocialConfig SetUserActionShareAndPrivacy(int groupId, string userId, KalturaSocialUserConfig socialActionConfig)
+        {
+            KalturaSocialConfig socialConfig = new KalturaSocialConfig();
+            ApiObjects.Social.SocialPrivacySettingsResponse response = new ApiObjects.Social.SocialPrivacySettingsResponse();
+            ApiObjects.Social.SocialPrivacySettings settings = new ApiObjects.Social.SocialPrivacySettings();
+
+            settings = AutoMapper.Mapper.Map<ApiObjects.Social.SocialPrivacySettings>(socialActionConfig);
+
+            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // change status to Status - first in social ws 
+                    response = Core.Social.Module.SetUserSocialPrivacySettings(groupId, userId, settings);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetUserActionShare.  groupID: {0}, userId: {1}, exception: {2}", groupId, userId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            socialConfig = AutoMapper.Mapper.Map<KalturaSocialConfig>(response.settings);
+
+            return socialConfig;
+
+        }
+
+        internal KalturaSocialConfig GetUserSocialPrivacySettings(string userId, int groupId)
+        {
+            KalturaSocialConfig socialConfig = new KalturaSocialConfig();
+
+            ApiObjects.Social.SocialPrivacySettingsResponse response = new ApiObjects.Social.SocialPrivacySettingsResponse();
+
+            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // change status to Status - first in social ws 
+                    response = Core.Social.Module.GetUserSocialPrivacySettings(groupId, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserSocialPrivacySettings groupID: {0}, userId: {1}, exception: {2}", groupId, userId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+            socialConfig = AutoMapper.Mapper.Map<KalturaSocialConfig>(response.settings);
+            return socialConfig;
+        }
+
+        internal KalturaUserSocialActionResponse AddSocialAction(int groupId, string userId, string udid, KalturaSocialAction socialAction)
+        {
+            KalturaUserSocialActionResponse actionResponse = new KalturaUserSocialActionResponse();
+            UserSocialActionResponse response = new UserSocialActionResponse();
+            UserSocialActionRequest request = new UserSocialActionRequest();
+
+            request = AutoMapper.Mapper.Map<ApiObjects.Social.UserSocialActionRequest>(socialAction);
+
+            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // change status to Status - first in social ws 
+                    request.SiteGuid = userId;
+                    request.DeviceUDID = udid;
+                    response = Core.Social.Module.AddUserSocialAction(groupId, request);
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddSocialAction.  groupID: {0}, socialAction: {1}, exception: {2}", groupId, socialAction.ToString(), ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+                      
+            actionResponse = AutoMapper.Mapper.Map<KalturaUserSocialActionResponse>(response);            
+
+            return actionResponse;
+        }
+
+        internal KalturaSocialCommentListResponse GetSocialFeed(int groupId, string userId, long assetId, KalturaAssetType assetType, KalturaSocialPlatform socialPlatform,
+            int pageSize, int pageIndex, long createDateSince, KalturaSocialCommentOrderBy orderBy)
+        {
+            KalturaSocialCommentListResponse friendsActivity = new KalturaSocialCommentListResponse();
+            SocialFeedResponse response = null;
+            
+
+            eSocialPlatform wsPlatform = SocialMappings.ConvertSocialPlatform(socialPlatform);
+            eAssetType wsAssetType = SocialMappings.ConvertAssetType(assetType);
+            SocialFeedOrderBy wsOrderBy = SocialMappings.ConvertSocialFeedOrderBy(orderBy);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Social.Module.GetSocialFeed(groupId, userId, (int)assetId, wsAssetType, wsPlatform,
+                        pageSize, pageIndex, createDateSince, wsOrderBy);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            friendsActivity.Objects = AutoMapper.Mapper.Map<List<KalturaSocialComment>>(response.SocialFeeds);
+            friendsActivity.TotalCount = response.TotalCount;
+
+            return friendsActivity;
+        }
+
+        private string GetAllFails(List<NetworkActionStatus> NetworksStatus)
+        {            
+            List<string> fails = new List<string>();
+            foreach (NetworkActionStatus item in NetworksStatus)
+            {
+                if (item.Status.Code != (int)StatusCode.OK)
+                {
+                    fails.Add(string.Format("network - {0}: status code - {1}: status message - {2}", item.Network != null ? item.Network.ToString() : "null" , item.Status.Code, item.Status.Message));
+                }
+            }
+            string result = string.Join(",", fails);
+            return result;
+        }
+
+        internal KalturaSocialActionListResponse GetUserSocialActions(int groupId, string userId, List<int> assets, KalturaAssetType assetType, List<KalturaSocialActionType> actionTypes, int pageIndex, int? pageSize, KalturaSocialActionOrderBy orderBy)
+        {
+            KalturaSocialActionListResponse getActionResponse = new KalturaSocialActionListResponse();
+            SocialActivityResponse response = new SocialActivityResponse();
+            UserSocialActionQueryRequest request = new UserSocialActionQueryRequest();
+
+            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // change status to Status - first in social ws 
+                    request.m_sSiteGuid = userId;
+                    request.m_eAssetType = SocialMappings.ConvertAssetType(assetType);
+                    request.m_lAssetIDs = assets;
+                    request.UserActions = new List<eUserAction>();
+                    if (actionTypes != null && actionTypes.Count > 0)
+                    {
+                        var userActions = new List<eUserAction>();
+                        foreach (var action in actionTypes)
+                        {
+                            request.UserActions.Add(SocialMappings.ConvertSocialAction(action));
+                        }
+                    }
+                    else
+                    {
+                        request.UserActions = new List<eUserAction>() { eUserAction.LIKE, eUserAction.RATES, eUserAction.WATCHES, eUserAction.SHARE };
+                    }
+
+
+                    request.m_nStartIndex = pageIndex;
+                    request.m_nNumOfRecords = pageSize != null ? pageSize.Value : 0;
+
+                    response = Core.Social.Module.GetUserActions(groupId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserSocialActions.  groupID: {0}, assets: {1}, exception: {2}", groupId, string.Join(",", assets), ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SocialActivity != null)
+            {
+                getActionResponse.Objects = AutoMapper.Mapper.Map<List<KalturaSocialAction>>(response.SocialActivity);
+            }
+            getActionResponse.TotalCount = response.TotalCount;
+
+            return getActionResponse;
+        }
+
+
+
+        
+        internal List<KalturaNetworkActionStatus> DeleteSocialAction(int groupId, string userId, string id)
+        {
+            //KalturaRecording recording = null;
+            List<KalturaNetworkActionStatus> deleteResponse = null;
+            UserSocialActionResponse response = new UserSocialActionResponse();
+            // get group ID
+            
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.Social.Module.DeleteUserSocialAction(groupId, userId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // convert response
+            deleteResponse = SocialMappings.ConvertNetworkActionStatus(response.NetworksStatus);
+
+            return deleteResponse;
+        }
+
+        
+    }
+}

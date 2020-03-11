@@ -1,0 +1,55 @@
+﻿using ApiObjects;
+using ApiObjects.ConditionalAccess;
+using ApiObjects.Response;
+using System;
+
+namespace Core.ConditionalAccess
+{
+    public class LicensedLinkNPVRCommand : BaseNPVRCommand
+    {
+        public DateTime startTime;
+        public int format;
+        public int mediaFileID;
+        public string basicLink;
+        public string userIP;
+        public string referrer;
+        public string countryCd;
+        public string langCd;
+        public string couponCode;
+        public PlayContextType contextType;
+
+        protected override NPVRResponse ExecuteFlow(BaseConditionalAccess cas)
+        {
+            LicensedLinkNPVRResponse res = new LicensedLinkNPVRResponse();
+            string drmData = string.Empty;
+
+            LicensedLinkResponse licensedLinkResponse = cas.GetEPGLink(assetID, startTime, format, siteGuid, mediaFileID, basicLink, userIP, referrer, countryCd,
+                langCd, udid, couponCode, contextType, out drmData);
+            if (licensedLinkResponse.status == "OK" && !string.IsNullOrEmpty(licensedLinkResponse.mainUrl))
+            {
+                res.status = NPVRStatus.OK.ToString();
+                res.mainUrl = licensedLinkResponse.mainUrl;
+                res.drm = new DrmPlaybackPluginData() { scheme = DrmSchemeName.CUSTOM_DRM, data = drmData };
+            }
+            else if (licensedLinkResponse.status == "ServiceNotAllowed")
+            {
+                res.status = NPVRStatus.ServiceNotAllowed.ToString();
+                res.msg = "NPVR service is not allowed";
+            }
+            else if (licensedLinkResponse.status == eResponseStatus.DomainSuspended.ToString())
+            {
+                res.status = NPVRStatus.Suspended.ToString();
+            }
+            else if (licensedLinkResponse.status.Equals(eResponseStatus.NetworkRuleBlock.ToString()))
+            {
+                res.status = NPVRStatus.NetworkRuleBlock.ToString();
+            }
+            else
+            {
+                res.status = NPVRStatus.Error.ToString();
+            }
+
+            return res;
+        }
+    }
+}
