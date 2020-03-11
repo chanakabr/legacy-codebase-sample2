@@ -47,15 +47,17 @@ pipeline {
                 )
             }
         }
+        component = "${env.JOB_NAME}"
     }
     post {
         always {
-            report("${env.JOB_NAME}")
+            report("${component}")
         }
     }
 }
 
 def buildDockerAndPushToEcr(componentName, dockerfile){
+    component = componentName
     def REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/${componentName}"
     def ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
     def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
@@ -82,7 +84,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
     if ("${componentName}" == "phoenix"){
         sh "exit 1"
     }
-    report("${componentName}")
+    report("${component}")
 }
 
 def report(name){
