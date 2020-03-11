@@ -86,37 +86,66 @@ pipeline {
             steps{
                 dir("ott-backend"){
                     dir("phoenix"){
-                        // buildMsProject("Phoenix.Legacy/Phoenix.Legacy.csproj","published/kaltura_ott_api/", "Restore,Build,WebPublish")
-                        // buildMsProject("ConfigurationValidator/ConfigurationValidator.csproj","published/configuration_validator/", "Restore,Build")
-                        // buildMsProject("PermissionsExport/PermissionsDeployment.csproj","published/permissions/", "Restore,Build")
-                    
-
-                        bat (label:"Run MSBuild Phoenix" , script:"\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
-                                + " -p:Configuration=Release"
-                                + " -p:DeployOnBuild=True"
-                                + " -p:WebPublishMethod=FileSystem"
-                                + " -p:DeleteExistingFiles=True"
-                                + " -p:publishUrl=\"${WORKSPACE}\\published\\kaltura_ott_api\\"
+                        bat (label:"Build Phoenix" , script:"\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}\\published\\phoenix\\kaltura_ott_api\\"
                         )
 
-                        bat (label:"Run MSBuild Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
-                                + " -p:Configuration=Release"
-                                + " -p:DeleteExistingFiles=True"
-                                + " -p:OutDir=\"${WORKSPACE}\\published\\configuration_validator\\"
+                        bat (label:"Build Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
+                            + " -p:Configuration=Release"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:OutDir=\"${WORKSPACE}\\published\\phoenix\\configuration_validator\\"
                         )
 
-                        bat (label:"Run MSBuild Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
-                                + " -p:Configuration=Release"
-                                + " -p:DeleteExistingFiles=True"
-                                + " -p:OutDir=\"${WORKSPACE}\\published\\permissions\\"
+                        bat (label:"Build Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
+                            + " -p:Configuration=Release"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:OutDir=\"${WORKSPACE}\\published\\phoenix\\permissions\\"
                         )
-
 
                         // Cant build permission in 5_2_6 in new jenkins as it will read wrong permissions from the DB
                         // This is not the right way to build this
                         // dir("${WORKSPACE}/published/permissions"){
                         //     bat("PermissionsDeployment.exe e=permissions.xml")
                         // }
+                    }
+
+                    dir("remotetasks"){
+                        bat (label:"Build remote tasks" , script:"\"${MSBUILD}\" RemoteTasksService\\RemoteTasksService.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}\\published\\remote-tasks"
+                        )
+                    }
+
+                    dir("tvmapps"){
+                        bat (label:"Run MSBuild" , script:"\"${MSBUILD}\" \"Web Sites\\TVM\\TVM.csproj\" -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}\\published\\tvm"
+                        )
+                    }
+
+                    dir("tvpapi"){
+                        bat ("\"${MSBUILD}\" /property:Configuration=Release;Platform=\"Any CPU\"")
+                        bat("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\aspnet_compiler.exe -v /WS_TVPAPI -p \"ws_tvpapi\" -u -f \"${WORKSPACE}\\published\\tvpapi\\ \" ")
+                    }
+
+                    dir("ws_ingest"){
+                        bat (label:"Run MSBuild", script:"\"${MSBUILD}\" Ingest\\Ingest.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                                + " -p:Configuration=Release"
+                                + " -p:DeployOnBuild=True"
+                                + " -p:WebPublishMethod=FileSystem"
+                                + " -p:DeleteExistingFiles=True"
+                                + " -p:publishUrl=\"${WORKSPACE}/published/"
+                            )
                     }
                 }
             }        
