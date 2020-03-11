@@ -1,0 +1,1359 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Code\\ott-backend\\Core\\EventBus.RabbitMQ\\EventBus.RabbitMQ.csproj": {}
+  },
+  "projects": {
+    "C:\\Code\\ott-backend\\Core\\ApiObjects\\ApiObjects.csproj": {
+      "version": "5.2.0.3673",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\ApiObjects\\ApiObjects.csproj",
+        "projectName": "ApiObjects",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\ApiObjects\\ApiObjects.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\ApiObjects\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\EventBus.Abstraction.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\EventBus.Abstraction.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\EventManager\\EventManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\EventManager\\EventManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\ODBCWrapper\\ODBCWrapper.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ODBCWrapper\\ODBCWrapper.csproj"
+              }
+            }
+          },
+          "net48": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\EventBus.Abstraction.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\EventBus.Abstraction.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\EventManager\\EventManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\EventManager\\EventManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\ODBCWrapper\\ODBCWrapper.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ODBCWrapper\\ODBCWrapper.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "EPPlus": {
+              "target": "Package",
+              "version": "[4.5.3.1, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "dependencies": {
+            "EPPlus": {
+              "target": "Package",
+              "version": "[4.5.3.1, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\CachingManager\\CachingManager.csproj": {
+      "version": "5.2.0.8667",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\CachingManager\\CachingManager.csproj",
+        "projectName": "CachingManager",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\CachingManager\\CachingManager.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\CachingManager\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              }
+            }
+          },
+          "net48": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "System.Runtime.Caching": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "dependencies": {
+            "System.Runtime.Caching": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\CachingProvider\\CachingProvider.csproj": {
+      "version": "5.2.0.8667",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\CachingProvider\\CachingProvider.csproj",
+        "projectName": "CachingProvider",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\CachingProvider\\CachingProvider.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\CachingProvider\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\StaticHttpContextForNetCore\\StaticHttpContextForNetCore.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\StaticHttpContextForNetCore\\StaticHttpContextForNetCore.csproj"
+              }
+            }
+          },
+          "net48": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "System.Runtime.Caching": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "System.Runtime.Caching": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj": {
+      "version": "5.2.0.3673",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj",
+        "projectName": "ConfigurationManager",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj"
+              }
+            }
+          },
+          "net48": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "CouchbaseNetClient": {
+              "target": "Package",
+              "version": "[2.7.13, )"
+            },
+            "Microsoft.CSharp": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "System.Configuration.ConfigurationManager": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            },
+            "System.ServiceModel.Http": {
+              "target": "Package",
+              "version": "[4.5.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "dependencies": {
+            "CouchbaseNetClient": {
+              "target": "Package",
+              "version": "[2.7.13, )"
+            },
+            "Microsoft.CSharp": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "System.ServiceModel.Http": {
+              "target": "Package",
+              "version": "[4.5.3, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\CouchBaseExtensions\\CouchBaseExtensions.csproj": {
+      "version": "5.2.0.8667",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\CouchBaseExtensions\\CouchBaseExtensions.csproj",
+        "projectName": "CouchBaseExtensions",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\CouchBaseExtensions\\CouchBaseExtensions.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\CouchBaseExtensions\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {}
+          },
+          "net48": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "Common.Logging": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
+            "Common.Logging.Core": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
+            "CouchbaseNetClient": {
+              "target": "Package",
+              "version": "[2.7.13, )"
+            },
+            "Microsoft.CSharp": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "OpenTracing": {
+              "target": "Package",
+              "version": "[0.12.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "dependencies": {
+            "Common.Logging": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
+            "Common.Logging.Core": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
+            "CouchbaseNetClient": {
+              "target": "Package",
+              "version": "[2.7.13, )"
+            },
+            "Microsoft.CSharp": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "OpenTracing": {
+              "target": "Package",
+              "version": "[0.12.0, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj": {
+      "version": "5.2.0.8667",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj",
+        "projectName": "CouchbaseManager",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\CouchBaseExtensions\\CouchBaseExtensions.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CouchBaseExtensions\\CouchBaseExtensions.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj"
+              }
+            }
+          },
+          "net48": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\CouchBaseExtensions\\CouchBaseExtensions.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CouchBaseExtensions\\CouchBaseExtensions.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "Common.Logging": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
+            "Common.Logging.Core": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
+            "CouchbaseNetClient": {
+              "target": "Package",
+              "version": "[2.7.13, )"
+            },
+            "Microsoft.CSharp": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "OpenTracing": {
+              "target": "Package",
+              "version": "[0.12.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "dependencies": {
+            "Common.Logging": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
+            "Common.Logging.Core": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
+            "CouchbaseNetClient": {
+              "target": "Package",
+              "version": "[2.7.13, )"
+            },
+            "Microsoft.CSharp": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "OpenTracing": {
+              "target": "Package",
+              "version": "[0.12.0, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\EventBus.Abstraction.csproj": {
+      "version": "5.2.0.3673",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\EventBus.Abstraction.csproj",
+        "projectName": "EventBus.Abstraction",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\EventBus.Abstraction.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              }
+            }
+          },
+          "net48": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\EventBus.RabbitMQ\\EventBus.RabbitMQ.csproj": {
+      "version": "5.2.0.3673",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\EventBus.RabbitMQ\\EventBus.RabbitMQ.csproj",
+        "projectName": "EventBus.RabbitMQ",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\EventBus.RabbitMQ\\EventBus.RabbitMQ.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\EventBus.RabbitMQ\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\ApiObjects\\ApiObjects.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ApiObjects\\ApiObjects.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\EventBus.Abstraction.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\EventBus.Abstraction.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj"
+              }
+            }
+          },
+          "net48": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\ApiObjects\\ApiObjects.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ApiObjects\\ApiObjects.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\EventBus.Abstraction.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\EventBus.Abstraction\\EventBus.Abstraction.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "Microsoft.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.Extensions.Hosting.Abstractions": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[7.0.3, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[5.1.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[7.0.3, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[5.1.0, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\EventManager\\EventManager.csproj": {
+      "version": "5.2.0.8667",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\EventManager\\EventManager.csproj",
+        "projectName": "EventManager",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\EventManager\\EventManager.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\EventManager\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              }
+            }
+          },
+          "net48": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+      "version": "5.2.0.8667",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj",
+        "projectName": "KLogMonitor",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\StaticHttpContextForNetCore\\StaticHttpContextForNetCore.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\StaticHttpContextForNetCore\\StaticHttpContextForNetCore.csproj"
+              }
+            }
+          },
+          "net48": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "Jil": {
+              "target": "Package",
+              "version": "[2.16.0, )"
+            },
+            "Microsoft.AspNetCore.Http.Abstractions": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[3.1.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "System.Collections.Concurrent": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "log4net": {
+              "target": "Package",
+              "version": "[2.0.8, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "dependencies": {
+            "Jil": {
+              "target": "Package",
+              "version": "[2.16.0, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[3.1.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "System.Collections.Concurrent": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "log4net": {
+              "target": "Package",
+              "version": "[2.0.8, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\ODBCWrapper\\ODBCWrapper.csproj": {
+      "version": "5.2.0.8667",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\ODBCWrapper\\ODBCWrapper.csproj",
+        "projectName": "ODBCWrapper",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\ODBCWrapper\\ODBCWrapper.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\ODBCWrapper\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\CachingManager\\CachingManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CachingManager\\CachingManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\CachingProvider\\CachingProvider.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CachingProvider\\CachingProvider.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj"
+              }
+            }
+          },
+          "net48": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\CachingManager\\CachingManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CachingManager\\CachingManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\CachingProvider\\CachingProvider.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CachingProvider\\CachingProvider.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\ConfigurationManager\\ConfigurationManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\CouchbaseManager\\CouchbaseManager.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              },
+              "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.7.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "dependencies": {
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.7.0, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\StaticHttpContextForNetCore\\StaticHttpContextForNetCore.csproj": {
+      "version": "5.2.0.3673",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\StaticHttpContextForNetCore\\StaticHttpContextForNetCore.csproj",
+        "projectName": "StaticHttpContextForNetCore",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\StaticHttpContextForNetCore\\StaticHttpContextForNetCore.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\StaticHttpContextForNetCore\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "Microsoft.AspNetCore.Hosting.Abstractions": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.AspNetCore.Http.Abstractions": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj": {
+      "version": "5.2.0.3886",
+      "restore": {
+        "projectUniqueName": "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj",
+        "projectName": "TCMClient",
+        "projectPath": "C:\\Code\\ott-backend\\Core\\TCMClient\\TCMClient.csproj",
+        "packagesPath": "C:\\Users\\arthur.vaverko\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\ott-backend\\Core\\TCMClient\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\arthur.vaverko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net48",
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              }
+            }
+          },
+          "net48": {
+            "projectReferences": {
+              "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj": {
+                "projectPath": "C:\\Code\\ott-backend\\Core\\KLogMonitor\\KLogMonitor.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[7.0.3, )"
+            },
+            "System.Configuration.ConfigurationManager": {
+              "target": "Package",
+              "version": "[4.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        },
+        "net48": {
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[7.0.3, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+﻿using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
+using WebAPI.Exceptions;
+
+namespace WebAPI.Models.ConditionalAccess
+{
+    public partial class KalturaLicensedUrlRecordingRequest : KalturaLicensedUrlBaseRequest
+    {
+        /// <summary>
+        /// The file type for the URL
+        /// </summary>
+        [DataMember(Name = "fileType")]
+        [JsonProperty("fileType")]
+        [XmlElement(ElementName = "fileType")]
+        public string FileType { get; set; }
+
+        private int recordingId { get; set; }
+
+        public int GetRecordingId()
+        {
+            if (recordingId == 0)
+            {
+                int parsed = 0;
+                if (!int.TryParse(AssetId, out parsed))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "KalturaLicensedUrlRecordingRequest.assetId");
+                }
+                recordingId = parsed;
+            }
+            return recordingId;
+        }
+
+        internal override void Validate()
+        {
+            base.Validate();
+
+            if (string.IsNullOrEmpty(FileType))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaLicensedUrlRecordingRequest.fileType");
+            }
+            int parsed = 0;
+            if (!int.TryParse(AssetId, out parsed))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "KalturaLicensedUrlRecordingRequest.assetId");
+            }
+            recordingId = parsed;
+        }
+    }
+}

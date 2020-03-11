@@ -1,0 +1,41 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "householdCoupon_Add",
+      "service": "householdCoupon",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "householdCoupon_Delete",
+      "service": "householdCoupon",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "householdCoupon_List",
+      "service": "householdCoupon",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

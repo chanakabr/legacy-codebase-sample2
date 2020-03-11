@@ -1,0 +1,264 @@
+﻿using ApiObjects.Response;
+using WebAPI.Clients;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.DMS;
+using WebAPI.Models.Renderers;
+using WebAPI.Utils;
+
+namespace WebAPI.Controllers
+{
+    [Service("configurations")]
+    public class ConfigurationsController : IKalturaController
+    {
+        /// <summary>
+        /// Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
+        /// </summary>
+        /// <param name="partnerId">Partner Id</param>
+        /// <param name="applicationName">Application name</param>
+        /// <param name="clientVersion">Client version</param>
+        /// <param name="platform">platform</param>
+        /// <param name="udid">Device UDID</param>
+        /// <param name="tag">Tag</param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: IllegalQueryParams = 12001, Registered = 12006, VersionNotFound = 12007</remarks>        
+        [Action("serveByDevice")]     
+        [SchemeServeAttribute]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.IllegalQueryParams)]
+        [Throws(eResponseStatus.Registered)]
+        [Throws(eResponseStatus.VersionNotFound)]
+        static public KalturaStringRenderer ServeByDevice(string applicationName, string clientVersion, string platform, string udid, string tag, int partnerId = 0)
+        {
+            string response = null;
+
+
+            if (partnerId < 0)
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "partnerId");
+
+            if (partnerId == 0)
+            {
+                //check if KS was given
+                var ks = KS.GetFromRequest();
+                if (ks != null)
+                    partnerId = KS.GetFromRequest().GroupId;
+                else
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "partnerId");
+            }       
+
+            if (string.IsNullOrWhiteSpace(applicationName))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "applicationName");
+
+            if (string.IsNullOrWhiteSpace(clientVersion))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "clientVersion");
+
+            if (string.IsNullOrWhiteSpace(platform))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "platform");
+
+            if (string.IsNullOrWhiteSpace(udid))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "UDID");
+
+            try
+            {
+                // call client               
+                response = DMSClient.Serve(partnerId, applicationName, clientVersion, platform, udid, tag);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaStringRenderer(response);
+        }
+
+        /// <summary>
+        /// Return the device configuration
+        /// </summary>
+        /// <param name="id">Configuration identifier</param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
+        [Action("get")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.Forbidden)]
+        [Throws(eResponseStatus.IllegalQueryParams)]
+        [Throws(eResponseStatus.NotExist)]
+        [Throws(eResponseStatus.PartnerMismatch)]
+        static public KalturaConfigurations Get(string id)
+        {
+            KalturaConfigurations response = null;
+
+            int partnerId = KS.GetFromRequest().GroupId;
+
+            if (string.IsNullOrWhiteSpace(id))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
+
+            try
+            {
+                // call client               
+                response = DMSClient.GetConfiguration(partnerId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Return a list of device configurations of a configuration group 
+        /// </summary>
+        /// <param name="filter">Filter option for configuration group id.</param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
+        [Action("list")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.Forbidden)]
+        [Throws(eResponseStatus.IllegalQueryParams)]
+        static public KalturaConfigurationsListResponse List(KalturaConfigurationsFilter filter)
+        {
+            KalturaConfigurationsListResponse response = null;
+
+            if (string.IsNullOrWhiteSpace(filter.ConfigurationGroupIdEqual))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupIdEqual");
+
+            try
+            {
+                int partnerId = KS.GetFromRequest().GroupId;
+
+                // call client        
+                response = DMSClient.GetConfigurationList(partnerId, filter.ConfigurationGroupIdEqual);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Add a new device configuration to a configuration group
+        /// </summary>
+        /// <param name="configurations">Device configuration</param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, AlreadyExist = 12008</remarks>        
+        [Action("add")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.Forbidden)]
+        [Throws(eResponseStatus.IllegalQueryParams)]
+        [Throws(eResponseStatus.IllegalPostData)]
+        [Throws(eResponseStatus.AlreadyExist)]
+        static public KalturaConfigurations Add(KalturaConfigurations configurations)
+        {
+            KalturaConfigurations response = null;
+
+            if (string.IsNullOrWhiteSpace(configurations.ConfigurationGroupId))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
+
+            if (string.IsNullOrWhiteSpace(configurations.AppName))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "appName");
+
+            if (string.IsNullOrWhiteSpace(configurations.ClientVersion))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "clientVersion");
+
+
+            if (string.IsNullOrWhiteSpace(configurations.Platform.ToString()))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "platform");
+
+            try
+            {
+                int partnerId = KS.GetFromRequest().GroupId;
+
+                // call client        
+                response = DMSClient.AddConfiguration(partnerId, configurations);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Update device configuration
+        /// </summary>
+        /// <param name="id">Configuration identifier</param>
+        /// <param name="configurations">configuration to update</param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003, PartnerMismatch = 12004, AlreadyExist = 12008</remarks>        
+        [Action("update")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.Forbidden)]
+        [Throws(eResponseStatus.IllegalQueryParams)]
+        [Throws(eResponseStatus.NotExist)]
+        [Throws(eResponseStatus.IllegalPostData)]
+        [Throws(eResponseStatus.PartnerMismatch)]
+        [Throws(eResponseStatus.AlreadyExist)]
+        static public KalturaConfigurations Update(string id, KalturaConfigurations configurations)
+        {
+            KalturaConfigurations response = null;
+
+            if (string.IsNullOrWhiteSpace(configurations.ConfigurationGroupId))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
+
+            if (string.IsNullOrWhiteSpace(configurations.AppName))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "appName");
+
+            if (string.IsNullOrWhiteSpace(configurations.ClientVersion))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "clientVersion");
+
+
+            if (string.IsNullOrWhiteSpace(configurations.Platform.ToString()))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "platform");
+
+
+            try
+            {
+                int partnerId = KS.GetFromRequest().GroupId;
+
+                // call client                        
+                response = DMSClient.UpdateConfiguration(partnerId, id, configurations);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Delete a device configuration
+        /// </summary>
+        /// <param name="id">Configuration identifier</param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
+        [Action("delete")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.Forbidden)]
+        [Throws(eResponseStatus.IllegalQueryParams)]
+        [Throws(eResponseStatus.NotExist)]
+        [Throws(eResponseStatus.PartnerMismatch)]
+        static public bool Delete(string id)
+        {
+            bool response = false;
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
+
+                int partnerId = KS.GetFromRequest().GroupId;
+
+                // call client        
+                response = DMSClient.DeleteConfiguration(partnerId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+    }
+}
