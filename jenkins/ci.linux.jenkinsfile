@@ -33,7 +33,7 @@ pipeline {
                 sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
             }
         }
-        stage('Build Phoenix Rest Docker'){
+        stage('Build Docker Images'){
             steps{
                 buildDockerAndPushToEcr("phoenix","Phoenix.Dockerfile")
                 buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
