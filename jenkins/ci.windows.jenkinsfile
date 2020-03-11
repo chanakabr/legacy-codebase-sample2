@@ -3,7 +3,7 @@ pipeline {
         label 'Windows'
     }
     options {
-        buildDiscarder(logRotator(numToKeepStr:'10'))
+        buildDiscarder(logRotator(numToKeepStr:'50'))
         skipDefaultCheckout true
     }
     environment {
@@ -40,7 +40,6 @@ pipeline {
                 dir("ott-backend"){
                     dir("core"){ 
                         bat "sh DllVersioning.Core.sh ." 
-                        powershell "DllVersioning.ps1 ."
                     }
                     dir("phoenix"){ 
                         bat "sh ../Core/DllVersioning.Core.sh ." 
@@ -74,8 +73,8 @@ pipeline {
                 dir("ott-backend"){
                     dir("core"){ bat ("nuget restore") }
                     dir("phoenix"){ bat ("nuget restore") }
+                    dir("RemoteTasks"){ bat ("nuget restore") }
                     dir("tvpapi"){ bat ("nuget restore") }
-                    dir("tvplibs"){ bat ("nuget restore") }
                     dir("WS_Ingest"){ bat ("nuget restore") }
                     dir("tvmapps"){ bat ("nuget restore") }
                 }
@@ -83,42 +82,82 @@ pipeline {
         }
         
         stage("Build"){
-            environment{
-                TCM_URL="http://tcm.service.consul:8080"
-                TCM_APP="OTT_API_SV"
-            }
             steps{
                 dir("ott-backend"){
                     dir("phoenix"){
-                        buildMsProject("Phoenix.Legacy/Phoenix.Legacy.csproj","published/kaltura_ott_api/")
-                    
+                        bat (label:"Build Phoenix" , script:"\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}\\published\\kaltura_ott_api\\phoenix"
+                        )
 
-                        // bat (label:"Run MSBuild Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
-                        //         + " -p:Configuration=Release"
-                        //         + " -p:DeleteExistingFiles=True"
-                        //         + " -p:OutDir=\"${WORKSPACE}/published/configuration_validator/"
-                        // )
+                        bat (label:"Build Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
+                            + " -p:Configuration=Release"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:OutDir=\"${WORKSPACE}\\published\\kaltura_ott_api\\phoenix\\configuration_validator\\"
+                        )
 
-                        // bat (label:"Run MSBuild Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
-                        //         + " -p:Configuration=Release"
-                        //         + " -p:DeleteExistingFiles=True"
-                        //         + " -p:OutDir=\"${WORKSPACE}/published/permissions/"
-                        // )
+                        bat (label:"Build Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
+                            + " -p:Configuration=Release"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:OutDir=\"${WORKSPACE}\\published\\kaltura_ott_api\\phoenix\\permissions\\"
+                        )
 
+                        // Cant build permission in 5_2_6 in new jenkins as it will read wrong permissions from the DB
+                        // This is not the right way to build this
                         // dir("${WORKSPACE}/published/permissions"){
                         //     bat("PermissionsDeployment.exe e=permissions.xml")
                         // }
+                    }
+
+                    dir("remotetasks"){
+                        bat (label:"Build remote tasks" , script:"\"${MSBUILD}\" RemoteTasksService\\RemoteTasksService.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}\\published\\kaltura_ott_api\\remotetasks"
+                        )
+                    }
+
+                    dir("tvmapps"){
+                        bat (label:"Build TVM" , script:"\"${MSBUILD}\" \"Web Sites\\TVM\\TVM.csproj\" -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}\\published\\kaltura_ott_api\\tvmapps"
+                        )
+                    }
+
+                    dir("tvpapi"){
+                        bat ("\"${MSBUILD}\" /property:Configuration=Release;Platform=\"Any CPU\"")
+                        bat("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\aspnet_compiler.exe -v /WS_TVPAPI -p \"ws_tvpapi\" -u -f \"${WORKSPACE}\\published\\kaltura_ott_api\\tvpapi\\ \" ")
+                    }
+
+                    dir("ws_ingest"){
+                        bat (label:"Run MSBuild", script:"\"${MSBUILD}\" Ingest\\Ingest.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                                + " -p:Configuration=Release"
+                                + " -p:DeployOnBuild=True"
+                                + " -p:WebPublishMethod=FileSystem"
+                                + " -p:DeleteExistingFiles=True"
+                                + " -p:publishUrl=\"${WORKSPACE}\\published\\kaltura_ott_api\\wsingest"
+                            )
                     }
                 }
             }        
         }
         stage("Generate KalturaClient.xml"){
             steps { 
-                dir("tvpapi_rest/Generator"){
-                    bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
-                    dir("bin/Release/netcoreapp2.0"){
-                        bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
-                        bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
+                dir("ott-backend"){
+                    dir("phoenix/Generator"){
+                        bat (label:"Build Generator", script:"\"${MSBUILD}\" Generator.csproj -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
+                        dir("bin/Release/netcoreapp2.0"){
+                            bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
+                            bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
+                        }
                     }
                 }
             }
@@ -162,16 +201,31 @@ pipeline {
             }
         }
         stage("Zip and Publish"){
-            environment {
-                    RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: 'cd tvpapi_rest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
-                    RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim();
-            }
             steps{
-                dir("published"){
-                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > kaltura_ott_api/version.txt") 
-                    // sh (script: "cd ../tvpapi_rest && git rev-parse HEAD >> ../published/kaltura_ott_api/version.txt") 
+                dir("published/kaltura_ott_api/phoenix/"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
                     bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix.zip *")
                     sh (label:"upload to s3", script:"aws s3 cp phoenix.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix.zip")
+                }
+                dir("published/kaltura_ott_api/remotetasks/"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r remote-tasks.zip *")
+                    sh (label:"upload to s3", script:"aws s3 cp remote-tasks.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/remote-tasks.zip")
+                }
+                dir("published/kaltura_ott_api/tvpapi/"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r tvpapi.zip *")
+                    sh (label:"upload to s3", script:"aws s3 cp tvpapi.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvpapi.zip")
+                }
+                dir("published/kaltura_ott_api/wsingest/"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r ws-ingest.zip *")
+                    sh (label:"upload to s3", script:"aws s3 cp ws-ingest.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/ws-ingest.zip")
+                }
+                dir("published/kaltura_ott_api/tvmapps/"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r tvm.zip *")
+                    sh (label:"upload to s3", script:"aws s3 cp tvm.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvm.zip")
                 }
             }        
         }
@@ -195,20 +249,28 @@ pipeline {
     }
 }
 
-def buildMsProject(projectFilePath, outputPath){
-    bat (label:"Buil ${projectFilePath}" , script:"\"${MSBUILD}\" ${projectFilePath} -m:4 -nr:False -t:Restore,Build,WebPublish"
-            + " -p:Configuration=Release"
-            + " -p:DeployOnBuild=True"
-            + " -p:WebPublishMethod=FileSystem"
-            + " -p:DeleteExistingFiles=True"
-            + " -p:publishUrl=\"${WORKSPACE}/${outputPath}"
-    )
+def buildMsProject(projectFilePath, outputPath, targets){
+    //def targets = "build,restore,webPublish"
 
+    def buildProps = " -p:Configuration=Release"
+    buildProps += " -p:DeleteExistingFiles=True"
+
+    if (targets.toLowerCase().contains("webpublish") ){
+        buildProps  += " -p:DeployOnBuild=True"
+        buildProps += " -p:WebPublishMethod=FileSystem"
+        buildProps += " -p:publishUrl=\"${WORKSPACE}/${outputPath}"
+    }
+    else{
+        buildProps += " -p:OutDir=\"${WORKSPACE}/${outputPath}"
+    }
+                
+    //print "${buildProps}"   
+    bat (label:"Buil ${projectFilePath}" , script:"\"${MSBUILD}\" ${projectFilePath} -m:4 -nr:False -t:${targets} ${buildProps} ")
 }
 
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "cd tvpapi_rest && git rev-parse HEAD", returnStdout: true).trim();
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "cd ott-backend && git rev-parse HEAD", returnStdout: true).trim();
     def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA", returnStdout: true)
     echo "${report}"
     // return report
