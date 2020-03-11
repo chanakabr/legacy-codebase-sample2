@@ -13,9 +13,15 @@ pipeline {
         booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
     }
     stages {
+        stage("Clean"){
+            steps{
+                sh(label:"clean bin and obj folders", script:"find . -iname 'bin' -o -iname 'obj' | xargs rm -rf")
+                sh(label:"clean published folder", script:"rm -rf ./published")
+            }
+        }
         stage("Checkout"){
             steps{
-                cleanWs()
+                // cleanWs()
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('ott-backend'){ git(url: 'https://github.com/kaltura/ott-backend', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
 
@@ -34,6 +40,10 @@ pipeline {
                 dir("ott-backend"){
                     dir("core"){ 
                         bat "sh DllVersioning.Core.sh ." 
+                        powershell "DllVersioning.ps1 ."
+                    }
+                    dir("phoenix"){ 
+                        bat "sh ../Core/DllVersioning.Core.sh ." 
                         powershell "../Core/DllVersioning.ps1 ."
                     }
                     dir("RemoteTasks") { 
@@ -59,53 +69,45 @@ pipeline {
                 }
             }        
         }
-        // stage("Nuget Restore"){
-        //     steps{
-        //         dir("ott-backend"){
-        //             dir("core"){ bat ("nuget restore") }
-        //             dir("tvpapi_rest"){ bat ("nuget restore") }
-        //             dir("tvpapi"){ bat ("nuget restore") }
-        //             dir("tvplibs"){ bat ("nuget restore") }
-        //             dir("WS_Ingest"){ bat ("nuget restore") }
-        //             dir("tvmapps"){ bat ("nuget restore") }
-        //         }
-        //     }        
-        // }
-        stage("Clean"){
+        stage("Nuget Restore"){
             steps{
-                sh(label:"clean bin and obj folders", script:"find . -iname 'bin' -o -iname 'obj' | xargs rm -rf")
-                sh(label:"clean published folder", script:"rm -rf ./published")
-            }
+                dir("ott-backend"){
+                    dir("core"){ bat ("nuget restore") }
+                    dir("phoenix"){ bat ("nuget restore") }
+                    dir("tvpapi"){ bat ("nuget restore") }
+                    dir("tvplibs"){ bat ("nuget restore") }
+                    dir("WS_Ingest"){ bat ("nuget restore") }
+                    dir("tvmapps"){ bat ("nuget restore") }
+                }
+            }        
         }
+        
         stage("Build"){
             environment{
                 TCM_URL="http://tcm.service.consul:8080"
                 TCM_APP="OTT_API_SV"
             }
             steps{
-                dir("tvpapi_rest"){
-                    bat (label:"Run MSBuild Phoenix" , script:"\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
-                            + " -p:Configuration=Release"
-                            + " -p:DeployOnBuild=True"
-                            + " -p:WebPublishMethod=FileSystem"
-                            + " -p:DeleteExistingFiles=True"
-                            + " -p:publishUrl=\"${WORKSPACE}/published/kaltura_ott_api/"
-                    )
+                dir("ott-backend"){
+                    dir("phoenix"){
+                        buildMsProject("Phoenix.Legacy/Phoenix.Legacy.csproj","published/kaltura_ott_api/")
+                    
 
-                    bat (label:"Run MSBuild Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
-                            + " -p:Configuration=Release"
-                            + " -p:DeleteExistingFiles=True"
-                            + " -p:OutDir=\"${WORKSPACE}/published/configuration_validator/"
-                    )
+                        // bat (label:"Run MSBuild Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
+                        //         + " -p:Configuration=Release"
+                        //         + " -p:DeleteExistingFiles=True"
+                        //         + " -p:OutDir=\"${WORKSPACE}/published/configuration_validator/"
+                        // )
 
-                    bat (label:"Run MSBuild Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
-                            + " -p:Configuration=Release"
-                            + " -p:DeleteExistingFiles=True"
-                            + " -p:OutDir=\"${WORKSPACE}/published/permissions/"
-                    )
+                        // bat (label:"Run MSBuild Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
+                        //         + " -p:Configuration=Release"
+                        //         + " -p:DeleteExistingFiles=True"
+                        //         + " -p:OutDir=\"${WORKSPACE}/published/permissions/"
+                        // )
 
-                    dir("${WORKSPACE}/published/permissions"){
-                        bat("PermissionsDeployment.exe e=permissions.xml")
+                        // dir("${WORKSPACE}/published/permissions"){
+                        //     bat("PermissionsDeployment.exe e=permissions.xml")
+                        // }
                     }
                 }
             }        
@@ -191,6 +193,17 @@ pipeline {
             report()
         }
     }
+}
+
+def buildMsProject(projectFilePath, outputPath){
+    bat (label:"Buil ${projectFilePath}" , script:"\"${MSBUILD}\" ${projectFilePath} -m:4 -nr:False -t:Restore,Build,WebPublish"
+            + " -p:Configuration=Release"
+            + " -p:DeployOnBuild=True"
+            + " -p:WebPublishMethod=FileSystem"
+            + " -p:DeleteExistingFiles=True"
+            + " -p:publishUrl=\"${WORKSPACE}/${outputPath}"
+    )
+
 }
 
 def report(){
