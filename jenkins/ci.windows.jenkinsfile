@@ -62,19 +62,19 @@ pipeline {
         stage("Build"){
             steps{
                     dir("phoenix"){
-                        buildMsProject("Phoenix.Legacy/Phoenix.Legacy.csproj","published/kaltura_ott_api/phoenix/")
+                        buildMsProject("Phoenix.Legacy/Phoenix.Legacy.csproj","published/kaltura_ott_api/phoenix/", "phoenix-win")
                     }
                     dir("RemoteTasks"){
-                        buildMsProject("RemoteTasksService/RemoteTasksService.csproj","published/kaltura_ott_api/remotetasks/")
+                        buildMsProject("RemoteTasksService/RemoteTasksService.csproj","published/kaltura_ott_api/remotetasks/", "remotetasks-win")
                     }
                     dir("tvpapi"){
-                        buildMsProject("TVPApi.Legacy/TVPApi.Legacy.csproj","published/kaltura_ott_api/tvpapi/")
+                        buildMsProject("TVPApi.Legacy/TVPApi.Legacy.csproj","published/kaltura_ott_api/tvpapi/", "tvpapi-win")
                     }
                     dir("WS_Ingest"){
-                        buildMsProject("Ingest/Ingest.csproj","published/kaltura_ott_api/wsingest/")
+                        buildMsProject("Ingest/Ingest.csproj","published/kaltura_ott_api/wsingest/", "wsingest-win")
                     }
                     dir("tvmapps"){
-                        buildMsProject("\"Web Sites/TVM/TVM.csproj\"","published/kaltura_ott_api/tvmapps/")
+                        buildMsProject("\"Web Sites/TVM/TVM.csproj\"","published/kaltura_ott_api/tvmapps/", "tvm-win")
                     }
             }        
         }
@@ -172,15 +172,16 @@ pipeline {
                 )
             }
         }
+        component = "${env_JOB_NAME}"
     }
     post {
         always {
-            report()
+            report("${component}")
         }
     }
 }
 
-def buildMsProject(projectFilePath, outputPath){
+def buildMsProject(projectFilePath, outputPath, component){
     bat (label:"Buil ${projectFilePath}" , script:"\"${MSBUILD}\" ${projectFilePath} -m:4 -nr:False -t:Restore,Build,WebPublish"
             + " -p:Configuration=Release"
             + " -p:DeployOnBuild=True"
@@ -188,6 +189,7 @@ def buildMsProject(projectFilePath, outputPath){
             + " -p:DeleteExistingFiles=True"
             + " -p:publishUrl=\"${WORKSPACE}/${outputPath}"
     )
+    report("${component}")
                 
 }
 
