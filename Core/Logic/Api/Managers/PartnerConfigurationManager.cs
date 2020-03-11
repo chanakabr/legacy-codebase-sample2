@@ -1,0 +1,633 @@
+﻿using ApiObjects;
+using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using Core.Catalog;
+using Core.Catalog.CatalogManagement;
+using Core.Pricing;
+using CouchbaseManager;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+
+namespace ApiLogic.Api.Managers
+{
+    public class PartnerConfigurationManager
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        #region internal methods 
+        internal static GenericListResponse<ObjectVirtualAssetPartnerConfig> GetObjectVirtualAssetPartnerConfiguration(int groupId)
+        {
+            GenericListResponse<ObjectVirtualAssetPartnerConfig> response = new GenericListResponse<ObjectVirtualAssetPartnerConfig>();
+            try
+            {
+                eResultStatus resultStatus;
+                var partnerConfig = GetObjectVirtualAssetPartnerConfig(groupId, out resultStatus);
+                if (resultStatus == eResultStatus.KEY_NOT_EXIST)
+                {
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    return response;
+                }
+                if (partnerConfig != null)
+                {                    
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    if(partnerConfig.ObjectVirtualAssets?.Count > 0)
+                    {
+                        response.Objects.Add(partnerConfig);
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                log.Error($"Error while getting GetObjectVirtualAssetPartnerConfiguration for group {groupId}. exc {exc}");
+            }
+
+            return response;
+        }
+
+        internal static Status UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
+        {
+            try
+            {
+                CatalogGroupCache catalogGroupCache = null;
+
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling UpdateObjectVirtualAssetPartnerConfiguration");
+                    return new Status((int)eResponseStatus.Error); ;
+                }
+
+                // 1. foreach ObjectVirtualAssetInfo check that AssetStructId and MetaUd exists
+                foreach (var objectVirtualAsset in partnerConfigToUpdate.ObjectVirtualAssets)
+                {
+                    if (!catalogGroupCache.AssetStructsMapById.ContainsKey(objectVirtualAsset.AssetStructId))
+                    {
+                        log.Error($"AssetStructDoesNotExist {objectVirtualAsset.AssetStructId}. groupId: {groupId}");
+                        return new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                    }
+
+                    if (!catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAsset.MetaId))
+                    {
+                        log.Error($"MetaDoesNotExist {objectVirtualAsset.MetaId}. groupId: {groupId}");
+                        return new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
+                    }
+                }
+
+                // upsert GeneralPartnerConfig            
+                if (!ApiDAL.UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfigToUpdate))
+                {
+                    log.Error($"Error while update objectVirtualAsset. groupId: {groupId}");
+                    return new Status((int)eResponseStatus.Error); ;
+                }
+
+                string invalidationKey = LayeredCacheKeys.GetObjectVirtualAssetPartnerConfigInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for ObjectVirtualAssetPartnerConfig with invalidationKey: {0}", invalidationKey);
+                }
+
+                return new Status(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"UpdateObjectVirtualAssetPartnerConfiguration failed ex={ex}, groupId={groupId}");
+                return new Status(eResponseStatus.Error);
+
+            }
+        }
+
+        internal static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
+        {
+            GenericListResponse<GeneralPartnerConfig> response = new GenericListResponse<GeneralPartnerConfig>();
+            var generalPartnerConfig = GetGeneralPartnerConfig(groupId);
+            if (generalPartnerConfig != null)
+            {
+                response.Objects.Add(generalPartnerConfig);
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
+
+        internal static Status UpdateGeneralPartnerConfig(int groupId, GeneralPartnerConfig partnerConfigToUpdate)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                bool shouldInvalidateRegions = false;
+
+                // check for MainLanguage valid
+                if (partnerConfigToUpdate.MainLanguage.HasValue)
+                {
+                    if (!IsValidLanguageId(groupId, partnerConfigToUpdate.MainLanguage.Value))
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. MainLanguage {0}, groupId: {1}", partnerConfigToUpdate.MainLanguage.Value, groupId);
+                        response.Set((int)eResponseStatus.InvalidLanguage, eResponseStatus.InvalidLanguage.ToString());
+                        return response;
+                    }
+                }
+
+                // check for SecondaryLanguages valid
+                if (partnerConfigToUpdate.SecondaryLanguages != null && partnerConfigToUpdate.SecondaryLanguages.Count > 0)
+                {
+                    foreach (var secondaryLanguageId in partnerConfigToUpdate.SecondaryLanguages)
+                    {
+                        if (!IsValidLanguageId(groupId, secondaryLanguageId))
+                        {
+                            log.ErrorFormat("Error while update generalPartnerConfig. SecondaryLanguageId {0}, groupId: {1}", secondaryLanguageId, groupId);
+                            response.Set((int)eResponseStatus.InvalidLanguage, eResponseStatus.InvalidLanguage.ToString());
+                            return response;
+                        }
+                    }
+                }
+
+                // check for MainCurrency valid
+                if (partnerConfigToUpdate.MainCurrency.HasValue)
+                {
+                    if (!IsValidCurrencyId(groupId, partnerConfigToUpdate.MainCurrency.Value))
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. MainCurrencyId {0}, groupId: {1}", partnerConfigToUpdate.MainCurrency.Value, groupId);
+                        response.Set((int)eResponseStatus.InvalidCurrency, eResponseStatus.InvalidCurrency.ToString());
+                        return response;
+                    }
+                }
+
+                // check for SecondaryCurrencys valid
+                if (partnerConfigToUpdate.SecondaryCurrencies != null && partnerConfigToUpdate.SecondaryCurrencies.Count > 0)
+                {
+                    foreach (var secondaryCurrencyId in partnerConfigToUpdate.SecondaryCurrencies)
+                    {
+                        if (!IsValidCurrencyId(groupId, secondaryCurrencyId))
+                        {
+                            log.ErrorFormat("Error while update generalPartnerConfig. SecondaryCurrency {0}, groupId: {1}", secondaryCurrencyId, groupId);
+                            response.Set((int)eResponseStatus.InvalidCurrency, eResponseStatus.InvalidCurrency.ToString());
+                            return response;
+                        }
+                    }
+                }
+
+                if (partnerConfigToUpdate.HouseholdLimitationModule.HasValue)
+                {
+                    var limitationsManagerResponse = Core.Domains.Module.GetDLMList(groupId);
+                    if (limitationsManagerResponse != null && limitationsManagerResponse.HasObjects() &&
+                        limitationsManagerResponse.Objects.Count(x => x.domianLimitID == partnerConfigToUpdate.HouseholdLimitationModule.Value) == 0)
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. HouseholdLimitationModule {0} not exist in groupId: {1}", partnerConfigToUpdate.HouseholdLimitationModule.Value, groupId);
+                        response.Set((int)eResponseStatus.DlmNotExist, eResponseStatus.DlmNotExist.ToString());
+                        return response;
+                    }
+                }
+
+                if (partnerConfigToUpdate.DefaultRegion.HasValue)
+                {
+                    var defaultRegion = ApiLogic.Api.Managers.RegionManager.GetRegion(groupId, partnerConfigToUpdate.DefaultRegion.Value);
+                    if (defaultRegion == null)
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. DefaultRegion {0} not exist in groupId: {1}", partnerConfigToUpdate.DefaultRegion.Value, groupId);
+                        response.Set((int)eResponseStatus.RegionDoesNotExist, eResponseStatus.DlmNotExist.ToString());
+                        return response;
+                    }
+                    else
+                    {
+                        CatalogGroupCache catalogGroupCache;
+                        shouldInvalidateRegions = (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache)
+                            && defaultRegion.id != catalogGroupCache.DefaultRegion);
+                    }
+                }
+
+                // upsert GeneralPartnerConfig            
+                if (!ApiDAL.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate))
+                {
+                    log.ErrorFormat("Error while update generalPartnerConfig. groupId: {0}", groupId);
+                    return response;
+                }
+
+                string invalidationKey = LayeredCacheKeys.GetGeneralPartnerConfigInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for generalPartnerConfig with invalidationKey: {0}", invalidationKey);
+                }
+
+                invalidationKey = LayeredCacheKeys.GetCatalogGroupCacheInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
+                }
+
+                if (shouldInvalidateRegions)
+                {
+                    ApiLogic.Api.Managers.RegionManager.InvalidateRegions(groupId);
+                }
+
+                response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("UpdateDeviceConcurrencyPriority failed ex={0}, groupId={1}", ex, groupId);
+            }
+
+            return response;
+        }
+
+        internal static List<LanguageObj> GetAllLanguages(int groupId)
+        {
+            List<LanguageObj> languages = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetAllLanguageListKey();
+
+                if (!LayeredCache.Instance.Get<List<LanguageObj>>(key,
+                                                              ref languages,
+                                                              APILogic.Utils.GetAllLanguagesList,
+                                                              new Dictionary<string, object>(),
+                                                              groupId,
+                                                              LayeredCacheConfigNames.GET_ALL_LANGUAGE_LIST_LAYERED_CACHE_CONFIG_NAME))
+                {
+                    log.ErrorFormat("Failed getting language list by Ids from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetAllLanguagesList for groupId: {0}, ex: {1}", groupId, ex);
+            }
+
+            return languages;
+        }
+
+        internal static List<Currency> GetCurrencyList(int groupId)
+        {
+            List<Currency> currencies = null;
+            try
+            {
+                int defaultGroupCurrencyId = 0;
+                if (LayeredCache.Instance.Get<int>(LayeredCacheKeys.GetGroupDefaultCurrencyKey(groupId), ref defaultGroupCurrencyId, GetGroupDefaultCurrency, new Dictionary<string, object>() { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_DEFAULT_GROUP_CURRENCY_LAYERED_CACHE_CONFIG_NAME) && defaultGroupCurrencyId > 0)
+                {
+                    DataTable dt = null;
+                    if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
+                                                            LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        currencies = new List<Currency>();
+                        Currency currency;
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            currency = new Currency()
+                            {
+                                m_nCurrencyID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
+                                m_sCurrencyName = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                                m_sCurrencyCD2 = ODBCWrapper.Utils.GetSafeStr(dr, "code2"),
+                                m_sCurrencyCD3 = ODBCWrapper.Utils.GetSafeStr(dr, "code3"),
+                                m_sCurrencySign = ODBCWrapper.Utils.GetSafeStr(dr, "currency_sign")
+                            };
+
+                            currencies.Add(currency);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetCurrencyList, groupId: {0}, ex: {1}", groupId, ex);
+            }
+
+            return currencies;
+        }
+
+        internal static bool GetGroupDefaultCurrency(int groupId, ref string currencyCode)
+        {
+            bool res = false;
+            try
+            {
+                int defaultGroupCurrencyId = 0;
+                if (LayeredCache.Instance.Get<int>(LayeredCacheKeys.GetGroupDefaultCurrencyKey(groupId), ref defaultGroupCurrencyId, GetGroupDefaultCurrency, new Dictionary<string, object>() { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_DEFAULT_GROUP_CURRENCY_LAYERED_CACHE_CONFIG_NAME) && defaultGroupCurrencyId > 0)
+                {
+                    DataTable dt = null;
+                    if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
+                                                            LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        currencyCode = (from row in dt.AsEnumerable()
+                                        where (Int64)row["ID"] == defaultGroupCurrencyId
+                                        select row.Field<string>("CODE3")).FirstOrDefault();
+                        res = !string.IsNullOrEmpty(currencyCode);
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupDefaultCurrency, groupId: {0}", groupId), ex);
+            }
+
+            return res;
+
+        }
+
+        internal static bool IsValidCurrencyCode(int groupId, string currencyCode3)
+        {
+            bool res = false;
+            if (string.IsNullOrEmpty(currencyCode3))
+            {
+                return res;
+            }
+
+            try
+            {
+                DataTable dt = null;
+                if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
+                                                        LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = (from row in dt.AsEnumerable()
+                           where ((string)row["CODE3"]).ToUpper() == currencyCode3.ToUpper()
+                           select row).Count() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed IsValidCurrencyCode, groupId: {0}, currencyCode: {1}", groupId, currencyCode3), ex);
+            }
+
+            return res;
+        }
+
+        internal static ObjectVirtualAssetInfo GetObjectVirtualAssetInfo(int groupId, ObjectVirtualAssetInfoType objectVirtualAssetInfoType)
+        {
+            ObjectVirtualAssetInfo objectVirtualAssetInfo = null;
+
+            var objectVirtualAssetPartnerConfig = GetObjectVirtualAssetPartnerConfiguration(groupId);
+            if (objectVirtualAssetPartnerConfig.HasObjects())
+            {
+                objectVirtualAssetInfo = objectVirtualAssetPartnerConfig.Objects[0].ObjectVirtualAssets.FirstOrDefault(x => x.Type == objectVirtualAssetInfoType);
+            }
+            
+            return objectVirtualAssetInfo;
+        }
+
+        #endregion
+
+        #region private methods
+        private static GeneralPartnerConfig GetGeneralPartnerConfig(int groupId)
+        {
+            GeneralPartnerConfig generalPartnerConfig = null;
+
+            try
+            {
+                string key = LayeredCacheKeys.GetGeneralPartnerConfig(groupId);
+                List<string> configInvalidationKey = new List<string>() { LayeredCacheKeys.GetGeneralPartnerConfigInvalidationKey(groupId) };
+                if (!LayeredCache.Instance.Get<GeneralPartnerConfig>(key,
+                                                          ref generalPartnerConfig,
+                                                          GetGeneralPartnerConfigDB,
+                                                          new Dictionary<string, object>() { { "groupId", groupId } },
+                                                          groupId,
+                                                          LayeredCacheConfigNames.GET_GENERAL_PARTNER_CONFIG,
+                                                          configInvalidationKey))
+                {
+                    log.ErrorFormat("Failed getting GetGeneralPartnerConfig from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGeneralPartnerConfig for groupId: {0}", groupId), ex);
+            }
+
+            return generalPartnerConfig;
+        }
+
+        private static Tuple<GeneralPartnerConfig, bool> GetGeneralPartnerConfigDB(Dictionary<string, object> funcParams)
+        {
+            GeneralPartnerConfig generalPartnerConfig = null;
+
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue)
+                {
+                    DataSet ds = ApiDAL.GetGeneralPartnerConfig(groupId.Value);
+                    if (ds != null && ds.Tables != null && ds.Tables.Count == 3)
+                    {
+                        DataTable dt = ds.Tables[0];
+                        if (dt.Rows.Count > 0)
+                        {
+                            generalPartnerConfig = new GeneralPartnerConfig()
+                            {
+                                DateFormat = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "date_email_format"),
+                                HouseholdLimitationModule = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "max_device_limit"),
+                                MailSettings = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_settings"),
+                                MainCurrency = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "CURRENCY_ID"),
+                                PartnerName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "GROUP_NAME"),
+                                MainLanguage = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "LANGUAGE_ID")
+                            };
+
+                            int? deleteMediaPolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DELETE_MEDIA_POLICY");
+                            int? downgradePolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DOWNGRADE_POLICY");
+                            int? defaultRegion = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DEFAULT_REGION");
+                            int? enableRegionFiltering = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "IS_REGIONALIZATION_ENABLED");
+
+                            if (deleteMediaPolicy.HasValue)
+                            {
+                                generalPartnerConfig.DeleteMediaPolicy = (DeleteMediaPolicy)deleteMediaPolicy.Value;
+                            }
+
+                            if (downgradePolicy.HasValue)
+                            {
+                                generalPartnerConfig.DowngradePolicy = (DowngradePolicy)downgradePolicy.Value;
+                            }
+
+                            if (enableRegionFiltering.HasValue)
+                            {
+                                generalPartnerConfig.EnableRegionFiltering = enableRegionFiltering.Value == 1;
+                            }
+
+                            if (defaultRegion.HasValue && defaultRegion.Value > 0)
+                            {
+                                generalPartnerConfig.DefaultRegion = defaultRegion.Value;
+                            }
+                        }
+
+                        dt = ds.Tables[1];
+                        if (dt.Rows.Count > 0)
+                        {
+                            generalPartnerConfig.SecondaryLanguages = new List<int>();
+
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                generalPartnerConfig.SecondaryLanguages.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "LANGUAGE_ID"));
+                            }
+                        }
+
+                        dt = ds.Tables[2];
+                        if (dt.Rows.Count > 0)
+                        {
+                            generalPartnerConfig.SecondaryCurrencies = new List<int>();
+
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                generalPartnerConfig.SecondaryCurrencies.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGeneralPartnerConfig failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<GeneralPartnerConfig, bool>(generalPartnerConfig, generalPartnerConfig != null);
+        }
+
+        private static ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfig(int groupId, out eResultStatus resultStatus)
+        {
+            resultStatus = eResultStatus.ERROR;
+            ObjectVirtualAssetPartnerConfig partnerConfig = null;
+
+            try
+            {
+                string key = LayeredCacheKeys.GetObjectVirtualAssetPartnerConfig(groupId);
+                List<string> configInvalidationKey = new List<string>() { LayeredCacheKeys.GetObjectVirtualAssetPartnerConfigInvalidationKey(groupId) };
+                if (!LayeredCache.Instance.Get<ObjectVirtualAssetPartnerConfig>(key,
+                                                          ref partnerConfig,
+                                                          GetObjectVirtualAssetPartnerConfigDB,
+                                                          new Dictionary<string, object>() { { "groupId", groupId } },
+                                                          groupId,
+                                                          LayeredCacheConfigNames.GET_OBJECT_VIRTUAL_ASSET_PARTNER_CONFIG,
+                                                          configInvalidationKey))
+                {
+                    log.ErrorFormat("Failed getting GetObjectVirtualAssetPartnerConfig from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+                else
+                {
+                    if (partnerConfig == null)
+                    {
+                        resultStatus = eResultStatus.KEY_NOT_EXIST;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetObjectVirtualAssetPartnerConfig for groupId: {0}", groupId), ex);
+            }
+
+            return partnerConfig;
+        }
+
+        private static Tuple<ObjectVirtualAssetPartnerConfig, bool> GetObjectVirtualAssetPartnerConfigDB(Dictionary<string, object> funcParams)
+        {
+            ObjectVirtualAssetPartnerConfig generalPartnerConfig = null;
+            eResultStatus resultStatus = eResultStatus.ERROR;
+
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue)
+                {
+                    generalPartnerConfig = ApiDAL.GetObjectVirtualAssetPartnerConfiguration(groupId.Value, out resultStatus);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error($"GetObjectVirtualAssetPartnerConfigDB failed, parameters : {string.Join(";", funcParams.Keys)}, ex : {ex}");
+            }
+            return new Tuple<ObjectVirtualAssetPartnerConfig, bool>(generalPartnerConfig, resultStatus != eResultStatus.ERROR);
+        }
+
+        private static bool IsValidLanguageId(int groupId, int languageId)
+        {
+            bool res = false;
+            if (languageId <= 0)
+            {
+                return res;
+            }
+
+            try
+            {
+                List<LanguageObj> languageList = GetAllLanguages(groupId);
+                if (languageList == null && languageList.Count == 0)
+                {
+                    return res;
+                }
+
+                res = languageList.Count(x => x.ID == languageId) > 0;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed IsValidLanguageId, groupId: {0}, languageId: {1}, ex: {2}", groupId, languageId, ex);
+            }
+
+            return res;
+        }
+
+        private static bool IsValidCurrencyId(int groupId, int currencyId)
+        {
+            bool res = false;
+            if (currencyId <= 0)
+            {
+                return res;
+            }
+
+            try
+            {
+                DataTable dt = null;
+                if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
+                                                        LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = (from row in dt.AsEnumerable()
+                           where ((long)row["id"]) == (long)currencyId
+                           select row).Count() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed IsValidCurrencyId, groupId: {0}, currencyCode: {1}", groupId, currencyId), ex);
+            }
+
+            return res;
+        }
+
+        private static Tuple<DataTable, bool> GetAllCurrencies(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            DataTable dt = null;
+            try
+            {
+                dt = ConditionalAccessDAL.GetAllCurrencies();
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAllCurrencies failed, function parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            res = dt != null;
+            return new Tuple<DataTable, bool>(dt, res);
+        }
+
+        private static Tuple<int, bool> GetGroupDefaultCurrency(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            int groupDefaultCurrencyId = 0;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        groupDefaultCurrencyId = ConditionalAccessDAL.GetGroupDefaultCurrency(groupId.Value);
+                        res = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupDefaultCurrency failed, function parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<int, bool>(groupDefaultCurrencyId, res);
+        }
+        #endregion
+    }
+}

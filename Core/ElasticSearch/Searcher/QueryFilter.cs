@@ -1,0 +1,580 @@
+﻿using ApiObjects.SearchObjects;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace ElasticSearch.Searcher
+{
+    public class QueryFilter
+    {
+        public QueryFilter() { }
+
+        public BaseFilterCompositeType FilterSettings
+        {
+            get;
+            set;
+        }
+
+        public bool IsEmpty()
+        {
+            if (FilterSettings == null)
+            {
+                return true;
+            }
+            else
+            {
+                return FilterSettings.IsEmpty();
+            }
+        }
+
+        public override string ToString()
+        {
+            string sRes = string.Empty;
+
+            if (FilterSettings != null && !FilterSettings.IsEmpty())
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append("\"filter\":{");
+                sb.Append(FilterSettings.ToString());
+                sb.Append("}");
+                sRes = sb.ToString();
+            }
+
+            return sRes;
+        }
+    }
+
+    #region Interface
+
+    public interface IESTerm
+    {
+        eTermType eType
+        {
+            get;
+        }
+        bool IsEmpty();
+        string ToString();
+    }
+
+    #endregion
+
+    #region Term
+
+    public class ESTerm : IESTerm
+    {
+        public string Value
+        {
+            get;
+            set;
+        }
+        public string Key
+        {
+            get;
+            set;
+        }
+        public eTermType eType
+        {
+            get;
+            protected set;
+        }
+        public bool isNot
+        {
+            get;
+            set;
+        }
+        public float Boost
+        {
+            get;
+            set;
+        }
+
+        bool m_bIsNumeric;
+
+        public ESTerm(bool bIsNumeric)
+        {
+            eType = eTermType.TERM;
+            m_bIsNumeric = bIsNumeric;
+        }
+
+        public bool IsEmpty()
+        {
+            return string.IsNullOrEmpty(Value) || string.IsNullOrEmpty(Key);
+
+        }
+
+        public override string ToString()
+        {
+            if (this.IsEmpty())
+                return string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            if (isNot)
+                sb.Append("{\"not\":");
+
+            sb.Append("{\"term\":{");
+            sb.AppendFormat("\"{0}\":", Key);
+            sb.Append("{");
+
+            if (m_bIsNumeric)
+            {
+                sb.AppendFormat("\"value\":{0}", Value);
+            }
+            else
+            {
+                sb.AppendFormat("\"value\":\"{0}\"", Value);
+            }
+
+            if (Boost > 0.0f)
+            {
+                sb.AppendFormat(",\"boost\":{0}", Boost);
+            }
+
+            sb.Append("}}}");
+
+            if (isNot)
+                sb.Append("}");
+
+            return sb.ToString();
+
+
+            //if(this.IsEmpty())
+            //    return string.Empty;
+
+            //StringBuilder sb = new StringBuilder();
+
+
+            //if (bNot)
+            //    sb.Append(" { \"not\": ");
+
+            //sb.Append("{ \"term\": { \"");
+            //sb.Append(Key);
+            //sb.Append("\": ");
+            //if (m_bIsNumeric)
+            //{
+            //    sb.Append(Value);
+            //}
+            //else
+            //{
+            //    sb.AppendFormat("\"{0}\"", Value);
+            //}
+
+            //if (Boost > 0.0f)
+            //{
+            //    sb.AppendFormat(", \"boost\": {0}", Boost);
+            //}
+
+            //sb.Append(" } }");
+
+            //if (bNot)
+            //    sb.Append("}");
+
+            //return  sb.ToString();
+
+        }
+    }
+
+    #endregion
+
+    #region Terms
+
+    public class ESTerms : IESTerm
+    {
+        public eTermType eType
+        {
+            get;
+            protected set;
+        }
+        public List<string> Value
+        {
+            get;
+            protected set;
+        }
+        public string Key
+        {
+            get;
+            set;
+        }
+        public bool isNot
+        {
+            get;
+            set;
+        }
+
+        bool m_bIsNumeric;
+
+        public ESTerms(bool bIsNumeric)
+        {
+            eType = eTermType.TERMS;
+            Value = new List<string>();
+            m_bIsNumeric = bIsNumeric;
+        }
+
+        public ESTerms(string key, params long[] terms)
+        {
+            eType = eTermType.TERMS;
+            Key = key;
+            Value = new List<string>();
+            var termsStr = terms.Select(t => t.ToString());
+            Value.AddRange(termsStr);
+            m_bIsNumeric = true;
+        }
+
+
+        public static ESTerms GetSimpleNumericTerm<T>(string key, IEnumerable<T> terms)
+        {
+            return GetSimpleTerm(key, true, terms);
+        }
+
+        public static ESTerms GetSimpleStringTerm<T>(string key, IEnumerable<T> terms)
+        {
+            return GetSimpleTerm(key, false, terms);
+        }
+
+        private static ESTerms GetSimpleTerm<T>(string key, bool isNumeric, IEnumerable<T> terms)
+        {
+            var esTerm = new ESTerms(isNumeric);
+            esTerm.Key = key;
+            var strTerms = terms.Select(t => t.ToString()).ToList();
+            esTerm.Value.AddRange(strTerms);
+            return esTerm;
+        }
+
+
+
+        public bool IsEmpty()
+        {
+            return (string.IsNullOrEmpty(Key) || Value == null || Value.Count == 0) ? true : false;
+        }
+
+        public override string ToString()
+        {
+            if (this.IsEmpty())
+                return string.Empty;
+
+            // remove duplications
+            var distinctValue = Value.Distinct().ToList();
+            this.Value.Clear();
+            this.Value.AddRange(distinctValue);
+
+            StringBuilder sb = new StringBuilder();
+
+            if (isNot)
+                sb.Append("{\"not\":");
+
+            sb.Append("{\"terms\":{\"");
+            sb.Append(Key);
+            sb.Append("\":[");
+            if (m_bIsNumeric)
+            {
+                sb.Append(Value.Aggregate((current, next) => current + "," + next));
+
+            }
+            else
+            {
+                string[] arrValues = new string[Value.Count];
+
+                for (int i = 0; i < Value.Count; i++)
+                {
+                    arrValues[i] = string.Format("\"{0}\"", Value[i]);
+                }
+
+                sb.Append(arrValues.Aggregate((current, next) => current + "," + next));
+            }
+            sb.Append("]}}");
+
+            if (isNot)
+                sb.Append("}");
+
+            return sb.ToString();
+
+        }
+    }
+
+    #endregion
+
+    #region Prefix
+
+    /// <summary>
+    /// Prefix filter part
+    /// </summary>
+    public class ESPrefix : IESTerm
+    {
+        #region IESTerm Members
+
+        public eTermType eType
+        {
+            get
+            {
+                return eTermType.PREFIX;
+            }
+        }
+
+        #endregion
+
+        #region Properties
+
+        public string Value
+        {
+            get;
+            set;
+        }
+        public string Key
+        {
+            get;
+            set;
+        }
+
+        public bool isNot
+        {
+            get;
+            set;
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public bool IsEmpty()
+        {
+            return string.IsNullOrEmpty(Value) || string.IsNullOrEmpty(Key);
+        }
+
+        /// <summary>
+        /// Creates a filter object for ES search requests
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            if (this.IsEmpty())
+            {
+                return string.Empty;
+            }
+
+            StringBuilder sb = new StringBuilder();
+
+            if (isNot)
+            {
+                sb.Append("{\"not\":");
+            }
+
+            sb.Append("{\"prefix\":{");
+            sb.AppendFormat("\"{0}\": \"{1}\"", Key, Value);
+            sb.Append("}}");
+
+            if (isNot)
+            {
+                sb.Append("}");
+            }
+
+            return sb.ToString();
+        }
+
+        #endregion
+    }
+
+    #endregion
+
+    #region Range
+
+    public class ESRange : IESTerm
+    {
+        public eTermType eType
+        {
+            get;
+            protected set;
+        }
+        public List<KeyValuePair<eRangeComp, string>> Value
+        {
+            get;
+            protected set;
+        }
+        public string Key
+        {
+            get;
+            set;
+        }
+        public bool isNot
+        {
+            get;
+            set;
+        }
+
+        bool m_bIsNumeric;
+
+        public ESRange(bool bIsNumeric)
+        {
+            eType = eTermType.RANGE;
+            Value = new List<KeyValuePair<eRangeComp, string>>();
+            m_bIsNumeric = bIsNumeric;
+        }
+
+        public ESRange(bool IsNumeric, string key, eRangeComp comp, string value) : this(IsNumeric)
+        {
+            this.Key = key;
+            this.Value.Add(new KeyValuePair<eRangeComp, string>(comp, value));
+        }
+
+        public bool IsEmpty()
+        {
+            return string.IsNullOrEmpty(Key) || Value == null || Value.Count == 0;
+        }
+
+        public override string ToString()
+        {
+            if (this.IsEmpty())
+                return string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            if (isNot)
+                sb.Append("{\"not\":");
+
+            sb.Append("{\"range\":{\"");
+            sb.Append(Key);
+            sb.Append("\":{");
+            List<string> tempList = new List<string>();
+
+            if (m_bIsNumeric)
+            {
+                foreach (var item in Value)
+                {
+                    tempList.Add(string.Format("\"{0}\":{1}", item.Key.ToString().ToLower(), item.Value));
+                }
+                sb.Append(tempList.Aggregate((current, next) => current + "," + next));
+
+            }
+            else
+            {
+                foreach (var item in Value)
+                {
+                    tempList.Add(string.Format("\"{0}\":\"{1}\"", item.Key.ToString().ToLower(), item.Value));
+                }
+                sb.Append(tempList.Aggregate((current, next) => current + "," + next));
+            }
+            sb.Append("}}}");
+
+            if (isNot)
+                sb.Append("}");
+
+            return sb.ToString();
+
+        }
+    }
+
+    #endregion
+
+    #region Wildcard
+
+    public class ESWildcard : ESTerm
+    {
+        public ESWildcard() : base(false)
+        {
+            this.eType = eTermType.WILDCARD;
+        }
+
+        public override string ToString()
+        {
+            if (this.IsEmpty())
+                return string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            if (isNot)
+                sb.Append("{\"not\":");
+
+            sb.Append("{\"wildcard\":{");
+            sb.AppendFormat("\"{0}\":", Key);
+            sb.Append("{");
+            sb.AppendFormat("\"value\":\"{0}\"", Value);
+
+            if (Boost > 0.0f)
+            {
+                sb.AppendFormat(",\"boost\":{0}", Boost);
+            }
+
+            sb.Append("}}}");
+
+            if (isNot)
+                sb.Append("}");
+
+            return sb.ToString();
+        }
+    }
+
+    #endregion
+
+    #region Exists
+
+    public class ESExists : IESTerm
+    {
+        public ESExists()
+        {
+            this.eType = eTermType.EXISTS;
+        }
+
+        public eTermType eType { get; protected set; }
+
+        public bool isNot { get; set; }
+        public string Value { get; set; }
+
+        public bool IsEmpty()
+        {
+            return string.IsNullOrEmpty(Value);
+        }
+
+        public override string ToString()
+        {
+            if (this.IsEmpty())
+                return string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            if (isNot)
+                sb.Append("{\"not\":");
+
+            sb.Append("{\"exists\":{");
+            sb.AppendFormat("\"field\":\"{0}\"", Value);
+
+            sb.Append("}}");
+
+            if (isNot)
+                sb.Append("}");
+
+            return sb.ToString();
+        }
+
+    }
+
+    #endregion
+
+    public enum eTermType
+    {
+        TERM,
+        TERMS,
+        RANGE,
+        WILDCARD,
+        BOOL_QUERY,
+        MULTI_MATCH,
+        EXISTS,
+        MATCH,
+        MATCH_ALL,
+        PREFIX,
+        FUNCTION_SCORE
+    }
+
+    public enum eRangeComp
+    {
+        GT,
+        LT,
+        GTE,
+        LTE
+    }
+    public enum eFilterRelation
+    {
+        AND,
+        OR
+    }
+}

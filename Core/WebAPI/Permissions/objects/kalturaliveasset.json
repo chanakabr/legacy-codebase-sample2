@@ -1,0 +1,82 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaLiveAsset_enableCdvrState_USAGE",
+      "object": "KalturaLiveAsset",
+      "parameter": "enableCdvrState",
+      "action": "USAGE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaLiveAsset_enableCatchUpState_USAGE",
+      "object": "KalturaLiveAsset",
+      "parameter": "enableCatchUpState",
+      "action": "USAGE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaLiveAsset_enableStartOverState_USAGE",
+      "object": "KalturaLiveAsset",
+      "parameter": "enableStartOverState",
+      "action": "USAGE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaLiveAsset_bufferCatchUpSetting_USAGE",
+      "object": "KalturaLiveAsset",
+      "parameter": "bufferCatchUpSetting",
+      "action": "USAGE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaLiveAsset_bufferTrickPlaySetting_USAGE",
+      "object": "KalturaLiveAsset",
+      "parameter": "bufferTrickPlaySetting",
+      "action": "USAGE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaLiveAsset_enableRecordingPlaybackNonEntitledChannelState_USAGE",
+      "object": "KalturaLiveAsset",
+      "parameter": "enableRecordingPlaybackNonEntitledChannelState",
+      "action": "USAGE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaLiveAsset_enableTrickPlayState_USAGE",
+      "object": "KalturaLiveAsset",
+      "parameter": "enableTrickPlayState",
+      "action": "USAGE",
+      "type": "Parameter"
+    }
+  ],
+  "type": "Parameter"
+}

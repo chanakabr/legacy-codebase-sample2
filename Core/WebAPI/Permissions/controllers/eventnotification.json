@@ -1,0 +1,29 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "eventNotification_Update",
+      "service": "eventNotification",
+      "action": "Update",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "eventNotification_List",
+      "service": "eventNotification",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

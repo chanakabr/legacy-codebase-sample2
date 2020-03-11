@@ -1,0 +1,1263 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Data;
+using KLogMonitor;
+using System.Reflection;
+using System.Data.SqlClient;
+using System.Text.RegularExpressions;
+using System.Linq;
+using ConfigurationManager;
+using System.Globalization;
+using CachingProvider.LayeredCache;
+
+namespace ODBCWrapper
+{
+    public class Utils
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        
+        private const string DB_SP_ROUTING_KEY = "db_sp_routing";
+        private const int DB_SP_ROUTING_EXPIRY_HOURS = 24;        
+        private const string REGEX_TABLE_NAME = @"\bjoin\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bfrom\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bupdate\s+(?<Update>[a-zA-Z\._\d]+)\b|\binsert\s+(?:\binto\b)?\s+(?<Insert>[a-zA-Z\._\d]+)\b|\btruncate\s+table\s+(?<Delete>[a-zA-Z\._\d]+)\b|\bdelete\s+(?:\bfrom\b)?\s+(?<Delete>[a-zA-Z\._\d]+)\b";
+        public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
+        static List<string> dbWriteLockParams = ApplicationConfiguration.Current.DatabaseConfiguration.GetWriteLockParameters();
+        public static string dBVersionPrefix = 
+            (!string.IsNullOrEmpty(ApplicationConfiguration.Current.DatabaseConfiguration.Prefix.Value)) ? 
+                string.Concat("__", ApplicationConfiguration.Current.DatabaseConfiguration.Prefix.Value, "__") : 
+                string.Empty;
+        static bool UseReadWriteLockMechanism = ApplicationConfiguration.Current.DatabaseConfiguration.WriteLockUse.Value;        
+        private static object locker = new object();        
+        [ThreadStatic]
+        public static bool UseWritable;
+        public const string DATABASE_ERROR_DURING_SESSION = "DATABASE_ERROR_DURING_SESSION";
+
+        public static string GetSafeStr(object o)
+        {
+            if (o == DBNull.Value)
+                return "";
+            else if (o == null)
+                return "";
+            else
+                return o.ToString();
+        }
+
+        public static int GetIntSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return int.Parse(dr[sField].ToString());
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static int? GetNullableInt(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return int.Parse(dr[sField].ToString());
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static long? GetNullableLong(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return Int64.Parse(dr[sField].ToString());
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static int GetIntSafeVal(DataRowView dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return int.Parse(dr[sField].ToString());
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static Byte GetByteSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                {
+                    return Convert.ToByte(dr[sField]);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static double GetDoubleSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return double.Parse(dr[sField].ToString());
+                return -1.0;
+            }
+            catch
+            {
+                return -1.0;
+            }
+        }
+
+        public static string GetSafeStr(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return dr[sField].ToString();
+                return string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public static string GetSafeStr(DataRowView dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return dr[sField].ToString();
+                return string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public static Int64 GetLongSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                {
+                    return Convert.ToInt64(dr[sField]);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static Int64 GetLongSafeVal(DataRowView dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                {
+                    return Convert.ToInt64(dr[sField]);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static Int64 GetLongSafeVal(DataRow dr, string sField, Int64 returnThisInCaseOfFail)
+        {
+            Int64 res = returnThisInCaseOfFail;
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    res = Int64.Parse(dr[sField].ToString());
+                return res;
+            }
+            catch
+            {
+                return res;
+            }
+        }
+
+        public static object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, Int32 nCachSec)
+        {
+            return GetTableSingleVal(sTable, sFieldName, nID, nCachSec, "");
+        }
+
+        public static object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, Int32 nCachSec, string sConnectionKey)
+        {
+            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, nCachSec, sConnectionKey);
+        }
+
+        public static object GetTableSingleVal(string sTable, string sFieldName, long nID, Int32 nCachSec, string sConnectionKey)
+        {
+            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, nCachSec, sConnectionKey);
+        }
+
+        public static object GetTableSingleVal(string sTable, string sFieldName, Int32 nID)
+        {
+            return GetTableSingleVal(sTable, sFieldName, nID, "");
+        }
+
+        public static object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, string sConnectionKey)
+        {
+            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, sConnectionKey);
+        }
+
+        public static object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal)
+        {
+            return GetTableSingleVal(sTable, sFieldName, sWhereField, sWhereSign, sWhereVal, "");
+        }
+
+        public static object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, string sConnectionKey)
+        {
+            return GetTableSingleVal(sTable, sFieldName, sWhereField, sWhereSign, sWhereVal, -1, sConnectionKey);
+        }
+
+        public static object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, Int32 nCachSec)
+        {
+            return GetTableSingleVal(sTable, sFieldName, sWhereField, sWhereSign, sWhereVal, nCachSec, "");
+        }
+
+        public static object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, Int32 nCachSec, string sConnectionKey)
+        {
+            object oRet = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            if (nCachSec != -1)
+                selectQuery.SetCachedSec(nCachSec);
+            if (sConnectionKey != "")
+                selectQuery.SetConnectionKey(sConnectionKey);
+
+            //selectQuery += "select " + sFieldName + " from " + sTable + " where ";
+            selectQuery += "select " + sFieldName + " from " + sTable + " where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sWhereField, sWhereSign, sWhereVal);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    oRet = selectQuery.Table("query").DefaultView[0].Row[sFieldName];
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return oRet;
+        }
+
+        public static string ReWriteTableValue(string sVal)
+        {
+            double number;
+            if (double.TryParse(sVal, out number))
+            {
+                return String.Format("{0:0.##}", number);
+            }
+            else
+            {
+                return sVal;
+            }
+        }
+
+        public static DateTime GetCurrentDBTime()
+        {
+            object t = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new DataSetSelectQuery();
+            selectQuery += "select getdate() as t from accounts";
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    t = selectQuery.Table("query").DefaultView[0].Row["t"];
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            if (t != null && t != DBNull.Value)
+                return (DateTime)t;
+            return new DateTime();
+        }
+
+        public static double GetDoubleSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
+        {
+            try
+            {
+                if (selectQuery.Table("query").DefaultView[nIndex].Row[sField] != null &&
+                    selectQuery.Table("query").DefaultView[nIndex].Row[sField] != DBNull.Value)
+                    return double.Parse(selectQuery.Table("query").DefaultView[nIndex].Row[sField].ToString());
+                return 0.0;
+            }
+            catch
+            {
+                return 0.0;
+            }
+        }
+
+        public static string GetStrSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
+        {
+            try
+            {
+                if (selectQuery.Table("query").DefaultView[nIndex].Row[sField] != null &&
+                    selectQuery.Table("query").DefaultView[nIndex].Row[sField] != DBNull.Value)
+                    return selectQuery.Table("query").DefaultView[nIndex].Row[sField].ToString();
+                return "";
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        public static Byte GetByteSafeVal(object o)
+        {
+            try
+            {
+                if (o != null && o != DBNull.Value)
+                {
+                    return Convert.ToByte(o);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static Int32 GetIntSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
+        {
+            try
+            {
+                if (selectQuery.Table("query").DefaultView[nIndex].Row[sField] != null &&
+                    selectQuery.Table("query").DefaultView[nIndex].Row[sField] != DBNull.Value)
+                    return int.Parse(selectQuery.Table("query").DefaultView[nIndex].Row[sField].ToString());
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static Int32 GetIntSafeVal(object o)
+        {
+            try
+            {
+                if (o != null && o != DBNull.Value)
+                {
+                    return Convert.ToInt32(o);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static double GetDoubleSafeVal(object o)
+        {
+            try
+            {
+                if (o != null && o != DBNull.Value)
+                {
+                    return Convert.ToDouble(o);
+                }
+                return 0.0;
+            }
+            catch
+            {
+                return 0.0;
+            }
+        }
+
+        public static Int64 GetLongSafeVal(object o)
+        {
+            try
+            {
+                if (o != null && o != DBNull.Value)
+                {
+                    return Convert.ToInt64(o);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static UInt64 GetUnsignedLongSafeVal(object o)
+        {
+            try
+            {
+                if (o != null && o != DBNull.Value)
+                {
+
+                    return Convert.ToUInt64(o);
+                }
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static DateTime GetDateSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
+        {
+            try
+            {
+                if (selectQuery.Table("query").DefaultView[nIndex].Row[sField] != null &&
+                    selectQuery.Table("query").DefaultView[nIndex].Row[sField] != DBNull.Value)
+                    return (DateTime)(selectQuery.Table("query").DefaultView[nIndex].Row[sField]);
+                return new DateTime(2000, 1, 1);
+            }
+            catch
+            {
+                return new DateTime(2000, 1, 1);
+            }
+        }
+
+        public static DateTime GetDateSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                {
+                    return (DateTime)(dr[sField]);
+                }
+                return new DateTime(2000, 1, 1);
+            }
+            catch
+            {
+                return new DateTime(2000, 1, 1);
+            }
+        }       
+
+        public static DateTime? GetNullableDateSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                {
+                    return (DateTime)(dr[sField]);
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static DateTime GetDateSafeVal(DataRowView dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                {
+                    return (DateTime)(dr[sField]);
+                }
+                return new DateTime(2000, 1, 1);
+            }
+            catch
+            {
+                return new DateTime(2000, 1, 1);
+            }
+        }
+
+        public static DateTime GetDateSafeVal(object o, string format = "M/dd/yyyy h:mm:ss tt")
+        {
+            try
+            {
+                if (o != null && o != DBNull.Value)
+                {
+                    DateTime dt = new DateTime();
+                    //string format = "M/dd/yyyy h:mm:ss tt";
+                    //string format = "dd/MM/yyyy HH:mm:ss";
+
+                    if (DateTime.TryParseExact(o.ToString(), format, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+                    {
+                        return dt;
+                    }
+                    else
+                    {
+                        return (DateTime)(o);
+                    }
+                }
+                return new DateTime(2000, 1, 1);
+            }
+            catch
+            {
+                return new DateTime(2000, 1, 1);
+            }
+        }
+
+        public static string GetDelimitedStringFromDataTable(DataTable dt, string delimiter, string columnName, string prefix, string suffix)
+        {
+            string result = GetDelimitedStringFromDataTable(dt, delimiter, columnName);
+            if (string.IsNullOrEmpty(result) == false && result.Length > 0)
+            {
+                result = prefix + result + suffix;
+            }
+            return result;
+        }
+
+        public static string GetDelimitedStringFromDataTable(DataTable dt, string delimiter, string columnName)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        sb.Append(delimiter);
+                    }
+                    sb.Append(dt.Rows[i][columnName].ToString());
+                }
+            }
+            return sb.ToString();
+        }
+
+        public static string GetTcmConfigValue(string sKey)
+        {
+            string result = string.Empty;
+            try
+            {
+                result = TCMClient.Settings.Instance.GetValue<string>(sKey);
+                if (string.IsNullOrEmpty(result))
+                {
+                    log.Debug($"GetTcmConfigValue - missing key {sKey} or empty result");
+                }
+            }
+            catch (Exception ex)
+            {
+                result = string.Empty;
+                log.Error("Key=" + sKey, ex);
+            }
+            return result;
+        }
+
+        public static int GetIntSafeVal(object o, int returnThisInCaseOfFail)
+        {
+            int temp = 0;
+            int res = returnThisInCaseOfFail;
+            if (o != null)
+            {
+                string s = o.ToString();
+                if (s.Length > 0 && Int32.TryParse(s, out temp))
+                {
+                    res = temp;
+                }
+            }
+
+            return res;
+        }
+
+        public static int GetIntSafeVal(DataRow dr, string sField, int returnThisInCaseOfFail)
+        {
+            int res = returnThisInCaseOfFail;
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    res = int.Parse(dr[sField].ToString());
+                return res;
+            }
+            catch
+            {
+                return res;
+            }
+        }
+
+        /// <summary>
+        /// Extracts an integer value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        public static int ExtractInteger(DataRow p_drSource, string p_sFieldName)
+        {
+            int nResult = 0;
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        nResult = Convert.ToInt32(objValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (nResult);
+        }
+
+        /// <summary>
+        /// Extracts a boolean value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        public static bool ExtractBoolean(DataRow p_drSource, string p_sFieldName)
+        {
+            bool bResult = false;
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        bResult = Convert.ToBoolean(objValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (bResult);
+        }
+
+        /// <summary>
+        /// Extracts a date time value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        public static DateTime ExtractDateTime(DataRow p_drSource, string p_sFieldName)
+        {
+            DateTime dtResult = DateTime.MinValue;
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        dtResult = Convert.ToDateTime(objValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (dtResult);
+        }
+
+        /// <summary>
+        /// Extracts a nullable date time value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        public static DateTime? ExtractNullableDateTime(DataRow p_drSource, string p_sFieldName)
+        {
+            DateTime? dtResult = null;
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        dtResult = Convert.ToDateTime(objValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (dtResult);
+        }
+
+        /// <summary>
+        /// Extracts a dynamic type value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
+        public static string ExtractString(DataRow source, string fieldName)
+        {
+            string sResult = string.Empty;
+
+            try
+            {
+                if (source != null)
+                {
+                    object objValue = source[fieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        sResult = Convert.ToString(objValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (sResult);
+        }
+
+        /// <summary>
+        /// Extracts a dynamic type value from a data row in the most efficient way
+        /// </summary>
+        /// <param name="p_drSource"></param>
+        /// <param name="p_sFieldName"></param>
+        /// <returns></returns>
+        public static T ExtractValue<T>(DataRow p_drSource, string p_sFieldName)
+        {
+            T oResult = default(T);
+
+            try
+            {
+                if (p_drSource != null)
+                {
+                    object objValue = p_drSource[p_sFieldName];
+
+                    if (objValue != null && objValue != DBNull.Value)
+                    {
+                        oResult = (T)Convert.ChangeType(objValue, typeof(T));
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return (oResult);
+        }
+        
+        public static SqlQueryInfo GetSqlDataMonitor(SqlCommand command)
+        {
+            SqlQueryInfo sqlInfo = new SqlQueryInfo();
+
+            if (command != null)
+            {
+                // update db name
+                sqlInfo.Database = command.Connection != null ? command.Connection.Database : "unknown";
+
+                if (command.CommandType == System.Data.CommandType.StoredProcedure)
+                {
+                    // stored procedure
+                    sqlInfo.QueryType = KLogEnums.eDBQueryType.EXECUTE;
+                    sqlInfo.Table = command.CommandText != null ? command.CommandText : "stored_procedure_unknown";
+                }
+                else
+                {
+                    string query = string.Empty;
+                    if (!string.IsNullOrEmpty(command.CommandText))
+                    {
+                        query = command.CommandText.Trim().ToLower();
+
+                        // update query type
+                        if (query.StartsWith("select"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.SELECT;
+                        else if (query.StartsWith("delete"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.DELETE;
+                        else if (query.StartsWith("insert"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.INSERT;
+                        else if (query.StartsWith("update"))
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.UPDATE;
+                        else if (query.StartsWith("set"))
+                        {
+                            sqlInfo.QueryType = KLogEnums.eDBQueryType.COMMAND;
+                            sqlInfo.Table = command.CommandText != null ? command.CommandText : "command unknown";
+                        }
+
+                        // get table name
+                        Regex tableNameReegx = new Regex(REGEX_TABLE_NAME, RegexOptions.Singleline);
+                        var allMatches = tableNameReegx.Matches(query);
+                        if (allMatches != null && allMatches.Count > 0)
+                        {
+                            for (int i = 1; i < allMatches[0].Groups.Count; i++)
+                            {
+                                if (!String.IsNullOrEmpty(allMatches[0].Groups[i].Value))
+                                {
+                                    sqlInfo.Table = allMatches[0].Groups[i].Value;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return sqlInfo;
+        }
+
+        public static DataRow GetTableSingleRow(string tableName, long id, string connectionKey = "", int timeInCache = -1, bool checkStatusAndIsActive = false)
+        {
+            return GetTableSingleRow(tableName, id.ToString(), connectionKey, timeInCache, checkStatusAndIsActive);
+        }
+
+        public static DataRow GetTableSingleRow(string tableName, string id, string connectionKey = "", int timeInCache = -1, bool checkStatusAndIsActive = false)
+        {
+            return GetTableSingleRowByValue(tableName, "ID", id, checkStatusAndIsActive, connectionKey, timeInCache);
+        }
+
+        public static DataRow GetTableSingleRowByValue(string tableName, string columnName, object value,
+            bool checkStatusAndIsActive = false, string connectionKey = "", int timeInCache = -1)
+        {
+            List<KeyValuePair<string, object>> values = new List<KeyValuePair<string, object>>();
+
+            values.Add(new KeyValuePair<string, object>(columnName, value));
+
+            if (checkStatusAndIsActive)
+            {
+                values.Add(new KeyValuePair<string, object>("STATUS", 1));
+                values.Add(new KeyValuePair<string, object>("IS_ACTIVE", 1));
+            }
+
+            return GetTableSingleRowByValues(tableName,
+                values,
+                connectionKey,
+                timeInCache);
+        }
+
+        public static DataRow GetTableSingleRowByValues(string tableName, List<KeyValuePair<string, object>> values, string connectionKey = "", int timeInCache = -1)
+        {
+            DataRow result = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+            if (timeInCache != -1)
+            {
+                selectQuery.SetCachedSec(timeInCache);
+            }
+
+            if (connectionKey != "")
+            {
+                selectQuery.SetConnectionKey(connectionKey);
+            }
+
+            //selectQuery += "select " + sFieldName + " from " + sTable + " where ";
+            selectQuery += "SELECT * FROM " + tableName + " WHERE ";
+
+            for (int i = 0; i < values.Count; i++)
+            {
+                var value = values[i];
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM(value.Key, "=", value.Value);
+
+                if (i < values.Count - 1)
+                {
+                    selectQuery += " AND ";
+                }
+            }
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                var table = selectQuery.Table("query");
+
+                if (table != null && table.DefaultView.Count > 0 && table.Rows != null && table.Rows.Count > 0)
+                {
+                    result = table.Rows[0];
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return result;
+        }
+
+        public static DataRow GetTableSingleRowColumnsByParamValue(string tableName, string paramName, string paramID, List<string> columnsToFetch, string connectionKey = "", int timeInCache = -1)
+        {
+            DataRow result = null;
+            if (columnsToFetch != null && columnsToFetch.Count > 0)
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+                if (timeInCache != -1)
+                {
+                    selectQuery.SetCachedSec(timeInCache);
+                }
+
+                if (!string.IsNullOrEmpty(connectionKey))
+                {
+                    selectQuery.SetConnectionKey(connectionKey);
+                }
+                selectQuery += string.Format("SELECT {0} FROM " + tableName + " WHERE ", string.Join(",", columnsToFetch));
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM(paramName, "=", paramID);
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    var table = selectQuery.Table("query");
+
+                    if (table != null && table.DefaultView.Count > 0 && table.Rows != null && table.Rows.Count > 0)
+                    {
+                        result = table.Rows[0];
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+
+            return result;
+        }
+
+        public static DataTable GetCompleteTable(string tableName, string connectionKey = "", int timeInCache = -1)
+        {
+            DataTable result = null;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+            if (timeInCache != -1)
+            {
+                selectQuery.SetCachedSec(timeInCache);
+            }
+
+            if (connectionKey != "")
+            {
+                selectQuery.SetConnectionKey(connectionKey);
+            }
+
+            selectQuery += "SELECT * FROM " + tableName;
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                var table = selectQuery.Table("query");
+
+                if (table != null && table.DefaultView.Count > 0 && table.Rows != null && table.Rows.Count > 0)
+                {
+                    result = table;
+                }
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return result;
+        }
+
+        public static long? GetLongSafeVal(DataRow dr, string sField, long? returnThisInCaseOfFail)
+        {
+            long? res = returnThisInCaseOfFail;
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    res = Int64.Parse(dr[sField].ToString());
+                return res;
+            }
+            catch
+            {
+                return res;
+            }
+        }
+
+        public static void CheckDBReadWrite(string sKey, object oValue, object executer, bool isWritable, ref bool useWriteable)
+        {
+            //Logger.Logger.Log("DBLock ", "m_bUseWritable is '" + useWriteable + "',For: " + executer, "ODBC_DBLock");
+            //m_bIsWritable || m_bUseWritable
+            if (!useWriteable)
+            {
+                Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
+            }
+
+            DbProceduresRouting dbSpRouting = GetDbProceduresRouting();
+            if (dbSpRouting != null)
+            {
+                string procedureName = (executer as string).ToLower();                
+                if (!string.IsNullOrEmpty(procedureName) && dbSpRouting.ProceduresMapping.ContainsKey(procedureName))
+                {                    
+                    ProcedureRoutingInfo procedureRoutingInfo = dbSpRouting.ProceduresMapping[procedureName];
+                    if (procedureRoutingInfo.VersionsToExclude.Contains(dBVersionPrefix.ToLower()))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        Utils.UseWritable = procedureRoutingInfo.IsWritable;
+                    }                    
+                }
+            }
+                
+            //if (useWriteable) Logger.Logger.Log("DBLock ", "m_bUseWritable changed to '" + Utils.UseWritable + "', for: " + executer, "ODBC_DBLock");            
+        }
+
+        public static bool ReadWriteLock(string sKey, object oValue, object executer, bool isWritable)
+        {
+            if (!UseReadWriteLockMechanism)
+            {
+                return true;
+            }
+
+            bool bRet = false;
+            try
+            {
+                string cbKeyPrefix = "DB_WriteLock_";
+
+                //Logger.Logger.Log("DBLock; Executer=" + executer + ", isWritable=" + isWritable, "none", "ODBC_Net");
+                if (dbWriteLockParams != null)
+                {
+                    if (dbWriteLockParams.Any(x => x.ToLower().Equals(sKey.ToLower().TrimStart('@'))))
+                    {
+                        //Couchbase.CouchbaseClient cbClient = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.CACHE);
+                        CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+
+                        // ReadOnly request
+                        if (!isWritable)
+                        {
+                            try
+                            {
+                                if (oValue is System.Collections.IList)
+                                {
+                                    foreach (var val in (oValue as System.Collections.IList))
+                                    {
+                                        //Logger.Logger.Log("DBLock ", "Check lock for " + executer + ", Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                        if (!string.IsNullOrEmpty(cbManager.Get<string>(cbKeyPrefix + val)))
+                                        {
+                                            //Logger.Logger.Log("DBLock ", "Key exist for " + executer + ", Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                            bRet = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                else if (oValue is System.Collections.ICollection)
+                                {
+                                    foreach (var val in (oValue as System.Collections.ICollection))
+                                    {
+                                        //Logger.Logger.Log("DBLock ", "Check lock for " + executer + ", Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                        if (!string.IsNullOrEmpty(cbManager.Get<string>(cbKeyPrefix + val)))
+                                        {
+                                            //Logger.Logger.Log("DBLock ", "Key exist for " + executer + ", Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                            bRet = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    //Logger.Logger.Log("DBLock ", "Check lock for " + executer + ", Key: " + cbKeyPrefix + oValue, "ODBC_DBLock");
+                                    bool b = !string.IsNullOrEmpty(cbManager.Get<string>(cbKeyPrefix + oValue.ToString()));
+                                    if (b)
+                                    {
+                                        //Logger.Logger.Log("DBLock ", "Key exist for " + executer + ", Key: " + cbKeyPrefix + oValue, "ODBC_DBLock");
+                                        bRet = true;
+                                    }
+                                }
+                            }
+                            catch 
+                            {
+                                //Logger.Logger.Log("DBLock; Executer=" + executer + ", isWritable=" + isWritable, ex.ToString(), "ODBC_DBLock");
+                            }
+                        }
+
+                        // Write request
+                        else
+                        {
+                            try
+                            {
+                                if (oValue is System.Collections.IList)
+                                {
+                                    foreach (string val in oValue as IList<string>)
+                                    {
+                                        bool res = cbManager.Set(cbKeyPrefix + val, executer, ApplicationConfiguration.Current.DatabaseConfiguration.WriteLockTTL.Value);
+                                        //Logger.Logger.Log("DBLock ", "Created (" + res + ") for " + executer + ", with Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                    }
+                                }
+                                else if (oValue is System.Collections.ICollection)
+                                {
+                                    foreach (string val in oValue as ICollection<string>)
+                                    {
+                                        bool res = cbManager.Set(cbKeyPrefix + val, executer, ApplicationConfiguration.Current.DatabaseConfiguration.WriteLockTTL.Value);
+                                        //Logger.Logger.Log("DBLock ", "Created (" + res + ") for " + executer + ", with Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                    }
+                                }
+                                else
+                                {
+                                    bool res = cbManager.Set(cbKeyPrefix + oValue, executer, ApplicationConfiguration.Current.DatabaseConfiguration.WriteLockTTL.Value);
+                                    //Logger.Logger.Log("DBLock ", "Created (" + res + ") for " + executer + ", with Key: " + cbKeyPrefix + oValue, "ODBC_DBLock");
+                                }
+                            }
+                            catch 
+                            {
+                                //Logger.Logger.Log("DBLock; Executer=" + executer + ", isWritable=" + isWritable, ex.ToString(), "ODBC_DBLock");
+                            }
+
+                            bRet = true; // created a session lock for a write lock
+                        }
+                    }
+                }
+            }
+            catch 
+            {
+                //Logger.Logger.Log("DBLock", ex.ToString(), "ODBC_DBLock");
+            }
+            return bRet;
+        }
+
+        public static DbProceduresRouting GetDbProceduresRouting()
+        {
+            string key = GetDbSpRoutingKey();
+            DbProceduresRouting dbProceduresRouting = null;
+
+            LayeredCache.Instance.Get<DbProceduresRouting>(
+                // key
+                LayeredCacheKeys.GetDbProceduresRoutingKey(), 
+                // ref result object
+                ref dbProceduresRouting, 
+                // running method and params
+                InitializeDbProceduresRouting, new Dictionary<string, object>(), 
+                // group id - irrelevent
+                0,
+                // config name
+                LayeredCacheConfigNames.PROCEDURES_ROUTING_CONFIG_NAME, 
+                // invalidation keys
+                new List<string>() { LayeredCacheKeys.GetProceduresRoutingInvalidationKey() });
+
+            if (dbProceduresRouting == null)
+            {
+                log.Error("DB Procedures Routing is null");
+            }
+
+            return dbProceduresRouting;
+
+        }        
+
+        public static bool RemoveDatabaseStoredProcedureRouting()
+        {            
+            ODBCWrapperCache.ClearAll();
+            string key = GetDbSpRoutingKey();
+            DbProceduresRouting dbProceduresRouting = null;
+            return !ODBCWrapperCache.Instance.TryGet(key, out dbProceduresRouting);            
+        }
+
+        private static string GetDbSpRoutingKey()
+        {
+            return DB_SP_ROUTING_KEY;
+        }
+        
+        private static Tuple<DbProceduresRouting, bool> InitializeDbProceduresRouting(Dictionary<string, object> funcParams)
+        {
+            Tuple<DbProceduresRouting, bool> result = null;
+            bool success = false;
+            DbProceduresRouting routing = new DbProceduresRouting();
+            StoredProcedure storedProcedure = new StoredProcedure("InitializeDbProceduresRouting");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            try
+            {
+                DataTable dt = storedProcedure.Execute();
+
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        string procedureName = GetSafeStr(dr, "NAME");
+                        if (!string.IsNullOrEmpty(procedureName))
+                        {
+                            bool isWritable = ExtractBoolean(dr, "IS_WRITABLE");
+                            string versionsToExclude = GetSafeStr(dr, "VERSIONS_TO_EXCLUDE");
+                            routing.ProceduresMapping.Add(procedureName.ToLower(), new ProcedureRoutingInfo(isWritable, versionsToExclude));
+                        }
+                    }
+                }
+
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed InitializeDbProceduresRouting from DB", ex);
+                success = false;
+                routing = null;
+            }
+            
+            result = new Tuple<DbProceduresRouting, bool>(routing, success);
+
+            return result;
+        }
+        
+        public static DateTime ConvertToUtc(DateTime time, string timezone)
+        {
+            DateTime unspecifiedKindTime = new DateTime(time.Year, time.Month, time.Day, time.Hour,
+                                             time.Minute, time.Second, DateTimeKind.Unspecified);
+
+            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+
+            return TimeZoneInfo.ConvertTimeToUtc(unspecifiedKindTime, tst);
+        }
+        
+        public static DateTime ConvertFromUtc(DateTime time, string timezone)
+        {
+            DateTime unspecifiedKindTime = new DateTime(time.Year, time.Month, time.Day, time.Hour,
+                                             time.Minute, time.Second, DateTimeKind.Utc);
+
+            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+
+            return TimeZoneInfo.ConvertTimeFromUtc(unspecifiedKindTime, tst);
+        }
+        
+        private static DateTime GetTruncDateTimeUtc()
+        {
+            DateTime truncDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return truncDateTimeUtc;
+        }
+
+        public static long GetUtcUnixTimestampNow()
+        {
+            TimeSpan ts = DateTime.UtcNow - GetTruncDateTimeUtc();
+            return Convert.ToInt64(ts.TotalSeconds, CultureInfo.CurrentCulture);
+        }
+
+        public static long DateTimeToUtcUnixTimestampMilliseconds(DateTime dateTime)
+        {
+            return (long)(dateTime - GetTruncDateTimeUtc()).TotalMilliseconds;
+        }
+
+        public static DateTime UtcUnixTimestampMillisecondsToDateTime(long timestamp)
+        {
+            DateTime origin = GetTruncDateTimeUtc();
+            return origin.AddMilliseconds(timestamp);
+        }
+
+        public static long DateTimeToUtcUnixTimestampSeconds(DateTime dateTime)
+        {
+            return (long)(dateTime - GetTruncDateTimeUtc()).TotalSeconds;
+        }
+
+        public static DateTime UtcUnixTimestampSecondsToDateTime(long timestamp)
+        {
+            DateTime origin = GetTruncDateTimeUtc();
+            return origin.AddSeconds(timestamp);
+        }
+    }
+}

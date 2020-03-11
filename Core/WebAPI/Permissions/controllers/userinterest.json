@@ -1,0 +1,41 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "UserInterest_Add",
+      "service": "UserInterest",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "UserInterest_List",
+      "service": "UserInterest",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "UserInterest_Delete",
+      "service": "UserInterest",
+      "action": "Delete",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}
