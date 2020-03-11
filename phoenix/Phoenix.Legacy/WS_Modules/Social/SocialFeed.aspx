@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="SocialFeed.aspx.cs" Inherits="WS_Social.SocialFeed.SocialFeed" %>

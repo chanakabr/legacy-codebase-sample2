@@ -1,0 +1,1 @@
+﻿<%@ WebService Language="C#" CodeBehind="social.asmx.cs" Class="WS_Social.module" %>
