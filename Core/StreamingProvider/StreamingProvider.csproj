@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+    <Version>5.2.0.3673</Version>
+    <Description>2019-04-09 20:15:47 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-147-gb99fddbc-dirty</Description>
+    <AssemblyName />
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+  </PropertyGroup>
+  
+  <!--<ItemGroup>
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>-->
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
+    <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
+  </ItemGroup>
+</Project>

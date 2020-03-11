@@ -1,0 +1,974 @@
+﻿using ApiObjects;
+using ApiObjects.AssetLifeCycleRules;
+using ApiObjects.Response;
+using ApiObjects.Rules;
+using ApiObjects.SearchObjects;
+using ConfigurationManager;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Core.Api.Managers
+{
+    public class AssetLifeCycleRuleManager
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());                
+
+        #region Public Methods
+
+        public static Dictionary<int, List<AssetLifeCycleRule>> GetLifeCycleRules(int groupId = 0, List<long> rulesIds = null, bool shouldGetOnlyActive = true)
+        {
+            Dictionary<int, List<AssetLifeCycleRule>> groupIdToRulesMap = new Dictionary<int,List<AssetLifeCycleRule>>();
+            try
+            {
+                DataSet ds = DAL.ApiDAL.GetLifeCycleRules(groupId, rulesIds, shouldGetOnlyActive);
+                if (ds != null && ds.Tables != null && ds.Tables.Count == 4)
+                {
+                    groupIdToRulesMap = BuildAssetLifeCycleRuleFromDataSet(ds);
+                }
+
+                var assetLifeCycleTransitionRules = AssetRuleManager.GetAssetRules(RuleConditionType.Asset, 0, null, RuleActionType.AssetLifeCycleTransition);
+                if (assetLifeCycleTransitionRules.HasObjects())
+                {
+                    foreach (var assetLifeCycleTransitionRule in assetLifeCycleTransitionRules.Objects)
+                    {
+                        if (!groupIdToRulesMap.ContainsKey(assetLifeCycleTransitionRule.GroupId))
+                            groupIdToRulesMap.Add(assetLifeCycleTransitionRule.GroupId, new List<AssetLifeCycleRule>());
+                        
+                        var tagsActions = assetLifeCycleTransitionRule.Actions.Where(x => x is AssetLifeCycleTagTransitionAction).Select(x => x as AssetLifeCycleTagTransitionAction).ToDictionary(x => x.ActionType, x => x.TagIds);
+                        var ppvActions = assetLifeCycleTransitionRule.Actions.Where(x => x is AssetLifeCycleBuisnessModuleTransitionAction).Select(x => x as AssetLifeCycleBuisnessModuleTransitionAction).ToDictionary(x => x.ActionType, x => x.Transitions);
+
+                        groupIdToRulesMap[assetLifeCycleTransitionRule.GroupId].Add(new AssetLifeCycleRule()
+                        {
+                            Id = assetLifeCycleTransitionRule.Id,
+                            Name = assetLifeCycleTransitionRule.Name,
+                            Description = assetLifeCycleTransitionRule.Description,
+                            GroupId = assetLifeCycleTransitionRule.GroupId,
+                            KsqlFilter = (assetLifeCycleTransitionRule.Conditions[0] as AssetCondition).Ksql,
+                            Actions = new LifeCycleTransitions()
+                            {
+                                TagIdsToAdd = tagsActions.ContainsKey(AssetLifeCycleRuleAction.Add) ? tagsActions[AssetLifeCycleRuleAction.Add] : new List<int>(),
+                                TagIdsToRemove = tagsActions.ContainsKey(AssetLifeCycleRuleAction.Remove) ? tagsActions[AssetLifeCycleRuleAction.Remove] : new List<int>(),
+                                FileTypesAndPpvsToAdd = ppvActions.ContainsKey(AssetLifeCycleRuleAction.Add) ? ppvActions[AssetLifeCycleRuleAction.Add] : new LifeCycleFileTypesAndPpvsTransitions(),
+                                FileTypesAndPpvsToRemove = ppvActions.ContainsKey(AssetLifeCycleRuleAction.Remove) ? ppvActions[AssetLifeCycleRuleAction.Remove] : new LifeCycleFileTypesAndPpvsTransitions()
+                            },
+                            IsAssetRule = true
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAllLifeCycleRules failed, groupId: {0}, id: {1}", groupId, rulesIds != null ? string.Join(",", rulesIds) : string.Empty), ex);
+            }
+
+            return groupIdToRulesMap;
+        }
+
+        public static bool ApplyLifeCycleRuleActionsOnAssets(int groupId, List<int> assetIds, AssetLifeCycleRule ruleToApply) // currency assetIds=mediaIds
+        {
+            bool res = false;
+            try
+            {
+                if (assetIds != null && assetIds.Count > 0 && ruleToApply != null && ruleToApply.Actions != null)
+                {
+                    res = ApplyLifeCycleRuleTagTransitionsOnAssets(ruleToApply.IsAssetRule, assetIds, ruleToApply.Actions.TagIdsToAdd, ruleToApply.Actions.TagIdsToRemove) &&
+                          ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets(assetIds, ruleToApply.Actions.FileTypesAndPpvsToAdd, ruleToApply.Actions.FileTypesAndPpvsToRemove) &&
+                          (!ruleToApply.Actions.GeoBlockRuleToSet.HasValue || ApplyLifeCycleRuleGeoBlockTransitionOnAssets(assetIds, ruleToApply.Actions.GeoBlockRuleToSet.Value));
+                    if (!Catalog.Module.UpdateIndex(assetIds, groupId, eAction.Update))
+                    {
+                        log.WarnFormat("failed to update index of assetIds: {0} after applying rule: {1} for groupId: {2}",string.Join(",", assetIds), ruleToApply, groupId);
+                    }
+                }
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("ApplyLifeCycleRulesOnAssets failed, assetIds: {0}, ruleToApply: {1}",
+                                            assetIds != null && assetIds.Count > 0 ? string.Join(",", assetIds) : string.Empty, ruleToApply.ToString()), ex);
+            }
+
+            return res;
+        }
+
+        public static int DoActionRules(int groupId = 0, List<long> rulesIds = null)
+        {
+            int result = -1;
+
+            try
+            {
+                // Get all rules of this group
+                Dictionary<int, List<AssetLifeCycleRule>> allRules = GetLifeCycleRules(groupId, rulesIds);
+                
+                foreach (KeyValuePair<int, List<AssetLifeCycleRule>> pair in allRules)
+                {
+                    groupId = pair.Key;
+                    List<AssetLifeCycleRule> rules = pair.Value;
+                    Task<int>[] tasks = new Task<int>[rules.Count];
+
+                    for (int ruleIndex = 0; ruleIndex < rules.Count; ruleIndex++)
+                    {
+                        tasks[ruleIndex] = new Task<int>(
+                            (obj) =>
+                            {
+                                long ruleId = -1;
+
+                                try
+                                {
+                                    var rule = rules[(int)obj];
+                                    ruleId = rule.Id;
+
+                                    #region UnifiedSearchRequest
+
+                                    // Initialize unified search request:
+                                    // SignString/Signature (basic catalog parameters)
+                                    string sSignString = Guid.NewGuid().ToString();
+                                    string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                                    string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
+
+                                    // page size should be max_results so it will return everything
+                                    int pageSize = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+
+                                    UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
+                                    {
+                                        m_sSignature = sSignature,
+                                        m_sSignString = sSignString,
+                                        m_nGroupID = groupId,
+                                        m_oFilter = new Core.Catalog.Filter()
+                                        {
+                                            m_bOnlyActiveMedia = true
+                                        },
+                                        m_nPageIndex = 0,
+                                        m_nPageSize = pageSize,
+                                        shouldIgnoreDeviceRuleID = true,
+                                        shouldDateSearchesApplyToAllTypes = true,
+                                        order = new ApiObjects.SearchObjects.OrderObj()
+                                        {
+                                            m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
+                                            m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                                        },
+                                        filterQuery = rule.KsqlFilter
+                                    };
+
+                                    #endregion
+
+                                    // Call catalog
+                                    var response = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+                                    List<int> assetIds = new List<int>();
+                                    if (response != null)
+                                    {
+                                        bool isSearchSuccessfull = response.status.Code == (int)eResponseStatus.OK;
+                                        bool? isAppliedSuccessfully = null;
+                                        if (isSearchSuccessfull && response.searchResults != null && response.searchResults.Count > 0)
+                                        {
+                                            // Remember count, first and last result - to verify that action was successful
+                                            int count = response.m_nTotalItems;
+                                            string firstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                                            string lastAssetId = response.searchResults.LastOrDefault().AssetId;
+
+                                            assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
+
+                                            // Apply rule on assets that returned from search
+                                            isAppliedSuccessfully = ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule);
+                                            if (isAppliedSuccessfully.Value)
+                                            {
+                                                log.InfoFormat("Successfully applied rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
+                                            }
+                                            else
+                                            {
+
+                                                log.InfoFormat("Failed to apply rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
+                                            }
+
+                                            //
+                                            //
+                                            // TODO: Only save the results in CB, and on next run perform verification search
+                                            //
+                                            //
+                                            //
+                                            //
+                                            //
+                                            //
+
+                                            var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+
+                                            if (verificationResponse != null && verificationResponse.status.Code == (int)eResponseStatus.OK &&
+                                                verificationResponse.searchResults != null && verificationResponse.searchResults.Count > 0)
+                                            {
+                                                int verificationCount = verificationResponse.m_nTotalItems;
+                                                string verificationFirstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                                                string verificationLastAssetId = response.searchResults.LastOrDefault().AssetId;
+
+                                                // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
+                                                if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
+                                                {
+                                                    //this.DisableRule(groupId, rule);
+                                                }
+                                            }
+                                        }
+
+                                        if (isSearchSuccessfull && (!isAppliedSuccessfully.HasValue || isAppliedSuccessfully.Value))                                        
+                                        {
+                                            // init result for DoActionByRuleIds
+                                            result = 0;
+                                            if ((rule.IsAssetRule && !ApiDAL.UpdateAssetRulesLastRunDate(groupId, new List<long>() { rule.Id })) || 
+                                                (!rule.IsAssetRule && !ApiDAL.UpdateAssetLifeCycleLastRunDate(rule.Id)))
+                                            {
+                                                log.WarnFormat("failed to update asset life cycle last run date for groupId: {0}, rule: {1}", groupId, rule);
+                                            }
+                                        }
+                                    }
+
+                                    return assetIds.Count;
+                                }
+                                catch (Exception ex)
+                                {
+                                    log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
+                                    return result;
+                                }
+                            }, ruleIndex);
+
+                        tasks[ruleIndex].Start();
+                    }
+
+                    #region Finish tasks
+
+                    Task.WaitAll(tasks);
+
+                    foreach (var task in tasks)
+                    {
+                        if (task != null)
+                        {
+                            result += task.Result;
+                            task.Dispose();
+                        }
+                    }
+                }
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in DoActionRules", ex);
+            }
+
+            return result;
+        }
+
+        public static List<int> GetTagIdsByTagNames(int groupId, string filterTagTypeName, List<string> tagNames)
+        {
+            List<int> tagIds = new List<int>();
+            try
+            {
+                if (tagNames != null && tagNames.Count > 0)
+                {
+                    Dictionary<string, List<string>> tags = new Dictionary<string, List<string>>();
+                    tags.Add(filterTagTypeName, tagNames);
+                    DataTable dt = NotificationDal.GetTagsIDsByName(groupId, tags);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        HashSet<int> uniqueTagsIds = new HashSet<int>();
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            int tagValueId = ODBCWrapper.Utils.GetIntSafeVal(dr, "TagValueID", 0);
+                            if (tagValueId > 0 && !uniqueTagsIds.Contains(tagValueId))
+                            {
+                                uniqueTagsIds.Add(tagValueId);
+                            }
+                        }
+
+                        tagIds = uniqueTagsIds.ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetTagIdsByTagNames, groupId: {0}, filterTagTypeName: {1}, tagNames: {2}",
+                                         groupId, filterTagTypeName, tagIds != null && tagIds.Count > 0 ? string.Join(",", tagIds) : string.Empty), ex);
+            }
+
+            return tagIds;
+        }
+
+        public static List<string> GetTagNamesByTagIds(int groupId, int filterTagTypeId, List<int> tagIds)
+        {
+            List<string> tagNames = new List<string>();
+            try
+            {
+                if (tagIds != null && tagIds.Count > 0)
+                {
+                    Dictionary<int, List<int>> tags = new Dictionary<int, List<int>>();
+                    tags.Add(filterTagTypeId, tagIds);
+                    DataTable dt = NotificationDal.GetTagsNameByIDs(groupId, tags);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        HashSet<string> uniqueTags = new HashSet<string>();
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            string tagName = ODBCWrapper.Utils.GetSafeStr(dr, "tagValueName");
+                            if (!string.IsNullOrEmpty(tagName) && !uniqueTags.Contains(tagName))
+                            {
+                                uniqueTags.Add(tagName);
+                            }
+                        }
+
+                        tagNames = uniqueTags.ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetTagNamesByTagIds, groupId: {0}, filterTagTypeId: {1}, tagIds: {2}",
+                                         groupId, filterTagTypeId, tagIds != null && tagIds.Count > 0 ? string.Join(",", tagIds) : string.Empty), ex);
+            }
+
+            return tagNames;
+        }
+
+        public static KeyValuePair GetFilterTagTypeById(int groupId, int filterTagTypeId)
+        {
+            KeyValuePair result = null;
+            try
+            {
+                if (filterTagTypeId > 0)
+                {
+                    GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+                    if (group != null && group.m_oGroupTags != null && group.m_oGroupTags.Count > 0 && group.m_oGroupTags.ContainsKey(filterTagTypeId))
+                    {
+                        string filterTagTypeName = group.m_oGroupTags[filterTagTypeId];
+                        if (!string.IsNullOrEmpty(filterTagTypeName))
+                        {
+                            result = new KeyValuePair(filterTagTypeId.ToString(), filterTagTypeName);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetFilterTagTypeById, groupId: {0}, filterTagTypeId: {1}", groupId, filterTagTypeId), ex);
+            }
+
+            return result;
+        }
+
+        public static bool BuildActionRuleDataFromKsql(FriendlyAssetLifeCycleRule rule)
+        {
+            bool result = false;
+            BooleanPhraseNode phrase = null;
+            if (string.IsNullOrEmpty(rule.KsqlFilter))
+            {
+                return result;
+            }
+
+            // Parse the rule's KSQL
+            var status = BooleanPhraseNode.ParseSearchExpression(rule.KsqlFilter, ref phrase);
+            //(and genre = 'a' genre='b' date=-360)
+            //(and date>-360 (or genre='a' genre='b'))
+            // Validate parse result
+            if (status != null && status.Code == (int)ResponseStatus.OK && phrase != null)
+            {
+                // It should be a phrase, because it is (and ...)
+                if (phrase is BooleanPhrase)
+                {
+                    var nodes = (phrase as BooleanPhrase).nodes;
+                    // order is reversed
+                    nodes.Reverse();
+
+                    // Validate there is at least one node
+                    // First node should be a PHRASE, looking like: (or cycletag='A' cycletag='B')
+                    if (nodes.Count > 0)
+                    {
+                        var firstNode = nodes[0] as BooleanPhrase;
+
+                        if (firstNode != null)
+                        {
+                            rule.FilterTagOperand = firstNode.operand;
+
+                            var firstTag = firstNode.nodes[0] as BooleanLeaf;
+
+                            // field name - we can take from the first
+                            if (firstTag != null)
+                            {
+                                rule.FilterTagType = GetFilterTagTypeByName(rule.GroupId, firstTag.field);
+                            }
+
+                            // add all values to list. all should be leafs
+                            foreach (var item in firstNode.nodes)
+                            {
+                                var leaf = item as BooleanLeaf;
+
+                                if (leaf != null)
+                                {
+                                    rule.FilterTagValues.Add(Convert.ToString(leaf.value));
+                                }
+                            }
+                        }
+                    }
+
+                    // Validate that date nodes actually exist - there should be one or two
+                    // Second and third nodes should be LEAFs as well, looking like: cycledate<'-2days'
+                    if (nodes.Count > 1)
+                    {
+                        if (nodes[1] is BooleanLeaf)
+                        {
+                            var secondNode = nodes[1] as BooleanLeaf;
+
+                            if (secondNode != null)
+                            {
+                                rule.MetaDateName = secondNode.field;
+                                rule.MetaDateToValue = GetMetaDateValueFromKsqlValueInSeconds(Math.Abs(Convert.ToInt64(secondNode.value)), rule.TransitionIntervalUnits);
+                                result = true;
+                            }
+                        }
+                        // If, by any chance, the second node is a phrase which should be like (and date<'x' date>'y')
+                        else if (nodes[1] is BooleanPhrase)
+                        {
+                            var secondNode = nodes[1] as BooleanPhrase;
+
+                            if (secondNode != null)
+                            {
+                                if (secondNode.nodes != null && secondNode.nodes.Count > 0)
+                                {
+                                    var firstDateNode = secondNode.nodes[0] as BooleanLeaf;
+
+                                    if (firstDateNode != null)
+                                    {
+                                        rule.MetaDateName = firstDateNode.field;
+                                        rule.MetaDateToValue =
+                                            GetMetaDateValueFromKsqlValueInSeconds(
+                                                Math.Abs(Convert.ToInt64(firstDateNode.value)),
+                                                rule.TransitionIntervalUnits);
+                                        result = true;
+                                    }
+
+                                    // if there is a second child in the second node, it means we have a "cycledate >'date' node as well)
+                                    if (secondNode.nodes.Count > 1)
+                                    {
+                                        var secondDateNode = secondNode.nodes[1] as BooleanLeaf;
+
+                                        if (secondDateNode != null)
+                                        {
+                                            rule.MetaDateFromValue =
+                                                GetMetaDateValueFromKsqlValueInSeconds(
+                                                    Math.Abs(Convert.ToInt64(secondDateNode.value)),
+                                                    rule.TransitionIntervalUnits);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Optional - third node
+                    if (nodes.Count > 2)
+                    {
+                        if (nodes[2] is BooleanLeaf)
+                        {
+                            var thirdNode = nodes[2] as BooleanLeaf;
+
+                            if (thirdNode != null)
+                            {
+                                rule.MetaDateFromValue = GetMetaDateValueFromKsqlValueInSeconds(Math.Abs(Convert.ToInt64(thirdNode.value)), rule.TransitionIntervalUnits);
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static bool BuildActionRuleKsqlFromData(FriendlyAssetLifeCycleRule rule)
+        {
+            bool result = false;
+
+            if (rule.FilterTagType != null && !string.IsNullOrEmpty(rule.FilterTagType.value) && rule.FilterTagValues != null && rule.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(rule.MetaDateName) && rule.MetaDateToValue >= 0)
+            {
+                long firstDate = -1 * (GetKsqlMetaDateValue(rule.MetaDateToValue, rule.TransitionIntervalUnits));
+                StringBuilder tagsBuilder = new StringBuilder();
+
+                if (rule.FilterTagValues == null || rule.FilterTagValues.Count == 0)
+                {
+                    return result;
+                }
+
+                foreach (var tagValue in rule.FilterTagValues)
+                {
+                    tagsBuilder.AppendFormat("{0}='{1}' ", rule.FilterTagType.value, tagValue);
+                }
+
+                StringBuilder finalBuilder = new StringBuilder();
+
+                finalBuilder.AppendFormat("(and ({0} {1}) {2}<'{3}'",
+                    // 0
+                    rule.FilterTagOperand.ToString().ToLower(),
+                    // 1
+                    tagsBuilder.ToString(),
+                    // 3
+                    rule.MetaDateName,
+                    // 4
+                    firstDate);
+
+                // Optional - second date - which is "from"
+                if (rule.MetaDateFromValue > 0)
+                {
+                    long secondDate = -1 * (GetKsqlMetaDateValue(rule.MetaDateFromValue, rule.TransitionIntervalUnits));
+
+                    finalBuilder.AppendFormat(" {0}>'{1}')",
+                        rule.MetaDateName,
+                        secondDate);
+                }
+                else
+                {
+                    // no second date - close the parenthesis
+                    finalBuilder.Append(")");
+                }
+
+                rule.KsqlFilter = finalBuilder.ToString();
+
+                result = true;
+            }
+
+            return result;
+        }        
+
+        #endregion
+
+        #region Private Methods
+
+        private static bool FillRulesToTags(DataTable dt, ref Dictionary<long, List<int>> ruleIdToTagIdsToAddMap,
+                                            ref Dictionary<long, List<int>> ruleIdToTagIdsToRemoveMap)
+        {
+            bool res = false;
+            try
+            {
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ALCR_ID", 0);
+                        if (id > 0)
+                        {
+                            int tagId = ODBCWrapper.Utils.GetIntSafeVal(dr, "TAG_ID", 0);
+                            string actionId = ODBCWrapper.Utils.GetSafeStr(dr, "ACTION_ID");
+                            AssetLifeCycleRuleAction action;
+                            if (tagId > 0 && Enum.TryParse<AssetLifeCycleRuleAction>(actionId, out action))
+                            {
+                                switch (action)
+                                {
+                                    case AssetLifeCycleRuleAction.Add:
+                                        if (ruleIdToTagIdsToAddMap.ContainsKey(id))
+                                        {
+                                            ruleIdToTagIdsToAddMap[id].Add(tagId);
+                                        }
+                                        else
+                                        {
+                                            ruleIdToTagIdsToAddMap.Add(id, new List<int>() { tagId });
+                                        }
+                                        break;
+                                    case AssetLifeCycleRuleAction.Remove:
+                                        if (ruleIdToTagIdsToRemoveMap.ContainsKey(id))
+                                        {
+                                            ruleIdToTagIdsToRemoveMap[id].Add(tagId);
+                                        }
+                                        else
+                                        {
+                                            ruleIdToTagIdsToRemoveMap.Add(id, new List<int>() { tagId });
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    }
+
+                    res = true;
+                }
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                log.Error("FillRulesToTags failed", ex);
+            }
+
+            return res;
+        }
+
+        private static bool FillRulesToFileTypesAndPpvs(DataTable dt, ref Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> ruleIdToFileTypesAndPpvsToAdd,
+                                                        ref Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> ruleIdToFileTypesAndPpvsToRemove)
+        {
+            bool res = false;
+            try
+            {
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ALCR_ID", 0);
+                        if (id > 0)
+                        {
+                            int ppvId = ODBCWrapper.Utils.GetIntSafeVal(dr, "PPV_ID", 0);
+                            int fileTypeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "FILE_TYPE_ID", 0);
+                            string actionId = ODBCWrapper.Utils.GetSafeStr(dr, "ACTION_ID");
+                            AssetLifeCycleRuleAction action;
+                            if (ppvId > 0 && fileTypeId > 0 && Enum.TryParse<AssetLifeCycleRuleAction>(actionId, out action))
+                            {
+                                switch (action)
+                                {
+                                    case AssetLifeCycleRuleAction.Add:
+                                        if (!ruleIdToFileTypesAndPpvsToAdd.ContainsKey(id))
+                                        {
+                                            ruleIdToFileTypesAndPpvsToAdd.Add(id, new LifeCycleFileTypesAndPpvsTransitions());
+                                        }
+
+                                        if (!ruleIdToFileTypesAndPpvsToAdd[id].FileTypeIds.Contains(fileTypeId))
+                                        {
+                                            ruleIdToFileTypesAndPpvsToAdd[id].FileTypeIds.Add(fileTypeId);
+                                        }
+
+                                        if (!ruleIdToFileTypesAndPpvsToAdd[id].PpvIds.Contains(ppvId))
+                                        {
+                                            ruleIdToFileTypesAndPpvsToAdd[id].PpvIds.Add(ppvId);
+                                        }
+                                        break;
+                                    case AssetLifeCycleRuleAction.Remove:
+                                        if (!ruleIdToFileTypesAndPpvsToRemove.ContainsKey(id))
+                                        {
+                                            ruleIdToFileTypesAndPpvsToRemove.Add(id, new LifeCycleFileTypesAndPpvsTransitions());
+                                        }
+
+                                        if (!ruleIdToFileTypesAndPpvsToRemove[id].FileTypeIds.Contains(fileTypeId))
+                                        {
+                                            ruleIdToFileTypesAndPpvsToRemove[id].FileTypeIds.Add(fileTypeId);
+                                        }
+
+                                        if (!ruleIdToFileTypesAndPpvsToRemove[id].PpvIds.Contains(ppvId))
+                                        {
+                                            ruleIdToFileTypesAndPpvsToRemove[id].PpvIds.Add(ppvId);
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    }
+
+                    res = true;
+                }
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                log.Error("FillRulesToFileTypesAndPpvs failed", ex);
+            }
+
+            return res;
+        }
+
+        private static bool FillRulesToGeoBlock(DataTable dt, ref Dictionary<long, int?> ruleIdToGeoBlockMap)
+        {
+            bool res = false;
+            try
+            {
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ALCR_ID", 0);
+                        if (id > 0)
+                        {
+                            int? geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GEO_BLOCK_RULE_ID", -1);
+                            geoBlockRuleId = geoBlockRuleId.HasValue && geoBlockRuleId.Value == -1 ? null : geoBlockRuleId;
+                            if (ruleIdToGeoBlockMap.ContainsKey(id))
+                            {
+                                ruleIdToGeoBlockMap[id] = geoBlockRuleId;
+                            }
+                            else
+                            {
+                                ruleIdToGeoBlockMap.Add(id, geoBlockRuleId);
+                            }
+                        }
+                    }
+
+                    res = true;
+                }
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                log.Error("FillRulesToGeoBlock failed", ex);
+            }
+
+            return res;
+        }
+
+        private static bool ApplyLifeCycleRuleTagTransitionsOnAssets(bool isOPC, List<int> assetIds, List<int> tagIdsToAdd, List<int> tagIdsToRemove)
+        {
+            bool removeResult = false;
+            bool addResult = false;
+            try
+            {
+                if (tagIdsToRemove != null && tagIdsToRemove.Count > 0)
+                {
+                    removeResult = ApiDAL.RemoveTagsFromAssets(assetIds, tagIdsToRemove, isOPC);
+                }
+                else
+                {
+                    removeResult = true;
+                }
+
+                if (tagIdsToAdd != null && tagIdsToAdd.Count > 0)
+                {
+                    addResult = ApiDAL.AddTagsToAssets(assetIds, tagIdsToAdd, isOPC);
+                }
+                else
+                {
+                    addResult = true;
+                }                
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("ApplyLifeCycleRuleTagTransitionsOnAssets failed, assetIds: {0}, tagIdsToAdd: {1}, tagIdsToRemove: {2}",
+                                            assetIds != null && assetIds.Count > 0 ? string.Join(",", assetIds) : string.Empty,
+                                            tagIdsToAdd != null && tagIdsToAdd.Count > 0 ? string.Join(",", tagIdsToAdd) : string.Empty,
+                                            tagIdsToRemove != null && tagIdsToRemove.Count > 0 ? string.Join(",", tagIdsToRemove) : string.Empty), ex);
+            }
+
+            return removeResult && addResult;
+        }
+
+        private static bool ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets(List<int> assetIds, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToAdd,
+                                                                                LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToRemove)
+        {
+            bool removeResult = false;
+            bool addResult = false;
+            try
+            {
+                if (fileTypesAndPpvsToRemove != null && (fileTypesAndPpvsToRemove.FileTypeIds.Count > 0 || fileTypesAndPpvsToRemove.PpvIds.Count > 0))
+                {
+                    removeResult = PricingDAL.RemoveFileTypesAndPpvsFromAssets(assetIds, fileTypesAndPpvsToRemove);
+                }
+                else
+                {
+                    removeResult = true;
+                }
+
+                if (fileTypesAndPpvsToAdd != null && (fileTypesAndPpvsToAdd.FileTypeIds.Count > 0 || fileTypesAndPpvsToAdd.PpvIds.Count > 0))
+                {
+                    addResult = PricingDAL.AddFileTypesAndPpvsToAssets(assetIds, fileTypesAndPpvsToAdd);
+                }
+                else
+                {
+                    addResult = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets failed, assetIds: {0}, fileTypesToPpvsMapToAdd: {1}, fileTypesToPpvsMapToRemove: {2}",
+                                            assetIds != null && assetIds.Count > 0 ? string.Join(",", assetIds) : string.Empty, GetFileTypesToPpvsStringForLog(fileTypesAndPpvsToAdd),
+                                            GetFileTypesToPpvsStringForLog(fileTypesAndPpvsToRemove)), ex);
+            }
+
+            return removeResult && addResult;
+        }
+
+        private static bool ApplyLifeCycleRuleGeoBlockTransitionOnAssets(List<int> assetIds, int geoBlockRuleId)
+        {
+            bool res = false;            
+            try
+            {
+                res = ApiDAL.SetGeoBlockRuleIdOnAssets(assetIds, geoBlockRuleId);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("ApplyLifeCycleRuleGeoBlockTransitionOnAssets failed, assetIds: {0}, geoBlockRuleId: {1}",
+                                        assetIds != null && assetIds.Count > 0 ? string.Join(",", assetIds) : string.Empty, geoBlockRuleId), ex);
+            }
+
+            return res;
+        }
+
+        private static string GetFileTypesToPpvsStringForLog(LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvs)
+        {
+            if (fileTypesAndPpvs != null && (fileTypesAndPpvs.FileTypeIds.Count > 0 || fileTypesAndPpvs.PpvIds.Count > 0))
+            {
+                return string.Format("fileTypeId - {0}, ppvIds - {1}", string.Join(",", fileTypesAndPpvs.FileTypeIds), string.Join(",", fileTypesAndPpvs.PpvIds));                                
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        private static void DisableRule(int groupId, AssetLifeCycleRule rule)
+        {
+            if (rule != null)
+            {
+                try
+                {
+                    if (!ApiDAL.DisableRule(groupId, rule.Id))
+                    {
+                        log.ErrorFormat("Error when disabling rule {0} in group {1}", rule.Id, groupId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error when disabling rule {0} in group {1}, ex = {2}", rule.Id, groupId, ex);
+                }
+            }
+        }
+
+        private static Dictionary<int, List<AssetLifeCycleRule>> BuildAssetLifeCycleRuleFromDataSet(DataSet ds)
+        {
+            Dictionary<int, List<AssetLifeCycleRule>> groupIdToRulesMap = new Dictionary<int, List<AssetLifeCycleRule>>();
+
+            List<AssetLifeCycleRule> rules = new List<AssetLifeCycleRule>();
+            DataTable rulesDt = ds.Tables[0];
+            if (rulesDt != null && rulesDt.Rows != null && rulesDt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in rulesDt.Rows)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                    int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
+                    if (id > 0 && groupId > 0)
+                    {
+                        string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                        string description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
+                        string filter = ODBCWrapper.Utils.GetSafeStr(dr, "KSQL_FILTER");
+                        int transitionIntervalUnitsId = ODBCWrapper.Utils.GetIntSafeVal(dr, "TRANSITION_INTERVAL_UNITS_ID", 0);
+                        AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits;
+                        if (Enum.TryParse<AssetLifeCycleRuleTransitionIntervalUnits>(transitionIntervalUnitsId.ToString(), out transitionIntervalUnits))
+                        {
+                            AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, groupId, name, description, filter, transitionIntervalUnits);
+                            rules.Add(alcr);
+                        }
+                    }
+                }
+
+                DataTable dtRulesTags = ds.Tables[1];
+                DataTable dtRulesFileTypesAndPpvs = ds.Tables[2];
+                DataTable dtRulesGeoBlock = ds.Tables[3];
+                Dictionary<long, List<int>> ruleIdToTagIdsToAddMap = new Dictionary<long, List<int>>();
+                Dictionary<long, List<int>> ruleIdToTagIdsToRemoveMap = new Dictionary<long, List<int>>();
+                Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> fileTypesAndPpvsToAdd = new Dictionary<long, LifeCycleFileTypesAndPpvsTransitions>();
+                Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> fileTypesAndPpvsToRemove = new Dictionary<long, LifeCycleFileTypesAndPpvsTransitions>();
+                Dictionary<long, int?> ruleIdToGeoBlockMap = new Dictionary<long, int?>();
+                if (FillRulesToTags(dtRulesTags, ref ruleIdToTagIdsToAddMap, ref ruleIdToTagIdsToRemoveMap) &&
+                    FillRulesToFileTypesAndPpvs(dtRulesFileTypesAndPpvs, ref fileTypesAndPpvsToAdd, ref fileTypesAndPpvsToRemove) &&
+                    FillRulesToGeoBlock(dtRulesGeoBlock, ref ruleIdToGeoBlockMap))
+                {
+                    foreach (AssetLifeCycleRule alcr in rules)
+                    {
+                        alcr.Actions = new LifeCycleTransitions(ruleIdToTagIdsToAddMap.ContainsKey(alcr.Id) ? ruleIdToTagIdsToAddMap[alcr.Id] : new List<int>(),
+                                                                               ruleIdToTagIdsToRemoveMap.ContainsKey(alcr.Id) ? ruleIdToTagIdsToRemoveMap[alcr.Id] : new List<int>(),
+                                                                               fileTypesAndPpvsToAdd.ContainsKey(alcr.Id) ? fileTypesAndPpvsToAdd[alcr.Id] : new LifeCycleFileTypesAndPpvsTransitions(),
+                                                                               fileTypesAndPpvsToRemove.ContainsKey(alcr.Id) ? fileTypesAndPpvsToRemove[alcr.Id] : new LifeCycleFileTypesAndPpvsTransitions(),
+                                                                               ruleIdToGeoBlockMap.ContainsKey(alcr.Id) ? ruleIdToGeoBlockMap[alcr.Id] : null);
+                        if (!groupIdToRulesMap.ContainsKey(alcr.GroupId))
+                        {
+                            groupIdToRulesMap.Add(alcr.GroupId, new List<AssetLifeCycleRule>());
+                        }
+
+                        groupIdToRulesMap[alcr.GroupId].Add(alcr);
+                    }
+                }
+            }
+
+            return groupIdToRulesMap;
+        }
+
+        private static long GetKsqlMetaDateValue(long value, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits)
+        {
+            long result = 0;
+            switch (transitionIntervalUnits)
+            {
+
+                case AssetLifeCycleRuleTransitionIntervalUnits.Days:
+                    result = value * (60 * 60 * 24);
+                    break;
+                case AssetLifeCycleRuleTransitionIntervalUnits.Hours:
+                    result = value * (60 * 60);
+                    break;
+                case AssetLifeCycleRuleTransitionIntervalUnits.Minutes:
+                    result = value * 60;
+                    break;
+                case AssetLifeCycleRuleTransitionIntervalUnits.Unknown:
+                default:
+                    break;
+            }
+
+            return result;
+        }
+
+        private static long GetMetaDateValueFromKsqlValueInSeconds(long value, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits)
+        {
+            long result = 0;
+            switch (transitionIntervalUnits)
+            {
+
+                case AssetLifeCycleRuleTransitionIntervalUnits.Days:
+                    result = value / (60 * 60 * 24);
+                    break;
+                case AssetLifeCycleRuleTransitionIntervalUnits.Hours:
+                    result = value / (60 * 60);
+                    break;
+                case AssetLifeCycleRuleTransitionIntervalUnits.Minutes:
+                    result = value / 60;
+                    break;
+                case AssetLifeCycleRuleTransitionIntervalUnits.Unknown:
+                default:
+                    break;
+            }
+
+            return result;
+        }
+
+        private static KeyValuePair GetFilterTagTypeByName(int groupId, string filterTagTypeName)
+        {
+            KeyValuePair result = null;
+            try
+            {
+                if (!string.IsNullOrEmpty(filterTagTypeName))
+                {
+                    GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+                    if (group != null && group.m_oGroupTags != null && group.m_oGroupTags.Count > 0)
+                    {
+                        Dictionary<string, int> groupTags = group.m_oGroupTags.GroupBy(x => x.Value).ToDictionary(x => x.Key, x => x.Select(a => a.Key).ToList().First());
+                        if (groupTags != null && groupTags.Count > 0 && groupTags.ContainsKey(filterTagTypeName))
+                        {
+                            int filterTagTypeId = groupTags[filterTagTypeName];
+                            if (filterTagTypeId > 0)
+                            {
+                                result = new KeyValuePair(filterTagTypeId.ToString(), filterTagTypeName);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetFilterTagTypeByName, groupId: {0}, filterTagTypeName: {1}", groupId, filterTagTypeName), ex);
+            }
+
+            return result;
+        }
+
+        #endregion
+
+    }
+}
