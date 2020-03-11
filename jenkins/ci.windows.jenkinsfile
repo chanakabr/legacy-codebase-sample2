@@ -40,7 +40,6 @@ pipeline {
                 dir("ott-backend"){
                     dir("core"){ 
                         bat "sh DllVersioning.Core.sh ." 
-                        powershell "DllVersioning.ps1 ."
                     }
                     dir("phoenix"){ 
                         bat "sh ../Core/DllVersioning.Core.sh ." 
