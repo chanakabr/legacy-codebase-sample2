@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (x64) (http://www.altova.com) by Irena (OK) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="MethodCredentials">
+		<xs:attribute name="UserName" type="xs:string"/>
+		<xs:attribute name="Password" type="xs:string"/>
+	</xs:complexType>
+	<xs:element name="PlatformServicesData">
+		<xs:annotation>
+			<xs:documentation>Comment describing your root element</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="UsersService">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="DefaultUser" type="xs:string"/>
+							<xs:element name="DefaultPassword" type="xs:string"/>
+						</xs:sequence>
+						<xs:attribute name="URL" type="xs:string" default="https://platform.tvinci.com/users/module.asmx"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ConditionalAccessService">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="GetUserPermittedItems" type="MethodCredentials" minOccurs="0"/>
+							<xs:element name="DefaultUser" type="xs:string"/>
+							<xs:element name="DefaultPassword" type="xs:string"/>
+							<xs:element name="GetUserPermittedSubscriptions" type="MethodCredentials" minOccurs="0"/>
+						</xs:sequence>
+						<xs:attribute name="URL" type="xs:string" default="https://platform.tvinci.com/ca/module.asmx"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ApiService">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="DefaultUser" type="xs:string"/>
+							<xs:element name="DefaultPassword" type="xs:string"/>
+						</xs:sequence>
+						<xs:attribute name="URL"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="PricingService">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="DefaultUser" type="xs:string"/>
+							<xs:element name="DefaultPassword" type="xs:string"/>
+						</xs:sequence>
+						<xs:attribute name="URL"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="BillingService">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="DefaultUser" type="xs:string"/>
+							<xs:element name="DefaultPassword" type="xs:string"/>
+						</xs:sequence>
+						<xs:attribute name="URL"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="DomainsService">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="DefaultUser" type="xs:string"/>
+							<xs:element name="DefaultPassword" type="xs:string"/>
+						</xs:sequence>
+						<xs:attribute name="URL"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="SocialService">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="DefaultUser" type="xs:string"/>
+							<xs:element name="DefaultPassword" type="xs:string"/>
+						</xs:sequence>
+						<xs:attribute name="URL"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="NotificationService">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="DefaultUser" type="xs:string"/>
+							<xs:element name="DefaultPassword" type="xs:string"/>
+						</xs:sequence>
+						<xs:attribute name="URL"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="CatalogService">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SignatureKey" type="xs:string"/>
+						</xs:sequence>
+						<xs:attribute name="URL" type="xs:string"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

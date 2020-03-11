@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Created with Liquid XML Studio - FREE Community Edition (http://www.liquid-technologies.com)-->
+<!-- edited with XMLSpy v2009 (http://www.altova.com) by Elram.Damti (EMBRACE) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="SiteData">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Global">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Price">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Symbol" type="xs:string"/>
+										<xs:element name="Location">
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:enumeration value="Left"/>
+													<xs:enumeration value="Right"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="Format" type="xs:string" default="0.00" minOccurs="0"/>
+										<xs:element name="Code" type="xs:string" minOccurs="0"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Title" type="xs:string"/>
+							<xs:element name="Duration">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Days">
+											<xs:complexType>
+												<xs:attribute name="Min" type="xs:int" default="1"/>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="Hours">
+											<xs:complexType>
+												<xs:attribute name="Min" type="xs:int" default="0"/>
+												<xs:attribute name="Max" type="xs:int" default="24"/>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="Minutes">
+											<xs:complexType>
+												<xs:attribute name="Max" type="xs:int" default="60"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="HomepageURL" type="xs:string" default="~/homepage.aspx"/>
+							<xs:element name="DefaultSiteFont" type="xs:string"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Features">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Comments">
+								<xs:complexType>
+									<xs:attribute name="PageSize" type="xs:int" default="5"/>
+									<xs:attribute name="AutoActive" type="xs:boolean" default="false"/>
+									<xs:attribute ref="FeatureMode"/>
+									<xs:attribute name="EnforceLogin" type="xs:boolean" default="false"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Packages">
+								<xs:complexType>
+									<xs:attribute ref="FeatureMode"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Registration">
+								<xs:complexType>
+									<xs:attribute ref="FeatureMode"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="MovieFinder">
+								<xs:complexType>
+									<xs:attribute name="ShowMovies" type="xs:boolean" default="true"/>
+									<xs:attribute name="MaxItems" type="xs:int" default="1000"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Pricing">
+								<xs:complexType>
+									<xs:attribute name="SupportFeature" type="xs:boolean" default="false"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="FriendlyURL">
+								<xs:complexType>
+									<xs:attribute name="SupportFeature" type="xs:boolean" default="false"/>
+									<xs:attribute name="SupportSearch" type="xs:boolean" default="false"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Locale">
+								<xs:complexType>
+									<xs:attribute name="SupportFeature" type="xs:boolean" default="false"/>
+									<xs:attribute name="Application" type="xs:string"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="FacebookConnect">
+								<xs:complexType>
+									<xs:attribute name="SupportFeature" type="xs:boolean" default="false"/>
+									<xs:attribute name="API_Key" type="xs:string"/>
+									<xs:attribute name="Secret_Key" type="xs:string"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="SingleLogin">
+								<xs:complexType>
+									<xs:attribute name="SupportFeature" type="xs:boolean" default="false"/>
+									<xs:attribute name="IntervalTime" default="0"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="ReCaptcha">
+								<xs:complexType>
+									<xs:attribute name="PrivateKey"/>
+									<xs:attribute name="PublicKey"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="EmbedFlashResponseData">
+								<xs:complexType>
+									<xs:attribute name="SupportFeature" type="xs:boolean" default="false"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Player">
+								<xs:complexType>
+									<xs:attribute name="Type" default="Flash">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="Flash"/>
+												<xs:enumeration value="SilverLight"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="FutureAssets">
+								<xs:complexType>
+									<xs:attribute name="UseStartDate" type="xs:string" default="true"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="LocaleSearchFilter">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="DeviceByTagName" type="xs:string"/>
+										<xs:element name="CountryByTagName" type="xs:string"/>
+									</xs:sequence>
+									<xs:attribute name="SupportFeature" type="xs:boolean" default="false"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="EncryptMediaFileURL" type="xs:boolean" default="false"/>
+							<xs:element name="CombineClientRes">
+								<xs:complexType>
+									<xs:attribute name="UseCache" type="xs:boolean" default="true"/>
+									<xs:attribute name="CacheDuration" type="xs:int" default="0"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="SystemRequirements" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Item" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="BlockAdvertisements" minOccurs="0">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Page" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:attribute name="Token" type="xs:string" use="required"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Pages">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="ShowPage">
+								<xs:complexType>
+									<xs:attribute name="EpisodesInPage" type="xs:int" default="30"/>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Master">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Footer">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="PoweredByItems" minOccurs="0">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="PoweredByItem" minOccurs="0" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:attribute name="Name" type="xs:string" use="required"/>
+																		<xs:attribute name="Link" type="xs:string" use="optional"/>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="Header">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Logo" minOccurs="0">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="ImageAlt" type="xs:string" minOccurs="0"/>
+																<xs:element name="ImageURL" type="xs:string"/>
+																<xs:element name="LinkTo" type="xs:string" minOccurs="0"/>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Heirarchies">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Heirarchy" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Level" minOccurs="0" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:string">
+																	<xs:attribute name="Table" type="xs:string" default="None"/>
+																	<xs:attribute name="URL" type="xs:string"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="MediaType" type="xs:string"/>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="Identifier" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:attribute name="FeatureMode" default="Off">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="On"/>
+				<xs:enumeration value="Off"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
+</xs:schema>

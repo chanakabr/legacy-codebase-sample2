@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6409DA6B-D48D-43A2-9217-02B25D4ED5E3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Tvinci.Web.Controls</RootNamespace>
+    <AssemblyName>Tvinci.Web.Controls</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Nonshipping>true</Nonshipping>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>http://localhost/Tvinci.Web.Controls/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'debug32|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\debug32\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\Tvinci.Web.Controls.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
+    <OutputPath>bin\Local\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web.Extensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BreadCrumb.cs" />
+    <Compile Include="ContainerControl\AccordionContainer.cs" />
+    <Compile Include="ContainerControl\RepeatedContainer.cs" />
+    <Compile Include="ContainerControl\TemplatedContainer.cs" />
+    <Compile Include="ContainerControl\XHtmlContainer.cs" />
+    <Compile Include="Gallery\GalleryBase.cs" />
+    <Compile Include="Gallery\GalleryPart.cs" />
+    <Compile Include="Gallery\GalleryPartHandler.cs" />
+    <Compile Include="Gallery\GalleryPartProxy.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Gallery\IGallery.cs" />
+    <Compile Include="Gallery\IGalleryPartProxy.cs" />
+    <Compile Include="ContainerControl\ConditionalContainer.cs" />
+    <Compile Include="Gallery\Part\MultipleDataPartContainer.cs" />
+    <Compile Include="Gallery\Part\ClientPagingHandler.cs" />
+    <Compile Include="Gallery\Part\ClientPagingNavigation.cs" />
+    <Compile Include="Gallery\Part\ClientPagingNavigationItem.cs" />
+    <Compile Include="Gallery\Part\ClientPagingPart.cs" />
+    <Compile Include="Gallery\Part\Constants.cs" />
+    <Compile Include="Gallery\Part\ContentPartHandler.cs" />
+    <Compile Include="Gallery\Part\ContentPartMetadata.cs" />
+    <Compile Include="Gallery\Part\DataContentPart.cs" />
+    <Compile Include="Gallery\Part\PagingPartHandler.cs" />
+    <Compile Include="Gallery\Part\SortPart.cs" />
+    <Compile Include="Gallery\Part\SortPartHandler.cs" />
+    <Compile Include="Gallery\Part\TabPartHandler.cs" />
+    <Compile Include="Gallery\Part\TemplatePart.cs" />
+    <Compile Include="Gallery\IGalleryPartHandler.cs" />
+    <Compile Include="Gallery\IGalleryPart.cs" />
+    <Compile Include="Gallery\Part\ContentPart.cs" />
+    <Compile Include="Gallery\Part\ContentPartItem.cs" />
+    <Compile Include="Gallery\Part\PagingPart.cs" />
+    <Compile Include="Gallery\Part\PagingLayoutGenerator.cs" />
+    <Compile Include="Gallery\Part\PagingPartItem.cs" />
+    <Compile Include="Gallery\Part\TabPart.cs">
+    </Compile>
+    <Compile Include="Gallery\GalleryTab.cs" />
+    <Compile Include="Gallery\Part\TabPartItem.cs" />
+    <Compile Include="Infrastructure\TvinciControlHelper.cs" />
+    <Compile Include="JavaPageloadControl.cs" />
+    <Compile Include="MainMenu\MainMenuDS.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MainMenuDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="MainMenu\MainMenuUIClasses.cs" />
+    <Compile Include="MainMenu\MainMenuManager.cs" />
+    <Compile Include="PagePersistant.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Gallery\GalleryControl.cs">
+    </Compile>
+    <Compile Include="ServerToClientMapping.cs">
+    </Compile>
+    <Compile Include="TvinciClientRequestHandler.cs" />
+    <Compile Include="TvinciLinkButton.cs" />
+    <Compile Include="TvinciRequestButton.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj">
+      <Project>{18062be9-51db-414a-9372-9cdf8b5ddd3c}</Project>
+      <Name>KLogMonitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataLoader\Tvinci.Data.DataLoader.csproj">
+      <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
+      <Name>Tvinci.Data.DataLoader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Localization\Localization.csproj">
+      <Project>{e53bae81-a07c-4112-a42d-4e899d6a52fc}</Project>
+      <Name>Localization</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ODBCWrapper\TVPApi.ODBCWrapper.csproj">
+      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
+      <Name>TVPApi.ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Configuration\Tvinci.Configuration.csproj">
+      <Project>{b7ddd3f9-1844-41b1-ae65-68cfe6f95915}</Project>
+      <Name>Tvinci.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Helpers.Link\Tvinci.Helpers.Link.csproj">
+      <Project>{53D79E6C-FE76-40FD-8C8E-6256D9DE79A3}</Project>
+      <Name>Tvinci.Helpers.Link</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tvinci.Helpers\Tvinci.Helpers.csproj">
+      <Project>{B76F07E3-91C2-44A7-B80B-EB60BFB07825}</Project>
+      <Name>Tvinci.Helpers</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="MainMenu\MainMenuDS.xsc">
+      <DependentUpon>MainMenuDS.xsd</DependentUpon>
+    </None>
+    <None Include="MainMenu\MainMenuDS.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>MainMenuDS.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="MainMenu\MainMenuDS.xss">
+      <DependentUpon>MainMenuDS.xsd</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
