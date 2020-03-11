@@ -5,11 +5,10 @@ pipeline {
         label 'Linux'
     }
     options {
-        buildDiscarder(logRotator(numToKeepStr:'10'))
+        buildDiscarder(logRotator(numToKeepStr:'50'))
         skipDefaultCheckout true
-    }
-    parameters{
-        string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch Name')
+        disableConcurrentBuilds()
+        quietPeriod(50)
     }
     environment{
         AWS_REGION="us-west-2"
@@ -25,7 +24,7 @@ pipeline {
 
                 script{
                     GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
-                    FULL_VERSION = sh(script: '../core/get-version-tag.sh', , returnStdout: true).trim()
+                    FULL_VERSION = sh(script: '../Core/get-version-tag.sh', , returnStdout: true).trim()
                 }
             }
         }
@@ -61,8 +60,6 @@ pipeline {
             report()
         }
     }
-
-   
 }
 
 def buildDockerAndPushToEcr(componentName, dockerfile){
