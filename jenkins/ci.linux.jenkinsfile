@@ -1,5 +1,3 @@
-def GIT_COMMIT=""
-def FULL_VERSION=""
 pipeline {
     agent {
         label 'Linux'
@@ -21,11 +19,6 @@ pipeline {
             steps{
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 git(url: 'https://github.com/kaltura/ott-backend.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
-
-                script{
-                    GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
-                    FULL_VERSION = sh(script: './Core/get-version-tag.sh', , returnStdout: true).trim()
-                }
             }
         }
         stage ('ECR Login') {
@@ -65,7 +58,8 @@ pipeline {
 def buildDockerAndPushToEcr(componentName, dockerfile){
     def REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/${componentName}"
     def ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
-
+    def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
+    def FULL_VERSION = sh(script: './Core/get-version-tag.sh', , returnStdout: true).trim()
     sh(
         label: "Docker build ${REPOSITORY_NAME}", 
         script: "docker build "+
@@ -89,7 +83,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
 
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "cd tvpapi_rest && git rev-parse HEAD", returnStdout: true).trim();
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim();
     def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA", returnStdout: true)
     echo "${reportout}"
 }
