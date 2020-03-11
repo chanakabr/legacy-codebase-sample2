@@ -1,0 +1,41 @@
+@charset "utf-8";
+* { margin:0; padding:0; font-family: Trebuchet MS; }
+ul { list-style:none; }
+/* whoever thought blue linked image borders were a good idea? */
+a img,
+:link img,
+:visited img { border:none; }
+/****************************************/
+body,
+td,
+th { font-size: 1em; color: #FFFFFF; }
+body { background: url(../images/login/bg.gif) top repeat-x #000000; margin: 0px; }
+a { background:url(../images/login/dotted.gif) bottom repeat-x; text-decoration:none; color:#00adef; }
+a:hover { color:#5ad1ff; background:url(../images/login/dottedH.gif) bottom repeat-x; }
+.header { text-align:center; }
+.contentWrapper { width:860px; margin:auto; }
+.login { width:330px; margin:auto;}
+.login .cornersContent { padding:5px 12px; font-size:0.9em; #height:1%; }
+.login h1 { font-weight:normal; font-size:1.1em; color:#cccccc; padding:2px 0 7px 0;}
+.login label { display:block; color:#666666; padding:11px 0; }
+.login label input { width:210px; float:right; height: 21px; }
+.login .signUp,
+.login .signUpH { cursor:pointer; background:url(../images/login/buttons/124.png) no-repeat; width:124px; float:right; height:39px; border:0; color:#ffffff; font-weight:bold; font-size:1em; margin:0 -7px 0 0; }
+.login .signUp { background-position:left top; }
+.login .signUpH { background-position:left bottom; }
+.loginBack { text-align:center; padding:30px 0 0;}
+.loginBack span { color:#FFFFFF;}
+.corners { }
+.corners .top { height:6px; font-size:0.001em; display:block; background:url(../images/login/corners01.png) top right no-repeat; }
+.corners .top b { height:6px; width:6px; font-size:0.001em; display:block; background:url(../images/login/corners01.png) top left no-repeat; }
+.corners .bot { height:6px; font-size:0.001em; display:block; background:url(../images/login/corners01.png) bottom right no-repeat; }
+.corners .bot b { height:6px; width:6px; font-size:0.001em; display:block; background:url(../images/login/corners01.png) bottom left no-repeat; }
+.cornersContent { border-right:1px solid #333333; border-left:1px solid #333333; }
+textarea,
+input,
+select { border:1px solid #ffffff; background:url(../images/login/inputBg.gif) top repeat-x #ffffff; }
+textarea.error,
+input.error { border:1px solid #ffffff; background:url(../images/login/inputBgError.gif) top repeat-x #fd9797;}
+.footer { clear:both; text-align: center; background:url(../images/login/footerBg.gif) top repeat-x; color:#666666; text-align:center; font-size:0.7em; line-height:1.7em; padding:25px 0; }
+.footer a { background:none; color:#999999; }
+.footer a:hover { text-decoration:underline; color: #999999; background: none; }

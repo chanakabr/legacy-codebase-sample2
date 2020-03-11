@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<!-- general config (start) -->
+	<preloader url="flash/preLoader.swf" />
+	<extrenalClasses file="flash/gib/gib_extras.swf" />
+	<languageList>
+		<language name="heb" flashvarsName="Hebrew" />
+		<language name="rus" flashvarsName="Russian" />
+		<language name="eng" flashvarsName="English" />
+		<language name="heb" flashvarsName="" />
+	</languageList>
+	<info_struct statistics="true" personal="false">
+		<name />
+		<description />
+		<type />
+		<meta name="Season" />
+		<meta name="Episode Number" />
+		<meta name="Description (Short)" />
+		<meta name="Series Name" />
+		<meta name="Asset ID" />
+		<meta name="Service Code" />
+		<meta name="Fecm Code" />
+		<meta name="CP" />
+		<meta name="AP" />
+		<meta name="Content Provider Name" />
+		<meta name="Subtitles" />
+		<meta name="Play method" />
+		<tags>
+			<tag_type name="Director" />
+			<tag_type name="Actors" />
+			<tag_type name="Parental Control" />
+		</tags>
+	</info_struct>
+	<configItem id="mediaMarkRequiredData">
+		<ifBlock type="String" value="$get:getValueByName:type" operator="==" compare="Episode">
+			<dataItem name="mediaName" value="$get:getValueByName:Series Name" />
+			<dataItem name="seriesName" value="$get:getValueByName:Series Name" />
+			<dataItem name="title" value="$get:getValueByName:Series Name" />
+			<dataItem name="seasonNumber" value="$get:getValueByName:Season" />
+			<dataItem name="episodeNumber" value="$get:getValueByName:Episode Number" />
+			<elseBlock>
+				<dataItem name="mediaName" value="$get:getValueByName:name" />
+				<dataItem name="title" value="$get:getValueByName:Series Name" />
+				<dataItem name="seasonNumber" value="0" />
+				<dataItem name="episodeNumber" value="0" />
+			</elseBlock>
+		</ifBlock>
+		<dataItem name="type" value="$get:getValueByName:type" />
+		<dataItem name="mediaType" value="$get:getValueByName:type" />
+		<dataItem name="lang" value="$static:tvbox.ProtocolsManager:singletone.flashVarsObj.lang" />
+	</configItem>
+	<configItem id="purchaseSearchCutList">
+		<meta name="Asset ID" />
+	</configItem>
+	<purchaseTypes>
+		<purchaseType name="orange" className="clients.gibraltar.gibraltarPurchaseFlow.GibPurchaseFlowBuilder" displayClassName="clients.gibraltar.gibraltarPurchaseFlow.display.GibFlowDisplay" guiClassName="gib_purchase_gui" />
+	</purchaseTypes>
+	<loginTypes>
+		<loginType name="nds" className="clients.gibraltar.gibraltarPurchaseFlow.GibLoginFlowBuilder" />
+	</loginTypes>
+	<widget id="widgetList">
+		<item type="info" icon="flash/gib/info_icon.png" tooltip="tooltip_widget_info" />
+		<item type="sendToFriend" icon="flash/gib/send_icon.png" tooltip="tooltip_widget_sendToFriend" />
+		<item type="rating" icon="flash/gib/rating_icon.png" tooltip="tooltip_widget_rating" />
+	</widget>
+	<links>
+		<link id="allEpisods" url="http://www.orange.co.il/video/survivor/" target="_self" />
+	</links>
+	<errorClips>
+		<clip id="geo_" value="http://files.tvinci.com/flv/geo_poland.flv" />
+	</errorClips>
+	<configItem id="commOpen" url="http://www.tvinci.com/sharon/movie1.wmv" />
+	<configItem id="commClose" url="http://www.tvinci.com/sharon/movie2.wmv" />
+	<configItem id="purchaseMode" value="internal" />
+	<configItem id="getInfoWithMedia" value="true" />
+	<configItem id="playlistBehavior" value="normal" />
+	<configItem id="suppressStatistics" value="true" />
+	<configItem id="usePlayButton" value="false" />
+	<configItem id="searchCutValues">
+		<name />
+		<description />
+		<meta name="Phonetic name" />
+		<tags>
+			<tag_type name="Album" />
+			<tag_type name="Artist / Band" />
+		</tags>
+	</configItem>
+	<infoBox id="widgetListInfoBox" backgroundColor="0x000000,0">
+		<element type="object" className="side_pane_gui" remote="true" />
+	</infoBox>
+	<infoBox id="playerMsg" backgroundColor="0x000000,1">
+		<element name="close_btn" type="object" className="as3.components.ClassicButton" layout="top,left" leftMargin="5" topMargin="5">
+			<params>
+				<element type="object" className="error_close_btn" remote="true" />
+			</params>
+			<events>
+				<element type="object" eventType="click" className="flash.events.Event">
+					<params>
+						<element type="String" value="closeEvent" />
+					</params>
+				</element>
+			</events>
+		</element>
+		<element id="msgText" type="text" value="" font="HebFont" size="13" color="0xFF6600" align="center" wordWrap="true" multiline="true" addThreeDots="false" y="26" layout="width" leftMargin="5" rightMargin="5" />
+	</infoBox>
+	<infoBox id="playerBuffer" backgroundColor="0x000000,1">
+		<element type="object" className="buffer_gui" remote="true" layout="middle,center" />
+	</infoBox>
+	<infoBox id="playerFirstBuffer" backgroundColor="0x000000,1">
+		<element type="object" className="buffer_gui" remote="true" layout="middle,center" />
+	</infoBox>
+	<!-- general config (end) -->
+	<!-- playlist info box (start) -->
+	<infoBox id="playerMsg" backgroundColor="0x000000,1">
+		<element type="text" value="" font="HebFont" size="13" color="0xFF6600" align="center" wordWrap="true" multiline="true" addThreeDots="false" y="26" layout="width" leftMargin="5" rightMargin="5" />
+	</infoBox>
+	<!-- playlist info box (end) -->
+	<!-- playlist info box (start) -->
+	<!-- heb -->
+	<infoBox id="playlistItem" backgroundColor="0x000000,0">
+		<element type="image" value="$get:getImageByPic:100x56" layout="right,top" rightMargin="5" topMargin="5" />
+		<ifBlock type="String" value="$get:getValueByName:type" operator="==" compare="Episode">
+			<element type="text" value="$get:getValueByName:Series Name" font="HebFont" size="13" color="0xFF6600" align="right" wordWrap="true" multiline="true" addThreeDots="false" y="5" height="40" layout="width" leftMargin="5" rightMargin="110" />
+			<element type="flowBox" direction="rtl" y="26" layout="width" leftMargin="5" rightMargin="110">
+				<element type="text" value="$get:getPhrase:season" font="HebFont" size="11" color="0x333333" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Season" font="HebFont" size="11" color="0x333333" align="right" autoSize="left" />
+				<element type="text" value="$get:getPhrase:episode" font="HebFont" size="11" color="0x333333" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Episode Number" font="HebFont" size="11" color="0x333333" align="right" autoSize="left" />
+			</element>
+			<elseBlock>
+				<element type="text" value="$get:getValueByName:name" font="HebFont" size="13" color="0xFF6600" align="right" wordWrap="true" multiline="true" addThreeDots="false" y="5" height="40" layout="width" leftMargin="5" rightMargin="110" />
+			</elseBlock>
+		</ifBlock>
+			<element type="text" value="$get:getValueByName:description" font="HebFont" size="11" color="0x333333" align="right" wordWrap="true" multiline="true" addThreeDots="true" y="25" height="40" layout="width" leftMargin="5" rightMargin="110" />
+	</infoBox>
+	<!-- playlist info box (end) -->
+		<!-- purchase btn info box (start) -->
+	<!-- heb -->
+	<infoBox id="purchaseBtnInfoRent" backgroundColor="0xFF0000,0.0">
+		<element name="rent_btn" type="object" className="as3.components.ClassicButton">
+			<params>
+				<element type="object" className="order_btn_gui" remote="true" />
+			</params>
+			<events>
+				<element type="object" eventType="click" className="lucy.events.LucyEvent">
+					<params>
+						<element type="String" value="lucyEventRentNow" />
+					</params>
+				</element>
+			</events>
+		</element>
+		<element type="text" value="$get:getPhrase:purchase_btn_label" font="HebFont" size="11" color="0x000000" align="center" multiline="true" wordWrap="true" y="30" width="49" height="35" />
+	</infoBox>
+	<infoBox id="purchaseBtnInfoWatch" backgroundColor="0xFF0000,0.0">
+		<element name="rent_btn" type="object" className="as3.components.ClassicButton">
+			<params>
+				<element type="object" className="order_btn_gui" remote="true" />
+			</params>
+			<events>
+				<element type="object" eventType="click" className="lucy.events.LucyEvent">
+					<params>
+						<element type="String" value="lucyEventWatchPurchased" />
+					</params>
+				</element>
+			</events>
+		</element>
+		<element type="text" value="$get:getPhrase:purchase_btn_label" font="HebFont" size="11" color="0x000000" align="center" multiline="true" wordWrap="true" y="30" width="49" height="35" />
+	</infoBox>
+	<!-- purchase btn info box (end) -->
+	<!-- now playing info box (start) -->
+	<!-- heb -->
+	<infoBox id="nowPlaying" backgroundColor="0x000000,0.7">
+		<element type="flowBox" direction="ltr" spacing="3" layout="width,top" leftMargin="4" rightMargin="4" topMargin="5">
+			<element name="rent_btn" type="object" className="as3.components.ClassicButton" width="64">
+				<params>
+					<element type="object" className="genertic_btn1_gui" remote="true" />
+				</params>
+				<properties>
+					<element property="label" type="String" value="$get:getPhrase:rent_btn" />
+				</properties>
+				<events>
+					<element type="object" eventType="click" className="lucy.events.LucyEvent">
+						<params>
+							<element type="String" value="lucyEventRentNow" />
+						</params>
+					</element>
+				</events>
+			</element>
+			<element name="watch_btn" type="object" className="as3.components.ClassicButton" width="64">
+				<params>
+					<element type="object" className="genertic_btn1_gui" remote="true" />
+				</params>
+				<properties>
+					<element property="label" type="String" value="$get:getPhrase:watch_btn" />
+				</properties>
+				<events>
+					<element type="object" eventType="click" className="lucy.events.LucyEvent">
+						<params>
+							<element type="String" value="lucyEventWatchPurchased" />
+						</params>
+					</element>
+				</events>
+			</element>
+			<element name="trailer_btn" type="object" className="as3.components.ClassicButton" width="44">
+				<params>
+					<element type="object" className="genertic_btn1_gui" remote="true" />
+				</params>
+				<properties>
+					<element property="label" type="String" value="$get:getPhrase:trailer_btn" />
+				</properties>
+				<events>
+					<element type="object" eventType="click" className="lucy.events.LucyEvent">
+						<params>
+							<element type="String" value="lucyEventWatchTrailer" />
+						</params>
+					</element>
+				</events>
+			</element>
+		</element>
+		<ifBlock type="String" value="$get:getValueByName:type" operator="==" compare="Episode">
+			<element type="text" value="$get:getValueByName:Series Name" font="HebFont" size="13" color="0xFFFFFF" align="right" autoSize="left" multiline="false" y="3" height="18" layout="right" leftMargin="5" rightMargin="5" />
+			<element type="flowBox" direction="rtl" y="26" layout="width" leftMargin="5" rightMargin="5">
+				<element type="text" value="$get:getPhrase:season" font="HebFont" size="11" color="0xFFFFFF" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Season" font="HebFont" size="11" color="0xFFFFFF" align="right" autoSize="left" />
+				<element type="text" value="$get:getPhrase:episode" font="HebFont" size="11" color="0xFFFFFF" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Episode Number" font="HebFont" size="11" color="0xFFFFFF" align="right" autoSize="left" />
+
+			</element>
+			<elseBlock>
+				<element type="text" value="$get:getValueByName:name" font="HebFont" size="13" color="0xFFFFFF" align="right" autoSize="left" multiline="false" y="5" height="18" layout="right" leftMargin="5" rightMargin="5" />
+				<element type="text" value="$get:getValueByName:description" font="HebFont" size="11" color="0xFFFFFF" align="right" wordWrap="true" multiline="true" addThreeDots="true" y="20" height="40" layout="width" leftMargin="5" rightMargin="5" />
+			</elseBlock>
+		</ifBlock>
+	</infoBox>
+	<!-- now playing info box (end) -->
+
+
+	<!-- info widget (start) -->
+	<!-- heb -->
+	<infoBox id="infoWidgetDescription" backgroundColor="0x000000,0">
+		<element type="text" value="$get:getValueByName:description" font="HebFont" size="11" color="0x000000" align="right" wordWrap="true" multiline="true" addThreeDots="false" y="5" layout="width" leftMargin="5" rightMargin="5" />
+	</infoBox>
+	<!-- heb -->
+	<infoBox id="infoWidgetTitle" backgroundColor="0x000000,0">
+		<element type="text" value="$get:getPhrase:info_about_video" font="HebFont" size="15" height="25" color="0x666666" align="right" wordWrap="true" multiline="true" addThreeDots="false" y="5" layout="width" leftMargin="5" rightMargin="5" />
+		<ifBlock type="String" value="$get:getValueByName:type" operator="==" compare="Episode">
+			<element type="flowBox" direction="rtl" y="26" layout="width" leftMargin="5" rightMargin="5">
+				<element type="text" value="$get:getValueByName:Series Name" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getPhrase:season" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Season" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getPhrase:episode" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Episode Number" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+			</element>
+			<elseBlock>
+				<element type="text" value="$get:getValueByName:name" font="HebFont" size="13" color="0xFF6600" align="right" wordWrap="true" multiline="true" addThreeDots="true" y="26" height="14" layout="width" leftMargin="5" rightMargin="5" />
+			</elseBlock>
+		</ifBlock>
+	</infoBox>
+	<!-- heb -->
+	<infoBox id="infoWidgetContent" backgroundColor="0x000000,0">
+	</infoBox>
+	<!-- info widget (end) -->
+
+
+	<!-- sendToFriend widget -->
+	<!-- heb -->
+	<infoBox id="sendToFriendWidgetInfo" backgroundColor="0x000000,0" className="tvbox.widgets.widgetsLogic.SendToFriendWidgetLogic">
+		<element type="object" className="widget_bg" remote="true" y="0" layout="width,height" />
+		<element type="text" value="$get:getPhrase:send_to_friend_title" font="HebFont" size="15" height="25" color="0x666666" align="right" wordWrap="true" multiline="true" addThreeDots="false" y="5" layout="width" leftMargin="5" rightMargin="5" />
+		<ifBlock type="String" value="$get:getValueByName:type" operator="==" compare="Episode">
+			<element type="flowBox" direction="rtl" y="26" layout="width" leftMargin="5" rightMargin="5">
+				<element type="text" value="$get:getValueByName:Series Name" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getPhrase:season" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Season" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getPhrase:episode" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Episode Number" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+			</element>
+			<elseBlock>
+				<element type="text" value="$get:getValueByName:name" font="HebFont" size="13" color="0xFF6600" align="right" wordWrap="true" multiline="true" addThreeDots="true" y="26" height="14" layout="width" leftMargin="5" rightMargin="5" />
+			</elseBlock>
+		</ifBlock>
+
+		<element type="text" value="$get:getPhrase:send_to_friend_from_name" font="HebFont" size="12" height="25" color="0x000000" layout="right" width="80" align="right" autoSize="left" wordWrap="true" y="60" rightMargin="13" />
+		<element name="from_name" type="object" className="as3.components.BGInputText" layout="right" leftMargin="150" width="160" height="24" y="60" rightMargin="95">
+			<params>
+				<element type="object" className="BGInput_gui" remote="true" />
+			</params>
+		</element>
+
+		<element type="text" value="$get:getPhrase:send_to_friend_friends_name" font="HebFont" size="12" height="25" color="0x000000" layout="right" align="right" autoSize="left" wordWrap="true" y="90" rightMargin="13" />
+		<element name="friends_name" type="object" className="as3.components.BGInputText" layout="right" leftMargin="150" width="160" height="24" y="90" rightMargin="95">
+			<params>
+				<element type="object" className="BGInput_gui" remote="true" />
+			</params>
+		</element>
+
+		<element type="object" className="star_gui" remote="true" y="126" layout="right" rightMargin="5" />
+		<element type="text" value="$get:getPhrase:send_to_friend_from_email" font="HebFont" size="12" height="25" color="0x000000" layout="right" align="right" autoSize="left" wordWrap="true" y="120" rightMargin="13" />
+		<element name="from_email" type="object" className="as3.components.BGInputText" layout="right" leftMargin="150" width="160" height="24" y="120" rightMargin="95">
+			<params>
+				<element type="object" className="BGInput_gui" remote="true" />
+			</params>
+		</element>
+
+		<element type="object" className="star_gui" remote="true" y="156" layout="right" rightMargin="5" />
+		<element type="text" value="$get:getPhrase:send_to_friend_to_email" font="HebFont" size="12" height="25" color="0x000000" layout="right" align="right" autoSize="left" wordWrap="true" y="150" rightMargin="13" />
+		<element name="to_email" type="object" className="as3.components.BGInputText" layout="right" leftMargin="150" width="160" height="24" y="150" rightMargin="95">
+			<params>
+				<element type="object" className="BGInput_gui" remote="true" />
+			</params>
+		</element>
+
+
+		<element name="send_btn" type="object" className="as3.components.ClassicButton" width="50" y="185" layout="right" rightMargin="205">
+			<params>
+				<element type="object" className="genertic_btn1_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="label" type="String" value="$get:getPhrase:send_to_friend_sendBtn" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="lucy.events.LucyEvent">
+					<params>
+						<element type="String" value="lucyEventSendToFriend" />
+					</params>
+				</element>
+			</events>
+		</element>
+
+		<element name="clear_btn" type="object" className="as3.components.ClassicButton" width="50" y="185" layout="right" rightMargin="145">
+			<params>
+				<element type="object" className="genertic_btn2_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="label" type="String" value="$get:getPhrase:send_to_friend_clearBtn" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="lucy.events.LucyEvent">
+					<params>
+						<element type="String" value="lucyEventClearForm" />
+					</params>
+				</element>
+			</events>
+		</element>
+
+		<element type="object" className="errorTextBg_gui" remote="true" x="213" y="215" width="255" height="40" layout="right" />
+		<element type="text" name="instructionsTxt" value="$get:getPhrase:send_to_friend_enter_details" font="HebFont" size="12" color="0xFF6600" layout="right" align="right" rightMargin="3" y="215" width="255" height="40" multiline="true" wordWrap="true" />
+	</infoBox>
+
+	<!-- sendToFriend widget (end) -->
+
+
+	<!-- rate widget -->
+	<!-- heb -->
+	<infoBox id="ratingWidgetInfo" backgroundColor="0x000000,0" className="tvbox.widgets.widgetsLogic.RatingWithBarsWidgetLogic">
+		<element type="object" className="widget_bg" remote="true" y="0" layout="width,height" />
+		<element type="text" value="$get:getPhrase:info_widget_rating" font="HebFont" size="15" height="25" color="0x666666" align="right" wordWrap="true" multiline="true" addThreeDots="false" y="5" layout="width" leftMargin="5" rightMargin="5" />
+		<ifBlock type="String" value="$get:getValueByName:type" operator="==" compare="Episode">
+			<element type="flowBox" direction="rtl" y="26" layout="width" leftMargin="5" rightMargin="5">
+				<element type="text" value="$get:getValueByName:Series Name" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getPhrase:season" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Season" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getPhrase:episode" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Episode Number" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+			</element>
+			<elseBlock>
+				<element type="text" value="$get:getValueByName:name" font="HebFont" size="13" color="0xFF6600" align="right" wordWrap="true" multiline="true" addThreeDots="true" y="26" height="14" layout="width" leftMargin="5" rightMargin="5" />
+			</elseBlock>
+		</ifBlock>
+			<element name="rating_bar_chart" type="object" className="tvbox.widgets.rating.RatingBarChart" layout="right" rightMargin="42" y="73">
+				<params>
+					<element type="object" className="rating_bar_chart_gui" remote="true" />
+				</params>
+			</element>
+		<element type="text" name="currentRating" value="$get:getPhrase:rating_widget_rate" font="HebFont" size="13" color="0xFF6600" align="center" width="120" multiline="true" wordWrap="true" y="170" layout="right" rightMargin="80" />
+		<element name="rating_display" type="object" className="tvbox.widgets.rating.RatingVisual" y="130" layout="right" rightMargin="5">
+			<params>
+				<element type="object" className="rating_visual_gui" remote="true" />
+				<element type="value" value="$get:getCurrentMedia" />
+			</params>
+		</element>
+		<element type="text" name="totalVotesLabel" value="$get:getPhrase:rating_widget_votes" font="HebFont" size="13" color="0x000000" align="center" width="90" multiline="true" wordWrap="true" y="200" layout="right" rightMargin="110" />
+		<element type="text" name="totalVotesTxt" font="EngFont" size="13" color="0x000000" align="center" width="30" multiline="true" wordWrap="true" y="200" layout="right" rightMargin="80" />
+		<element type="text" name="avgRatingTxt" font="EngFont" size="13" color="0x000000" align="center" width="30" multiline="true" wordWrap="true" y="220" layout="right" rightMargin="170" />
+		<element type="text" name="avgRatingLabel" value="$get:getPhrase:rating_widget_avg_vote" font="HebFont" size="13" color="0x000000" align="center" width="90" multiline="true" wordWrap="true" y="220" layout="right" rightMargin="80" />
+	</infoBox>
+
+
+	<!-- rate widget (end) -->
+	<!-- subtitles widget (start) -->
+	<!-- heb -->
+	<infoBox id="subtitlesWidget" backgroundColor="0xff0000,0.0">
+		<element type="object" className="widget_bg" remote="true" y="0" layout="width,height" />
+		<element type="text" value="$get:getPhrase:subtitles_title" font="HebFont" size="15" height="25" color="0x666666" align="right" wordWrap="true" multiline="true" addThreeDots="false" y="5" layout="width" leftMargin="5" rightMargin="5" />
+		<ifBlock type="String" value="$get:getValueByName:type" operator="==" compare="Episode">
+			<element type="flowBox" direction="rtl" y="26" layout="width" leftMargin="5" rightMargin="5">
+				<element type="text" value="$get:getValueByName:Series Name" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getPhrase:season" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Season" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getPhrase:episode" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+				<element type="text" value="$get:getValueByName:Episode Number" font="HebFont" size="13" color="0xFF6600" align="right" autoSize="left" />
+			</element>
+			<elseBlock>
+				<element type="text" value="$get:getValueByName:name" font="HebFont" size="13" color="0xFF6600" align="right" wordWrap="true" multiline="true" addThreeDots="true" y="26" height="14" layout="width" leftMargin="5" rightMargin="5" />
+			</elseBlock>
+		</ifBlock>
+
+		<ifBlock type="String" value="$get:getValueByName:Subtitles" operator="!=" compare="">
+			<element type="infoBox" layout="width" height="60" className="tvbox.widgets.widgetsLogic.SubtitleSelectionLogic" backgroundColor="0xff0000,0.0" y="55" rightMargin="5" leftMargin="150">
+				<element type="flowBox" direction="rtl" layout="width,top">
+					<data>
+						<elementData type="rowbox" layout="width" direction="rtl" height="15">
+							<elementData name="replaceSubBtnID" type="object" width="10" className="as3.components.ClassicButton">
+								<params>
+									<elementData type="object" className="radio_btn_gui" remote="true" />
+								</params>
+								<properties>
+									<elementData property="radio" type="Boolean" value="true" />
+								</properties>
+								<events>
+									<elementData type="object" eventType="click" className="flash.events.Event">
+										<params>
+											<elementData type="String" value="replaceSubEventName" />
+										</params>
+									</elementData>
+								</events>
+							</elementData>
+							<elementData type="text" value="$get:getPhrase:subtitles_replaceSubID" font="HebFont" size="12" color="0x666666" align="right" wordWrap="true" multiline="true" addThreeDots="false" />
+						</elementData>
+					</data>
+				</element>
+			</element>
+		</ifBlock>
+	</infoBox>
+
+	<!-- subtitles widget (end) -->
+
+
+	<!-- purchase (start) -->
+
+	<!-- login (start) -->
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowLoginScreen" backgroundColor="0xff0000,0.0">
+		<element name="number_input" type="object" layout="top,right" className="as3.components.BGInputText" width="100" rightMargin="0" topMargin="0" remote="true">
+			<params>
+				<element type="object" className="input_text_contaner" remote="true" />
+			</params>
+		</element>
+		<element name="send_btn" type="object" layout="top,right" className="as3.components.ClassicButton" width="36" rightMargin="100" topMargin="0.5">
+			<params>
+				<element type="object" className="genertic_btn1_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="label" type="String" value="$get:getPhrase:purchase_send_btn" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="flash.events.Event">
+					<params>
+						<element type="String" value="continue_click" />
+					</params>
+				</element>
+			</events>
+		</element>
+	</infoBox>
+
+	<!-- login (end) -->
+
+	<!-- package only (start) -->
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowPackageOnlyScreen" backgroundColor="0xff0000,0.0">
+	</infoBox>
+
+	<!-- package only (end) -->
+
+	<!-- main (start) -->
+
+	<!-- SMS purchase (start) -->
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowSMSPurchaseScreen" backgroundColor="0xff0000,0.0">
+		<element type="flowBox" direction="rtl" layout="width,top" rightMargin="0" topMargin="0" spacing="3">
+			<element type="text" value="$get:getPhrase:purchase_sms_code_lable" font="HebPurchaceFont" size="12" color="0x666666" align="right" autoSize="left" />
+			<element name="sms_code_input" type="object" layout="top,right" className="as3.components.BGInputText" width="100" remote="true">
+				<params>
+					<element type="object" className="input_text_contaner" remote="true" />
+				</params>
+			</element>
+		</element>
+		<element type="flowBox" direction="rtl" layout="width,top" rightMargin="0" topMargin="42" spacing="3">
+			<element type="link" value="$get:getPhrase:purchase_click_here" font="HebPurchaceFont" size="10" color="0xff6600" align="right" autoSize="left">
+				<events>
+					<element type="object" eventType="click" className="flash.events.Event">
+						<params>
+							<element type="String" value="send_again_click" />
+						</params>
+					</element>
+				</events>
+			</element>
+			<element type="text" value="$get:getPhrase:purchase_to_send_again" font="HebPurchaceFont" size="10" color="0x666666" align="right" autoSize="left" />
+		</element>
+		<element name="terms_checkbox" type="object" className="as3.components.ClassicButton" rightMargin="0" topMargin="82" layout="right,top">
+			<params>
+				<element type="object" className="checkbox_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="toggle" type="Boolean" value="true" />
+				<element property="selected" type="Boolean" value="true" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="flash.events.Event">
+					<params>
+						<element type="String" value="terms_checkbox" />
+					</params>
+				</element>
+			</events>
+		</element>
+		<element name="confirm_btn" type="object" layout="bottom,right" className="as3.components.ClassicButton" width="80" rightMargin="0" bottomMargin="0">
+			<params>
+				<element type="object" className="genertic_btn1_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="label" type="String" value="$get:getPhrase:purchase_confirm" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="flash.events.Event">
+					<params>
+						<element type="String" value="continue_click" />
+					</params>
+				</element>
+			</events>
+		</element>
+	</infoBox>
+
+	<!-- SMS purchase (end) -->
+
+	<!-- CC purchase (start) -->
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowCCPurchaseScreen" backgroundColor="0xff0000,0.0">
+		<element type="text" value="$get:getPhrase:purchase_id_lable" layout="top,right" font="HebPurchaceFont" size="12" color="0x666666" align="right" autoSize="left" rightMargin="0" topMargin="0" />
+		<element name="id_input" type="object" layout="top,left" className="as3.components.BGInputText" width="100" remote="true" leftMargin="0" topMargin="0">
+			<params>
+				<element type="object" className="input_text_contaner" remote="true" />
+			</params>
+		</element>
+		<element type="text" layout="top,right" value="$get:getPhrase:purchase_cc_lable" font="HebPurchaceFont" size="12" color="0x666666" align="right" autoSize="left" rightMargin="0" topMargin="35" />
+		<element name="cc_input" type="object" layout="top,left" className="as3.components.BGInputText" width="100" remote="true" leftMargin="0" topMargin="35">
+			<params>
+				<element type="object" className="input_text_contaner" remote="true" />
+			</params>
+		</element>
+		<element name="terms_checkbox" type="object" className="as3.components.ClassicButton" layout="right,top" rightMargin="0" topMargin="70">
+			<params>
+				<element type="object" className="checkbox_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="toggle" type="Boolean" value="true" />
+				<element property="selected" type="Boolean" value="true" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="flash.events.Event">
+					<params>
+						<element type="String" value="terms_checkbox" />
+					</params>
+				</element>
+			</events>
+		</element>
+		<element name="confirm_btn" type="object" layout="bottom,right" className="as3.components.ClassicButton" width="80" rightMargin="0" bottomMargin="3">
+			<params>
+				<element type="object" className="genertic_btn1_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="label" type="String" value="$get:getPhrase:purchase_confirm" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="flash.events.Event">
+					<params>
+						<element type="String" value="continue_click" />
+					</params>
+				</element>
+			</events>
+		</element>
+	</infoBox>
+
+	<!-- CC purchase (end) -->
+
+	<!-- none purchase (start) -->
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowNonePurchaseScreen" backgroundColor="0xff0000,0.0">
+		<element name="terms_checkbox" type="object" className="as3.components.ClassicButton" rightMargin="0" topMargin="0" spacing="3" layout="right,top">
+			<params>
+				<element type="object" className="checkbox_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="toggle" type="Boolean" value="true" />
+				<element property="selected" type="Boolean" value="true" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="flash.events.Event">
+					<params>
+						<element type="String" value="terms_checkbox" />
+					</params>
+				</element>
+			</events>
+		</element>
+		<element name="confirm_btn" type="object" layout="bottom,right" className="as3.components.ClassicButton" width="80" rightMargin="0" bottomMargin="0">
+			<params>
+				<element type="object" className="genertic_btn1_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="label" type="String" value="$get:getPhrase:purchase_confirm" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="flash.events.Event">
+					<params>
+						<element type="String" value="continue_click" />
+					</params>
+				</element>
+			</events>
+		</element>
+	</infoBox>
+
+	<!-- none purchase (end) -->
+
+	<!-- SMS view (start) -->
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowSMSViewScreen" backgroundColor="0xff0000,0.0">
+		<element type="flowBox" direction="rtl" layout="width,top" rightMargin="0" topMargin="0" spacing="3">
+			<element type="text" value="$get:getPhrase:purchase_sms_code_lable" font="HebPurchaceFont" size="12" color="0x666666" align="right" autoSize="left" />
+			<element name="sms_code_input" type="object" layout="top,right" className="as3.components.BGInputText" width="100" remote="true">
+				<params>
+					<element type="object" className="input_text_contaner" remote="true" />
+				</params>
+			</element>
+		</element>
+		<element type="flowBox" direction="rtl" layout="width,top" rightMargin="0" topMargin="32" spacing="3">
+			<element type="link" value="$get:getPhrase:purchase_click_here" font="HebPurchaceFont" size="10" color="0xff6600" align="right" autoSize="left">
+				<events>
+					<element type="object" eventType="click" className="flash.events.Event">
+						<params>
+							<element type="String" value="send_again_click" />
+						</params>
+					</element>
+				</events>
+			</element>
+			<element type="text" value="$get:getPhrase:purchase_to_send_again" font="HebPurchaceFont" size="10" color="0x666666" align="right" autoSize="left" />
+		</element>
+		<element name="continue_btn" type="object" layout="bottom,right" className="as3.components.ClassicButton" width="45" rightMargin="0" bottomMargin="0">
+			<params>
+				<element type="object" className="genertic_btn1_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="label" type="String" value="$get:getPhrase:purchase_continue" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="flash.events.Event">
+					<params>
+						<element type="String" value="continue_click" />
+					</params>
+				</element>
+			</events>
+		</element>
+	</infoBox>
+
+	<!-- SMS view (end) -->
+
+	<!-- CC view (start) -->
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowCCViewScreen" backgroundColor="0xff0000,0.0">
+		<element type="text" value="$get:getPhrase:purchase_id_lable" layout="top,right" font="HebPurchaceFont" size="12" color="0x666666" align="right" autoSize="left" rightMargin="0" topMargin="5" />
+		<element name="id_input" type="object" layout="top,left" className="as3.components.BGInputText" width="100" remote="true" leftMargin="0" topMargin="5">
+			<params>
+				<element type="object" className="input_text_contaner" remote="true" />
+			</params>
+		</element>
+		<element type="text" layout="top,right" value="$get:getPhrase:purchase_cc_lable" font="HebPurchaceFont" size="12" color="0x666666" align="right" autoSize="left" rightMargin="0" topMargin="35" />
+		<element name="cc_input" type="object" layout="top,left" className="as3.components.BGInputText" width="100" remote="true" leftMargin="0" topMargin="35">
+			<params>
+				<element type="object" className="input_text_contaner" remote="true" />
+			</params>
+		</element>
+		<element name="continue_btn" type="object" layout="bottom,right" className="as3.components.ClassicButton" width="45" rightMargin="0" bottomMargin="0">
+			<params>
+				<element type="object" className="genertic_btn1_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="label" type="String" value="$get:getPhrase:purchase_continue" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="flash.events.Event">
+					<params>
+						<element type="String" value="continue_click" />
+					</params>
+				</element>
+			</events>
+		</element>
+	</infoBox>
+
+	<!-- CC view (end) -->
+
+	<!-- view screen (start) -->
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowViewScreen" backgroundColor="0xff0000,0.0">
+		<element name="confirm_btn" type="object" layout="top,right" className="as3.components.ClassicButton" width="65" rightMargin="5" topMargin="10">
+			<params>
+				<element type="object" className="genertic_btn1_gui" remote="true" />
+			</params>
+			<properties>
+				<element property="label" type="String" value="$get:getPhrase:purchase_watch_now" />
+			</properties>
+			<events>
+				<element type="object" eventType="click" className="flash.events.Event">
+					<params>
+						<element type="String" value="continue_click" />
+					</params>
+				</element>
+			</events>
+		</element>
+	</infoBox>
+
+
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowPackageViewScreen" backgroundColor="0xff0000,0.0">
+	</infoBox>
+	
+	<!-- view screen (end) -->
+
+	<!-- main (end) -->
+
+	<!-- side (start) -->
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowSideBar" backgroundColor="0xff0000,0.0">
+	</infoBox>
+
+	<!-- side (end) -->
+
+	<!-- header (start) -->
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowHeader" backgroundColor="0x00ff00,0.0">
+	</infoBox>
+
+	<!-- header (end) -->
+
+	<!-- coupon (start) -->
+	<!-- heb -->
+	<infoBox id="gibPurchaseFlowCouponClosed" backgroundColor="0x0000ff,0.0">
+	</infoBox>
+	<infoBox id="gibPurchaseFlowCouponOpen" className="" backgroundColor="0xff0000,0.0">
+	</infoBox>
+
+	<!-- coupon (end) -->
+
+	<!-- purchase (end) -->
+</config>

@@ -1,0 +1,691 @@
+
+12/8/2008 11:01:44 AM , THREAD-6036, request : <root>
+ 	<request type="report””>
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00”  group_by="true"  group_by_units="dd" order_by="1"> 
+ 				</ period >
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:01:44 AM , THREAD-4412, request : <root>
+ 	<request type="report””>
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00”  group_by="true"  group_by_units="dd" order_by="1"> 
+ 				</ period >
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:01:44 AM , THREAD-4412, response : <response type="error"><error message="&apos;&lt;&apos;, hexadecimal value 0x3C, is an invalid attribute character. Line 3, position 4."/></response>
+12/8/2008 11:01:44 AM , THREAD-6036, response : <response type="error"><error message="&apos;&lt;&apos;, hexadecimal value 0x3C, is an invalid attribute character. Line 3, position 4."/></response>
+12/8/2008 11:02:02 AM , THREAD-4412, request : <root>
+ 	<request type="report””>
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00”  group_by="true"  group_by_units="dd" order_by="1"> 
+ 				</period>
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:02:02 AM , THREAD-4412, response : <response type="error"><error message="&apos;&lt;&apos;, hexadecimal value 0x3C, is an invalid attribute character. Line 3, position 4."/></response>
+12/8/2008 11:02:29 AM , THREAD-2252, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00”  group_by="true"  group_by_units="dd" order_by="1"> 
+ 				</period>
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:02:29 AM , THREAD-2252, response : <response type="error"><error message="&apos;true&apos; is an unexpected token. Expecting white space. Line 5, position 77."/></response>
+12/8/2008 11:02:57 AM , THREAD-2252, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00”  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:02:57 AM , THREAD-2252, response : <response type="error"><error message="&apos;true&apos; is an unexpected token. Expecting white space. Line 5, position 77."/></response>
+12/8/2008 11:03:25 AM , THREAD-2252, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00”  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</ period >
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:03:25 AM , THREAD-2252, response : <response type="error"><error message="&apos;true&apos; is an unexpected token. Expecting white space. Line 5, position 77."/></response>
+12/8/2008 11:03:46 AM , THREAD-2252, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</ period >
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:03:46 AM , THREAD-2252, response : <response type="error"><error message="Name cannot begin with the &apos; &apos; character, hexadecimal value 0x20. Line 6, position 8."/></response>
+12/8/2008 11:03:58 AM , THREAD-2252, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period >
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:04:21 AM , THREAD-2252, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 11:05:30 AM , THREAD-2252, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:05:36 AM , THREAD-2252, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 11:06:05 AM , THREAD-2252, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:06:26 AM , THREAD-2252, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 11:14:30 AM , THREAD-2252, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups id="28" sub_groups="true/false" group_by="true/false" all="true/false" order_by="1">
+ 					<group id=""/>
+ 					<group id=""/>
+ 				</groups>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:15:15 AM , THREAD-2252, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 11:20:14 AM , THREAD-2252, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups id="28" sub_groups="false" group_by="true" all="true" order_by="1">
+ 					<group id=""/>
+ 					<group id=""/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:21:00 AM , THREAD-2252, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 11:29:47 AM , THREAD-2252, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups id="28" sub_groups="false" group_by="true" all="true" order_by="1">
+ 					<group id=""/>
+ 					<group id=""/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 11:29:47 AM , THREAD-2252, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 1:32:17 PM , THREAD-4412, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="true" order_by="1">
+ 					<group id=""/>
+ 					<group id=""/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 1:33:04 PM , THREAD-4412, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 1:37:57 PM , THREAD-4412, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 1:37:57 PM , THREAD-4412, response : <response type="error"><error message="Value cannot be null.
+Parameter name: String"/></response>
+12/8/2008 1:43:10 PM , THREAD-4412, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 1:43:54 PM , THREAD-4412, response : <response type="error"><error message="Value cannot be null.
+Parameter name: String"/></response>
+12/8/2008 1:51:14 PM , THREAD-4412, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 1:51:14 PM , THREAD-4412, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 1:52:05 PM , THREAD-4412, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 1:53:37 PM , THREAD-4412, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 1:53:52 PM , THREAD-4412, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 1:53:52 PM , THREAD-4412, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 1:55:11 PM , THREAD-4412, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 1:55:37 PM , THREAD-4412, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 2:13:07 PM , THREAD-4412, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 2:13:23 PM , THREAD-4412, response : <response type="error"><error message="Object reference not set to an instance of an object."/></response>
+12/8/2008 2:13:27 PM , THREAD-4412, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 2:14:03 PM , THREAD-4412, response : <response type="error"><error message="Object reference not set to an instance of an object."/></response>
+12/8/2008 2:19:38 PM , THREAD-4412, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 2:20:18 PM , THREAD-4412, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 2:20:28 PM , THREAD-6876, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 2:20:59 PM , THREAD-6876, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 2:21:22 PM , THREAD-4412, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 2:21:42 PM , THREAD-4412, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 2:24:49 PM , THREAD-6876, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 2:25:04 PM , THREAD-6876, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 2:25:07 PM , THREAD-6876, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id=""/> 
+ 					<player id=""/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id=""/>
+ 					<quality id=""/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id=""/>
+ 					<format id=""/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id=""/>
+ 					<country id=""/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+12/8/2008 2:25:16 PM , THREAD-6876, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
+12/8/2008 2:49:12 PM , THREAD-6876, request : <root>
+ 	<request type="report">
+ 		<report>
+ 			<params>
+ 				<period start="6/12/2008 00:00:00" end="8/12/2008 00:00:00"  group_by="true" group_by_units="dd" order_by="1"> 
+ 				</period>
+				<groups group_by="true" all="false" order_by="1">
+ 					<group id="28"/>
+ 					<group id="35"/>
+ 				</groups>
+				<players group_by="true" all="false" order_by="2">
+ 					<player id="222"/> 
+ 					<player id="223"/>
+ 				</players>
+				<file_qualities group_by="false" all="false" order_by="3">
+ 					<quality id="12"/>
+ 					<quality id="23"/>
+ 				</file_qualities>
+				<file_formats group_by="false" all="false" order_by="4">
+ 					<format id="44"/>
+ 					<format id="66"/>
+ 				</file_formats>
+				<countries group_by="true" all="false" order_by="56">
+ 					<country id="23"/>
+ 					<country id="141"/>
+  				</countries>
+
+ 			</params>
+ 		</report>
+ 	</request>
+ 	<flashvars player_un="poland_main" player_pass="poland_main" pic_size1="120x90" no_cache="0" />
+</root>
+
+12/8/2008 2:55:07 PM , THREAD-6876, response : <response type="report"><results><fix_params></fix_params><rows><row index="0"></row></rows></results></response>
