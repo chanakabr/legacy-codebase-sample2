@@ -1,0 +1,1 @@
+﻿<%@ WebService Language="C#" CodeBehind="domains.asmx.cs" Class="WS_Domains.module" %>
