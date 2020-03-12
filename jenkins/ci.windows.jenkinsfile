@@ -25,8 +25,10 @@ pipeline {
         stage("Checkout"){
             steps{
                 //cleanWs()
-                script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 git(url: 'https://github.com/kaltura/ott-backend', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
+                script {
+                    committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim() 
+                    currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}" }
 
                 // script{
                 //     withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
