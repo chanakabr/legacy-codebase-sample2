@@ -192,7 +192,7 @@ def buildMsProject(projectFilePath, outputPath, component){
             + " -p:DeleteExistingFiles=True"
             + " -p:publishUrl=\"${WORKSPACE}/${outputPath}"
     )
-    report("${component}")
+    // report("${component}")
                 
 }
 
