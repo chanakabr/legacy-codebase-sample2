@@ -163,7 +163,6 @@ pipeline {
             }        
         }
         stage("Trigger Release Candidate"){
-            when { expression { params.TRIGGER_RC == true } }
             steps{
                 build (
                     job: "OTT-BE-Create-Release-Candidate", 
