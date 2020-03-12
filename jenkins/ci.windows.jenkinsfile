@@ -171,7 +171,7 @@ pipeline {
                     ]
                 )
                 script {
-                    component = "${env_JOB_NAME}"
+                    component = "${env.JOB_NAME}"
 
                 }
             }
