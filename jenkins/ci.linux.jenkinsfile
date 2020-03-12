@@ -17,8 +17,10 @@ pipeline {
     stages {
         stage('Checkout'){
             steps{
-                script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 git(url: 'https://github.com/kaltura/ott-backend.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
+                script {
+                    committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim() 
+                    currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}" }
             }
         }
         stage ('ECR Login') {
