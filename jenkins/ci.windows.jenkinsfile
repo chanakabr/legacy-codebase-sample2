@@ -69,14 +69,15 @@ pipeline {
                     dir("RemoteTasks"){
                         buildMsProject("RemoteTasksService/RemoteTasksService.csproj","published/kaltura_ott_api/remotetasks/", "remotetasks-win")
                     }
-                    dir("tvpapi"){
-                        buildMsProject("TVPApi.Legacy/TVPApi.Legacy.csproj","published/kaltura_ott_api/tvpapi/", "tvpapi-win")
-                    }
                     dir("WS_Ingest"){
                         buildMsProject("Ingest/Ingest.csproj","published/kaltura_ott_api/wsingest/", "wsingest-win")
                     }
                     dir("tvmapps"){
                         buildMsProject("\"Web Sites/TVM/TVM.csproj\"","published/kaltura_ott_api/tvmapps/", "tvm-win")
+                    }
+                    dir("tvpapi"){
+                        bat ("\"${MSBUILD}\" /property:Configuration=Release;Platform=\"Any CPU\"")
+                        bat("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\aspnet_compiler.exe -v /WS_TVPAPI -p \"ws_tvpapi\" -u -f \"${WORKSPACE}/published/kaltura_ott_api/tvpapi/\" ")
                     }
             }        
         }
@@ -84,7 +85,7 @@ pipeline {
             steps { 
                 dir("phoenix/Generator"){
                     bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
-                    dir("bin/Release/netcoreapp3.1"){
+                    dir("bin/Release/netcoreapp2.0"){
                         bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
                         bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
                     }
