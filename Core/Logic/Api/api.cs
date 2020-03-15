@@ -12146,7 +12146,8 @@ namespace Core.Api
         }
 
         internal static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackAdapterManifest(long adapterId, int groupId,
-            ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
+            ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions,
+            string userId)
         {
             GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> response = new GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>();
 
@@ -12159,7 +12160,7 @@ namespace Core.Api
                     return response;
                 }
 
-                playbackContext = PlaybackAdapterController.GetInstance().GetPlaybackManifest(groupId, adapter, playbackContext, requestPlaybackContextOptions);
+                playbackContext = PlaybackAdapterController.GetInstance().GetPlaybackManifest(groupId, adapter, playbackContext, requestPlaybackContextOptions, userId);
 
                 if (playbackContext == null)
                 {

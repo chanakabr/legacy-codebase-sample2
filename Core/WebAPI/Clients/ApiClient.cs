@@ -4454,14 +4454,15 @@ namespace WebAPI.Clients
         }
 
         internal KalturaPlaybackContext GetPlaybackAdapterManifest(long adapterId, int groupId, KalturaPlaybackContext kalturaPlaybackContext,
-                                                                string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+                                                                string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams,
+                                                                string userId)
         {
             ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = AutoMapper.Mapper.Map<ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>(contextDataParams);
             requestPlaybackContextOptions.AssetId = assetId;
             requestPlaybackContextOptions.AssetType = ApiMappings.ConvertAssetType(assetType);
 
             Func<ApiObjects.PlaybackAdapter.PlaybackContext, GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>> updateBusinessModuleRuleFunc = (ApiObjects.PlaybackAdapter.PlaybackContext playbackContext) =>
-             Core.Api.Module.GetPlaybackManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions);
+             Core.Api.Module.GetPlaybackManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions, userId);
 
             KalturaPlaybackContext result =
                 ClientUtils.GetResponseFromWS<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>(kalturaPlaybackContext, updateBusinessModuleRuleFunc);
