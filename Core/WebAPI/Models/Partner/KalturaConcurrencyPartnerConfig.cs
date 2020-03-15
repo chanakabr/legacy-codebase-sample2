@@ -28,7 +28,16 @@ namespace WebAPI.Models.Partner
         [JsonProperty("evictionPolicy")]
         [XmlElement(ElementName = "evictionPolicy")]
         public KalturaEvictionPolicyType EvictionPolicy { get; set; }
-        
+
+        /// <summary>
+        /// Device play data expiration TTL
+        /// </summary>
+        [DataMember(Name = "devicePlayDataExpirationTTL")]
+        [JsonProperty("devicePlayDataExpirationTTL")]
+        [XmlElement(ElementName = "devicePlayDataExpirationTTL")] 
+        public long? DevicePlayDataExpirationTTL { get; set; }
+
+
         internal HashSet<int> GetDeviceFamilyIds()
         {
             if (string.IsNullOrEmpty(DeviceFamilyIds))

@@ -10984,11 +10984,14 @@ namespace Core.ConditionalAccess
             {
                 int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(devicePlayDataToInsert.DomainId, this.m_nGroupID, devicePlayDataToInsert.UDID);
 
+                // get partner configuration for ttl.
+                uint expirationTTL = GetDevicePlayDataExpirationTTL(this.m_nGroupID, ttl);
+
                 devicePlayDataToInsert = CatalogDAL.InsertDevicePlayDataToCB(devicePlayDataToInsert.UserId, devicePlayDataToInsert.UDID, devicePlayDataToInsert.DomainId,
                                                                              devicePlayDataToInsert.MediaConcurrencyRuleIds, devicePlayDataToInsert.AssetMediaConcurrencyRuleIds,
                                                                              devicePlayDataToInsert.AssetEpgConcurrencyRuleIds, devicePlayDataToInsert.AssetId,
                                                                              devicePlayDataToInsert.ProgramId, deviceFamilyId, devicePlayDataToInsert.GetPlayType(),
-                                                                             devicePlayDataToInsert.NpvrId, ttl, MediaPlayActions.NONE, devicePlayDataToInsert.BookmarkEventThreshold,
+                                                                             devicePlayDataToInsert.NpvrId, expirationTTL, MediaPlayActions.NONE, devicePlayDataToInsert.BookmarkEventThreshold,
                                                                              devicePlayDataToInsert.ProductType, devicePlayDataToInsert.ProductId);
             }
 
@@ -17640,6 +17643,28 @@ namespace Core.ConditionalAccess
         internal ApiObjects.Response.Status ApplyCoupon(long domainId, string userId, long purchaseId, string couponCode)
         {
             return EntitlementManager.ApplyCoupon(this, this.m_nGroupID, domainId, userId, purchaseId, couponCode);
+        }
+
+        internal static uint GetDevicePlayDataExpirationTTL(int groupId, eExpirationTTL ttl)
+        {
+            uint expirationTTL = 0;
+            if (ttl == eExpirationTTL.Long)
+            {
+                expirationTTL = CatalogDAL.LONG_TTL;
+            }
+            else
+            {
+                expirationTTL = CatalogDAL.SHORT_TTL;
+
+                //get DevicePlayDataExpirationTTL from partner confi
+                DeviceConcurrencyPriority deviceConcurrencyPriority = Api.api.GetDeviceConcurrencyPriority(groupId);
+                if (deviceConcurrencyPriority != null && deviceConcurrencyPriority.DevicePlayDataExpirationTTL.HasValue)
+                {
+                    expirationTTL = (uint)deviceConcurrencyPriority.DevicePlayDataExpirationTTL.Value;
+                }
+            }
+
+            return expirationTTL;
         }
     }
 }

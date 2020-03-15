@@ -3,7 +3,6 @@ using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
-using ApiObjects.EventBus;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
@@ -17,6 +16,7 @@ using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.ConditionalAccess;
 using Core.Notification;
 using Core.Users;
 using DAL;
@@ -2747,7 +2747,10 @@ namespace Core.Catalog
                     }
                     else
                     {
-                        CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode, ttl);
+                        // get partner configuration for ttl.
+                        uint expirationTTL = BaseConditionalAccess.GetDevicePlayDataExpirationTTL(groupId, ttl);
+
+                        CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode, expirationTTL);
                     }
                 }
 

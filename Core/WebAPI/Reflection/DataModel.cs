@@ -1565,6 +1565,8 @@ namespace WebAPI.Reflection
                     {
                         case "DeviceFamilyIds":
                             return "deviceFamilyIds";
+                        case "DevicePlayDataExpirationTTL":
+                            return "devicePlayDataExpirationTTL";
                         case "EvictionPolicy":
                             return "evictionPolicy";
                     }

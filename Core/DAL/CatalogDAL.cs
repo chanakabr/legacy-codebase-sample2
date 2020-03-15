@@ -2197,7 +2197,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static void UpdateOrInsertDevicePlayData(DevicePlayData devicePlayData, bool isReportingMode, eExpirationTTL ttl)
+        public static void UpdateOrInsertDevicePlayData(DevicePlayData devicePlayData, bool isReportingMode, uint ttl)
         {
             if (!isReportingMode)
             {
@@ -4109,7 +4109,7 @@ namespace Tvinci.Core.DAL
 
         public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
                                                               List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType,
-                                                              string npvrId, eExpirationTTL ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE,
+                                                              string npvrId, uint ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE,
                                                               int? bookmarkEventThreshold = null, eTransactionType? productType = null, int? productId = null)
         {
             DevicePlayData devicePlayData = GetDevicePlayData(udid);
@@ -4550,11 +4550,9 @@ namespace Tvinci.Core.DAL
             return string.Format("device_play_data_{0}", udid);
         }
 
-        private static bool SaveDevicePlayData(DevicePlayData devicePlayData, eExpirationTTL expirationTTL)
+        private static bool SaveDevicePlayData(DevicePlayData devicePlayData, uint ttl)
         {
             string key = GetDevicePlayDataKey(devicePlayData.UDID);
-            uint ttl = (uint)(expirationTTL == eExpirationTTL.Short ? SHORT_TTL : LONG_TTL);
-
             return UtilsDal.SaveObjectInCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, devicePlayData, true, ttl);
         }
 

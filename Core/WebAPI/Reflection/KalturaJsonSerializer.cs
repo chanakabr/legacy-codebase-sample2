@@ -25009,6 +25009,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("deviceFamilyIds", "\"deviceFamilyIds\": " + "\"" + EscapeJson(DeviceFamilyIds) + "\"");
             }
+            if(DevicePlayDataExpirationTTL.HasValue)
+            {
+                ret.Add("devicePlayDataExpirationTTL", "\"devicePlayDataExpirationTTL\": " + DevicePlayDataExpirationTTL);
+            }
             ret.Add("evictionPolicy", "\"evictionPolicy\": " + "\"" + Enum.GetName(typeof(KalturaEvictionPolicyType), EvictionPolicy) + "\"");
             return ret;
         }
@@ -25022,6 +25026,10 @@ namespace WebAPI.Models.Partner
             if(DeviceFamilyIds != null)
             {
                 ret.Add("deviceFamilyIds", "<deviceFamilyIds>" + EscapeXml(DeviceFamilyIds) + "</deviceFamilyIds>");
+            }
+            if(DevicePlayDataExpirationTTL.HasValue)
+            {
+                ret.Add("devicePlayDataExpirationTTL", "<devicePlayDataExpirationTTL>" + DevicePlayDataExpirationTTL + "</devicePlayDataExpirationTTL>");
             }
             ret.Add("evictionPolicy", "<evictionPolicy>" + "" + Enum.GetName(typeof(KalturaEvictionPolicyType), EvictionPolicy) + "" + "</evictionPolicy>");
             return ret;
