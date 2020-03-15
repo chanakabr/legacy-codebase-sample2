@@ -36,12 +36,11 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
         static public bool Cancel(int assetId, KalturaTransactionType productType)
         {
-            bool response = false;
+            var response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
             try
             {
-
                 // get domain       
                 var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
@@ -51,8 +50,11 @@ namespace WebAPI.Controllers
                     throw new ForbiddenException(ForbiddenException.HOUSEHOLD_FORBIDDEN, domain);
                 }
 
+                var userId = KS.GetFromRequest().UserId;
+
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, false, KSUtils.ExtractKSPayload().UDID);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType,
+                    false, KSUtils.ExtractKSPayload().UDID, userId);
             }
             catch (ClientException ex)
             {
@@ -85,7 +87,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending)]
         static public bool ForceCancel(int assetId, KalturaTransactionType productType)
         {
-            bool response = false;
+            var response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
             try
@@ -100,8 +102,11 @@ namespace WebAPI.Controllers
                     throw new ForbiddenException(ForbiddenException.HOUSEHOLD_FORBIDDEN, domain);
                 }
 
+                var userId = KS.GetFromRequest().UserId;
+
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, true, KSUtils.ExtractKSPayload().UDID);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, 
+                    productType, true, KSUtils.ExtractKSPayload().UDID, userId);
             }
             catch (ClientException ex)
             {
@@ -464,7 +469,7 @@ namespace WebAPI.Controllers
 
             return response;
         }
-        
+
         /// <summary>
         /// Update Kaltura Entitelment by Purchase id
         /// </summary>                
@@ -511,7 +516,7 @@ namespace WebAPI.Controllers
         ///,User not in household = 1005, Not for purchase = 3025, ServiceAlreadyExists = 3053, DlmExist = 1035
         /// </remarks>
         [Action("swap")]
-        [ApiAuthorize]       
+        [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public bool Swap(int currentProductId, int newProductId, bool history)
         {
@@ -578,7 +583,7 @@ namespace WebAPI.Controllers
 
             try
             {
-               
+
                 return ClientsManager.ConditionalAccessClient().GetEntitlementNextRenewal(groupId, domainID, id, userId);
             }
             catch (ClientException ex)
@@ -587,7 +592,7 @@ namespace WebAPI.Controllers
             }
             return null;
         }
-        
+
         /// <summary>
         /// Apply new coupon for existing subscription
         /// </summary>
@@ -606,7 +611,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                ClientsManager.ConditionalAccessClient().ApplyCoupon(groupId, householdId, userId, purchaseId, couponCode );
+                ClientsManager.ConditionalAccessClient().ApplyCoupon(groupId, householdId, userId, purchaseId, couponCode);
             }
             catch (ClientException ex)
             {

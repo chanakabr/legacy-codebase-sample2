@@ -1813,13 +1813,13 @@ namespace Core.ConditionalAccess
          *  Return status object
          ***************************************************************************************************************************/
         public static ApiObjects.Response.Status CancelServiceNow(int groupID,
-            int nDomainId, int nAssetID, ApiObjects.eTransactionType transactionType, bool bIsForce = false, string udid = null)
+            int nDomainId, int nAssetID, ApiObjects.eTransactionType transactionType, bool bIsForce = false, string udid = null, string userId = null)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.CancelServiceNow(nDomainId, nAssetID, transactionType, bIsForce, udid, string.Empty);
+                return t.CancelServiceNow(nDomainId, nAssetID, transactionType, bIsForce, udid, string.Empty, userId);
             }
             else
             {

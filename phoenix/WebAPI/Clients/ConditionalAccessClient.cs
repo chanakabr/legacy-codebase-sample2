@@ -34,7 +34,8 @@ namespace WebAPI.Clients
 
         }
 
-        public bool CancelServiceNow(int groupId, int domain_id, int asset_id, Models.ConditionalAccess.KalturaTransactionType transaction_type, bool bIsForce, string udid)
+        public bool CancelServiceNow(int groupId, int domain_id, int asset_id, KalturaTransactionType transaction_type, 
+            bool bIsForce, string udid, string userId)
         {
             Status response = null;
 
@@ -45,7 +46,7 @@ namespace WebAPI.Clients
                     // convert local enu, to ws enum
                     eTransactionType eTransactionType = Mapper.Map<eTransactionType>(transaction_type);
 
-                    response = Core.ConditionalAccess.Module.CancelServiceNow(groupId, domain_id, asset_id, eTransactionType, bIsForce, udid);
+                    response = Core.ConditionalAccess.Module.CancelServiceNow(groupId, domain_id, asset_id, eTransactionType, bIsForce, udid, userId);
                 }
             }
             catch (Exception ex)
