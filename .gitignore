@@ -1,9 +1,0 @@
-obj/
-[Bb]in
-[Dd]ebug*/
-[Rr]elease*/
-*.pdb
-*.[Oo]bj
-*.user
-*.log
-*.suo
