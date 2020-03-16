@@ -74,6 +74,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
         "-f ${dockerfile} "+
         "-t ${ECR_REPOSITORY}:build  "+
         "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
+        "-t ${ECR_REPOSITORY}:${FULL_VERSION} "+
         "--build-arg BRANCH=${BRANCH_NAME} "+
         "--label 'version=${FULL_VERSION}' "+
         "--label 'commit=${GIT_COMMIT}' "+
@@ -87,7 +88,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
     )
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
-}
+    sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${FULL_VERSION}")}
 
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
