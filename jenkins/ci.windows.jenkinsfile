@@ -166,7 +166,7 @@ pipeline {
         stage("Trigger Release Candidate"){
             steps{
                 script {
-                    SHORT_JOB_NAME = sh ( script: 'echo "'${env.JOB_NAME}'" | cut -f1 -d'/'', returnStdout: true ).trim() 
+                    SHORT_JOB_NAME = sh (script: "echo ${JOB_NAME} | cut -f1 -d'/'", returnStdout: true).trim()  
                 }
                 build (
                     job: "OTT-BE-Create-Release-Candidate", 
