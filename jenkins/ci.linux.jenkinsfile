@@ -74,6 +74,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
         "-f ${dockerfile} "+
         "-t ${ECR_REPOSITORY}:build  "+
         "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
+        "-t ${ECR_REPOSITORY}:${FULL_VERSION} "+
         "--build-arg BRANCH=${BRANCH_NAME} "+
         "--label 'version=${FULL_VERSION}' "+
         "--label 'commit=${GIT_COMMIT}' "+
