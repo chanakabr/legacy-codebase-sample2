@@ -14,9 +14,9 @@ pipeline {
         component = "${env.JOB_NAME}"
         ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
     }
-    parameters {
-        booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
-    }
+    // parameters {
+    //     booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
+    // }
     stages {
         stage('Checkout'){
             steps{
