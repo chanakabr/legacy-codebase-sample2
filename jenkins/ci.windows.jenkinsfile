@@ -165,12 +165,15 @@ pipeline {
         }
         stage("Trigger Release Candidate"){
             steps{
+                environment {
+                        SHORT_JOB_NAME = sh(label:"Extract Job Name", script: 'echo "'${env.JOB_NAME}'" | cut -f1 -d'/'', returnStdout: true).trim()
+                }
                 build (
                     job: "OTT-BE-Create-Release-Candidate", 
                     wait: false,
                     parameters: [
                         [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
-                        [$class: 'StringParameterValue', name: 'callingjob', value: "${env.JOB_NAME}"],
+                        [$class: 'StringParameterValue', name: 'callingjob', value: "${SHORT_JOB_NAME}"],
                     ]
                 )
                 script {
