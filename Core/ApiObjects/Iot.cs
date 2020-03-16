@@ -1,0 +1,84 @@
+﻿using ApiObjects.Base;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace ApiObjects
+{
+    public class Iot : IotRegisterResponse, ICrudHandeledObject
+    {
+        public string GroupId { get; set; }
+        public string Udid { get; set; }
+    }
+
+    public class IotRegisterResponse
+    {
+        //Cognito
+        public string AccessKey { get; set; }
+        public string AccessSecretKey { get; set; }
+        public string Username { get; set; }
+        public string UserPassword { get; set; }
+        public string IdentityId { get; set; }
+
+        //Iot
+        public string ThingArn { get; set; }
+        public string ThingId { get; set; }
+        public string Principal { get; set; }
+        public string EndPoint { get; set; }
+        public string ExtendedEndPoint { get; set; }
+
+        //env
+        public string IdentityPoolId { get; set; }
+        public string UserPoolId { get; set; }
+        public string UserPoolWebClientId { get; set; }
+    }
+
+    //public class IotServerConfiguration
+    //{
+    //    public int Ttl { get; set; }
+    //    public string IotEndPoint { get; set; }
+    //    public string PfxPath { get; set; }
+    //    public string PfxPassword { get; set; }
+    //    public string CertificatePath { get; set; }
+    //    public int BrokerPort { get; set; }
+    //    public int MessageFormat { get; set; }
+    //    public string AccessKeyId { get; set; }
+    //    public string SecretAccessKey { get; set; }
+    //    public string UserPoolId { get; set; }
+    //    public string ClientId { get; set; }
+    //    public string IdentityPoolId { get; set; }
+    //    public string IotPolicyName { get; set; }
+    //    public string Signature { get; set; }
+    //    public string SignatureHeaderName { get; set; }
+    //    public string LastUpdateTime { get; set; }
+    //    public string Region { get; set; }
+    //}
+
+    public class IotClientConfiguration
+    {
+        public CredentialsProvider CredentialsProvider { get; set; }
+        public CognitoUserPool CognitoUserPool { get; set; }
+    }
+
+    public class CredentialsProvider
+    {
+        public CognitoIdentity CognitoIdentity { get; set; }
+    }
+
+    public class CognitoIdentity
+    {
+        public Default Default { get; set; }
+    }
+
+    public class CognitoUserPool
+    {
+        public Default Default { get; set; }
+    }
+
+    public class Default
+    {
+        public string PoolId { get; set; }
+        public string Region { get; set; }
+        public string AppClientId { get; set; }
+    }
+}

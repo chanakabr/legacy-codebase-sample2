@@ -117,6 +117,15 @@ namespace WebAPI.Models.Notifications
         [XmlElement(ElementName = "includeSms")]
         public bool IncludeSms { get; set; }
 
+        /// <summary>
+        /// Include IOT
+        /// </summary>
+        [DataMember(Name = "includeIot")]
+        [JsonProperty(PropertyName = "includeIot")]
+        [XmlElement(ElementName = "includeIot")]
+        public bool IncludeIot { get; set; }
+
+
         internal long getStartTime()
         {
             return StartTime.HasValue ? (long)StartTime : 0;

@@ -298,6 +298,17 @@ namespace Core.Notification
             return response;
         }
 
+        public static string GetIotAdapterUrl(int groupId)
+        {
+            var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+            if (partnerSettingsResponse != null &&
+                partnerSettingsResponse.settings != null)
+            {
+                return partnerSettingsResponse.settings.IotAdapterUrl;
+            }
+            return string.Empty;
+        }
+
         public static bool IsUserFollowPushEnabled(UserNotificationSettings userSettings)
         {
             if (userSettings != null &&
@@ -491,6 +502,15 @@ namespace Core.Notification
                 partnerSettingsResponse.settings.IsSMSEnabled.Value);
         }
 
+        public static bool IsPartnerIotNotificationEnabled(int groupId)
+        {
+            var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+            return (partnerSettingsResponse != null &&
+                partnerSettingsResponse.settings != null &&
+                partnerSettingsResponse.settings.IsIotEnabled.HasValue &&
+                partnerSettingsResponse.settings.IsIotEnabled.Value);
+        }
+
         public static bool IsUserSmsEnabled(UserNotificationSettings userSettings)
         {
             return (userSettings != null &&
@@ -505,7 +525,8 @@ namespace Core.Notification
                     || (partnerSettingsResponse.settings.IsInboxEnabled.HasValue && partnerSettingsResponse.settings.IsInboxEnabled.Value)
                     || (partnerSettingsResponse.settings.IsPushSystemAnnouncementsEnabled.HasValue && partnerSettingsResponse.settings.IsPushSystemAnnouncementsEnabled.Value)
                     || (partnerSettingsResponse.settings.IsRemindersEnabled.HasValue && partnerSettingsResponse.settings.IsRemindersEnabled.Value)
-                    || (partnerSettingsResponse.settings.IsSMSEnabled.HasValue && partnerSettingsResponse.settings.IsSMSEnabled.Value));
+                    || (partnerSettingsResponse.settings.IsSMSEnabled.HasValue && partnerSettingsResponse.settings.IsSMSEnabled.Value)
+                    || (partnerSettingsResponse.settings.IsIotEnabled.HasValue && partnerSettingsResponse.settings.IsIotEnabled.Value));
         }
     }
 }

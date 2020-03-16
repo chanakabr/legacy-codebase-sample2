@@ -485,6 +485,12 @@ namespace WebAPI.Reflection
                 case "KalturaCloudSeriesRecordingFilter":
                     return new KalturaCloudSeriesRecordingFilter(parameters);
                     
+                case "KalturaCognitoIdentity":
+                    return new KalturaCognitoIdentity(parameters);
+                    
+                case "KalturaCognitoUserPool":
+                    return new KalturaCognitoUserPool(parameters);
+                    
                 case "KalturaCollection":
                     return new KalturaCollection(parameters);
                     
@@ -596,6 +602,9 @@ namespace WebAPI.Reflection
                 case "KalturaCouponsGroupListResponse":
                     return new KalturaCouponsGroupListResponse(parameters);
                     
+                case "KalturaCredentialsProvider":
+                    return new KalturaCredentialsProvider(parameters);
+                    
                 case "KalturaCrudObject":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -616,6 +625,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaDateTrigger":
                     return new KalturaDateTrigger(parameters);
+                    
+                case "KalturaDefault":
+                    return new KalturaDefault(parameters);
                     
                 case "KalturaDefaultRegionFilter":
                     return new KalturaDefaultRegionFilter(parameters);
@@ -979,6 +991,18 @@ namespace WebAPI.Reflection
                     
                 case "KalturaIntegerValueListResponse":
                     return new KalturaIntegerValueListResponse(parameters);
+                    
+                case "KalturaIot":
+                    return new KalturaIot(parameters);
+                    
+                case "KalturaIotClientConfiguration":
+                    return new KalturaIotClientConfiguration(parameters);
+                    
+                case "KalturaIotFilter":
+                    return new KalturaIotFilter(parameters);
+                    
+                case "KalturaIotListResponse":
+                    return new KalturaIotListResponse(parameters);
                     
                 case "KalturaIpRangeCondition":
                     return new KalturaIpRangeCondition(parameters);
@@ -7642,6 +7666,10 @@ namespace WebAPI.Models.Notifications
                 {
                     IncludeSms = (Boolean) Convert.ChangeType(parameters["includeSms"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("includeIot") && parameters["includeIot"] != null)
+                {
+                    IncludeIot = (Boolean) Convert.ChangeType(parameters["includeIot"], typeof(Boolean));
+                }
             }
         }
     }
@@ -9275,6 +9303,10 @@ namespace WebAPI.Models.Notification
                 if (parameters.ContainsKey("smsEnabled") && parameters["smsEnabled"] != null)
                 {
                     SmsEnabled = (Boolean) Convert.ChangeType(parameters["smsEnabled"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("iotEnabled") && parameters["iotEnabled"] != null)
+                {
+                    IotEnabled = (Boolean) Convert.ChangeType(parameters["iotEnabled"], typeof(Boolean));
                 }
             }
         }
@@ -15738,6 +15770,46 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaCognitoIdentity
+    {
+        public KalturaCognitoIdentity(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("default") && parameters["default"] != null)
+                {
+                    if (parameters["default"] is JObject)
+                    {
+                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), ((JObject) parameters["default"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["default"] is IDictionary)
+                    {
+                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), (Dictionary<string, object>) parameters["default"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaCognitoUserPool
+    {
+        public KalturaCognitoUserPool(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("default") && parameters["default"] != null)
+                {
+                    if (parameters["default"] is JObject)
+                    {
+                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), ((JObject) parameters["default"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["default"] is IDictionary)
+                    {
+                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), (Dictionary<string, object>) parameters["default"]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaConcurrencyCondition
     {
         public KalturaConcurrencyCondition(Dictionary<string, object> parameters = null) : base(parameters)
@@ -15869,6 +15941,26 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaCredentialsProvider
+    {
+        public KalturaCredentialsProvider(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("cognitoIdentity") && parameters["cognitoIdentity"] != null)
+                {
+                    if (parameters["cognitoIdentity"] is JObject)
+                    {
+                        CognitoIdentity = (KalturaCognitoIdentity) Deserializer.deserialize(typeof(KalturaCognitoIdentity), ((JObject) parameters["cognitoIdentity"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["cognitoIdentity"] is IDictionary)
+                    {
+                        CognitoIdentity = (KalturaCognitoIdentity) Deserializer.deserialize(typeof(KalturaCognitoIdentity), (Dictionary<string, object>) parameters["cognitoIdentity"]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaCurrency
     {
         public KalturaCurrency(Dictionary<string, object> parameters = null) : base(parameters)
@@ -15948,6 +16040,27 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaDefault
+    {
+        public KalturaDefault(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("poolId") && parameters["poolId"] != null)
+                {
+                    PoolId = (String) Convert.ChangeType(parameters["poolId"], typeof(String));
+                }
+                if (parameters.ContainsKey("region") && parameters["region"] != null)
+                {
+                    Region = (String) Convert.ChangeType(parameters["region"], typeof(String));
+                }
+                if (parameters.ContainsKey("appClientId") && parameters["appClientId"] != null)
+                {
+                    AppClientId = (String) Convert.ChangeType(parameters["appClientId"], typeof(String));
                 }
             }
         }
@@ -16747,6 +16860,106 @@ namespace WebAPI.Models.API
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaIot
+    {
+        public KalturaIot(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("udid") && parameters["udid"] != null)
+                {
+                    Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
+                }
+                if (parameters.ContainsKey("accessKey") && parameters["accessKey"] != null)
+                {
+                    AccessKey = (String) Convert.ChangeType(parameters["accessKey"], typeof(String));
+                }
+                if (parameters.ContainsKey("accessSecretKey") && parameters["accessSecretKey"] != null)
+                {
+                    AccessSecretKey = (String) Convert.ChangeType(parameters["accessSecretKey"], typeof(String));
+                }
+                if (parameters.ContainsKey("username") && parameters["username"] != null)
+                {
+                    Username = (String) Convert.ChangeType(parameters["username"], typeof(String));
+                }
+                if (parameters.ContainsKey("userPassword") && parameters["userPassword"] != null)
+                {
+                    UserPassword = (String) Convert.ChangeType(parameters["userPassword"], typeof(String));
+                }
+                if (parameters.ContainsKey("identityId") && parameters["identityId"] != null)
+                {
+                    IdentityId = (String) Convert.ChangeType(parameters["identityId"], typeof(String));
+                }
+                if (parameters.ContainsKey("thingArn") && parameters["thingArn"] != null)
+                {
+                    ThingArn = (String) Convert.ChangeType(parameters["thingArn"], typeof(String));
+                }
+                if (parameters.ContainsKey("thingId") && parameters["thingId"] != null)
+                {
+                    ThingId = (String) Convert.ChangeType(parameters["thingId"], typeof(String));
+                }
+                if (parameters.ContainsKey("principal") && parameters["principal"] != null)
+                {
+                    Principal = (String) Convert.ChangeType(parameters["principal"], typeof(String));
+                }
+                if (parameters.ContainsKey("endPoint") && parameters["endPoint"] != null)
+                {
+                    EndPoint = (String) Convert.ChangeType(parameters["endPoint"], typeof(String));
+                }
+                if (parameters.ContainsKey("extendedEndPoint") && parameters["extendedEndPoint"] != null)
+                {
+                    ExtendedEndPoint = (String) Convert.ChangeType(parameters["extendedEndPoint"], typeof(String));
+                }
+                if (parameters.ContainsKey("identityPoolId") && parameters["identityPoolId"] != null)
+                {
+                    IdentityPoolId = (String) Convert.ChangeType(parameters["identityPoolId"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaIotClientConfiguration
+    {
+        public KalturaIotClientConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("credentialsProvider") && parameters["credentialsProvider"] != null)
+                {
+                    if (parameters["credentialsProvider"] is JObject)
+                    {
+                        CredentialsProvider = (KalturaCredentialsProvider) Deserializer.deserialize(typeof(KalturaCredentialsProvider), ((JObject) parameters["credentialsProvider"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["credentialsProvider"] is IDictionary)
+                    {
+                        CredentialsProvider = (KalturaCredentialsProvider) Deserializer.deserialize(typeof(KalturaCredentialsProvider), (Dictionary<string, object>) parameters["credentialsProvider"]);
+                    }
+                }
+                if (parameters.ContainsKey("cognitoUserPool") && parameters["cognitoUserPool"] != null)
+                {
+                    if (parameters["cognitoUserPool"] is JObject)
+                    {
+                        CognitoUserPool = (KalturaCognitoUserPool) Deserializer.deserialize(typeof(KalturaCognitoUserPool), ((JObject) parameters["cognitoUserPool"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["cognitoUserPool"] is IDictionary)
+                    {
+                        CognitoUserPool = (KalturaCognitoUserPool) Deserializer.deserialize(typeof(KalturaCognitoUserPool), (Dictionary<string, object>) parameters["cognitoUserPool"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIotFilter
+    {
+        public KalturaIotFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaIotListResponse
+    {
+        public KalturaIotListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaIpRangeCondition

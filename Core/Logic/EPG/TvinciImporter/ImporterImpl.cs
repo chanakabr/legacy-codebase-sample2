@@ -5395,7 +5395,7 @@ namespace TvinciImporter
         #region Notification
 
         public static ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date,
-            string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSMS, ref int id)
+            string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSMS, ref int id, bool includeIot = false)
         {
             AddMessageAnnouncementResponse response = null;
             try
@@ -5413,6 +5413,7 @@ namespace TvinciImporter
                 announcement.MailTemplate = mailTemplate;
                 announcement.MailSubject = mailSubject;
                 announcement.IncludeSms = includeSMS;
+                announcement.IncludeIot = includeIot;
                 response = Core.Notification.Module.AddMessageAnnouncement(nParentGroupID, announcement);
                 if (response != null && response.Status.Code == (int)eResponseStatus.OK)
                 {
@@ -5427,7 +5428,7 @@ namespace TvinciImporter
         }
 
         public static ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date,
-            string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSms)
+            string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSms, bool includeIot = false)
         {
             try
             {
@@ -5446,6 +5447,7 @@ namespace TvinciImporter
                 announcement.MailSubject = mailSubject;
                 announcement.MailSubject = mailSubject;
                 announcement.IncludeSms = includeSms;
+                announcement.IncludeIot = includeIot;
                 MessageAnnouncementResponse response = Core.Notification.Module.UpdateMessageAnnouncement(nParentGroupID, id, announcement);
                 return response.Status;
             }

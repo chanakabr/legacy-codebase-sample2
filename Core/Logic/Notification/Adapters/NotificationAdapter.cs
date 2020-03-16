@@ -3,10 +3,14 @@ using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.ServiceModel;
 using TVinciShared;
+using ApiLogic.Notification;
 
 namespace Core.Notification.Adapters
 {
@@ -20,6 +24,46 @@ namespace Core.Notification.Adapters
             client.ConfigureServiceClient();
             return client;
         }
+
+        public static T SendHttpRequest<T>(string url, string requestJson, HttpMethod method)
+        {
+            //if (method == HttpMethod.Get)
+            //{
+            //    url = requestUrl;
+            //}
+
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = method.Method;
+
+            /*any headers?*/
+
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                if (!string.IsNullOrEmpty(requestJson))
+                {
+                    streamWriter.Write(requestJson);
+                }
+            }
+
+            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var result = streamReader.ReadToEnd();
+                if (!string.IsNullOrEmpty(result))
+                {
+                    var response = JsonConvert.DeserializeObject<HttpResponseMessage>(result);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var _result = response.Content.ReadAsStringAsync().Result;
+                        return JsonConvert.DeserializeObject<T>(_result);
+                    }
+                }
+            }
+            return default;
+        }
+
 
         public static string CreateAnnouncement(int groupId, string announcementName, bool isUniqueName = false)
         {
@@ -205,6 +249,36 @@ namespace Core.Notification.Adapters
             }
             return messageId;
         }
+
+        public static IotPublishResponse IotPublishToAnnouncement(int groupId, string externalAnnouncementId, string subject, MessageData message)
+        {
+            IotPublishResponse response = null;
+            var topic = $"{groupId}/PublicAnnouncement";
+            // validate notification URL exists
+            var iotAdapterUrl = NotificationSettings.GetIotAdapterUrl(groupId);
+            if (string.IsNullOrEmpty(iotAdapterUrl))
+                log.Error("IOT Notification URL wasn't found");
+            else
+            {
+                try
+                {
+                    //Todo Matan - Test
+                    var request = new { GroupId = groupId, Message = message.Alert, Subject = subject, Topic = topic };/*Temp*/
+                    response = SendHttpRequest<IotPublishResponse>(iotAdapterUrl, JsonConvert.SerializeObject(request), HttpMethod.Post);
+
+                    if (response == null || response.ResponseObject == null || !response.ResponseObject.IsSuccess)
+                        log.Error($"Error while trying to publish announcement. announcement external ID: {externalAnnouncementId}, message: {message}");
+                    else
+                        log.Debug($"successfully published announcement. announcement external ID: {externalAnnouncementId}");
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Error while trying to publish announcement. announcement external ID: {externalAnnouncementId}, message: {message} ex: {ex}");
+                }
+            }
+            return response;
+        }
+
 
         public static List<WSEndPointPublishDataResult> PublishToEndPoint(int groupId, WSEndPointPublishData publishData)
         {

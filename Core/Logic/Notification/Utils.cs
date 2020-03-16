@@ -78,7 +78,8 @@ namespace Core.Notification
                 MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
                 MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
                 IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false),
-                IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false)
+                IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false),
+                IncludeIot = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_IOT") > 0) ? true : false)
             };
 
             return msg;
@@ -484,6 +485,8 @@ namespace Core.Notification
                     userNotificationData.Settings.EnableMail = NotificationSettings.IsPartnerMailNotificationEnabled(groupId);
 
                     userNotificationData.Settings.EnableSms = NotificationSettings.IsPartnerSmsNotificationEnabled(groupId);
+
+                    userNotificationData.Settings.EnableIot = NotificationSettings.IsPartnerIotNotificationEnabled(groupId);
 
                     if (userNotificationData.Settings.EnableMail.Value || userNotificationData.Settings.EnableSms.Value)
                     {

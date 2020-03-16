@@ -37,7 +37,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
-                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled));
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
+                 .ForMember(dest => dest.IotEnabled, opt => opt.MapFrom(src => src.IsIotEnabled));
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
             cfg.CreateMap<KalturaPartnerNotificationSettings, NotificationPartnerSettings>()
@@ -58,6 +59,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
+                 .ForMember(dest => dest.IsIotEnabled, opt => opt.MapFrom(src => src.IotEnabled))
                  ;
 
             //NotificationPartnerSettings to KalturaNotificationPartnerSettings
@@ -79,6 +81,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
+                 .ForMember(dest => dest.IotEnabled, opt => opt.MapFrom(src => src.IsIotEnabled))
+                 .ForMember(dest => dest.IotAdapterUrl, opt => opt.MapFrom(src => src.IotAdapterUrl))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
@@ -100,6 +104,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
+                 .ForMember(dest => dest.IsIotEnabled, opt => opt.MapFrom(src => src.IotEnabled))
+                 .ForMember(dest => dest.IotAdapterUrl, opt => opt.MapFrom(src => src.IotAdapterUrl))
                  ;
 
             cfg.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
@@ -130,7 +136,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IncludeMail, opt => opt.MapFrom(src => src.IncludeMail))
                  .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
-                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms));
+                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms))
+                 .ForMember(dest => dest.IncludeIot, opt => opt.MapFrom(src => src.IncludeIot));
 
             cfg.CreateMap<KalturaAnnouncementRecipientsType, eAnnouncementRecipientsType>()
                 .ConvertUsing(KalturaRecipientsType =>
@@ -278,7 +285,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
-            
+
             cfg.CreateMap<KalturaFollowTvSeries, FollowDataBase>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
@@ -535,7 +542,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaEngagement, Engagement>()
                .ForMember(dest => dest.AdapterDynamicData, opt => opt.MapFrom(src => src.AdapterDynamicData))
                .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId))
-               .ForMember(dest => dest.EngagementType, opt => opt.ResolveUsing(src => ConvertEngagementType( src.Type)))
+               .ForMember(dest => dest.EngagementType, opt => opt.ResolveUsing(src => ConvertEngagementType(src.Type)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.IntervalSeconds, opt => opt.MapFrom(src => src.IntervalSeconds))
                .ForMember(dest => dest.SendTime, opt => opt.ResolveUsing(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.SendTimeInSeconds)))
@@ -804,7 +811,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case eMessageCategory.Interest:
                     result = KalturaInboxMessageType.Interest;
-                    break;  
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown inbox message type");
             }
@@ -1231,7 +1238,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     throw new ClientException((int)StatusCode.Error, "Unknown subscription trigger type");
                     break;
             }
-          
+
             return result;
         }
 
@@ -1266,7 +1273,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case TopicNotificationMessageStatus.Sent:
                     result = KalturaTopicNotificationMessageStatus.SENT;
                     break;
-               
+
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown status Type");
             }

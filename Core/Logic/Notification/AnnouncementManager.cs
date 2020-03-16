@@ -137,7 +137,7 @@ namespace Core.Notification
                 }
             }
         }
-        
+
         public static MessageAnnouncementResponse UpdateMessageAnnouncement(int groupId, int announcementId, MessageAnnouncement announcement, bool enforceMsgAllowedTime = false, bool validateMsgStartTime = true)
         {
             var response = new MessageAnnouncementResponse
@@ -181,7 +181,7 @@ namespace Core.Notification
             DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
 
             DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(announcementId, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null,
-                announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject);
+                announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeIot);
             announcement = Utils.GetMessageAnnouncementFromDataRow(row);
 
             // add a new message to queue when new time updated
@@ -198,7 +198,7 @@ namespace Core.Notification
             response.Announcement = announcement;
             return response;
         }
-        
+
         public static Status UpdateMessageSystemAnnouncementStatus(int groupId, long id, bool status)
         {
             // validate system announcements are enabled
@@ -449,7 +449,7 @@ namespace Core.Notification
                 DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
                 DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message,
                     announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.MessageReference, null,
-                    announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeSms, announcement.AnnouncementId);
+                    announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeSms, announcement.IncludeIot, announcement.AnnouncementId);
                 return Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
             }
             catch (Exception ex)
@@ -509,6 +509,13 @@ namespace Core.Notification
                 log.ErrorFormat("Message too long");
                 return new Status((int)eResponseStatus.AnnouncementMessageTooLong, "Announcement Message Too Long");
             }
+
+            if (announcement.IncludeIot && !NotificationSettings.IsPartnerIotNotificationEnabled(groupId))
+            {
+                log.ErrorFormat("Invalid send attempt to IOT");
+                return new Status((int)eResponseStatus.ActionIsNotAllowed, "Invalid send attempt to IOT");
+            }
+
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
@@ -661,6 +668,7 @@ namespace Core.Notification
             List<string> queueNames = new List<string>();
             bool includeMail = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_EMAIL") == 1;
             bool includeSms = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_SMS") == 1;
+            bool includeIot = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_IOT") == 1;
             string mailTemplate = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "MAIL_TEMPLATE");
             string mailSubject = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "MAIL_SUBJECT");
 
@@ -843,6 +851,13 @@ namespace Core.Notification
                     if (!string.IsNullOrEmpty(singleTopicExternalId))
                         topicExternalIds.Add(singleTopicExternalId);
 
+                    if (NotificationSettings.IsPartnerIotNotificationEnabled(groupId) && includeIot)
+                    {
+                        //TODO - Matan Verify logged in flow
+                        PublishIotSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
+                            ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+                    }
+
                     // add the Q name to list to be sent to later
                     if (!string.IsNullOrEmpty(singleQueueName))
                         queueNames.Add(singleQueueName);
@@ -915,6 +930,15 @@ namespace Core.Notification
             }
 
             string resultMsgIds = "";
+
+            //send IOT message
+            if (NotificationSettings.IsPartnerIotNotificationEnabled(groupId) && includeIot)
+            {
+                //TODO - Matan, Support IOT with type other
+                PublishIotSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
+                    ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+            }
+
 
             // send push messages
             if (NotificationSettings.IsPartnerPushEnabled(groupId) || NotificationSettings.IsPartnerSmsNotificationEnabled(groupId))
@@ -997,6 +1021,36 @@ namespace Core.Notification
                 else
                 {
                     log.DebugFormat("Successfully sent SMS system announcement. announcementId: {0}", smsAnnouncement.ID);
+                }
+            }
+        }
+
+        private static void PublishIotSystemAnnouncement(int groupId, DataRow messageAnnouncementDataRow, List<DbAnnouncement> announcements,
+            string alert, string url, string sound, string category, string imageUrl)
+        {
+            DbAnnouncement iotAnnouncement = null;
+
+            if (announcements != null)
+                iotAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Other);
+
+            if (iotAnnouncement != null)
+            {
+                var result = NotificationAdapter.IotPublishToAnnouncement(groupId, iotAnnouncement.ExternalId, string.Empty,
+                    new MessageData() //new MessageIotFullData
+                    {
+                        Alert = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
+                        Url = url,
+                        Sound = sound,
+                        Category = category,
+                        ImageUrl = imageUrl
+                    });
+                if (result == null || result.ResponseObject == null || !result.ResponseObject.IsSuccess)
+                {
+                    log.Error($"failed to send IOT system announcement to adapter. annoucementId = {iotAnnouncement.ID}");
+                }
+                else
+                {
+                    log.Debug($"Successfully sent IOT system announcement. announcementId: {iotAnnouncement.ID}");
                 }
             }
         }

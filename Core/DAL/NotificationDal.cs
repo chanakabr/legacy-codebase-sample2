@@ -24,7 +24,7 @@ namespace DAL
         private const string SP_UPDATE_NOTIFICATION_REQUEST_STATUS = "UpdateNotificationRequestStatus";
         private const string SP_GET_NOTIFICATION_BY_GROUP_AND_TRIGGER_TYPE = "GetNotifictaionByGroupAndTriggerType";
         private const string SP_IS_NOTIFICATION_EXIST = "IsNotifictaionExist";
-        private const string SP_GET_DEVICE_NOTIFICATION = "GetDeviceNotification";       
+        private const string SP_GET_DEVICE_NOTIFICATION = "GetDeviceNotification";
         private const string SP_UPDATE_NOTIFICATION_MESSAGE_VIEW_STATUS = "UpdateNotificationMessageViewStatus";
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
@@ -73,7 +73,7 @@ namespace DAL
         private static string GetNotificationCleanupKey()
         {
             return "notification_cleanup";
-        }               
+        }
 
         /// <summary>
         /// Insert one notification request to notifications_requests table
@@ -97,7 +97,7 @@ namespace DAL
             spInsertNotificationRequest.AddParameter("@status", status);
 
             DataTable dt = spInsertNotificationRequest.Execute();
-        }        
+        }
 
         /// <summary>
         /// Returns dataset of notification requests and their actions 
@@ -122,7 +122,7 @@ namespace DAL
 
             DataSet ds = spGetNotificationRequests.ExecuteDataSet();
             return ds;
-        }        
+        }
 
         /// <summary>
         /// Update status of several notification requests at notifications_requests table
@@ -137,7 +137,7 @@ namespace DAL
             spUpdateNotificationRequestStatus.AddIDListParameter<long>("@requestsIDs", requestsIDsList, "id");
             spUpdateNotificationRequestStatus.AddParameter("@status", status);
             DataTable dt = spUpdateNotificationRequestStatus.Execute();
-        }       
+        }
 
         /// <summary>
         /// Calls IsNotifictaionExist stored procedure to check if a notification
@@ -175,7 +175,7 @@ namespace DAL
                 return ds.Tables[0];
             }
             return null;
-        }       
+        }
 
         public static DataTable GetDeviceNotification(long groupID, long userID, long deviceID, byte? view_status, int? topRowNumber, int? notificationType)
         {
@@ -734,6 +734,12 @@ namespace DAL
             if (settings.IsSMSEnabled.HasValue)
                 sp.AddParameter("@isSmsEnabled", settings.IsSMSEnabled.Value);
 
+            if (settings.IsIotEnabled.HasValue)
+                sp.AddParameter("@isIotEnabled", settings.IsIotEnabled.Value);
+
+            if (settings.IsIotEnabled.HasValue && !string.IsNullOrEmpty(settings.IotAdapterUrl))
+                sp.AddParameter("@iotAdapterUrl", settings.IotAdapterUrl);
+
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -780,6 +786,8 @@ namespace DAL
                         SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email"),
                         MailNotificationAdapterId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "MAIL_NOTIFICATION_ADAPTER_ID"),
                         IsSMSEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_sms_enable") == 1 ? true : false,
+                        IsIotEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_iot_enable") == 1 ? true : false,
+                        IotAdapterUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "iot_adapter_url")
                     });
                 }
             }
@@ -843,7 +851,7 @@ namespace DAL
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@top", pageSize * (pageIndex + 1));
-            DataSet ds = sp.ExecuteDataSet();  
+            DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -924,9 +932,9 @@ namespace DAL
             return 0;
         }
 
-        public static DataRow Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, 
-            int updaterId, string messageReference , string resultMsgId , string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSMS,
-            long announcement_id = 0)
+        public static DataRow Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone,
+            int updaterId, string messageReference, string resultMsgId, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSMS,
+            bool includeIot, long announcement_id = 0)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -948,6 +956,7 @@ namespace DAL
             spInsert.AddParameter("@mailTemplate", mailTemplate);
             spInsert.AddParameter("@mailSubject", mailSubject);
             spInsert.AddParameter("@includeSMS", includeSMS);
+            spInsert.AddParameter("@includeIOT", includeIot);
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
@@ -960,8 +969,8 @@ namespace DAL
             return dt.Rows[0];
         }
 
-        public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, 
-            string timezone, int updaterId, string resultMsgId, string imageUrl, bool includeMail , string mailTemplate, string mailSubject)
+        public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime,
+            string timezone, int updaterId, string resultMsgId, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeIot)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -978,6 +987,7 @@ namespace DAL
             spInsert.AddParameter("@includeMail", includeMail);
             spInsert.AddParameter("@mailTemplate", mailTemplate);
             spInsert.AddParameter("@mailSubject", mailSubject);
+            spInsert.AddParameter("@includeIot", includeIot);
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
@@ -2837,7 +2847,7 @@ namespace DAL
 
         public static List<TopicNotification> GetTopicsNotificationsCB(List<long> topicNotificationIds)
         {
-            List<string> keys = topicNotificationIds.Select(x => GetTopicNotificationKey(x)).ToList();    
+            List<string> keys = topicNotificationIds.Select(x => GetTopicNotificationKey(x)).ToList();
             return UtilsDal.GetObjectListFromCB<TopicNotification>(eCouchbaseBucket.OTT_APPS, keys, true);
         }
 
@@ -2888,7 +2898,7 @@ namespace DAL
             };
 
             return UtilsDal.ExecuteReturnValue<int>("Delete_TopicNotification", parameters, MESSAGE_BOX_CONNECTION) > 0;
-        }       
+        }
 
         public static bool SaveTopicNotificationMessageCB(int groupId, TopicNotificationMessage topicNotificationMessage)
         {
@@ -2929,7 +2939,7 @@ namespace DAL
 
         public static List<TopicNotificationMessage> GetTopicNotificationMessagesCB(List<long> topicNotificationMeesageIds)
         {
-            List<string> keys = topicNotificationMeesageIds.Select(x => GetTopicNotificationMessageKey(x)).ToList();            
+            List<string> keys = topicNotificationMeesageIds.Select(x => GetTopicNotificationMessageKey(x)).ToList();
             return UtilsDal.GetObjectListFromCB<TopicNotificationMessage>(eCouchbaseBucket.OTT_APPS, keys, true);
         }
 
@@ -2972,7 +2982,7 @@ namespace DAL
             return string.Format("topic_notification_message:{0}", id);
         }
 
-        
+
         #endregion TopicNotification & TopicNotificationMessage
     }
-}   
+}
