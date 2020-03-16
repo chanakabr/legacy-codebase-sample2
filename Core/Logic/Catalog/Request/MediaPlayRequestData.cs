@@ -93,7 +93,7 @@ namespace Core.Catalog.Request
                     List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
 
                     // get partner configuration for ttl.
-                    uint expirationTTL = BaseConditionalAccess.GetDevicePlayDataExpirationTTL(groupId, ttl);
+                    uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(groupId, ttl);
 
                     currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds,
                         mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, expirationTTL, action);
@@ -118,7 +118,7 @@ namespace Core.Catalog.Request
                     };
 
                     // get partner configuration for ttl.
-                    uint expirationTTL = BaseConditionalAccess.GetDevicePlayDataExpirationTTL(groupId, ttl);
+                    uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(groupId, ttl);
                     
                     // save new devicePlayData
                     CatalogDAL.UpdateOrInsertDevicePlayData(newDevicePlayData, false, expirationTTL);

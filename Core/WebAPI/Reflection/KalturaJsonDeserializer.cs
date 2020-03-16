@@ -25205,9 +25205,9 @@ namespace WebAPI.Models.Partner
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EvictionPolicy, typeof(KalturaEvictionPolicyType)));
                     }
                 }
-                if (parameters.ContainsKey("devicePlayDataExpirationTTL") && parameters["devicePlayDataExpirationTTL"] != null)
+                if (parameters.ContainsKey("concurrencyThresholdInSeconds") && parameters["concurrencyThresholdInSeconds"] != null)
                 {
-                    DevicePlayDataExpirationTTL = (Int64) Convert.ChangeType(parameters["devicePlayDataExpirationTTL"], typeof(Int64));
+                    ConcurrencyThresholdInSeconds = (Int64) Convert.ChangeType(parameters["concurrencyThresholdInSeconds"], typeof(Int64));
                 }
             }
         }

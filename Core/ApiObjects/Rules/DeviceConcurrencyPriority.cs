@@ -13,7 +13,23 @@ namespace ApiObjects.Rules
         [JsonProperty("PriorityOrder")]
         public DowngradePolicy PriorityOrder { get; set; }
 
-        [JsonProperty("DevicePlayDataExpirationTTL")]
-        public long? DevicePlayDataExpirationTTL { get; set; }
+        [JsonProperty("ConcurrencyThresholdInSeconds")]
+        public long? ConcurrencyThresholdInSeconds { get; set; }
+
+        public bool SetUnchangedProperties(DeviceConcurrencyPriority oldConfig)
+        {
+            var needToUpdate = false;
+
+            if (this.ConcurrencyThresholdInSeconds.HasValue)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                this.ConcurrencyThresholdInSeconds = oldConfig.ConcurrencyThresholdInSeconds;
+            }
+
+            return needToUpdate;
+        }
     }
 }

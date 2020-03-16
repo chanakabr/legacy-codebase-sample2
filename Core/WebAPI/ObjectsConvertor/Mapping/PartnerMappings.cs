@@ -23,13 +23,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<DeviceConcurrencyPriority, KalturaConcurrencyPartnerConfig>()
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => string.Join(",", src.DeviceFamilyIds)))
                 .ForMember(dest => dest.EvictionPolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicyToEvictionPolicy(src.PriorityOrder)))
-                .ForMember(dest => dest.DevicePlayDataExpirationTTL, opt => opt.MapFrom(src => src.DevicePlayDataExpirationTTL)); 
+                .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds)); 
 
             // map KalturaConcurrencyPartnerConfig to DeviceConcurrencyPriority
             cfg.CreateMap<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>()
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => src.GetDeviceFamilyIds()))
                 .ForMember(dest => dest.PriorityOrder, opt => opt.ResolveUsing(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)))
-                .ForMember(dest => dest.DevicePlayDataExpirationTTL, opt => opt.MapFrom(src => src.DevicePlayDataExpirationTTL));
+                .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds));
 
             // map GeneralPartnerConfig to KalturaGeneralPartnerConfig
             cfg.CreateMap<GeneralPartnerConfig, KalturaGeneralPartnerConfig>()

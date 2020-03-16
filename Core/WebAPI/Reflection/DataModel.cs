@@ -1563,10 +1563,10 @@ namespace WebAPI.Reflection
                 case "KalturaConcurrencyPartnerConfig":
                     switch(property.Name)
                     {
+                        case "ConcurrencyThresholdInSeconds":
+                            return "concurrencyThresholdInSeconds";
                         case "DeviceFamilyIds":
                             return "deviceFamilyIds";
-                        case "DevicePlayDataExpirationTTL":
-                            return "devicePlayDataExpirationTTL";
                         case "EvictionPolicy":
                             return "evictionPolicy";
                     }

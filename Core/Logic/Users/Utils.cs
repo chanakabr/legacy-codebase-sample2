@@ -31,7 +31,6 @@ namespace Core.Users
 
         public const int USER_COGUID_LENGTH = 15;
         internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // fictive date. must match with the       
-        internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000; // default result of GetDateSafeVal in ODBCWrapper.Utils
         protected const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";
 
         private const string PURGE_TASK = "distributed_tasks.process_purge";

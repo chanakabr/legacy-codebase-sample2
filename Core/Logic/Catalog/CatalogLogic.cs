@@ -2748,7 +2748,7 @@ namespace Core.Catalog
                     else
                     {
                         // get partner configuration for ttl.
-                        uint expirationTTL = BaseConditionalAccess.GetDevicePlayDataExpirationTTL(groupId, ttl);
+                        uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(groupId, ttl);
 
                         CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, isReportingMode, expirationTTL);
                     }
