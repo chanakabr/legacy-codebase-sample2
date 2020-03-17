@@ -87,6 +87,8 @@ pipeline {
                     dir("bin/Release/netcoreapp3.1"){
                         bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
                         bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
+                        sh (label:"upload to s3", script:"aws s3 cp KalturaClient.xml s3://clientlibs/${BRANCH_NAME}/kalturaxml/")
+
                     }
                 }
             }
