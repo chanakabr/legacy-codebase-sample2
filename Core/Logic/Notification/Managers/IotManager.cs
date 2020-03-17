@@ -68,11 +68,6 @@ namespace ApiLogic.Notification
             {
                 log.ErrorFormat($"Error while saving Iot device. Iot response: {Newtonsoft.Json.JsonConvert.SerializeObject(msResponse)}");
             }
-
-            if (DAL.DomainDal.GetRegisteredDevice(groupId.ToString(), udid) == null)
-            {
-                log.ErrorFormat($"Error while retrieving Iot device. Iot response: {Newtonsoft.Json.JsonConvert.SerializeObject(msResponse)}");
-            }
         }
 
         public GenericResponse<IotClientConfiguration> GetIotClientConfiguration(ContextData contextData, bool isClient = true)

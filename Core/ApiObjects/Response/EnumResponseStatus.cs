@@ -55,6 +55,7 @@ namespace ApiObjects.Response
         PasswordExpired = 1040,
         PasswordCannotBeReused = 1041,
         InvalidPasswordComplexity = 1042,
+        InternalConnectionIssue = 1043,
 
         #endregion
 
