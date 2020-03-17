@@ -14,6 +14,9 @@ pipeline {
         component = "${env.JOB_NAME}"
         ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
     }
+    // parameters {
+    //     booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
+    // }
     stages {
         stage('Checkout'){
             steps{
@@ -39,7 +42,6 @@ pipeline {
         }
       
         stage("Trigger Release Candidate"){
-            when { expression { params.TRIGGER_RC == true } }
             steps{
                 script {
                     SHORT_JOB_NAME = sh (script: "echo ${JOB_NAME} | cut -f1 -d'/'", returnStdout: true).trim()  
