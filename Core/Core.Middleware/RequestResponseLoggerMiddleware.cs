@@ -20,8 +20,17 @@ namespace Core.Middleware
 
         public static IApplicationBuilder UseRequestResponseLogger(this IApplicationBuilder app)
         {
+            var envEnableLogging = Environment.GetEnvironmentVariable("ENABLE_REQUEST_RESPONSE_LOGGING") ?? "false";
+            var isRequestResponseLoggingEnabled = envEnableLogging.Equals("true", StringComparison.OrdinalIgnoreCase) || envEnableLogging.Equals("1", StringComparison.OrdinalIgnoreCase);
+            if (!isRequestResponseLoggingEnabled)
+            {
+                // Logging is disabled, do not register middleware and return the app as is
+                return app;
+            }
+
             app.Use(async (context, _next) =>
             {
+                
                 // Get Request Information
                 context.Request.EnableBuffering();
                 var requestUrl = context.Request.GetDisplayUrl();
