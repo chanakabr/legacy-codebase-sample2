@@ -86,9 +86,8 @@ pipeline {
                     bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
                     dir("bin/Release/netcoreapp3.1"){
                         bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
-                        bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
+                        bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\phoenix\\clientlibs\\")
                         sh (label:"upload to s3", script:"aws s3 cp KalturaClient.xml s3://clientlibs/${BRANCH_NAME}/kalturaxml/")
-
                     }
                 }
             }
@@ -166,11 +165,15 @@ pipeline {
         }
         stage("Trigger Release Candidate"){
             steps{
+                script {
+                    SHORT_JOB_NAME = sh (script: "echo ${JOB_NAME} | cut -f1 -d'/'", returnStdout: true).trim()  
+                }
                 build (
                     job: "OTT-BE-Create-Release-Candidate", 
                     wait: false,
                     parameters: [
                         [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                        [$class: 'StringParameterValue', name: 'callingjob', value: "${SHORT_JOB_NAME}"],
                     ]
                 )
                 script {
