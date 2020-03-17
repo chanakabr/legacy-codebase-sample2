@@ -47,6 +47,7 @@ namespace Phoenix.Rest.Middleware
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
 
+            app.UseRequestResponseLogger();
             app.UseHealthCheck("/api_v3/service/system/action/health");
             app.UseCoreConcurrencyLimiter();
             app.UseApiExceptionHandler();

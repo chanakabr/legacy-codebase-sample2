@@ -59,7 +59,6 @@ namespace KLogMonitor
 
 
 
-        [Obsolete("This CTOR is no longer relveant, all loggers are now seperate")]
         public KLogger(string className, string separateLoggerName = null) : this(separateLoggerName ?? className) { }
 
         public KLogger(string className)
