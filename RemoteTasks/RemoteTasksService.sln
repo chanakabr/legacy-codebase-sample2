@@ -186,7 +186,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck", "HealthCheck\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElasticsearchIndexCleaner", "ElasticsearchIndexCleaner\ElasticsearchIndexCleaner.csproj", "{364FCFC5-6A44-4228-8115-D98A0FE107BA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestValidtionHandler", "IngestValidtionHandler\IngestValidtionHandler.csproj", "{7834C46E-5AD3-435E-BDD2-571703AB5263}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestValidationHandler", "IngestValidtionHandler\IngestValidationHandler.csproj", "{7834C46E-5AD3-435E-BDD2-571703AB5263}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IngestHandlers", "IngestHandlers", "{F04B0B11-48FA-438A-9E73-3DF91B3D1913}"
 EndProject

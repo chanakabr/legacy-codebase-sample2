@@ -24,7 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ESUtils = ElasticSearch.Common.Utils;
 
-namespace IngestValidtionHandler
+namespace IngestValidationHandler
 {
     public class BulkUploadIngestValidationHandler : IServiceEventHandler<BulkUploadIngestValidationEvent>
     {

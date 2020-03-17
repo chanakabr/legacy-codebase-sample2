@@ -3,7 +3,7 @@ using EventBus.RabbitMQ;
 using Microsoft.Extensions.Hosting;
 using WebAPI.Filters;
 
-namespace IngestValidtionHandler
+namespace IngestValidationHandler
 {
     internal static class Program
     {
