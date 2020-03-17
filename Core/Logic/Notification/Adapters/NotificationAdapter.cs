@@ -37,12 +37,14 @@ namespace Core.Notification.Adapters
             httpWebRequest.Method = method.Method;
 
             /*any headers?*/
-
-            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            if (method != HttpMethod.Get)
             {
-                if (!string.IsNullOrEmpty(requestJson))
+                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
                 {
-                    streamWriter.Write(requestJson);
+                    if (!string.IsNullOrEmpty(requestJson))
+                    {
+                        streamWriter.Write(requestJson);
+                    }
                 }
             }
 
@@ -56,8 +58,8 @@ namespace Core.Notification.Adapters
                     var response = JsonConvert.DeserializeObject<HttpResponseMessage>(result);
                     if (response.IsSuccessStatusCode)
                     {
-                        var _result = response.Content.ReadAsStringAsync().Result;
-                        return JsonConvert.DeserializeObject<T>(_result);
+                        //var _result = response.Content.ReadAsStringAsync().Result;
+                        return JsonConvert.DeserializeObject<T>(result);
                     }
                 }
             }
@@ -250,7 +252,7 @@ namespace Core.Notification.Adapters
             return messageId;
         }
 
-        public static IotPublishResponse IotPublishToAnnouncement(int groupId, string externalAnnouncementId, string subject, MessageData message)
+        public static IotPublishResponse IotPublishAnnouncement(int groupId, string externalAnnouncementId, string subject, MessageData message)
         {
             IotPublishResponse response = null;
             var topic = $"{groupId}/PublicAnnouncement";

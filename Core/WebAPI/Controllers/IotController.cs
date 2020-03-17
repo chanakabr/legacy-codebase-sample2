@@ -1,6 +1,5 @@
 ﻿using ApiLogic.Notification;
 using ApiObjects;
-using ApiObjects.Base;
 using ApiObjects.Response;
 using System;
 using WebAPI.Clients;
@@ -8,7 +7,6 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
-using WebAPI.Models.Users;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
