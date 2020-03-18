@@ -303,7 +303,8 @@ namespace WebAPI.Clients
                     }
                     else
                     {
-                        assetListResponse = SearchAssets(groupId, siteGuid, domainId, udid, language, 0, 1, string.Format("media_id = '{0}'", id), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
+                        assetListResponse = SearchAssets(groupId, siteGuid, domainId, udid, language, 0, 1,
+                            $"(and asset_type='media' media_id = '{id}')", KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
                     }
 
                     if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
