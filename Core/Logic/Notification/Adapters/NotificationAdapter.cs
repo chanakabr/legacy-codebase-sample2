@@ -11,6 +11,7 @@ using System.Reflection;
 using System.ServiceModel;
 using TVinciShared;
 using ApiLogic.Notification;
+using System.Configuration;
 
 namespace Core.Notification.Adapters
 {
@@ -25,7 +26,8 @@ namespace Core.Notification.Adapters
             return client;
         }
 
-        public static T SendHttpRequest<T>(string url, string requestJson, HttpMethod method, int timeout = 1000)
+        public static T SendHttpRequest<T>(string url, string requestJson, HttpMethod method,
+            int timeout = 1000, HttpStatusCode noConfigStatus = HttpStatusCode.NoContent)
         {
             try
             {
@@ -46,6 +48,11 @@ namespace Core.Notification.Adapters
                 }
 
                 var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+                if (httpResponse.StatusCode == noConfigStatus)
+                {
+                    throw new ConfigurationErrorsException($"No configurations in the request: {requestJson}");
+                }
 
                 using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
                 {
@@ -255,11 +262,11 @@ namespace Core.Notification.Adapters
             return messageId;
         }
 
-        public static IotPublishResponse IotPublishAnnouncement(int groupId, string externalAnnouncementId, string subject, MessageData message)
+        public static IotPublishResponse IotPublishAnnouncement(int groupId, string externalAnnouncementId, string subject, MessageData message, string topic = "PublicAnnouncement")
         {
             IotPublishResponse response = null;
-            var topic = $"{groupId}/PublicAnnouncement";
-            // validate notification URL exists
+            var _topic = $"{groupId}/{topic}";
+
             var iotAdapterUrl = NotificationSettings.GetIotAdapterUrl(groupId);
             if (string.IsNullOrEmpty(iotAdapterUrl))
                 log.Error("IOT Notification URL wasn't found");
@@ -268,13 +275,17 @@ namespace Core.Notification.Adapters
                 try
                 {
                     //Todo Matan - Test
-                    var request = new { GroupId = groupId, Message = message.Alert, Subject = subject, Topic = topic };/*Temp*/
+                    var request = new { GroupId = groupId, Message = message.Alert, Subject = subject, Topic = _topic };
                     response = SendHttpRequest<IotPublishResponse>(iotAdapterUrl, JsonConvert.SerializeObject(request), HttpMethod.Post);
 
                     if (response == null || response.ResponseObject == null || !response.ResponseObject.IsSuccess)
                         log.Error($"Error while trying to publish announcement. announcement external ID: {externalAnnouncementId}, message: {message}");
                     else
                         log.Debug($"successfully published announcement. announcement external ID: {externalAnnouncementId}");
+                }
+                catch (ConfigurationErrorsException)
+                {
+                    log.Error($"No configurations for group: {groupId}.");
                 }
                 catch (Exception ex)
                 {

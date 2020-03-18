@@ -6,6 +6,7 @@ using System;
 using System.Reflection;
 using KLogMonitor;
 using System.Net.Http;
+using System.Configuration;
 
 namespace ApiLogic.Notification
 {
@@ -29,32 +30,41 @@ namespace ApiLogic.Notification
             var response = new GenericResponse<Iot>();
             var groupId = contextData.GroupId;
             var udid = contextData.Udid;
-
-            var partnerSettings = Core.Notification.NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
-
-            if (!IsIotAllowed(partnerSettings))
+            try
             {
-                log.Error($"Error while getting PartnerNotificationSettings for group: {groupId}.");
-                return response;
+                var partnerSettings = Core.Notification.NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+
+                if (!IsIotAllowed(partnerSettings))
+                {
+                    log.Error($"Error while getting PartnerNotificationSettings for group: {groupId}.");
+                    return response;
+                }
+
+                var _request = new { GroupId = groupId.ToString(), Udid = udid };
+                var url = $"{partnerSettings.settings.IotAdapterUrl}{Register_Path}";
+
+                var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<Iot>
+                    (url, Newtonsoft.Json.JsonConvert.SerializeObject(_request), HttpMethod.Post);
+
+                if (msResponse == null)
+                {
+                    log.Error($"Error while registering udid: {udid} for group: {groupId}.");
+                    return response;
+                }
+
+                var saved = SaveRegisteredDevice(groupId, udid, msResponse);
+
+                response.SetStatus(saved ? Status.Ok : Status.Error);
+                response.Object = msResponse;
             }
-
-            var _request = new { GroupId = groupId.ToString(), Udid = udid };
-            var url = $"{partnerSettings.settings.IotAdapterUrl}{Register_Path}";
-
-            //Todo - Matan - add custom response from missing configurations
-            var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<Iot>
-                (url, Newtonsoft.Json.JsonConvert.SerializeObject(_request), HttpMethod.Post);
-
-            if (msResponse == null)
+            catch (ConfigurationErrorsException)
             {
-                log.Error($"Error while registering udid: {udid} for group: {groupId}.");
-                return response;
+                log.Error($"No configurations for group: {groupId}.");
             }
-
-            var saved = SaveRegisteredDevice(groupId, udid, msResponse);
-
-            response.SetStatus(saved ? Status.Ok : Status.Error);
-            response.Object = msResponse;
+            catch (Exception ex)
+            {
+                log.Error($"Register failed, error: {ex.Message}");
+            }
 
             return response;
         }
@@ -83,27 +93,37 @@ namespace ApiLogic.Notification
         {
             var response = new GenericResponse<IotClientConfiguration>();
             var groupId = contextData.GroupId;
-
-            var partnerSettings = Core.Notification.NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
-            if (!IsIotAllowed(partnerSettings))
+            try
             {
-                log.Error($"Error while getting PartnerNotificationSettings for group: {groupId}.");
-                return response;
+                var partnerSettings = Core.Notification.NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+                if (!IsIotAllowed(partnerSettings))
+                {
+                    log.Error($"Error while getting PartnerNotificationSettings for group: {groupId}.");
+                    return response;
+                }
+
+                var url = $"{partnerSettings.settings.IotAdapterUrl}{GET_CLIENT_Path}groupId={groupId}&forClient={isClient}";
+
+                var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<IotClientConfiguration>
+                    (url, Newtonsoft.Json.JsonConvert.SerializeObject(string.Empty), HttpMethod.Get);
+
+                if (msResponse == null)
+                {
+                    log.Error($"Error while getting configurations for group: {groupId}.");
+                    return response;
+                }
+
+                response.SetStatus(Status.Ok);
+                response.Object = msResponse;
             }
-
-            var url = $"{partnerSettings.settings.IotAdapterUrl}{GET_CLIENT_Path}groupId={groupId}&forClient={isClient}";
-
-            var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<IotClientConfiguration>
-                (url, Newtonsoft.Json.JsonConvert.SerializeObject(string.Empty), HttpMethod.Get);
-
-            if (msResponse == null)
+            catch (ConfigurationErrorsException)
             {
-                log.Error($"Error while getting configurations for group: {groupId}.");
-                return response;
+                log.Error($"No configurations for group: {groupId}.");
             }
-
-            response.SetStatus(Status.Ok);
-            response.Object = msResponse;
+            catch (Exception ex)
+            {
+                log.Error($"GetIotClientConfiguration failed, error: {ex.Message}");
+            }
 
             return response;
         }
