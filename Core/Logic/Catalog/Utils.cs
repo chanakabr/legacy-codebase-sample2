@@ -1803,7 +1803,7 @@ namespace Core.Catalog
                     if (ids != null && groupId.HasValue)
                     {
                         assets = CatalogLogic.CompleteMediaDetails(ids, groupId.Value, filter, false);
-                        res = assets.Count == ids.Count;
+                        res = assets.Count == ids.Count || (assets.Count > 0 && filter.AllowPartialResponse);
                     }
 
                     if (res)

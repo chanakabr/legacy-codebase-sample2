@@ -535,7 +535,8 @@ namespace APILogic
                 // if not exceeded retries limit - try again
                 if (retrisCount < innerTaskRetriesLimit)
                 {
-                    return DoExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
+                    retrisCount++;
+                    return DoExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount);
                 }
                 else
                 {
@@ -559,14 +560,14 @@ namespace APILogic
                 List<Asset> assets;
                 if (tasksCount == 1)
                 {
-                    assets = AssetManager.GetAssets(groupId, mediaIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), true); 
+                    assets = AssetManager.GetAssets(groupId, mediaIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), true);
                 }
                 else
                 {
                     var currentIdsRange = mediaIds.GetRange(startIndex, numberOfIds);
                     log.WarnFormat("start: {0}, numberOfIds, {1}, number of medias: {2}", startIndex, numberOfIds, currentIdsRange.Count);
                     // get medias from catalog by ids (only the calculated range of media ids)
-                    assets = AssetManager.GetAssets(groupId, currentIdsRange.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), true); 
+                    assets = AssetManager.GetAssets(groupId, currentIdsRange.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), true);
                     log.WarnFormat("requested: {0}, returned: {1}", currentIdsRange.Count, assets.Count);
                 }
 
@@ -576,20 +577,25 @@ namespace APILogic
                     throw new Exception(string.Format("failed to get media objects from catalog for task id = {0}, {1} medias from index = {2}", taskId, numberOfIds, startIndex));
                 }
 
+                bool updateFile = false;
                 // build the xml for all the retrieved medias
                 StringBuilder xml = new StringBuilder();
-                foreach (var asset in assets)
+                foreach (var asset in assets.Where(x => x.IndexStatus == AssetIndexStatus.Ok).ToList())
                 {
                     if (asset != null)
                     {
+                        updateFile = true;
                         xml.Append(BuildSingleOpcMediaXml(groupId, asset as MediaAsset, mainLang, taskId));
                     }
                 }
 
-                // append the created xml to the export xml file
-                lock (lockObject)
+                if (updateFile)
                 {
-                    File.AppendAllText(exportFullPath, xml.ToString());
+                    // append the created xml to the export xml file
+                    lock (lockObject)
+                    {
+                        File.AppendAllText(exportFullPath, xml.ToString());
+                    }
                 }
             }
             catch (Exception ex)
@@ -1068,8 +1074,7 @@ namespace APILogic
             {
                 m_nGroupID = groupId,
                 mediaIds = ids,
-                m_oFilter = new Filter(),
-                AllowPartialResponse = true
+                m_oFilter = new Filter() {AllowPartialResponse = true }
             };
 
             Core.ConditionalAccess.Utils.FillCatalogSignature(request);            

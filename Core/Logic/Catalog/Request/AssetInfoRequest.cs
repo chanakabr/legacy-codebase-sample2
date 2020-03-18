@@ -36,9 +36,6 @@ namespace Core.Catalog.Request
         [DataMember]
         public bool ManagementData;
 
-        [DataMember]
-        public bool AllowPartialResponse;
-
         #endregion
 
         #region Ctor
