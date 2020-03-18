@@ -331,20 +331,8 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                //Save old pictures - if any
-                if (epgAssetToUpdate.Images?.Count == 0 && oldEpgAsset.Images?.Count > 0)
-                {
-                    var docId = GetEpgCBKey(groupId, oldEpgAsset.Id);
-                    var program = EpgDal.GetEpgCB(docId);
-
-                    if (program != null && program.pictures?.Count > 0)
-                    {
-                        epgCBToUpdate.PicID = program.PicID;
-                        epgCBToUpdate.PicUrl = program.PicUrl;
-
-                        epgCBToUpdate.pictures = program.pictures;
-                    }
-                }
+                // Save old pictures - if any
+                UpdateEpgImages(groupId, oldEpgAsset, epgCBToUpdate);
 
                 // update epgCb in CB for all languages
                 SaveEpgCbToCB(epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags);
@@ -1683,6 +1671,30 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("Error while update epgCB at SetContent. imageId:{0}", image.Id);
 
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update if original asset has images
+        /// </summary>
+        private static void UpdateEpgImages(int groupId, EpgAsset oldEpgAsset, EpgCB epgCBToUpdate)
+        {
+            if (oldEpgAsset.Images != null && oldEpgAsset.Images.Count > 0)
+            {
+                var docId = GetEpgCBKey(groupId, oldEpgAsset.Id);
+                var program = EpgDal.GetEpgCB(docId);
+
+                if (program != null && program.pictures?.Count > 0)
+                {
+                    epgCBToUpdate.PicID = program.PicID;
+                    epgCBToUpdate.PicUrl = program.PicUrl;
+
+                    epgCBToUpdate.pictures = program.pictures;
+                }
+                else
+                {
+                    log.Debug($"Couldn't update Epg's images for asset: {oldEpgAsset.Id}, doc: {docId} has no images or wasn't found");
                 }
             }
         }
