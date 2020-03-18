@@ -559,14 +559,14 @@ namespace APILogic
                 List<Asset> assets;
                 if (tasksCount == 1)
                 {
-                    assets = AssetManager.GetAssets(groupId, mediaIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), false); 
+                    assets = AssetManager.GetAssets(groupId, mediaIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), true); 
                 }
                 else
                 {
                     var currentIdsRange = mediaIds.GetRange(startIndex, numberOfIds);
                     log.WarnFormat("start: {0}, numberOfIds, {1}, number of medias: {2}", startIndex, numberOfIds, currentIdsRange.Count);
                     // get medias from catalog by ids (only the calculated range of media ids)
-                    assets = AssetManager.GetAssets(groupId, currentIdsRange.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), false); 
+                    assets = AssetManager.GetAssets(groupId, currentIdsRange.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), true); 
                     log.WarnFormat("requested: {0}, returned: {1}", currentIdsRange.Count, assets.Count);
                 }
 
@@ -1068,7 +1068,8 @@ namespace APILogic
             {
                 m_nGroupID = groupId,
                 mediaIds = ids,
-                m_oFilter = new Filter()
+                m_oFilter = new Filter(),
+                AllowPartialResponse = true
             };
 
             Core.ConditionalAccess.Utils.FillCatalogSignature(request);            
