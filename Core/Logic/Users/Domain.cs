@@ -917,7 +917,7 @@ namespace Core.Users
         {
             try
             {
-                var iotDevice = DAL.DomainDal.GetRegisteredDevice(m_nGroupID.ToString(), udid);
+                var iotDevice = DAL.NotificationDal.GetRegisteredDevice(m_nGroupID.ToString(), udid);
                 if (iotDevice == null)
                 {
                     return;
@@ -936,7 +936,7 @@ namespace Core.Users
                     log.Error($"Failed removing udid: {udid} from group: {m_nGroupID}");
                 }
 
-                if (!DAL.DomainDal.RemoveRegisteredDevice(m_nGroupID.ToString(), udid))
+                if (!DAL.NotificationDal.RemoveRegisteredDevice(m_nGroupID.ToString(), udid))
                 {
                     log.Error($"Failed to delete iot document for device: {udid}, group: {m_nGroupID}");
                 }

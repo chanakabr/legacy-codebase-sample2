@@ -89,10 +89,9 @@ namespace WebAPI.Controllers
 
         private static bool ValidateRequest<T>(ContextData contextData, GenericResponse<T> genericResponse)
         {
-            var householdId = (int)HouseholdUtils.GetHouseholdIDByKS(contextData.GroupId);
-            var device = CatalogDAL.GetDomainDevices(householdId);
+            var device = CatalogDAL.GetDomainDevices((int)contextData.DomainId);
 
-            if (device == null || !device.TryGetValue(contextData.Udid, out int deviceId))
+            if (device == null || !device.ContainsKey(contextData.Udid))
             {
                 genericResponse.SetStatus(eResponseStatus.DeviceNotInDomain);
                 return false;

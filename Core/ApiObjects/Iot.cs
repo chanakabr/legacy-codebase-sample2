@@ -33,27 +33,6 @@ namespace ApiObjects
         public string UserPoolWebClientId { get; set; }
     }
 
-    //public class IotServerConfiguration
-    //{
-    //    public int Ttl { get; set; }
-    //    public string IotEndPoint { get; set; }
-    //    public string PfxPath { get; set; }
-    //    public string PfxPassword { get; set; }
-    //    public string CertificatePath { get; set; }
-    //    public int BrokerPort { get; set; }
-    //    public int MessageFormat { get; set; }
-    //    public string AccessKeyId { get; set; }
-    //    public string SecretAccessKey { get; set; }
-    //    public string UserPoolId { get; set; }
-    //    public string ClientId { get; set; }
-    //    public string IdentityPoolId { get; set; }
-    //    public string IotPolicyName { get; set; }
-    //    public string Signature { get; set; }
-    //    public string SignatureHeaderName { get; set; }
-    //    public string LastUpdateTime { get; set; }
-    //    public string Region { get; set; }
-    //}
-
     public class IotClientConfiguration
     {
         public CredentialsProvider CredentialsProvider { get; set; }

@@ -2982,6 +2982,28 @@ namespace DAL
             return string.Format("topic_notification_message:{0}", id);
         }
 
+        public static Iot GetRegisteredDevice(string groupId, string udid)
+        {
+            var key = GetIotDeviceKey(groupId, udid);
+            return UtilsDal.GetObjectFromCB<Iot>(eCouchbaseBucket.NOTIFICATION, key);
+        }
+
+        public static bool SaveRegisteredDevice(Iot msResponse)
+        {
+            string key = GetIotDeviceKey(msResponse.GroupId, msResponse.Udid);
+            return UtilsDal.SaveObjectInCB<Iot>(eCouchbaseBucket.NOTIFICATION, key, msResponse);
+        }
+
+        public static bool RemoveRegisteredDevice(string groupId, string udid)
+        {
+            var key = GetIotDeviceKey(groupId, udid);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.NOTIFICATION, key);
+        }
+
+        private static string GetIotDeviceKey(string groupId, string udid)
+        {
+            return $"Iot_Device_{groupId}_{udid}";
+        }
 
         #endregion TopicNotification & TopicNotificationMessage
     }

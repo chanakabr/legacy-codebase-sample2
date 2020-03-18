@@ -25,43 +25,46 @@ namespace Core.Notification.Adapters
             return client;
         }
 
-        public static T SendHttpRequest<T>(string url, string requestJson, HttpMethod method)
+        public static T SendHttpRequest<T>(string url, string requestJson, HttpMethod method, int timeout = 1000)
         {
-            //if (method == HttpMethod.Get)
-            //{
-            //    url = requestUrl;
-            //}
-
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
-            httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Method = method.Method;
-
-            /*any headers?*/
-            if (method != HttpMethod.Get)
+            try
             {
-                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+                httpWebRequest.ContentType = "application/json";
+                httpWebRequest.Method = method.Method;
+                httpWebRequest.Timeout = timeout;
+
+                if (method != HttpMethod.Get)
                 {
-                    if (!string.IsNullOrEmpty(requestJson))
+                    using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
                     {
-                        streamWriter.Write(requestJson);
+                        if (!string.IsNullOrEmpty(requestJson))
+                        {
+                            streamWriter.Write(requestJson);
+                        }
+                    }
+                }
+
+                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    var result = streamReader.ReadToEnd();
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        var response = JsonConvert.DeserializeObject<HttpResponseMessage>(result);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            //var _result = response.Content.ReadAsStringAsync().Result;
+                            return JsonConvert.DeserializeObject<T>(result);
+                        }
                     }
                 }
             }
-
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            catch (Exception ex)
             {
-                var result = streamReader.ReadToEnd();
-                if (!string.IsNullOrEmpty(result))
-                {
-                    var response = JsonConvert.DeserializeObject<HttpResponseMessage>(result);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        //var _result = response.Content.ReadAsStringAsync().Result;
-                        return JsonConvert.DeserializeObject<T>(result);
-                    }
-                }
+                log.Error($"Exception while calling the url: {url}, request: {requestJson} " +
+                    $"type: [{method.Method}], ex: {ex.Message}");
             }
             return default;
         }
