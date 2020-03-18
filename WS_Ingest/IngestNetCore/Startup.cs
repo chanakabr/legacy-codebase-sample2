@@ -23,11 +23,7 @@ namespace IngetsNetCore
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            var tcmHealthCheckDefinitions = ApplicationConfiguration.Current.HealthCheckConfiguration.Value;
-            List<HealthCheck.HealthCheckDefinition> healthCheckDefinitions = tcmHealthCheckDefinitions.Select(defintion =>
-                new HealthCheck.HealthCheckDefinition(defintion)).ToList();
-
-            services.AddHealthCheckService(healthCheckDefinitions);
+            services.AddKalturaHealthCheckService();
             services.AddHttpContextAccessor();
             services.AddStaticHttpContextAccessor();
             services.TryAddSingleton<IService, IngestService>();            
