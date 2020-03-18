@@ -5223,7 +5223,7 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
-    public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>
+    public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT>
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -7905,6 +7905,10 @@ namespace WebAPI.Models.Notification
             {
                 ret.Add("inboxEnabled", "\"inboxEnabled\": " + InboxEnabled.ToString().ToLower());
             }
+            if(IotAdapterUrl != null)
+            {
+                ret.Add("iotAdapterUrl", "\"iotAdapterUrl\": " + "\"" + EscapeJson(IotAdapterUrl) + "\"");
+            }
             if(IotEnabled.HasValue)
             {
                 ret.Add("iotEnabled", "\"iotEnabled\": " + IotEnabled.ToString().ToLower());
@@ -8001,6 +8005,10 @@ namespace WebAPI.Models.Notification
             if(InboxEnabled.HasValue)
             {
                 ret.Add("inboxEnabled", "<inboxEnabled>" + InboxEnabled.ToString().ToLower() + "</inboxEnabled>");
+            }
+            if(IotAdapterUrl != null)
+            {
+                ret.Add("iotAdapterUrl", "<iotAdapterUrl>" + EscapeXml(IotAdapterUrl) + "</iotAdapterUrl>");
             }
             if(IotEnabled.HasValue)
             {

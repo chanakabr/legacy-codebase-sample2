@@ -12,7 +12,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// IOT DEVICE
     /// </summary>
-    public partial class KalturaIot : KalturaCrudObject<Iot, long, IotFilter>
+    public partial class KalturaIot : KalturaCrudObject<Iot, long>
     {
         /// <summary>
         /// id
@@ -126,7 +126,7 @@ namespace WebAPI.Models.API
 
         }
 
-        internal override ICrudHandler<Iot, long, IotFilter> Handler
+        internal override ICrudHandler<Iot, long> Handler
         {
             get
             {
@@ -137,21 +137,6 @@ namespace WebAPI.Models.API
         internal override void SetId(long id)
         {
             throw new System.NotImplementedException();
-        }
-
-        internal override void ValidateForAdd()
-        {
-        }
-
-        internal override void ValidateForUpdate()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        internal override GenericResponse<Iot> Add(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<Iot>(this);
-            return ApiLogic.Notification.IotManager.Instance.Add(contextData, coreObject);
         }
     }
 }

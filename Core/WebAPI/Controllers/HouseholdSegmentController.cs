@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
                   })]              
 
     [ListAction(Summary = "Gets all HouseholdSegment items for a household", IsFilterOptional = true)]
-    public class HouseholdSegmentController : KalturaCrudController<KalturaHouseholdSegment, KalturaHouseholdSegmentListResponse, HouseholdSegment, long, KalturaHouseholdSegmentFilter, HouseholdSegmentFilter>
+    public class HouseholdSegmentController : KalturaCrudController<KalturaHouseholdSegment, KalturaHouseholdSegmentListResponse, HouseholdSegment, long, KalturaHouseholdSegmentFilter>
     {
     }    
 }

@@ -4013,6 +4013,8 @@ namespace WebAPI.Reflection
                             return "churnMailTemplateName";
                         case "InboxEnabled":
                             return "inboxEnabled";
+                        case "IotAdapterUrl":
+                            return "iotAdapterUrl";
                         case "IotEnabled":
                             return "iotEnabled";
                         case "MailNotificationAdapterId":
@@ -8643,10 +8645,6 @@ namespace WebAPI.Reflection
                         case "register":
                             RolesManager.ValidateActionPermitted("iot", "register", false);
                             return IotController.Register();
-                            
-                        case "add":
-                            RolesManager.ValidateActionPermitted("iot", "add");
-                            return IotController.Add((KalturaIot) methodParams[0]);
                             
                     }
                     break;
@@ -14934,14 +14932,6 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "register":
-                            return ret;
-                            
-                        case "add":
-                            ret.Add("objectToAdd", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaIot),
-                            });
                             return ret;
                             
                     }

@@ -824,55 +824,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return userFollowSettings.FollowSettings.EnablePush;
         }
 
-        // TODO SHIR - DELETE AFTER SET MAPPING
-        public static KalturaAnnouncementRecipientsType ConvertRecipientsType1(eAnnouncementRecipientsType recipients)
-        {
-            KalturaAnnouncementRecipientsType result;
-            switch (recipients)
-            {
-                case eAnnouncementRecipientsType.All:
-                    result = KalturaAnnouncementRecipientsType.All;
-                    break;
-                case eAnnouncementRecipientsType.Guests:
-                    result = KalturaAnnouncementRecipientsType.Guests;
-                    break;
-                case eAnnouncementRecipientsType.LoggedIn:
-                    result = KalturaAnnouncementRecipientsType.LoggedIn;
-                    break;
-                case eAnnouncementRecipientsType.Other:
-                    result = KalturaAnnouncementRecipientsType.Other;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown recipients Type");
-            }
-
-            return result;
-        }
-        // TODO SHIR - DELETE AFTER SET MAPPING
-        public static KalturaAnnouncementStatus ConvertAnnouncementStatusType1(eAnnouncementStatus status)
-        {
-            KalturaAnnouncementStatus result;
-            switch (status)
-            {
-                case eAnnouncementStatus.Aborted:
-                    result = KalturaAnnouncementStatus.Aborted;
-                    break;
-                case eAnnouncementStatus.NotSent:
-                    result = KalturaAnnouncementStatus.NotSent;
-                    break;
-                case eAnnouncementStatus.Sending:
-                    result = KalturaAnnouncementStatus.Sending;
-                    break;
-                case eAnnouncementStatus.Sent:
-                    result = KalturaAnnouncementStatus.Sent;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown status Type");
-            }
-
-            return result;
-        }
-
         public static KalturaMessageTemplateType ConvertTemplateAssetType(MessageTemplateType assetType)
         {
             KalturaMessageTemplateType result;

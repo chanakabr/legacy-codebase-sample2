@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace ApiLogic.Users.Managers
 {
-    public class HouseholdSegmentManager : ICrudHandler<HouseholdSegment, long, HouseholdSegmentFilter>
+    public class HouseholdSegmentManager : ICrudHandler<HouseholdSegment, long>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -211,11 +211,6 @@ namespace ApiLogic.Users.Managers
             }
 
             return response;
-        }
-
-        public GenericResponse<HouseholdSegment> Update(ContextData contextData, HouseholdSegment objectToUpdate)
-        {
-            throw new NotImplementedException();
         }
 
         public GenericResponse<HouseholdSegment> Get(ContextData contextData, long id)

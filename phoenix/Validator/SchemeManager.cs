@@ -779,7 +779,7 @@ namespace Validator.Managers.Scheme
         {
             crudActionAttributes = null;
             crudActions = null;
-            if (controller.BaseType != null && controller.BaseType.IsGenericType && controller.BaseType.GetGenericTypeDefinition() == typeof(KalturaCrudController<,,,,,>))
+            if (controller.BaseType != null && controller.BaseType.IsGenericType && controller.BaseType.GetGenericTypeDefinition() == typeof(KalturaCrudController<,,,,>))
             {
                 var actionAttributes = controller.GetCustomAttributes<CrudActionAttribute>(true).ToDictionary(x => x.GetName(), x => x);
 

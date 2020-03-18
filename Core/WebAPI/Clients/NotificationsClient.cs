@@ -2030,7 +2030,7 @@ namespace WebAPI.Clients
         internal KalturaFollowTvSeries AddKalturaFollowTvSeries(ContextData contextData, KalturaFollowTvSeries kalturaFollowTvSeriesToAdd)
         {
             Func<FollowDataTvSeries, GenericResponse<FollowDataTvSeries>> addFollowTvSeriesFunc = (FollowDataTvSeries followTvSeriesToAdd) =>
-                   kalturaFollowTvSeriesToAdd.Handler.Add(contextData, followTvSeriesToAdd);
+                   FollowManager.Instance.Add(contextData, followTvSeriesToAdd);
 
             KalturaFollowTvSeries result =
                 ClientUtils.GetResponseFromWS<KalturaFollowTvSeries, FollowDataTvSeries>(kalturaFollowTvSeriesToAdd, addFollowTvSeriesFunc);

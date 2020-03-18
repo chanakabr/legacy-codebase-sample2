@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
                    eResponseStatus.EventNotificationIdNotFound
                })]
     [ListAction(Summary = "Gets all EventNotification items for a given Object id and type")]
-    public class EventNotificationController : KalturaCrudController<KalturaEventNotification, KalturaEventNotificationListResponse, EventNotificationAction, string, KalturaEventNotificationFilter, EventNotificationActionFilter>
+    public class EventNotificationController : KalturaCrudController<KalturaEventNotification, KalturaEventNotificationListResponse, EventNotificationAction, string, KalturaEventNotificationFilter>
     {
     }
 }

@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
     )]
 
     [ListAction(Summary = "Gets all categoryItem items", IsFilterOptional = true, IsPagerOptional = true)]
-    public class CategoryItemController : KalturaCrudController<KalturaCategoryItem, KalturaCategoryItemListResponse, CategoryItem, long, KalturaCategoryItemFilter, CategoryItemFilter>
+    public class CategoryItemController : KalturaCrudController<KalturaCategoryItem, KalturaCategoryItemListResponse, CategoryItem, long, KalturaCategoryItemFilter>
     {
     }
 }

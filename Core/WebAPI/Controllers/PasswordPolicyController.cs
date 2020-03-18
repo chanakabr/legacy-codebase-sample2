@@ -10,7 +10,7 @@ namespace WebAPI.Controllers
     [UpdateAction(ClientThrows = new eResponseStatus[] { eResponseStatus.PasswordPolicyDoesNotExist, eResponseStatus.RoleDoesNotExists })]
     [DeleteAction(ClientThrows = new eResponseStatus[] { eResponseStatus.PasswordPolicyDoesNotExist })]
     [ListAction(ClientThrows = new eResponseStatus[] { eResponseStatus.PasswordPolicyDoesNotExist }, IsFilterOptional = true)]
-    public class PasswordPolicyController : KalturaCrudController<KalturaPasswordPolicy, KalturaPasswordPolicyListResponse, PasswordPolicy, long, KalturaPasswordPolicyFilter, PasswordPolicyFilter>
+    public class PasswordPolicyController : KalturaCrudController<KalturaPasswordPolicy, KalturaPasswordPolicyListResponse, PasswordPolicy, long, KalturaPasswordPolicyFilter>
     {
     }
 }

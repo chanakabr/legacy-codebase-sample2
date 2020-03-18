@@ -18,7 +18,7 @@ namespace WebAPI.Controllers
                   IdDescription = "Coupon code",
                   ClientThrows = new eResponseStatus[] { eResponseStatus.CouponCodeNotInHousehold })]
     [ListAction(Summary = "Gets all HouseholdCoupon items for a household", IsFilterOptional = true)]
-    public class HouseholdCouponController : KalturaCrudController<KalturaHouseholdCoupon, KalturaHouseholdCouponListResponse, CouponWallet, string, KalturaHouseholdCouponFilter, CouponWalletFilter>
+    public class HouseholdCouponController : KalturaCrudController<KalturaHouseholdCoupon, KalturaHouseholdCouponListResponse, CouponWallet, string, KalturaHouseholdCouponFilter>
     {
     }
 }
