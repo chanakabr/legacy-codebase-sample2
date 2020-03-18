@@ -5,6 +5,7 @@ using ApiObjects.Response;
 using ApiObjects.Segmentation;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Notification;
 using Core.Users.Cache;
 using DAL;
 using KLogMonitor;
@@ -14,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Xml.Serialization;
 using Tvinci.Core.DAL;
@@ -858,6 +860,8 @@ namespace Core.Users
                 return DomainResponseStatus.Error;
             }
 
+            RemoveFromIot(m_nGroupID, udid);
+
             // if the first update done successfully - remove domain from cache
             try
             {
@@ -907,6 +911,40 @@ namespace Core.Users
             }
 
             return bRes;
+        }
+
+        private void RemoveFromIot(int m_nGroupID, string udid)
+        {
+            try
+            {
+                var iotDevice = DAL.NotificationDal.GetRegisteredDevice(m_nGroupID.ToString(), udid);
+                if (iotDevice == null)
+                {
+                    return;
+                }
+                var partnerSettings = NotificationCache.Instance().GetPartnerNotificationSettings(m_nGroupID);
+
+                //Todo - Matan Create perm object
+                var _request = new { GroupId = m_nGroupID.ToString(), Udid = udid, IdentityId = iotDevice.IdentityId };
+                var url = $"{partnerSettings.settings.IotAdapterUrl}/api/IOT/DeleteDevice";
+
+                var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<bool>
+                    (url, JsonConvert.SerializeObject(_request), HttpMethod.Delete);
+
+                if (!msResponse)
+                {
+                    log.Error($"Failed removing udid: {udid} from group: {m_nGroupID}");
+                }
+
+                if (!DAL.NotificationDal.RemoveRegisteredDevice(m_nGroupID.ToString(), udid))
+                {
+                    log.Error($"Failed to delete iot document for device: {udid}, group: {m_nGroupID}");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed removing udid: {udid} from group: {m_nGroupID} by exception: {ex.Message}");
+            }
         }
 
         private bool RemoveDeviceDrmId(string sUDID)

@@ -2532,22 +2532,5 @@ namespace DAL
 
             return status > 0;
         }
-
-        public static Iot GetRegisteredDevice(string groupId, string udid)
-        {
-            var key = GetIotDeviceKey(groupId, udid);
-            return UtilsDal.GetObjectFromCB<Iot>(eCouchbaseBucket.OTT_APPS, key);
-        }
-
-        public static bool SaveRegisteredDevice(Iot msResponse)
-        {
-            string key = GetIotDeviceKey(msResponse.GroupId, msResponse.Udid);
-            return UtilsDal.SaveObjectInCB<Iot>(eCouchbaseBucket.OTT_APPS, key, msResponse);
-        }
-
-        private static string GetIotDeviceKey(string groupId, string udid)
-        {
-            return $"{groupId}_Iot_Device_{udid}";
-        }
     }
 }

@@ -1035,7 +1035,7 @@ namespace Core.Notification
 
             if (iotAnnouncement != null)
             {
-                var result = NotificationAdapter.IotPublishToAnnouncement(groupId, iotAnnouncement.ExternalId, string.Empty,
+                var result = NotificationAdapter.IotPublishAnnouncement(groupId, iotAnnouncement.ExternalId, string.Empty,
                     new MessageData() //new MessageIotFullData
                     {
                         Alert = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
@@ -1046,7 +1046,7 @@ namespace Core.Notification
                     });
                 if (result == null || result.ResponseObject == null || !result.ResponseObject.IsSuccess)
                 {
-                    log.Error($"failed to send IOT system announcement to adapter. annoucementId = {iotAnnouncement.ID}");
+                    log.Error($"Failed to send IOT system announcement to adapter. annoucementId = {iotAnnouncement.ID}");
                 }
                 else
                 {

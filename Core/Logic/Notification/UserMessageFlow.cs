@@ -46,6 +46,15 @@ namespace Core.Notification
             eUserMessageAction.EnableUserSmsNotifications
         };
 
+        private static readonly List<eUserMessageAction> IOT_ACTIONS = new List<eUserMessageAction>() {
+            eUserMessageAction.Login,
+            eUserMessageAction.Logout,
+            eUserMessageAction.DeleteUser,
+            eUserMessageAction.ChangeUsers,
+            eUserMessageAction.EnableUserNotifications,
+            eUserMessageAction.DisableUserNotifications,
+            eUserMessageAction.DeleteDevice
+        };
         public static bool InitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken)
         {
             bool result = true;
@@ -86,6 +95,11 @@ namespace Core.Notification
                 if (SMS_ACTIONS.Contains(userAction))
                 {
                     result = result && InitiateSmsAction(groupId, userAction, userId, userNotificationData);
+                }
+
+                if (IOT_ACTIONS.Contains(userAction))
+                {
+                    result = InitiateIotAction(groupId, userAction, userId, udid, pushToken, userNotificationData);
                 }
 
                 if (userAction == eUserMessageAction.DeleteUser)
@@ -227,6 +241,75 @@ namespace Core.Notification
             }
 
             return result;
+        }
+
+        public static bool InitiateIotAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken, UserNotification userNotificationData)
+        {
+            bool result = false;
+
+            if (!NotificationSettings.IsPartnerIotNotificationEnabled(groupId))
+            {
+                return true;
+            }
+
+            log.Debug("Starting IOT action handle");
+
+            try
+            {
+                switch (userAction)
+                {
+                    case eUserMessageAction.DeleteUser:
+                        result = UnSubscribeUserIotNotification(groupId, userId, userNotificationData);
+                        if (result)
+                            log.Debug("Successfully performed delete User");
+                        else
+                            log.Error("Error occurred while trying to perform Delete User");
+                        break;
+                    
+                    case eUserMessageAction.Login:
+                    case eUserMessageAction.EnableUserMailNotifications:
+                        result = SubscribeUserIotNotification(groupId, userId, userNotificationData);
+                        if (result)
+                            log.Debug("Successfully enabled user mail notifications");
+                        else
+                            log.Error("Error enabling user mail notifications");
+                        break;
+                    case eUserMessageAction.Signup:
+                        result = HandleUserSignUpForIotNotification(groupId, userId, userNotificationData);
+                        if (result)
+                            log.Debug("Successfully enabled user mail notifications");
+                        else
+                            log.Error("Error enabling user mail notifications");
+                        break;
+                    default:
+                        log.ErrorFormat("Unidentified mail notification action requested. action: {0}", userAction);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Notification Error", ex);
+            }
+
+            return result;
+        }
+
+        private static bool HandleUserSignUpForIotNotification(int groupId, int userId, UserNotification userNotificationData)
+        {
+            //Todo - Matan Impl
+            return true;
+        }
+
+        private static bool SubscribeUserIotNotification(int groupId, int userId, UserNotification userNotificationData)
+        {
+            //Todo - Matan Impl
+            return true;
+        }
+
+        private static bool UnSubscribeUserIotNotification(int groupId, int userId, UserNotification userNotificationData)
+        {
+            //Todo - Matan Impl
+            return true;
         }
 
         public static void DeleteOldAnnouncements(int groupId, UserNotification userNotificationData)
@@ -1477,7 +1560,7 @@ namespace Core.Notification
                         log.ErrorFormat("Error while trying to update user notification data. GID: {0}, UID: {1}", groupId, userId);
                         return false;
                     }
-                    
+
                     SmsNotificationData userSmsNotificationData = null;
                     ApiObjects.Response.Status status = Utils.GetUserSmsNotificationData(groupId, userId, userNotificationData, out userSmsNotificationData);
                     if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK || userSmsNotificationData == null)
@@ -1535,7 +1618,7 @@ namespace Core.Notification
         private static bool SubscribeSmsAnnouncements(int groupId, int userId, UserNotification userNotificationData, SmsNotificationData userSmsNotificationData)
         {
             long smsAnnouncementId = 0;
-            List<AnnouncementSubscriptionData> subscribeList = SmsAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId, 
+            List<AnnouncementSubscriptionData> subscribeList = SmsAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId,
                 userNotificationData, userSmsNotificationData, out smsAnnouncementId);
             if (subscribeList == null ||
                 subscribeList.Count == 0 ||
@@ -1619,7 +1702,7 @@ namespace Core.Notification
 
             // remove sms data
             NotificationDal.RemoveSmsNotificationData(groupId, userId, smsData.cas);
-            
+
             return result;
         }
 
@@ -1682,7 +1765,7 @@ namespace Core.Notification
             }
 
             // update SMS notification data
-            if (UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, announcementToUnsubscribe, 
+            if (UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, announcementToUnsubscribe,
                 announcementToUnsubscribeResult, null, null, smsAnnouncementsId))
             {
                 log.ErrorFormat("Error updating SMS notification data. Disable all notifications flow. data: {0}",
@@ -1728,12 +1811,12 @@ namespace Core.Notification
             return true;
         }
 
-        private static bool UpdateSmsDataAccordingToAdapterResult(int groupId, int userId, SmsNotificationData smsNotificationData, 
+        private static bool UpdateSmsDataAccordingToAdapterResult(int groupId, int userId, SmsNotificationData smsNotificationData,
             List<UnSubscribe> announcementToUnsubscribe, List<UnSubscribe> unSubscribrAdapterResult,
-            List<AnnouncementSubscriptionData> announcementToSubscribe, List<AnnouncementSubscriptionData> subscribrAdapterResult, 
+            List<AnnouncementSubscriptionData> announcementToSubscribe, List<AnnouncementSubscriptionData> subscribrAdapterResult,
             long smsAnnouncementId)
         {
-   
+
             // update SMS document 
             if (smsNotificationData == null)
             {
