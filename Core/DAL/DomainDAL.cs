@@ -822,6 +822,12 @@ namespace DAL
             return res;
         }
 
+        public static bool RemoveRegisteredDevice(string groupId, string udid)
+        {
+            var key = GetIotDeviceKey(groupId, udid);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
         public static List<int> GetDeviceDomains(int deviceID, int groupID)
         {
             List<int> domainIDs = null;

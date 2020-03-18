@@ -935,6 +935,11 @@ namespace Core.Users
                 {
                     log.Error($"Failed removing udid: {udid} from group: {m_nGroupID}");
                 }
+
+                if (!DAL.DomainDal.RemoveRegisteredDevice(m_nGroupID.ToString(), udid))
+                {
+                    log.Error($"Failed to delete iot document for device: {udid}, group: {m_nGroupID}");
+                }
             }
             catch (Exception ex)
             {
