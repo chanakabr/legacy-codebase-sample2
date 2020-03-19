@@ -583,7 +583,7 @@ namespace AdapterControllers
         }
 
         public PlaybackContext GetPlaybackManifest(int groupId, PlaybackProfile adapter, ApiObjects.PlaybackAdapter.PlaybackContext kalturaPlaybackContext,
-            ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions kContextOptions)
+            ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions kContextOptions, string userId)
         {
             PlaybackContext playbackContext = null;
 
@@ -623,7 +623,8 @@ namespace AdapterControllers
                     PartnerId = groupId,                    
                     TimeStamp = unixTimestamp,
                     Signature = System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))),
-                    AdapterData = playbackAdapterData.ToList(),                    
+                    AdapterData = playbackAdapterData.ToList(), 
+                    UserId = userId
                 };
 
                 PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = null;

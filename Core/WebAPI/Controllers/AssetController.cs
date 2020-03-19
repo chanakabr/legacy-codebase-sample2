@@ -1457,7 +1457,7 @@ namespace WebAPI.Controllers
 
                 if (response.Sources != null && response.Sources.Count > 0)
                 {
-                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterManifest(ks.GroupId, assetId, assetType, response, contextDataParams);
+                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterManifest(ks.GroupId, assetId, assetType, response, contextDataParams, ks.UserId);
                     if (adapterResponse != null)
                     {
                         response = adapterResponse;

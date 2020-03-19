@@ -15,8 +15,6 @@ namespace TVPApi.Web.Middleware
     public static class TVPApiMiddleware
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
-
 
         public static void ConfigureTvpapi(this IServiceCollection services)
         {

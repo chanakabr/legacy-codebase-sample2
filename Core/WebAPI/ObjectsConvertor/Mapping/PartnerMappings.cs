@@ -3,7 +3,6 @@ using ApiObjects.Billing;
 using ApiObjects.Rules;
 using AutoMapper.Configuration;
 using System.Collections.Generic;
-using System.Linq;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;

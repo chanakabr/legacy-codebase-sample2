@@ -71,7 +71,8 @@ namespace WebAPI.Utils
             return KalturaPlaybackContextResponse;
         }
 
-        internal static KalturaPlaybackContext GetPlaybackAdapterManifest(int groupId, string assetId, KalturaAssetType assetType, KalturaPlaybackContext kalturaPlaybackContext, KalturaPlaybackContextOptions contextDataParams)
+        internal static KalturaPlaybackContext GetPlaybackAdapterManifest(int groupId, string assetId, KalturaAssetType assetType, KalturaPlaybackContext kalturaPlaybackContext, 
+            KalturaPlaybackContextOptions contextDataParams, string userId)
         {
             KalturaPlaybackContext KalturaPlaybackContextResponse = null;
             string id = assetId;
@@ -117,7 +118,7 @@ namespace WebAPI.Utils
                     }
 
                     KalturaPlaybackContext playbackContextResponse = ClientsManager.ApiClient().GetPlaybackAdapterManifest(adapterId, groupId, kalturaPlaybackContext, 
-                        assetId, assetType, contextDataParams);
+                        assetId, assetType, contextDataParams, userId);
 
                     if (playbackContextResponse != null)
                     {

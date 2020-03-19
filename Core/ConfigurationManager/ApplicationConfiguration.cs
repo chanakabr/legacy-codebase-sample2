@@ -84,8 +84,14 @@ namespace ConfigurationManager
         public BaseValue<bool> TVMSkipLoginIPCheck = new BaseValue<bool>("SKIP_LOGIN_IP_CHECK", false, false, "TVM key, whether IP check during login should be skipped or not.");
         public BaseValue<bool> EnableHttpLogin = new BaseValue<bool>("EnableHttpLogin", true);
         public BaseValue<List<HealthCheckDefinition>> HealthCheckConfiguration = 
-            new BaseValue<List<HealthCheckDefinition>>(TcmObjectKeys.HealthCheckConfiguration, new List<HealthCheckDefinition>(), true, 
-            "List of definitions of health check that this application will use");
+            new BaseValue<List<HealthCheckDefinition>>(TcmObjectKeys.HealthCheckConfiguration, new List<HealthCheckDefinition>()
+                {
+                    new HealthCheckDefinition() { Type = HealthCheckType.ElasticSearch },
+                    new HealthCheckDefinition() { Type = HealthCheckType.SQL },
+                    new HealthCheckDefinition() { Type = HealthCheckType.CouchBase },
+                    new HealthCheckDefinition() { Type = HealthCheckType.RabbitMQ }
+                }, false, 
+            "List of definitions of health check that this application will use. By default it is ES, CB, SQL and Rabbit.");
 
         public AuthorizationManagerConfiguration AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration();
         public FileUploadConfiguration FileUpload = new FileUploadConfiguration();
