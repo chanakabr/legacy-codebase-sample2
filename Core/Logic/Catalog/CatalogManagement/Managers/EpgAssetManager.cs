@@ -207,9 +207,9 @@ namespace Core.Catalog.CatalogManagement
                 var epgTags = GetEpgTags(epgAssetToAdd.Tags, allNames, defaultLanguageCode);
 
                 // insert epgCb to CB in all languages
-                SaveEpgCbToCB(epgCbToAdd, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags);
+                SaveEpgCbToCB(epgCbToAdd, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, true);
 
-                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)newEpgId });
+                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)newEpgId }, true);
                 if (!indexingResult)
                 {
                     log.ErrorFormat("Failed UpsertProgram index for epg ExternalId: {0}, groupId: {1} after AddEpgAsset", epgAssetToAdd.EpgIdentifier, groupId);
@@ -335,10 +335,10 @@ namespace Core.Catalog.CatalogManagement
                 UpdateEpgImages(groupId, oldEpgAsset, epgCBToUpdate);
 
                 // update epgCb in CB for all languages
-                SaveEpgCbToCB(epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags);
+                SaveEpgCbToCB(epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, false);
 
                 // update index
-                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAssetToUpdate.Id });
+                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAssetToUpdate.Id }, false);
                 if (!indexingResult)
                 {
                     log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", epgAssetToUpdate.Id, groupId);
@@ -479,7 +479,7 @@ namespace Core.Catalog.CatalogManagement
                         AssetManager.InvalidateAsset(eAssetTypes.EPG, epgAsset.Id);
 
                         // UpdateIndex
-                        bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id });
+                        bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id }, false);
                         if (!indexingResult)
                         {
                             log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
@@ -600,7 +600,8 @@ namespace Core.Catalog.CatalogManagement
                                           Dictionary<string, string> allNames,
                                           Dictionary<string, string> allDescriptions,
                                           Dictionary<string, Dictionary<string, List<string>>> epgMetas,
-                                          Dictionary<string, Dictionary<string, List<string>>> epgTags)
+                                          Dictionary<string, Dictionary<string, List<string>>> epgTags,
+                                          bool isAddAction)
         {
             foreach (var currLang in allNames)
             {
@@ -627,7 +628,8 @@ namespace Core.Catalog.CatalogManagement
 
                 // the documents with main language are saved without a language code so we will send null to get key
                 var lang = currLang.Key.Equals(defaultLanguageCode) ? null : currLang.Key;
-                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, lang);
+                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, lang, isAddAction);
+
                 if (!EpgDal.SaveEpgCB(docId, epgCB))
                 {
                     log.ErrorFormat("Failed to SaveEpgCbToCB for epgId: {0}, languageCode: {1} in EpgAssetManager", epgCB.EpgID, currLang.Key);
@@ -1777,27 +1779,64 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static List<string> GetEpgCBKeys(int groupId, long epgId, IEnumerable<LanguageObj> langCodes)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="epgId"></param>
+        /// <param name="langCodes"></param>
+        /// <param name="isAddAction">Are we trying to get EPG CB key for an EPG that we are adding right now or to an existing one</param>
+        /// <returns></returns>
+        public static List<string> GetEpgCBKeys(int groupId, long epgId, IEnumerable<LanguageObj> langCodes, bool isAddAction = false)
         {
+            var result = new List<string>();
             var isNewEpgIngestEnabled = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+
             if (isNewEpgIngestEnabled)
             {
-                // using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it
-                // so there is no way for us to now what is the document id.
-                // elastisearch holds the current document in CB so we go there to take it
-                var epgBL = new TvinciEpgBL(groupId);
-                return epgBL.GetEpgCBDocumentIdsByEpgIdFromElasticsearch(groupId, epgId, langCodes);
+                if (!isAddAction)
+                {
+                    // using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it
+                    // so there is no way for us to now what is the document id.
+                    // elastisearch holds the current document in CB so we go there to take it
+                    var epgBL = new TvinciEpgBL(groupId);
+                    result = epgBL.GetEpgCBDocumentIdsByEpgIdFromElasticsearch(groupId, epgId, langCodes);
+                }
+                else
+                {
+                    if (langCodes == null)
+                    {
+                        result = new List<string> { $"{epgId}" };
+                    }
+                    else
+                    {
+                        var keys = langCodes.Select(langCode => langCode.IsDefault ?
+                            $"{epgId}" :
+                            $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
+                        result = keys.ToList();
+                    }
+                }
+            }
+            else
+            {
+                if (langCodes == null)
+                {
+                    result = new List<string> { epgId.ToString() };
+                }
+                else
+                {
+                    var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
+                    result = keys.ToList();
+                }
             }
 
-            if (langCodes == null) { return new List<string> { epgId.ToString() }; }
-            var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
-            return keys.ToList();
+            return result;
         }
 
-        public static string GetEpgCBKey(int groupId, long epgId, string langCode = null)
+        public static string GetEpgCBKey(int groupId, long epgId, string langCode = null, bool isAddAction = false)
         {
             var langs = string.IsNullOrEmpty(langCode) ? null : new[] { new LanguageObj() { Code = langCode } };
-            var keys = GetEpgCBKeys(groupId, epgId, langs);
+            var keys = GetEpgCBKeys(groupId, epgId, langs, isAddAction);
             return keys.FirstOrDefault();
         }
 

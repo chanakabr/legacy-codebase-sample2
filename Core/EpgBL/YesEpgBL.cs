@@ -194,10 +194,11 @@ namespace EpgBL
             return null;
         }
 
-        public override List<EpgCB> GetEpgCB(ulong nProgramID, List<string> languages)
+        public override List<EpgCB> GetEpgCB(ulong nProgramID, List<string> languages, bool isAddAction = false)
         {
             return null;
         }
+
         public override EpgCB GetEpgCB(ulong nProgramID, out ulong cas)
         {
             cas = 0;
