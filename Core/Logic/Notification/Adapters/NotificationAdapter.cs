@@ -27,14 +27,13 @@ namespace Core.Notification.Adapters
         }
 
         public static T SendHttpRequest<T>(string url, string requestJson, HttpMethod method,
-            int timeout = 1000, HttpStatusCode noConfigStatus = HttpStatusCode.NoContent)
+             HttpStatusCode noConfigStatus = HttpStatusCode.NoContent)
         {
             try
             {
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
                 httpWebRequest.ContentType = "application/json";
                 httpWebRequest.Method = method.Method;
-                httpWebRequest.Timeout = timeout;
 
                 if (method != HttpMethod.Get)
                 {

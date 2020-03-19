@@ -36,13 +36,18 @@ namespace WebAPI.Controllers
             {
                 if (!ValidateRequest(contextData, response))
                 {
-                    return response; 
+                    return response;
                 }
 
                 Func<GenericResponse<Iot>> coreFunc = () =>
                     IotManager.Instance.Register(contextData);
 
                 response.Object = ClientUtils.GetResponseFromWS<KalturaIot, Iot>(coreFunc);
+
+                if (response.Object != null)
+                {
+                    response.SetStatus(eResponseStatus.OK);
+                }
             }
             catch (ClientException ex)
             {
@@ -78,6 +83,11 @@ namespace WebAPI.Controllers
                     IotManager.Instance.GetIotClientConfiguration(contextData);
 
                 response.Object = ClientUtils.GetResponseFromWS<KalturaIotClientConfiguration, IotClientConfiguration>(coreFunc);
+
+                if (response.Object != null)
+                {
+                    response.SetStatus(eResponseStatus.OK);
+                }
             }
             catch (ClientException ex)
             {
