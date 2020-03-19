@@ -127,7 +127,7 @@ namespace Core.Catalog.Request
             }
             catch (Exception ex)
             {
-                log.Error("Error - " + string.Format("Failed at GetResponse of AssetInfoRequest. ex = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                log.Error($"Error - Failed at GetResponse of AssetInfoRequest. ex = {ex.Message}, ST = {ex.StackTrace}");
                 throw ex;
             }
 
