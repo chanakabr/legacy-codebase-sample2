@@ -1895,7 +1895,7 @@ namespace Core.Catalog
                     if (ids != null && groupId.HasValue)
                     {
                         programs = CatalogLogic.GetEPGProgramInformation(ids, groupId.Value, filter);
-                        res = programs.Count() == ids.Count();
+                        res = programs.Count == ids.Count || (programs.Count > 0 && filter.AllowPartialResponse);
                     }
 
                     if (res)

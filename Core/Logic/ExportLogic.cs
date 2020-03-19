@@ -1100,7 +1100,7 @@ namespace APILogic
             {
                 m_nGroupID = groupId,
                 epgIds = ids,
-                m_oFilter = new Filter()
+                m_oFilter = new Filter() { AllowPartialResponse = true }
             };
 
             Core.ConditionalAccess.Utils.FillCatalogSignature(request);  
