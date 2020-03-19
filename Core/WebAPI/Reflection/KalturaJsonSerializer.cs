@@ -8309,9 +8309,17 @@ namespace WebAPI.Models.Notification
             {
                 ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
             }
+            if(PushChannels != null)
+            {
+                ret.Add("pushChannels", "\"pushChannels\": " + "\"" + EscapeJson(PushChannels) + "\"");
+            }
             if(Sound != null)
             {
                 ret.Add("sound", "\"sound\": " + "\"" + EscapeJson(Sound) + "\"");
+            }
+            if(Udid != null)
+            {
+                ret.Add("udid", "\"udid\": " + "\"" + EscapeJson(Udid) + "\"");
             }
             if(Url != null)
             {
@@ -8334,9 +8342,17 @@ namespace WebAPI.Models.Notification
             {
                 ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
             }
+            if(PushChannels != null)
+            {
+                ret.Add("pushChannels", "<pushChannels>" + EscapeXml(PushChannels) + "</pushChannels>");
+            }
             if(Sound != null)
             {
                 ret.Add("sound", "<sound>" + EscapeXml(Sound) + "</sound>");
+            }
+            if(Udid != null)
+            {
+                ret.Add("udid", "<udid>" + EscapeXml(Udid) + "</udid>");
             }
             if(Url != null)
             {

@@ -5143,8 +5143,12 @@ namespace WebAPI.Reflection
                             return "action";
                         case "Message":
                             return "message";
+                        case "PushChannels":
+                            return "pushChannels";
                         case "Sound":
                             return "sound";
+                        case "Udid":
+                            return "udid";
                         case "Url":
                             return "url";
                     }

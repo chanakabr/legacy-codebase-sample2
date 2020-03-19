@@ -1,17 +1,18 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Notification;
 using ApiObjects.SearchObjects;
+using AutoMapper.Configuration;
+using System;
 using System.Collections.Generic;
+using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
-using AutoMapper.Configuration;
-using TVinciShared;
 using KeyValuePair = ApiObjects.KeyValuePair;
-using ApiObjects.Catalog;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -655,7 +656,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl));
 
             #endregion
-        }
+
+            #region PushMessage
+
+            cfg.CreateMap<KalturaPushMessage, PushMessage>()
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+                .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
+                .ForMember(dest => dest.PushChannels, opt => opt.MapFrom(src => ConvertPushChannels(src.PushChannels)));                
+
+            #endregion
+        }        
 
         public static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)
         {
@@ -1232,5 +1245,33 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        private static List<PushChannel> ConvertPushChannels(string pushChannels)
+        {
+            List<PushChannel> pushChannelList = null;
+
+            if (!string.IsNullOrEmpty(pushChannels))
+            {
+                pushChannelList = new List<PushChannel>();
+                foreach (string pushChannel in pushChannels.Split(','))
+                {
+                    KalturaPushChannel pushChannelType;
+                    if (Enum.TryParse<KalturaPushChannel>(pushChannel.ToUpper(), out pushChannelType))
+                    {
+                        switch (pushChannelType)
+                        {
+                            case KalturaPushChannel.PUSH:
+                                pushChannelList.Add(PushChannel.Push);
+                                break;
+                            case KalturaPushChannel.IOT:
+                                pushChannelList.Add(PushChannel.Iot);
+                                break;
+                            default:
+                                break;
+                        }
+                    }                    
+                }
+            }
+            return pushChannelList;
+        }
     }
 }

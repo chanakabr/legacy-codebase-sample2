@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.Notification
 {
@@ -21,5 +17,17 @@ namespace ApiObjects.Notification
 
         [DataMember]
         public string Url { get; set; }
+
+        [DataMember]
+        public string Udid { get; set; }
+
+        [DataMember]
+        public List<PushChannel> PushChannels { get; set; }
+    }
+
+    public enum PushChannel
+    {
+        Push,
+        Iot
     }
 }
