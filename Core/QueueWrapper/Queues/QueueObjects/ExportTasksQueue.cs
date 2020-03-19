@@ -8,8 +8,7 @@ namespace QueueWrapper.Queues.QueueObjects
 {
     public class ExportTasksQueue : BaseQueue
     {
-        public ExportTasksQueue()
-            : base()
+        public ExportTasksQueue() : base()
         {
             this.Implementation = new RabbitQueue(ConfigType.DefaultConfig, true);
         }

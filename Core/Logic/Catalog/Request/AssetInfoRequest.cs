@@ -110,13 +110,16 @@ namespace Core.Catalog.Request
                     {
                         foreach (BaseObject asset in assets)
                         {
-                            if (asset.AssetType == ApiObjects.eAssetTypes.MEDIA)
+                            if (asset != null)
                             {
-                                response.mediaList.Add(asset as MediaObj);
-                            }
-                            else if (asset.AssetType == ApiObjects.eAssetTypes.EPG)
-                            {
-                                response.epgList.Add(asset as ProgramObj);
+                                if (asset.AssetType == ApiObjects.eAssetTypes.MEDIA)
+                                {
+                                    response.mediaList.Add(asset as MediaObj);
+                                }
+                                else if (asset.AssetType == ApiObjects.eAssetTypes.EPG)
+                                {
+                                    response.epgList.Add(asset as ProgramObj);
+                                }
                             }
                         }
                     }
