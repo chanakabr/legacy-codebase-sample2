@@ -43,7 +43,6 @@ namespace HealthCheck
                         break;
                 }
             }
-
         }
 
         public static void UseHealthCheck(this IApplicationBuilder app, string path)
@@ -52,6 +51,15 @@ namespace HealthCheck
             options.ResponseWriter = WriteResponse;
 
             app.UseHealthChecks(path, options);
+        }
+
+        public static void AddKalturaHealthCheckService(this IServiceCollection services)
+        {
+            var tcmHealthCheckDefinitions = ConfigurationManager.ApplicationConfiguration.Current.HealthCheckConfiguration.Value;
+            List<HealthCheckDefinition> healthCheckDefinitions = tcmHealthCheckDefinitions?.Select(defintion =>
+                new HealthCheckDefinition(defintion)).ToList();
+
+            services.AddHealthCheckService(healthCheckDefinitions);
         }
 
         private static Task WriteResponse(HttpContext context, HealthReport result)

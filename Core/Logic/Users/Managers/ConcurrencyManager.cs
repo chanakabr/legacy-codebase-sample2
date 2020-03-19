@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using ApiObjects.Rules;
@@ -85,7 +86,7 @@ namespace Core.Users
                 // Get all domain media marks
                 List<DevicePlayData> devicePlayDataList = CatalogDAL.GetDevicePlayDataList(GetDomainDevices(devicePlayData.DomainId, groupId),
                                                                                        new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA },
-                                                                                       Utils.CONCURRENCY_MILLISEC_THRESHOLD, devicePlayData.UDID);
+                                                                                       GetConcurrencyMillisecThreshold(groupId), devicePlayData.UDID);
 
                 if (devicePlayDataList == null || devicePlayDataList.Count == 0)
                 {
@@ -196,7 +197,7 @@ namespace Core.Users
                 }
 
                 List<DevicePlayData> devicePlayDataList =
-                    CatalogDAL.GetDevicePlayDataList(GetDomainDevices(devicePlayData.DomainId, groupId), playTypes, Utils.CONCURRENCY_MILLISEC_THRESHOLD, devicePlayData.UDID);
+                    CatalogDAL.GetDevicePlayDataList(GetDomainDevices(devicePlayData.DomainId, groupId), playTypes, GetConcurrencyMillisecThreshold(groupId), devicePlayData.UDID);
 
                 if (devicePlayDataList == null || devicePlayDataList.Count == 0)
                 {
@@ -430,6 +431,33 @@ namespace Core.Users
             }
 
             return deviceFamilyId;
+        }
+
+        internal static uint GetDevicePlayDataExpirationTTL(int groupId, eExpirationTTL ttl)
+        {
+            uint expirationTTL = 0;
+            if (ttl == eExpirationTTL.Long)
+            {
+                expirationTTL = CatalogDAL.LONG_TTL;
+            }
+            else
+            {
+                expirationTTL = CatalogDAL.SHORT_TTL;
+
+                //get DevicePlayDataExpirationTTL from partner confi
+                DeviceConcurrencyPriority deviceConcurrencyPriority = Api.api.GetDeviceConcurrencyPriority(groupId);
+                if (deviceConcurrencyPriority != null && deviceConcurrencyPriority.ConcurrencyThresholdInSeconds.HasValue)
+                {
+                    expirationTTL = (uint)deviceConcurrencyPriority.ConcurrencyThresholdInSeconds.Value;
+                }
+            }
+
+            return expirationTTL;
+        }
+
+        internal static int GetConcurrencyMillisecThreshold(int groupId)
+        {
+            return (int)GetDevicePlayDataExpirationTTL(groupId, eExpirationTTL.Short) * 1000;
         }
     }
 }

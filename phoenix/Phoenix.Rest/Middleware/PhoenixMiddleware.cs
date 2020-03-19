@@ -31,11 +31,7 @@ namespace Phoenix.Rest.Middleware
         /// </summary>
         public static IServiceCollection ConfigurePhoenix(this IServiceCollection services)
         {
-            var tcmHealthCheckDefinitions = ApplicationConfiguration.Current.HealthCheckConfiguration.Value;
-            List<HealthCheck.HealthCheckDefinition> healthCheckDefinitions = tcmHealthCheckDefinitions.Select(defintion =>
-                new HealthCheck.HealthCheckDefinition(defintion)).ToList();
-
-            services.AddHealthCheckService(healthCheckDefinitions);
+            services.AddKalturaHealthCheckService();
             services.AddCoreConcurrencyLimiter();
             services.AddHttpContextAccessor();
             services.AddStaticHttpContextAccessor();
@@ -44,7 +40,7 @@ namespace Phoenix.Rest.Middleware
 
             return services;
         }
-        
+
         /// <summary>
         /// Using custom middleware for Phoenix Api convention
         /// </summary>

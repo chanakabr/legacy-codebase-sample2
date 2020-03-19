@@ -14,9 +14,9 @@ pipeline {
         component = "${env.JOB_NAME}"
         ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
     }
-    parameters {
-        booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
-    }
+    // parameters {
+    //     booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
+    // }
     stages {
         stage('Checkout'){
             steps{
@@ -80,6 +80,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
         "-f ${dockerfile} "+
         "-t ${ECR_REPOSITORY}:build  "+
         "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
+        "-t ${ECR_REPOSITORY}:${FULL_VERSION} "+
         "--build-arg BRANCH=${BRANCH_NAME} "+
         "--label 'version=${FULL_VERSION}' "+
         "--label 'commit=${GIT_COMMIT}' "+
@@ -93,12 +94,13 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
     )
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
+    sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${FULL_VERSION}")
 }
 
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
     def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
     def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim();
-    def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} ${committerEmail}", returnStdout: true)
+    def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
     echo "${reportout}"
 }

@@ -11132,33 +11132,58 @@ namespace Core.Api
 
             try
             {
-                // validate deviceFamilyIds
-                var deviceFamilyList = GetDeviceFamilyList();
-                if (deviceFamilyList == null ||
-                    deviceFamilyList.Status.Code != (int)eResponseStatus.OK ||
-                    deviceFamilyList.DeviceFamilies.Count == 0)
+                var needToUpdate = false;
+                var deviceConcurrencyPriority = Core.Api.api.GetDeviceConcurrencyPriority(groupId);
+                if (deviceConcurrencyPriority == null)
                 {
-                    response.Message = "No DeviceFamilies";
-                    return response;
+                    needToUpdate = true;
+                }
+                else
+                {
+                    needToUpdate = deviceConcurrencyPriorityToUpdate.SetUnchangedProperties(deviceConcurrencyPriority);
                 }
 
-                var notDeviceFamilies = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.FindAll(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
-                if (notDeviceFamilies != null && notDeviceFamilies.Count > 0)
+                if (deviceConcurrencyPriorityToUpdate?.DeviceFamilyIds == null)
                 {
-                    response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds,
-                                 string.Format("The ids: {0} are non-existing DeviceFamilyIds", string.Join(", ", notDeviceFamilies)));
-                    return response;
+                    deviceConcurrencyPriorityToUpdate.DeviceFamilyIds = deviceConcurrencyPriority.DeviceFamilyIds;
+                }
+                else
+                {
+                    needToUpdate = true;
+                    if(deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.Count > 0)
+                    {
+                        // validate deviceFamilyIds
+                        var deviceFamilyList = GetDeviceFamilyList();
+                        if (deviceFamilyList == null ||
+                            deviceFamilyList.Status.Code != (int)eResponseStatus.OK ||
+                            deviceFamilyList.DeviceFamilies.Count == 0)
+                        {
+                            response.Message = "No DeviceFamilies";
+                            return response;
+                        }
+
+                        var notDeviceFamilies = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.FindAll(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
+                        if (notDeviceFamilies != null && notDeviceFamilies.Count > 0)
+                        {
+                            response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds,
+                                         string.Format("The ids: {0} are non-existing DeviceFamilyIds", string.Join(", ", notDeviceFamilies)));
+                            return response;
+                        }
+                    }
                 }
 
-                // upsert DeviceConcurrencyPriority            
-                if (!ApiDAL.SaveDeviceConcurrencyPriorityCB(groupId, deviceConcurrencyPriorityToUpdate))
+                if (needToUpdate)
                 {
-                    log.ErrorFormat("Error while saving DeviceConcurrencyPriority. groupId: {0}", groupId);
-                    return response;
-                }
+                    // upsert DeviceConcurrencyPriority            
+                    if (!ApiDAL.SaveDeviceConcurrencyPriorityCB(groupId, deviceConcurrencyPriorityToUpdate))
+                    {
+                        log.ErrorFormat("Error while saving DeviceConcurrencyPriority. groupId: {0}", groupId);
+                        return response;
+                    }
 
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId));
-                response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId));
+                    response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
             catch (Exception ex)
             {

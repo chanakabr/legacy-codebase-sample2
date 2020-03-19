@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Partner
 {
@@ -30,13 +31,13 @@ namespace WebAPI.Models.Partner
         public KalturaEvictionPolicyType EvictionPolicy { get; set; }
 
         /// <summary>
-        /// Device play data expiration TTL
+        /// Concurrency threshold in seconds
         /// </summary>
-        [DataMember(Name = "devicePlayDataExpirationTTL")]
-        [JsonProperty("devicePlayDataExpirationTTL")]
-        [XmlElement(ElementName = "devicePlayDataExpirationTTL")] 
-        public long? DevicePlayDataExpirationTTL { get; set; }
-
+        [DataMember(Name = "concurrencyThresholdInSeconds")]
+        [JsonProperty("concurrencyThresholdInSeconds")]
+        [XmlElement(ElementName = "concurrencyThresholdInSeconds")] 
+        [SchemeProperty(MinInteger = 35, MaxInteger = 600)]
+        public long? ConcurrencyThresholdInSeconds { get; set; }
 
         internal HashSet<int> GetDeviceFamilyIds()
         {
