@@ -25,7 +25,7 @@ namespace RemoteTasksService
                 var requestId = string.Empty;
                 if (request != null)
                 {
-                    KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(Constants.REQUEST_ID_KEY, Guid.NewGuid().ToString()));
+                    KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(Constants.REQUEST_ID_KEY, Guid.NewGuid().ToString());
 
                     // update request ID
                     if (ExtractRequestID(request.data, ref requestId) && !KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(Constants.REQUEST_ID_KEY, requestId))
