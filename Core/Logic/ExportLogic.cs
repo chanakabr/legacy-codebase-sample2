@@ -145,10 +145,10 @@ namespace APILogic
                 }
                 catch (Exception innerEx)
                 {
-                    log.Error(string.Format("Export VOD: error on removing file after error in export process. task id = {0}, file full path = {1}", taskId, exportVodFullPath), innerEx);
+                    log.Error($"Export VOD: error on removing file after error in export process. task id={taskId}, file full path={1}, innerEx={innerEx.ToString()}");
                 }
 
-                log.Error(string.Format("Export VOD: error in XML creation process, file has been removed. task id = {0}", taskId), ex);
+                log.Error($"Export VOD: error in XML creation process, file has been removed. task id={taskId}, exception={ex.ToString()}");
                 return false;
             }
 
@@ -402,12 +402,13 @@ namespace APILogic
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("error in DoExportUpdatedEpgJob. task id = {0}, retry number {1}", taskId, retrisCount), ex);
+                log.Error($"error in DoExportUpdatedEpgJob. task id = {taskId}, retry number={retrisCount}, exception={ex.ToString()}");
 
                 // if not exceeded retries limit - try again
                 if (retrisCount < innerTaskRetriesLimit)
                 {
-                    return DoExportUpdatedEpgJob(groupId, taskId, programIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
+                    retrisCount++;
+                    return DoExportUpdatedEpgJob(groupId, taskId, programIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount);
                 }
                 else
                 {
@@ -465,12 +466,13 @@ namespace APILogic
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("error in DoExportUpdatedEpgJob. task id = {0}, retry number {1}", taskId, retrisCount), ex);
+                log.Error($"error in DoOpcExportUpdatedEpgJob. task id = {taskId}, retry number {retrisCount}, exception={ex.ToString()}");
 
                 // if not exceeded retries limit - try again
                 if (retrisCount < innerTaskRetriesLimit)
                 {
-                    return DoOpcExportUpdatedEpgJob(groupId, taskId, programIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
+                    retrisCount++;
+                    return DoOpcExportUpdatedEpgJob(groupId, taskId, programIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount);
                 }
                 else
                 {
@@ -509,7 +511,7 @@ namespace APILogic
                 // if no medias returned - retry / fail the current bulk and continue the export
                 if (medias == null || medias.Length == 0)
                 {
-                    throw new Exception(string.Format("failed to get media objects from catalog for task id = {0}, {1} medias from index = {2}", taskId, numberOfIds, startIndex));
+                    throw new Exception($"failed to get media objects from catalog for task id={taskId}, numberOfIds={numberOfIds}, medias from index={startIndex}.");
                 }
 
                 // build the xml for all the retrieved medias
@@ -530,12 +532,13 @@ namespace APILogic
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("error in DoExportUpdatedMediaJob. task id = {0}, retry number {1}", taskId, retrisCount), ex);
+                log.Error($"error in DoExportUpdatedMediaJob. task id = {taskId}, retry number {retrisCount}, exception: {ex.ToString()}");
 
                 // if not exceeded retries limit - try again
                 if (retrisCount < innerTaskRetriesLimit)
                 {
-                    return DoExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
+                    retrisCount++;
+                    return DoExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount);
                 }
                 else
                 {
@@ -559,21 +562,21 @@ namespace APILogic
                 List<Asset> assets;
                 if (tasksCount == 1)
                 {
-                    assets = AssetManager.GetAssets(groupId, mediaIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), false); 
+                    assets = AssetManager.GetAssets(groupId, mediaIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), true); 
                 }
                 else
                 {
                     var currentIdsRange = mediaIds.GetRange(startIndex, numberOfIds);
                     log.WarnFormat("start: {0}, numberOfIds, {1}, number of medias: {2}", startIndex, numberOfIds, currentIdsRange.Count);
                     // get medias from catalog by ids (only the calculated range of media ids)
-                    assets = AssetManager.GetAssets(groupId, currentIdsRange.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), false); 
+                    assets = AssetManager.GetAssets(groupId, currentIdsRange.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), true); 
                     log.WarnFormat("requested: {0}, returned: {1}", currentIdsRange.Count, assets.Count);
                 }
 
                 // if no medias returned - retry / fail the current bulk and continue the export
                 if (assets == null || assets.Count == 0)
                 {
-                    throw new Exception(string.Format("failed to get media objects from catalog for task id = {0}, {1} medias from index = {2}", taskId, numberOfIds, startIndex));
+                    throw new Exception($"failed to get media objects from catalog for task id = {taskId}, numberOfIds={numberOfIds} medias from index = {startIndex}");
                 }
 
                 // build the xml for all the retrieved medias
@@ -594,12 +597,13 @@ namespace APILogic
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("error in DoExportUpdatedMediaJob. task id = {0}, retry number {1}", taskId, retrisCount), ex);
+                log.Error($"error in DoOpcExportUpdatedMediaJob. task id={taskId}, retry number={retrisCount}, exception={ex.ToString()}");
 
                 // if not exceeded retries limit - try again
                 if (retrisCount < innerTaskRetriesLimit)
                 {
-                    return DoOpcExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
+                    retrisCount++;
+                    return DoOpcExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount);
                 }
                 else
                 {
@@ -730,7 +734,7 @@ namespace APILogic
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("error in BuildSingleMediaXml. task id = {0}, media id = {1}", taskId, media.AssetId), ex);
+                log.Error($"error in BuildSingleMediaXml. task id = {taskId}, media id = {media.AssetId}, exception={ex.ToString()}");
                 return string.Empty;
             }
 
@@ -858,7 +862,7 @@ namespace APILogic
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("error in BuildSingleMediaXml. task id = {0}, media id = {1}", taskId, asset.Id), ex);
+                log.Error($"error in BuildSingleOpcMediaXml. task id = {taskId}, media id = {asset.Id}, exception={ex.ToString()}");
                 return string.Empty;
             }
 
@@ -957,7 +961,7 @@ namespace APILogic
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("error in BuildSingleProgramXml. task id = {0}, media id = {1}", taskId, program.AssetId), ex);
+                log.Error($"error in BuildSingleProgramXml. task id = {taskId}, program.AssetId={program.AssetId}, exception={ex.ToString()}.");
                 return string.Empty;
             }
             return xml.ToString();
@@ -1053,7 +1057,7 @@ namespace APILogic
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("error in BuildSingleProgramXml. task id = {0}, media id = {1}", taskId, program.Id), ex);
+                log.Error($"error in BuildSingleProgramXml. task id={taskId}, program.Id={program.Id}, exception={ex.ToString()}.");
                 return string.Empty;
             }
             return xml.ToString();
