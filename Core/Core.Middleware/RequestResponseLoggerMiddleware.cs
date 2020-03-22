@@ -33,6 +33,7 @@ namespace Core.Middleware
                 
                 // Get Request Information
                 context.Request.EnableBuffering();
+                var traceId = context.Request.Headers["X-Trace-Id"];
                 var requestUrl = context.Request.GetDisplayUrl();
                 var requestHeadersStr = GetHeadersStr(context.Request.Headers);
                 var requestBodyStr = await TryGetBodyStr(context.Request.Body, Convert.ToInt32(context.Request.ContentLength));
@@ -57,7 +58,7 @@ namespace Core.Middleware
                         var responseHeadersStr = GetHeadersStr(context.Response.Headers);
                         var responseStatusStr = context.Response.StatusCode.ToString();
                         await memoryResponseStream.DisposeAsync();
-                        _Logger.Info($"{requestUrl} | {requestHeadersStr} | {requestBodyStr} | {responseStatusStr} | {responseHeadersStr} | {responseBodyStr}");
+                        _Logger.Info($"{traceId} | {requestUrl} | {requestHeadersStr} | {requestBodyStr} | {responseStatusStr} | {responseHeadersStr} | {responseBodyStr}");
                     });
 
                 });
