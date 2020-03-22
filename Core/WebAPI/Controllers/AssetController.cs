@@ -396,7 +396,7 @@ namespace WebAPI.Controllers
                             if (rules != null && rules.Objects != null && rules.Objects.Count > 0)
                             {
                                 KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().SearchAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
-                                    udid, language, 0, 1, string.Format("media_id = '{0}'", id), KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false, null, null, null, isAllowedToViewInactiveAssets);
+                                    udid, language, 0, 1, $"(and asset_type='media' media_id = '{id}')", KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false, null, null, null, isAllowedToViewInactiveAssets);
 
                                 if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
                                 {

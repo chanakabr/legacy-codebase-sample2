@@ -1310,6 +1310,10 @@ namespace Core.Catalog
                                 searchResultsList.ForEach(item =>
                                 {
                                     int assetId = int.Parse(item.AssetId);
+                                    if (item.AssetType == eAssetTypes.NPVR)
+                                    {
+                                        assetId = int.Parse(((RecordingSearchResult)item).RecordingId);
+                                    }
 
                                     if (!idToResultDictionary.ContainsKey(assetId))
                                     {
@@ -1455,7 +1459,8 @@ namespace Core.Catalog
                         result = new RecordingSearchResult
                         {
                             AssetType = eAssetTypes.NPVR,
-                            Score = doc.score
+                            Score = doc.score,
+                            RecordingId = assetId
                         };
                         if (definitions.recordingIdToSearchableRecordingMapping.ContainsKey(assetId))
                         {
@@ -1485,7 +1490,8 @@ namespace Core.Catalog
                             m_dUpdateDate = doc.update_date,
                             AssetType = assetType,
                             EpgId = epgId,
-                            Score = doc.score
+                            Score = doc.score,
+                            RecordingId = assetId
                         };
                     }
                 }
@@ -1593,7 +1599,8 @@ namespace Core.Catalog
             {
                 return new List<long>();
             }
-
+            
+            bool search = false;
             Dictionary<string, DateTime> idToStartDate = new Dictionary<string, DateTime>();
             Dictionary<string, Dictionary<int, List<string>>> nameToTypeToId = new Dictionary<string, Dictionary<int, List<string>>>();
             Dictionary<int, List<string>> typeToNames = new Dictionary<int, List<string>>();
@@ -1650,6 +1657,7 @@ namespace Core.Catalog
                 if (mediaTypeParent.ContainsKey(item.Key) &&
                     typeToNames.ContainsKey(mediaTypeParent[item.Key]))
                 {
+                    search = true;
                     ESTerms tagsTerms = new ESTerms(false)
                     {
                         Key = string.Format("tags.{0}", item.Value.ToLower())
@@ -1661,128 +1669,134 @@ namespace Core.Catalog
                 }
             }
 
-            ESTerm isActiveTerm = new ESTerm(true)
+            if (search)
             {
-                Key = "is_active",
-                Value = "1"
-            };
 
-            string nowSearchString = DateTime.UtcNow.ToString(DATE_FORMAT);
 
-            ESRange startDateRange = new ESRange(false)
-            {
-                Key = "start_date"
-            };
 
-            startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowSearchString));
-
-            ESRange endDateRange = new ESRange(false)
-            {
-                Key = "end_date"
-            };
-
-            // If we don't have any tag, use a "0=1" filter so query return 0 results instead of ALL results
-            if (tagsFilter.IsEmpty())
-            {
-                tagsFilter.AddChild(new ESTerm(true)
+                ESTerm isActiveTerm = new ESTerm(true)
                 {
-                    Key = "_id",
-                    Value = "-1"
-                });
-            }
-
-            // Filter associated media by:
-            // is_active = 1
-            // start_date < NOW
-            // end_date > NOW
-            // tag is actually the current series
-            filterSettings.AddChild(isActiveTerm);
-            filterSettings.AddChild(startDateRange);
-            filterSettings.AddChild(endDateRange);
-            filterSettings.AddChild(tagsFilter);
-            filteredQuery.Filter.FilterSettings = filterSettings;
-
-            // Create an aggregation search object for each association tag we have
-            foreach (var associationTag in associationTags)
-            {
-                ESTerm filter = new ESTerm(true)
-                {
-                    Key = "media_type_id",
-                    // key of association tag is the child media type
-                    Value = associationTag.Key.ToString()
+                    Key = "is_active",
+                    Value = "1"
                 };
 
-                ESFilterAggregation currentAggregation = new ESFilterAggregation(filter)
+                string nowSearchString = DateTime.UtcNow.ToString(DATE_FORMAT);
+
+                ESRange startDateRange = new ESRange(false)
                 {
-                    Name = associationTag.Value
+                    Key = "start_date"
                 };
 
-                ESBaseAggsItem subAggregation1 = new ESBaseAggsItem()
+                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowSearchString));
+
+                ESRange endDateRange = new ESRange(false)
                 {
-                    Name = associationTag.Value + "_sub1",
-                    Field = string.Format("tags.{0}", associationTag.Value).ToLower(),
-                    Type = eElasticAggregationType.terms
+                    Key = "end_date"
                 };
 
-                ESBaseAggsItem subAggregation2 = new ESBaseAggsItem()
+                // If we don't have any tag, use a "0=1" filter so query return 0 results instead of ALL results
+                if (tagsFilter.IsEmpty())
                 {
-                    Name = associationTag.Value + "_sub2",
-                    Field = "start_date",
-                    Type = eElasticAggregationType.stats
-                };
+                    tagsFilter.AddChild(new ESTerm(true)
+                    {
+                        Key = "_id",
+                        Value = "-1"
+                    });
+                }
 
-                subAggregation1.SubAggrgations.Add(subAggregation2);
-                currentAggregation.SubAggrgations.Add(subAggregation1);
+                // Filter associated media by:
+                // is_active = 1
+                // start_date < NOW
+                // end_date > NOW
+                // tag is actually the current series
+                filterSettings.AddChild(isActiveTerm);
+                filterSettings.AddChild(startDateRange);
+                filterSettings.AddChild(endDateRange);
+                filterSettings.AddChild(tagsFilter);
+                filteredQuery.Filter.FilterSettings = filterSettings;
 
-                filteredQuery.Aggregations.Add(currentAggregation);
-            }
-
-            #endregion
-
-            #region Get Aggregations Results
-
-            string searchRequestBody = filteredQuery.ToString();
-            string index = groupId.ToString();
-
-            string searchResults = m_oESApi.Search(index, "media", ref searchRequestBody);
-
-            ESAggregationsResult aggregationsResult =
-                ESAggregationsResult.FullParse(searchResults, filteredQuery.Aggregations);
-
-            #endregion
-
-            #region Process Aggregations Results
-
-            if (aggregationsResult != null && aggregationsResult.Aggregations != null && aggregationsResult.Aggregations.Count > 0)
-            {
+                // Create an aggregation search object for each association tag we have
                 foreach (var associationTag in associationTags)
                 {
-                    int parentMediaType = mediaTypeParent[associationTag.Key];
-
-                    if (aggregationsResult.Aggregations.ContainsKey(associationTag.Value))
+                    ESTerm filter = new ESTerm(true)
                     {
-                        ESAggregationResult currentResult = aggregationsResult.Aggregations[associationTag.Value];
+                        Key = "media_type_id",
+                        // key of association tag is the child media type
+                        Value = associationTag.Key.ToString()
+                    };
 
-                        ESAggregationResult firstSub;
+                    ESFilterAggregation currentAggregation = new ESFilterAggregation(filter)
+                    {
+                        Name = associationTag.Value
+                    };
 
-                        if (currentResult.Aggregations.TryGetValue(associationTag.Value + "_sub1", out firstSub))
+                    ESBaseAggsItem subAggregation1 = new ESBaseAggsItem()
+                    {
+                        Name = associationTag.Value + "_sub1",
+                        Field = string.Format("tags.{0}", associationTag.Value).ToLower(),
+                        Type = eElasticAggregationType.terms
+                    };
+
+                    ESBaseAggsItem subAggregation2 = new ESBaseAggsItem()
+                    {
+                        Name = associationTag.Value + "_sub2",
+                        Field = "start_date",
+                        Type = eElasticAggregationType.stats
+                    };
+
+                    subAggregation1.SubAggrgations.Add(subAggregation2);
+                    currentAggregation.SubAggrgations.Add(subAggregation1);
+
+                    filteredQuery.Aggregations.Add(currentAggregation);
+                }
+
+                #endregion
+
+                #region Get Aggregations Results
+
+                string searchRequestBody = filteredQuery.ToString();
+                string index = groupId.ToString();
+
+                string searchResults = m_oESApi.Search(index, "media", ref searchRequestBody);
+
+                ESAggregationsResult aggregationsResult =
+                    ESAggregationsResult.FullParse(searchResults, filteredQuery.Aggregations);
+
+                #endregion
+
+                #region Process Aggregations Results
+
+                if (aggregationsResult != null && aggregationsResult.Aggregations != null && aggregationsResult.Aggregations.Count > 0)
+                {
+                    foreach (var associationTag in associationTags)
+                    {
+                        int parentMediaType = mediaTypeParent[associationTag.Key];
+
+                        if (aggregationsResult.Aggregations.ContainsKey(associationTag.Value))
                         {
-                            foreach (var bucket in firstSub.buckets)
+                            ESAggregationResult currentResult = aggregationsResult.Aggregations[associationTag.Value];
+
+                            ESAggregationResult firstSub;
+
+                            if (currentResult.Aggregations.TryGetValue(associationTag.Value + "_sub1", out firstSub))
                             {
-                                ESAggregationResult subBucket;
-
-                                if (bucket.Aggregations.TryGetValue(associationTag.Value + "_sub2", out subBucket))
+                                foreach (var bucket in firstSub.buckets)
                                 {
-                                    // "series name" is the bucket's key
-                                    string tagValue = bucket.key;
+                                    ESAggregationResult subBucket;
 
-                                    if (nameToTypeToId.ContainsKey(tagValue) && nameToTypeToId[tagValue].ContainsKey(parentMediaType))
+                                    if (bucket.Aggregations.TryGetValue(associationTag.Value + "_sub2", out subBucket))
                                     {
-                                        foreach (var assetId in nameToTypeToId[tagValue][parentMediaType])
-                                        {
-                                            string maximumStartDate = subBucket.max_as_string.ToString();
+                                        // "series name" is the bucket's key
+                                        string tagValue = bucket.key;
 
-                                            idToStartDate[assetId] = DateTime.ParseExact(maximumStartDate, DATE_FORMAT, null);
+                                        if (nameToTypeToId.ContainsKey(tagValue) && nameToTypeToId[tagValue].ContainsKey(parentMediaType))
+                                        {
+                                            foreach (var assetId in nameToTypeToId[tagValue][parentMediaType])
+                                            {
+                                                string maximumStartDate = subBucket.max_as_string.ToString();
+
+                                                idToStartDate[assetId] = DateTime.ParseExact(maximumStartDate, DATE_FORMAT, null);
+                                            }
                                         }
                                     }
                                 }
@@ -1791,7 +1805,7 @@ namespace Core.Catalog
                     }
                 }
             }
-
+            
             #endregion
 
             // Sort the list of key value pairs by the value (the start date)
