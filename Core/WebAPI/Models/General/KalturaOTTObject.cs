@@ -122,7 +122,8 @@ namespace WebAPI.Models.General
 
             foreach (object item in array)
             {
-                var obj = Deserializer.deserialize(itemType, item as Dictionary<string, object>);
+                var parameters = item.GetType() == typeof(JObject) ? ((JObject)item).ToObject<Dictionary<string, object>>() : (Dictionary<string, object>)item;
+                var obj = Deserializer.deserialize(itemType, parameters);
                 list.Add((dynamic)obj);
             }
 

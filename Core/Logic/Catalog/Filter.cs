@@ -30,6 +30,9 @@ namespace Core.Catalog
         [DataMember]
         public int[] fileTypes;
 
+        [DataMember]
+        public bool AllowPartialResponse;
+
         public Filter(bool bUseStartDate, bool bUseFinalDate, bool bOnlyActiveMedia, Int32 nLanguage, string sDeviceId, string sPlatform, bool noFileUrl)
         {
             m_bUseStartDate = bUseStartDate;
