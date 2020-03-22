@@ -134,6 +134,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //cfg.CreateMap<IGrouping<eTransactionType, DbCustomProperty>, DTOCustomProperty>()
             //.ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
             //.ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value)));
+
+            cfg.CreateMap<KalturaPlaybackPartnerConfig, PlaybackPartnerConfig>()
+               .ForMember(dest => dest.VodDefaultAdapter, opt => opt.MapFrom(src => src.VodDefaultAdapter))
+               .ForMember(dest => dest.EpgDefaultAdapter, opt => opt.MapFrom(src => src.EpgDefaultAdapter))
+               .ForMember(dest => dest.RecordingDefaultAdapter, opt => opt.MapFrom(src => src.RecordingDefaultAdapter))
+               ;
+
+            cfg.CreateMap<PlaybackPartnerConfig, KalturaPlaybackPartnerConfig>()
+               .ForMember(dest => dest.VodDefaultAdapter, opt => opt.MapFrom(src => src.VodDefaultAdapter))
+               .ForMember(dest => dest.EpgDefaultAdapter, opt => opt.MapFrom(src => src.EpgDefaultAdapter))
+               .ForMember(dest => dest.RecordingDefaultAdapter, opt => opt.MapFrom(src => src.RecordingDefaultAdapter))
+               ;
         }
 
         private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationType type)
