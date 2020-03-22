@@ -39,7 +39,6 @@ pipeline {
         }
       
         stage("Trigger Release Candidate"){
-            when { expression { params.TRIGGER_RC == true } }
             steps{
                 script {
                     SHORT_JOB_NAME = sh (script: "echo ${JOB_NAME} | cut -f1 -d'/'", returnStdout: true).trim()  
