@@ -1149,7 +1149,9 @@ namespace Core.Notification
                 userNotificationData.devices.Add(new UserDevice()
                 {
                     SignInAtSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
-                    Udid = pushData.Udid
+                    Udid = pushData.Udid,
+                    //TODO - Matan, Mark as IOT or not
+                    //PushChannel = 
                 });
             }
 

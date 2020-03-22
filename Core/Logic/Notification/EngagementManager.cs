@@ -51,6 +51,9 @@ namespace Core.Notification
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group ID wasn't found";
         private const string SCHEDULE_ENGAGEMENT_WITHOUT_ADAPTER = "Scheduler engagement must contain an adapter ID";
         private const string MAX_NUMBER_OF_PUSH_MSG_EXCEEDED = "Maximum number of push messages to user have reached its limit";
+        private const string UDID_IS_NOT_REGISTERED_TO_IOT = "Udid is not registered to Iot";
+        private const string FAILED_TO_UPDATE_THING_SHADOW = "Failed to update thing shadow";
+        private const string DEVICE_NOT_IN_DOMAIN = "Device not in domain";
 
         private static int NUM_OF_BULK_MESSAGE_ENGAGEMENTS = 500;
         private static int NUM_OF_ENGAGEMENT_THREADS = 10;
@@ -1114,28 +1117,99 @@ namespace Core.Notification
 
         public static Status SendPushToUser(int partnerId, int userId, PushMessage pushMessage)
         {
-            Status result = new Status() { Code = (int)eResponseStatus.Error };
-
-            // get maximum allowed push 
+            var result = new Status() { Code = (int)eResponseStatus.Error };
             int allowedPushMsg = ApplicationConfiguration.Current.PushMessagesConfiguration.NumberOfMessagesPerSecond.Value;
-            if (allowedPushMsg == 0)
-                allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
-
-            int counter = 0;
-
-            // check if user document exists
-            if (NotificationDal.IsUserPushDocExists(partnerId, userId))
-                counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId, false);
-            else
-                counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId, true);
-
-            // validate did not reach maximum of allowed user push messages
-            if (counter > allowedPushMsg)
+            if (ExceededMaximumAllowedPush(partnerId, userId, allowedPushMsg))
             {
                 log.ErrorFormat("Cannot send user push notification. maximum number of push allowed per hour: {0}, partner ID: {1}, user ID: {2}", allowedPushMsg, partnerId, userId);
                 result = new Status() { Code = (int)eResponseStatus.Error, Message = MAX_NUMBER_OF_PUSH_MSG_EXCEEDED };
                 return result;
             }
+
+            if (!string.IsNullOrEmpty(pushMessage.Udid))//send to a specific device
+            {
+                result = SendToSingleDevice(partnerId, userId, pushMessage);
+            }
+            else
+            {
+                result = SendAllConnectedDevices(partnerId, userId, pushMessage);
+            }
+
+            return result;
+        }
+
+        private static Status SendSingleSnsDevice(int partnerId, int userId, PushMessage pushMessage, string udid)
+        {
+            var result = new Status() { Code = (int)eResponseStatus.Error };
+            var docExists = false;
+            var usersEndPointDatas = new List<EndPointData>();
+
+            // get device data
+            DeviceNotificationData deviceData = NotificationDal.GetDeviceNotificationData(partnerId, udid, ref docExists);
+            if (deviceData == null)
+            {
+                log.DebugFormat($"device data wasn't found. GID: {partnerId}, UDID: {udid}, userId: {userId}");
+                result.Message = "device data wasn't found";
+                return result;
+            }
+
+            // get push data
+            var pushData = PushAnnouncementsHelper.GetPushData(partnerId, udid, string.Empty);
+            if (pushData == null)
+            {
+                log.ErrorFormat("push data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, udid, userId);
+                result.Message = "push data wasn't found";
+                return result;
+            }
+
+            // prepare push
+            usersEndPointDatas.Add(new EndPointData()
+            {
+                EndPointArn = pushData.ExternalToken,
+                Category = pushMessage.Action,
+                Sound = pushMessage.Sound,
+                Url = pushMessage.Url,
+                ExtraData = userId.ToString()
+            });
+
+            // prepare push 
+            WSEndPointPublishData publishData = new WSEndPointPublishData();
+            publishData.EndPoints = usersEndPointDatas;
+            publishData.Message = new MessageData()
+            {
+                Alert = pushMessage.Message,
+                Url = pushMessage.Url,
+                Category = pushMessage.Action,
+                Sound = pushMessage.Sound
+            };
+
+            // send push
+            List<WSEndPointPublishDataResult> pushPublishResults = NotificationAdapter.PublishToEndPoint(partnerId, publishData);
+            if (pushPublishResults == null)
+            {
+                log.ErrorFormat("Error at PublishToEndPoint. GID: {0}, user ID: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
+                result = new Status() { Code = (int)eResponseStatus.Error };
+                return result;
+            }
+
+            // go over push results
+            foreach (var pushPublishResult in pushPublishResults)
+            {
+                if (string.IsNullOrEmpty(pushPublishResult.ResultMessageId))
+                    log.ErrorFormat("Error occur at PublishToEndPoint. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", partnerId, userId, pushPublishResult.EndPointArn, JsonConvert.SerializeObject(pushMessage));
+                else
+                    log.DebugFormat("Successfully sent push message. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", partnerId, userId, pushPublishResult.EndPointArn, JsonConvert.SerializeObject(pushMessage));
+            }
+
+            result = new Status() { Code = (int)eResponseStatus.OK };
+
+            return result;
+        }
+
+        private static Status SendAllConnectedDevices(int partnerId, int userId, PushMessage pushMessage)
+        {
+            var result = new Status() { Code = (int)eResponseStatus.Error };
+            var usersEndPointDatas = new List<EndPointData>();
 
             // get user notification data
             bool docExists = false;
@@ -1155,34 +1229,40 @@ namespace Core.Notification
                 return result;
             }
 
-            List<EndPointData> usersEndPointDatas = new List<EndPointData>();
             foreach (var device in userNotificationData.devices)
             {
-                // get device data
-                DeviceNotificationData deviceData = NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
-                if (deviceData == null)
+                if (IsToIot(pushMessage, device))
                 {
-                    log.DebugFormat("device data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, device.Udid, userId);
-                    continue;
+                    PublishToIot(partnerId, pushMessage, NotificationDal.GetRegisteredDevice(partnerId.ToString(), device.Udid));
                 }
-
-                // get push data
-                var pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
-                if (pushData == null)
+                else if (IsToSns(pushMessage, device))
                 {
-                    log.ErrorFormat("push data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, device.Udid, userId);
-                    continue;
+                    // get device data
+                    DeviceNotificationData deviceData = NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
+                    if (deviceData == null)
+                    {
+                        log.DebugFormat($"device data wasn't found. GID: {partnerId}, UDID: {device.Udid}, userId: {userId}");
+                        continue;
+                    }
+
+                    // get push data
+                    var pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
+                    if (pushData == null)
+                    {
+                        log.ErrorFormat("push data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, device.Udid, userId);
+                        continue;
+                    }
+
+                    // prepare push
+                    usersEndPointDatas.Add(new EndPointData()
+                    {
+                        EndPointArn = pushData.ExternalToken,
+                        Category = pushMessage.Action,
+                        Sound = pushMessage.Sound,
+                        Url = pushMessage.Url,
+                        ExtraData = userId.ToString()
+                    });
                 }
-
-                // prepare push
-                usersEndPointDatas.Add(new EndPointData()
-                {
-                    EndPointArn = pushData.ExternalToken,
-                    Category = pushMessage.Action,
-                    Sound = pushMessage.Sound,
-                    Url = pushMessage.Url,
-                    ExtraData = userId.ToString()
-                });
             }
 
             // prepare push 
@@ -1215,7 +1295,119 @@ namespace Core.Notification
             }
 
             result = new Status() { Code = (int)eResponseStatus.OK };
+
             return result;
+        }
+
+        private static bool IsToSns(PushMessage pushMessage, UserDevice device)
+        {
+            return (pushMessage.PushChannels == null || pushMessage.PushChannels.Contains(PushChannel.Push))
+                                && (device.PushChannel == default || device.PushChannel == PushChannel.Push);
+        }
+
+        private static bool IsToIot(PushMessage pushMessage, UserDevice device)
+        {
+            return (pushMessage.PushChannels == null || pushMessage.PushChannels.Contains(PushChannel.Iot))
+                                && device.PushChannel == PushChannel.Iot;
+        }
+
+        private static Status SendToSingleDevice(int partnerId, int userId, PushMessage pushMessage)
+        {
+            var status = new Status() { Code = (int)eResponseStatus.Error };
+
+            var response = Core.Users.Module.GetUserData(partnerId, userId.ToString(), string.Empty);
+            if (response == null || response.m_RespStatus != ResponseStatus.OK || response.m_user == null || response.m_user.m_oBasicData == null)
+            {
+                var _response = response != null ? JsonConvert.SerializeObject(response) : "null";
+                log.Error($"User not found or is corrupted, partner: {partnerId}," +
+                    $"User: {userId}, response: {_response}");
+                return null;
+            }
+
+            var devices = Core.Users.ConcurrencyManager.GetDomainDevices(response.m_user.m_domianID, partnerId);
+
+            if (devices == null || !devices.ContainsKey(pushMessage.Udid))
+            {
+                log.Error($"{DEVICE_NOT_IN_DOMAIN}, device: {pushMessage.Udid} Domain: {response.m_user.m_domianID}");
+                status = new Status() { Code = (int)eResponseStatus.Error, Message = DEVICE_NOT_IN_DOMAIN };
+                return status;
+            }
+
+            if (pushMessage.PushChannels != null && pushMessage.PushChannels.Count > 0)//by channel
+            {
+                //send by channels
+                foreach (var channel in pushMessage.PushChannels)
+                {
+                    switch (channel)
+                    {
+                        case PushChannel.Iot:
+                            var device = NotificationDal.GetRegisteredDevice(partnerId.ToString(), pushMessage.Udid);
+                            if (device != null)//send to IOT
+                            {
+                                status = PublishToIot(partnerId, pushMessage, device);
+                            }
+                            else
+                            {
+                                log.Error($"Cannot send user push notification. udid: {pushMessage.Udid}, partner ID: {partnerId} has no record in CB");
+                                status = new Status() { Code = (int)eResponseStatus.Error, Message = UDID_IS_NOT_REGISTERED_TO_IOT };
+                                return status;
+                            }
+                            break;
+                        case PushChannel.Push:
+                        default:
+                            status = SendSingleSnsDevice(partnerId, userId, pushMessage, pushMessage.Udid);
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                var device = NotificationDal.GetRegisteredDevice(partnerId.ToString(), pushMessage.Udid);
+                if (device != null)
+                {
+                    status = PublishToIot(partnerId, pushMessage, device);
+                }
+                else
+                {
+                    status = SendSingleSnsDevice(partnerId, userId, pushMessage, pushMessage.Udid);
+                }
+            }
+            return status;
+        }
+
+        private static bool ExceededMaximumAllowedPush(int partnerId, int userId, int allowedPushMsg)
+        {
+            // get maximum allowed push 
+            if (allowedPushMsg == 0)
+                allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
+
+            int counter;
+
+            // check if user document exists
+            if (NotificationDal.IsUserPushDocExists(partnerId, userId))
+                counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId, false);
+            else
+                counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId, true);
+
+            // validate did not reach maximum of allowed user push messages
+            return counter > allowedPushMsg;
+        }
+
+        private static Status PublishToIot(int partnerId, PushMessage pushMessage, Iot iotDevice)
+        {
+            var status = new Status() { Code = (int)eResponseStatus.Error };
+
+            //AddToThingShadow + change log
+            var publishResponse = NotificationAdapter.AddPrivateMessageToShadowIot(partnerId, pushMessage.Message, iotDevice.ThingArn);
+
+            if (!publishResponse)
+            {
+                log.Error($"Cannot update thing's shadow. thing: {iotDevice.ThingArn}");
+                status = new Status() { Code = (int)eResponseStatus.Error, Message = FAILED_TO_UPDATE_THING_SHADOW };
+                return status;
+            }
+
+            return new Status() { Code = (int)eResponseStatus.OK };
         }
 
         private static List<KeyValue> GetUserAttributes(int partnerId, int userId, eEngagementType engagementType)

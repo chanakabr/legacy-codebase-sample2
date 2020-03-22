@@ -261,7 +261,15 @@ namespace Core.Notification.Adapters
             return messageId;
         }
 
-        public static IotPublishResponse IotPublishAnnouncement(int groupId, string externalAnnouncementId, string subject, MessageData message, string topic = "PublicAnnouncement")
+        /// <summary>
+        /// Publish message via IOT
+        /// </summary>
+        /// <param name="groupId">group Id</param>
+        /// <param name="externalAnnouncementId">optional (log)</param>
+        /// <param name="message">Message body</param>
+        /// <param name="topic">With groupId prefix</param>
+        /// <returns></returns>
+        public static IotPublishResponse IotPublishAnnouncement(int groupId, string message, string topic)
         {
             IotPublishResponse response = null;
             var _topic = $"{groupId}/{topic}";
@@ -273,14 +281,15 @@ namespace Core.Notification.Adapters
             {
                 try
                 {
+                    var requestUrl = $"{iotAdapterUrl}{IotManager.PUBLISH}";
                     //Todo Matan - Test
-                    var request = new { GroupId = groupId, Message = message.Alert, Subject = subject, Topic = _topic };
-                    response = SendHttpRequest<IotPublishResponse>(iotAdapterUrl, JsonConvert.SerializeObject(request), HttpMethod.Post);
+                    var request = new { GroupId = groupId, Message = message, Topic = _topic };
+                    response = SendHttpRequest<IotPublishResponse>(requestUrl, JsonConvert.SerializeObject(request), HttpMethod.Post);
 
                     if (response == null || response.ResponseObject == null || !response.ResponseObject.IsSuccess)
-                        log.Error($"Error while trying to publish announcement. announcement external ID: {externalAnnouncementId}, message: {message}");
+                        log.Error($"Error while trying to publish announcement. message: {message}");
                     else
-                        log.Debug($"successfully published announcement. announcement external ID: {externalAnnouncementId}");
+                        log.Debug($"successfully published announcement.");
                 }
                 catch (ConfigurationErrorsException)
                 {
@@ -288,12 +297,44 @@ namespace Core.Notification.Adapters
                 }
                 catch (Exception ex)
                 {
-                    log.Error($"Error while trying to publish announcement. announcement external ID: {externalAnnouncementId}, message: {message} ex: {ex}");
+                    log.Error($"Error while trying to publish announcement. message: {message} ex: {ex}");
                 }
             }
             return response;
         }
 
+        public static bool AddPrivateMessageToShadowIot(int groupId, string message, string thingArn)
+        {
+            var response = false;
+
+            var iotAdapterUrl = NotificationSettings.GetIotAdapterUrl(groupId);
+            if (string.IsNullOrEmpty(iotAdapterUrl))
+                log.Error("IOT Notification URL wasn't found");
+            else
+            {
+                try
+                {
+                    var requestUrl = $"{iotAdapterUrl}{IotManager.ADD_TO_SHADOW}";
+                    //Todo Matan - Test
+                    var request = new { thingArn = thingArn, message = message };
+                    response = SendHttpRequest<bool>(requestUrl, JsonConvert.SerializeObject(request), HttpMethod.Post);
+
+                    if (!response)
+                        log.Error($"Error while trying to add message to thing shadow. message: {message}, thing: {thingArn}");
+                    else
+                        log.Debug($"successfully added message to thing shadow.");
+                }
+                catch (ConfigurationErrorsException)
+                {
+                    log.Error($"No configurations for group: {groupId}.");
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Error while trying to publish announcement. message: {message} ex: {ex}");
+                }
+            }
+            return response;
+        }
 
         public static List<WSEndPointPublishDataResult> PublishToEndPoint(int groupId, WSEndPointPublishData publishData)
         {

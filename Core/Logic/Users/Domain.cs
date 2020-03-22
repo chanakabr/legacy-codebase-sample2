@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Notification;
+using ApiObjects;
 using ApiObjects.DRM;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
@@ -926,7 +927,7 @@ namespace Core.Users
 
                 //Todo - Matan Create perm object
                 var _request = new { GroupId = m_nGroupID.ToString(), Udid = udid, IdentityId = iotDevice.IdentityId };
-                var url = $"{partnerSettings.settings.IotAdapterUrl}/api/IOT/DeleteDevice";
+                var url = $"{partnerSettings.settings.IotAdapterUrl}{IotManager.DELETE_DEVICE}";
 
                 var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<bool>
                     (url, JsonConvert.SerializeObject(_request), HttpMethod.Delete);

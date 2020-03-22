@@ -2,9 +2,8 @@
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
+using Core.Users;
 using System;
-using Tvinci.Core.DAL;
-using WebAPI.ClientManagers.Client;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -99,9 +98,9 @@ namespace WebAPI.Controllers
 
         private static bool ValidateRequest<T>(ContextData contextData, GenericResponse<T> genericResponse)
         {
-            var device = CatalogDAL.GetDomainDevices((int)contextData.DomainId);
+            var devices = ConcurrencyManager.GetDomainDevices((int)contextData.DomainId, contextData.GroupId);
 
-            if (device == null || !device.ContainsKey(contextData.Udid))
+            if (devices == null || !devices.ContainsKey(contextData.Udid))
             {
                 genericResponse.SetStatus(eResponseStatus.DeviceNotInDomain);
                 return false;

@@ -14,8 +14,12 @@ namespace ApiLogic.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<IotManager> lazy = new Lazy<IotManager>(() => new IotManager());
-        private const string Register_Path = "/api/IOT/RegisterDevice";
-        private const string GET_CLIENT_Path = "/api/IOT/Configuration/List?";
+        private const string REGISTER_PATH = "/api/IOT/RegisterDevice";
+        private const string GET_CLIENT_PATH = "/api/IOT/Configuration/List?";
+        public const string ADD_TO_SHADOW = "/api/IOT/AddToShadow";
+        public const string PUBLISH = "/api/IOT/Publish";
+        public const string DELETE_DEVICE = "/api/IOT/DeleteDevice";
+
         public static IotManager Instance { get { return lazy.Value; } }
 
         private IotManager() { }
@@ -36,7 +40,7 @@ namespace ApiLogic.Notification
                 }
 
                 var _request = new { GroupId = groupId.ToString(), Udid = udid };
-                var url = $"{partnerSettings.settings.IotAdapterUrl}{Register_Path}";
+                var url = $"{partnerSettings.settings.IotAdapterUrl}{REGISTER_PATH}";
 
                 var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<Iot>
                     (url, Newtonsoft.Json.JsonConvert.SerializeObject(_request), HttpMethod.Post);
@@ -97,7 +101,7 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                var url = $"{partnerSettings.settings.IotAdapterUrl}{GET_CLIENT_Path}groupId={groupId}&forClient={isClient}";
+                var url = $"{partnerSettings.settings.IotAdapterUrl}{GET_CLIENT_PATH}groupId={groupId}&forClient={isClient}";
 
                 var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<IotClientConfiguration>
                     (url, Newtonsoft.Json.JsonConvert.SerializeObject(string.Empty), HttpMethod.Get);
