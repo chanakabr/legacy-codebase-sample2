@@ -7,6 +7,8 @@ using System.Reflection;
 using KLogMonitor;
 using System.Net.Http;
 using System.Configuration;
+using Core.Notification;
+using Newtonsoft.Json;
 
 namespace ApiLogic.Notification
 {
@@ -130,6 +132,46 @@ namespace ApiLogic.Notification
         public Status Delete(ContextData contextData, long id)
         {
             throw new NotImplementedException();
+        }
+
+        public bool RemoveFromIot(int m_nGroupID, string udid)
+        {
+            try
+            {
+                var iotDevice = DAL.NotificationDal.GetRegisteredDevice(m_nGroupID.ToString(), udid);
+                if (iotDevice == null)
+                {
+                    log.Error($"Device {udid} not found");
+                    return false;
+                }
+                var partnerSettings = NotificationCache.Instance().GetPartnerNotificationSettings(m_nGroupID);
+
+                //Todo - Matan Create perm object
+                var _request = new { GroupId = m_nGroupID.ToString(), Udid = udid, IdentityId = iotDevice.IdentityId };
+                var url = $"{partnerSettings.settings.IotAdapterUrl}{IotManager.DELETE_DEVICE}";
+
+                var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<bool>
+                    (url, JsonConvert.SerializeObject(_request), HttpMethod.Delete);
+
+                if (!msResponse)
+                {
+                    log.Error($"Failed removing udid: {udid} from group: {m_nGroupID}");
+                    return false;
+                }
+
+                if (!DAL.NotificationDal.RemoveRegisteredDevice(m_nGroupID.ToString(), udid))
+                {
+                    log.Error($"Failed to delete iot document for device: {udid}, group: {m_nGroupID}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed removing udid: {udid} from group: {m_nGroupID} by exception: {ex.Message}");
+                return false;
+            }
+
+            return true;
         }
 
         public GenericResponse<Iot> Get(ContextData contextData, long id)
