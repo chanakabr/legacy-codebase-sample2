@@ -16187,6 +16187,15 @@ namespace Core.ConditionalAccess
                         {
                             seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to cancel or delete epgid");
                         }
+                        else
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+
+                            if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
+                            {
+                                recording.Status = RecordingsManager.Instance.CacnelOrDeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, tstvRecordingStatus == TstvRecordingStatus.Deleted);
+                            }
+                        }
                     }
                 }
                 else
