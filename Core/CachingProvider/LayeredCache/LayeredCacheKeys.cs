@@ -1046,7 +1046,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetAdjacentProgramsKey(int groupId, string epgChannelId)
         {
-            return string.Format("adjacent_programs_groupId_{0}_epgChannelId_{1}", groupId, epgChannelId);
+            return string.Format("adjacentProgramsV1_groupId_{0}_epgChannelId_{1}", groupId, epgChannelId);
         }
 
         public static string GetAdjacentProgramsInvalidationKey(int groupId, string epgChannelId)
