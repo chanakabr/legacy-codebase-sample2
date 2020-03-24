@@ -1076,7 +1076,7 @@ namespace ElasticSearch.Searcher
                         isNot = true,
                     };
 
-                    idsTerm.Value.AddRange(this.SearchDefinitions.excludedCrids);
+                    idsTerm.Value.AddRange(this.SearchDefinitions.excludedCrids.ConvertAll(x => x.ToLower()));
                     recordingFilter.AddChild(idsTerm);
                     epgFilter.AddChild(idsTerm);
                 }
