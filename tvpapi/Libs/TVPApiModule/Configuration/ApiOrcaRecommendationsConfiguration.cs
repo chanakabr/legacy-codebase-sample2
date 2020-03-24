@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConfigurationManager;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace TVPApi.Configuration.OrcaConfiguration
     {
         public ApiOrcaRecommendationsConfiguration()
         {
-            base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.OrcaRecommendations"], true);
+            base.SyncFromFile("", true);
         }
 
         public ApiOrcaRecommendationsConfiguration(string syncFile)

@@ -3,11 +3,6 @@ using System.Data;
 using System.Configuration;
 using System.Linq;
 using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
@@ -891,7 +886,7 @@ namespace TVPApi
             {
                 IEnumerable<PageGallery> MainGalleryList =
                 from galleries in GetLocaleGalleries()
-                where galleries.GalleryLocation.Equals(TVPApi.GalleryLocation.Main.ToString())
+                where galleries.GalleryLocation != null && galleries.GalleryLocation.Equals(TVPApi.GalleryLocation.Main.ToString())
                 select galleries;
 
                 if (MainGalleryList != null && MainGalleryList.Count() > 0)
@@ -908,7 +903,7 @@ namespace TVPApi
             {
                 IEnumerable<PageGallery> TopGalleryList =
                 from galleries in GetLocaleGalleries()
-                where galleries.GalleryLocation.Equals(TVPApi.GalleryLocation.Top.ToString())
+                where galleries.GalleryLocation != null && galleries.GalleryLocation.Equals(TVPApi.GalleryLocation.Top.ToString())
                 select galleries;
 
                 if (TopGalleryList != null && TopGalleryList.Count() > 0)

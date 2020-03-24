@@ -22,7 +22,7 @@ using CachingProvider.LayeredCache;
 
 namespace Core.Recordings
 {
-    public class  RecordingsManager
+    public class RecordingsManager
     {
         #region Consts
 
@@ -52,7 +52,7 @@ namespace Core.Recordings
         private RecordingsManager()
         {
             synchronizer = new CouchbaseSynchronizer(1000, 60);
-            synchronizer.SynchronizedAct += synchronizer_SynchronizedAct;            
+            synchronizer.SynchronizedAct += synchronizer_SynchronizedAct;
         }
 
         private static object locker = new object();
@@ -146,7 +146,7 @@ namespace Core.Recordings
 
                 // remember and not forget
                 if (!shouldIssueRecord)
-                {                    
+                {
                     if (recordingsEpgMap.ContainsKey(programId))
                     {
                         recording = recordingsEpgMap[programId];
@@ -264,7 +264,7 @@ namespace Core.Recordings
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
-                List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId);
+                List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId, isPrivateCopy);
                 bool isLastRecording = recordingsWithTheSameExternalId.Count == 1;
                 // if last recording then update ES and CB
                 if (isLastRecording || deleteEpgEvent)
@@ -272,7 +272,7 @@ namespace Core.Recordings
                     UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
                     UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, true);
                 }
-                
+
                 // if last recording or is private recording -> go to the adapter
                 if (isLastRecording || isPrivateCopy)
                 {
@@ -312,7 +312,7 @@ namespace Core.Recordings
                 // if last recording then update the DB
                 if (isLastRecording || (isPrivateCopy && !domainIds.Any()))
                 {
-                    status = internalModifyRecording(groupId, slimRecording.Id, slimRecording.EpgEndDate);
+                    status = internalModifyRecording(groupId, slimRecording, slimRecording.EpgEndDate);
                 }
                 else
                 {
@@ -359,8 +359,6 @@ namespace Core.Recordings
                             // Count current try to get status - first and foremost
                             currentRecording.GetStatusRetries++;
 
-                            ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);                                           
-
                             DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
 
                             int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
@@ -368,7 +366,6 @@ namespace Core.Recordings
                             var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
 
                             RecordResult adapterResponse = null;
-                            bool shouldRetry = false;
                             string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, currentRecording.ChannelId);
 
                             try
@@ -379,22 +376,18 @@ namespace Core.Recordings
                             {
                                 log.ErrorFormat("GetRecordingStatus: KalturaException when using adapter. ID = {0}, ex = {1}, message = {2}, code = {3}",
                                     recordingId, ex, ex.Message, ex.Data["StatusCode"]);
-                                shouldRetry = true;
+                                adapterResponse = null;
                             }
                             catch (Exception ex)
                             {
                                 log.ErrorFormat("GetRecordingStatus: Exception when using adapter. ID = {0}, ex = {1}", recordingId, ex);
-                                shouldRetry = true;
-                            }
-
-                            if (adapterResponse == null)
-                            {
-                                shouldRetry = true;
+                                adapterResponse = null;
                             }
 
                             // Adapter failed for some reason - retry
-                            if (shouldRetry)
+                            if (adapterResponse == null)
                             {
+                                ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
                                 RetryTaskAfterProgramEnded(groupId, currentRecording, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
                             }
                             else
@@ -415,7 +408,7 @@ namespace Core.Recordings
                                 }
 
                                 // Update recording after setting the new status
-                                ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);                                
+                                ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
                                 UpdateIndex(groupId, recordingId, eAction.Update);
                             }
                         }
@@ -495,8 +488,10 @@ namespace Core.Recordings
                     recording.EpgStartDate = startDate;
                     recording.EpgEndDate = endDate;
 
+                    bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).IsPrivateCopyEnabled.Value;
+
                     // deal with CRIDs and stuff
-                    List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, recording.ExternalRecordingId);
+                    List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, recording.ExternalRecordingId, isPrivateCopy);
 
                     // get all the recordings with the same ExternalId, if our recording is the only one -> go to the adapter
                     if (recordingsWithTheSameExternalId.Count == 1)
@@ -617,18 +612,30 @@ namespace Core.Recordings
 
             if (shouldUpdateDomainsQuota && status.Code == (int)eResponseStatus.OK)
             {
-                //TODO: update domains quota
-                GenericCeleryQueue queue = new GenericCeleryQueue();
-                RecordingModificationData data = new RecordingModificationData(groupId, 0, recording.Id, 0, oldRecordingLength) { ETA = DateTime.UtcNow };
-                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
-                if (!queueExpiredRecordingResult)
+                try
                 {
-                    log.ErrorFormat("Failed to queue task in UpdateRecording, recording: {0}", recording.ToString());
+                    EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength);
+                }
+                catch (Exception e)
+                {
+                    log.Error($"Failed to queue task in UpdateRecording, recording: {recording}", e);
                 }
             }
 
             return status;
-        }        
+        }
+
+        private static void EnqueueRecordingModificationEvent(int groupId, Recording recording, int oldRecordingLength)
+        {
+            GenericCeleryQueue queue = new GenericCeleryQueue();
+            DateTime utcNow = DateTime.UtcNow;
+            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, recording.Id, 0) { ETA = utcNow };
+            bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
+            if (!queueExpiredRecordingResult)
+            {
+                log.ErrorFormat("Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {0}, groupId: {1}", recording.Id, groupId);
+            }
+        }
 
         public Recording GetRecordingByProgramId(int groupId, long programId)
         {
@@ -868,7 +875,7 @@ namespace Core.Recordings
         public static long GetProgramIdByExternalRecordingId(int groupId, string externalRecordingId, int domainId)
         {
             long programId = 0;
-            
+
             try
             {
                 programId = RecordingsDAL.GetProgramIdByExternalRecordingId(groupId, externalRecordingId, domainId);
@@ -877,7 +884,7 @@ namespace Core.Recordings
             {
                 log.Error(string.Format("Failed GetProgramIdByExternalRecordingId for groupId: {0}, ExternalRecordingId: {1} and domainId: {2}", groupId, externalRecordingId, domainId), ex);
             }
-        
+
             return programId;
         }
 
@@ -908,7 +915,7 @@ namespace Core.Recordings
             Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
             bool shouldCallAdapter = false;
             if (shouldInsertRecording)
-            {                         
+            {
                 // If there is no recording for this program - create one. This is the first, hurray!
                 if (recording == null)
                 {
@@ -954,7 +961,7 @@ namespace Core.Recordings
                     {
                         UpdateIndex(groupId, recording.Id, eAction.Update);
                     }
-                }                
+                }
 
                 // We're OK
                 recording.Status = new Status((int)eResponseStatus.OK);
@@ -983,12 +990,12 @@ namespace Core.Recordings
 
         #region Private Methods
 
-        private static void UpdateIndex(int groupId, long recordingId, eAction action)
+        public static void UpdateIndex(int groupId, long recordingId, eAction action)
         {
             Catalog.Module.UpdateRecordingsIndex(new List<long> { recordingId }, groupId, action);
         }
 
-        private static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
+        public static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
         {
             if (shouldDelete)
             {
@@ -1055,13 +1062,16 @@ namespace Core.Recordings
                 ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
 
                 // Update all domains that have this recording
-                GenericCeleryQueue queue = new GenericCeleryQueue();
-                DateTime utcNow = DateTime.UtcNow;
-                ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, currentRecording.Id, 0) { ETA = utcNow };
-                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
-                if (!queueExpiredRecordingResult)
+                EnqueueRecordingModificationEvent(groupId, currentRecording, oldRecordingLength: 0);
+
+
+                try
                 {
-                    log.ErrorFormat("Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {0}, groupId: {1}", currentRecording.Id, groupId);
+                    EnqueueRecordingModificationEvent(groupId, currentRecording, oldRecordingLength: 0);
+                }
+                catch (Exception e)
+                {
+                    log.Error($"Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {currentRecording.Id}, groupId: {groupId}", e);
                 }
             }
         }
@@ -1115,14 +1125,14 @@ namespace Core.Recordings
                 // Update recording after updating the status
                 ConditionalAccess.Utils.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.Failed);
 
-                // Update all domains that have this recording                
-                GenericCeleryQueue queue = new GenericCeleryQueue();
-                DateTime utcNow = DateTime.UtcNow;
-                ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, recording.Id, 0) { ETA = utcNow };
-                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
-                if (!queueExpiredRecordingResult)
+                // Update all domains that have this recording   
+                try
                 {
-                    log.ErrorFormat("Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {0}, groupId: {1}", recording.Id, groupId);
+                    EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength: 0);
+                }
+                catch (Exception e)
+                {
+                    log.Error($"Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {recording.Id}, groupId: {groupId}", e);
                 }
             }
         }
@@ -1139,7 +1149,7 @@ namespace Core.Recordings
                                                 bool isPrivateRecording, List<long> domainIds, out HashSet<long> failedDomainIds)
         {
             log.DebugFormat("Call adapter record for recording {0}", currentRecording.Id);
-            bool shouldRetry = true;            
+            bool shouldRetry = true;
             currentRecording.Status = null;
             int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
             var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
@@ -1152,7 +1162,7 @@ namespace Core.Recordings
             RecordResult adapterResponse = null;
             try
             {
-                adapterResponse = adapterController.Record(groupId ,startTimeSeconds, durationSeconds, epgId, externalChannelId, adapterId, domainIds);
+                adapterResponse = adapterController.Record(groupId, startTimeSeconds, durationSeconds, epgId, externalChannelId, adapterId, domainIds);
             }
             catch (KalturaException ex)
             {
@@ -1185,7 +1195,7 @@ namespace Core.Recordings
 
                 // if adapter failed - retry, don't mark as failed
                 if (currentRecording.Status != null && currentRecording.Status.Code != (int)eResponseStatus.OK)
-                {                    
+                {
                     shouldRetry = true;
                 }
 
@@ -1195,7 +1205,7 @@ namespace Core.Recordings
                     // if provider failed
                     if (!adapterResponse.ActionSuccess || adapterResponse.FailReason != 0)
                     {
-                        shouldRetry = true;                        
+                        shouldRetry = true;
                     }
                     else
                     {
@@ -1215,7 +1225,7 @@ namespace Core.Recordings
                         }
 
                         // everything is good                        
-                            shouldRetry = false;
+                        shouldRetry = false;
 
                         newRecordingInternalStatus = RecordingInternalStatus.OK;
                     }
@@ -1242,19 +1252,18 @@ namespace Core.Recordings
             }
         }
 
-        private static Status internalModifyRecording(int groupId, long recordingId, DateTime epgEndDate)
+        private static Status internalModifyRecording(int groupId, Recording recording, DateTime epgEndDate)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // Update all domains that have this recording
-            GenericCeleryQueue queue = new GenericCeleryQueue();
-            DateTime utcNow = DateTime.UtcNow;
-            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, recordingId, 0) { ETA = utcNow };
-            bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
-            if (!queueExpiredRecordingResult)
+            try
             {
-                log.ErrorFormat("Failed to queue ExpiredRecording task for CancelOrDeleteRecording, recordingId: {0}, groupId: {1}", recordingId, groupId);
-                return status;
+                EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength: 0);
+            }
+            catch (Exception e)
+            {
+                log.Error($"Failed to queue ExpiredRecording task for CancelOrDeleteRecording, recordingId: {recording.Id}, groupId: {groupId}", e);
             }
 
             try
@@ -1263,12 +1272,12 @@ namespace Core.Recordings
                 bool updateResult = false;
 
                 if (epgEndDate > DateTime.UtcNow)
-                {                    
-                    updateResult = RecordingsDAL.CancelRecording(recordingId);
+                {
+                    updateResult = RecordingsDAL.CancelRecording(recording.Id);
                 }
                 else
                 {
-                    updateResult = RecordingsDAL.DeleteRecording(recordingId);
+                    updateResult = RecordingsDAL.DeleteRecording(recording.Id);
                 }
 
                 // We're OK
@@ -1283,7 +1292,7 @@ namespace Core.Recordings
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error on internalExpireRecording, recordingID: {0}", recordingId), ex);
+                log.Error(string.Format("Error on internalExpireRecording, recordingID: {0}", recording.Id), ex);
                 status = new Status((int)eResponseStatus.Error, "Exception on CancelRecording or DeleteRecording on DB");
             }
 

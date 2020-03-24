@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ElasticSearch;
 using ElasticSearch.Searcher;
 using ElasticSearch.Common;
 using ApiObjects.SearchObjects;
@@ -144,46 +143,70 @@ namespace ElasticSearch.Utilities
         //    return result;
         //}
 
-        public static Country GetCountryByIp(string ip)
+        public static Country GetCountryByIp(string ip, out bool searchSuccess)
         {
+            searchSuccess = false;
             if (string.IsNullOrEmpty(ip)) { return null; }
-            
-            try
+
+            if (IPAddress.TryParse(ip, out IPAddress address))
             {
-                if (IPAddress.TryParse(ip, out IPAddress address))
+                if (CheckIpIsPrivate(address)) { searchSuccess = true; return null; }
+
+                IpToCountryHandler handler = null;
+                if (address.AddressFamily == AddressFamily.InterNetworkV6 && !address.IsIPv4MappedToIPv6)
                 {
-                    IpToCountryHandler handler = null;
-                    if (address.AddressFamily == AddressFamily.InterNetworkV6 && !address.IsIPv4MappedToIPv6)
-                    {
-                        handler = handlers[AddressFamily.InterNetworkV6];
-                    }
-                    else
-                    {
-                        handler = handlers[AddressFamily.InterNetwork];
-                    }
-
-                    var ipValue = handler.ConvertIpToValidString(address);
-                    log.DebugFormat("GetCountryByIp: ip={0} was converted to ipValue={1}.", ip, ipValue);
-                    var query = handler.BuildFilteredQueryForIp(ipValue);
-                    var searchQuery = query.ToString();
-
-                    // Perform search
-                    ElasticSearchApi api = new ElasticSearchApi();
-                    string searchResult = api.Search("utils", handler.IndexType, ref searchQuery);
-
-                    // parse search reult to json object
-                    var country = ParseSearchResultToCountry(searchResult);
-                    return country;
+                    handler = handlers[AddressFamily.InterNetworkV6];
                 }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetCountryByIp for ip: {0}", ip), ex);
+                else
+                {
+                    handler = handlers[AddressFamily.InterNetwork];
+                }
+
+                var ipValue = handler.ConvertIpToValidString(address);
+                log.DebugFormat("GetCountryByIp: ip={0} was converted to ipValue={1}.", ip, ipValue);
+                var query = handler.BuildFilteredQueryForIp(ipValue);
+                var searchQuery = query.ToString();
+
+                // Perform search
+                ElasticSearchApi api = new ElasticSearchApi();
+                var searchResult = api.SearchWithStatus("utils", handler.IndexType, ref searchQuery);
+
+                if (searchResult.Item2 != 200)
+                {
+                    log.Error($"Error - Search query failed. query={searchQuery}; " +
+                        $"explanation={searchResult.Item1}; statusCode: {searchResult.Item2}");
+                    return null;
+                }
+                searchSuccess = true;
+                // parse search reult to json object
+                var country = ParseSearchResultToCountry(searchResult.Item1);
+                return country;
             }
 
             return null;
         }
-        
+
+        private static bool CheckIpIsPrivate(IPAddress address)
+        {
+            if (address.AddressFamily == AddressFamily.InterNetwork)
+            {
+                //https://stackoverflow.com/questions/8113546/how-to-determine-whether-an-ip-address-in-private
+                byte[] bytes = address.GetAddressBytes();
+                switch (bytes[0])
+                {
+                    case 10:
+                        return true;
+                    case 172:
+                        return bytes[1] < 32 && bytes[1] >= 16;
+                    case 192:
+                        return bytes[1] == 168;
+                    default:
+                        return false;
+                }
+            }
+            return false;
+        }
+
         public static Country GetCountryByCountryName(string countryName)
         {
             Country country = null;
@@ -203,7 +226,7 @@ namespace ElasticSearch.Utilities
                     Value = countryName.ToLower()
                 };
                 composite.AddChild(term);
-                
+
                 var query = new FilteredQuery(true)
                 {
                     PageIndex = 0,
@@ -237,12 +260,12 @@ namespace ElasticSearch.Utilities
 
             return country;
         }
-        
+
         public static Tuple<string, string> GetIpRangesByNetwork(string network)
         {
             return handlers[AddressFamily.InterNetworkV6].GetIpRangesByNetwork(network);
         }
-        
+
         private static Country ParseSearchResultToCountry(string searchResult)
         {
             var jsonObj = JObject.Parse(searchResult);
@@ -347,7 +370,7 @@ namespace ElasticSearch.Utilities
             // ip value is between ip_to and ip_from
             composite.AddChild(rangeTo);
             composite.AddChild(rangeFrom);
-            
+
             var query = new FilteredQuery(true)
             {
                 PageIndex = 0,
@@ -423,7 +446,7 @@ namespace ElasticSearch.Utilities
             FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
             composite.AddChild(ipRangeFromLTE);
             composite.AddChild(ipRangeToGTE);
-            
+
             var query = new FilteredQuery(true)
             {
                 PageIndex = 0,

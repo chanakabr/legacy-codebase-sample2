@@ -10,12 +10,13 @@ using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
+using ConfigurationManager;
 
 namespace TVPApiModule.DataLoaders
 {
     public class APIUserSocialMediasLoader : UserSocialMediasLoader
     {
-        private bool m_bShouldUseCache;
+        
         private TVPApiModule.CatalogLoaders.APIUserSocialMediaLoader m_oUserSocialMediaLoader;
 
         protected string TvmUser
@@ -119,7 +120,7 @@ namespace TVPApiModule.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oUserSocialMediaLoader = new TVPApiModule.CatalogLoaders.APIUserSocialMediaLoader(SiteGuid, (int)SocialAction, (int)(SocialPlatform), SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
@@ -140,7 +141,7 @@ namespace TVPApiModule.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oUserSocialMediaLoader.TryGetItemsCount(out count);
             }
@@ -158,6 +159,9 @@ namespace TVPApiModule.DataLoaders
                 (base.GetProvider() as Tvinci.Data.TVMDataLoader.TVMProvider).TVMAltURL = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL;
 
             base.PreExecute();
+
+            this.FlashVarsFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
+            this.FlashVarsSubFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat;
         }
 
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
@@ -191,7 +195,7 @@ namespace TVPApiModule.DataLoaders
                 result.root.flashvars.pic_size1_quality = "HIGH";
             }
 
-            result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             result.root.flashvars.file_quality = file_quality.high;
 
             if (WithInfo)

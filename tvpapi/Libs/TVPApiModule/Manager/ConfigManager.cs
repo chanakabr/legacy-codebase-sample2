@@ -13,7 +13,8 @@ using TVPPro.Configuration.PlatformServices;
 using TVPApi.Configuration.OrcaConfiguration;
 using KLogMonitor;
 using System.Reflection;
-
+using TVinciShared;
+using ConfigurationManager;
 
 /// <summary>
 /// Summary description for ConfigurationManager
@@ -75,9 +76,9 @@ namespace TVPApi
 
             if (!bConfigExist)
             {
-                if (ConfigurationManager.AppSettings["ConfigSrc_" + groupID] != null)
+                if (System.Configuration.ConfigurationManager.AppSettings["ConfigSrc_" + groupID] != null)
                 {
-                    configType = ConfigurationManager.AppSettings["ConfigSrc_" + groupID].ToLower() == "edge"
+                    configType = System.Configuration.ConfigurationManager.AppSettings["ConfigSrc_" + groupID].ToLower() == "edge"
                                  ? ServiceGetConfig(groupID, platform)
                                  : FileGetConfig(groupID, platform);
                 }
@@ -112,9 +113,9 @@ namespace TVPApi
         private ConfigType ServiceGetConfig(int nGroupID, PlatformType sPlatform)
         {
             ConfigType configType = new ConfigType();
-            string sEnvironment = ConfigurationManager.AppSettings["DomainEnv"];
+            string sEnvironment = System.Configuration.ConfigurationManager.AppSettings["DomainEnv"];
 
-            configType.PlatformServicesConfiguration = new ApiPlatformServicesConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
+            //configType.PlatformServicesConfiguration = new ApiPlatformServicesConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
             configType.TechnichalConfiguration = new ApiTechnichalConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
             configType.MediaConfiguration = new ApiMediaConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
             configType.SiteConfiguration = new ApiSiteConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
@@ -125,35 +126,66 @@ namespace TVPApi
         private ConfigType FileGetConfig(int groupID, PlatformType platform)
         {
             ConfigType configType = new ConfigType();
-            string parentDirectoryStr = HttpContext.Current.Server.MapPath(string.Concat(ConfigurationManager.AppSettings[groupID.ToString()], ConfigurationManager.AppSettings["DomainEnv"], "/"));
-            string mediaConfigFile = string.Concat(parentDirectoryStr, "MediaConfiguration.config");
-            string directoryStr = string.Concat(parentDirectoryStr, platform);
 
-            if (!string.IsNullOrEmpty(directoryStr))
+            try
             {
-                string[] fileNames = Directory.GetFiles(directoryStr);
-                foreach (string file in fileNames)
-                {
-                    if (file.Contains("Technical"))
-                    {
-                        configType.TechnichalConfiguration = new TVPApi.Configuration.Technical.ApiTechnichalConfiguration(file);
-                    }
-                    else if (file.Contains("Platform"))
-                    {
-                        configType.PlatformServicesConfiguration = new TVPApi.Configuration.PlatformServices.ApiPlatformServicesConfiguration(file);
-                    }
-                    else if (file.Contains("Site"))
-                    {
-                        configType.SiteConfiguration = new TVPApi.Configuration.Site.ApiSiteConfiguration(file);
-                    }
-                    else if (file.Contains("OrcaRecommendations"))
-                    {
-                        configType.OrcaRecommendationsConfiguration = new TVPApi.Configuration.OrcaConfiguration.ApiOrcaRecommendationsConfiguration(file);
-                    }
-                }
+                configType.MediaConfiguration = new ApiMediaConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultMediaConfigurationFileLocation.Value);
+
+            }
+            catch (Exception ex)
+            {
+                
+            }
+            try
+            {
+                configType.OrcaRecommendationsConfiguration = new ApiOrcaRecommendationsConfiguration();
+                configType.PlatformServicesConfiguration = new ApiPlatformServicesConfiguration();
+            }
+            catch { }
+            try
+            {
+                configType.SiteConfiguration = new ApiSiteConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultSiteConfigurationFileLocation.Value);
+            }
+            catch (Exception ex)
+            {
+            }
+            try
+            {
+                configType.TechnichalConfiguration = new ApiTechnichalConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultTechnicalConfigurationFileLocation.Value);
+            }
+            catch (Exception ex)
+            {
             }
 
-            configType.MediaConfiguration = new TVPApi.Configuration.Media.ApiMediaConfiguration(mediaConfigFile);
+            //string parentDirectoryStr = HttpContext.Current.ServerMapPath(string.Concat(System.Configuration.ConfigurationManager.AppSettings[groupID.ToString()], System.Configuration.ConfigurationManager.AppSettings["DomainEnv"], "/"));
+            //string mediaConfigFile = string.Concat(parentDirectoryStr, "MediaConfiguration.config");
+            //string directoryStr = string.Concat(parentDirectoryStr, platform);
+
+            //if (!string.IsNullOrEmpty(directoryStr))
+            //{
+            //    string[] fileNames = Directory.GetFiles(directoryStr);
+            //    foreach (string file in fileNames)
+            //    {
+            //        if (file.Contains("Technical"))
+            //        {
+            //            configType.TechnichalConfiguration = new TVPApi.Configuration.Technical.ApiTechnichalConfiguration(file);
+            //        }
+            //        else if (file.Contains("Platform"))
+            //        {
+            //            configType.PlatformServicesConfiguration = new TVPApi.Configuration.PlatformServices.ApiPlatformServicesConfiguration(file);
+            //        }
+            //        else if (file.Contains("Site"))
+            //        {
+            //            configType.SiteConfiguration = new TVPApi.Configuration.Site.ApiSiteConfiguration(file);
+            //        }
+            //        else if (file.Contains("OrcaRecommendations"))
+            //        {
+            //            configType.OrcaRecommendationsConfiguration = new TVPApi.Configuration.OrcaConfiguration.ApiOrcaRecommendationsConfiguration(file);
+            //        }
+            //    }
+            //}
+
+            //configType.MediaConfiguration = new TVPApi.Configuration.Media.ApiMediaConfiguration(mediaConfigFile);
 
             return configType;
         }

@@ -8,6 +8,8 @@ using System.Collections;
 using System.Configuration;
 using System.Reflection;
 using KLogMonitor;
+using ConfigurationManager;
+using TVPApiModule.Manager;
 
 /// <summary>
 /// Summary description for ConnectionHelper
@@ -88,12 +90,12 @@ namespace TVPApi
         {
             Dictionary<string, int> retVal = null;
 
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
 
             selectQuery += "select * from groups_modules_ips where is_active=1 and status=1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUN);
+            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUN);
             selectQuery += "and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPass);
+            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPass);
 
             DataTable dt = selectQuery.Execute("query", true);
             if (dt != null)
@@ -121,7 +123,7 @@ namespace TVPApi
         public static void InitServiceConfigs()
         {
             Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetRequestLanguageMethod = GetFlashVarsLangVal;
-            Tvinci.Data.TVMDataLoader.TVMProvider.GetTVMUrlMethod = delegate(bool b) { return ConfigurationManager.AppSettings["TVM_API_URL"]; };
+            Tvinci.Data.TVMDataLoader.TVMProvider.GetTVMUrlMethod = delegate(bool b) { return System.Configuration.ConfigurationManager.AppSettings["TVM_API_URL"]; };
         }
 
         public static string GetFlashVarsLangVal()
@@ -132,11 +134,12 @@ namespace TVPApi
         //Get the TVINCI DB connection string
         public static string GetTvinciConnectionString()
         {
-            return string.Concat("Driver={SQL Server};Server=", TVinciDBConfiguration.GetConfig().DBServer,
-                    ";Database=", TVinciDBConfiguration.GetConfig().DBInstance,
-                    ";Uid=", TVinciDBConfiguration.GetConfig().User,
-                    ";Pwd=", TVinciDBConfiguration.GetConfig().Pass,
-                    ";");
+            return ApplicationConfiguration.TVPApiConfiguration.MainConnectionString.Value;
+                //"Driver={SQL Server};Server=", TVinciDBConfiguration.GetConfig().DBServer,
+                //    ";Database=", TVinciDBConfiguration.GetConfig().DBInstance,
+                //    ";Uid=", TVinciDBConfiguration.GetConfig().User,
+                //    ";Pwd=", TVinciDBConfiguration.GetConfig().Pass,
+                //    ";");
         }
 
         //Get client specific connection string 
@@ -151,7 +154,9 @@ namespace TVPApi
             {
                 //Get the techinchal manager associated with the current request
                 int groupID = (int)groupObj;
-                string dbInstance = ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.DatabaseInstance;
+
+                var databaseConfiguration = GroupsManager.GetGroup(groupID).DatabaseConfigurations[platform];
+                string dbInstance = databaseConfiguration.DatabaseInstance;
                 //Patchy - for now take all shared items (like favorites) from Web DB! (Waiting for service from Guy)
                 if (isShared)
                 {
@@ -159,10 +164,10 @@ namespace TVPApi
                     dbInstance = dbInstance.Substring(0, index - 1);
                 }
                 //return ConfigManager.GetInstance(groupID).TechnichalConfiguration.GenerateConnectionString();
-                return string.Concat("Driver={SQL Server};Server=", ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.IP,
+                return string.Concat("Driver={SQL Server};Server=", databaseConfiguration.IP,
                 ";Database=", dbInstance,
-                ";Uid=", ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.User,
-                ";Pwd=", ConfigManager.GetInstance().GetConfig(groupID, platform).TechnichalConfiguration.Data.DBConfiguration.Pass,
+                ";Uid=", databaseConfiguration.User,
+                ";Pwd=", databaseConfiguration.Password,
                 ";");
             }
             else
@@ -175,7 +180,7 @@ namespace TVPApi
         {
             Dictionary<string, string> retval = null;
 
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
 
             selectQuery += "select * from lu_platform";
 
@@ -206,12 +211,12 @@ namespace TVPApi
             sApiUser = string.Empty;
             sApiPass = string.Empty;
 
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
 
             selectQuery += "select API_USERNAME, API_PASSWORD from crm_users where is_active=1 and status=1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CRM_USERNAME", "=", sCRMUser);
+            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("CRM_USERNAME", "=", sCRMUser);
             selectQuery += "and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CRM_PASSWORD", "=", sCRMPass);
+            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("CRM_PASSWORD", "=", sCRMPass);
 
             System.Data.DataTable dt = selectQuery.Execute("query", true);
             if (dt != null)

@@ -13,6 +13,11 @@ namespace TVPApiModule.Objects.Responses
             Status = new Status();
         }
 
+        public ClientResponseStatus(Status status)
+        {
+            Status = status;
+        }
+
         public ClientResponseStatus(int code, string message)
         {
             Status = new Status();

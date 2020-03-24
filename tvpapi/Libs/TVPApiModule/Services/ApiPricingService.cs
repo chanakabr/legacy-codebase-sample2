@@ -3,29 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using ApiObjects.Pricing;
+using ApiObjects.Response;
+using Core.Pricing;
 using KLogMonitor;
 using TVPApi;
-using TVPPro.SiteManager.TvinciPlatform.Pricing;
 
 namespace TVPApiModule.Services
 {
     public class ApiPricingService : ApiBase
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        private TVPPro.SiteManager.TvinciPlatform.Pricing.module m_Module;
-        private string m_wsUserName = string.Empty;
-        private string m_wsPassword = string.Empty;
+        
         private int m_groupID;
         private PlatformType m_platform;
 
         public ApiPricingService(int groupID, PlatformType platform)
         {
-            m_Module = new TVPPro.SiteManager.TvinciPlatform.Pricing.module();
-            m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.URL;
-            m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.DefaultUser;
-            m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.DefaultPassword;
-
             m_groupID = groupID;
             m_platform = platform;
         }
@@ -37,7 +31,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetPPVModuleData(m_wsUserName, m_wsPassword, ppvCode.ToString(), sCountry, sLanguage, sDevice);
+                    response = Core.Pricing.Module.GetPPVModuleData(m_groupID, ppvCode.ToString(), sCountry, sLanguage, sDevice);
                 }
             }
             catch (Exception ex)
@@ -55,7 +49,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetPPVModuleListForMediaFiles(m_wsUserName, m_wsPassword, mediaFiles, sCountry, sLanguage, sDevice);
+                    response = Core.Pricing.Module.GetPPVModuleListForMediaFiles(m_groupID, mediaFiles, sCountry, sLanguage, sDevice);
                 }
             }
             catch (Exception ex)
@@ -78,7 +72,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    subscriptions = m_Module.GetSubscriptionsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
+                    subscriptions = Core.Pricing.Module.GetSubscriptionsContainingMediaFile(m_groupID, iMediaID, iMediaFileID);
                 }
             }
             catch (Exception ex)
@@ -97,7 +91,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    sub = m_Module.GetSubscriptionData(m_wsUserName, m_wsPassword, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive);
+                    sub = Core.Pricing.Module.GetSubscriptionData(m_groupID, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive);
                 }
             }
             catch (Exception ex)
@@ -116,7 +110,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.GetSubscriptionsData(m_wsUserName, m_wsPassword, p_arrSubscriptionCodes, string.Empty, string.Empty, string.Empty);
+                    var res = Core.Pricing.Module.GetSubscriptionsData(m_groupID, p_arrSubscriptionCodes, string.Empty, string.Empty, string.Empty);
                     if (res != null)
                         arrSubs = res.Subscriptions;
                 }
@@ -138,7 +132,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.GetCouponStatus(m_wsUserName, m_wsPassword, sCouponCode);
+                    var res = Core.Pricing.Module.GetCouponStatus(m_groupID, sCouponCode, 0);
                     if (res != null)
                         couponData = res.Coupon;
                 }
@@ -159,7 +153,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    couponStatus = m_Module.SetCouponUsed(m_wsUserName, m_wsPassword, sCouponCode, sSiteGUID);
+                    couponStatus = Core.Pricing.Module.SetCouponUsed(m_groupID, sCouponCode, sSiteGUID, 0);
                 }
             }
             catch (Exception ex)
@@ -177,7 +171,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    campaigns = m_Module.GetCampaignsByType(m_wsUserName, m_wsPassword, trigger, string.Empty, string.Empty, udid, isAlsoInactive);
+                    campaigns = Core.Pricing.Module.GetCampaignsByType(m_groupID, trigger, string.Empty, string.Empty, udid, isAlsoInactive);
                 }
             }
             catch (Exception ex)
@@ -196,10 +190,10 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    IdsResponse response = m_Module.GetSubscriptionIDsContainingMediaFile(m_wsUserName, m_wsPassword, iMediaID, iMediaFileID);
-                    if (response != null)
+                    IdsResponse response = Core.Pricing.Module.GetSubscriptionIDsContainingMediaFile(m_groupID, iMediaID, iMediaFileID);
+                    if (response != null && response.Ids != null)
                     {
-                        subscriptions = response.Ids;
+                        subscriptions = response.Ids.ToArray();
                     }
                 }
             }
@@ -221,7 +215,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    subscriptions = m_Module.GetSubscriptionsContainingUserTypes(m_wsUserName, m_wsPassword, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
+                    subscriptions = Core.Pricing.Module.GetSubscriptionsContainingUserTypes(m_groupID, string.Empty, string.Empty, string.Empty, isActive, userTypesIDs);
                 }
             }
             catch (Exception ex)
@@ -244,7 +238,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    collection = m_Module.GetCollectionData(m_wsUserName, m_wsPassword, collectionId, countryCd2, languageCode3, deviceName, bGetAlsoUnActive);
+                    collection = Core.Pricing.Module.GetCollectionData(m_groupID, collectionId, countryCd2, languageCode3, deviceName, bGetAlsoUnActive);
                 }
             }
             catch (Exception ex)

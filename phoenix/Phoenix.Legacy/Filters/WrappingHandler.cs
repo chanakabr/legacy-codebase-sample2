@@ -36,10 +36,15 @@ namespace WebAPI.Filters
 
             var loggingContext = new ContextData();
             loggingContext.Load();
+
             // log request body
-            log.DebugFormat("API Request - {0} {1}",
-                            request.RequestUri.OriginalString,            // 0
-                            Encoding.UTF8.GetString(requestBody));   // 1 
+            string encodedBody = Encoding.UTF8.GetString(requestBody);
+            bool shouldLogRawRequest = !request.RequestUri.OriginalString.Contains("user") && !encodedBody.Contains("password") && !encodedBody.Contains("mail");
+
+            if (shouldLogRawRequest)
+            {
+                log.Debug($"API Request - {request.RequestUri.OriginalString} {encodedBody}");
+            }
 
             ExtractActionToLog(request.RequestUri);
             bool isMultirequest = HttpContext.Current.Items[Constants.ACTION] != null 

@@ -10,6 +10,7 @@ using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
+using ConfigurationManager;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -81,8 +82,8 @@ namespace TVPApiModule.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            bool bShouldUseCache;
-            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
+            
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 List<int> mediaIDs = new List<int>();
                 foreach (var id in MediaArrayID)
@@ -110,6 +111,9 @@ namespace TVPApiModule.DataLoaders
                 (base.GetProvider() as Tvinci.Data.TVMDataLoader.TVMProvider).TVMAltURL = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL;
 
             base.PreExecute();
+
+            this.FlashVarsFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
+            this.FlashVarsSubFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat;
         }
 
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
@@ -165,11 +169,11 @@ namespace TVPApiModule.DataLoaders
                 }
 
                 result.root.flashvars.file_quality = file_quality.high;
-                result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+                result.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
 
-                if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat))
+                if (!string.IsNullOrEmpty(GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat))
                 {
-                    result.root.flashvars.sub_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat;
+                    result.root.flashvars.sub_file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat;
                 }
 
             }

@@ -229,18 +229,25 @@ namespace CachingProvider.LayeredCache
                             {
                                 foreach (string key in pair.Value)
                                 {
-                                    if (results.ContainsKey(key) && results[key] != null)
+                                    if (results.ContainsKey(key))
                                     {
-                                        // set validation to now
-                                        Tuple<T, long> tupleToInsert = new Tuple<T, long>(results[key], Utils.GetUtcUnixTimestampNow());
-                                        if (!TryInsert<T>(keyToVersionMappings[key], tupleToInsert, pair.Key, shouldUseAutoNameTypeHandling))
+                                        if (results[key] != null)
                                         {
-                                            log.ErrorFormat("GetValues<T> - Failed inserting key {0} to {1}", keyToVersionMappings[key], pair.Key.Type.ToString());
+                                            // set validation to now
+                                            Tuple<T, long> tupleToInsert = new Tuple<T, long>(results[key], Utils.GetUtcUnixTimestampNow());
+                                            if (!TryInsert<T>(keyToVersionMappings[key], tupleToInsert, pair.Key, shouldUseAutoNameTypeHandling))
+                                            {
+                                                log.ErrorFormat("GetValues<T> - Failed inserting key {0} to {1}", keyToVersionMappings[key], pair.Key.Type.ToString());
+                                            }
+                                        }
+                                        else
+                                        {
+                                            log.DebugFormat("GetValues<T> - key: {0} in results is null", key);
                                         }
                                     }
                                     else
                                     {
-                                        log.ErrorFormat("GetValues<T> - key: {0} isn't contained in results or contained with null value", key);
+                                        log.ErrorFormat("GetValues<T> - key: {0} isn't contained in results", key);
                                     }
                                 }
                             }

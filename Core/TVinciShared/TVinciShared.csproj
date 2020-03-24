@@ -56,6 +56,8 @@
     <ProjectReference Include="..\CachingProvider\CachingProvider.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
+    <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
+    <ProjectReference Include="..\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\LLNWMediaVault\LLNWMediaVault.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />

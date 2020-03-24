@@ -106,19 +106,38 @@ namespace ImageManager
         }
 
 
-        private static void ResizeOrCropAndSaveImage(Stream inputImageStream, string destinationPath, ResizeSettings resizeSettings)
+        public static void ResizeOrCropAndSaveImage(byte[] inputByteArr, Stream destStream, ResizeSettings resizeSettings)
+        {
+            var skData = SKData.CreateCopy(inputByteArr);
+            var bitmap = SKBitmap.Decode(skData);
+            ResizeOrCropSKBitmap(destStream, resizeSettings, bitmap);
+        }
+
+
+        public static void ResizeOrCropAndSaveImage(Stream inputImageStream, string destinationPath, ResizeSettings resizeSettings)
         {
             var bitmap = SKBitmap.Decode(inputImageStream);
-            ResizeOrCropSKBitmap(destinationPath, resizeSettings, bitmap);
+            using (var fs = new FileStream(destinationPath, FileMode.Create))
+            {
+                ResizeOrCropSKBitmap(fs, resizeSettings, bitmap);
+            }
         }
 
-        private static void ResizeOrCropAndSaveImage(string imagePath, string destinationPath, ResizeSettings resizeSettings)
+        public static void ResizeOrCropAndSaveImage(string imagePath, string destinationPath, ResizeSettings resizeSettings)
+        {
+            using (var fs = new FileStream(destinationPath, FileMode.Create))
+            {
+                ResizeOrCropAndSaveImage(imagePath, fs, resizeSettings);
+            }
+        }
+
+        public static void ResizeOrCropAndSaveImage(string imagePath, Stream destStream, ResizeSettings resizeSettings)
         {
             var bitmap = SKBitmap.Decode(imagePath);
-            ResizeOrCropSKBitmap(destinationPath, resizeSettings, bitmap);
+            ResizeOrCropSKBitmap(destStream, resizeSettings, bitmap);
         }
 
-        private static void ResizeOrCropSKBitmap(string destinationPath, ResizeSettings resizeSettings, SKBitmap bitmap)
+        private static void ResizeOrCropSKBitmap(Stream destStream, ResizeSettings resizeSettings, SKBitmap bitmap)
         {
             var image = SKImage.FromBitmap(bitmap);
 
@@ -127,7 +146,7 @@ namespace ImageManager
                 var subset = image.Subset(SKRectI.Create(20, 20, 90, 90));
                 using (var imageData = subset.Encode(SKEncodedImageFormat.Png, resizeSettings.Quality))
                 {
-                    SaveImageDataToFile(imageData, destinationPath);
+                    imageData.SaveTo(destStream);
                 }
             }
             else if (resizeSettings.FitMode == FitMode.Resize)
@@ -137,17 +156,9 @@ namespace ImageManager
                 using (var newImg = SKImage.FromPixels(resizedBitmap.PeekPixels()))
                 using (var imageData = newImg.Encode(SKEncodedImageFormat.Png, resizeSettings.Quality))
                 {
-                    SaveImageDataToFile(imageData, destinationPath);
+                    imageData.SaveTo(destStream);
 
                 }
-            }
-        }
-
-        private static void SaveImageDataToFile(SKData data, string destPath)
-        {
-            using (var fs = new FileStream(destPath, FileMode.Create))
-            {
-                data.SaveTo(fs);
             }
         }
     }

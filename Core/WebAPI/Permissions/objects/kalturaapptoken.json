@@ -1,0 +1,71 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaAppToken_SessionUserId_Insert",
+      "object": "KalturaAppToken",
+      "parameter": "SessionUserId",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaAppToken_SessionPrivileges_Insert",
+      "object": "KalturaAppToken",
+      "parameter": "SessionPrivileges",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaAppToken_SessionType_Insert",
+      "object": "KalturaAppToken",
+      "parameter": "SessionType",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaAppToken_SessionUserId_Insert",
+      "object": "KalturaAppToken",
+      "parameter": "SessionUserId",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaAppToken_SessionPrivileges_Insert",
+      "object": "KalturaAppToken",
+      "parameter": "SessionPrivileges",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaAppToken_SessionType_Insert",
+      "object": "KalturaAppToken",
+      "parameter": "SessionType",
+      "action": "INSERT",
+      "type": "Parameter"
+    }
+  ],
+  "type": "Parameter"
+}

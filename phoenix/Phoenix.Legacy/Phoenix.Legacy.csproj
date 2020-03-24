@@ -347,8 +347,6 @@
       <DependentUpon>domains.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="WS_Modules\INotificationService.cs" />
-    <Compile Include="WS_Modules\Iservice.cs" />
     <Compile Include="WS_Modules\notification.svc.cs">
       <DependentUpon>notification.svc</DependentUpon>
     </Compile>
@@ -489,7 +487,7 @@
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WebAPI\WebAPI.csproj">
+    <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj">
       <Project>{223f9697-c15b-46e8-b71b-52ffbafbeba2}</Project>
       <Name>WebAPI</Name>
     </ProjectReference>

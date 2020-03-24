@@ -2,6 +2,7 @@
 using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.Response;
+using ConfigurationManager;
 using Core.Notification.Adapters;
 using Core.Pricing;
 using DAL;
@@ -236,16 +237,16 @@ namespace Core.Notification
                     return response;
                 }
 
-                if(currentTopicNotificationMessage.Trigger.Type != topicNotificationMessageToUpdate.Trigger.Type)
+                if (currentTopicNotificationMessage.Trigger.Type != topicNotificationMessageToUpdate.Trigger.Type)
                 {
                     log.ErrorFormat("Wrong topic notification trigger. {0}", logData);
                     response.SetStatus(eResponseStatus.WrongTopicNotificationTrigger);
                     return response;
                 }
 
-                if(currentTopicNotificationMessage.Trigger is TopicNotificationSubscriptionTrigger)
+                if (currentTopicNotificationMessage.Trigger is TopicNotificationSubscriptionTrigger)
                 {
-                    if(((TopicNotificationSubscriptionTrigger)currentTopicNotificationMessage.Trigger).TriggerType != ((TopicNotificationSubscriptionTrigger)topicNotificationMessageToUpdate.Trigger).TriggerType)
+                    if (((TopicNotificationSubscriptionTrigger)currentTopicNotificationMessage.Trigger).TriggerType != ((TopicNotificationSubscriptionTrigger)topicNotificationMessageToUpdate.Trigger).TriggerType)
                     {
                         log.ErrorFormat("Wrong topic notification trigger values. {0}", logData);
                         response.SetStatus(eResponseStatus.WrongTopicNotificationTrigger);
@@ -382,7 +383,7 @@ namespace Core.Notification
 
         public static bool AddTopicNotificationMessageToQueue(int groupId, long topicNotificationMessageId, long sendDate)
         {
-            bool result = false;
+            bool result = true;
 
             QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue queue = new QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue();
             ApiObjects.QueueObjects.MessageAnnouncementData messageAnnouncementData = new ApiObjects.QueueObjects.MessageAnnouncementData(
@@ -400,9 +401,9 @@ namespace Core.Notification
             }
             else
             {
+                result = false;
                 log.ErrorFormat("Error while inserting announcement {0} to queue", messageAnnouncementData);
             }
-
 
             return result;
         }
@@ -428,7 +429,7 @@ namespace Core.Notification
                             }
                             if (subscriptionId > 0)
                             {
-                                Subscription subscription = Pricing.Module.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);                                
+                                Subscription subscription = Pricing.Module.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
                                 switch (trigger.TriggerType)
                                 {
                                     case ApiObjects.TopicNotificationSubscriptionTriggerType.StartDate:

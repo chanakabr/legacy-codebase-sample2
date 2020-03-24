@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -21,6 +22,8 @@ namespace QueueWrapper
 
         public virtual bool Enqueue(ApiObjects.QueueObject record, string routingKey, long expirationMiliSec = 0)
         {
+            var isCeleryObject = record.GetType().IsAssignableFrom(typeof(BaseCeleryData));
+
             bool bIsEnqueueSucceeded = false;
             string sMessage = string.Empty;
 
@@ -113,11 +116,11 @@ namespace QueueWrapper
         {
             return string.Format("MessageRecovery_Group_{0}_Id_{1}", groupId, id);
         }
-        
+
         private long DateTimeToUnixTimestamp(DateTime dateTime)
         {
             DateTime truncDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            return  (long)(dateTime - truncDateTimeUtc).TotalSeconds;
+            return (long)(dateTime - truncDateTimeUtc).TotalSeconds;
         }
 
         public virtual T Dequeue<T>(string sQueueName, out string sAckId)

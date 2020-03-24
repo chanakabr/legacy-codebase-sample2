@@ -54,7 +54,7 @@ namespace ApiObjects.Segmentation
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
-            string userSegmentsKey = GetUserSegmentsDocument(this.UserId);
+            string userSegmentsKey = GetUserSegmentsKey(this.UserId);
 
             UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
 
@@ -71,16 +71,15 @@ namespace ApiObjects.Segmentation
                 userSegments.Segments = new Dictionary<long, UserSegment>();
             }
 
-            int totalCount;
             long segmentationTypeId = SegmentBaseValue.GetSegmentationTypeOfSegmentId(this.SegmentId);
 
-            var segmentationTypes = SegmentationType.List(this.GroupId, new List<long>() { segmentationTypeId }, 0, 1000, out totalCount);
+            var segmentationTypesList = SegmentationType.List(this.GroupId, new List<long>() { segmentationTypeId }, 0, 1000, out int totalCount);
 
             SegmentationType segmentationType = null;
 
-            if (segmentationTypes != null && segmentationTypes.Count > 0)
+            if (segmentationTypesList != null && segmentationTypesList.Count > 0)
             {
-                segmentationType = segmentationTypes.FirstOrDefault();
+                segmentationType = segmentationTypesList.FirstOrDefault();
             }
 
             if (segmentationType == null)
@@ -89,9 +88,7 @@ namespace ApiObjects.Segmentation
                 return false;
             }
 
-            bool validSegmentId = segmentationType.Value.HasSegmentId(SegmentId);
-
-            if (!validSegmentId)
+            if (!segmentationType.Value.HasSegmentId(SegmentId))
             {
                 this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "Given segment id does not exist for this segmentation type");
                 return false;
@@ -99,12 +96,23 @@ namespace ApiObjects.Segmentation
 
             if (userSegments.Segments.ContainsKey(SegmentId))
             {
-                userSegments.Segments[SegmentId].UpdateDate = DateTime.UtcNow;
+                if (userSegments.Segments[SegmentId].UpdateDate != DateTime.MaxValue)
+                {
+                    userSegments.Segments[SegmentId].UpdateDate = DateTime.UtcNow;
+                }
             }
             else
             {
                 this.CreateDate = DateTime.UtcNow;
-                this.UpdateDate = this.CreateDate;
+
+                if (segmentationType.Actions != null && segmentationType.Actions.Any())
+                {
+                    this.UpdateDate = DateTime.MaxValue;
+                }
+                else
+                {
+                    this.UpdateDate = this.CreateDate;
+                }
 
                 userSegments.Segments.Add(SegmentId, this);
             }
@@ -113,17 +121,15 @@ namespace ApiObjects.Segmentation
             List<long> segmentsToRemove = GetUserSegmentsToCleanup(GroupId, userSegments.Segments.Values.ToList());
             segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
 
-            bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTtl());
+            result = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTTL());
 
-            if (!setResult)
+            if (!result)
             {
                 log.ErrorFormat("Error updating user segments.");
                 return false;
             }
 
             this.DocumentId = string.Format("{0}_{1}", this.UserId, this.SegmentId);
-
-            result = setResult;
 
             return result;
         }
@@ -134,7 +140,7 @@ namespace ApiObjects.Segmentation
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
-            string userSegmentsKey = GetUserSegmentsDocument(this.UserId);
+            string userSegmentsKey = GetUserSegmentsKey(this.UserId);
 
             UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
 
@@ -162,15 +168,12 @@ namespace ApiObjects.Segmentation
 
             userSegments.Segments.Remove(SegmentId);
 
-            bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTtl());
+            result = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTTL());
 
-            if (!setResult)
+            if (!result)
             {
                 log.ErrorFormat("Error updating user segments.");
-                return false;
             }
-
-            result = setResult;
 
             return result;
         }
@@ -192,7 +195,7 @@ namespace ApiObjects.Segmentation
             totalCount = 0;
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            string userSegmentsKey = GetUserSegmentsDocument(userId);
+            string userSegmentsKey = GetUserSegmentsKey(userId);
             UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
 
             if (userSegments != null && userSegments.Segments != null)
@@ -206,7 +209,7 @@ namespace ApiObjects.Segmentation
 
                     try
                     {
-                        couchbaseManager.Set(userSegmentsKey, userSegments, GetDocumentTtl());
+                        couchbaseManager.Set(userSegmentsKey, userSegments, GetDocumentTTL());
                     }
                     catch (Exception ex)
                     {
@@ -233,7 +236,7 @@ namespace ApiObjects.Segmentation
         public static List<UserSegment> ListAll(int groupId, string userId)
         {
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            string userSegmentsKey = GetUserSegmentsDocument(userId);
+            string userSegmentsKey = GetUserSegmentsKey(userId);
             UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
 
             if (userSegments != null)
@@ -259,7 +262,7 @@ namespace ApiObjects.Segmentation
 
             foreach (string userId in usersSegments.Keys)
             {
-                string userSegmentsKey = GetUserSegmentsDocument(userId);
+                string userSegmentsKey = GetUserSegmentsKey(userId);
 
                 UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
 
@@ -354,7 +357,7 @@ namespace ApiObjects.Segmentation
                 //List<long> segmentsToRemove = GetUserSegmentsToCleanup(groupId, userSegments.Segments.Values.ToList());
                 //segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
 
-                bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTtl());
+                bool setResult = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTTL());
 
                 if (!setResult)
                 {
@@ -369,7 +372,7 @@ namespace ApiObjects.Segmentation
         public static void Remove(string userId)
         {
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            string userSegmentsKey = GetUserSegmentsDocument(userId);
+            string userSegmentsKey = GetUserSegmentsKey(userId);
             if (!string.IsNullOrEmpty(userSegmentsKey))
             {
                 UserSegments userSegments = couchbaseManager.Get<UserSegments>(userSegmentsKey);
@@ -407,7 +410,7 @@ namespace ApiObjects.Segmentation
             }
         }
 
-        private static string GetUserSegmentsDocument(string userId)
+        private static string GetUserSegmentsKey(string userId)
         {
             return string.Format("user_segments_{0}", userId);
         }
@@ -459,7 +462,8 @@ namespace ApiObjects.Segmentation
                 }
 
                 // if segment was added more than defined TTL ago - remove it
-                if (userSegment.UpdateDate.AddHours(USER_SEGMENT_TTL_HOURS) < DateTime.UtcNow)
+                if (userSegment.UpdateDate != DateTime.MaxValue && 
+                    userSegment.UpdateDate.AddHours(USER_SEGMENT_TTL_HOURS) < DateTime.UtcNow)
                 {
                     segmentsToRemove.Add(userSegment.SegmentId);
                     continue;
@@ -469,7 +473,7 @@ namespace ApiObjects.Segmentation
             return segmentsToRemove;
         }
 
-        private static uint GetDocumentTtl()
+        private static uint GetDocumentTTL()
         {
             return (uint)USER_SEGMENT_TTL_HOURS * 2 * 60 * 60;
         }

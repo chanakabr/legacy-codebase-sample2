@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Core.Catalog.Response;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,7 +80,7 @@ namespace TVPApiModule.Objects.Responses
         /// </summary>
         /// <param name="media"></param>
         /// <param name="shouldAddImages"></param>
-        public SlimAssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaObj media, bool shouldAddImages)
+        public SlimAssetInfo(MediaObj media, bool shouldAddImages)
         {
             if (media != null)
             {
@@ -108,7 +110,7 @@ namespace TVPApiModule.Objects.Responses
         /// </summary>
         /// <param name="epg"></param>
         /// <param name="shouldAddImages"></param>
-        public SlimAssetInfo(Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject epg, bool shouldAddImages)
+        public SlimAssetInfo(EPGChannelProgrammeObject epg, bool shouldAddImages)
         {
             if (epg != null)
             {

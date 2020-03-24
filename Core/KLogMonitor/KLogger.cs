@@ -11,6 +11,7 @@ using log4net.Core;
 using log4net.Repository;
 using log4net.Util;
 using log4net.Appender;
+using System.Runtime.CompilerServices;
 
 namespace KLogMonitor
 {
@@ -25,25 +26,22 @@ namespace KLogMonitor
 
         public static LogicalThreadContextProperties LogContextData => LogicalThreadContext.Properties;
 
+        #region Props
+
         public static KLogEnums.AppType AppType { get; set; }
         public static string UniqueStaticId { get; set; }
-        //public string UniqueID { get; set; }
-        //public string PartnerID { get; set; }
         public string ClassName { get; set; }
-        //public string Action { get; set; }
-        //public string ClientTag { get; set; }
-        //public string UserID { get; set; }
         private string Server { get; set; }
-        //public string IPAddress { get; set; }
-        //public string MethodName { get; set; }
         public string Topic
         {
             get => LogContextData[Constants.TOPIC]?.ToString();
             set => LogContextData[Constants.TOPIC] = value;
-
         }
         public string LoggerName { get; set; }
 
+        #endregion
+
+        #region Ctors and dtor
 
         public KLogger(string className, string separateLoggerName = null)
         {
@@ -70,6 +68,10 @@ namespace KLogMonitor
                 this.LoggerName = string.Empty;
             }
 
+            LogContextData[Constants.CLASS_NAME] = className;
+
+            string server = !string.IsNullOrWhiteSpace(Server) ? Server : "null";
+            LogContextData[Constants.SERVER] = server;
         }
 
         public KLogger(string className)
@@ -82,12 +84,21 @@ namespace KLogMonitor
             {
                 _SeparateLogsMap = new ConcurrentDictionary<string, ILog>();
             }
+
+            LogContextData[Constants.CLASS_NAME] = className;
+
+            string server = !string.IsNullOrWhiteSpace(Server) ? Server : "null";
+            LogContextData[Constants.SERVER] = server;
         }
 
         ~KLogger()
         {
             Dispose(false);
         }
+
+        #endregion
+
+        #region Initialization and configuration
 
         public static void SetAppType(KLogEnums.AppType appType)
         {
@@ -135,6 +146,11 @@ namespace KLogMonitor
             {
                 log4net.Config.XmlConfigurator.Configure(repository, file);
             }
+
+            if (SystemInfo.NullText == "(null)")
+            {
+                SystemInfo.NullText = "null";
+            }
         }
 
         public static void Configure(string logConfigFile, KLogEnums.AppType appType, string uniqueID)
@@ -142,6 +158,37 @@ namespace KLogMonitor
             UniqueStaticId = uniqueID;
             Configure(logConfigFile, appType);
         }
+
+        public static void Reconfigure(string logConfigFile)
+        {
+            try
+            {
+                var repository = GetLoggerRepository();
+                var file = new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile));
+                repository.ResetConfiguration();
+                
+                log4net.Config.XmlConfigurator.Configure(repository, file);
+                KMonitor.Reconfigure(logConfigFile);
+            }
+            catch
+            {
+            }
+        }
+
+        #endregion
+
+        #region Getters and setters
+
+        public static string GetRequestId() => LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
+
+        public static void SetRequestId(string sessionId) => LogContextData[Constants.REQUEST_ID_KEY] = sessionId;
+
+        public static void SetAction(string action) => LogContextData[Constants.ACTION] = action;
+
+        public static void SetTopic(string topic) => LogContextData[Constants.TOPIC] = topic;
+        public static void SetGroupId(string groupId) => LogContextData[Constants.GROUP_ID] = groupId;
+
+        #endregion
 
         internal static ILoggerRepository GetLoggerRepository()
         {
@@ -152,28 +199,20 @@ namespace KLogMonitor
             return repo;
         }
 
-        private void HandleEvent(string msg, KLogger.LogEvent.LogLevel level, bool isFlush, object[] args, Exception ex = null)
+        #region Message Handling
+
+        private void HandleEvent(string msg, KLogger.LogEvent.LogLevel level, bool isFlush, object[] args, Exception ex = null, string callerMemberName = null)
         {
             try
             {
-                var stackTrace = new StackTrace();         // get call stack
-                var stackFrames = stackTrace.GetFrames();  // get method calls (frames)
-
-                if (stackFrames != null && stackFrames.Length > 2)
-                {
-                    var callingFrame = stackFrames[2];
-                    LogContextData[Constants.METHOD_NAME] = callingFrame.GetMethod().Name;
-                }
-
                 if (args != null && ex != null)
                     throw new Exception("Args and Exception cannot co exist");
 
-
-                
+                SetTopic();
 
                 var le = new LogEvent
                 {
-                    Message = FormatMessage(msg, DateTime.UtcNow),
+                    Message = msg,
                     Exception = ex,
                     Level = level,
                     args = args
@@ -188,44 +227,6 @@ namespace KLogMonitor
             {
                 _Logger.ErrorFormat("Klogger Error in handle event. original log message: {0}, ex: {1}", msg, logException);
             }
-        }
-
-        private string FormatMessage(string msg, DateTime creationDate)
-        {
-
-            var ClientTag = LogContextData[Constants.CLIENT_TAG]?.ToString();
-            var IPAddress = LogContextData[Constants.HOST_IP]?.ToString();
-            var UniqueID = LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
-            var PartnerID = LogContextData[Constants.GROUP_ID]?.ToString();
-            var Action = LogContextData[Constants.ACTION]?.ToString();
-            var UserID = LogContextData[Constants.USER_ID]?.ToString();
-            var Topic = LogContextData[Constants.TOPIC]?.ToString();
-            var MethodName = LogContextData[Constants.METHOD_NAME]?.ToString();
-
-            return string.Format("class:{0} topic:{1} method:{2} server:{3} ip:{4} reqid:{5} partner:{6} action:{7} uid:{8} msg:{9}",
-                !string.IsNullOrWhiteSpace(ClassName) ? ClassName : "null",  // 0
-                !string.IsNullOrWhiteSpace(Topic) ? Topic : "null",          // 1
-                !string.IsNullOrWhiteSpace(MethodName) ? MethodName : "null",// 2
-                !string.IsNullOrWhiteSpace(Server) ? Server : "null",        // 3 
-                !string.IsNullOrWhiteSpace(IPAddress) ? IPAddress : "null",  // 4
-                !string.IsNullOrWhiteSpace(UniqueID) ? UniqueID : "null",    // 5
-                !string.IsNullOrWhiteSpace(PartnerID) ? PartnerID : "null",  // 6
-                !string.IsNullOrWhiteSpace(Action) ? Action : "null",        // 7
-                !string.IsNullOrWhiteSpace(UserID) ? UserID : "0",           // 8
-                !string.IsNullOrWhiteSpace(msg) ? msg : "null");             // 9
-        }
-
-        private ILog TryGetSeparateLogger()
-        {
-            if (string.IsNullOrEmpty(this.LoggerName)) return _Logger;
-
-            ILog separateLogger;
-            if (_SeparateLogsMap.TryGetValue(this.LoggerName, out separateLogger))
-            {
-                return separateLogger;
-            }
-
-            return _Logger;
         }
 
         private void SendLog(LogEvent logEvent)
@@ -273,16 +274,16 @@ namespace KLogMonitor
                         logger.Debug(logEvent.Message, logEvent.Exception);
                         break;
                 }
-
             }
-
-
         }
 
+        #endregion
+
         #region Logging Methods
-        public void Debug(string sMessage, Exception ex = null)
+
+        public void Debug(string sMessage, Exception ex = null, [CallerMemberName]string callerMemberName = null)
         {
-            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.DEBUG, true, null, ex);
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.DEBUG, true, null, ex, callerMemberName);
         }
 
         public void DebugFormat(string format, params object[] args)
@@ -290,9 +291,9 @@ namespace KLogMonitor
             HandleEvent(format, KLogger.LogEvent.LogLevel.DEBUG, true, args, null);
         }
 
-        public void Info(string sMessage, Exception ex = null)
+        public void Info(string sMessage, Exception ex = null, [CallerMemberName]string callerMemberName = null)
         {
-            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.INFO, true, null, ex);
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.INFO, true, null, ex, callerMemberName);
         }
 
         public void InfoFormat(string format, params object[] args)
@@ -300,9 +301,9 @@ namespace KLogMonitor
             HandleEvent(format, KLogger.LogEvent.LogLevel.INFO, true, args, null);
         }
 
-        public void Warn(string sMessage, Exception ex = null)
+        public void Warn(string sMessage, Exception ex = null, [CallerMemberName]string callerMemberName = null)
         {
-            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.WARNING, true, null, ex);
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.WARNING, true, null, ex, callerMemberName);
         }
 
         public void WarnFormat(string format, params object[] args)
@@ -310,19 +311,9 @@ namespace KLogMonitor
             HandleEvent(format, KLogger.LogEvent.LogLevel.WARNING, true, args, null);
         }
 
-        public void Error(string sMessage, Exception ex = null)
+        public void Error(string sMessage, Exception ex = null, [CallerMemberName]string callerMemberName = null)
         {
-            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.ERROR, true, null, ex);
-        }
-
-        public static string GetRequestId()
-        {
-            return LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
-        }
-
-        public static void SetRequestId(string sessionId)
-        {
-            LogContextData[Constants.REQUEST_ID_KEY] = sessionId;
+            HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.ERROR, true, null, ex, callerMemberName);
         }
 
         public void ErrorFormat(string format, params object[] args)
@@ -371,6 +362,91 @@ namespace KLogMonitor
         }
         #endregion
 
+        #region Private auxillary methods
+
+        private void SetTopic()
+        {
+            string topic = this.Topic;
+            string topicContextData = LogContextData[Constants.TOPIC]?.ToString();
+
+            if (!string.IsNullOrWhiteSpace(topicContextData))
+            {
+                topic = topicContextData;
+            }
+
+            topic = !string.IsNullOrWhiteSpace(topic) ? topic : "null";
+            LogContextData[Constants.TOPIC_LOG] = topic;
+        }
+
+        private void SetMethodName()
+        {
+            var stackTrace = new StackTrace();         // get call stack
+            var stackFrames = stackTrace.GetFrames();  // get method calls (frames)
+
+            if (stackFrames != null && stackFrames.Length > 2)
+            {
+                var callingFrame = stackFrames[2];
+                //this.MethodName = callingFrame.GetMethod().Name;
+            }
+        }
+
+        private string FormatMessage(string msg, DateTime creationDate)
+        {
+            string className = !string.IsNullOrWhiteSpace(ClassName) ? ClassName : "null";
+            LogContextData[Constants.CLASS_NAME] = ClassName;
+
+            string server = !string.IsNullOrWhiteSpace(Server) ? Server : "null";
+            LogContextData[Constants.SERVER] = server;
+
+            string topic = this.Topic;
+            string topicContextData = LogContextData[Constants.TOPIC]?.ToString();
+
+            if (!string.IsNullOrWhiteSpace(topicContextData))
+            {
+                topic = topicContextData;
+            }
+
+            topic = !string.IsNullOrWhiteSpace(topic) ? topic : "null";
+            LogContextData[Constants.TOPIC_LOG] = topic;
+
+            string ip = LogContextData[Constants.HOST_IP]?.ToString();
+            ip = !string.IsNullOrWhiteSpace(ip) ? ip : "null";
+
+            string reqid = LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
+            reqid = !string.IsNullOrWhiteSpace(reqid) ? reqid : "null";
+
+            string partner = LogContextData[Constants.GROUP_ID]?.ToString();
+            partner = !string.IsNullOrWhiteSpace(partner) ? partner : "null";
+
+            string action = LogContextData[Constants.ACTION]?.ToString();
+            action = !string.IsNullOrWhiteSpace(action) ? action : "null";
+
+            string uid = LogContextData[Constants.USER_ID]?.ToString();
+            uid = !string.IsNullOrWhiteSpace(uid) ? uid : "0";
+
+            string message = !string.IsNullOrWhiteSpace(msg) ? msg : "null";
+
+            //$"class:{className} topic:{topic} server:{server} ip:{ip} reqid:{reqid} partner:{partner} action:{action} uid:{uid} msg:{message}";
+            return !string.IsNullOrWhiteSpace(msg) ? msg : "null";
+        }
+
+        private ILog TryGetSeparateLogger()
+        {
+            if (string.IsNullOrEmpty(this.LoggerName)) return _Logger;
+
+            ILog separateLogger;
+            if (_SeparateLogsMap.TryGetValue(this.LoggerName, out separateLogger))
+            {
+                return separateLogger;
+            }
+
+            return _Logger;
+        }
+
+        #endregion
+
+        #region Dispose
+
         // Protected implementation of Dispose pattern.
         protected virtual void Dispose(bool disposing)
         {
@@ -395,6 +471,7 @@ namespace KLogMonitor
             GC.SuppressFinalize(this);
         }
 
+        #endregion
 
         private class LogEvent
         {

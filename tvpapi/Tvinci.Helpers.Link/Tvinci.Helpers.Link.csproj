@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="Configuration\Configuration.cs">
+      <DependentUpon>Configuration.xsd</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Configuration\Configuration.xsd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Configuration\Helper.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\Tvinci.Configuration\Tvinci.Configuration.csproj" />
+    <ProjectReference Include="..\Tvinci.Helpers\Tvinci.Helpers.csproj" />
+    <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj" />
+  </ItemGroup>
+</Project>

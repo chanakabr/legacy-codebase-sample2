@@ -979,7 +979,31 @@ namespace ElasticSearch.Common
             if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(searchQuery))
                 return result;
 
-            string url;
+            Search(index, indexType, searchQuery, routing, preference, out result, out string url, out int httpStatus);
+
+            if (httpStatus != 200)
+            {
+                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; explanation={2}", url, searchQuery, result));
+                result = string.Empty;
+            }
+
+            return result;
+        }
+
+        public Tuple<string, int> SearchWithStatus(string index, string indexType, ref string searchQuery, List<string> routing = null, string preference = null)
+        {
+            var result = string.Empty;
+
+            if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(searchQuery))
+                return Tuple.Create(result, 0);
+
+            Search(index, indexType, searchQuery, routing, preference, out result, out string url, out int httpStatus);
+
+            return Tuple.Create(result, httpStatus);
+        }
+
+        private void Search(string index, string indexType, string searchQuery, List<string> routing, string preference, out string result, out string url, out int httpStatus)
+        {
             StringBuilder builder = new StringBuilder();
             builder.AppendFormat("{0}/{1}/{2}/_search", baseUrl, index, indexType);
 
@@ -1003,16 +1027,8 @@ namespace ElasticSearch.Common
             }
 
             url = builder.ToString();
-            int httpStatus = 0;
+            httpStatus = 0;
             result = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, searchQuery, true);
-
-            if (httpStatus != 200)
-            {
-                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; explanation={2}", url, searchQuery, result));
-                result = string.Empty;
-            }
-
-            return result;
         }
 
         public string MultiSearch(string sIndex, string sType, List<string> lSearchQueries, List<string> lRouting)

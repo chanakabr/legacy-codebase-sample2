@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TVPPro.SiteManager.TvinciPlatform.api;
 
 namespace TVPApiModule.Objects.Responses
 {
@@ -25,7 +24,7 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "data")]
         public Dictionary<int, int> Data { get; set; }
 
-        public Region(TVPPro.SiteManager.TvinciPlatform.api.Region region)
+        public Region(ApiObjects.Region region)
         {
             if (region != null)
             {
@@ -36,7 +35,7 @@ namespace TVPApiModule.Objects.Responses
                 if (region.linearChannels != null)
                 {   
                     Data = new Dictionary<int, int>();
-                    foreach (KeyValuePair channel in region.linearChannels)
+                    foreach (var channel in region.linearChannels)
                     {
                         Data.Add(int.Parse(channel.key), int.Parse(channel.value));
                     }

@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using log4net;
+using log4net.Core;
+using log4net.Filter;
+using log4net.Layout;
+using log4net.Layout.Pattern;
 using log4net.Util;
 using Microsoft.Win32.SafeHandles;
 
@@ -13,6 +18,8 @@ namespace KLogMonitor
     [Serializable]
     public class KMonitor : IDisposable
     {
+        public const string TOTAL_MILLISECONDS = "totalMilliseconds";
+
         private static readonly ILog _Logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public static LogicalThreadContextProperties LogContextData => LogicalThreadContext.Properties;
         private bool _Disposed = false;
@@ -99,10 +106,7 @@ namespace KLogMonitor
         {
             try
             {
-                // start counter
                 this.Watch = new Stopwatch();
-                this.Watch.Start();
-                this.TimeInTicks = (DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).ToUniversalTime().Ticks).ToString();
                 this.IsMultiRequest = "0";
 
                 this.Event = Events.GetEventString(eventName);
@@ -128,7 +132,12 @@ namespace KLogMonitor
 
                 // In case this is a start event, we fire it first, and on dispose, we will fire the END 
                 if (eventName == Events.eEvent.EVENT_API_START || eventName == Events.eEvent.EVENT_CLIENT_API_START)
-                    _Logger.Monitor(this.ToString());
+                    // -1 milliseconds to force it down the filter
+                    _Logger.Monitor(this, -1, null);
+
+                // start counter
+                this.Watch.Start();
+                this.TimeInTicks = (DateTime.UtcNow.Ticks - new DateTime(1970, 1, 1).ToUniversalTime().Ticks).ToString();
             }
             catch (Exception logException)
             {
@@ -175,6 +184,15 @@ namespace KLogMonitor
             Configure(logConfigFile, appType);
         }
 
+        public static void Reconfigure(string logConfigFile)
+        {
+            var repository = KLogger.GetLoggerRepository();
+            var file = new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile));
+            repository.ResetConfiguration();
+
+            log4net.Config.XmlConfigurator.Configure(repository, file);
+        }
+
         public override string ToString()
         {
             try
@@ -215,7 +233,10 @@ namespace KLogMonitor
                     UpdateMonitorData();
                 }
 
-                _Logger.Monitor(this.ToString());
+                var totalMillseconds = this.Watch.Elapsed.TotalMilliseconds;
+                
+                //var repo = _Logger.Logger.Repository;
+                _Logger.Monitor(this, totalMillseconds, null);
             }
 
             // Free any unmanaged objects here.
@@ -225,7 +246,6 @@ namespace KLogMonitor
 
         public void Dispose()
         {
-
             try
             {
                 Dispose(true);
@@ -240,16 +260,135 @@ namespace KLogMonitor
 
     public static class ILogExtentions
     {
-        public static void Monitor(this ILog log, string message, Exception exception)
+        public static void Monitor(this ILog log, string message, double totalMilliseconds, Exception exception)
         {
-            log.Logger.Log(MethodBase.GetCurrentMethod().DeclaringType,
-                log4net.Core.Level.Trace, message, exception);
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+
+            var le = new LoggingEvent(MethodBase.GetCurrentMethod().DeclaringType,
+                log.Logger.Repository,
+                log.Logger.Name,
+                log4net.Core.Level.Trace,
+                message,
+                exception
+                );
+            le.Properties[KMonitor.TOTAL_MILLISECONDS] = totalMilliseconds;
+
+            log.Logger.Log(le);
+        }
+        public static void Monitor(this ILog log, KMonitor monitor, double totalMilliseconds, Exception exception)
+        {
+            var le = new LoggingEvent(MethodBase.GetCurrentMethod().DeclaringType,
+                log.Logger.Repository,
+                log.Logger.Name,
+                log4net.Core.Level.Trace,
+                monitor,
+                exception
+                );
+
+            le.Properties[KMonitor.TOTAL_MILLISECONDS] = totalMilliseconds;
+            le.Properties["m"] = monitor.TimeInTicks;
+            le.Properties["e"] = monitor.Event;
+            le.Properties["s"] = monitor.Server;
+            le.Properties["i"] = monitor.IPAddress;
+            le.Properties["u"] = monitor.UniqueID;
+            le.Properties["p"] = monitor.PartnerID;
+            le.Properties["a"] = monitor.Action;
+            le.Properties["l"] = monitor.ClientTag;
+            le.Properties["r"] = monitor.ErrorCode;
+            le.Properties["t"] = monitor.Table;
+            le.Properties["q"] = monitor.QueryTypeString;
+            le.Properties["x"] = monitor.ExecutionTime;
+            le.Properties["d"] = monitor.Database;
+            le.Properties["w"] = monitor.IsWritable;
+            le.Fix = FixFlags.Properties;
+
+            log.Logger.Log(le);
         }
 
-        public static void Monitor(this ILog log, string message)
+        public static void Monitor(this ILog log, string message, double totalMilliseconds)
         {
-            log.Monitor(message, null);
+            log.Monitor(message, totalMilliseconds, null);
         }
     }
 
+    public class KMonitorThresholdFilter : FilterSkeleton
+    {
+        /// <summary>
+        /// minimum threshold time for logging monitors - in milliseconds
+        /// </summary>
+        public double minThreshold { get; set; }
+
+        public KMonitorThresholdFilter() : base()
+        {
+            minThreshold = -1;
+        }
+        public override void ActivateOptions()
+        {
+            base.ActivateOptions();
+
+            if (this.minThreshold < 0)
+            {
+                // set default to 500 miliseconds
+                this.minThreshold = 500;
+            }
+        }
+
+        public override FilterDecision Decide(LoggingEvent loggingEvent)
+        {
+            FilterDecision decision = FilterDecision.Neutral;
+
+            object totalMilliSecondsObject = loggingEvent.LookupProperty(KMonitor.TOTAL_MILLISECONDS);
+
+            if (totalMilliSecondsObject != null)
+            {
+                var totalMilliSeconds = (double)totalMilliSecondsObject;
+
+                if (totalMilliSeconds > 0 && totalMilliSeconds < minThreshold)
+                {
+                    decision = FilterDecision.Deny;
+                }
+            }
+
+            return decision;
+        }
+    }
+
+    public class ReflectionReader : PatternLayoutConverter
+    {
+        public ReflectionReader()
+        {
+            _getValue = GetValueFirstTime;
+        }
+
+        protected override void Convert(TextWriter writer, LoggingEvent loggingEvent)
+        {
+            writer.Write(_getValue(loggingEvent.MessageObject));
+        }
+
+        private Func<object, String> _getValue;
+        private string GetValueFirstTime(object source)
+        {
+            _targetProperty = source.GetType().GetProperty(Option);
+            if (_targetProperty == null)
+            {
+                _getValue = x => "null";
+            }
+            else
+            {
+                _getValue = x => String.Format("{0}", _targetProperty.GetValue(x, null));
+            }
+            return _getValue(source);
+        }
+
+        private PropertyInfo _targetProperty;
+    }
+
+    public class ReflectionLayoutPattern : PatternLayout
+    {
+        public ReflectionLayoutPattern()
+        {
+            this.AddConverter("item", typeof(ReflectionReader));
+        }
+    }
 }

@@ -2436,5 +2436,27 @@ namespace DAL
             var key = GetUserRolesToPasswordPolicyKey(groupId);
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, policies);
         }
+
+        private static string GetUserLoginInfoKey(int groupId, long userId)
+        {
+            return $"user_login_info_{groupId}_{userId}";
+        }
+
+        public static UserLoginInfo GetUserLoginInfo(int groupId, long userId)
+        {
+            if (userId > 0)
+            {
+                string key = GetUserLoginInfoKey(groupId, userId);
+                return UtilsDal.GetObjectFromCB<UserLoginInfo>(eCouchbaseBucket.OTT_APPS, key);
+            }
+
+            return null;
+        }
+
+        public static bool SaveUserLoginInfo(int groupId, long userId, UserLoginInfo userLoginInfo)
+        {
+            string key = GetUserLoginInfoKey(groupId, userId);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, userLoginInfo);
+        }
     }
 }

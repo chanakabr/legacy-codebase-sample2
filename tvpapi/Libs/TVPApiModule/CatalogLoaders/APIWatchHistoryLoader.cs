@@ -4,13 +4,18 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using Tvinci.Data.Loaders;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Catalog;
+using ApiObjects.SearchObjects;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects;
+using ConfigurationManager;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -194,8 +199,7 @@ namespace TVPApiModule.CatalogLoaders
 
 
                     // Store in Cache the medias from Catalog
-                    int duration;
-                    int.TryParse(ConfigurationManager.AppSettings["Tvinci.DataLoader.CacheLite.DurationInMinutes"], out duration);
+                    int duration = ApplicationConfiguration.TVPApiConfiguration.CacheLiteDurationInMinutes.IntValue;
 
                     List<BaseObject> baseObjects = null;
 

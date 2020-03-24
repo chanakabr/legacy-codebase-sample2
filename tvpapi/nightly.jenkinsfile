@@ -8,9 +8,9 @@ pipeline {
     }
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
-        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
-        string(name: 'config_version_folder_name', defaultValue: 'v5_2_6', description: 'Configuration folder name from Configuration Repo')
-        booleanParam(name: 'publish_preprod', defaultValue: false, description: 'Should publish to PreProd?')
+        string(name: 'version_folder_name', defaultValue: 'v5_2_8', description: 'Pre-Prod Target Version Folder')
+        string(name: 'config_version_folder_name', defaultValue: 'v5_2_8', description: 'Configuration folder name from Configuration Repo')
+        booleanParam(name: 'publish_preprod', defaultValue: true, description: 'Should publish to PreProd?')
 
     }
     environment {
@@ -23,8 +23,6 @@ pipeline {
 				deleteDir()
 				dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
                 dir('tvpapi') { git(url: 'git@github.com:kaltura/tvpapi.git', branch: "${params.branch}") }
-                dir('tvplibs') { git(url: 'git@github.com:kaltura/tvplibs.git', branch: "${params.branch}") }
-                dir('tvincicommon') { git(url: 'git@github.com:kaltura/TvinciCommon.git', branch: "${params.branch}") }
                 dir('configuration'){ git(url: 'git@bitbucket.org:tvinci_dev/configuration.git', branch: "master") }
             }
         }
@@ -44,8 +42,14 @@ pipeline {
         stage("Publish Localy"){
             steps{
                 dir("tvpapi"){
-                    bat ("\"${MSBUILD}\" /property:Configuration=Release;Platform=\"Any CPU\"")
-                    bat("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\aspnet_compiler.exe -v /WS_TVPAPI -p \"ws_tvpapi\" -u -f \"${WORKSPACE}/published/TVPAPI/\" ")
+                    bat ("\"${MSBUILD}\" \"TVPApi.Legacy\\TVPApi.Legacy.csproj\" /m:4"
+                            + " /p:Configuration=Release"
+                            + " /p:DeployDefaultTarget=WebPublish"
+                            + " /p:WebPublishMethod=FileSystem"
+                            + " /p:DeleteExistingFiles=True"
+                            + " /p:DeployOnBuild=True"
+                            + " /p:publishUrl=\"${WORKSPACE}/published/TVPAPI/"
+                        )
                 }
             }        
         }

@@ -30,6 +30,7 @@ pipeline {
                     steps{ 
                         build (job: "OTT-BE-Phoenix-Windows", parameters: [
                             [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                            [$class: 'StringParameterValue', name: 'publish', value: "false"],
                         ]) 
                     }
                 }

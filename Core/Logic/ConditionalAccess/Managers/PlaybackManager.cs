@@ -1,8 +1,10 @@
 ﻿using AdapterControllers;
 using AdapterControllers.CDVR;
+using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using ApiObjects;
 using ApiObjects.CDNAdapter;
+using ApiObjects.ConditionalAccess;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using ApiObjects.TimeShiftedTv;
@@ -29,15 +31,15 @@ namespace Core.ConditionalAccess
 
         public const string RECORDING_CONVERT_KEY = "GetPlaybackContextAssetConvert";
 
-        public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType, 
-                                                                 List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context, 
-                                                                 string ip, string udid, out MediaFileItemPricesContainer filePrice, UrlType urlType)
+        public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType,
+                                                                 List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context,
+                                                                 string ip, string udid, out MediaFileItemPricesContainer filePrice, UrlType urlType, string sourceType = null)
         {
             PlaybackContextResponse response = new PlaybackContextResponse()
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
-            
+
             filePrice = null;
 
             BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK; // default value 
@@ -72,6 +74,10 @@ namespace Core.ConditionalAccess
                 {
                     if (validationStatus.Code != (int)eResponseStatus.OK)
                     {
+                        if (validationStatus.Code == (int)eResponseStatus.UserSuspended)
+                        {
+                            return HandleUserSuspended(groupId, userId, assetId, assetType, response, domainId);
+                        }
                         log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", groupId, userId, domainId);
                         response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
                         return response;
@@ -123,7 +129,7 @@ namespace Core.ConditionalAccess
                         return response;
                     }
                 }
-                
+
                 MediaObj epgChannelLinearMedia = null;
                 List<SlimAsset> assetsToCheck = null;
 
@@ -175,10 +181,10 @@ namespace Core.ConditionalAccess
                     response.Status = networkRulesStatus;
                     return response;
                 }
-                
-                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
-                Dictionary<long, AdsControlData> assetFileIdsAds = new Dictionary<long, AdsControlData>();
 
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds, false, sourceType);
+                Dictionary<long, AdsControlData> assetFileIdsAds = new Dictionary<long, AdsControlData>();
+                var isSuspended = false;
                 if (files != null && files.Count > 0)
                 {
                     MediaFileItemPricesContainer[] prices = null;
@@ -199,6 +205,11 @@ namespace Core.ConditionalAccess
 
                                 // check permitted role 
                                 ApiObjects.ConditionalAccess.PriceReason priceReason = ApiObjects.ConditionalAccess.PriceReason.PPVPurchased;
+
+                                if (!isSuspended && price.m_oItemPrices?.First()?.m_PriceReason == PriceReason.UserSuspended)
+                                {
+                                    isSuspended = true;
+                                }
 
                                 if (Utils.IsItemPurchased(price, ref priceReason))
                                 {
@@ -245,13 +256,13 @@ namespace Core.ConditionalAccess
                             else if (assetType == eAssetTypes.NPVR)
                             {
                                 concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, (int)mediaId, (int)domainId, recording != null ? recording.EpgId : -1, ePlayType.NPVR,
-                                    recording.Id.ToString());
+                                    assetId);
                             }
                             else
                             {
                                 concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, int.Parse(assetId), (int)domainId, 0, ePlayType.MEDIA);
                             }
-                            
+
                             if (concurrencyResponse.Status != DomainResponseStatus.OK)
                             {
                                 response.Status = Utils.ConcurrencyResponseToResponseStatus(concurrencyResponse.Status);
@@ -292,7 +303,7 @@ namespace Core.ConditionalAccess
                             if (urlType == UrlType.direct)
                             {
                                 // get adapter
-                                bool isDefaultAdapter = false;                                
+                                bool isDefaultAdapter = false;
                                 PlayManifestResponse playManifestResponse = null;
                                 if (!isExternalRecordingIgnoreMode)
                                 {
@@ -333,10 +344,10 @@ namespace Core.ConditionalAccess
                                             }
                                             // item must be free otherwise we wouldn't get this far
                                             else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && filePrice.m_oItemPrices?.Length > 0)
-                                                     
+
                                             {
                                                 bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, (int)file.Id,
-                                                        new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false, 
+                                                        new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false,
                                                         eTransactionType.PPV, null, filePrice.m_oItemPrices[0].m_dtEndDate));
                                             }
 
@@ -357,6 +368,11 @@ namespace Core.ConditionalAccess
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, "Recording playback is not allowed for not entitled EPG channel");
                         return response;
                     }
+
+                    else if (isSuspended)
+                    {
+                        return HandleUserSuspended(groupId, userId, assetId, assetType, response, domainId);
+                    }
                     else
                     {
                         log.DebugFormat("User is not entitled. groupId = {0}, userId = {1}, domainId = {2}, assetId = {3}, assetType = {4}",
@@ -376,6 +392,19 @@ namespace Core.ConditionalAccess
             {
                 log.Error(string.Format("Failed to GetPlaybackContext for userId = {0}, assetId = {1}, assetType = {2}", userId, assetId, assetType), ex);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
+        private static PlaybackContextResponse HandleUserSuspended(int groupId, string userId, string assetId, eAssetTypes assetType, PlaybackContextResponse response, long domainId)
+        {
+            log.Debug($"User is Suspended. groupId = {groupId}, userId = {userId}, domainId = {domainId}, assetId = {assetId}, " +
+                                        $"assetType = {assetType}");
+            response.Status = RolesPermissionsManager.GetSuspentionStatus(groupId, Convert.ToInt32(domainId));
+            if (response.Status.Args != null && response.Status.Args.Any())
+            {
+                response.Status.Message = response.Status.Args.Aggregate
+                    (response.Status.Message, (result, s) => result.Replace('@' + s.key + '@', s.value));
             }
             return response;
         }
@@ -416,8 +445,8 @@ namespace Core.ConditionalAccess
             return adsData;
         }
 
-        public static PlayManifestResponse GetPlayManifest(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType, 
-                                                           long fileId, string ip, string udid, PlayContextType playContextType)
+        public static PlayManifestResponse GetPlayManifest(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType,
+                                                           long fileId, string ip, string udid, PlayContextType playContextType, bool isTokenizedUrl = false)
         {
             PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -453,39 +482,42 @@ namespace Core.ConditionalAccess
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoFilesFound, "No files found");
                     return response;
                 }
-                
+
                 MediaFile file = files[0];
                 MediaFileItemPricesContainer price;
 
-                PlaybackContextResponse playbackContextResponse = GetPlaybackContext(cas, groupId, userId, assetId, assetType, new List<long>() { fileId }, 
-                                                                                     file.StreamerType.Value, file.Url.Substring(0, file.Url.IndexOf(':')), playContextType, 
+                PlaybackContextResponse playbackContextResponse = GetPlaybackContext(cas, groupId, userId, assetId, assetType, new List<long>() { fileId },
+                                                                                     file.StreamerType.Value, file.Url.Substring(0, file.Url.IndexOf(':')), playContextType,
                                                                                      ip, udid, out price, UrlType.playmanifest);
-                
+
                 if (playbackContextResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = playbackContextResponse.Status;
                     return response;
                 }
 
-                // get adapter
-                bool isDefaultAdapter = false;
-                CDNAdapterResponse adapterResponse = Utils.GetRelevantCDN(groupId, file.CdnId, assetType, ref isDefaultAdapter);
-
-                int assetIdInt = int.Parse(assetId);
-
-                switch (assetType)
+                if (!isTokenizedUrl)
                 {
-                    case eAssetTypes.EPG:
-                        response = GetEpgLicensedLink(cas, groupId, userId, program, file, udid, ip, adapterResponse, playContextType);
-                        break;
-                    case eAssetTypes.NPVR:
-                        response = GetRecordingLicensedLink(cas, groupId, userId, recording, file, udid, ip, adapterResponse);
-                        break;
-                    case eAssetTypes.MEDIA:
-                        response = GetMediaLicensedLink(cas, groupId, userId, file, udid, ip, adapterResponse);
-                        break;
-                    default:
-                        break;
+                    // get adapter
+                    bool isDefaultAdapter = false;
+                    CDNAdapterResponse adapterResponse = Utils.GetRelevantCDN(groupId, file.CdnId, assetType, ref isDefaultAdapter);
+
+                    int assetIdInt = int.Parse(assetId);
+
+                    switch (assetType)
+                    {
+                        case eAssetTypes.EPG:
+                            response = GetEpgLicensedLink(cas, groupId, userId, program, file, udid, ip, adapterResponse, playContextType);
+                            break;
+                        case eAssetTypes.NPVR:
+                            response = GetRecordingLicensedLink(cas, groupId, userId, recording, file, udid, ip, adapterResponse);
+                            break;
+                        case eAssetTypes.MEDIA:
+                            response = GetMediaLicensedLink(cas, groupId, userId, file, udid, ip, adapterResponse);
+                            break;
+                        default:
+                            break;
+                    }
                 }
 
                 if (response.Status.Code == (int)eResponseStatus.OK && domainId > 0)
@@ -507,7 +539,7 @@ namespace Core.ConditionalAccess
                     if (playbackContextResponse.ConcurrencyData != null)
                     {
                         cas.InsertDevicePlayData(playbackContextResponse.ConcurrencyData, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
-                        log.Debug("PlaybackManager.GetPlayManifest - exec cas.InsertDevicePlayData method");
+                        log.DebugFormat("PlaybackManager.GetPlayManifest - exec cas.InsertDevicePlayData method udid:{0}", playbackContextResponse.ConcurrencyData.UDID);
                     }
 
                 }
@@ -612,7 +644,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private static PlayManifestResponse GetEpgLicensedLink(BaseConditionalAccess cas, int groupId, string userId, EPGChannelProgrammeObject program, MediaFile file, 
+        private static PlayManifestResponse GetEpgLicensedLink(BaseConditionalAccess cas, int groupId, string userId, EPGChannelProgrammeObject program, MediaFile file,
                                                                string udid, string ip, CDNAdapterResponse adapterResponse, PlayContextType context)
         {
             PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
@@ -630,7 +662,7 @@ namespace Core.ConditionalAccess
                     int actionType = Utils.MapActionTypeForAdapter(formatType);
 
                     // main url
-                    var link = CDNAdapterController.GetInstance().GetEpgLink(groupId, adapterResponse.Adapter.ID, userId, file.Url, file.Type, (int)program.EPG_ID, 
+                    var link = CDNAdapterController.GetInstance().GetEpgLink(groupId, adapterResponse.Adapter.ID, userId, file.Url, file.Type, (int)program.EPG_ID,
                                                                             (int)file.MediaId, (int)file.Id, programStartTime.ToUtcUnixTimestampSeconds(), actionType, ip);
                     response.Url = link != null ? link.Url : null;
                 }
@@ -834,7 +866,7 @@ namespace Core.ConditionalAccess
                             adsData.FileId = price.m_nMediaFileID;
                             adsData.FileType = files.Where(f => f.Id == price.m_nMediaFileID).FirstOrDefault().Type;
 
-                            response.Sources.Add(adsData);
+                            response.Sources.Add(Copy(adsData));
                         }
                     }
                 }
@@ -852,6 +884,17 @@ namespace Core.ConditionalAccess
             }
 
             return response;
+        }
+
+        private static AdsControlData Copy(AdsControlData adsData)
+        {
+            return new AdsControlData
+            {
+                FileType = adsData.FileType,
+                FileId = adsData.FileId,
+                AdsPolicy = adsData.AdsPolicy,
+                AdsParam = adsData.AdsParam
+            };
         }
     }
 }

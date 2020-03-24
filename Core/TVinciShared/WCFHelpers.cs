@@ -1,7 +1,7 @@
-﻿using System;
-using ConfigurationManager;
+﻿using ConfigurationManager;
 using ConfigurationManager.Types;
 using KLogMonitor;
+using System;
 using System.Reflection;
 using System.ServiceModel;
 
@@ -24,8 +24,6 @@ namespace TVinciShared
             return serviceToConfigure;
         }
 
-
-
         private static void SetConfiguration<TChannel>(ClientBase<TChannel> serviceToConfigure, AdapterConfiguration adapterConfiguration) where TChannel : class
         {
             var bindingBase = serviceToConfigure.Endpoint.Binding as HttpBindingBase;
@@ -36,21 +34,18 @@ namespace TVinciShared
             bindingBase.CloseTimeout = TimeSpan.FromSeconds(adapterConfiguration.CloseTimeout.Value);
             bindingBase.ReceiveTimeout = TimeSpan.FromSeconds(adapterConfiguration.ReceiveTimeout.Value);
             bindingBase.MaxBufferSize = (int)bindingBase.MaxReceivedMessageSize;
-
+            
             if (serviceToConfigure.Endpoint.Address.Uri.Scheme.ToLower().Equals("https"))
             {
-
                 var securityMode = serviceToConfigure.Endpoint.Binding as BasicHttpBinding;
                 securityMode.Security.Mode = BasicHttpSecurityMode.Transport;
-                securityMode.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
+                securityMode.Security.Transport.ClientCredentialType = adapterConfiguration.HttpClientCredentialType ?? HttpClientCredentialType.None;
             }
-
         }
 
         private static AdapterConfiguration GetCurrentConfiguration(string adapterNamespace)
         {
-            adapterNamespace = adapterNamespace.Replace('.', '_').ToLower();
-
+            adapterNamespace = adapterNamespace.Replace('.','_').ToLower();
             var defaultConfiguration = ApplicationConfiguration.AdaptersConfiguration.ConfigurationDictionary["default"];
             if (ApplicationConfiguration.AdaptersConfiguration.ConfigurationDictionary.TryGetValue(adapterNamespace, out var specificConfiguration))
             {
@@ -60,7 +55,9 @@ namespace TVinciShared
                 defaultConfiguration.OpenTimeout = specificConfiguration.OpenTimeout ?? defaultConfiguration.OpenTimeout;
                 defaultConfiguration.ReceiveTimeout = specificConfiguration.ReceiveTimeout ?? defaultConfiguration.ReceiveTimeout;
                 defaultConfiguration.SendTimeout = specificConfiguration.SendTimeout ?? defaultConfiguration.SendTimeout;
+                defaultConfiguration.HttpClientCredentialType = specificConfiguration.HttpClientCredentialType ?? defaultConfiguration.HttpClientCredentialType;
             }
+
             return defaultConfiguration;
         }
     }

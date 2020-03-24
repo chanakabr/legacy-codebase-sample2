@@ -28,21 +28,28 @@ namespace EventBus.RabbitMQ
 
         public static RabbitMQPersistentConnection GetInstanceUsingTCMConfiguration()
         {
+            var configuration = ApplicationConfiguration.RabbitConfiguration.EventBus;
+            if (string.IsNullOrEmpty(configuration.HostName.Value) ||
+                configuration.Port.IntValue <= 0 ||
+                string.IsNullOrEmpty(configuration.UserName.Value) ||
+                string.IsNullOrEmpty(configuration.Password.Value)
+                )
+            {
+                throw new Exception("rabbit mq configuration is missing for event_bus in tcm");
+            }
+
             if (_Instance == null)
             {
                 lock (_SyncRoot)
                 {
                     if (_Instance == null)
                     {
-                        var configuration = ApplicationConfiguration.RabbitConfiguration.EventBus;
-                        var connectionFactory = new ConnectionFactory()
-                        {
-                            HostName = configuration.HostName.Value,
-                            UserName = configuration.UserName.Value,
-                            Password = configuration.Password.Value,
-                            Port = configuration.Port.IntValue,
-                            DispatchConsumersAsync = true,
-                        };
+                        var connectionFactory = new ConnectionFactory();
+                        connectionFactory.HostName = configuration.HostName.Value;
+                        connectionFactory.UserName = configuration.UserName.Value;
+                        connectionFactory.Password = configuration.Password.Value;
+                        connectionFactory.Port = configuration.Port.IntValue;
+                        connectionFactory.DispatchConsumersAsync = true;
 
                         _Logger.Info($"Constructing connection factory with HostName:[{configuration.HostName.Value}] on port:[{configuration.Port.IntValue}]");
                         _Instance = new RabbitMQPersistentConnection(connectionFactory, ApplicationConfiguration.QueueFailLimit.IntValue);

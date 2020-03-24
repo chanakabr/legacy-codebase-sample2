@@ -19,7 +19,7 @@ using System.Security.Principal;
 using System.Text;
 using APILogic.Users;
 using TVinciShared;
-
+using ApiObjects.EventBus;
 
 namespace Core.Users
 {
@@ -660,7 +660,7 @@ namespace Core.Users
 
         //    return result;
         //}
-        
+
         public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus responseStatus, ApiObjects.Response.Status status = null, bool isLogin = false, int externalCode = 0, string externalMessage = null)
         {
             var result = new ApiObjects.Response.Status();
@@ -716,7 +716,7 @@ namespace Core.Users
                     result.Message = "User not master approved";
                     break;
                 case ResponseStatus.ErrorOnInitUser:
-                    result.Code = (int)eResponseStatus.ErrorOnInitUser; 
+                    result.Code = (int)eResponseStatus.ErrorOnInitUser;
                     result.Message = "Error on init user";
                     break;
                 case ResponseStatus.UserNotIndDomain:
@@ -777,7 +777,7 @@ namespace Core.Users
 
             return result;
         }
-        
+
         public static ApiObjects.Response.Status ConvertDomainResponseStatusToResponseObject(DomainResponseStatus status)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status();

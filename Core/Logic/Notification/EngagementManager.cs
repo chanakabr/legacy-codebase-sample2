@@ -1,6 +1,7 @@
 ﻿using APILogic.AmazonSnsAdapter;
 using APILogic.Notification.Adapters;
 using ApiObjects;
+using ApiObjects.EventBus;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
@@ -567,15 +568,17 @@ namespace Core.Notification
 
         public static bool AddEngagementToQueue(int groupId, long startTime, int engagementId, int engagementBulkId = 0)
         {
-            EngagementQueue queue = new EngagementQueue();
-            EngagementData queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
+            bool res = true;
+
+            var queue = new EngagementQueue();
+            var queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
             {
                 ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(startTime)
             };
 
-            bool res = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
+            bool enqueueResult = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
 
-            if (res)
+            if (enqueueResult)
                 log.DebugFormat("Successfully inserted engagement message to queue: {0}", queueData);
             else
                 log.ErrorFormat("Error while inserting engagement {0} to queue", queueData);
@@ -661,7 +664,7 @@ namespace Core.Notification
             return response;
         }
 
-        internal static bool SendEngagement(int partnerId, int engagementId, int startTime)
+        internal static bool SendEngagement(int partnerId, int engagementId, long startTime)
         {
             DateTime utcNow = DateTime.UtcNow;
 
@@ -882,7 +885,7 @@ namespace Core.Notification
             return true;
         }
 
-        internal static bool SendEngagementBulk(int partnerId, int engagementId, int engagementBulkId, int startTime)
+        internal static bool SendEngagementBulk(int partnerId, int engagementId, int engagementBulkId, long startTime)
         {
             // get relevant engagement  
             Engagement engagement = EngagementDal.GetEngagement(partnerId, engagementId);

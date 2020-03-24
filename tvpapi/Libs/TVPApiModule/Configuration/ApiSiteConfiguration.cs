@@ -15,7 +15,7 @@ namespace TVPApi.Configuration.Site
 
 		public ApiSiteConfiguration()
 		{
-			base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.Site"], true);
+			base.SyncFromFile(System.Configuration.ConfigurationManager.AppSettings["TVPPro.Configuration.Site"], true);
 		}
 
         public ApiSiteConfiguration(string syncFile)

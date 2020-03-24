@@ -1183,27 +1183,12 @@ namespace Core.Catalog
             return epgChannelIdToLinearMediaIdMap;
         }
 
-        internal static ApiObjects.Country GetCountryByIp(int groupId, string ip)
-        {
-            ApiObjects.Country res = null;
-            try
-            {
-                res = Core.Api.Module.GetCountryByIp(groupId, ip);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed Utils.GetCountryByIp with groupId: {0}, ip: {1}", groupId, ip), ex);
-            }
-
-            return res;
-        }
-
         internal static string GetIP2CountryCode(int groupId, string ip)
         {
             string res = string.Empty;
             try
             {
-                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                ApiObjects.Country country = Core.Api.api.GetCountryByIp(groupId, ip);
                 res = country != null ? country.Code : res;
             }
             catch (Exception ex)
@@ -1219,7 +1204,7 @@ namespace Core.Catalog
             int res = 0;
             try
             {
-                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                ApiObjects.Country country = Core.Api.api.GetCountryByIp(groupId, ip);
                 res = country != null ? country.Id : res;
             }
             catch (Exception ex)
@@ -1235,7 +1220,7 @@ namespace Core.Catalog
             string res = string.Empty;
             try
             {
-                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                ApiObjects.Country country = Core.Api.api.GetCountryByIp(groupId, ip);
                 res = country != null ? country.Name : res;
             }
             catch (Exception ex)

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ODBCWrapper;
+using TVPApi.ODBCWrapper;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Objects;
 
@@ -19,7 +19,7 @@ namespace TVPApi
             selectQuery.SetConnectionString(connManager.GetTvinciConnectionString());
             selectQuery += "select group_id from media_types ";
             selectQuery += " where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", mediaType);
+            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("id", "=", mediaType);
             if (selectQuery.Execute("query", true) != null)
             {
                 int count = selectQuery.Table("query").DefaultView.Count;

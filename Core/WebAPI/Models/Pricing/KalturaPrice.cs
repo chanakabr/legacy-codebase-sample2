@@ -1,0 +1,50 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.Pricing
+{
+    /// <summary>
+    /// Price 
+    /// </summary>
+    [Serializable]
+    public partial class KalturaPrice : KalturaOTTObject
+    {
+        /// <summary>
+        ///Price
+        /// </summary>
+        [DataMember(Name = "amount")]
+        [JsonProperty("amount")]
+        [XmlElement(ElementName = "amount", IsNullable = true)]
+        public double? Amount { get; set; }
+
+        /// <summary>
+        ///Currency
+        /// </summary>
+        [DataMember(Name = "currency")]
+        [JsonProperty("currency")]
+        [XmlElement(ElementName = "currency")]
+        public string Currency { get; set; }
+
+        /// <summary>
+        ///Currency Sign
+        /// </summary>
+        [DataMember(Name = "currencySign")]
+        [JsonProperty("currencySign")]
+        [XmlElement(ElementName = "currencySign")]
+        [OldStandardProperty("currency_sign")]
+        public string CurrencySign { get; set; }
+
+        /// <summary>
+        ///Country ID
+        /// </summary>
+        [DataMember(Name = "countryId")]
+        [JsonProperty("countryId")]
+        [XmlElement(ElementName = "countryId")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
+        public long? CountryId { get; set; }
+    }
+}

@@ -99,7 +99,6 @@ namespace ApiLogic.Api.Managers
                     }
                 }
 
-
                 Region parentRegion = null;
                 if (regionToUpdate.parentId != 0 && regionToUpdate.parentId != region.parentId)
                 {

@@ -103,29 +103,39 @@ namespace WebAPI
             XmlNodeList xmlPassword = doc.GetElementsByTagName("sWSPassword");
 
             string module = "USERS";
-            if (xmlUserName.Count > 0)
+
+            bool isValid = true;
+
+            if (xmlUserName != null && xmlUserName.Count > 0)
             {
                 module = GetWsModuleByUserName(xmlUserName[0].InnerText);
             }
             else
             {
                 log.ErrorFormat("sWSUserName was not found in XML request. Request: {0}", requestString);
+                isValid = false;
             }
 
-            if (xmlPassword.Count == 0)
+            if (xmlPassword != null && xmlPassword.Count == 0)
             {
                 log.ErrorFormat("sWSPassword was not found in XML request. Request: {0}", requestString);
+                isValid = false;
             }
 
             try
             {
-                Credentials wsc = new Credentials(xmlUserName[0].InnerText, xmlPassword[0].InnerText);
-                return TvinciCache.WSCredentials.GetGroupID(module, wsc);
+                // no point of trying to get group id if xml is not valid
+                if (isValid)
+                {
+                    Credentials wsc = new Credentials(xmlUserName[0].InnerText, xmlPassword[0].InnerText);
+                    return TvinciCache.WSCredentials.GetGroupID(module, wsc);
+                }
             }
             catch (Exception ex)
             {
                 log.Error("Error while trying to get groupId", ex);
             }
+
             return 0;
         }
 

@@ -14,7 +14,7 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "status")]
         public Status Status { get; set; }
 
-        public PinCodeResponse(TVPPro.SiteManager.TvinciPlatform.Users.PinCodeResponse pinCode)
+        public PinCodeResponse(Core.Users.PinCodeResponse pinCode)
         {
             if (pinCode != null)
             {
@@ -39,7 +39,7 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "site_guid")]
         public string siteGuid { get; set; }
 
-        public PinCode(TVPPro.SiteManager.TvinciPlatform.Users.PinCodeResponse pinCode)
+        public PinCode(Core.Users.PinCodeResponse pinCode)
         {
             this.pinCode = pinCode.pinCode;
             this.expiredDate = pinCode.expiredDate;

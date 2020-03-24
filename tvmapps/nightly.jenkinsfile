@@ -8,9 +8,9 @@ pipeline {
     }
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
-        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
-        string(name: 'config_version_folder_name', defaultValue: 'v5_2_6', description: 'Configuration folder name from Configuration Repo')
-        booleanParam(name: 'publish_preprod', defaultValue: false, description: 'Should publish to PreProd?')
+        string(name: 'version_folder_name', defaultValue: 'v5_2_8', description: 'Pre-Prod Target Version Folder')
+        string(name: 'config_version_folder_name', defaultValue: 'v5_2_8', description: 'Configuration folder name from Configuration Repo')
+        booleanParam(name: 'publish_preprod', defaultValue: true, description: 'Should publish to PreProd?')
 
     }
     environment {

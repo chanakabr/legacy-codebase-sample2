@@ -35,8 +35,8 @@ pipeline {
                 dir('ws_ingest') { git(url: 'git@github.com:kaltura/WS_Ingest.git', branch: "${params.branch}") }
                 
                 dir('tvpapi') { git(url: 'git@github.com:kaltura/tvpapi.git', branch: "${params.branch}") }
-                dir('tvplibs') { git(url: 'git@github.com:kaltura/tvplibs.git', branch: "${params.branch}") }
-                dir('tvincicommon') { git(url: 'git@github.com:kaltura/TvinciCommon.git', branch: "${params.branch}") }
+                //dir('tvplibs') { git(url: 'git@github.com:kaltura/tvplibs.git', branch: "${params.branch}") }
+                //dir('tvincicommon') { git(url: 'git@github.com:kaltura/TvinciCommon.git', branch: "${params.branch}") }
                 
                 dir('clients-generator'){ git(url: 'git@github.com:kaltura/clients-generator.git') }
 
@@ -135,8 +135,14 @@ pipeline {
                 }
 
                 dir("tvpapi"){
-                    bat ("\"${MSBUILD}\" /property:Configuration=Release;Platform=\"Any CPU\"")
-                    bat("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\aspnet_compiler.exe -v /WS_TVPAPI -p \"ws_tvpapi\" -u -f \"${TEMP_PUBLISH_DIR}\\tvpapi\" ")
+                    bat ("\"${MSBUILD}\" \"TVPApi.Legacy\\TVPApi.Legacy.csproj\" /m:4"
+                            + " /p:Configuration=Release"
+                            + " /p:DeployDefaultTarget=WebPublish"
+                            + " /p:WebPublishMethod=FileSystem"
+                            + " /p:DeleteExistingFiles=True"
+                            + " /p:DeployOnBuild=True"
+                            + " /p:publishUrl=\"${TEMP_PUBLISH_DIR}\\TVPAPI\\"
+                        )
                 }
 
                 dir("celery_tasks"){
@@ -148,7 +154,7 @@ pipeline {
         stage("Generate KalturaClient.xml"){
             steps { 
                 dir("tvpapi_rest/Generator"){
-                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                    bat ("dotnet build -c Release")
                     dir("bin/Release/netcoreapp2.0"){
                         bat ("dotnet Generator.dll")
                         bat ("xcopy KalturaClient.xml ${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\clientlibs\\")

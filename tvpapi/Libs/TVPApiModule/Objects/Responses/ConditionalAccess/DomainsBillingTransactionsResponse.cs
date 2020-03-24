@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Core.ConditionalAccess;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 
 namespace TVPApiModule.Objects.Responses.ConditionalAccess
 {
@@ -19,7 +19,7 @@ namespace TVPApiModule.Objects.Responses.ConditionalAccess
         /// Create an instance of thie response type based on the WS_CAS response
         /// </summary>
         /// <param name="source"></param>
-        public DomainsBillingTransactionsResponse(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.DomainsBillingTransactionsResponse source)
+        public DomainsBillingTransactionsResponse(Core.ConditionalAccess.DomainsBillingTransactionsResponse source)
         {
             if (source != null)
             {

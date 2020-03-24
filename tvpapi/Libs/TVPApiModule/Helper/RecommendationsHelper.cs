@@ -5,18 +5,22 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using KLogMonitor;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Catalog;
+using ApiObjects;
+using ApiObjects.Response;
 using TVPApi;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.ORCARecommendations;
 using TVPApiModule.Services;
-using TVPApiModule.yes.tvinci.ITProxy;
 using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
-
+using ApiObjects.SearchObjects;
+using Media = TVPApi.Media;
 
 namespace TVPApiModule.Helper
 {
@@ -158,24 +162,24 @@ namespace TVPApiModule.Helper
             return medias;
         }
 
-        internal static List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> GetLiveRecommendedMedias(string siteGuid, int groupID, PlatformType platform, string calture, string picSize, List<LiveRecommendation> liveRecommendations)
+        internal static List<EPGChannelProgrammeObject> GetLiveRecommendedMedias(string siteGuid, int groupID, PlatformType platform, string calture, string picSize, List<LiveRecommendation> liveRecommendations)
         {
-            List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> epgChannelProgrammes = null;
+            List<EPGChannelProgrammeObject> epgChannelProgrammes = null;
 
             List<string> pids = liveRecommendations.Select(r => r.ProgramID).ToList();
 
             try
             {
                 //var lng = TextLocalizationManager.Instance.GetTextLocalization(groupID, platform).GetLanguages().Where(l => l.Culture == calture).FirstOrDefault();
-                //Tvinci.Data.Loaders.TvinciPlatform.Catalog.Language language = Tvinci.Data.Loaders.TvinciPlatform.Catalog.Language.Hebrew;
+                //Language language = Language.Hebrew;
                 //if (lng != null)
-                //    language = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.Language)Enum.Parse(typeof(Tvinci.Data.Loaders.TvinciPlatform.Catalog.Language), lng.Name);
+                //    language = (Language)Enum.Parse(typeof(Language), lng.Name);
 
                 //var duration = (int)(RecommendationsHelper.GetEndTimeForLiveRequest(ConfigManager.GetInstance().GetConfig(groupID, platform).OrcaRecommendationsConfiguration) - DateTime.UtcNow).TotalMinutes;
                 //epgChannelProgrammes = new EPGProgramsByProgramsIdentefierLoader(groupID, SiteHelper.GetClientIP(), pids.Count(), 0, pids, duration, language)
                 //{
                 //    SiteGuid = siteGuid
-                //}.Execute() as List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject>;
+                //}.Execute() as List<EPGChannelProgrammeObject>;
 
                 var orcaConfiguration = ConfigManager.GetInstance().GetConfig(groupID, platform).OrcaRecommendationsConfiguration;
                 var endTime = RecommendationsHelper.GetEndTimeForLiveRequest(orcaConfiguration);
@@ -186,7 +190,7 @@ namespace TVPApiModule.Helper
                 var programs = new APIEPGSearchLoader(groupID, platform.ToString(), SiteHelper.GetClientIP(), 0, 0, new List<KeyValue>(), orList, true, startTime, endTime)
                     {
                         Culture = calture
-                    }.Execute() as List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseObject>;
+                    }.Execute() as List<BaseObject>;
 
                 epgChannelProgrammes = programs != null ? programs.Select(p => (p as ProgramObj).m_oProgram).ToList() : null;
 
@@ -199,37 +203,37 @@ namespace TVPApiModule.Helper
             return epgChannelProgrammes;
         }
 
-        internal static TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[] GetExtraParamsFromConfig(ParamsParamCollection paramCollection, int mediaID, int groupID, PlatformType platform, string coGuid)
-        {
-            List<TVPApiModule.yes.tvinci.ITProxy.KeyValuePair> retVal = null;
+        //internal static TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[] GetExtraParamsFromConfig(ParamsParamCollection paramCollection, int mediaID, int groupID, PlatformType platform, string coGuid)
+        //{
+        //    List<TVPApiModule.yes.tvinci.ITProxy.KeyValuePair> retVal = null;
 
-            if (paramCollection != null && paramCollection.Count > 0)
-            {
-                retVal = new List<TVPApiModule.yes.tvinci.ITProxy.KeyValuePair>();
-                TVPApiModule.yes.tvinci.ITProxy.KeyValuePair pair;
+        //    if (paramCollection != null && paramCollection.Count > 0)
+        //    {
+        //        retVal = new List<TVPApiModule.yes.tvinci.ITProxy.KeyValuePair>();
+        //        TVPApiModule.yes.tvinci.ITProxy.KeyValuePair pair;
 
-                foreach (Param param in paramCollection)
-                {
-                    pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair();
-                    if (param.name == "external_content_id")
-                    {
-                        // get media's 
-                        string externalContentID = GetExternalContentIdForMedia(mediaID, groupID, platform);
-                        if (!string.IsNullOrEmpty(externalContentID))
-                            pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = externalContentID };
-                    }
-                    else if (param.name == "co_guid")
-                    {
-                        pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = coGuid };
-                    }
-                    else
-                        pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = param.value };
+        //        foreach (Param param in paramCollection)
+        //        {
+        //            pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair();
+        //            if (param.name == "external_content_id")
+        //            {
+        //                // get media's 
+        //                string externalContentID = GetExternalContentIdForMedia(mediaID, groupID, platform);
+        //                if (!string.IsNullOrEmpty(externalContentID))
+        //                    pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = externalContentID };
+        //            }
+        //            else if (param.name == "co_guid")
+        //            {
+        //                pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = coGuid };
+        //            }
+        //            else
+        //                pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = param.value };
 
-                    retVal.Add(pair);
-                }
-            }
-            return retVal != null ? retVal.ToArray() : null;
-        }
+        //            retVal.Add(pair);
+        //        }
+        //    }
+        //    return retVal != null ? retVal.ToArray() : null;
+        //}
 
         private static string GetExternalContentIdForMedia(int mediaID, int groupID, PlatformType platform)
         {

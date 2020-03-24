@@ -2912,7 +2912,7 @@ namespace Core.ConditionalAccess
         }
 
         public static PlaybackContextResponse GetPlaybackContext(int groupID, string userId, string udid, string ip, string assetId, eAssetTypes assetType, List<long> fileIds, 
-                                                                 StreamerType? streamerType, string mediaProtocol, PlayContextType context, UrlType urlType)
+                                                                 StreamerType? streamerType, string mediaProtocol, PlayContextType context, UrlType urlType, string sourceType = null)
         {
             PlaybackContextResponse response = new PlaybackContextResponse();
             ConditionalAccess.BaseConditionalAccess t = null;
@@ -2920,7 +2920,7 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 MediaFileItemPricesContainer price;
-                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price, urlType);
+                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price, urlType, sourceType);
             }
             else
             {
@@ -2946,14 +2946,14 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static PlayManifestResponse GetPlayManifest(int groupID, string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType)
+        public static PlayManifestResponse GetPlayManifest(int groupID, string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType, bool isTokenizedUrl)
         {
             PlayManifestResponse response = new PlayManifestResponse();
             ConditionalAccess.BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response = t.GetPlayManifest(userId, assetId, assetType, fileId, ip, udid, playContextType);
+                response = t.GetPlayManifest(userId, assetId, assetType, fileId, ip, udid, playContextType, isTokenizedUrl);
             }
             else
             {

@@ -502,10 +502,13 @@ namespace Core.Pricing
                         if (c != null)
                         {
                             couponGroupData = c.GetCouponGroupData(couponGroupID.ToString());
+                            if (couponGroupData != null && couponGroupData.m_sDiscountCode != null)
+                            {
+                                scg.Initialize(startDate, endDate, couponGroupData);
+                                sgList.Add(scg);
+                            }
                         }
                     }
-                    scg.Initialize(startDate, endDate, couponGroupData);
-                    sgList.Add(scg);
                 }
             }
             return sgList;

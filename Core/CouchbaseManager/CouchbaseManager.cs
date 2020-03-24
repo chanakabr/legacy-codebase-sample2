@@ -2040,7 +2040,7 @@ namespace CouchbaseManager
                     {
                         if (item.Value.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
-                            log.WarnFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
+                            log.DebugFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
                         }
                         else
                         {

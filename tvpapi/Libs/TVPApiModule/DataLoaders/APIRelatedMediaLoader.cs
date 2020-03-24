@@ -9,6 +9,7 @@ using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
+using ConfigurationManager;
 
 namespace TVPApi
 {
@@ -16,7 +17,7 @@ namespace TVPApi
     {
 
         private TVPApiModule.CatalogLoaders.APIRelatedMediaLoader m_oCatalogRelatedLoader;
-        private bool m_bShouldUseCache;
+        
 
         public APIRelatedMediaLoader(long mediaID)
             : this(mediaID, string.Empty, string.Empty)
@@ -115,7 +116,7 @@ namespace TVPApi
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogRelatedLoader = new TVPApiModule.CatalogLoaders.APIRelatedMediaLoader(
                     (int)MediaID, 
@@ -145,7 +146,7 @@ namespace TVPApi
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCatalogRelatedLoader.TryGetItemsCount(out count);
             }
@@ -198,7 +199,7 @@ namespace TVPApi
             protocol.root.request.@params.with_info = "true";
             protocol.root.flashvars.player_un = TvmUser;
             protocol.root.flashvars.player_pass = TvmPass;
-            protocol.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            protocol.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             protocol.root.flashvars.file_quality = file_quality.high;
             protocol.root.request.@params.info_struct.type.MakeSchemaCompliant();
             protocol.root.request.@params.info_struct.description.MakeSchemaCompliant();

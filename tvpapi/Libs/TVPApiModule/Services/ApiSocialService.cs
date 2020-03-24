@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TVPPro.SiteManager.TvinciPlatform.Social;
 using TVPApi;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 using KLogMonitor;
 using System.Reflection;
+using Core.Social.Requests;
+using ApiObjects;
+using Core.Social.Responses;
+using Core.Social;
+using TVPApiModule.Manager;
+using TVPApiModule.Objects;
+using SocialActivityDoc = TVPApiModule.Objects.SocialActivityDoc;
 
 namespace TVPApiModule.Services
 {
@@ -18,46 +23,34 @@ namespace TVPApiModule.Services
         private PlatformType m_platform;
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
-        private TVPPro.SiteManager.TvinciPlatform.Social.module m_Module;
 
         public ApiSocialService(int groupID, PlatformType platform)
         {
-            m_Module = new TVPPro.SiteManager.TvinciPlatform.Social.module();
-            m_Module.Url =
-                ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.SocialService.URL;
-            m_wsUserName =
-                ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.SocialService.DefaultUser;
-            m_wsPassword =
-                ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.SocialService.DefaultPassword;
+            m_wsUserName = GroupsManager.GetGroup(groupID).SocialCredentials.Username;
+            m_wsPassword = GroupsManager.GetGroup(groupID).SocialCredentials.Password;
 
             m_groupID = groupID;
             m_platform = platform;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.DoSocialActionResponse DoSocialAction(int mediaID,
+        public DoSocialActionResponse DoSocialAction(int mediaID,
                                                                                                   string siteGuid,
                                                                                                   string udid,
-                                                                                                  TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction,
-                                                                                                  TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
+                                                                                                  eUserAction userAction,
+                                                                                                  SocialPlatform socialPlatform,
                                                                                                   string actionParam)
         {
-            TVPPro.SiteManager.TvinciPlatform.Social.DoSocialActionResponse eRes = null;
+            DoSocialActionResponse eRes = null;
 
             try
             {
-                TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraPatams;
+                KeyValuePair[] extraPatams;
                 if (string.IsNullOrEmpty(actionParam))
-                    extraPatams = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[0];
+                    extraPatams = new KeyValuePair[0];
                 else
                 {
-                    extraPatams = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[1];
-                    extraPatams[0] = new TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair() { key = "link", value = actionParam };
+                    extraPatams = new KeyValuePair[1];
+                    extraPatams[0] = new KeyValuePair() { key = "link", value = actionParam };
                 }
 
                 BaseDoUserActionRequest actionRequest = new BaseDoUserActionRequest()
@@ -66,14 +59,15 @@ namespace TVPApiModule.Services
                     m_eAssetType = eAssetType.MEDIA,
                     m_eSocialPlatform = socialPlatform,
                     m_nAssetID = mediaID,
-                    m_oKeyValue = extraPatams,
+                    m_oKeyValue = extraPatams.ToList(),
                     m_sDeviceUDID = udid,
                     m_sSiteGuid = siteGuid
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    DoSocialActionResponse response = m_Module.DoUserAction(m_wsUserName, m_wsPassword, actionRequest);
+                    DoSocialActionResponse response = 
+                        Core.Social.Module.DoUserAction(m_groupID, actionRequest);
                     if (response != null)
                         eRes = response;
                 }
@@ -90,14 +84,14 @@ namespace TVPApiModule.Services
             return eRes;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.SocialActivityDoc[] GetUserSocialActions(string siteGuid,
-                                                                                                      TVPPro.SiteManager.TvinciPlatform.Social.eUserAction userAction,
-                                                                                                      TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform socialPlatform,
+        public SocialActivityDoc[] GetUserSocialActions(string siteGuid,
+                                                                                                      eUserAction userAction,
+                                                                                                      SocialPlatform socialPlatform,
                                                                                                       bool onlyFriends,
                                                                                                       int startIndex,
                                                                                                       int numOfItems)
         {
-            TVPPro.SiteManager.TvinciPlatform.Social.SocialActivityDoc[] res = null;
+            SocialActivityDoc[] res = null;
 
             try
             {
@@ -114,9 +108,9 @@ namespace TVPApiModule.Services
 
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                     {
-                        var response = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, friendActionRequest);
-                        if (response != null)
-                            res = response.SocialActivity;
+                        var response = Core.Social.Module.GetFriendsActions(m_groupID, friendActionRequest);
+                        if (response != null && response.SocialActivity != null)
+                            res = response.SocialActivity.Select(o => new SocialActivityDoc(o)).ToArray();
                     }
                 }
                 else
@@ -132,9 +126,9 @@ namespace TVPApiModule.Services
 
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                     {
-                        var response = m_Module.GetUserActions(m_wsUserName, m_wsPassword, userActionRequest);
-                        if (response != null)
-                            res = response.SocialActivity;
+                        var response = Core.Social.Module.GetUserActions(m_groupID, userActionRequest);
+                        if (response != null && response.SocialActivity != null)
+                            res = response.SocialActivity.Select(o => new SocialActivityDoc(o)).ToArray();
                     }
                 }
             }
@@ -149,16 +143,21 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject[] GetAllFriendsWatched(int sGuid,
+        public FriendWatchedObject[] GetAllFriendsWatched(int sGuid,
                                                                                                    int maxResult)
         {
-            TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject[] res = null;
+            FriendWatchedObject[] res = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.GetAllFriendsWatched(m_wsUserName, m_wsPassword, sGuid, maxResult);
+                    var innerResult = Core.Social.Module.GetAllFriendsWatched(m_groupID, sGuid, maxResult);
+
+                    if (innerResult != null)
+                    {
+                        res = innerResult.ToArray();
+                    }
                 }
             }
             catch (Exception ex)
@@ -170,16 +169,20 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject[] GetFriendsWatchedByMedia(int sGuid,
-                                                                                                       int mediaId)
+        public FriendWatchedObject[] GetFriendsWatchedByMedia(int sGuid, int mediaId)
         {
-            TVPPro.SiteManager.TvinciPlatform.Social.FriendWatchedObject[] res = null;
+            FriendWatchedObject[] res = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.GetFriendsWatchedByMedia(m_wsUserName, m_wsPassword, sGuid, mediaId);
+                    var innerResult = Core.Social.Module.GetFriendsWatchedByMedia(m_groupID, sGuid, mediaId);
+
+                    if (innerResult != null)
+                    {
+                        res = innerResult.ToArray();
+                    }
                 }
             }
             catch (Exception ex)
@@ -199,7 +202,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.GetUsersLikedMedia(m_wsUserName, m_wsPassword, iSiteGuid, iMediaID, iPlatform,
+                    res = Core.Social.Module.GetUsersLikedMedia(m_groupID, iSiteGuid, iMediaID, iPlatform,
                                                       bOnlyFriends, iStartIndex, iPageSize);
                 }
             }
@@ -220,7 +223,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.GetUserFriends(m_wsUserName, m_wsPassword, sGuid);
+                    res = Core.Social.Module.GetUserFriends(m_groupID, sGuid);
                 }
             }
             catch (Exception ex)
@@ -239,7 +242,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var response = m_Module.FBConfig(m_wsUserName, m_wsPassword);
+                    var response = Core.Social.Module.FBConfig(m_groupID);
                     if (response != null)
                     {
                         res = response.FacebookConfig;
@@ -263,7 +266,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    facebookResponse = m_Module.FBUserData(m_wsUserName, m_wsPassword, stoken);
+                    facebookResponse = Core.Social.Module.FBUserData(m_groupID, stoken);
                     if (facebookResponse != null)
                         clientResponse = facebookResponse.ResponseData;
                 }
@@ -276,7 +279,7 @@ namespace TVPApiModule.Services
             return clientResponse;
         }
 
-        public FacebookResponseObject FBUserRegister(string stoken, string sSTG, List<TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair> oExtra, string sIP)
+        public FacebookResponseObject FBUserRegister(string stoken, string sSTG, List<KeyValuePair> oExtra, string sIP)
         {
             FacebookResponse facebookResponse = null;
             FacebookResponseObject clientResponse = null;
@@ -285,7 +288,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    facebookResponse = m_Module.FBUserRegister(m_wsUserName, m_wsPassword, stoken, oExtra.ToArray(), sIP);
+                    facebookResponse = Core.Social.Module.FBUserRegister(m_groupID, stoken, oExtra, sIP);
                     if (facebookResponse != null)
                         clientResponse = facebookResponse.ResponseData;
                 }
@@ -307,7 +310,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    facebookResponse = m_Module.FBUserMerge(m_wsUserName, m_wsPassword, stoken, sFBID, sUsername, sPassword);
+                    facebookResponse = Core.Social.Module.FBUserMerge(m_groupID, stoken, sFBID, sUsername, sPassword);
                     if (facebookResponse != null)
                         clientResponse = facebookResponse.ResponseData;
                 }
@@ -328,7 +331,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.GetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPlatform, userAction);
+                    res = Core.Social.Module.GetUserSocialPrivacy(m_groupID, sGuid, socialPlatform, userAction);
                 }
             }
             catch (Exception ex)
@@ -347,7 +350,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.GetUserAllowedSocialPrivacyList(m_wsUserName, m_wsPassword, sGuid);
+                    res = Core.Social.Module.GetUserAllowedSocialPrivacyList(m_groupID, sGuid);
                 }
             }
             catch (Exception ex)
@@ -366,7 +369,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.SetUserSocialPrivacy(m_wsUserName, m_wsPassword, sGuid, socialPlatform, userAction, socialPrivacy);
+                    res = Core.Social.Module.SetUserSocialPrivacy(m_groupID, sGuid, socialPlatform, userAction, socialPrivacy);
                 }
             }
             catch (Exception ex)
@@ -388,7 +391,7 @@ namespace TVPApiModule.Services
                 {
                     m_eSocialPlatform = socialPlatform,
                     m_eUserActions = userAction,
-                    m_lAssetIDs = new int[] { assetID },
+                    m_lAssetIDs = new List<int>() { assetID },
                     m_eAssetType = assetType,
                     m_nNumOfRecords = numOfRecords,
                     m_nStartIndex = startIndex,
@@ -397,9 +400,9 @@ namespace TVPApiModule.Services
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var response = m_Module.GetUserActions(m_wsUserName, m_wsPassword, request);
-                    if (response != null)
-                        res = response.SocialActivity;
+                    var response = Core.Social.Module.GetUserActions(m_groupID, request);
+                    if (response != null && response.SocialActivity != null)
+                        res = response.SocialActivity.Select(o => new SocialActivityDoc(o)).ToArray();
                 }
             }
             catch (Exception ex)
@@ -426,7 +429,7 @@ namespace TVPApiModule.Services
                 {
                     m_eSocialPlatform = socialPlatform,
                     m_eUserActions = userAction,
-                    m_lAssetIDs = new int[] { assetID },
+                    m_lAssetIDs = new List<int>() { assetID },
                     m_eAssetType = assetType,
                     m_nNumOfRecords = numOfRecords,
                     m_nStartIndex = startIndex,
@@ -435,9 +438,9 @@ namespace TVPApiModule.Services
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var response = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, request);
-                    if (response != null)
-                        res = response.SocialActivity;
+                    var response = Core.Social.Module.GetFriendsActions(m_groupID, request);
+                    if (response != null && response.SocialActivity != null)
+                        res = response.SocialActivity.Select(o => new SocialActivityDoc(o)).ToArray();
                 }
             }
             catch (Exception ex)
@@ -448,7 +451,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public DoSocialActionResponse DoUserAction(string siteGuid, string udid, eUserAction userAction, TVPPro.SiteManager.TvinciPlatform.Social.KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
+        public DoSocialActionResponse DoUserAction(string siteGuid, string udid, eUserAction userAction, KeyValuePair[] extraParams, SocialPlatform socialPlatform, eAssetType assetType, int assetID)
         {
             DoSocialActionResponse res = null;
 
@@ -459,7 +462,7 @@ namespace TVPApiModule.Services
                 {
                     m_eAction = userAction,
                     m_eSocialPlatform = socialPlatform,
-                    m_oKeyValue = extraParams,
+                    m_oKeyValue = extraParams == null ? null : extraParams.ToList(),
                     m_sSiteGuid = siteGuid,
                     m_eAssetType = assetType,
                     m_nAssetID = assetID,
@@ -469,7 +472,7 @@ namespace TVPApiModule.Services
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.DoUserAction(m_wsUserName, m_wsPassword, request);
+                    res = Core.Social.Module.DoUserAction(m_groupID, request);
                 }
             }
             catch (Exception ex)
@@ -491,7 +494,7 @@ namespace TVPApiModule.Services
                 {
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                     {
-                        res = m_Module.GetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
+                        res = Core.Social.Module.GetUserExternalActionShare(m_groupID, iSiteGuid, socialPlatform, userAction);
                     }
                 }
                 else
@@ -516,7 +519,7 @@ namespace TVPApiModule.Services
                 {
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                     {
-                        res = m_Module.GetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction);
+                        res = Core.Social.Module.GetUserInternalActionPrivacy(m_groupID, iSiteGuid, socialPlatform, userAction);
                     }
                 }
                 else
@@ -541,7 +544,7 @@ namespace TVPApiModule.Services
                 {
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                     {
-                        res = m_Module.SetUserExternalActionShare(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
+                        res = Core.Social.Module.SetUserExternalActionShare(m_groupID, iSiteGuid, socialPlatform, userAction, actionPrivacy);
                     }
                 }
                 else
@@ -566,7 +569,7 @@ namespace TVPApiModule.Services
                 {
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                     {
-                        res = m_Module.SetUserInternalActionPrivacy(m_wsUserName, m_wsPassword, iSiteGuid, socialPlatform, userAction, actionPrivacy);
+                        res = Core.Social.Module.SetUserInternalActionPrivacy(m_groupID, iSiteGuid, socialPlatform, userAction, actionPrivacy);
                     }
                 }
                 else
@@ -589,7 +592,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    facebookResponse = m_Module.FBUserUnmerge(m_wsUserName, m_wsPassword, token, username, password);
+                    facebookResponse = Core.Social.Module.FBUserUnmerge(m_groupID, token, username, password);
                     if (facebookResponse != null)
                     {
                         clientResponse = facebookResponse.ResponseData;
@@ -612,7 +615,12 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetUserActivityFeed(m_wsUserName, m_wsPassword, siteGuid, nPageSize, nPageIndex, sPicDimension);
+                    var res = Core.Social.Module.GetUserActivityFeed(m_groupID, siteGuid, nPageSize, nPageIndex, sPicDimension);
+
+                    if (res != null)
+                    {
+                        response = res.Select(o => new SocialActivityDoc(o)).ToArray();
+                    }
                 }
             }
             catch (Exception ex)
@@ -631,7 +639,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.FBTokenValidation(m_wsUserName, m_wsPassword, sToken);
+                    res = Core.Social.Module.FBTokenValidation(m_groupID, sToken);
                 }
             }
             catch (Exception e)
@@ -650,7 +658,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.FBUserSignin(m_wsUserName, m_wsPassword, token, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), deviceId, preventDoubleLogin);
+                    res = Core.Social.Module.FBUserSignin(m_groupID, token, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), deviceId, preventDoubleLogin);
                 }
             }
             catch (Exception e)

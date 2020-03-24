@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.DataEntities;
@@ -10,6 +9,9 @@ using TVPApi;
 using System.Data;
 using TVPPro.Configuration.Technical;
 using TVPApiModule.Manager;
+using ApiObjects.SearchObjects;
+using Core.Catalog;
+using Core.Catalog.Response;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -31,7 +33,7 @@ namespace TVPApiModule.CatalogLoaders
         
 
         #region Constructors
-        public APIChannelMediaLoader(int channelID, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, OrderObj orderObj, string picSize, List<KeyValue> tagsMetas = null, CutWith cutWith = Tvinci.Data.Loaders.TvinciPlatform.Catalog.CutWith.AND)
+        public APIChannelMediaLoader(int channelID, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, OrderObj orderObj, string picSize, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
             : base(channelID, groupID, userIP, pageSize, pageIndex, picSize, tagsMetas, cutWith, orderObj)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
@@ -43,7 +45,7 @@ namespace TVPApiModule.CatalogLoaders
 
         public object ApiExecuteMultiMediaAdapter(List<BaseObject> medias)
         {
-            FlashVars techConfigFlashVars = ConfigManager.GetInstance().GetConfig(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).TechnichalConfiguration.Data.TVM.FlashVars;
+            var techConfigFlashVars = GroupsManager.GetGroup(GroupIDParent).GetFlashVars((PlatformType)Enum.Parse(typeof(PlatformType), Platform));
             string fileFormat = techConfigFlashVars.FileFormat;
             string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
             dsItemInfo retVal = CatalogHelper.MediaObjToDsItemInfo(medias, PicSize, fileFormat, subFileFormat);

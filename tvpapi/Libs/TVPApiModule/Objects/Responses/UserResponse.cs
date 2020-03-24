@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ApiObjects.Response;
+using Core.Users;
+using Newtonsoft.Json;
 
 namespace TVPApiModule.Objects.Responses
 {
@@ -14,12 +12,21 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "status")]
         public Status Status { get; set; }
 
-        public UserResponse(TVPPro.SiteManager.TvinciPlatform.Users.UserResponse user)
+        public UserResponse(Core.Users.UserResponse user)
         {
             if (user != null)
             {
                 this.Status = new Responses.Status(user.resp.Code, user.resp.Message);
                 this.Result = new UserResult(user);
+            }
+        }
+
+        public UserResponse(GenericResponse<UserResponseObject> user)
+        {
+            if (user != null)
+            {
+                this.Status = new Status(user.Status.Code, user.Status.Message);
+                this.Result = new UserResult(user.Object);
             }
         }
 
@@ -32,11 +39,16 @@ namespace TVPApiModule.Objects.Responses
     public class UserResult
     {
         [JsonProperty(PropertyName = "user")]
-        public TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject user { get; set; }
+        public Core.Users.UserResponseObject user { get; set; }
 
-        public UserResult(TVPPro.SiteManager.TvinciPlatform.Users.UserResponse userResponse)
+        public UserResult(Core.Users.UserResponse userResponse)
         {
             this.user = userResponse.user;
+        }
+
+        public UserResult(UserResponseObject User)
+        {
+            this.user = User;
         }
     }
 }

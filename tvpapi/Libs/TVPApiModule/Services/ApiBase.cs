@@ -22,7 +22,7 @@ namespace TVPApiModule.Services
                     {
                         if (_Platforms.Count == 0)
                         {
-                            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(string.Concat("Driver={SQL Server};Server=", TVinciDBConfiguration.GetConfig().DBServer,
+                            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(string.Concat("Driver={SQL Server};Server=", TVinciDBConfiguration.GetConfig().DBServer,
                     ";Database=", TVinciDBConfiguration.GetConfig().DBInstance,
                     ";Uid=", TVinciDBConfiguration.GetConfig().User,
                     ";Pwd=", TVinciDBConfiguration.GetConfig().Pass,

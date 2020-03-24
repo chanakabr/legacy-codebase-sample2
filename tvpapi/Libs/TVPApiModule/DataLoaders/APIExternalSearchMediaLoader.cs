@@ -9,14 +9,18 @@
 //using System.Configuration;
 //using TVPPro.SiteManager.Helper;
 //using TVPApiModule.Manager;
-//using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+//using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Catalog;
+using ApiObjects;
+using ApiObjects.Response;
 
 //namespace TVPApi
 //{
 //    public class APIExternalSearchMediaLoader : TVPPro.SiteManager.DataLoaders.ExternalSearchMoviesLoader
 //    {
 //        private TVPApiModule.CatalogLoaders.APIExternalSearchMediaLoader m_oCatalogExternalSearchLoader;
-//        private bool m_bShouldUseCache;
+//        
 
 //        public APIExternalSearchMediaLoader(string query)
 //            : base(query, string.Empty, string.Empty)
@@ -115,7 +119,7 @@
 
 //        public override List<BaseObject> Execute()
 //        {
-//            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+//            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
 //            {
 //                m_oCatalogExternalSearchLoader = new TVPApiModule.CatalogLoaders.APIExternalSearchMediaLoader(
 //                    Query,

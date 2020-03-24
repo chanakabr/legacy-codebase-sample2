@@ -6,6 +6,8 @@ using System.Text;
 using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
+using CachingProvider.LayeredCache;
+using Core.Pricing.Handlers;
 
 namespace Core.Pricing
 {
@@ -27,19 +29,19 @@ namespace Core.Pricing
                         if (!string.IsNullOrEmpty(pair.Key) && pair.Value != null)
                         {
                             Subscription sub = (Subscription)pair.Value;
-                            if (sub != null &&  !string.IsNullOrEmpty(sub.m_sObjectCode) && !subscriptions.ContainsKey(sub.m_sObjectCode))
+                            if (sub != null && !string.IsNullOrEmpty(sub.m_sObjectCode) && !subscriptions.ContainsKey(sub.m_sObjectCode))
                             {
                                 subscriptions.Add(sub.m_sObjectCode, sub);
                             }
                         }
-                    }                    
+                    }
                 }
             }
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder();
                 if (keys != null && keys.Count > 0)
-                {                    
+                {
                     foreach (string key in keys)
                     {
                         sb.Append(key + ", ");
@@ -281,7 +283,7 @@ namespace Core.Pricing
             sb.Append(String.Concat(" Val: ", obj != null ? obj.ToString() : "null"));
             sb.Append(String.Concat(" Method Name: ", methodName));
             //sb.Append(String.Concat(" Cache Data: ", ToString()));
-            log.Error("CacheError - "+ sb.ToString());
+            log.Error("CacheError - " + sb.ToString());
         }
 
         /*
@@ -301,7 +303,7 @@ namespace Core.Pricing
             return TvinciCache.WSCache.Instance.Get<T>(key);
         }
 
-        private static Dictionary<string, object> GetValues (List<string> keys)
+        private static Dictionary<string, object> GetValues(List<string> keys)
         {
             Dictionary<string, object> values = null;
             if (keys != null && keys.Count > 0)
@@ -333,6 +335,60 @@ namespace Core.Pricing
         static internal bool TryAddGroupPricePlans(string key, List<UsageModule> pricePlans)
         {
             return pricePlans != null && Add(key, pricePlans);
+        }
+
+        public static List<string> GetCollectionsIds(int groupId)
+        {
+            var response = new List<string>();
+            try
+            {
+                var key = GetCollectionsIdsCacheKey(groupId);
+                if (!LayeredCache.Instance.Get(key, ref response,
+                    CouponWalletHandler.GetGroupCollectionIds, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GET_GROUP_COLLECTIONS, null))
+                {
+                    log.ErrorFormat($"GetGroupCollectionIds - Failed get data from cache. groupId: {groupId}");
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetGroupCollectionIds for groupId: {0}, ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        public static List<string> GetSubscriptionsIds(int groupId)
+        {
+            var response = new List<string>();
+            try
+            {
+                var key = GetSubscriptionsCacheKey(groupId);
+                if (!LayeredCache.Instance.Get(key, ref response,
+                    CouponWalletHandler.GetGroupSubscriptionsIds, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GET_GROUP_SUBSCRIPTION, null))
+                {
+                    log.ErrorFormat($"GetGroupSubscriptionsIds - Failed get data from cache. groupId: {groupId}");
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetGroupSubscriptionsIds for groupId: {0}, ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
+
+        public static string GetSubscriptionsCacheKey(int groupId)
+        {
+            return $"SubscriptionsIds_{groupId}";
+        }
+
+        public static string GetCollectionsIdsCacheKey(int groupId)
+        {
+            return $"CollectionsIds_{groupId}";
         }
     }
 }

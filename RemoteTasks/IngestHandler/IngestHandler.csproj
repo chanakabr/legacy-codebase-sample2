@@ -43,7 +43,7 @@
     <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj" />
     <ProjectReference Include="..\..\Core\ImageManager\ImageManager.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
-    <ProjectReference Include="..\..\phoenix\WebAPI\WebAPI.csproj" />
+    <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj" />
     <ProjectReference Include="..\IngestHandler.Common\IngestHandler.Common.csproj" />
   </ItemGroup>
 

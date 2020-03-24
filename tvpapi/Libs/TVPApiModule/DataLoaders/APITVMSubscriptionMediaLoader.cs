@@ -10,6 +10,7 @@ using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.DataEntities;
 using TVPApiModule.Manager;
+using ConfigurationManager;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -17,7 +18,7 @@ namespace TVPApiModule.DataLoaders
     {        
         private long m_BaseID;
         private TVPApiModule.CatalogLoaders.APISubscriptionMediaLoader m_oSubscriptionMediaLoader;
-        private bool m_bShouldUseCache;
+        
 
         protected string TvmUser
         {
@@ -113,7 +114,7 @@ namespace TVPApiModule.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oSubscriptionMediaLoader = new TVPApiModule.CatalogLoaders.APISubscriptionMediaLoader(
                     (int)BaseID,
@@ -142,7 +143,7 @@ namespace TVPApiModule.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oSubscriptionMediaLoader.TryGetItemsCount(out count);
             }
@@ -159,6 +160,9 @@ namespace TVPApiModule.DataLoaders
                 (base.GetProvider() as Tvinci.Data.TVMDataLoader.TVMProvider).TVMAltURL = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL;
 
             base.PreExecute();
+
+            this.FlashVarsFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
+            this.FlashVarsSubFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat;
         }
 
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
@@ -175,7 +179,7 @@ namespace TVPApiModule.DataLoaders
             result.root.flashvars.player_pass = TvmPass;
 
             result.root.flashvars.pic_size1 = PicSize;
-            result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             result.root.flashvars.file_quality = file_quality.high;
             result.root.request.@params.with_info = WithInfo.ToString();
             result.root.request.@params.info_struct.statistics = true;

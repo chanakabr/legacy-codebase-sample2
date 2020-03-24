@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TVinciShared;
 
 namespace Core.Pricing.Handlers
 {
@@ -42,7 +43,7 @@ namespace Core.Pricing.Handlers
 
                 // Get Household's Wallet
                 List<CouponWallet> couponWalletList = PricingDAL.GetHouseholdCouponWalletCB(contextData.DomainId.Value);
-                
+
                 // make sure coupon not already been added
                 if (couponWalletList?.Count > 0 && couponWalletList.Count(x => x.CouponCode == couponWalletToAdd.CouponCode) > 0)
                 {
@@ -58,7 +59,7 @@ namespace Core.Pricing.Handlers
 
                 // Check that code is valid
                 CouponDataResponse couponData = Module.GetCouponStatus(contextData.GroupId, couponWalletToAdd.CouponCode, contextData.DomainId.Value);
-                if(!Utils.IsCouponValid(couponData))
+                if (!Utils.IsCouponValid(couponData))
                 {
                     response.SetStatus(eResponseStatus.CouponNotValid, "Coupon code not valid");
                     return response;
@@ -69,7 +70,7 @@ namespace Core.Pricing.Handlers
                 //couponWalletToAdd.CouponId = couponData.Coupon.m_nCouponID; //TODO anat
 
                 couponWalletToAdd.CreateDate = DateTime.UtcNow;
-                if(couponWalletList == null)
+                if (couponWalletList == null)
                 {
                     couponWalletList = new List<CouponWallet>();
                 }
@@ -116,7 +117,7 @@ namespace Core.Pricing.Handlers
                     response.Set(eResponseStatus.HouseholdRequired, "Household required");
                     return response;
                 }
-                
+
                 // Get Household's Walt
                 List<CouponWallet> CouponWalletList = PricingDAL.GetHouseholdCouponWalletCB(contextData.DomainId.Value);
 
@@ -147,12 +148,12 @@ namespace Core.Pricing.Handlers
 
             return response;
         }
-        
+
         public GenericResponse<CouponWallet> Get(ContextData contextData, string id)
         {
             throw new NotImplementedException();
         }
-        
+
         public GenericListResponse<CouponWallet> List(ContextData contextData, CouponWalletFilter filter)
         {
             var response = new GenericListResponse<CouponWallet>();
@@ -167,70 +168,19 @@ namespace Core.Pricing.Handlers
                 }
 
                 householdId = contextData.DomainId.Value;
+                var groupId = contextData.GroupId;
                 var shouldFilterByCouponGroupIds = false;
+                var shouldFilterByCouponeStatus = filter.Status != null;
+                var shouldFilterByCouponeCode = !string.IsNullOrEmpty(filter.CouponCode);
                 var couponGroupIds = new HashSet<string>();
 
-                if (filter != null && filter.BusinessModuleId > 0 )
+                if (filter != null && filter.BusinessModuleId > 0)
                 {
-                    shouldFilterByCouponGroupIds = true;
-                    switch (filter.BusinessModuleType)
-                    {
-                        case ApiObjects.eTransactionType.PPV:
-                            // Get PPV couponGroupIds
-                            PPVModule ppvModule = Module.GetPPVModuleData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty);
-                            if (ppvModule?.m_oCouponsGroup != null)
-                            {
-                                couponGroupIds.Add(ppvModule.m_oCouponsGroup.m_sGroupCode);
-                            }
-                            break;
-
-                        case ApiObjects.eTransactionType.Subscription:
-                            // Get Subscription couponGroupIds
-                            Subscription subscription = Module.GetSubscriptionData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty, false);
-                            if (subscription?.m_oCouponsGroup != null)
-                            {
-                                couponGroupIds.Add(subscription.m_oCouponsGroup.m_sGroupCode);
-                            }
-
-                            if (subscription?.CouponsGroups?.Count > 0)
-                            {
-                                foreach (var item in subscription.CouponsGroups.Where(x => (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)
-                                                                                         && (!x.startDate.HasValue || x.startDate.Value < DateTime.UtcNow)))
-                                {
-                                    if (!couponGroupIds.Contains(item.m_sGroupCode))
-                                    {
-                                        couponGroupIds.Add(item.m_sGroupCode);
-                                    }
-                                }
-                            }
-
-                            break;
-                        case ApiObjects.eTransactionType.Collection:
-                            // Get Collection couponGroupIds
-                            Collection collection = Module.GetCollectionData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty, true);
-                            if (collection?.m_oCouponsGroup != null)
-                            {
-                                couponGroupIds.Add(collection.m_oCouponsGroup.m_sGroupCode);
-                            }
-
-                            if (collection?.CouponsGroups?.Count > 0)
-                            {
-                                foreach (var item in collection.CouponsGroups.Where(x => (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)
-                                                                                         && (!x.startDate.HasValue || x.startDate.Value < DateTime.UtcNow)))
-                                {
-                                    if (!couponGroupIds.Contains(item.m_sGroupCode))
-                                    {
-                                        couponGroupIds.Add(item.m_sGroupCode);
-                                    }
-                                }
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                    shouldFilterByCouponGroupIds = FilterByBuseinessModuleId(contextData, filter, couponGroupIds);
                 }
 
                 var couponWallet = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
+
                 if (shouldFilterByCouponGroupIds)
                 {
                     if (couponGroupIds.Count > 0 && couponWallet?.Count > 0)
@@ -242,7 +192,17 @@ namespace Core.Pricing.Handlers
                 {
                     response.Objects = couponWallet;
                 }
-                
+
+                if (shouldFilterByCouponeStatus && response.Objects?.Count > 0)
+                {
+                    response.Objects = FilterByStatus(filter, response, householdId, groupId);
+                }
+
+                if (shouldFilterByCouponeCode && response.Objects?.Count > 0)
+                {
+                    response.Objects = response.Objects.Where(c => c.CouponCode == filter.CouponCode).ToList();
+                }
+
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -253,9 +213,164 @@ namespace Core.Pricing.Handlers
             return response;
         }
 
+        private static List<CouponWallet> FilterByStatus(CouponWalletFilter filter, GenericListResponse<CouponWallet> response, long? householdId, int groupId)
+        {
+            BaseCoupons t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            var listResponse = new List<CouponWallet>();
+            if (t != null)
+            {
+                foreach (var couponWallet in response.Objects)
+                {
+                    CouponData coupon = t.GetCouponStatus(couponWallet.CouponCode, householdId.Value);
+                    if (coupon.m_CouponStatus == filter.Status)
+                    {
+                        listResponse.Add(couponWallet);
+                    }
+                }
+            }
+
+            return listResponse;
+        }
+
+        private static bool FilterByBuseinessModuleId(ContextData contextData, CouponWalletFilter filter, HashSet<string> couponGroupIds)
+        {
+            bool shouldFilterByCouponGroupIds = true;
+            switch (filter.BusinessModuleType)
+            {
+                case ApiObjects.eTransactionType.PPV:
+                    // Get PPV couponGroupIds
+                    PPVModule ppvModule = Module.GetPPVModuleData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty);
+                    if (ppvModule?.m_oCouponsGroup != null)
+                    {
+                        couponGroupIds.Add(ppvModule.m_oCouponsGroup.m_sGroupCode);
+                    }
+                    break;
+
+                case ApiObjects.eTransactionType.Subscription:
+                    FilterBySubscription(contextData, filter, couponGroupIds);
+                    break;
+
+                case ApiObjects.eTransactionType.Collection:
+                    FilterByCollection(contextData, filter, couponGroupIds);
+                    break;
+                default:
+                    break;
+            }
+
+            return shouldFilterByCouponGroupIds;
+        }
+
+        private static void FilterByCollection(ContextData contextData, CouponWalletFilter filter, HashSet<string> couponGroupIds)
+        {
+            // Get Collection couponGroupIds
+            Collection collection = Module.GetCollectionData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty, true);
+            if (collection?.m_oCouponsGroup != null)
+            {
+                couponGroupIds.Add(collection.m_oCouponsGroup.m_sGroupCode);
+            }
+
+            if (collection?.CouponsGroups?.Count > 0)
+            {
+                foreach (var item in collection.CouponsGroups.Where(x => (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)
+                                                                         && (!x.startDate.HasValue || x.startDate.Value < DateTime.UtcNow)))
+                {
+                    if (!couponGroupIds.Contains(item.m_sGroupCode))
+                    {
+                        couponGroupIds.Add(item.m_sGroupCode);
+                    }
+                }
+            }
+        }
+
+        private static void FilterBySubscription(ContextData contextData, CouponWalletFilter filter, HashSet<string> couponGroupIds)
+        {
+            // Get Subscription couponGroupIds
+            Subscription subscription = Module.GetSubscriptionData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty, false);
+            if (subscription?.m_oCouponsGroup != null)
+            {
+                couponGroupIds.Add(subscription.m_oCouponsGroup.m_sGroupCode);
+            }
+
+            if (subscription?.CouponsGroups?.Count > 0)
+            {
+                foreach (var item in subscription.CouponsGroups.Where(x => (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)
+                                                                         && (!x.startDate.HasValue || x.startDate.Value < DateTime.UtcNow)))
+                {
+                    if (!couponGroupIds.Contains(item.m_sGroupCode))
+                    {
+                        couponGroupIds.Add(item.m_sGroupCode);
+                    }
+                }
+            }
+        }
+
         public GenericResponse<CouponWallet> ValidateCrudObject(ContextData contextData, string id = null, CouponWallet objectToValidate = null)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Update the relevant Coupon-Wallet entity with the coupon's last usage date
+        /// </summary>
+        public static bool UpdateLastUsageDate(long householdId, string couponCode)
+        {
+            var result = false;
+            var couponWallet = PricingDAL.GetHouseholdCouponWalletCB(householdId);
+            if (couponWallet?.Count > 0)
+            {
+                var changed = couponWallet.Where(cw => cw.CouponCode == couponCode)?
+                    .Select(cw => cw.LastUsageDate = DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow)).Count();
+
+                if (changed > 0)
+                {
+                    result = PricingDAL.SaveHouseholdCouponWalletCB(householdId, couponWallet);
+                }
+                if (!result)
+                {
+                    log.Error($"Failed updating HouseholdCouponWalletCB for hh: {householdId}, with couponCode: [{couponCode}]");
+                }
+            }
+
+            return result;
+        }
+
+        public static Tuple<List<string>, bool> GetGroupCollectionIds(Dictionary<string, object> funcParams)
+        {
+            int? groupId = 0;
+            if (funcParams != null && funcParams.Count == 1)
+            {
+                if (funcParams.ContainsKey("groupId"))
+                {
+                    groupId = funcParams["groupId"] as int?;
+                    if (groupId == null)
+                    {
+                        return Tuple.Create(new List<string>(), false);
+                    }
+                }
+            }
+
+            List<string> res = PricingDAL.GetCollectionIds(groupId.Value);
+            return Tuple.Create(res, res?.Count > 0);
+        }
+
+        public static Tuple<List<string>, bool> GetGroupSubscriptionsIds(Dictionary<string, object> funcParams)
+        {
+            int? groupId = 0;
+            if (funcParams != null && funcParams.Count == 1)
+            {
+                if (funcParams.ContainsKey("groupId"))
+                {
+                    groupId = funcParams["groupId"] as int?;
+                    if (groupId == null)
+                    {
+                        return Tuple.Create(new List<string>(), false);
+                    }
+                }
+            }
+
+            List<string> res = PricingDAL.GetSubscriptions(groupId.Value);
+            return Tuple.Create(res, res?.Count > 0);
         }
     }
 }

@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Tvinci.Data.Loaders;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Manager;
 using TVPPro.SiteManager.CatalogLoaders;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using ApiObjects;
+using ApiObjects.Response;
 
 namespace TVPApiModule.CatalogLoaders
 {

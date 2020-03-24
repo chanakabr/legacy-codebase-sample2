@@ -85,7 +85,7 @@ namespace TVPApiModule.Manager
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE) { Database = CB_SECTION_NAME, QueryType = KLogEnums.eDBQueryType.SELECT })
                 {
-                    CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager("authorization", false, true);
+                    CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS, false, true);
                     group = cbManager.Get<Group>(string.Format(groupKeyFormat, groupId), true);
                 }
 
@@ -117,19 +117,21 @@ namespace TVPApiModule.Manager
             string groupKey = string.Format(groupKeyFormat, groupId);
             Group tempGroup = null;
 
-            if (HttpContext.Current.Cache.Get(groupKey) == null)
+            var cacheResult = CachingManager.CachingManager.GetCachedDataNull(groupKey);
+            if (cacheResult == null || !(cacheResult is Group))
             {
                 if (syncLock.TryEnterWriteLock(10000))
                 {
                     try
                     {
-                        if (HttpContext.Current.Cache.Get(groupKey) == null)
+                        cacheResult = CachingManager.CachingManager.GetCachedDataNull(groupKey);
+                        if (cacheResult == null || !(cacheResult is Group))
                         {
                             Group group = createNewInstance(groupId);
 
                             if (group != null)
                             {
-                                HttpContext.Current.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                                CachingManager.CachingManager.SetCachedData(groupKey, group, groupCacheTtlSeconds, System.Runtime.Caching.CacheItemPriority.Default, 0, true);
                             }
                         }
                     }
@@ -152,9 +154,8 @@ namespace TVPApiModule.Manager
                 {
                     object res = null;
 
-                    res = HttpContext.Current.Cache.Get(groupKey);
+                    res = CachingManager.CachingManager.GetCachedDataNull(groupKey);
                     
-
                     if (res != null && res is Group)
                     {
                         tempGroup = res as Group;

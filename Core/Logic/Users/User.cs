@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Serialization;
+using TVinciShared;
 
 namespace Core.Users
 {
@@ -84,14 +85,7 @@ namespace Core.Users
 
         public User Clone()
         {
-            return CloneImpl();
-        }
-
-        protected virtual User CloneImpl()
-        {
-            var copy = (User)MemberwiseClone();
-
-            return copy;
+            return TVinciShared.ObjectCopier.Clone<User>(this);
         }
 
         public override CoreObject CoreClone()
@@ -829,13 +823,18 @@ namespace Core.Users
             return res;
         }
 
-        static protected bool UpdateFailCount(int groupId, Int32 nAdd, Int32 nUserID, bool setLoginDate = false)
-        {
-            bool updateRes = DAL.UsersDal.UpdateFailCount(nUserID, nAdd, setLoginDate);
+        static protected bool UpdateFailCount(int groupId, int add, int userId, User user, bool setLoginDate = false)
+        {           
+            if(!UpdateUserPreviousLogin(groupId, userId, user))
+            {
+                log.Error($"Failed to save User {userId} PreviousLogin. group {groupId}");
+            }
+
+            bool updateRes = DAL.UsersDal.UpdateFailCount(userId, add, setLoginDate);
             UsersCache usersCache = UsersCache.Instance();
-            usersCache.RemoveUser(nUserID, groupId);
+            usersCache.RemoveUser(userId, groupId);
             return updateRes;
-        }
+        }       
 
         private static int AddUserSession(int nSiteGuid, string sSessionID, string sIP, string sIDInDevices)
         {
@@ -1083,11 +1082,12 @@ namespace Core.Users
 
         static public UserResponseObject SignIn(string username, string password, int maxFailCount, int lockMinutes, int groupId, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
-            var userResponseObject = CheckUserPassword(username, password, maxFailCount, lockMinutes, groupId, bPreventDoubleLogins, false);
+            var userResponseObject = CheckUserPassword(username, password, maxFailCount, lockMinutes, groupId, bPreventDoubleLogins, false, true);
             return InnerSignIn(ref userResponseObject, maxFailCount, lockMinutes, groupId, sessionID, sIP, deviceID, bPreventDoubleLogins, groupId);
         }
         
-        static public UserResponseObject CheckUserPassword(string username, string password, int defaultMaxFailCount, int lockMinutes, int groupId, bool preventDoubleLogins, bool checkHitDate)
+        static public UserResponseObject CheckUserPassword(string username, string password, int defaultMaxFailCount, int lockMinutes, int groupId, bool preventDoubleLogins, 
+            bool checkHitDate, bool isSignIn = false)
         {
             var userResponseObject = new UserResponseObject();
             var responseStatus = ResponseStatus.WrongPasswordOrUserName;
@@ -1108,7 +1108,7 @@ namespace Core.Users
                     return userResponseObject;
                 }
 
-                var initializedUser = new User();
+                var initializedUser = new User();                
                 var isUserInitialized = initializedUser.Initialize(userId, groupId);
 
                 if (isUserInitialized && initializedUser.m_oBasicData != null && initializedUser.m_oDynamicData != null && !string.IsNullOrEmpty(initializedUser.m_oBasicData.m_sPassword))
@@ -1142,7 +1142,17 @@ namespace Core.Users
                             }
                             else
                             {
-                                UpdateFailCount(groupId, 0, userId, true);
+                                UpdateFailCount(groupId, 0, userId, initializedUser, true);
+
+                                if (isSignIn)
+                                {
+                                    var userLoginInfo = UsersDal.GetUserLoginInfo(groupId, userId);
+                                    if (userLoginInfo != null)
+                                    {
+                                        initializedUser.m_oBasicData.FailedLoginCount = userLoginInfo.FailedLoginCount;
+                                        initializedUser.m_oBasicData.LastLoginDate = DateUtils.UtcUnixTimestampSecondsToDateTime(userLoginInfo.LastLoginDate);
+                                    }
+                                }
                             }
                         }
                         else if (maxExpiration > 0 && passwordUpdateDate.AddDays(maxExpiration) < dNow)
@@ -1151,13 +1161,24 @@ namespace Core.Users
                         }
                         else
                         {
-                            UpdateFailCount(groupId, 0, userId, true);
+                            UpdateFailCount(groupId, 0, userId, initializedUser, true);
+
+                            if (isSignIn)
+                            {
+                                var userLoginInfo =  UsersDal.GetUserLoginInfo(groupId, userId);
+                                if (userLoginInfo != null)
+                                {
+                                    initializedUser.m_oBasicData.FailedLoginCount = userLoginInfo.FailedLoginCount;
+                                    initializedUser.m_oBasicData.LastLoginDate = DateUtils.UtcUnixTimestampSecondsToDateTime(userLoginInfo.LastLoginDate);
+                                }
+                            }
+
                             user = initializedUser;
                         }
                     }
                     else
                     {
-                        UpdateFailCount(groupId, 1, userId);
+                        UpdateFailCount(groupId, 1, userId, initializedUser);
 
                         if (nFailCount >= maxFailuresCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
                         {
@@ -1264,6 +1285,52 @@ namespace Core.Users
             }
 
             return (resp.m_RespStatus == ResponseStatus.OK);
+        }
+
+        /// <summary>
+        /// Update previous login count and FailCount
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        private static bool UpdateUserPreviousLogin(int groupId, int userId, User user)
+        {
+            try
+            {
+                // 1. Get user data from CB
+                var userCbData = UsersDal.GetUserLoginInfo(groupId, userId);
+                if (userCbData == null)
+                {
+                    userCbData = new UserLoginInfo();
+                }
+
+                // 2. Get user previous login count and FailCount from DB
+                if (user?.m_oBasicData != null)
+                {
+                    userCbData.FailedLoginCount = user.m_oBasicData.FailedLoginCount;
+                    userCbData.LastLoginDate = DateUtils.ToUtcUnixTimestampSeconds(user.m_oBasicData.LastLoginDate);
+
+                    // 3. Save userCbData At CB                    
+                    if (!UsersDal.SaveUserLoginInfo(groupId, userId, userCbData))
+                    {
+                        log.Error($"Error while SaveUserCBData");
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in UpdateUserPreviousLogin. ex: {ex}");
+                return false;
+            }
+        }
+
+        //backward compatibility - BEO-7137
+        public int Save(Int32 groupId, bool bIsSetUserActive = false)
+        {
+            return SaveForUpdate(groupId, bIsSetUserActive);
         }
     }
 }

@@ -58,7 +58,7 @@ namespace TVPApi
             logger.InfoFormat("CreateSourceResult-> Start Retrieve Data - {0}_{1}", GroupID, Platform);
 
             // Fill pages table
-            new DatabaseDirectAdapter(delegate(ODBCWrapper.DataSetSelectQuery query)
+            new DatabaseDirectAdapter(delegate(TVPApi.ODBCWrapper.DataSetSelectQuery query)
             {
                 query.SetConnectionString(connMng.GetClientConnectionString());
                 query += "select q.id,q.TOKEN as 'PageToken', tmi.ID as 'ParentPageID', q.URL, q.Name, q.Description, q.BreadCrumbText, q.SitePageMetadataID, q.SIDE_PROFILE_ID as SideProfileID, q.BOTTOM_PROFILE_ID as BottomProfileID, q.MENU_ID as MenuID, q.FOOTER_ID as FooterID, q.MIDDLE_FOOTER_ID as MiddleFooterID, q.CULTURE as 'LanguageCulture', q.PAGE_PROFILE_ID as ProfileID, q.IS_PROTECTED as IsProtected, q.KEYWORDS as Keywords, q.IS_ACTIVE as IsActive, ";
@@ -74,7 +74,7 @@ namespace TVPApi
             }, result.Pages).Execute();
 
             // Fill page galleries table
-            new DatabaseDirectAdapter(delegate(ODBCWrapper.DataSetSelectQuery query)
+            new DatabaseDirectAdapter(delegate(TVPApi.ODBCWrapper.DataSetSelectQuery query)
             {
                 query.SetConnectionString(connMng.GetClientConnectionString());
                 query += "select q_all.* from (select top_q1.* from ";
@@ -147,7 +147,7 @@ namespace TVPApi
             }, result.PageGalleries).Execute();
 
             //Get All in active galleries (for editorial mode)
-            new DatabaseDirectAdapter(delegate(ODBCWrapper.DataSetSelectQuery query)
+            new DatabaseDirectAdapter(delegate(TVPApi.ODBCWrapper.DataSetSelectQuery query)
             {
                 query.SetConnectionString(connMng.GetClientConnectionString());
                 query += "select q_all.* from (select top_q1.* from ";
@@ -234,7 +234,7 @@ namespace TVPApi
             }, result.InActivePageGalleries).Execute();
 
             //Fill Gallery Locales
-            new DatabaseDirectAdapter(delegate(ODBCWrapper.DataSetSelectQuery query)
+            new DatabaseDirectAdapter(delegate(TVPApi.ODBCWrapper.DataSetSelectQuery query)
             {
                 query.SetConnectionString(connMng.GetClientConnectionString());
                 query += "select q.*, q1.Language, q2.Device, q3.Country, q4.UserState from ";
@@ -255,7 +255,7 @@ namespace TVPApi
             }, result.GalleryLocales).Execute();
 
             // Fill gallery buttons table
-            new DatabaseDirectAdapter(delegate(ODBCWrapper.DataSetSelectQuery query)
+            new DatabaseDirectAdapter(delegate(TVPApi.ODBCWrapper.DataSetSelectQuery query)
             {
                 query.SetConnectionString(connMng.GetClientConnectionString());
                 query += "select tgb.TVP_GALLERY_ID as GalleryID, tgbt.VALUE as Text, tgb.LINK as Link, tgb.ORDER_NUM as ItemOrder, tgb.BUTTON_TYPE as Type, ll.CULTURE as MainCulture  ";
@@ -265,7 +265,7 @@ namespace TVPApi
             }, result.GalleryButtons).Execute();
 
             // Fill TVMAccounts table
-            new DatabaseDirectAdapter(delegate(ODBCWrapper.DataSetSelectQuery query)
+            new DatabaseDirectAdapter(delegate(TVPApi.ODBCWrapper.DataSetSelectQuery query)
             {
                 query.SetConnectionString(connMng.GetClientConnectionString());
                 query += "select q.*, q1.MediaType, q1.TvmTypeID from ";

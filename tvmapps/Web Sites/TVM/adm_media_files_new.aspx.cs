@@ -70,7 +70,7 @@ public partial class adm_media_files_new : System.Web.UI.Page
                         // check if changes in the start date require future index update call, incase updatedStartDate is in more than 2 years we don't update the index (per Ira's request)
                         if (RabbitHelper.IsFutureIndexUpdate(prevStartDate, updatedStartDate))
                         {
-                            if (!RabbitHelper.InsertFreeItemsIndexUpdate(nLoginGroupId, ApiObjects.eObjectType.Media, new List<int>() { nMediaID }, updatedStartDate.Value))
+                            if (!RabbitHelper.InsertFreeItemsIndexUpdate(nLoginGroupId, ApiObjects.eObjectType.Media, new List<long>() { nMediaID }, updatedStartDate.Value))
                             {
                                 log.Error(string.Format("Failed inserting free items index update for startDate: {0}, mediaID: {1}, groupID: {2}", updatedStartDate.Value, nMediaID, nLoginGroupId));
                             }
@@ -79,7 +79,7 @@ public partial class adm_media_files_new : System.Web.UI.Page
                         // check if changes in the end date require future index update call, incase updatedEndDate is in more than 2 years we don't update the index (per Ira's request)
                         if (RabbitHelper.IsFutureIndexUpdate(prevEndDate, updatedEndDate))
                         {
-                            if (!RabbitHelper.InsertFreeItemsIndexUpdate(nLoginGroupId, ApiObjects.eObjectType.Media, new List<int>() { nMediaID }, updatedEndDate.Value))
+                            if (!RabbitHelper.InsertFreeItemsIndexUpdate(nLoginGroupId, ApiObjects.eObjectType.Media, new List<long>() { nMediaID }, updatedEndDate.Value))
                             {
                                 log.Error(string.Format("Failed inserting free items index update for endDate: {0}, mediaID: {1}, groupID: {2}", updatedEndDate.Value, nMediaID, nLoginGroupId));
                             }

@@ -10,9 +10,9 @@ namespace ApiObjects
         public const string TASK = "distributed_tasks.process_free_item_update";
 
         private eObjectType type;
-        private List<int> asset_ids;
+        private List<long> asset_ids;
 
-        public FreeItemUpdateData(int groupId, eObjectType type, List<int> asset_ids, DateTime updateIndexDate) :
+        public FreeItemUpdateData(int groupId, eObjectType type, List<long> asset_ids, DateTime updateIndexDate) :
             base(// id = guid
                  Guid.NewGuid().ToString(),
                 // task = const

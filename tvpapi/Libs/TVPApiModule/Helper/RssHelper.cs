@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using TVPApi;
 using System.Web;
+using TVinciShared;
 
 namespace TVPApiModule.Helper
 {
@@ -17,7 +18,9 @@ namespace TVPApiModule.Helper
             }
             else
             {
-                return string.Concat((isSecure) ? "https://" : "http://", HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'), '/');
+                return string.Concat((isSecure) ? "https://" : "http://", 
+                    HttpContext.Current.Request.GetUrl().Host, 
+                    HttpContext.Current.Request.GetApplicationPath().TrimEnd('/'), '/');
             }
         }
 

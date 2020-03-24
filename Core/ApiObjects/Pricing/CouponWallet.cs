@@ -12,5 +12,7 @@ namespace ApiObjects.Pricing
         public DateTime CreateDate { get; set; }
 
         public string CouponGroupId { get; set; }
+
+        public long? LastUsageDate { get; set; }
     }
 }

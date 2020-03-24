@@ -132,6 +132,27 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("languages")]
         public List<Language> Languages { get; set; }
 
+        [JsonProperty("database_configurations")]
+        public Dictionary<TVPApi.PlatformType, DatabaseConfiguration> DatabaseConfigurations { get; set; }
+
+        [JsonProperty("flash_vars")]
+        public Dictionary<TVPApi.PlatformType, FlashVars> FlashVars { get; set; }
+
+        public FlashVars GetFlashVars(TVPApi.PlatformType platform)
+        {
+            if (FlashVars != null && FlashVars.ContainsKey(platform))
+            {
+                return FlashVars[platform];
+            }
+            else
+            {
+                return new Authorization.FlashVars()
+                {
+                    FileFormat = string.Empty,
+                    SubFileFormat = string.Empty
+                };
+            }
+        }
     }
 
 
@@ -164,4 +185,25 @@ namespace TVPApiModule.Objects.Authorization
         public bool IsDefault { get; set; }
     }
 
+    [Serializable]
+    public class DatabaseConfiguration
+    {
+        [JsonProperty()]
+        public string DatabaseInstance { get; set; }
+        [JsonProperty()]
+        public string IP { get; set; }
+        [JsonProperty()]
+        public string User { get; set; }
+        [JsonProperty()]
+        public string Password { get; set; }
+    }
+
+    [Serializable]
+    public class FlashVars
+    {
+        [JsonProperty()]
+        public string FileFormat { get; set; }
+        [JsonProperty()]
+        public string SubFileFormat { get; set; }
+    }
 }

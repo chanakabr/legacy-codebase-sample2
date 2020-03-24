@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ApiObjects;
+using Core.ConditionalAccess;
+using Core.Users;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +11,8 @@ using TVPApiModule.Interfaces;
 using TVPApiModule.Services;
 using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.DataEntities;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
+using InitializationObject = TVPApi.InitializationObject;
+using TVPApiModule.Objects;
 
 namespace TVPApiModule.Objects
 {
@@ -113,17 +116,7 @@ namespace TVPApiModule.Objects
         {
             return new ApiConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
         }
-
-        public virtual TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId, string serialNumber)
-        {
-            return null;
-        }
-
-        public virtual TVPApiModule.yes.tvinci.ITProxy.STBData[] GetMemirDetails(string accountNumber, string serviceAddressId)
-        {
-            return null;
-        }
-
+        
         public virtual UserResponse SetUserDynamicData(InitializationObject initObj, int groupID, string key, string value)
         {
             UserResponse retVal = null;
@@ -131,16 +124,16 @@ namespace TVPApiModule.Objects
             {
                 retVal = new UserResponse()
                 {
-                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK,
-                    Message = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK.ToString()
+                    ResponseStatus = ResponseStatus.OK,
+                    Message = ResponseStatus.OK.ToString()
                 };
             }
             else
             {
                 retVal = new UserResponse()
                 {
-                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError,
-                    Message = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError.ToString()
+                    ResponseStatus = ResponseStatus.InternalError,
+                    Message = ResponseStatus.InternalError.ToString()
                 };
             }
             return retVal;

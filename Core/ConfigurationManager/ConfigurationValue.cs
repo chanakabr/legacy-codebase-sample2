@@ -194,7 +194,7 @@ namespace ConfigurationManager
             return result;
         }
 
-        public void LoadDefault()
+        public virtual void LoadDefault()
         {
             if (this.ObjectValue == null)
             {

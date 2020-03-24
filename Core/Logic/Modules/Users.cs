@@ -1429,7 +1429,7 @@ namespace Core.Users
                 }
                 else
                 {
-                    log.ErrorFormat("LogIn: error while signing in out: user: {0}, group: {1}, error: {2}", userName, groupID, response.Status.Code);
+                    log.ErrorFormat("LogIn: error for user: {0}, group: {1}, error: {2}", userName, groupID, response.Status.Code);
                 }
             }
            

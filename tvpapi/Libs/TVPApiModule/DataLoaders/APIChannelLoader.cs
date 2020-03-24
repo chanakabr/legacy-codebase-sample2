@@ -11,13 +11,15 @@ using System.Configuration;
 using TVPApiModule.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using ApiObjects.SearchObjects;
+using Core.Catalog;
+using ConfigurationManager;
 
 namespace TVPApi
 {
     public class APIChannelLoader : TVPPro.SiteManager.DataLoaders.TVMChannelLoader
     {
-        private bool m_bShouldUseCache;
+        
         private APIChannelMediaLoader m_oCatalogChannelLoader;
 
         public string SiteGuid
@@ -81,7 +83,7 @@ namespace TVPApi
             }
         }
 
-        public List<KeyValue> TagsMetas { get; set; }
+        public List<Core.Catalog.KeyValue> TagsMetas { get; set; }
         public CutWith CutWith { get; set; }
 
         public string Language
@@ -136,9 +138,10 @@ namespace TVPApi
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
-                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, OrderObj, PicSize, TagsMetas, CutWith)
+                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, 
+                    OrderObj, PicSize, TagsMetas, CutWith)
                 {
                     Culture = Language,
                     DeviceId = DeviceUDID,
@@ -161,7 +164,7 @@ namespace TVPApi
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCatalogChannelLoader.TryGetItemsCount(out count);
             }
@@ -178,6 +181,9 @@ namespace TVPApi
                 (base.GetProvider() as Tvinci.Data.TVMDataLoader.TVMProvider).TVMAltURL = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL;
 
             base.PreExecute();
+
+            this.FlashVarsFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
+            this.FlashVarsSubFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat;
         }
 
         public APIChannelLoader(string TVMUser, string TVMPass, long channelID, string picSize)
@@ -237,7 +243,7 @@ namespace TVPApi
 
             result.root.flashvars.no_file_url = ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.EncryptMediaFileURL;
 
-            result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             result.root.flashvars.file_quality = file_quality.high;
             result.root.flashvars.device_udid = DeviceUDID;
             result.root.request.@params.with_info = WithInfo.ToString();
@@ -245,9 +251,9 @@ namespace TVPApi
             result.root.request.@params.info_struct.type.MakeSchemaCompliant();
             result.root.request.@params.info_struct.description.MakeSchemaCompliant();
 
-            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat))
+            if (!string.IsNullOrEmpty(GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat))
             {
-                result.root.flashvars.sub_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat;
+                result.root.flashvars.sub_file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat;
             }
 
             if (WithInfo)

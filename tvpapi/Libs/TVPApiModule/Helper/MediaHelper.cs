@@ -5,22 +5,20 @@ using System.Web;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
 using TVPPro.Configuration.Technical;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPPro.SiteManager.Services;
 using TVPPro.SiteManager.Helper;
 using System.Text;
 using TVPPro.Configuration.Media;
 using TVPApiModule.DataLoaders;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.Users;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Objects.Responses;
-
-/// <summary>
-/// Summary description for MediaHelper
-/// </summary>
-/// 
+using Core.Users;
+using Core.ConditionalAccess;
+using ApiObjects.SearchObjects;
+using Core.Catalog;
+using Core.Catalog.Response;
+using ApiObjects;
 
 namespace TVPApi
 {
@@ -265,12 +263,14 @@ namespace TVPApi
             return retVal;
         }
 
-        public static List<Media> SearchMediaByAndOrList(InitializationObject initObj, int mediaType, List<KeyValue> orList, List<KeyValue> andList, string picSize, int pageSize, int pageIndex, int groupID, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMeta)
+        public static List<Media> SearchMediaByAndOrList(InitializationObject initObj, int mediaType, List<KeyValue> orList, List<KeyValue> andList, 
+            string picSize, int pageSize, int pageIndex, int groupID, bool exact, ApiObjects.SearchObjects.OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDir, string orderMeta)
         {
             List<Media> retVal = new List<Media>();
             //SiteMapManager.GetInstance.GetSiteMapInstance(groupID, initObj.Platform, initObj.Locale);
 
-            APISearchMediaLoader searchLoader = new APISearchMediaLoader(groupID, initObj.Platform, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), pageSize, pageIndex, picSize, exact, orList, andList, new List<int>() {mediaType}) 
+            APISearchMediaLoader searchLoader = new APISearchMediaLoader(groupID, initObj.Platform, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), 
+                pageSize, pageIndex, picSize, exact, orList, andList, new List<int>() {mediaType}) 
             {
                 DeviceId = initObj.UDID, 
                 OrderMetaMame = orderMeta, 
@@ -734,7 +734,7 @@ namespace TVPApi
             return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, account.BaseGroupID, LoaderType.PeopleWhoWatched, OrderBy.None);
         }
 
-        public static List<Media> GetUserSocialMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int groupID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction socialAction, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform)
+        public static List<Media> GetUserSocialMedias(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int groupID, SocialAction socialAction, SocialPlatform socialPlatform)
         {
             List<Media> retVal = new List<Media>();
 
@@ -841,7 +841,7 @@ namespace TVPApi
             {
                 PageIndex = pageIndex,
                 PageSize = pageSize,
-                OrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
+                OrderObj = new OrderObj()
                 {
                     m_eOrderBy = CatalogHelper.GetCatalogOrderBy((TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy), orderBy.ToString())),
                     m_eOrderDir = CatalogHelper.GetCatalogOrderDirection((TVPPro.SiteManager.DataLoaders.SearchMediaLoader.eOrderDirection)Enum.Parse(typeof(TVPPro.SiteManager.DataLoaders.SearchMediaLoader.eOrderDirection), orderDir.ToString())),
@@ -910,10 +910,10 @@ namespace TVPApi
                         TagsMetas = tagsMetas,
                         CutWith = cutWith,
                         SiteGuid = initObj.SiteGuid,
-                        OrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
+                        OrderObj = new OrderObj()
                         {
                             m_eOrderBy = CatalogHelper.GetCatalogOrderBy((TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy), orderBy.ToString())),
-                            m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.ASC
+                            m_eOrderDir = OrderDir.ASC
                         },
                         DomainID = initObj.DomainID
                     };
@@ -1021,7 +1021,7 @@ namespace TVPApi
 
         //Get all channel medias
         public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, ref long mediaCount, 
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
+            ApiObjects.SearchObjects.OrderObj orderObj, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
         {
             List<Media> retVal = new List<Media>();
             dsItemInfo mediaInfo;
@@ -1110,7 +1110,7 @@ namespace TVPApi
             return GetMediaList(initObj, user, pass, ID, picSize, pageSize, pageIndex, groupID, loaderType, ref mediaCount, orderBy, reqMediaTypes, tagsMetas, cutWith, freeParam);
         }
 
-        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
+        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, ApiObjects.SearchObjects.OrderObj orderObj, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
         {
             long mediaCount = 0;
             return GetMediaList(initObj, user, pass, ID, picSize, pageSize, pageIndex, groupID, loaderType, ref mediaCount, orderObj, reqMediaTypes, tagsMetas, cutWith);
@@ -1150,7 +1150,7 @@ namespace TVPApi
                     if (mediaInfo != null && mediaInfo.Count > 0)
                     {
                         mediaAssetsStats = new TVPPro.SiteManager.CatalogLoaders.AssetStatsLoader(groupID, SiteHelper.GetClientIP(), 0, 0, mediaInfo.Select(m => int.Parse(m.AssetId)).ToList(),
-                            StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
+                            ApiObjects.StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
 
                         foreach (var stat in mediaAssetsStats)
                         {
@@ -1497,7 +1497,7 @@ namespace TVPApi
         }
 
         public static List<Media> GetOrderedChannelMultiFilter(InitializationObject initObj, long channelID, string picSize, int pageSize, int pageIndex, int groupID,
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj, List<TagMetaPair> tagsMetas, TVPApiModule.Objects.Enums.eCutWith cutWith)
+            ApiObjects.SearchObjects.OrderObj orderObj, List<TagMetaPair> tagsMetas, TVPApiModule.Objects.Enums.eCutWith cutWith)
         {
 
             // convert TagMetaPair to KeyValue 

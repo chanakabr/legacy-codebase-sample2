@@ -19,8 +19,6 @@ namespace ApiObjects.SearchObjects
         {
             m_eOrderDir = OrderDir.ASC;
             m_sOrderValue = string.Empty;
-        }         
-
-
+        }
     }
 }

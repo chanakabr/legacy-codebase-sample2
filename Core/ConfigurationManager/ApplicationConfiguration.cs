@@ -19,6 +19,7 @@ namespace ConfigurationManager
         public static ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration;
         public static BooleanConfigurationValue ShouldDistributeRecordingSynchronously;
         public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
+        public static BooleanConfigurationValue ShouldRecoverSubscriptionRenewalToMessageBus;
 
         #endregion
 
@@ -39,6 +40,12 @@ namespace ConfigurationManager
         public static StringConfigurationValue AppState;
         public static StringConfigurationValue ServerName;
         public static StringConfigurationValue ApplicationName;
+
+        #endregion
+
+        #region TVP Api
+
+        public static TVPApiConfiguration TVPApiConfiguration;
 
         #endregion
 
@@ -611,6 +618,15 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
+            TVPApiConfiguration = new TVPApiConfiguration("tvpapi_configuration")
+            {
+                ShouldAllowEmpty = true
+            };
+            ShouldRecoverSubscriptionRenewalToMessageBus = new BooleanConfigurationValue("should_recover_subscription_renewal_to_message_bus")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = false
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -724,7 +740,9 @@ namespace ConfigurationManager
                     MediaMarksListLength,
                     MediaMarksTTL,
                     EpgInitialId,
-                    ShouldAddInvalidationKeysToHeader
+                    ShouldAddInvalidationKeysToHeader,
+                    TVPApiConfiguration,
+                    ShouldRecoverSubscriptionRenewalToMessageBus
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

@@ -6,9 +6,13 @@ using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.TVMDataLoader.Protocols.CommentsSave;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Catalog;
+using ApiObjects.SearchObjects;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
 using TVPApiModule.Manager;
 using TVPPro.SiteManager.Objects;
+using ApiObjects.Catalog;
 
 /// <summary>
 /// Summary description for CommentHelper

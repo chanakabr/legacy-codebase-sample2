@@ -3,6 +3,7 @@ using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
+using ApiObjects.EventBus;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
@@ -585,12 +586,12 @@ namespace Core.Catalog
             ppvMoudleName.Append(name);
             if (startDate.HasValue)
             {
-                ppvMoudleName.AppendFormat(";{0}", startDate.Value.ToString("dd/MM/yyyy HH:mm:ss"));
+                ppvMoudleName.AppendFormat(";{0}", startDate.Value.ToString(DateUtils.MAIN_FORMAT));
             }
 
             if (endDate.HasValue)
             {
-                ppvMoudleName.AppendFormat(";{0}", endDate.Value.ToString("dd/MM/yyyy HH:mm:ss"));
+                ppvMoudleName.AppendFormat(";{0}", endDate.Value.ToString(DateUtils.MAIN_FORMAT));
             }
 
             return ppvMoudleName.Length > 0 ? ppvMoudleName.ToString() : string.Empty;
@@ -704,7 +705,8 @@ namespace Core.Catalog
                     {
                         oMeta = new Metas();
                         oMeta.m_oTagMeta = new TagMeta(ODBCWrapper.Utils.GetSafeStr(metaRow, "name"), typeof(DateTime).ToString());
-                        oMeta.m_sValue = ODBCWrapper.Utils.GetSafeStr(metaRow, "value");
+                        DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(metaRow, "value");
+                        oMeta.m_sValue = dt.ToString(DateUtils.MAIN_FORMAT);
                         lMetas.Add(oMeta);
                     }
                 }
@@ -1176,7 +1178,7 @@ namespace Core.Catalog
             }
             return langContainers;
         }
-        
+
         private static string GetWatchPermissionTypeName(int assetGroupId, int watchPermissionRuleId)
         {
             Dictionary<int, string> watchPermissionsTypes = CatalogCache.Instance().GetGroupWatchPermissionsTypes(assetGroupId);
@@ -1993,7 +1995,7 @@ namespace Core.Catalog
                     else
                     {
                         searchObj.m_dAnd = m_dAnd;
-                    }                    
+                    }
                 }
 
                 searchObj.m_bExact = request.m_bExact;
@@ -2063,6 +2065,7 @@ namespace Core.Catalog
             {
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(groupId);
+                
                 if (group != null && group.isRegionalizationEnabled)
                 {
                     isRegionalizationEnabled = true;
@@ -2079,7 +2082,7 @@ namespace Core.Catalog
                     }
                 }
             }
-            
+
             // If this group has regionalization enabled at all
             if (isRegionalizationEnabled)
             {
@@ -2106,40 +2109,54 @@ namespace Core.Catalog
                 }
             }
         }
-        
+
         public static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, int defaultRegion = -1)
         {
             int regionId = -1;
-            Domain domain = null;
-            var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
+            bool isRegionalizationEnabled = false;
 
-            if (domainRes != null)
+            if (defaultRegion > -1)
             {
-                domain = domainRes.Domain;
-            }
-
-            // If the domain is not associated to a domain - get default region
-            if (domain.m_nRegion == 0)
-            {
-                if (defaultRegion > -1)
-                {
-                    regionId = defaultRegion;
-                }
-                else
-                {
-                    Group group = GroupsCache.Instance().GetGroup(groupId);
-                    
-                    if (group != null && group.defaultRegion != 0)
-                    {
-                        regionId = group.defaultRegion;
-                    }
-                }
+                isRegionalizationEnabled = true;
             }
             else
             {
-                regionId = domain.m_nRegion;
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
+                    {
+                        isRegionalizationEnabled = true;
+                        defaultRegion = catalogGroupCache.DefaultRegion;
+                    }
+                }
+                else
+                {
+                    var group = GroupsCache.Instance().GetGroup(groupId);
+                    if (group != null && group.isRegionalizationEnabled)
+                    {
+                        isRegionalizationEnabled = true;
+                        defaultRegion = group.defaultRegion;
+                    }
+                }
             }
-
+            
+            if (isRegionalizationEnabled)
+            {
+                var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
+                if (domainRes != null && domainRes.Status.IsOkStatusCode())
+                {
+                    // If the domain is not associated to a domain - get default region
+                    if (domainRes.Domain.m_nRegion > 0)
+                    {
+                        regionId = domainRes.Domain.m_nRegion;
+                    }
+                    else
+                    {
+                        regionId = defaultRegion;
+                    }
+                }
+            }
+            
             return regionId;
         }
 
@@ -2472,11 +2489,11 @@ namespace Core.Catalog
                 mediaSearchRequest.m_lMetas = new List<KeyValue>();
                 // metas that are related and shouldn't be ignored
                 if (mediaAsset.Metas != null && mediaAsset.Metas.Count > 0 && mediaAsset.Metas.Any(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName)
-                                                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) 
+                                                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
                                                                                                     && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
                                                                                                     && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated))
                 {
-                    mediaSearchRequest.m_lMetas.AddRange(mediaAsset.Metas.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName) 
+                    mediaSearchRequest.m_lMetas.AddRange(mediaAsset.Metas.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName)
                                                                                 && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
                                                                                 && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
                                                                                 && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated)
@@ -2489,7 +2506,7 @@ namespace Core.Catalog
                                                                                                 && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
                                                                                                 && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated))
                 {
-                    List<Tags> mediaRelatedAssetTags = mediaAsset.Tags.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName) 
+                    List<Tags> mediaRelatedAssetTags = mediaAsset.Tags.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName)
                                                                             && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
                                                                             && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
                                                                             && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated).ToList();
@@ -3021,12 +3038,12 @@ namespace Core.Catalog
                     watchPermissionRules = new List<string>();
                     DataTable dt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(groupId.Value, lSubGroup);
                     if (dt != null && dt.Rows.Count > 0)
-                    {                        
+                    {
                         foreach (DataRow dr in dt.Rows)
                         {
                             watchPermissionRules.Add(Utils.GetStrSafeVal(dr, "RuleID"));
                         }
-                    }                    
+                    }
                 }
 
                 res = watchPermissionRules != null;
@@ -3040,14 +3057,14 @@ namespace Core.Catalog
         }
 
         private static string GetPermittedWatchRules(int groupId, DataTable extractedPermittedWatchRulesDT)
-        {            
+        {
             List<string> watchPermissionRules = null;
             if (extractedPermittedWatchRulesDT == null)
             {
                 watchPermissionRules = GetGroupPermittedWatchRules(groupId);
             }
             else
-            {                
+            {
                 if (extractedPermittedWatchRulesDT != null && extractedPermittedWatchRulesDT.Rows.Count > 0)
                 {
                     watchPermissionRules = new List<string>();
@@ -3057,7 +3074,7 @@ namespace Core.Catalog
                     }
                 }
             }
-            
+
             string sRules = string.Empty;
             if (watchPermissionRules != null && watchPermissionRules.Count > 0)
             {
@@ -4291,7 +4308,7 @@ namespace Core.Catalog
                                         { "mapping", assetIdToAssetStatsMapping },
                                     };
 
-                                bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap, 
+                                bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap,
                                     ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
 
                                 if (!success)
@@ -4479,7 +4496,7 @@ namespace Core.Catalog
                     {
                         assetIds = funcParams["assetsIds"] as List<int>;
                     }
-                    
+
                     int groupId = Convert.ToInt32(funcParams["groupId"]);
                     StatsType statsType = (StatsType)funcParams["statsType"];
                     Dictionary<int, AssetStatsResult> mapping = (Dictionary<int, AssetStatsResult>)funcParams["mapping"];
@@ -5748,7 +5765,7 @@ namespace Core.Catalog
         /// <param name="defaultUsers"></param>
         /// <param name="usersDictionary"></param>
         /// <returns></returns>
-        internal static AssetBookmarks GetAssetLastPosition(int groupID, string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, 
+        internal static AssetBookmarks GetAssetLastPosition(int groupID, string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users,
                                                             List<int> defaultUsers, Dictionary<string, User> usersDictionary)
         {
             AssetBookmarks response = null;
@@ -7655,7 +7672,7 @@ namespace Core.Catalog
 
             long userId = 0;
             if (long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
-            {                
+            {
                 UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId, userId);
             }
 
@@ -8476,9 +8493,9 @@ namespace Core.Catalog
                 // and media will never have 0 media type
                 bool hasZeroMediaType = definitions.mediaTypes != null ? definitions.mediaTypes.Remove(0) : false;
                 bool hasMinusTwentySixMediaType = definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE);
-                
+
                 // Special case - if no type was specified or "All" is contained, search all types
-                if ((!doesGroupUsesTemplates && hasZeroMediaType && definitions.mediaTypes.Count == 0) || 
+                if ((!doesGroupUsesTemplates && hasZeroMediaType && definitions.mediaTypes.Count == 0) ||
                     (!hasZeroMediaType && (definitions.mediaTypes == null || definitions.mediaTypes.Count == 0)))
                 {
                     definitions.shouldSearchEpg = true;
@@ -8512,7 +8529,7 @@ namespace Core.Catalog
                         }
                     }
                 }
-                
+
                 // If there are items left in media types after removing 0, we are searching for media
                 if (definitions.mediaTypes.Count > 0)
                 {
@@ -8582,7 +8599,7 @@ namespace Core.Catalog
                 definitions.shouldSearchMedia = true;
 
                 #region Channel Tags
-                
+
                 // If there is at least one tag
                 if (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0)
                 {
@@ -8701,16 +8718,16 @@ namespace Core.Catalog
 
             #region Asset User Rule
 
-            if( channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
+            if (channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
             {
                 UnifiedSearchDefinitionsBuilder.GetChannelUserAssetRulesPhrase(request, group, ref definitions, groupId, channel.AssetUserRuleId.Value);
             }
 
             long userId = 0;
-            if( long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
-            {                
+            if (long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
+            {
                 UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId, userId);
-            }            
+            }
 
             #endregion
 
@@ -8730,10 +8747,8 @@ namespace Core.Catalog
                     {
                         foreach (var condition in segmentationType.Conditions)
                         {
-                            if (condition is ContentScoreCondition)
+                            if (condition is ContentScoreCondition castedCondition)
                             {
-                                var castedCondition = (condition as ContentScoreCondition);
-
                                 if (!string.IsNullOrEmpty(castedCondition.Field) && castedCondition.Values != null && castedCondition.Values.Count > 0)
                                 {
                                     bool isTagOrMeta;
@@ -8748,6 +8763,23 @@ namespace Core.Catalog
                                                 definitions.boostScoreValues.Add(new KeyValuePair<string, string>(field, value));
                                             }
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (segmentationType.Actions != null)
+                    {
+                        foreach (var action in segmentationType.Actions)
+                        {
+                            if (action is SegmentAssetOrderAction castedAction)
+                            {
+                                if (!string.IsNullOrEmpty(castedAction.Name) && castedAction.Values != null && castedAction.Values.Count > 0)
+                                {
+                                    foreach (var value in castedAction.Values)
+                                    {
+                                        definitions.boostScoreValues.Add(new KeyValuePair<string, string>(castedAction.Name, value));
                                     }
                                 }
                             }
@@ -9285,7 +9317,7 @@ namespace Core.Catalog
         {
             log.DebugFormat("Start GetUserWatchHistory for user {0} in groupId {1}", siteGuid, groupId);
 
-            List <WatchHistory> usersWatchHistory = new List<WatchHistory>();
+            List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
 
             totalItems = 0;
@@ -9308,7 +9340,7 @@ namespace Core.Catalog
                         staleState = CouchbaseManager.ViewStaleState.Ok;
                     }
                 }
-                
+
                 string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(siteGuid);
                 var allUserAssetMarks = mediaMarksManager.Get<UserMediaMarks>(documentKey);
 
@@ -9331,7 +9363,7 @@ namespace Core.Catalog
                 {
                     int recordingId = 0;
                     int.TryParse(mediaMarkLog.LastMark.NpvrID, out recordingId);
-                    
+
                     return new WatchHistory()
                     {
                         AssetId = mediaMarkLog.LastMark.AssetID.ToString(),
@@ -9516,43 +9548,7 @@ namespace Core.Catalog
                     // filter excluded asset types
                     if (excludedAssetTypes != null && excludedAssetTypes.Count > 0)
                         unFilteredresult.RemoveAll(x => excludedAssetTypes.Contains(x.AssetTypeId));
-
-                    //// Location is not saved on Media Marks bucket. It is saved in media hits bucket.
-                    //// We will get the location of the relevant media marks from this bucket
-                    //// But we will go only if necessary and only for the unfinished assets
-                    //if (filterStatus != eWatchStatus.Done && unFilteredresult.Count > 0)
-                    //{
-                    //    List<string> keysToGetLocation = new List<string>();
-
-                    //    foreach (var currentResult in unFilteredresult)
-                    //    {
-                    //        if (!currentResult.IsFinishedWatching)
-                    //        {
-                    //            string key = CatalogDAL.GetWatchHistoryCouchbaseKey(currentResult);
-
-                    //            keysToGetLocation.Add(key);
-                    //        }
-                    //    }
-
-                    //    if (keysToGetLocation.Count > 0)
-                    //    {
-                    //        var mediaHitsDictionary = mediaHitsManager.GetValues<MediaMarkLog>(keysToGetLocation, true, true);
-
-                    //        if (mediaHitsDictionary != null && mediaHitsDictionary.Keys.Count() > 0)
-                    //        {
-                    //            foreach (var currentResult in unFilteredresult)
-                    //            {
-                    //                string key = CatalogDAL.GetWatchHistoryCouchbaseKey(currentResult);
-
-                    //                if (mediaHitsDictionary.ContainsKey(key))
-                    //                {
-                    //                    currentResult.Location = mediaHitsDictionary[key].LastMark.Location;
-                    //                }
-                    //            }
-                    //        }
-                    //    }
-                    //}
-
+                    
                     // order list
                     switch (orderDir)
                     {
@@ -9597,7 +9593,7 @@ namespace Core.Catalog
             try
             {
                 object[] obj = null;
-                
+
                 // We write an empty string as the first parameter to split the start of the log from the mediaEoh row data
                 if (ApplicationConfiguration.CatalogLogicConfiguration.ShouldAddUserIPToStats.Value)
                 {

@@ -11,51 +11,12 @@ using System.ServiceModel;
 namespace Ingest
 {
     [ServiceBehavior(AddressFilterMode = AddressFilterMode.Any, InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]    
-    public class Service : IService
+    public class Service : IngestService
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public BusinessModuleIngestResponse IngestBusinessModules(string username, string password, string xml)
-        {
-            // add the log topic
-            OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "Business module ingest";
-
-            BusinessModuleIngestResponse response = new BusinessModuleIngestResponse()
-            {
-                Status = new Status((int)StatusCodes.Error, StatusCodes.Error.ToString())
-            };
-
-            // get group id
-            int groupId =  ClientsManager.ApiClient().GetGroupIdByUsernamePassword(username, password);
-
-            if (groupId > 0)
-            {
-                // import
-                response = BusinessModulesImporter.Ingest(groupId, xml);
-            }
-            else
-            {
-                log.ErrorFormat("IngestBusinessModules: Failed to get group id for username: {0}, password: {1}", username, password);
-            }
-            return response;
-        }
-
-        public IngestResponse IngestTvinciData(IngestRequest request)
-        {
-            return IngestController.IngestData(request, eIngestType.Tvinci);
-        }
-
-        public IngestResponse IngestAdiData(IngestRequest request)
-        {
-            return IngestController.IngestData(request, eIngestType.Adi);
-        }
-
-        [ServiceKnownType(typeof(EpgIngestResponse))]
-        public IngestResponse IngestKalturaEpg(IngestRequest request)
-        {
-            log.Topic = "EPGIngest";
-            IngestResponse response = (IngestResponse)IngestController.IngestData(request, eIngestType.KalturaEpg);
-            return response;
-        }
+        // DO NOT IMPLEMENT ANYTHING HERE!!
+        // This is a proxy class for the actual common implementation in Ingest.Common 
+        // which is the base class
+        // This is so that the net461 and netcore implementation will have the same source code of implementation
+        // While allowing [ServiceBehavior] attribute to be defined
     }
 }

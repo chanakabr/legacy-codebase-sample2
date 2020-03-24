@@ -30,6 +30,9 @@ namespace ApiObjects.Segmentation
         public List<SegmentCondition> Conditions;
 
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
+        public List<SegmentAction> Actions;
+
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
         public SegmentBaseValue Value;
 
         [JsonProperty()]
@@ -45,6 +48,27 @@ namespace ApiObjects.Segmentation
 
         [JsonProperty()]
         public long Version;
+
+        public GenericResponse<SegmentationType> ValidateForInsert()
+        {
+            var response = new GenericResponse<SegmentationType>();
+            response.SetStatus(eResponseStatus.OK);
+
+            if (Actions != null)
+            {
+                foreach (var action in Actions)
+                {
+                    var actionValidation = action.ValidateForInsert();
+                    if (!actionValidation.IsOkStatusCode())
+                    {
+                        response.SetStatus(actionValidation);
+                        break;
+                    }
+                }
+            }
+
+            return response;
+        }
 
         protected override bool DoInsert()
         {
@@ -117,6 +141,27 @@ namespace ApiObjects.Segmentation
             result = setResult;
 
             return result;
+        }
+
+        public GenericResponse<SegmentationType> ValidateForUpdate()
+        {
+            var response = new GenericResponse<SegmentationType>();
+            response.SetStatus(eResponseStatus.OK);
+
+            if (Actions != null)
+            {
+                foreach (var action in Actions)
+                {
+                    var actionValidation = action.ValidateForUpdate();
+                    if (!actionValidation.IsOkStatusCode())
+                    {
+                        response.SetStatus(actionValidation);
+                        break;
+                    }
+                }
+            }
+
+            return response;
         }
 
         protected override bool DoUpdate()

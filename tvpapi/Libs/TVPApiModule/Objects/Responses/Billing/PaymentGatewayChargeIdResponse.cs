@@ -15,7 +15,7 @@ namespace TVPApiModule.Objects.Responses.Billing
         [JsonProperty(PropertyName = "status")]
         public Status Status { get; set; }
 
-        public PaymentGatewayChargeIdResponse(TVPPro.SiteManager.TvinciPlatform.Billing.PaymentGatewayChargeIDResponse paymentGatewayChargeIDResponse)
+        public PaymentGatewayChargeIdResponse(ApiObjects.Billing.PaymentGatewayChargeIDResponse paymentGatewayChargeIDResponse)
         {
             if (paymentGatewayChargeIDResponse != null)
             {

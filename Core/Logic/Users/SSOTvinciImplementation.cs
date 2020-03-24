@@ -20,7 +20,7 @@ namespace Core.Users
             int nSiteGuid = u.InitializeByUsername(sCoGuid, m_nGroupID);
             if (nSiteGuid > 0)
             {
-                resObj = User.CheckUserPassword(sCoGuid, sPass, 0, 0, m_nGroupID, false, false);
+                resObj = User.CheckUserPassword(sCoGuid, sPass, 0, 0, m_nGroupID, false, false, true);
                 if (resObj.m_RespStatus == ResponseStatus.OK)
                 {
                     resObj.Initialize(ResponseStatus.OK, u);

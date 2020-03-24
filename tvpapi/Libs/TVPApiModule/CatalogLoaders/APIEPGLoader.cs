@@ -2,10 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Users;
+using Core.ConditionalAccess;
+using ApiObjects.SearchObjects;
+using Core.Catalog;
+using Core.Catalog.Response;
+using Core.Catalog.Request;
 using TVPApi;
 using TVPApiModule.Manager;
 using TVPPro.SiteManager.CatalogLoaders;
+using ApiObjects;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -26,7 +32,8 @@ namespace TVPApiModule.CatalogLoaders
 
         #region Constructors
 
-        public APIEPGLoader(int groupID, string platform, string userIP, int pageSize, int pageIndex, List<int> channelIDs, EpgSearchType searchType, DateTime startTime, DateTime endTime, int nextTop, int prevTop, string language)
+        public APIEPGLoader(int groupID, string platform, string userIP, int pageSize, int pageIndex, List<int> channelIDs, EpgSearchType searchType, 
+            DateTime startTime, DateTime endTime, int nextTop, int prevTop, string language)
             : base(groupID, userIP, pageSize, pageIndex, channelIDs, searchType, startTime, endTime, nextTop, prevTop)
         {
             Platform = platform;

@@ -577,10 +577,10 @@ namespace Core.Catalog.CatalogManagement
 
         private static bool EnqueueBulkUpload(int groupId, BulkUpload bulkUploadToEnqueue, long userId)
         {
-            GenericCeleryQueue queue = new GenericCeleryQueue();
-            BulkUploadData data = new BulkUploadData(groupId, bulkUploadToEnqueue.Id, userId);
-            bool enqueueSuccessful = queue.Enqueue(data, data.GetRoutingKey());
-            if (!enqueueSuccessful)
+            var queue = new GenericCeleryQueue();
+            var data = new BulkUploadData(groupId, bulkUploadToEnqueue.Id, userId);
+            var result = queue.Enqueue(data, data.GetRoutingKey());
+            if (!result)
             {
                 log.ErrorFormat("Failed to enqueue BulkUpload. data: {0}", data);
             }
@@ -589,7 +589,7 @@ namespace Core.Catalog.CatalogManagement
                 log.DebugFormat("Success to enqueue BulkUpload. data: {0}", data);
             }
 
-            return enqueueSuccessful;
+            return result;
         }
 
         private static Tuple<Dictionary<string, List<BulkUpload>>, bool> GetBulkUploadsFromCache(Dictionary<string, object> funcParams)

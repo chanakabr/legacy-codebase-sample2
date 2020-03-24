@@ -9,12 +9,13 @@ using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
+using ConfigurationManager;
 
 namespace TVPApi
 {
     public class APIPeopleWhoWatchedLoader : PeopleWhoWatchedLoader
     {
-        private bool m_bShouldUseCache;
+        
         private TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader m_oPeopleWhoWatchedLoader;
  
         public APIPeopleWhoWatchedLoader(string tvmUser, string tvmPass, long mediaID, string picSize)
@@ -105,7 +106,7 @@ namespace TVPApi
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oPeopleWhoWatchedLoader = new TVPApiModule.CatalogLoaders.APIPeopleWhoWatchedLoader((int)MediaID, 0, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize)
                 {
@@ -126,7 +127,7 @@ namespace TVPApi
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oPeopleWhoWatchedLoader.TryGetItemsCount(out count);
             }
@@ -170,7 +171,9 @@ namespace TVPApi
             result.root.flashvars.player_un = TvmUser;
             result.root.flashvars.player_pass = TvmPass;
 
-            result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
+            this.FlashVarsFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
+            this.FlashVarsSubFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             result.root.flashvars.file_quality = file_quality.high;
             result.root.request.@params.with_info = WithInfo.ToString();
             result.root.request.@params.info_struct.statistics = true;

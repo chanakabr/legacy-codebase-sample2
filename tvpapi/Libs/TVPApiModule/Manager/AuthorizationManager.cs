@@ -1,4 +1,6 @@
-﻿using KLogMonitor;
+﻿using ApiObjects;
+using Core.Users;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -11,9 +13,9 @@ using TVPApiModule.Helper;
 using TVPApiModule.Objects.Authorization;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
-using TVPPro.SiteManager.TvinciPlatform.Users;
-
+using Domain = Core.Users.Domain;
+using TVinciShared;
+using ConfigurationManager;
 
 namespace TVPApiModule.Manager
 {
@@ -49,18 +51,18 @@ namespace TVPApiModule.Manager
                 return _instance;
             }
         }
-
+        
         private AuthorizationManager()
         {
             try
             {
-                string groupConfigsTtlSeconds = ConfigurationManager.AppSettings["Authorization.GroupConfigsTtlSeconds"];
+                _groupConfigsTtlSeconds = ApplicationConfiguration.TVPApiConfiguration.AuthorizationGroupConfigsTtlSeconds.LongValue;
 
                 cbManager = new CouchbaseManager.CouchbaseManager("authorization", false, true);
                 _lock = new ReaderWriterLockSlim();
 
-                if (!long.TryParse(groupConfigsTtlSeconds, out _groupConfigsTtlSeconds))
-                {
+                if (_groupConfigsTtlSeconds <= 0)
+                { 
                     logger.ErrorFormat("AuthorizationManager: Configuration Authorization.GroupConfigsTtlSeconds is missing!");
                     throw new Exception("Configuration Authorization.GroupConfigsTtlSeconds is missing!");
                 }
@@ -82,7 +84,7 @@ namespace TVPApiModule.Manager
             {
                 try
                 {
-                    var group = HttpContext.Current.Cache.Get(groupKey);
+                    var group = CachingManager.CachingManager.GetCachedData(groupKey);
                     if (group != null && group is GroupConfiguration)
                     {
                         groupConfig = group as GroupConfiguration;
@@ -111,7 +113,7 @@ namespace TVPApiModule.Manager
                         groupConfig.AccessExpirationForPinLoginSeconds = groupConfig.AccessExpirationForPinLoginSeconds != 0 ? groupConfig.AccessExpirationForPinLoginSeconds : groupConfig.AccessTokenExpirationSeconds;
                         try
                         {
-                            HttpContext.Current.Cache.Insert(groupKey, groupConfig, null, _groupConfigsTtlSeconds == 0 ? DateTime.MaxValue : DateTime.UtcNow.AddSeconds(_groupConfigsTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                            CachingManager.CachingManager.SetCachedData(groupKey, groupConfig, (int)_groupConfigsTtlSeconds, System.Runtime.Caching.CacheItemPriority.Default, 0, true);
                         }
                         catch (Exception ex)
                         {
@@ -277,7 +279,7 @@ namespace TVPApiModule.Manager
 
         public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId, string udid, PlatformType platform)
         {
-            if (HttpContext.Current.Items.Contains("tokenization") && signInResponse.UserData != null &&
+            if (HttpContext.Current.Items.ContainsKey("tokenization") && signInResponse.UserData != null &&
                 (signInResponse.LoginStatus == ResponseStatus.OK || signInResponse.LoginStatus == ResponseStatus.UserNotActivated || signInResponse.LoginStatus == ResponseStatus.DeviceNotRegistered ||
                 signInResponse.LoginStatus == ResponseStatus.UserNotMasterApproved || signInResponse.LoginStatus == ResponseStatus.UserNotIndDomain || signInResponse.LoginStatus == ResponseStatus.UserWithNoDomain ||
                 signInResponse.LoginStatus == ResponseStatus.UserSuspended))
@@ -614,7 +616,7 @@ namespace TVPApiModule.Manager
             }
 
             // get domain
-            Domain domain = new ApiDomainsService(groupId, platform).GetDomainByUser(initSiteGuid);
+            var domain = new ApiDomainsService(groupId, platform).GetDomainByUser(initSiteGuid);
             if (domain == null)
             {
                 logger.ErrorFormat("validateMultipleSiteGuids: domain not found for initSiteGuid = {0}", initSiteGuid);
@@ -648,7 +650,7 @@ namespace TVPApiModule.Manager
 
             if ((!string.IsNullOrEmpty(siteGuid) && initSiteGuid != siteGuid) || domainId != 0 || !string.IsNullOrEmpty(udid))
             {
-                Domain domain = new ApiDomainsService(groupId, platform).GetDomainByUser(initSiteGuid);
+                var domain = new ApiDomainsService(groupId, platform).GetDomainByUser(initSiteGuid);
                 if (domain == null)
                 {
                     logger.ErrorFormat("ValidateRequestParameters: domain not found for initSiteGuid = {0}", initSiteGuid);
@@ -683,7 +685,7 @@ namespace TVPApiModule.Manager
                 // if udid is not in domain
                 if (!string.IsNullOrEmpty(udid))
                 {
-                    if (domain.m_deviceFamilies == null || domain.m_deviceFamilies.Length == 0)
+                    if (domain.m_deviceFamilies == null || domain.m_deviceFamilies.Count == 0)
                     {
                         logger.ErrorFormat("ValidateRequestParameters: udid is not in the domain. udid = {0}, domainId = {1}", udid, domain.m_nDomainID);
                         returnError(403);
@@ -691,7 +693,7 @@ namespace TVPApiModule.Manager
                     }
                     foreach (var family in domain.m_deviceFamilies)
                     {
-                        if (family.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
+                        if (family.DeviceInstances != null && family.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
                         {
                             return true;
                         }
@@ -747,7 +749,7 @@ namespace TVPApiModule.Manager
 
         public static bool IsTokenizationEnabled()
         {
-            return HttpContext.Current.Items.Contains("tokenization");
+            return HttpContext.Current.Items.ContainsKey("tokenization");
         }
 
         public static bool IsSwitchingUsersAllowed(int groupId)
@@ -913,9 +915,9 @@ namespace TVPApiModule.Manager
             return Instance.GetTokenResponseObject(apiToken);
         }
 
-        public static Domain GetSiteGuidsDomain(string siteGuid, Domain[] domains)
+        public static TVPApiModule.Objects.Domain GetSiteGuidsDomain(string siteGuid, TVPApiModule.Objects.Domain[] domains)
         {
-            Domain siteGuidsDomain = null;
+            TVPApiModule.Objects.Domain siteGuidsDomain = null;
 
             int userId;
             foreach (var domain in domains)
@@ -926,6 +928,7 @@ namespace TVPApiModule.Manager
                     siteGuidsDomain = domain;
                 }
             }
+
             return siteGuidsDomain;
         }
 

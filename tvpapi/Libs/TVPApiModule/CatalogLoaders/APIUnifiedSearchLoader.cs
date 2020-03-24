@@ -6,12 +6,18 @@ using System.Reflection;
 using System.Text;
 using KLogMonitor;
 using Tvinci.Data.Loaders;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
+using ApiObjects;
+using ApiObjects.SearchObjects;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using UnifiedSearchResponse = Core.Catalog.Response.UnifiedSearchResponse;
+using Core.Catalog;
+using ConfigurationManager;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -105,7 +111,7 @@ namespace TVPApiModule.CatalogLoaders
             var res = m_oProvider.TryExecuteGetBaseResponse(m_oRequest, out m_oResponse); // Get the assets ids + update dates from catalog
             if (res == eProviderResult.Success)
             {
-                Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
+                UnifiedSearchResponse response = (UnifiedSearchResponse)m_oResponse;
                 if (response.status.Code == (int)eStatus.OK)
                 {
                     Log("Got:", m_oResponse);
@@ -151,7 +157,7 @@ namespace TVPApiModule.CatalogLoaders
                 }
             }
 
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
+            UnifiedSearchResponse response = (UnifiedSearchResponse)m_oResponse;
 
             if (response.status.Code != (int)eStatus.OK) // Bad response from Catalog - return the status
             {
@@ -194,7 +200,7 @@ namespace TVPApiModule.CatalogLoaders
         /// <param name="response"></param>
         /// <param name="medias"></param>
         /// <param name="epgs"></param>
-        protected void GetAssets(string cacheKey, Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response, out List<MediaObj> medias,
+        protected void GetAssets(string cacheKey, UnifiedSearchResponse response, out List<MediaObj> medias,
                                 out List<ProgramObj> epgs, out List<ProgramObj> recordings)
         {
             // Insert the UnifiedSearchResponse to cache for failover support
@@ -423,8 +429,7 @@ namespace TVPApiModule.CatalogLoaders
                     }
 
                     // Store in Cache the medias and epgs from Catalog
-                    int duration;
-                    int.TryParse(ConfigurationManager.AppSettings["Tvinci.DataLoader.CacheLite.DurationInMinutes"], out duration);
+                    int duration = ApplicationConfiguration.TVPApiConfiguration.CacheLiteDurationInMinutes.IntValue;
 
                     List<BaseObject> baseObjects = null;
 

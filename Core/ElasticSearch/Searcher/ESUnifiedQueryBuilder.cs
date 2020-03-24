@@ -120,6 +120,11 @@ namespace ElasticSearch.Searcher
             get;
             set;
         }
+        public bool ShouldPageGroups
+        {
+            get;
+            set;
+        }
 
         #endregion
 
@@ -332,7 +337,7 @@ namespace ElasticSearch.Searcher
                     {
                         int size = 0;
 
-                        if (this.GetAllDocuments)
+                        if (this.GetAllDocuments && !ShouldPageGroups)
                         {
                             size = -1;
                         }
@@ -2748,7 +2753,7 @@ namespace ElasticSearch.Searcher
                 sortArray.Add(idOrder);
             }
 
-            return string.Format("\"sort\" : {0}", sortArray.ToString());
+            return string.Format("\"sort\" : {0}", sortArray.ToString(Newtonsoft.Json.Formatting.None));
         }
 
         public static void GetAggregationsOrder(OrderObj orderObj, 

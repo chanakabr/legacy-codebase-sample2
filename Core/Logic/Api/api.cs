@@ -8,6 +8,7 @@ using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.Catalog;
 using ApiObjects.CDNAdapter;
+using ApiObjects.EventBus;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using ApiObjects.Roles;
@@ -116,7 +117,7 @@ namespace Core.Api
 
         private static int ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN = 5;
 
-        private const string PERMISSION_NOT_EXIST = "Permission doesn't exist";        
+        private const string PERMISSION_NOT_EXIST = "Permission doesn't exist";
         #endregion
 
         protected api() { }
@@ -3880,7 +3881,7 @@ namespace Core.Api
 
         public static ApiObjects.Country GetCountryByIp(int groupId, string ip)
         {
-            ApiObjects.Country country = null;
+            Country country = null;
 
             if (string.IsNullOrEmpty(ip))
             {
@@ -3906,20 +3907,16 @@ namespace Core.Api
                 log.Error(string.Format("Failed GetCountryByIp for ip: {0}", ip), ex);
             }
 
-            string debugString = string.Empty;
-
             if (country == null || country.Id <= 0)
             {
                 // make sure country is null when ID is not valid
                 country = null;
-                debugString = string.Format("No country found for ip {0}", ip);
+                log.Debug($"No country found for ip: {ip}");
             }
             else
             {
-                debugString = string.Format("Found country with id = {0} and name = {1} for ip {2}", country.Id, country.Name, ip);
+                log.Debug($"Found country with id = {country.Id} and name = {country.Name} for ip {ip}");
             }
-
-            log.Debug(debugString);
 
             return country;
         }
@@ -5886,7 +5883,7 @@ namespace Core.Api
             Users.Domain domain;
             return ValidateUserAndDomain(groupId, siteGuid, domainId, out domain);
         }
-        
+
         private static Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId, out Users.Domain domain)
         {
             var status = new Status();
@@ -8194,12 +8191,12 @@ namespace Core.Api
                 {
                     data = new ExportTaskData(groupId, taskId, version);
                 }
+
                 log.DebugFormat("EnqueueExportTask: inserting data to rabbit mq. data = ", data);
 
                 if (queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_EXPORT, groupId)))
                 {
                     status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
                     log.DebugFormat("EnqueueExportTask: successfully inserted task to rabbit mq. task id = {0}, version = {1}, frequency {2}", taskId, version, taskFrequency);
                 }
                 else
@@ -8403,7 +8400,7 @@ namespace Core.Api
 
                 // Merge permission with type features
                 Dictionary<string, Permission> groupFeatures = GetGroupFeatures(groupId);
-                if(groupFeatures?.Count > 0)
+                if (groupFeatures?.Count > 0)
                 {
                     response.Permissions.AddRange(groupFeatures.Values.ToList());
                 }
@@ -8420,7 +8417,7 @@ namespace Core.Api
             }
 
             return response;
-        }        
+        }
 
         public static ApiObjects.Roles.PermissionsResponse GetUserPermissions(int groupId, string userId)
         {
@@ -8697,7 +8694,7 @@ namespace Core.Api
                     totalAssetsToInitialize += freeItemsToInitialize.Count;
                     foreach (KeyValuePair<int, DateTime> itemToUpdate in freeItemsToInitialize)
                     {
-                        if (RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<int>() { itemToUpdate.Key }, itemToUpdate.Value))
+                        if (RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<long>() { itemToUpdate.Key }, itemToUpdate.Value))
                         {
                             totalEnqueuedItems++;
                         }
@@ -9410,9 +9407,7 @@ namespace Core.Api
         public static bool MigrateStatistics(int groupId, DateTime? startDate)
         {
             bool result = false;
-
             var queue = new SetupTasksQueue();
-
             var dynamicData = new Dictionary<string, object>();
 
             if (startDate != null && startDate.HasValue)
@@ -9424,7 +9419,7 @@ namespace Core.Api
 
             try
             {
-                result = queue.Enqueue(queueObject, "MIGRATE_STATISTICS");
+                bool enqueueResult = queue.Enqueue(queueObject, "MIGRATE_STATISTICS");
             }
             catch (Exception ex)
             {
@@ -9979,7 +9974,7 @@ namespace Core.Api
         }
 
         public static bool DoActionRules(bool isSingleRun)
-        { 
+        {
             double alcrScheduledTaskIntervalSec = 0;
             bool shouldEnqueueFollowUp = false;
             int impactedItems = 0;
@@ -10177,7 +10172,7 @@ namespace Core.Api
                 if (!string.IsNullOrEmpty(ip))
                 {
                     Country country = GetCountryByIp(groupId, ip);
-                    if (country == null)
+                    if (country == null || country.Id == 0)
                     {
                         result.Status = new Status((int)eResponseStatus.CountryNotFound, eResponseStatus.CountryNotFound.ToString());
                         return result;
@@ -10861,8 +10856,9 @@ namespace Core.Api
                     }
 
                     DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(assetRuleScheduledTaskIntervalSec);
-                    GenericCeleryQueue queue = new GenericCeleryQueue();
-                    BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)
+
+                    var queue = new GenericCeleryQueue();
+                    var data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)
                     {
                         ETA = nextExecutionDate
                     };
@@ -11761,7 +11757,7 @@ namespace Core.Api
                 return;
             }
 
-            if(virtualAsset == null)
+            if (virtualAsset == null)
             {
                 log.Warn($"No virtualAsset for ExternalChannel {channel.ID}");
                 return;
@@ -11820,7 +11816,7 @@ namespace Core.Api
             try
             {
                 // Validate permissnio Name (Must be unique per group)
-                if(ApiDAL.GetPermissions(groupId, new List<string>() { permission.Name })?.Count > 0)
+                if (ApiDAL.GetPermissions(groupId, new List<string>() { permission.Name })?.Count > 0)
                 {
                     response.SetStatus(eResponseStatus.PermissionNameAlreadyInUse);
                     log.ErrorFormat("AddPermission failed. PermissionNameAlreadyInUse.groupId = {0}, permissionName: {1}", groupId, permission.Name);
@@ -11890,7 +11886,7 @@ namespace Core.Api
             try
             {
                 Permission permission = GetPermission(groupId, id);
-                if(permission == null)
+                if (permission == null)
                 {
                     log.ErrorFormat("Permission wasn't found. groupId:{0}, id:{1}", groupId, id);
                     return new Status((int)eResponseStatus.PermissionNotFound, PERMISSION_NOT_EXIST);

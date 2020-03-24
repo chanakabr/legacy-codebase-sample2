@@ -1,9 +1,14 @@
-﻿using KLogMonitor;
+﻿using Core.Users;
+using KLogMonitor;
 using System;
 using System.Reflection;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
+using TVPApiModule.Objects;
+using Domain = TVPApiModule.Objects.Domain;
+using System.Linq;
+using DomainResponseObject = TVPApiModule.Objects.DomainResponseObject;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.Services
 {
@@ -11,10 +16,7 @@ namespace TVPApiModule.Services
     {
         #region Variables
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-
-        private TVPPro.SiteManager.TvinciPlatform.Domains.module m_Module;
-
+        
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
 
@@ -28,7 +30,7 @@ namespace TVPApiModule.Services
             public int DomainID;
             public string DomainName;
             public string DefaultUser;
-            public DomainStatus DomainStatus;
+            public Objects.DomainStatus DomainStatus;
         }
 
         [Serializable]
@@ -44,10 +46,8 @@ namespace TVPApiModule.Services
 
         public ApiDomainsService(int groupID, PlatformType platform)
         {
-            m_Module = new TVPPro.SiteManager.TvinciPlatform.Domains.module();
-            m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.DomainsService.URL;
-            m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.DomainsService.DefaultUser;
-            m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.DomainsService.DefaultPassword;
+            m_wsUserName = GroupsManager.GetGroup(groupID).DomainsCredentials.Username;
+            m_wsPassword = GroupsManager.GetGroup(groupID).DomainsCredentials.Password;
 
             m_groupID = groupID;
             m_platform = platform;
@@ -60,10 +60,10 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.AddUserToDomain(m_wsUserName, m_wsPassword, domainID, AddedUserGuid, masterSiteGuid, false);
-                    if (res != null)
+                    var res = Core.Domains.Module.AddUserToDomain(m_groupID, domainID, AddedUserGuid, masterSiteGuid, false);
+                    if (res != null && res.DomainResponse != null)
                     {
-                        domain = res.DomainResponse;
+                        domain = new DomainResponseObject(res.DomainResponse);
                     }
                 }
             }
@@ -83,10 +83,10 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.RemoveUserFromDomain(m_wsUserName, m_wsPassword, iDomainID, userGuidToRemove);
-                    if (res != null)
+                    var res = Core.Domains.Module.RemoveUserFromDomain(m_groupID, iDomainID, userGuidToRemove);
+                    if (res != null && res.DomainResponse != null)
                     {
-                        domain = res.DomainResponse;
+                        domain = new DomainResponseObject(res.DomainResponse);
                     }
                 }
                 //if (res.m_oDomainResponseStatus == DomainResponseStatus.OK)
@@ -108,10 +108,10 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.AddDeviceToDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID, sDeviceName, iDeviceBrandID);
-                    if (res != null)
+                    var res = Core.Domains.Module.AddDeviceToDomain(m_groupID, iDomainID, sUDID, sDeviceName, iDeviceBrandID);
+                    if (res != null && res.DomainResponse != null)
                     {
-                        domain = res.DomainResponse;
+                        domain = new DomainResponseObject(res.DomainResponse);
                     }
                 }
             }
@@ -131,7 +131,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    passed = m_Module.SetDomainRestriction(m_wsUserName, m_wsPassword, iDomainID, nRestriction);
+                    passed = Core.Domains.Module.SetDomainRestriction(m_groupID, iDomainID, nRestriction);
                 }
             }
             catch (Exception ex)
@@ -150,10 +150,10 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res  = m_Module.SubmitAddDeviceToDomainRequest(m_wsUserName, m_wsPassword, domainId, userId, sUDID, deviceName, brandId);
-                    if (res != null)
+                    var res  = Core.Domains.Module.SubmitAddDeviceToDomainRequest(m_groupID, domainId, userId, sUDID, deviceName, brandId);
+                    if (res != null && res.DomainResponse != null)
                     {
-                        domain = res.DomainResponse;
+                        domain = new DomainResponseObject(res.DomainResponse);
                     }
                 }
             }
@@ -173,7 +173,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    domain = m_Module.ConfirmDeviceByDomainMaster(m_wsUserName, m_wsPassword, masterUn, udid, token);
+                    var res = Core.Domains.Module.ConfirmDeviceByDomainMaster(m_groupID, masterUn, udid, token);
+                    if (res != null)
+                    {
+                        domain = new DomainResponseObject(res);
+                    }
                 }
             }
             catch (Exception ex)
@@ -192,7 +196,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    network = m_Module.AddHomeNetworkToDomain(m_wsUserName, m_wsPassword, domainId, networkId, networkName, networkDesc);
+                    network = Core.Domains.Module.AddHomeNetworkToDomain(m_groupID, domainId, networkId, networkName, networkDesc);
                 }
             }
             catch (Exception ex)
@@ -211,8 +215,12 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.UpdateDomainHomeNetwork(m_wsUserName, m_wsPassword, domainId, networkId, networkName, networkDesc, isActive);
-                    network = ConvertStatusToNetworkResponseObject(res);
+                    var res = Core.Domains.Module.SetDomainHomeNetwork(m_groupID, domainId, networkId, networkName, networkDesc, isActive);
+
+                    if (res != null && res.Status != null)
+                    {
+                        network = ConvertStatusToNetworkResponseObject(res.Status);
+                    }
                 }
             }
             catch (Exception ex)
@@ -223,7 +231,7 @@ namespace TVPApiModule.Services
             return network;
         }
 
-        private NetworkResponseObject ConvertStatusToNetworkResponseObject(TVPPro.SiteManager.TvinciPlatform.Domains.Status res)
+        private NetworkResponseObject ConvertStatusToNetworkResponseObject(ApiObjects.Response.Status res)
         {
             NetworkResponseObject response = new NetworkResponseObject()
             {
@@ -291,7 +299,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.RemoveDomainHomeNetwork(m_wsUserName, m_wsPassword, domainId, networkId);
+                    var res = Core.Domains.Module.RemoveDomainHomeNetwork(m_groupID, domainId, networkId);
                     network = ConvertStatusToNetworkResponseObject(res);
 
                 }
@@ -312,9 +320,9 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.GetDomainHomeNetworks(m_wsUserName, m_wsPassword, domainId);
-                    if (res != null)
-                        homeNetworks = res.HomeNetworks;
+                    var res = Core.Domains.Module.GetDomainHomeNetworks(m_groupID, domainId);
+                    if (res != null && res.HomeNetworks != null)
+                        homeNetworks = res.HomeNetworks.ToArray();
                 }
             }
             catch (Exception ex)
@@ -333,10 +341,10 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.RemoveDeviceFromDomain(m_wsUserName, m_wsPassword, iDomainID, sUDID);
-                    if (res != null)
+                    var res = Core.Domains.Module.RemoveDeviceFromDomain(m_groupID, iDomainID, sUDID);
+                    if (res != null && res.DomainResponse != null)
                     {
-                        domain = res.DomainResponse;
+                        domain = new DomainResponseObject(res.DomainResponse);
                     }
                 }
             }
@@ -356,10 +364,10 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.ChangeDeviceDomainStatus(m_wsUserName, m_wsPassword, iDomainID, sUDID, bActive);
-                    if (res != null)
+                    var res = Core.Domains.Module.ChangeDeviceDomainStatus(m_groupID, iDomainID, sUDID, bActive);
+                    if (res != null && res.DomainResponse != null)
                     {
-                        domain = res.DomainResponse;
+                        domain = new DomainResponseObject(res.DomainResponse);
                     }
                 }
             }
@@ -379,10 +387,10 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var response = m_Module.GetDomainInfo(m_wsUserName, m_wsPassword, iDomainID);
-                    if (response != null)
+                    var response = Core.Domains.Module.GetDomainInfo(m_groupID, iDomainID);
+                    if (response != null && response.Domain != null)
                     {
-                        domain = response.Domain;
+                        domain = new Domain(response.Domain);
                     }
                 }
             }
@@ -402,11 +410,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var response = m_Module.SetDomainInfo(m_wsUserName, m_wsPassword, iDomainID, sDomainName, sDomainDescription);
+                    var response = Core.Domains.Module.SetDomainInfo(m_groupID, iDomainID, sDomainName, sDomainDescription, null);
 
-                    if (response != null)
+                    if (response != null && response.DomainResponse != null)
                     {
-                        domain = response.DomainResponse;
+                        domain = new DomainResponseObject(response.DomainResponse);
                     }
                 }
             }
@@ -426,7 +434,12 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    domains = m_Module.GetDeviceDomains(m_wsUserName, m_wsPassword, udid);
+                    var list = Core.Domains.Module.GetDeviceDomains(m_groupID, udid);
+
+                    if (list != null)
+                    {
+                        domains = list.Select(d => new Domain(d)).ToArray();
+                    }
                 }
             }
             catch (Exception ex)
@@ -445,7 +458,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var response = m_Module.GetPINForDevice(m_wsUserName, m_wsPassword, udid, devBrandID);
+                    var response = Core.Domains.Module.GetPINForDevice(m_groupID, udid, devBrandID);
                     if (response != null)
                         pin = response.Pin;
                 }
@@ -465,7 +478,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var deviceRes = m_Module.RegisterDeviceToDomainWithPIN(m_wsUserName, m_wsPassword, pin, domainID, string.Empty);
+                    var deviceRes = Core.Domains.Module.RegisterDeviceToDomainWithPIN(m_groupID, pin, domainID, string.Empty);
                     if (deviceRes != null)
                     {
                         device = deviceRes.Device;
@@ -488,7 +501,12 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.ResetDomain(m_wsUserName, m_wsPassword, domainID);
+                    var res = Core.Domains.Module.ResetDomain(m_groupID, domainID);
+
+                    if (res != null)
+                    {
+                        response = new DomainResponseObject(res);
+                    }
                 }
             }
             catch (Exception ex)
@@ -506,7 +524,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.SetDeviceInfo(m_wsUserName, m_wsPassword, udid, deviceName);
+                    var result = Core.Domains.Module.SetDeviceInfo(m_groupID, udid, deviceName);
                     if (result != null && result.Code == 0)
                     {
                         response = true;
@@ -532,11 +550,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.AddDomain(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid);
+                    var res = Core.Domains.Module.AddDomain(m_groupID, domainName, domainDesc, masterGuid, null);
 
-                    if (res != null)
+                    if (res != null && res.DomainResponse != null)
                     {
-                        response = res.DomainResponse;
+                        response = new DomainResponseObject(res.DomainResponse);
                     }
                 }
             }
@@ -555,11 +573,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.AddDomainWithCoGuid(m_wsUserName, m_wsPassword, domainName, domainDesc, masterGuid, CoGuid);
+                    var res = Core.Domains.Module.AddDomainWithCoGuid(m_groupID, domainName, domainDesc, masterGuid, CoGuid, null);
 
-                    if (res != null)
+                    if (res != null && res.DomainResponse != null)
                     {
-                        response = res.DomainResponse;
+                        response = new DomainResponseObject(res.DomainResponse);
                     }
                 }
             }
@@ -576,7 +594,7 @@ namespace TVPApiModule.Services
         //    string resp = string.Empty;
         //    try
         //    {
-        //        //resp = m_Module.GetDomainCoGuid(m_wsUserName, m_wsPassword, nDomainID);
+        //        //resp = Core.Domains.Module.GetDomainCoGuid(m_groupID, nDomainID);
         //    }
         //    catch (Exception ex)
         //    {
@@ -592,11 +610,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.GetDomainByCoGuid(m_wsUserName, m_wsPassword, coGuid);
+                    var res = Core.Domains.Module.GetDomainByCoGuid(m_groupID, coGuid);
 
-                    if (res != null)
+                    if (res != null && res.DomainResponse != null)
                     {
-                        response = res.DomainResponse;
+                        response = new DomainResponseObject(res.DomainResponse);
                     }
                 }
             }
@@ -614,7 +632,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    domainID = m_Module.GetDomainIDByCoGuid(m_wsUserName, m_wsPassword, coGuid);
+                    domainID = Core.Domains.Module.GetDomainIDByCoGuid(m_groupID, coGuid);
                 }
             }
             catch (Exception ex)
@@ -631,10 +649,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var response = m_Module.SubmitAddUserToDomainRequest(m_wsUserName, m_wsPassword, userID, masterUsername);
-                    if (response != null)
+                    var response = Core.Domains.Module.SubmitAddUserToDomainRequest(m_groupID, userID, masterUsername);
+
+                    if (response != null && response.DomainResponse != null)
                     {
-                        res = response.DomainResponse;
+                        res = new DomainResponseObject(response.DomainResponse);
                     }
                 }
             }
@@ -653,7 +672,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.RemoveDomain(m_wsUserName, m_wsPassword, domainID, false);
+                    response = Core.Domains.Module.RemoveDomain(m_groupID, domainID, false);
                 }
             }
             catch (Exception e)
@@ -672,7 +691,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetDomainIDsByOperatorCoGuid(m_wsUserName, m_wsPassword, operatorCoGuid);
+                    response = Core.Domains.Module.GetDomainIDsByOperatorCoGuid(m_groupID, operatorCoGuid);
                 }
             }
             catch (Exception e)
@@ -692,7 +711,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    deviceInfo = m_Module.GetDeviceInfo(m_wsUserName, m_wsPassword, sId, bIsUDID);
+                    deviceInfo = Core.Domains.Module.GetDeviceInfo(m_groupID, sId, bIsUDID);
                 }
             }
             catch (Exception ex)
@@ -711,7 +730,12 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    domain = m_Module.ChangeDomainMaster(m_wsUserName, m_wsPassword, domainID, currentMasterID, newMasterID);
+                    var res = Core.Domains.Module.ChangeDomainMaster(m_groupID, domainID, currentMasterID, newMasterID);
+
+                    if (res != null)
+                    {
+                        domain = new DomainResponseObject(res);
+                    }
                 }
             }
             catch (Exception ex)
@@ -730,11 +754,11 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.ResetDomainFrequency(m_wsUserName, m_wsPassword, domainID, frequencyType);
+                    var res = Core.Domains.Module.ResetDomainFrequency(m_groupID, domainID, frequencyType);
 
-                    if (res != null)
+                    if (res != null && res.DomainResponse != null)
                     {
-                        domain = res.DomainResponse;
+                        domain = new DomainResponseObject(res.DomainResponse);
                     }
                 }
             }
@@ -754,7 +778,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.SuspendDomain(m_wsUserName, m_wsPassword, domainId);
+                    var result = Core.Domains.Module.SuspendDomain(m_groupID, domainId);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
                 }
             }
@@ -775,7 +799,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.ResumeDomain(m_wsUserName, m_wsPassword, domainId);
+                    var result = Core.Domains.Module.ResumeDomain(m_groupID, domainId);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
                 }
             }
@@ -796,7 +820,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.GetDLM(m_wsUserName, m_wsPassword, dlmID);
+                    var result = Core.Domains.Module.GetDLM(m_groupID, dlmID);
                     response = new DomainLimitationModuleResponse();
                     response.DLM = new Objects.Responses.LimitationsManager(result.dlm);
                     response.Status = new TVPApiModule.Objects.Responses.Status(result.resp.Code, result.resp.Message);
@@ -820,7 +844,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.SetDomainRegion(m_wsUserName, m_wsPassword, domainId, extRegionId, lookupKey);
+                    var result = Core.Domains.Module.SetDomainRegion(m_groupID, domainId, extRegionId, lookupKey);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
                 }
             }
@@ -841,9 +865,9 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.GetDomainByUser(m_wsUserName, m_wsPassword, siteGuid);
-                    if (res != null)
-                        result = res.Domain;
+                    var res = Core.Domains.Module.GetDomainByUser(m_groupID, siteGuid);
+                    if (res != null && res.Domain != null)
+                        result = new Domain(res.Domain);
                 }
             }
             catch (Exception ex)

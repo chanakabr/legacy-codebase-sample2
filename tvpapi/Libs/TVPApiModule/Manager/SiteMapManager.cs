@@ -7,6 +7,7 @@ using Tvinci.Data.DataLoader;
 using System.Threading;
 using System.Reflection;
 using KLogMonitor;
+using TVinciShared;
 
 /// <summary>
 /// Summary description for SiteMapManager
@@ -257,7 +258,7 @@ namespace TVPApi
         private static string GetUniqueCacheKey(string groupID)
         {
             string platform = string.Empty;
-            if (HttpContext.Current.Items.Contains("Platform"))
+            if (HttpContext.Current.Items.ContainsKey("Platform"))
             {
                 platform = HttpContext.Current.Items["Platform"].ToString();
             }

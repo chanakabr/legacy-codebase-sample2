@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Web.Script.Serialization;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Services;
-using ODBCWrapper;
+using TVPApi.ODBCWrapper;
 using TVPPro.SiteManager.DataLoaders;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.Pricing;
+using Core.Pricing;
+using TVinciShared;
+using Newtonsoft.Json;
+
 namespace TVPApi
 {
     public class AbertisJSONParser : IParser
@@ -38,10 +40,10 @@ namespace TVPApi
             {
                 objToParse = ParseGalleryItemToActivaChannel((GalleryItem)obj, items, index, groupID, platform);
             }
-            StringBuilder sb = new StringBuilder();
-            JavaScriptSerializer jsSer = new JavaScriptSerializer();
-            jsSer.Serialize(objToParse, sb);
-            return sb.ToString();
+            //StringBuilder sb = new StringBuilder();
+            //var jsSer = new JsonSerializer();
+            
+            return JsonConvert.SerializeObject(objToParse);
         }
 
         #endregion
@@ -388,7 +390,7 @@ namespace TVPApi
             ConnectionManager connMngr = new ConnectionManager(121, PlatformType.STB, false);
             DataSetSelectQuery selectQuery = new DataSetSelectQuery(connMngr.GetTvinciConnectionString());
             selectQuery += " select COMMERCIAL_BREAK_POINTS, COMMERCIAL_TYPE_BREAK_ID, COMMERCIAL_TYPE_POST_ID, COMMERCIAL_TYPE_PRE_ID from media_files where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", fileID);
+            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("id", "=", fileID);
             if (selectQuery.Execute("query", true) != null)
             {
                 int count = selectQuery.Table("query").DefaultView.Count;

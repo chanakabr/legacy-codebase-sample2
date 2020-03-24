@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Catalog;
+using ApiObjects;
+using ApiObjects.Response;
 
 namespace TVPApiModule.CatalogLoaders
 {

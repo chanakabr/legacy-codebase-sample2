@@ -6,13 +6,19 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Tvinci.Data.Loaders;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Catalog;
+using ApiObjects;
+using ApiObjects.Response;
 using TVPApi;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Responses;
 using TVPPro.Configuration.Technical;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
+using UnifiedSearchResponse = Core.Catalog.Response.UnifiedSearchResponse;
+using ConfigurationManager;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -55,7 +61,10 @@ namespace TVPApiModule.CatalogLoaders
 
         public object ApiExecuteMultiMediaAdapter(List<BaseObject> medias)
         {
-            FlashVars techConfigFlashVars = ConfigManager.GetInstance().GetConfig(GroupIDParent, (PlatformType)Enum.Parse(typeof(PlatformType), Platform)).TechnichalConfiguration.Data.TVM.FlashVars;
+            var techConfigFlashVars = GroupsManager.GetGroup(GroupIDParent).GetFlashVars((PlatformType)Enum.Parse(typeof(PlatformType), Platform));
+            this.FlashVarsFileFormat = techConfigFlashVars.FileFormat;
+            this.FlashVarsSubFileFormat = techConfigFlashVars.SubFileFormat;
+
             string fileFormat = techConfigFlashVars.FileFormat;
             string subFileFormat = (techConfigFlashVars.SubFileFormat.Split(';')).FirstOrDefault();
             return CatalogHelper.MediaObjToDsItemInfo(medias, PicSize, fileFormat, subFileFormat);
@@ -112,7 +121,7 @@ namespace TVPApiModule.CatalogLoaders
                 }
             }
 
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
+            UnifiedSearchResponse response = (UnifiedSearchResponse)m_oResponse;
 
             if (response.status.Code != (int)eStatus.OK) // Bad response from Catalog - return the status
             {
@@ -152,7 +161,7 @@ namespace TVPApiModule.CatalogLoaders
             return result;
         }
 
-        protected void GetAssets(string cacheKey, Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response, out List<MediaObj> medias,
+        protected void GetAssets(string cacheKey, UnifiedSearchResponse response, out List<MediaObj> medias,
                                 out List<ProgramObj> epgs, out List<ProgramObj> recordings)
         {
             // Insert the UnifiedSearchResponse to cache for failover support
@@ -381,8 +390,7 @@ namespace TVPApiModule.CatalogLoaders
                     }
 
                     // Store in Cache the medias and epgs from Catalog
-                    int duration;
-                    int.TryParse(ConfigurationManager.AppSettings["Tvinci.DataLoader.CacheLite.DurationInMinutes"], out duration);
+                    int duration = ApplicationConfiguration.TVPApiConfiguration.CacheLiteDurationInMinutes.IntValue;
 
                     List<BaseObject> baseObjects = null;
 
@@ -548,11 +556,11 @@ namespace TVPApiModule.CatalogLoaders
             {
                 switch (obj.GetType().ToString())
                 {
-                    case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaSearchExternalRequest":
+                    case "MediaSearchExternalRequest":
                         MediaSearchExternalRequest searchRquest = obj as MediaSearchExternalRequest;
                         sText.AppendFormat("MediaExternalSearchRequest: Query = {0}, GroupID = {1}, PageIndex = {2}, PageSize = {3}", searchRquest.m_sQuery, searchRquest.m_nGroupID, searchRquest.m_nPageIndex, searchRquest.m_nPageSize);
                         break;
-                    case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaIdsStatusResponse":
+                    case "MediaIdsStatusResponse":
                         //MediaIdsStatusResponse mediaIdsResponse = obj as MediaIdsStatusResponse;
                         //sText.AppendFormat("MediaIdsResponse for Ralated: TotalItems = {0}, ", mediaIdsResponse.m_nTotalItems);
                         //sText.AppendLine(mediaIdsResponse.m_nMediaIds.ToStringEx());

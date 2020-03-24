@@ -6,13 +6,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using TVPApiModule.Objects.CRM;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApi
 {
     public class CRMHelper
     {
-        public static TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData[] SearchUsers(int groupId, string text)
+        public static Core.Users.UserBasicData[] SearchUsers(int groupId, string text)
         {
             string[] sTerms = null;
             string[] sFields = null;

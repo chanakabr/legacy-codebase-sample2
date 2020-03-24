@@ -28,7 +28,7 @@ namespace Core.Pricing
             return String.Concat(this.originalBaseCollection.GroupID, "_", COLL_DATA_CACHE_NAME, "_cc_", collCode, isGetAlsoUnactive ? "au_t" : "au_f");
         }
 
-        public override Collection GetCollectionData(string sCollectionCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bGetAlsoUnActive)
+        public override Collection GetCollectionData(string sCollectionCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bGetAlsoUnActive, int? couponGroupIdEqual)
         {
             Collection res = null;
             if (!string.IsNullOrEmpty(sCollectionCode))
@@ -37,7 +37,7 @@ namespace Core.Pricing
                 Collection coll = null;
                 if (PricingCache.TryGetCollection(cacheKey, out coll) && coll != null)
                     return coll;
-                res = originalBaseCollection.GetCollectionData(sCollectionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bGetAlsoUnActive);
+                res = originalBaseCollection.GetCollectionData(sCollectionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bGetAlsoUnActive, couponGroupIdEqual);
                 if (res != null)
                 {
                     if (!PricingCache.TryAddCollection(cacheKey, res))
@@ -51,15 +51,16 @@ namespace Core.Pricing
             return res;
         }
 
-        public override CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName)
+        public override CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName, int? couponGroupIdEqual)
         {
             CollectionsResponse response = new CollectionsResponse()
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
-            }; 
+            };
 
             if (oCollCodes != null && oCollCodes.Length > 0)
             {
+                var filterByCouponGroup = couponGroupIdEqual.HasValue;
                 List<string> uncachedColls = new List<string>();
                 Dictionary<string, int> collsToIndexMapping = new Dictionary<string, int>();
                 SortedSet<SortedCollection> set = new SortedSet<SortedCollection>();
@@ -82,7 +83,7 @@ namespace Core.Pricing
 
                 if (uncachedColls.Count > 0)
                 {
-                    CollectionsResponse collectionsResponse = originalBaseCollection.GetCollectionsData(uncachedColls.ToArray(), sCountryCd, sLanguageCode, sDeviceName);
+                    CollectionsResponse collectionsResponse = originalBaseCollection.GetCollectionsData(uncachedColls.ToArray(), sCountryCd, sLanguageCode, sDeviceName, couponGroupIdEqual);
 
                     if (collectionsResponse == null)
                     {
@@ -92,6 +93,14 @@ namespace Core.Pricing
                     if (collectionsResponse.Status.Code != (int)eResponseStatus.OK)
                     {
                         return collectionsResponse;
+                    }
+
+                    if (filterByCouponGroup)
+                    {
+                        var value = couponGroupIdEqual.Value.ToString();
+                        collectionsResponse.Collections = collectionsResponse.Collections?
+                            .Where(x => x.m_oCouponsGroup.m_sGroupCode == value)
+                            .ToArray();
                     }
 
                     if (collectionsResponse.Collections != null && collectionsResponse.Collections.Length > 0)
@@ -114,7 +123,7 @@ namespace Core.Pricing
                 }
 
                 response.Collections = set.Select((item) => item.GetCollection).ToArray<Collection>();
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 return response;
             }
 

@@ -11,12 +11,14 @@ using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Manager;
 using TVPApiModule.Helper;
 using TVPApiModule.Manager;
+using ApiObjects.SearchObjects;
+using ConfigurationManager;
 
 namespace TVPApi
 {
     public class APISearchLoader : TVPPro.SiteManager.DataLoaders.SearchMediaLoader
     {
-        private bool m_bShouldUseCache;
+        
         private APISearchMediaLoader m_oCatalogSearchLoader;
 
         public APISearchLoader(string TVMUser, string TVMPass)
@@ -130,7 +132,7 @@ namespace TVPApi
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogSearchLoader = new APISearchMediaLoader(SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize, Name)
                 {
@@ -154,8 +156,8 @@ namespace TVPApi
                 {
                     m_oCatalogSearchLoader.OrderBy = APICatalogHelper.GetCatalogOrderBy(OrderBy);
                     // XXX: For specific date sorting, make this by Descending
-                    if (m_oCatalogSearchLoader.OrderBy == Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE || m_oCatalogSearchLoader.OrderBy == Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE)
-                        m_oCatalogSearchLoader.OrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
+                    if (m_oCatalogSearchLoader.OrderBy == ApiObjects.SearchObjects.OrderBy.START_DATE || m_oCatalogSearchLoader.OrderBy == ApiObjects.SearchObjects.OrderBy.CREATE_DATE)
+                        m_oCatalogSearchLoader.OrderDir = OrderDir.DESC;
                     else
                         m_oCatalogSearchLoader.OrderDir = CatalogHelper.GetCatalogOrderDirection(OrderDirection);
                     m_oCatalogSearchLoader.OrderMetaMame = OrderByMeta;
@@ -170,7 +172,7 @@ namespace TVPApi
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCatalogSearchLoader.TryGetItemsCount(out count);
             }
@@ -187,6 +189,9 @@ namespace TVPApi
                 (base.GetProvider() as Tvinci.Data.TVMDataLoader.TVMProvider).TVMAltURL = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL;
 
             base.PreExecute();
+
+            this.FlashVarsFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
+            this.FlashVarsSubFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat;
         }
 
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
@@ -195,7 +200,7 @@ namespace TVPApi
 
             protocol.root.request.search_data.channel.start_index = (PageIndex * PageSize).ToString();
             protocol.root.request.search_data.channel.media_count = PageSize.ToString();
-            protocol.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            protocol.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             protocol.root.flashvars.file_quality = Tvinci.Data.TVMDataLoader.Protocols.Search.file_quality.high;
             protocol.root.flashvars.use_final_end_date = UseFinalEndDate;
             protocol.root.flashvars.use_start_date = ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.FutureAssets.UseStartDate;
@@ -205,9 +210,9 @@ namespace TVPApi
 
             protocol.root.flashvars.no_file_url = ConfigManager.GetInstance().GetConfig(GroupID, Platform).SiteConfiguration.Data.Features.EncryptMediaFileURL;
 
-            if (!string.IsNullOrEmpty(ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat))
+            if (!string.IsNullOrEmpty(GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat))
             {
-                protocol.root.flashvars.sub_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.SubFileFormat;
+                protocol.root.flashvars.sub_file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat;
             }
 
             //if (string.IsNullOrEmpty(PictureSize))

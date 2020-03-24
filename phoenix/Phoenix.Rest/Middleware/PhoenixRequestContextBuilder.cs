@@ -1,35 +1,30 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
-using Phoenix.Context;
-using System;
+using ConfigurationManager;
+using KLogMonitor;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
-using System.Text;
 using Newtonsoft.Json.Linq;
-using System.Reflection;
-using KLogMonitor;
-using System.Net;
-using System.Net.Mime;
-using Microsoft.AspNetCore.Http.Extensions;
-using System.Linq;
-using Newtonsoft.Json.Converters;
+using Phoenix.Context;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using ConfigurationManager;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using WebAPI;
+using WebAPI.Filters;
+using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
-using WebAPI;
-using WebAPI.Controllers;
-using WebAPI.Managers.Models;
-using WebAPI.Filters;
-using RequestType = Phoenix.Context.RequestType;
 
 namespace Phoenix.Rest.Middleware
 {
-
     public class PhoenixRequestContextBuilder
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly string _FileSystemUploaderSourcePath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
         private static int _LegacyAccessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
         private readonly RequestDelegate _Next;
 
@@ -47,17 +42,19 @@ namespace Phoenix.Rest.Middleware
 
             var request = context.Request;
             phoenixContext.RawRequestUrl = request.GetDisplayUrl();
-            
+
             phoenixContext.RouteData = GetRouteData(request);
             var action = phoenixContext.RouteData.Action;
             var service = phoenixContext.RouteData.Service;
             var pathData = phoenixContext.RouteData.PathData;
-            KLogger.LogContextData[KLogMonitor.Constants.ACTION] = $"{service}.{action}";
+            string serviceAction = $"{service}.{action}";
+            KLogger.LogContextData[KLogMonitor.Constants.ACTION] = serviceAction;
+            System.Web.HttpContext.Current.Items[Constants.ACTION] = serviceAction;
 
             var parsedActionParams = await GetActionParams(context.Request.Method, request, phoenixContext);
             phoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);
             SetCommonRequestContextItems(context, phoenixContext, parsedActionParams, service, action);
-            
+
             var actionParams = GetDeserializedActionParams(parsedActionParams, phoenixContext.IsMultiRequest, service, action);
             context.Items[RequestContext.REQUEST_METHOD_PARAMETERS] = actionParams;
             phoenixContext.ActionParams = actionParams;
@@ -145,9 +142,6 @@ namespace Phoenix.Rest.Middleware
             return new Dictionary<string, object>(parsedActionParams, StringComparer.OrdinalIgnoreCase);
         }
 
-
-
-
         private RequestRouteData GetRouteData(HttpRequest request)
         {
             if (TryGetRouteDataFromUrl(request, out var routeDataFromUrl)) { return routeDataFromUrl; }
@@ -225,7 +219,6 @@ namespace Phoenix.Rest.Middleware
             return isRoutDataFoundInUrl;
         }
 
-
         private async Task<IDictionary<string, object>> GetActionParamsFromPostBody(HttpRequest request, PhoenixRequestContext context)
         {
 
@@ -283,11 +276,20 @@ namespace Phoenix.Rest.Middleware
         private async Task<IDictionary<string, object>> ParseUploadedFiles(HttpRequest request)
         {
             var uploadedFiles = new Dictionary<string, object>();
+            if (!Directory.Exists(_FileSystemUploaderSourcePath))
+            {
+                Directory.CreateDirectory(_FileSystemUploaderSourcePath);
+            }
 
             foreach (var uploadedFile in request.Form.Files)
             {
-                var kalturaFile = KalturaOTTFile.CreateFromStream(uploadedFile.FileName, uploadedFile.OpenReadStream());
-                uploadedFiles.Add(uploadedFile.Name, kalturaFile);
+                var filePath = $@"{_FileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
+                using (Stream tempFile = File.Create(filePath))
+                {
+                    await uploadedFile.CopyToAsync(tempFile);
+                }
+
+                uploadedFiles.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
             }
 
             return uploadedFiles;
@@ -357,6 +359,4 @@ namespace Phoenix.Rest.Middleware
             return ksVal.Length > _LegacyAccessTokenLength;
         }
     }
-
 }
-

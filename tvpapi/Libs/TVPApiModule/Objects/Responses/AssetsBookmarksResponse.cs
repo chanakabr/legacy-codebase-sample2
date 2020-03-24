@@ -2,9 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using Newtonsoft.Json;
 using TVPApiModule.Objects.Requests;
+using Core.Catalog;
+using ApiObjects.SearchObjects;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using ApiObjects;
+using ApiObjects.Catalog;
+using Core.Users;
 
 namespace TVPApiModule.Objects.Responses
 {

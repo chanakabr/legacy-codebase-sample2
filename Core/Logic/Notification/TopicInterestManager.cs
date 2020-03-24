@@ -14,8 +14,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiObjects.EventBus;
+using EventBus.RabbitMQ;
 using TVinciShared;
-
+using EventBus.Abstraction;
+using ConfigurationManager;
 
 namespace APILogic.Notification
 {
@@ -369,7 +372,7 @@ namespace APILogic.Notification
                     }
                 }
             }
-            
+
             response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
             return response;
         }
@@ -382,7 +385,7 @@ namespace APILogic.Notification
             if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
             {
                 if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
-                {               
+                {
                     string externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}_{1}", interestNotification.AssetType.ToString(), interestNotification.TopicNameValue), true);
                     if (string.IsNullOrEmpty(externalId))
                     {
@@ -597,7 +600,7 @@ namespace APILogic.Notification
                 }
             }
 
-        response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+            response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
             return response;
         }
 
@@ -1076,20 +1079,29 @@ namespace APILogic.Notification
 
         public static bool AddInterestToQueue(int groupId, InterestNotificationMessage interestNotificationMessage)
         {
-            MessageInterestQueue que = new MessageInterestQueue();
-            MessageInterestData messageReminderData = new MessageInterestData(groupId, DateUtils.DateTimeToUtcUnixTimestampSeconds(interestNotificationMessage.SendTime), interestNotificationMessage.Id)
+
+            var que = new MessageInterestQueue();
+            var messageReminderCeleryData = new MessageInterestData(groupId, DateUtils.DateTimeToUtcUnixTimestampSeconds(interestNotificationMessage.SendTime), interestNotificationMessage.Id)
             {
                 ETA = interestNotificationMessage.SendTime
             };
 
-            bool res = que.Enqueue(messageReminderData, ROUTING_KEY_INTEREST_MESSAGES);
+            bool res = que.Enqueue(messageReminderCeleryData, ROUTING_KEY_INTEREST_MESSAGES);
 
             if (res)
-                log.DebugFormat("Successfully inserted interest notification message to interest queue: {0}", messageReminderData);
+                log.DebugFormat("Successfully inserted interest notification message to interest queue: {0}", messageReminderCeleryData);
             else
-                log.ErrorFormat("Error while inserting interest notification message to queue. Message: {0}", messageReminderData);
+                log.ErrorFormat("Error while inserting interest notification message to queue. Message: {0}", messageReminderCeleryData);
 
-            return res;
+            var messageReminderData = new MessageInterestRequest
+            {
+                GroupId = groupId,
+                MessageInterestId = interestNotificationMessage.Id,
+                StartTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(interestNotificationMessage.SendTime),
+                ETA = interestNotificationMessage.SendTime
+            };
+
+            return true;
         }
 
         private static bool PushToWeb(int partnerId, int interestMessageId, string routeName, MessageData messageData, long sendTime)
@@ -1242,7 +1254,7 @@ namespace APILogic.Notification
                 if (NotificationSettings.IsPartnerMailNotificationEnabled(partnerId) && !string.IsNullOrEmpty(interestNotification.MailExternalId) && !string.IsNullOrEmpty(template.MailTemplate))
                 {
                     string imageUrl = Core.Notification.Utils.GetProgramImageUrlByRatio(program.m_oProgram.EPG_PICTURES, template.RatioId);
-                    string subject = string.IsNullOrEmpty(template.MailSubject)? string.Empty : 
+                    string subject = string.IsNullOrEmpty(template.MailSubject) ? string.Empty :
                         template.MailSubject.Replace("{" + eReminderPlaceHolders.StartDate + "}", interestSendDate.ToString(template.DateFormat)).
                         Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
                         Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
@@ -1266,7 +1278,7 @@ namespace APILogic.Notification
                     else
                     {
                         log.DebugFormat("Successfully sent interest notification to mail. interestNotificationId: {0}", interestNotification.Id);
-                        
+
                         // update external result
                         if (NotificationDal.AddMailExternalResult(partnerId, interestNotification.Id, MailMessageType.Interest, string.Empty, true) == 0)
                         {
@@ -1274,7 +1286,7 @@ namespace APILogic.Notification
                         }
                     }
                 }
-                
+
                 // push & SMS
                 if (NotificationSettings.IsPartnerPushEnabled(partnerId) || NotificationSettings.IsPartnerSmsNotificationEnabled(partnerId))
                 {

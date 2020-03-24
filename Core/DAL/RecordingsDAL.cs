@@ -1190,13 +1190,14 @@ namespace DAL
             return crids;
         }
 
-        public static DataTable GetRecordingsByExternalRecordingId(int groupId, string externalRecordingId)
+        public static DataTable GetRecordingsByExternalRecordingId(int groupId, string externalRecordingId, bool isPrivateCopy)
         {
             DataTable dt = null;
             ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByExternalRecordingId = new ODBCWrapper.StoredProcedure("GetRecordingsByExternalRecordingId");
             spGetEpgToRecordingsMapByExternalRecordingId.SetConnectionKey(RECORDING_CONNECTION);
             spGetEpgToRecordingsMapByExternalRecordingId.AddParameter("@GroupID", groupId);
             spGetEpgToRecordingsMapByExternalRecordingId.AddParameter("@ExternalRecordingId", externalRecordingId);
+            spGetEpgToRecordingsMapByExternalRecordingId.AddParameter("@IsPrivateCopy", isPrivateCopy ? 1 : 0);
             dt = spGetEpgToRecordingsMapByExternalRecordingId.Execute();
 
             return dt;

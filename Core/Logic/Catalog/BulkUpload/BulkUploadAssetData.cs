@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
+using ConfigurationManager;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using QueueWrapper;

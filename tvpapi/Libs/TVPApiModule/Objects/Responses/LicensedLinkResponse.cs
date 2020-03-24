@@ -14,7 +14,7 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "status")] 
         public Status Status { get; set; }
 
-        public LicensedLinkResponse(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse licensedLink)
+        public LicensedLinkResponse(Core.ConditionalAccess.LicensedLinkResponse licensedLink)
         {
             LicensedLink = new LicensedLink()
             {

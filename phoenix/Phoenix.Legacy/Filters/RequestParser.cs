@@ -1,9 +1,9 @@
 ﻿using ConfigurationManager;
+using HttpMultipartParser;
 using KLogMonitor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -11,34 +11,18 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
-using WebAPI.ClientManagers;
-using WebAPI.Controllers;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
-using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.Billing;
-using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
-using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
-using System.Net.Http.Headers;
-using System.Text.RegularExpressions;
-using KlogMonitorHelper;
-using TVinciShared;
-using HttpMultipartParser;
-//using EventManager;
 
 namespace WebAPI.Filters
 {
-
     public class RequestParser : ActionFilterAttribute
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -46,6 +30,7 @@ namespace WebAPI.Filters
         private const char PARAMS_PREFIX = ':';
         private const char PARAMS_NESTED_PREFIX = '.';
 
+        private static readonly string fileSystemUploaderSourcePath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
 
         private static Dictionary<string, Type> types = null;
         private static object locker = new object();
@@ -73,13 +58,10 @@ namespace WebAPI.Filters
             }
         }
 
-
         public static object GetRequestPayload()
         {
             return HttpContext.Current.Items[RequestContext.REQUEST_METHOD_PARAMETERS];
         }
-
-        
 
         private bool Equals(byte[] source, byte[] separator, int index)
         {
@@ -103,7 +85,13 @@ namespace WebAPI.Filters
         {
             if (actionContext.Request.Content.IsMimeMultipartContent())
             {
+                if (!Directory.Exists(fileSystemUploaderSourcePath))
+                {
+                    Directory.CreateDirectory(fileSystemUploaderSourcePath);
+                }
+
                 var ret = new Dictionary<string, object>();
+
                 byte[] requestBody = (byte[])HttpContext.Current.Items["body"];
                 using (Stream stream = new MemoryStream(requestBody))
                 {
@@ -115,8 +103,12 @@ namespace WebAPI.Filters
 
                     foreach (var uploadedFile in parser.Files)
                     {
-                        var kalturaFile = KalturaOTTFile.CreateFromStream(uploadedFile.FileName, uploadedFile.Data);
-                        ret.Add(uploadedFile.Name, kalturaFile);
+                        var filePath = $@"{fileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
+                        using (Stream tempFile = File.Create(filePath))
+                        {
+                            uploadedFile.Data.CopyTo(tempFile);
+                        }
+                        ret.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
                     }
 
                 }
@@ -204,7 +196,7 @@ namespace WebAPI.Filters
                     Version version;
                     if (!Version.TryParse((string)formData["apiVersion"], out version))
                         throw new RequestParserException(RequestParserException.INVALID_VERSION, formData["apiVersion"]);
-                    
+
                     HttpContext.Current.Items[RequestContext.REQUEST_VERSION] = version;
                 }
             }
@@ -493,10 +485,6 @@ namespace WebAPI.Filters
             base.OnActionExecuting(actionContext);
         }
 
-        
-
-        
-
         private Dictionary<string, object> groupParams(Dictionary<string, object> tokens)
         {
             Dictionary<string, object> paramsDic = new Dictionary<string, object>();
@@ -584,10 +572,6 @@ namespace WebAPI.Filters
             array = tmpArr;
         }
 
-
-
-        
-
         private static void createErrorResponse(HttpActionContext actionContext, int errorCode, string msg)
         {
             //We cannot use the ApiException* concept in Filters, so we manually invoke exceptions here.
@@ -610,8 +594,5 @@ namespace WebAPI.Filters
                 actionContext.Response.StatusCode = failureHttpCode.First().HttpStatusCode;
             }
         }
-
-        
-
     }
 }

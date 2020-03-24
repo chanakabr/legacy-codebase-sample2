@@ -28,7 +28,6 @@ namespace TCMClient
             string application = System.Environment.GetEnvironmentVariable("TCM_APP");
             string url = System.Environment.GetEnvironmentVariable("TCM_URL");
             string environment = System.Environment.GetEnvironmentVariable("TCM_SECTION");
-            string host = System.Environment.GetEnvironmentVariable("TCM_HOST");
             string appID = System.Environment.GetEnvironmentVariable("TCM_APP_ID");
             string appSecret = System.Environment.GetEnvironmentVariable("TCM_APP_SECRET");
             string verifySSL = System.Environment.GetEnvironmentVariable("TCM_VERIFY_SSL");
@@ -46,11 +45,6 @@ namespace TCMClient
             if (environment != null)
             {
                 Environment = environment;
-            }
-
-            if (host != null)
-            {
-                Host = host;
             }
 
             if (appID != null)

@@ -10,12 +10,13 @@ using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
+using ConfigurationManager;
 
 namespace TVPApiModule.DataLoaders
 {
     class APIPersonalRecommendedLoader : PersonalRecommendedLoader
     {
-        private bool m_bShouldUseCache;
+        
         private TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader m_oPersonalRecommendedLoader;
 
         #region Parameters
@@ -110,6 +111,9 @@ namespace TVPApiModule.DataLoaders
         {
             TvmUser = tvmUser;
             TvmPass = tvmPass;
+
+            this.FlashVarsFileFormat = GroupsManager.GetGroup(this.GroupID).GetFlashVars(this.Platform).FileFormat;
+            this.FlashVarsSubFileFormat = GroupsManager.GetGroup(this.GroupID).GetFlashVars(this.Platform).SubFileFormat;
         }
 
         public override object BCExecute(eExecuteBehaivor behaivor)
@@ -119,7 +123,7 @@ namespace TVPApiModule.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oPersonalRecommendedLoader = new TVPApiModule.CatalogLoaders.APIPersonalRecommendedLoader(SiteGuid, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
@@ -139,7 +143,7 @@ namespace TVPApiModule.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oPersonalRecommendedLoader.TryGetItemsCount(out count);
             }
@@ -183,7 +187,7 @@ namespace TVPApiModule.DataLoaders
             protocol.root.flashvars.player_un = TvmUser;
             protocol.root.flashvars.player_pass = TvmPass;
 
-            protocol.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            protocol.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             protocol.root.flashvars.file_quality = file_quality.high;
 
 

@@ -7,6 +7,7 @@ using Tvinci.Data.DataLoader;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaHit;
 using TVPPro.SiteManager.Context;
 using TVPPro.SiteManager.Helper;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -74,7 +75,7 @@ namespace TVPApiModule.DataLoaders
             //MediaHit result = new MediaHit();
             //result.root.request.watching.location_sec = Location.ToString();
             //result.root.request.watching.media.id = MediaID.ToString();
-            //result.root.request.watching.media.orig_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            //result.root.request.watching.media.orig_file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             //result.root.request.watching.media.file_quality = file_quality.high;
             //result.root.request.watching.device_udid = DeviceUDID;
 
@@ -83,7 +84,7 @@ namespace TVPApiModule.DataLoaders
             //result.root.flashvars.player_un = TvmUser;
             //result.root.flashvars.player_pass = TvmPass;
             //result.root.flashvars.file_quality = file_quality2.high;
-            //result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            //result.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             //result.root.flashvars.site_guid = SiteGUID;
 
             MediaHit result = new MediaHit();
@@ -99,7 +100,7 @@ namespace TVPApiModule.DataLoaders
             result.root.request.watching.device_udid = DeviceUDID;
             result.root.request.watching.media.cdn_id = CDNID;
             result.root.request.watching.media.file_quality = file_quality.high;
-            result.root.request.watching.media.orig_file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat; ;
+            result.root.request.watching.media.orig_file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat; ;
             result.root.request.watching.media.avg_bit_rate_num = AvgBitRate.ToString();
             result.root.request.watching.media.current_bit_rate_num = CurrentBitRate.ToString();
             result.root.request.watching.media.total_bit_rate_num = TotalBitRateNum.ToString();

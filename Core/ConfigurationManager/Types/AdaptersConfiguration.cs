@@ -8,12 +8,16 @@ namespace ConfigurationManager.Types
 {
     public class AdaptersConfiguration : ConfigurationValue
     {
-        public Dictionary<string, AdapterConfiguration> ConfigurationDictionary = new Dictionary<string, AdapterConfiguration>();
+        public Dictionary<string, AdapterConfiguration> ConfigurationDictionary =
+            new Dictionary<string, AdapterConfiguration>();
+
         private readonly JObject _Json;
         private const string DefaultConfigurationKey = "default";
+
         public AdaptersConfiguration(string key) : base(key)
         {
             string objectValue = Convert.ToString(ObjectValue);
+
             if (!string.IsNullOrEmpty(objectValue))
             {
                 _Json = JObject.Parse(objectValue);
@@ -27,6 +31,7 @@ namespace ConfigurationManager.Types
                 tcmConfiguration.OpenTimeout = tcmConfiguration.OpenTimeout ?? AdapterConfiguration.DefaultConfig.OpenTimeout;
                 tcmConfiguration.ReceiveTimeout = tcmConfiguration.ReceiveTimeout ?? AdapterConfiguration.DefaultConfig.ReceiveTimeout;
                 tcmConfiguration.SendTimeout = tcmConfiguration.SendTimeout ?? AdapterConfiguration.DefaultConfig.SendTimeout;
+                tcmConfiguration.HttpClientCredentialType = tcmConfiguration.HttpClientCredentialType ?? AdapterConfiguration.DefaultConfig.HttpClientCredentialType;
             }
             else
             {
@@ -41,7 +46,7 @@ namespace ConfigurationManager.Types
             try
             {
                 base.Validate();
-                var configuration = JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(_Json.ToString());
+                var configuration =  JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(_Json.ToString());
                 var res = configuration["default"]; //verify default configuration exists
             }
             catch (Exception ex)

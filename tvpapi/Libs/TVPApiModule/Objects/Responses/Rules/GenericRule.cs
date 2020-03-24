@@ -21,23 +21,23 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty("description")]
         public string Description { get; set; }
 
-        public GenericRule(TVPPro.SiteManager.TvinciPlatform.api.GenericRule rule)
+        public GenericRule(ApiObjects.Rules.GenericRule rule)
         {
             Id = rule.Id;
             Name = rule.Name;
             Description = rule.Description;
             switch (rule.RuleType)
             {
-                case TVPPro.SiteManager.TvinciPlatform.api.RuleType.Parental:
+                case ApiObjects.RuleType.Parental:
                     RuleType = Responses.RuleType.Parental;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.api.RuleType.Geo:
+                case ApiObjects.RuleType.Geo:
                     RuleType = Responses.RuleType.Geo;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.api.RuleType.UserType:
+                case ApiObjects.RuleType.UserType:
                     RuleType = Responses.RuleType.UserType;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.api.RuleType.Device:
+                case ApiObjects.RuleType.Device:
                     RuleType = Responses.RuleType.Device;
                     break;
                 default:

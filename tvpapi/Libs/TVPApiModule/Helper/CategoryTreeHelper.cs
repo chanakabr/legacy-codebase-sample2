@@ -5,7 +5,11 @@ using System.Web;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.DataLoader;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Catalog;
+using ApiObjects;
+using ApiObjects.Response;
 using TVPApiModule.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
 

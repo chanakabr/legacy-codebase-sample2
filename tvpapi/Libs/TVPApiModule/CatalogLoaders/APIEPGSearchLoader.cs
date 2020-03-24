@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Helper;
 using TVPApiModule.Manager;
 using TVPPro.SiteManager.CatalogLoaders;
+using Core.Catalog;
 
 namespace TVPApiModule.CatalogLoaders
 {

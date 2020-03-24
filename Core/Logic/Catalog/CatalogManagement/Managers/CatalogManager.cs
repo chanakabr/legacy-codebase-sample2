@@ -1,10 +1,13 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
+using ApiObjects.EventBus;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Catalog.Response;
 using DAL;
+using EventBus.RabbitMQ;
 using GroupsCacheManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -599,7 +602,7 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static bool InvalidateCacheForTagAssets(int groupId, long tagId, bool shouldUpdateRowsStatus, long userId, 
+        private static bool InvalidateCacheForTagAssets(int groupId, long tagId, bool shouldUpdateRowsStatus, long userId,
             out List<int> mediaIds, out List<int> epgIds)
         {
             // preparing media list and epg
@@ -1092,10 +1095,13 @@ namespace Core.Catalog.CatalogManagement
                                 TopicsIds = topicsForAssetUpdate.Select(x => x.Id).ToList()
                             };
 
-                            var queue = new GenericCeleryQueue();
-                            var inheritanceData = new InheritanceData(groupId, InheritanceType.ParentUpdate, JsonConvert.SerializeObject(data), userId);
-                            bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
-                            if (!enqueueSuccessful)
+                            try
+                            {
+                                var queue = new GenericCeleryQueue();
+                                var inheritanceData = new InheritanceData(groupId, InheritanceType.ParentUpdate, JsonConvert.SerializeObject(data), userId);
+                                bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
+                            }
+                            catch
                             {
                                 log.ErrorFormat("Failed enqueue of inheritance {0}", data);
                             }
@@ -1224,7 +1230,7 @@ namespace Core.Catalog.CatalogManagement
                 foreach (AssetStruct connectedAssetStruct in connectedAssetStructs)
                 {
                     // Get only inheritedTopics and filtered with ProtectFromIngest false
-                    List<AssetStructMeta> inheritedTopics = connectedAssetStruct.AssetStructMetas.Values.Where(x => (x.IsInherited.HasValue && x.IsInherited.Value) && 
+                    List<AssetStructMeta> inheritedTopics = connectedAssetStruct.AssetStructMetas.Values.Where(x => (x.IsInherited.HasValue && x.IsInherited.Value) &&
                                                                                                                         (!x.ProtectFromIngest.HasValue || x.ProtectFromIngest.Value == false)).ToList();
                     if (inheritedTopics != null && inheritedTopics.Count > 0)
                     {
@@ -1886,7 +1892,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        } 
+        }
 
         public static GenericListResponse<Topic> GetTopicsByAssetStructId(int groupId, long assetStructId, MetaType type)
         {
@@ -1907,7 +1913,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 assetStructId = catalogGroupCache.GetRealAssetStructId(assetStructId, out bool isProgramStruct);
-                
+
                 if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
                 {
                     List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
@@ -2120,7 +2126,7 @@ namespace Core.Catalog.CatalogManagement
 
                         tagTopicIds.Add(id);
                     }
-                    else if(topic.Type == MetaType.ReleatedEntity)
+                    else if (topic.Type == MetaType.ReleatedEntity)
                     {
                         relatedEntitiesTopicIds.Add(id);
                     }
@@ -2418,7 +2424,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateTag", groupId);
                     return result;
                 }
-                
+
                 result = GetTagById(groupId, tagToUpdate.tagId);
                 if (!result.HasObject())
                 {
@@ -2469,7 +2475,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     return result;
                 }
-                
+
                 if (!isFromIngest)
                 {
                     List<int> mediaIds, epgIds;
@@ -2517,21 +2523,32 @@ namespace Core.Catalog.CatalogManagement
 
         private static bool PartialTagIndexUpdate(int groupId, string fieldName, string newValue, string originalValue, string languageCode, List<int> mediaIds, List<int> epgIds)
         {
+            var result = true;
+
+            if (mediaIds?.Any() == true)
+            {
+                result &= EnqueuePatialUpdateEvent(groupId, fieldName, newValue, originalValue, languageCode, mediaIds);
+            }
+
+            if (epgIds?.Any() == true)
+            {
+                result &= EnqueuePatialUpdateEvent(groupId, fieldName, newValue, originalValue, languageCode, epgIds);
+            }
+
+            return result;
+        }
+
+        private static bool EnqueuePatialUpdateEvent(int groupId, string fieldName, string newValue, string originalValue, string languageCode, List<int> assetIds)
+        {
+            bool result;
             var queue = new CatalogQueue();
-
-            // we start optimistic
-            bool result = true;
-
-            if (mediaIds != null && mediaIds.Count > 0)
-            {
-                var castedMediaIds = mediaIds.Select(i => (long)i).ToList();
-                var mediaQueueData = new PartialUpdateData(groupId,
-                    new AssetsPartialUpdate()
-                    {
-                        AssetIds = mediaIds,
-                        AssetType = eObjectType.Media,
-                        Updates = new List<PartialUpdate>()
-                        {
+            var mediaQueueCeleryData = new PartialUpdateData(groupId,
+               new AssetsPartialUpdate()
+               {
+                   AssetIds = assetIds,
+                   AssetType = eObjectType.Media,
+                   Updates = new List<PartialUpdate>()
+                   {
                             new PartialUpdate()
                             {
                                 Action = eUpdateFieldAction.Replace,
@@ -2542,35 +2559,10 @@ namespace Core.Catalog.CatalogManagement
                                 OriginalValue = originalValue,
                                 ShouldUpdateAllLanguages = false
                             }
-                        }
-                    });
+                   }
+               });
 
-                result &= queue.Enqueue(mediaQueueData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
-            }
-
-            if (epgIds != null && epgIds.Count > 0)
-            {
-                var epgQueueData = new PartialUpdateData(groupId,
-                    new AssetsPartialUpdate()
-                    {
-                        AssetIds = epgIds,
-                        AssetType = eObjectType.EPG,
-                        Updates = new List<PartialUpdate>()
-                        {
-                            new PartialUpdate()
-                            {
-                                Action = eUpdateFieldAction.Replace,
-                                FieldName = fieldName,
-                                FieldType = eUpdateFieldType.Tag,
-                                LanguageCode = languageCode,
-                                NewValue = newValue,
-                                OriginalValue = originalValue,
-                                ShouldUpdateAllLanguages = false
-                            }
-                        }
-                    });
-                result &= queue.Enqueue(epgQueueData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
-            }
+            result = queue.Enqueue(mediaQueueCeleryData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
 
             return result;
         }
@@ -2809,19 +2801,15 @@ namespace Core.Catalog.CatalogManagement
 
                 if (needToHandleHeritage)
                 {
-                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-
-                    InheritanceAssetStructMeta data = new InheritanceAssetStructMeta()
+                    var data = new InheritanceAssetStructMeta()
                     {
                         AssetStructId = assetStructId,
                         MetaId = metaId
                     };
+
+                    var queue = new QueueWrapper.GenericCeleryQueue();
                     InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, JsonConvert.SerializeObject(data), userId);
                     bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
-                    if (!enqueueSuccessful)
-                    {
-                        log.ErrorFormat("Failed enqueue of inheritance {0}", data);
-                    }
                 }
             }
             catch (Exception ex)
@@ -3035,6 +3023,116 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return parentAssetsIds;
+        }
+
+        private static Tuple<Dictionary<long, List<int>>, bool> GetLinearMediaRegionsFromDB(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<long, List<int>> result = new Dictionary<long, List<int>>();
+
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        var dt = ApiDAL.GetMediaRegions(groupId.Value);
+                        if (dt != null && dt.Rows != null)
+                        {
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                long linearChannelId = ODBCWrapper.Utils.GetLongSafeVal(row, "MEDIA_ID");
+                                int regionId = ODBCWrapper.Utils.GetIntSafeVal(row, "REGION_ID");
+
+                                if (!result.ContainsKey(linearChannelId))
+                                {
+                                    result.Add(linearChannelId, new List<int>());
+                                }
+
+                                result[linearChannelId].Add(regionId);
+                            }
+                        }
+                    }
+                }
+
+                res = result != null;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetLinearMediaRegionsFromDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<long, List<int>>, bool>(result, res);
+        }
+
+        internal static List<int> GetRegions(int groupId)
+        {
+            List<int> result = null;
+
+            try
+            {
+                string key = LayeredCacheKeys.GetRegionsKey(groupId);
+                if (!LayeredCache.Instance.Get<List<int>>(key,
+                                                          ref result,
+                                                          GetRegionsFromDB,
+                                                          new Dictionary<string, object>() { { "groupId", groupId } },
+                                                          groupId,
+                                                          LayeredCacheKeys.GetRegionsInvalidationKey(groupId)))
+                {
+                    log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetRegions for groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        private static Tuple<List<int>, bool> GetRegionsFromDB(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<int> result = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId;
+                    groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        var ds = ApiDAL.Get_Regions(groupId.Value, null);
+
+                        if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                        {
+                            if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                            {
+                                res = true;
+
+                                if (result == null)
+                                {
+                                    result = new List<int>();
+                                }
+
+                                foreach (DataRow dr in ds.Tables[0].Rows)
+                                {
+                                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                                    result.Add(id);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetRegionsFromDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<int>, bool>(result, res);
         }
 
         #endregion

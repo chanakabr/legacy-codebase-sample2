@@ -14,7 +14,7 @@ namespace TVPApiModule.Objects.Responses.ConditionalAccess
         [JsonProperty(PropertyName = "status")]
         public Status Status { get; set; }
 
-        public TransactionResponse(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.TransactionResponse transaction)
+        public TransactionResponse(ApiObjects.Billing.TransactionResponse transaction)
         {
             if (transaction != null)
             {

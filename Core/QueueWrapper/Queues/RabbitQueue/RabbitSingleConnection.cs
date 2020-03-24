@@ -282,11 +282,7 @@ namespace QueueWrapper
                 bool isParseSucceeded = false;
 
                 // If reading from TCM failed, try to read from extra.config. Else, convert to int
-                if (tcmFailCountLimit <= 0)
-                {
-                    isParseSucceeded = int.TryParse(System.Configuration.ConfigurationManager.AppSettings["queue_fail_limit"], out failCounterLimit);
-                }
-                else
+                if (tcmFailCountLimit > 0)
                 {
                     isParseSucceeded = true;
                     failCounterLimit = tcmFailCountLimit;

@@ -33,7 +33,6 @@ namespace Core.Billing
             _RecurringPaymentClient = new RecurringPortTypeClient(recurringPaymentEndpointConfig, recurringPaymentServiceUrl);
             _RecurringPaymentClient.ConfigureServiceClient();
 
-
             _PaymentClient = new PaymentPortTypeClient(paymentEndpointConfig, paymentServiceUrl);
             _PaymentClient.ConfigureServiceClient();
         }
@@ -375,7 +374,6 @@ namespace Core.Billing
                 recRequest.recurring = new APILogic.AdyenRecAPI.Recurring();
                 recRequest.recurring.recurringDetailName = "RECURRING";
                 recRequest.recurring.contract = "RECURRING";
-
 
                 _RecurringPaymentClient.ClientCredentials.UserName.UserName = sUN;
                 _RecurringPaymentClient.ClientCredentials.UserName.Password = sPass;

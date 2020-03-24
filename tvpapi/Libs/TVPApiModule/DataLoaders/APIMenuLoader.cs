@@ -34,7 +34,7 @@ namespace TVPApi
             }
         }
 
-        protected override void InitializeQuery(ODBCWrapper.DataSetSelectQuery query)
+        protected override void InitializeQuery(TVPApi.ODBCWrapper.DataSetSelectQuery query)
         {
             ConnectionManager mngr = new ConnectionManager(GroupID, Platform, false);
             query.SetConnectionString(mngr.GetClientConnectionString());

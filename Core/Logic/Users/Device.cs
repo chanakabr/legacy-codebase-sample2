@@ -470,7 +470,7 @@ namespace Core.Users
 
                 selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery1.SetConnectionKey("USERS_CONNECTION_STRING");
-                selectQuery1 += "select domain_id, last_activation_date, is_active from domains_devices with (nolock) where status=1 and";
+                selectQuery1 += "select domain_id, last_activation_date, is_active,status from domains_devices with (nolock) where status=1 and";
                 selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", nDeviceID);
                 if (selectQuery1.Execute("query", true) != null)
                 {
