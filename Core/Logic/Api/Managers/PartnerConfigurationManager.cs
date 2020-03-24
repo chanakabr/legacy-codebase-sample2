@@ -481,7 +481,7 @@ namespace ApiLogic.Api.Managers
                 }
                 else
                 {
-                    needToUpdate = playbackPartnerConfig.SetUnchangedProperties(oldCommerceConfig.Object);
+                    //needToUpdate = playbackPartnerConfig.SetUnchangedProperties(oldCommerceConfig.Object);
                 }
 
                 if (needToUpdate)
@@ -510,7 +510,7 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
-        internal static GenericResponse<PlaybackPartnerConfig> GetPlaybackConfig(int groupId)
+        public static GenericResponse<PlaybackPartnerConfig> GetPlaybackConfig(int groupId)
         {
             var response = new GenericResponse<PlaybackPartnerConfig>();
 

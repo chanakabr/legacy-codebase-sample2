@@ -136,16 +136,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //.ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value)));
 
             cfg.CreateMap<KalturaPlaybackPartnerConfig, PlaybackPartnerConfig>()
-               .ForMember(dest => dest.VodDefaultAdapter, opt => opt.MapFrom(src => src.VodDefaultAdapter))
-               .ForMember(dest => dest.EpgDefaultAdapter, opt => opt.MapFrom(src => src.EpgDefaultAdapter))
-               .ForMember(dest => dest.RecordingDefaultAdapter, opt => opt.MapFrom(src => src.RecordingDefaultAdapter))
-               ;
+               .ForMember(dest => dest.DefaultPlayback, opt => opt.MapFrom(src => src.DefaultPlayback));
 
             cfg.CreateMap<PlaybackPartnerConfig, KalturaPlaybackPartnerConfig>()
-               .ForMember(dest => dest.VodDefaultAdapter, opt => opt.MapFrom(src => src.VodDefaultAdapter))
-               .ForMember(dest => dest.EpgDefaultAdapter, opt => opt.MapFrom(src => src.EpgDefaultAdapter))
-               .ForMember(dest => dest.RecordingDefaultAdapter, opt => opt.MapFrom(src => src.RecordingDefaultAdapter))
-               ;
+               .ForMember(dest => dest.DefaultPlayback, opt => opt.MapFrom(src => src.DefaultPlayback));
+
+            cfg.CreateMap<KalturaDefaultPlayback, DefaultPlayback>()
+               .ForMember(dest => dest.EpgAdapter, opt => opt.MapFrom(src => src.EpgAdapter))
+               .ForMember(dest => dest.VodAdapter, opt => opt.MapFrom(src => src.VodAdapter))
+               .ForMember(dest => dest.RecordingAdapter, opt => opt.MapFrom(src => src.RecordingAdapter));
+
+            cfg.CreateMap<DefaultPlayback, KalturaDefaultPlayback>()
+               .ForMember(dest => dest.EpgAdapter, opt => opt.MapFrom(src => src.EpgAdapter))
+               .ForMember(dest => dest.VodAdapter, opt => opt.MapFrom(src => src.VodAdapter))
+               .ForMember(dest => dest.RecordingAdapter, opt => opt.MapFrom(src => src.RecordingAdapter));
         }
 
         private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationType type)

@@ -1946,6 +1946,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDefaultPlayback":
+                    switch(property.Name)
+                    {
+                        case "EpgAdapter":
+                            return "epgAdapter";
+                        case "RecordingAdapter":
+                            return "recordingAdapter";
+                        case "VodAdapter":
+                            return "vodAdapter";
+                    }
+                    break;
+                    
                 case "KalturaDetachedResponseProfile":
                     switch(property.Name)
                     {

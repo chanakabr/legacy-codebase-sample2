@@ -6,6 +6,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Clients;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Partner
 {
@@ -14,29 +15,7 @@ namespace WebAPI.Models.Partner
     /// </summary>
     public partial class KalturaPlaybackPartnerConfig : KalturaPartnerConfiguration
     {
-        /// <summary>
-        /// Default adapter for vod
-        /// </summary>
-        [DataMember(Name = "vodDefaultAdapter")]
-        [JsonProperty("vodDefaultAdapter")]
-        [XmlElement(ElementName = "vodDefaultAdapter")]
-        public long? VodDefaultAdapter { get; set; }
-
-        /// <summary>
-        /// Default adapter for epg
-        /// </summary>
-        [DataMember(Name = "epgDefaultAdapter")]
-        [JsonProperty("epgDefaultAdapter")]
-        [XmlElement(ElementName = "epgDefaultAdapter")]
-        public long? EpgDefaultAdapter { get; set; }
-
-        /// <summary>
-        /// Default adapter for recording
-        /// </summary>
-        [DataMember(Name = "recordingDefaultAdapter")]
-        [JsonProperty("recordingDefaultAdapter")]
-        [XmlElement(ElementName = "recordingDefaultAdapter")]
-        public long? RecordingDefaultAdapter { get; set; }
+        public KalturaDefaultPlayback DefaultPlayback { get; set; }
 
         protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.Playback; } }
 
@@ -50,5 +29,31 @@ namespace WebAPI.Models.Partner
 
             return true;
         }
+    }
+    public partial class KalturaDefaultPlayback : KalturaOTTObject
+    {
+        /// <summary>
+        /// Default adapter for vod
+        /// </summary>
+        [DataMember(Name = "vodAdapter")]
+        [JsonProperty("vodAdapter")]
+        [XmlElement(ElementName = "vodAdapter")]
+        public long VodAdapter { get; set; }
+
+        /// <summary>
+        /// Default adapter for epg
+        /// </summary>
+        [DataMember(Name = "epgAdapter")]
+        [JsonProperty("epgAdapter")]
+        [XmlElement(ElementName = "epgAdapter")]
+        public long EpgAdapter { get; set; }
+
+        /// <summary>
+        /// Default adapter for recording
+        /// </summary>
+        [DataMember(Name = "recordingAdapter")]
+        [JsonProperty("recordingAdapter")]
+        [XmlElement(ElementName = "recordingAdapter")]
+        public long RecordingAdapter { get; set; }       
     }
 }

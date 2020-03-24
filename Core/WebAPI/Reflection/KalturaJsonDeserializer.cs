@@ -617,6 +617,9 @@ namespace WebAPI.Reflection
                 case "KalturaDateTrigger":
                     return new KalturaDateTrigger(parameters);
                     
+                case "KalturaDefaultPlayback":
+                    return new KalturaDefaultPlayback(parameters);
+                    
                 case "KalturaDefaultRegionFilter":
                     return new KalturaDefaultRegionFilter(parameters);
                     
@@ -1303,6 +1306,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPlaybackContextOptions":
                     return new KalturaPlaybackContextOptions(parameters);
+                    
+                case "KalturaPlaybackPartnerConfig":
+                    return new KalturaPlaybackPartnerConfig(parameters);
                     
                 case "KalturaPlaybackPluginData":
                     return new KalturaPlaybackPluginData(parameters);
@@ -25230,6 +25236,27 @@ namespace WebAPI.Models.Partner
             }
         }
     }
+    public partial class KalturaDefaultPlayback
+    {
+        public KalturaDefaultPlayback(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("vodAdapter") && parameters["vodAdapter"] != null)
+                {
+                    VodAdapter = (Int64) Convert.ChangeType(parameters["vodAdapter"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("epgAdapter") && parameters["epgAdapter"] != null)
+                {
+                    EpgAdapter = (Int64) Convert.ChangeType(parameters["epgAdapter"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("recordingAdapter") && parameters["recordingAdapter"] != null)
+                {
+                    RecordingAdapter = (Int64) Convert.ChangeType(parameters["recordingAdapter"], typeof(Int64));
+                }
+            }
+        }
+    }
     public partial class KalturaGeneralPartnerConfig
     {
         public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
@@ -25400,6 +25427,26 @@ namespace WebAPI.Models.Partner
                     else if (parameters["objects"] is IList)
                     {
                         Objects = buildList(typeof(KalturaPartnerConfiguration), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaPlaybackPartnerConfig
+    {
+        public KalturaPlaybackPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("DefaultPlayback") && parameters["DefaultPlayback"] != null)
+                {
+                    if (parameters["DefaultPlayback"] is JObject)
+                    {
+                        DefaultPlayback = (KalturaDefaultPlayback) Deserializer.deserialize(typeof(KalturaDefaultPlayback), ((JObject) parameters["DefaultPlayback"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["DefaultPlayback"] is IDictionary)
+                    {
+                        DefaultPlayback = (KalturaDefaultPlayback) Deserializer.deserialize(typeof(KalturaDefaultPlayback), (Dictionary<string, object>) parameters["DefaultPlayback"]);
                     }
                 }
             }
