@@ -9932,7 +9932,8 @@ namespace Core.ConditionalAccess
         /// <param name="transactionType"></param>
         /// <param name="isForce"></param>
         /// <returns></returns>
-        public virtual ApiObjects.Response.Status CancelServiceNow(int domainId, int assetID, eTransactionType transactionType, bool isForce = false, string udid = null, string userIp = null)
+        public virtual ApiObjects.Response.Status CancelServiceNow(int domainId, int assetID, eTransactionType transactionType, 
+            bool isForce = false, string udid = null, string userIp = null, string userId = null)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status();
 
@@ -9957,7 +9958,7 @@ namespace Core.ConditionalAccess
 
                         if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
                         {
-                            // check is permitted to login becouse if domain suspended to cancel or force cancel it should be done via phoniex (service_action )
+                            // check is permitted to login because if domain suspended to cancel or force cancel it should be done via Phoenix (service_action )
                             if (!isForce && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
                             {
                                 result.Code = (int)eResponseStatus.DomainSuspended;
@@ -10026,7 +10027,7 @@ namespace Core.ConditionalAccess
                             if (verificationStatus.Code != (int)eResponseStatus.OK)
                             {
                                 result = verificationStatus;
-                                log.ErrorFormat("Verification payment gateway does not support cancelation. billingGuid = {0}", billingGuid);
+                                log.ErrorFormat("Verification payment gateway does not support cancellation. billingGuid = {0}", billingGuid);
                                 return result;
                             }
                         }
@@ -10148,11 +10149,13 @@ namespace Core.ConditionalAccess
 
                             if (dalResult)
                             {
+                                var updaterUser = !string.IsNullOrEmpty(userId) ? userId : purchasingSiteGuid;
+
                                 // Update domain with last domain DLM
                                 UpdateDLM(domainId, 0);
 
                                 // Report to user log
-                                WriteToUserLog(purchasingSiteGuid,
+                                WriteToUserLog(updaterUser,
                                     string.Format("user :{0} CancelServiceNow for {1} item :{2}", domainId, Enum.GetName(typeof(eTransactionType), transactionType),
                                     assetID));
                                 //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
@@ -10164,7 +10167,7 @@ namespace Core.ConditionalAccess
                                 {
                                     DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
 
-                                    EnqueueCancelServiceRecord(domainId, assetID, transactionType, dtEndDate, purchasingSiteGuid, udid, userIp);
+                                    EnqueueCancelServiceRecord(domainId, assetID, transactionType, dtEndDate, updaterUser, udid, userIp);
                                 }
 
                                 string invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId);
