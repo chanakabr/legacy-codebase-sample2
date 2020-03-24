@@ -473,15 +473,15 @@ namespace ApiLogic.Api.Managers
             try
             {
                 var needToUpdate = false;
-                var oldCommerceConfig = GetPlaybackConfig(groupId);
+                var oldPlayadapterConfig = GetPlaybackConfig(groupId);
 
-                if (!oldCommerceConfig.HasObject())
+                if (oldPlayadapterConfig == null ||!oldPlayadapterConfig.HasObject())
                 {
                     needToUpdate = true;
                 }
                 else
                 {
-                    //needToUpdate = playbackPartnerConfig.SetUnchangedProperties(oldCommerceConfig.Object);
+                    needToUpdate = playbackPartnerConfig.SetUnchangedProperties(oldPlayadapterConfig.Object);
                 }
 
                 if (needToUpdate)
@@ -550,6 +550,20 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
+        public static GenericListResponse<PlaybackPartnerConfig> GetPlaybackConfigList(int groupId)
+        {
+            var response = new GenericListResponse<PlaybackPartnerConfig>();
+            var partnerConfig = GetPlaybackConfig(groupId);
+
+            if (partnerConfig.HasObject())
+            {
+                response.Objects.Add(partnerConfig.Object);
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+
+            return response;
+        }
         #endregion
 
         #region private methods

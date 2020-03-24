@@ -1,6 +1,5 @@
 ﻿using AdapterControllers;
 using AdapterControllers.CDVR;
-using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using ApiObjects;
@@ -14,7 +13,6 @@ using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Api;
 using Core.Api.Managers;
-using Core.Catalog;
 using Core.Catalog.Response;
 using Core.Pricing;
 using Core.Users;

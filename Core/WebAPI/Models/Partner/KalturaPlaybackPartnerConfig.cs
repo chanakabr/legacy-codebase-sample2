@@ -15,6 +15,12 @@ namespace WebAPI.Models.Partner
     /// </summary>
     public partial class KalturaPlaybackPartnerConfig : KalturaPartnerConfiguration
     {
+        /// <summary>
+        /// default adapter configuration for: vod, epg,recording.
+        /// </summary>
+        [DataMember(Name = "defaultPlayback")]
+        [JsonProperty("defaultPlayback")]
+        [XmlElement(ElementName = "defaultPlayback", IsNullable = true)] 
         public KalturaDefaultPlayback DefaultPlayback { get; set; }
 
         protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.Playback; } }

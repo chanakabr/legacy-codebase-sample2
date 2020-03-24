@@ -25438,15 +25438,15 @@ namespace WebAPI.Models.Partner
         {
             if (parameters != null)
             {
-                if (parameters.ContainsKey("DefaultPlayback") && parameters["DefaultPlayback"] != null)
+                if (parameters.ContainsKey("defaultPlayback") && parameters["defaultPlayback"] != null)
                 {
-                    if (parameters["DefaultPlayback"] is JObject)
+                    if (parameters["defaultPlayback"] is JObject)
                     {
-                        DefaultPlayback = (KalturaDefaultPlayback) Deserializer.deserialize(typeof(KalturaDefaultPlayback), ((JObject) parameters["DefaultPlayback"]).ToObject<Dictionary<string, object>>());
+                        DefaultPlayback = (KalturaDefaultPlayback) Deserializer.deserialize(typeof(KalturaDefaultPlayback), ((JObject) parameters["defaultPlayback"]).ToObject<Dictionary<string, object>>());
                     }
-                    else if (parameters["DefaultPlayback"] is IDictionary)
+                    else if (parameters["defaultPlayback"] is IDictionary)
                     {
-                        DefaultPlayback = (KalturaDefaultPlayback) Deserializer.deserialize(typeof(KalturaDefaultPlayback), (Dictionary<string, object>) parameters["DefaultPlayback"]);
+                        DefaultPlayback = (KalturaDefaultPlayback) Deserializer.deserialize(typeof(KalturaDefaultPlayback), (Dictionary<string, object>) parameters["defaultPlayback"]);
                     }
                 }
             }

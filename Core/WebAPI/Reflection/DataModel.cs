@@ -4600,6 +4600,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPlaybackPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "DefaultPlayback":
+                            return "defaultPlayback";
+                    }
+                    break;
+                    
                 case "KalturaPlaybackProfile":
                     switch(property.Name)
                     {

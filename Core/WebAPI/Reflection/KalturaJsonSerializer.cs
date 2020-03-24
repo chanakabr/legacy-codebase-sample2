@@ -25335,6 +25335,11 @@ namespace WebAPI.Models.Partner
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(DefaultPlayback != null)
+            {
+                propertyValue = DefaultPlayback.ToJson(currentVersion, omitObsolete);
+                ret.Add("defaultPlayback", "\"defaultPlayback\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -25344,6 +25349,11 @@ namespace WebAPI.Models.Partner
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(DefaultPlayback != null)
+            {
+                propertyValue = DefaultPlayback.ToXml(currentVersion, omitObsolete);
+                ret.Add("defaultPlayback", "<defaultPlayback>" + propertyValue + "</defaultPlayback>");
+            }
             return ret;
         }
     }
