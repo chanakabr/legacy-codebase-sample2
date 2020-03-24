@@ -11536,9 +11536,9 @@ namespace Core.Api
 
                 // Check that the adapter is not set as the default playback adapter
                 var defaultConfig = PartnerConfigurationManager.GetPlaybackConfig(groupId);
-                if(defaultConfig != null && defaultConfig.HasObject() && defaultConfig.Object.DefaultPlayback != null)
+                if(defaultConfig != null && defaultConfig.HasObject() && defaultConfig.Object.DefaultAdapters != null)
                 {
-                    long[] defaultAdapters = { defaultConfig.Object.DefaultPlayback.RecordingAdapter, defaultConfig.Object.DefaultPlayback.EpgAdapter, defaultConfig.Object.DefaultPlayback.VodAdapter};
+                    long[] defaultAdapters = { defaultConfig.Object.DefaultAdapters.RecordingAdapterId, defaultConfig.Object.DefaultAdapters.EpgAdapterId, defaultConfig.Object.DefaultAdapters.MediaAdapterId};
                     if (defaultAdapters.Contains(id))
                     {
                         response.Set(eResponseStatus.CanNotDeleteDefaultAdapter, CAN_NOT_DELETE_DEFAULT_ADAPTER);

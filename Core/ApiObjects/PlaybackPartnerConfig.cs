@@ -2,30 +2,30 @@
 {
     public class PlaybackPartnerConfig
     {
-        public DefaultPlayback DefaultPlayback { get; set; }
+        public DefaultPlaybackAdapters DefaultAdapters { get; set; }
 
         public bool SetUnchangedProperties(PlaybackPartnerConfig oldConfig)
         {
             var needToUpdate = false;
-            if (this.DefaultPlayback != null)
+            if (this.DefaultAdapters != null)
             {
                 needToUpdate = true;
             }
             else
             {
-                this.DefaultPlayback = oldConfig.DefaultPlayback;
+                this.DefaultAdapters = oldConfig.DefaultAdapters;
             }
 
             return needToUpdate;
         }
     }
 
-    public class DefaultPlayback
+    public class DefaultPlaybackAdapters
     {
-        public long VodAdapter { get; set; }
+        public long MediaAdapterId { get; set; }
 
-        public long EpgAdapter { get; set; }
+        public long EpgAdapterId { get; set; }
 
-        public long RecordingAdapter { get; set; }
+        public long RecordingAdapterId { get; set; }
     }
 }

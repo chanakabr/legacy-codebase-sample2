@@ -25035,7 +25035,7 @@ namespace WebAPI.Models.Partner
             return ret;
         }
     }
-    public partial class KalturaDefaultPlayback
+    public partial class KalturaDefaultPlaybackAdapters
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -25043,9 +25043,9 @@ namespace WebAPI.Models.Partner
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            ret.Add("epgAdapter", "\"epgAdapter\": " + EpgAdapter);
-            ret.Add("recordingAdapter", "\"recordingAdapter\": " + RecordingAdapter);
-            ret.Add("vodAdapter", "\"vodAdapter\": " + VodAdapter);
+            ret.Add("epgAdapterId", "\"epgAdapterId\": " + EpgAdapterId);
+            ret.Add("mediaAdapterId", "\"mediaAdapterId\": " + MediaAdapterId);
+            ret.Add("recordingAdapterId", "\"recordingAdapterId\": " + RecordingAdapterId);
             return ret;
         }
         
@@ -25055,9 +25055,9 @@ namespace WebAPI.Models.Partner
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            ret.Add("epgAdapter", "<epgAdapter>" + EpgAdapter + "</epgAdapter>");
-            ret.Add("recordingAdapter", "<recordingAdapter>" + RecordingAdapter + "</recordingAdapter>");
-            ret.Add("vodAdapter", "<vodAdapter>" + VodAdapter + "</vodAdapter>");
+            ret.Add("epgAdapterId", "<epgAdapterId>" + EpgAdapterId + "</epgAdapterId>");
+            ret.Add("mediaAdapterId", "<mediaAdapterId>" + MediaAdapterId + "</mediaAdapterId>");
+            ret.Add("recordingAdapterId", "<recordingAdapterId>" + RecordingAdapterId + "</recordingAdapterId>");
             return ret;
         }
     }
@@ -25335,10 +25335,10 @@ namespace WebAPI.Models.Partner
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(DefaultPlayback != null)
+            if(DefaultAdapters != null)
             {
-                propertyValue = DefaultPlayback.ToJson(currentVersion, omitObsolete);
-                ret.Add("defaultPlayback", "\"defaultPlayback\": " + propertyValue);
+                propertyValue = DefaultAdapters.ToJson(currentVersion, omitObsolete);
+                ret.Add("defaultAdapters", "\"defaultAdapters\": " + propertyValue);
             }
             return ret;
         }
@@ -25349,10 +25349,10 @@ namespace WebAPI.Models.Partner
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(DefaultPlayback != null)
+            if(DefaultAdapters != null)
             {
-                propertyValue = DefaultPlayback.ToXml(currentVersion, omitObsolete);
-                ret.Add("defaultPlayback", "<defaultPlayback>" + propertyValue + "</defaultPlayback>");
+                propertyValue = DefaultAdapters.ToXml(currentVersion, omitObsolete);
+                ret.Add("defaultAdapters", "<defaultAdapters>" + propertyValue + "</defaultAdapters>");
             }
             return ret;
         }

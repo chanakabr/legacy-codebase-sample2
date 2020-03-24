@@ -61,30 +61,32 @@ namespace WebAPI.Utils
                     }
                 }
             }
-            else
+
+            if(adapterId == 0)
             {
                 // Get default adpter configuration 
                 var defaultConfig = PartnerConfigurationManager.GetPlaybackConfig(groupId);
-                if (defaultConfig != null && defaultConfig.HasObject() && defaultConfig.Object.DefaultPlayback != null)
+                if (defaultConfig != null && defaultConfig.HasObject() && defaultConfig.Object.DefaultAdapters != null)
                 {
                     switch (assetType)
                     {
                         case KalturaAssetType.media:
-                            adapterId = defaultConfig.Object.DefaultPlayback.VodAdapter;
+                            adapterId = defaultConfig.Object.DefaultAdapters.MediaAdapterId;
                             break;
                         case KalturaAssetType.recording:
-                            adapterId = defaultConfig.Object.DefaultPlayback.RecordingAdapter;
+                            adapterId = defaultConfig.Object.DefaultAdapters.RecordingAdapterId;
                             break;
                         case KalturaAssetType.epg:
-                            adapterId = defaultConfig.Object.DefaultPlayback.EpgAdapter;
+                            adapterId = defaultConfig.Object.DefaultAdapters.EpgAdapterId;
                             break;
                         default:
                             break;
                     }
-                }
-                else
-                {
-                    log.Debug($"No default playback adapter configuration found. groupId: {groupId}");
+
+                    if (adapterId > 0)
+                    {
+                        log.Debug($"default playback adapter configuration found. adapterId: {adapterId} ");
+                    }
                 }
             }
 

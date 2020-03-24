@@ -617,8 +617,8 @@ namespace WebAPI.Reflection
                 case "KalturaDateTrigger":
                     return new KalturaDateTrigger(parameters);
                     
-                case "KalturaDefaultPlayback":
-                    return new KalturaDefaultPlayback(parameters);
+                case "KalturaDefaultPlaybackAdapters":
+                    return new KalturaDefaultPlaybackAdapters(parameters);
                     
                 case "KalturaDefaultRegionFilter":
                     return new KalturaDefaultRegionFilter(parameters);
@@ -25236,23 +25236,23 @@ namespace WebAPI.Models.Partner
             }
         }
     }
-    public partial class KalturaDefaultPlayback
+    public partial class KalturaDefaultPlaybackAdapters
     {
-        public KalturaDefaultPlayback(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDefaultPlaybackAdapters(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
-                if (parameters.ContainsKey("vodAdapter") && parameters["vodAdapter"] != null)
+                if (parameters.ContainsKey("mediaAdapterId") && parameters["mediaAdapterId"] != null)
                 {
-                    VodAdapter = (Int64) Convert.ChangeType(parameters["vodAdapter"], typeof(Int64));
+                    MediaAdapterId = (Int64) Convert.ChangeType(parameters["mediaAdapterId"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("epgAdapter") && parameters["epgAdapter"] != null)
+                if (parameters.ContainsKey("epgAdapterId") && parameters["epgAdapterId"] != null)
                 {
-                    EpgAdapter = (Int64) Convert.ChangeType(parameters["epgAdapter"], typeof(Int64));
+                    EpgAdapterId = (Int64) Convert.ChangeType(parameters["epgAdapterId"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("recordingAdapter") && parameters["recordingAdapter"] != null)
+                if (parameters.ContainsKey("recordingAdapterId") && parameters["recordingAdapterId"] != null)
                 {
-                    RecordingAdapter = (Int64) Convert.ChangeType(parameters["recordingAdapter"], typeof(Int64));
+                    RecordingAdapterId = (Int64) Convert.ChangeType(parameters["recordingAdapterId"], typeof(Int64));
                 }
             }
         }
@@ -25438,15 +25438,15 @@ namespace WebAPI.Models.Partner
         {
             if (parameters != null)
             {
-                if (parameters.ContainsKey("defaultPlayback") && parameters["defaultPlayback"] != null)
+                if (parameters.ContainsKey("defaultAdapters") && parameters["defaultAdapters"] != null)
                 {
-                    if (parameters["defaultPlayback"] is JObject)
+                    if (parameters["defaultAdapters"] is JObject)
                     {
-                        DefaultPlayback = (KalturaDefaultPlayback) Deserializer.deserialize(typeof(KalturaDefaultPlayback), ((JObject) parameters["defaultPlayback"]).ToObject<Dictionary<string, object>>());
+                        DefaultAdapters = (KalturaDefaultPlaybackAdapters) Deserializer.deserialize(typeof(KalturaDefaultPlaybackAdapters), ((JObject) parameters["defaultAdapters"]).ToObject<Dictionary<string, object>>());
                     }
-                    else if (parameters["defaultPlayback"] is IDictionary)
+                    else if (parameters["defaultAdapters"] is IDictionary)
                     {
-                        DefaultPlayback = (KalturaDefaultPlayback) Deserializer.deserialize(typeof(KalturaDefaultPlayback), (Dictionary<string, object>) parameters["defaultPlayback"]);
+                        DefaultAdapters = (KalturaDefaultPlaybackAdapters) Deserializer.deserialize(typeof(KalturaDefaultPlaybackAdapters), (Dictionary<string, object>) parameters["defaultAdapters"]);
                     }
                 }
             }

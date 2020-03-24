@@ -1946,15 +1946,15 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaDefaultPlayback":
+                case "KalturaDefaultPlaybackAdapters":
                     switch(property.Name)
                     {
-                        case "EpgAdapter":
-                            return "epgAdapter";
-                        case "RecordingAdapter":
-                            return "recordingAdapter";
-                        case "VodAdapter":
-                            return "vodAdapter";
+                        case "EpgAdapterId":
+                            return "epgAdapterId";
+                        case "MediaAdapterId":
+                            return "mediaAdapterId";
+                        case "RecordingAdapterId":
+                            return "recordingAdapterId";
                     }
                     break;
                     
@@ -4603,8 +4603,8 @@ namespace WebAPI.Reflection
                 case "KalturaPlaybackPartnerConfig":
                     switch(property.Name)
                     {
-                        case "DefaultPlayback":
-                            return "defaultPlayback";
+                        case "DefaultAdapters":
+                            return "defaultAdapters";
                     }
                     break;
                     
