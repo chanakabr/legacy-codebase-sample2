@@ -69,15 +69,14 @@ pipeline {
                     dir("RemoteTasks"){
                         buildMsProject("RemoteTasksService/RemoteTasksService.csproj","published/kaltura_ott_api/remotetasks/", "remotetasks-win")
                     }
+                    dir("tvpapi"){
+                        buildMsProject("TVPApi.Legacy/TVPApi.Legacy.csproj","published/kaltura_ott_api/tvpapi/", "tvpapi-win")
+                    }
                     dir("WS_Ingest"){
                         buildMsProject("Ingest/Ingest.csproj","published/kaltura_ott_api/wsingest/", "wsingest-win")
                     }
                     dir("tvmapps"){
                         buildMsProject("\"Web Sites/TVM/TVM.csproj\"","published/kaltura_ott_api/tvmapps/", "tvm-win")
-                    }
-                    dir("tvpapi"){
-                        bat ("\"${MSBUILD}\" /property:Configuration=Release;Platform=\"Any CPU\"")
-                        bat("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\aspnet_compiler.exe -v /WS_TVPAPI -p \"ws_tvpapi\" -u -f \"${WORKSPACE}/published/kaltura_ott_api/tvpapi/\" ")
                     }
             }        
         }
@@ -89,7 +88,6 @@ pipeline {
                         bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
                         bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\phoenix\\clientlibs\\")
                         sh (label:"upload to s3", script:"aws s3 cp KalturaClient.xml s3://clientlibs/${BRANCH_NAME}/kalturaxml/")
-
                     }
                 }
             }
@@ -166,7 +164,6 @@ pipeline {
             }        
         }
         stage("Trigger Release Candidate"){
-            when { expression { params.TRIGGER_RC == true } }
             steps{
                 script {
                     SHORT_JOB_NAME = sh (script: "echo ${JOB_NAME} | cut -f1 -d'/'", returnStdout: true).trim()  
@@ -204,6 +201,7 @@ def buildMsProject(projectFilePath, outputPath, component){
     // report("${component}")
                 
 }
+
 
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
