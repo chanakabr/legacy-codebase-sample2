@@ -25537,10 +25537,24 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaConcurrencyPartnerConfig
     {
+        private static RuntimeSchemePropertyAttribute ConcurrencyThresholdInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConcurrencyPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MaxInteger = 600,
+            MinInteger = 35,
+        };
         public KalturaConcurrencyPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("deviceFamilyIds") && parameters["deviceFamilyIds"] != null)
                 {
                     DeviceFamilyIds = (String) Convert.ChangeType(parameters["deviceFamilyIds"], typeof(String));
@@ -25553,6 +25567,14 @@ namespace WebAPI.Models.Partner
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EvictionPolicy, typeof(KalturaEvictionPolicyType)));
                     }
+                }
+                if (parameters.ContainsKey("concurrencyThresholdInSeconds") && parameters["concurrencyThresholdInSeconds"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ConcurrencyThresholdInSecondsSchemaProperty.Validate("concurrencyThresholdInSeconds", parameters["concurrencyThresholdInSeconds"]);
+                    }
+                    ConcurrencyThresholdInSeconds = (Int64) Convert.ChangeType(parameters["concurrencyThresholdInSeconds"], typeof(Int64));
                 }
             }
         }

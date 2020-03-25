@@ -155,13 +155,15 @@ namespace Core.Profiles
             {
                 if (ingestProfileId <= 0)
                 {
-                    response.Set((int)eResponseStatus.AdapterNotExists, PROFILE_NOT_EXIST);
+                    response.Set((int)eResponseStatus.IngestProfileNotExists, PROFILE_NOT_EXIST);
                     return response;
                 }
 
-                if (GetIngestProfileById(ingestProfileId) != null)
+                var profile = GetIngestProfileById(ingestProfileId);
+
+                if (profile == null)
                 {
-                    response.Set((int)eResponseStatus.AdapterNotExists, PROFILE_NOT_EXIST);
+                    response.Set((int)eResponseStatus.IngestProfileNotExists, PROFILE_NOT_EXIST);
                     return response;
                 }
 

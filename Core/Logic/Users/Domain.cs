@@ -2033,7 +2033,7 @@ namespace Core.Users
             List<DevicePlayData> devicePlayDataList =
                     CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices(this.m_nDomainID, this.m_nGroupID),
                                                      new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA, ePlayType.EPG },
-                                                     Utils.CONCURRENCY_MILLISEC_THRESHOLD, udid);
+                                                     ConcurrencyManager.GetConcurrencyMillisecThreshold(this.m_nGroupID), udid);
 
             if (devicePlayDataList != null)
             {
@@ -2689,16 +2689,17 @@ namespace Core.Users
 
                 if (npvrConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
                 {
+                    int concurrencyMillisecThreshold = ConcurrencyManager.GetConcurrencyMillisecThreshold(this.m_nGroupID);
                     List<DevicePlayData> devicePlayDataList =
                         CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices((int)domainId, this.m_nGroupID),
                                                      new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA },
-                                                     Utils.CONCURRENCY_MILLISEC_THRESHOLD, udid);
+                                                     concurrencyMillisecThreshold, udid);
 
                     if (devicePlayDataList != null)
                     {
                         int mediaConcurrencyCount = devicePlayDataList.Count(c =>
                             c.NpvrId == npvr &&
-                            DateUtils.UtcUnixTimestampSecondsToDateTime(c.TimeStamp).AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
+                            DateUtils.UtcUnixTimestampSecondsToDateTime(c.TimeStamp).AddMilliseconds(concurrencyMillisecThreshold) > DateTime.UtcNow);
                         if (mediaConcurrencyCount >= npvrConcurrencyLimit)
                         {
                             return DomainResponseStatus.MediaConcurrencyLimitation;

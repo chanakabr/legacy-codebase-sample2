@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.Rules
 {
@@ -15,5 +12,24 @@ namespace ApiObjects.Rules
 
         [JsonProperty("PriorityOrder")]
         public DowngradePolicy PriorityOrder { get; set; }
+
+        [JsonProperty("ConcurrencyThresholdInSeconds")]
+        public long? ConcurrencyThresholdInSeconds { get; set; }
+
+        public bool SetUnchangedProperties(DeviceConcurrencyPriority oldConfig)
+        {
+            var needToUpdate = false;
+
+            if (this.ConcurrencyThresholdInSeconds.HasValue)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                this.ConcurrencyThresholdInSeconds = oldConfig.ConcurrencyThresholdInSeconds;
+            }
+
+            return needToUpdate;
+        }
     }
 }

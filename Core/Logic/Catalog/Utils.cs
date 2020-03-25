@@ -1803,7 +1803,7 @@ namespace Core.Catalog
                     if (ids != null && groupId.HasValue)
                     {
                         assets = CatalogLogic.CompleteMediaDetails(ids, groupId.Value, filter, false);
-                        res = assets.Count == ids.Count;
+                        res = assets.Count == ids.Count || (assets.Count > 0 && filter.AllowPartialResponse);
                     }
 
                     if (res)
@@ -1895,7 +1895,7 @@ namespace Core.Catalog
                     if (ids != null && groupId.HasValue)
                     {
                         programs = CatalogLogic.GetEPGProgramInformation(ids, groupId.Value, filter);
-                        res = programs.Count() == ids.Count();
+                        res = programs.Count == ids.Count || (programs.Count > 0 && filter.AllowPartialResponse);
                     }
 
                     if (res)

@@ -110,13 +110,16 @@ namespace Core.Catalog.Request
                     {
                         foreach (BaseObject asset in assets)
                         {
-                            if (asset.AssetType == ApiObjects.eAssetTypes.MEDIA)
+                            if (asset != null)
                             {
-                                response.mediaList.Add(asset as MediaObj);
-                            }
-                            else if (asset.AssetType == ApiObjects.eAssetTypes.EPG)
-                            {
-                                response.epgList.Add(asset as ProgramObj);
+                                if (asset.AssetType == ApiObjects.eAssetTypes.MEDIA)
+                                {
+                                    response.mediaList.Add(asset as MediaObj);
+                                }
+                                else if (asset.AssetType == ApiObjects.eAssetTypes.EPG)
+                                {
+                                    response.epgList.Add(asset as ProgramObj);
+                                }
                             }
                         }
                     }
@@ -124,7 +127,7 @@ namespace Core.Catalog.Request
             }
             catch (Exception ex)
             {
-                log.Error("Error - " + string.Format("Failed at GetResponse of AssetInfoRequest. ex = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                log.Error($"Error - Failed at GetResponse of AssetInfoRequest. ex = {ex.Message}, ST = {ex.StackTrace}");
                 throw ex;
             }
 

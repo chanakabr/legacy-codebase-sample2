@@ -11,6 +11,7 @@ using ApiObjects.MediaMarks;
 using System.Collections.Generic;
 using Core.Users;
 using ApiObjects.Catalog;
+using Core.ConditionalAccess;
 
 namespace Core.Catalog.Request
 {
@@ -90,9 +91,12 @@ namespace Core.Catalog.Request
                     List<int> mediaConcurrencyRuleIds = null;
                     List<long> assetMediaRulesIds = ConditionalAccess.Utils.GetAssetMediaRuleIds(groupId, mediaId);
                     List<long> assetEpgRulesIds = ConditionalAccess.Utils.GetAssetEpgRuleIds(groupId, mediaId, ref this.ProgramId);
-                    
+
+                    // get partner configuration for ttl.
+                    uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(groupId, ttl);
+
                     currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds,
-                        mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
+                        mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, expirationTTL, action);
                 }
 
                 // update NpvrId
@@ -113,8 +117,11 @@ namespace Core.Catalog.Request
                         AssetEpgConcurrencyRuleIds = assetEpgRulesIds
                     };
 
+                    // get partner configuration for ttl.
+                    uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(groupId, ttl);
+                    
                     // save new devicePlayData
-                    CatalogDAL.UpdateOrInsertDevicePlayData(newDevicePlayData, false, ttl);
+                    CatalogDAL.UpdateOrInsertDevicePlayData(newDevicePlayData, false, expirationTTL);
                     currDevicePlayData = newDevicePlayData;
                 }
             }
@@ -126,7 +133,7 @@ namespace Core.Catalog.Request
             if (devicePlayData.TimeStamp != 0)
             {
                 devicePlayData.TimeStamp = 0;
-                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, eExpirationTTL.Long);
+                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, CatalogDAL.LONG_TTL);
             }
         }
 

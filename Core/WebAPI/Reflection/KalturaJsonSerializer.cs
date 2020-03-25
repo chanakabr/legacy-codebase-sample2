@@ -25571,6 +25571,10 @@ namespace WebAPI.Models.Partner
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(ConcurrencyThresholdInSeconds.HasValue)
+            {
+                ret.Add("concurrencyThresholdInSeconds", "\"concurrencyThresholdInSeconds\": " + ConcurrencyThresholdInSeconds);
+            }
             if(DeviceFamilyIds != null)
             {
                 ret.Add("deviceFamilyIds", "\"deviceFamilyIds\": " + "\"" + EscapeJson(DeviceFamilyIds) + "\"");
@@ -25585,6 +25589,10 @@ namespace WebAPI.Models.Partner
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(ConcurrencyThresholdInSeconds.HasValue)
+            {
+                ret.Add("concurrencyThresholdInSeconds", "<concurrencyThresholdInSeconds>" + ConcurrencyThresholdInSeconds + "</concurrencyThresholdInSeconds>");
+            }
             if(DeviceFamilyIds != null)
             {
                 ret.Add("deviceFamilyIds", "<deviceFamilyIds>" + EscapeXml(DeviceFamilyIds) + "</deviceFamilyIds>");

@@ -2604,9 +2604,10 @@ namespace Core.Api
             return result;
         }
 
-        public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackManifest(long adapterId, int groupId, ApiObjects.PlaybackAdapter.PlaybackContext playbackContext, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
+        public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackManifest(long adapterId, int groupId, ApiObjects.PlaybackAdapter.PlaybackContext playbackContext,
+            ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions, string userId)
         {
-            return api.GetPlaybackAdapterManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions);
+            return api.GetPlaybackAdapterManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions, userId);
         }
         public static GenericListResponse<Region> GetDefaultRegion(int groupId)
         {

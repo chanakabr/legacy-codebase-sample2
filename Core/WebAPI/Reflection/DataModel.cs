@@ -1581,6 +1581,8 @@ namespace WebAPI.Reflection
                 case "KalturaConcurrencyPartnerConfig":
                     switch(property.Name)
                     {
+                        case "ConcurrencyThresholdInSeconds":
+                            return "concurrencyThresholdInSeconds";
                         case "DeviceFamilyIds":
                             return "deviceFamilyIds";
                         case "EvictionPolicy":

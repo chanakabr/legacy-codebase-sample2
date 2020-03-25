@@ -3,7 +3,6 @@ using ApiObjects.Billing;
 using ApiObjects.Rules;
 using AutoMapper.Configuration;
 using System.Collections.Generic;
-using System.Linq;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
@@ -22,12 +21,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // map DeviceConcurrencyPriority to KalturaConcurrencyPartnerConfig
             cfg.CreateMap<DeviceConcurrencyPriority, KalturaConcurrencyPartnerConfig>()
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => string.Join(",", src.DeviceFamilyIds)))
-                .ForMember(dest => dest.EvictionPolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicyToEvictionPolicy(src.PriorityOrder)));
+                .ForMember(dest => dest.EvictionPolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicyToEvictionPolicy(src.PriorityOrder)))
+                .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds)); 
 
             // map KalturaConcurrencyPartnerConfig to DeviceConcurrencyPriority
             cfg.CreateMap<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>()
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => src.GetDeviceFamilyIds()))
-                .ForMember(dest => dest.PriorityOrder, opt => opt.ResolveUsing(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)));
+                .ForMember(dest => dest.PriorityOrder, opt => opt.ResolveUsing(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)))
+                .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds));
 
             // map GeneralPartnerConfig to KalturaGeneralPartnerConfig
             cfg.CreateMap<GeneralPartnerConfig, KalturaGeneralPartnerConfig>()

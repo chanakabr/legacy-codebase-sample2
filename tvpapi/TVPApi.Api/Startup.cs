@@ -28,11 +28,7 @@ namespace TVPApi.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.ConfigureTvpapi();
-            var tcmHealthCheckDefinitions = ApplicationConfiguration.Current.HealthCheckConfiguration.Value;
-            List<HealthCheck.HealthCheckDefinition> healthCheckDefinitions = tcmHealthCheckDefinitions.Select(defintion =>
-                new HealthCheck.HealthCheckDefinition(defintion)).ToList();
-
-            services.AddHealthCheckService(healthCheckDefinitions);
+            services.AddKalturaHealthCheckService();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

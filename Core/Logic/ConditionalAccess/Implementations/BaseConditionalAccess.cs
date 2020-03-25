@@ -10984,11 +10984,14 @@ namespace Core.ConditionalAccess
             {
                 int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(devicePlayDataToInsert.DomainId, this.m_nGroupID, devicePlayDataToInsert.UDID);
 
+                // get partner configuration for ttl.
+                uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(this.m_nGroupID, ttl);
+
                 devicePlayDataToInsert = CatalogDAL.InsertDevicePlayDataToCB(devicePlayDataToInsert.UserId, devicePlayDataToInsert.UDID, devicePlayDataToInsert.DomainId,
                                                                              devicePlayDataToInsert.MediaConcurrencyRuleIds, devicePlayDataToInsert.AssetMediaConcurrencyRuleIds,
                                                                              devicePlayDataToInsert.AssetEpgConcurrencyRuleIds, devicePlayDataToInsert.AssetId,
                                                                              devicePlayDataToInsert.ProgramId, deviceFamilyId, devicePlayDataToInsert.GetPlayType(),
-                                                                             devicePlayDataToInsert.NpvrId, ttl, MediaPlayActions.NONE, devicePlayDataToInsert.BookmarkEventThreshold,
+                                                                             devicePlayDataToInsert.NpvrId, expirationTTL, MediaPlayActions.NONE, devicePlayDataToInsert.BookmarkEventThreshold,
                                                                              devicePlayDataToInsert.ProductType, devicePlayDataToInsert.ProductId);
             }
 
@@ -16187,6 +16190,15 @@ namespace Core.ConditionalAccess
                         {
                             seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to cancel or delete epgid");
                         }
+                        else
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+
+                            if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
+                            {
+                                recording.Status = RecordingsManager.Instance.CacnelOrDeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, tstvRecordingStatus == TstvRecordingStatus.Deleted);
+                            }
+                        }
                     }
                 }
                 else
@@ -17640,6 +17652,6 @@ namespace Core.ConditionalAccess
         internal ApiObjects.Response.Status ApplyCoupon(long domainId, string userId, long purchaseId, string couponCode)
         {
             return EntitlementManager.ApplyCoupon(this, this.m_nGroupID, domainId, userId, purchaseId, couponCode);
-        }
+        }        
     }
 }
