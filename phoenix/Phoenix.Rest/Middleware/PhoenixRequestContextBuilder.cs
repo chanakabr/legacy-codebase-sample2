@@ -94,13 +94,6 @@ namespace Phoenix.Rest.Middleware
                 _PhoenixContext.UserId = userId as int?;
             }
 
-            if (context.Items.TryGetValue(RequestContextUtils.REQUEST_GLOBAL_KS, out var ks))
-            {
-
-
-                _PhoenixContext.Ks = KS.ParseKS(ks as string);
-            }
-
             if (context.Items.TryGetValue(RequestContextUtils.REQUEST_VERSION, out var version))
             {
                 _PhoenixContext.RequestVersion = version as Version;
