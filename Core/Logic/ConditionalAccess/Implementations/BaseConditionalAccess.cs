@@ -1597,6 +1597,7 @@ namespace Core.ConditionalAccess
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
                     selectQuery += "and";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nSubscriptionPurchaseID);
+                    selectQuery.SetConnectionKey("CA_CONNECTION_STRING");
                     if (m_nGroupID != 0)
                     {
                         selectQuery += "and";
@@ -1612,6 +1613,7 @@ namespace Core.ConditionalAccess
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 1);
                             updateQuery += " where ";
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
+                            updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
                             updateQuery.Execute();
                             bRet = true;
 
@@ -1626,6 +1628,7 @@ namespace Core.ConditionalAccess
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", "");
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", "");
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", "");
+                            insertQuery.SetConnectionKey("CA_CONNECTION_STRING");
                             insertQuery.Execute();
 
 
