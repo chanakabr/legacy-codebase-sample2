@@ -1611,6 +1611,7 @@ namespace Core.ConditionalAccess
                             Int32 nID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
                             updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 1);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("subscription_status", "=", 0);
                             updateQuery += " where ";
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
                             updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
