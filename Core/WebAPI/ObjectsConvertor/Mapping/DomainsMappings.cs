@@ -234,7 +234,46 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
                 ;
 
-           
+            cfg.CreateMap<KalturaIotProfile, IotProfile>()
+                 .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+                 .ForMember(dest => dest.IotProfileAws, opt => opt.MapFrom(src => src.IotProfileAws))
+                 ;
+            cfg.CreateMap<KalturaIotProfileAws, IotProfileAws>()
+                 .ForMember(dest => dest.AccessKeyId, opt => opt.MapFrom(src => src.AccessKeyId))
+                 .ForMember(dest => dest.BrokerPort, opt => opt.MapFrom(src => src.BrokerPort))
+                 .ForMember(dest => dest.CertificatePath, opt => opt.MapFrom(src => src.CertificatePath))
+                 .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId))
+                 .ForMember(dest => dest.IdentityPoolId, opt => opt.MapFrom(src => src.IdentityPoolId))
+                 .ForMember(dest => dest.IotEndPoint, opt => opt.MapFrom(src => src.IotEndPoint))
+                 .ForMember(dest => dest.IotPolicyName, opt => opt.MapFrom(src => src.IotPolicyName))
+                 .ForMember(dest => dest.PfxPassword, opt => opt.MapFrom(src => src.PfxPassword))
+                 .ForMember(dest => dest.PfxPath, opt => opt.MapFrom(src => src.PfxPath))
+                 .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
+                 .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))
+                 .ForMember(dest => dest.TTL, opt => opt.MapFrom(src => src.TTL))
+                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                 ;
+
+            cfg.CreateMap<IotProfile, KalturaIotProfile>()
+                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+                .ForMember(dest => dest.IotProfileAws, opt => opt.MapFrom(src => src.IotProfileAws))
+                ;
+
+            cfg.CreateMap<IotProfileAws, KalturaIotProfileAws>()
+                 .ForMember(dest => dest.AccessKeyId, opt => opt.MapFrom(src => src.AccessKeyId))
+                 .ForMember(dest => dest.BrokerPort, opt => opt.MapFrom(src => src.BrokerPort))
+                 .ForMember(dest => dest.CertificatePath, opt => opt.MapFrom(src => src.CertificatePath))
+                 .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId))
+                 .ForMember(dest => dest.IdentityPoolId, opt => opt.MapFrom(src => src.IdentityPoolId))
+                 .ForMember(dest => dest.IotEndPoint, opt => opt.MapFrom(src => src.IotEndPoint))
+                 .ForMember(dest => dest.IotPolicyName, opt => opt.MapFrom(src => src.IotPolicyName))
+                 .ForMember(dest => dest.PfxPassword, opt => opt.MapFrom(src => src.PfxPassword))
+                 .ForMember(dest => dest.PfxPath, opt => opt.MapFrom(src => src.PfxPath))
+                 .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
+                 .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))
+                 .ForMember(dest => dest.TTL, opt => opt.MapFrom(src => src.TTL))
+                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                 ;
         }
 
         private static KalturaHouseholdState ConvertDomainStatus(DomainStatus type)

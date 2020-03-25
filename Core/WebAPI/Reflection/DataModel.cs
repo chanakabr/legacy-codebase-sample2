@@ -3362,6 +3362,48 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaIotProfile":
+                    switch(property.Name)
+                    {
+                        case "AdapterUrl":
+                            return "adapterUrl";
+                        case "IotProfileAws":
+                            return "kalturaIotProfileAws";
+                    }
+                    break;
+                    
+                case "KalturaIotProfileAws":
+                    switch(property.Name)
+                    {
+                        case "AccessKeyId":
+                            return "accessKeyId";
+                        case "BrokerPort":
+                            return "brokerPort";
+                        case "CertificatePath":
+                            return "certificatePath";
+                        case "ClientId":
+                            return "clientId";
+                        case "IdentityPoolId":
+                            return "identityPoolId";
+                        case "IotEndPoint":
+                            return "iotEndPoint";
+                        case "IotPolicyName":
+                            return "iotPolicyName";
+                        case "PfxPassword":
+                            return "pfxPassword";
+                        case "PfxPath":
+                            return "pfxPath";
+                        case "Region":
+                            return "region";
+                        case "SecretAccessKey":
+                            return "secretAccessKey";
+                        case "TTL":
+                            return "tTL";
+                        case "UserPoolId":
+                            return "userPoolId";
+                    }
+                    break;
+                    
                 case "KalturaIpRangeCondition":
                     switch(property.Name)
                     {
@@ -8649,6 +8691,24 @@ namespace WebAPI.Reflection
                         case "register":
                             RolesManager.ValidateActionPermitted("iot", "register", false);
                             return IotController.Register();
+                            
+                    }
+                    break;
+                    
+                case "iotprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("iotprofile", "add");
+                            return IotProfileController.Add((KalturaIotProfile) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("iotprofile", "update");
+                            return IotProfileController.Update((long) methodParams[0], (KalturaIotProfile) methodParams[1]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("iotprofile", "get");
+                            return IotProfileController.Get((long) methodParams[0]);
                             
                     }
                     break;
@@ -14936,6 +14996,39 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "register":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "iotprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIotProfile),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIotProfile),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
                             return ret;
                             
                     }

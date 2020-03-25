@@ -136,6 +136,7 @@ namespace ConfigurationManager
         public NPVRHttpClientConfiguration NPVRHttpClientConfiguration = new NPVRHttpClientConfiguration();
         public ElasticSearchHttpClientConfiguration ElasticSearchHttpClientConfiguration = new ElasticSearchHttpClientConfiguration();
         public MailerHttpClientConfiguration MailerHttpClientConfiguration = new MailerHttpClientConfiguration();
+        public IotHttpClientConfiguration IotHttpClientConfiguration = new IotHttpClientConfiguration();
 
         public T GetValueByKey<T>(string key)
         {

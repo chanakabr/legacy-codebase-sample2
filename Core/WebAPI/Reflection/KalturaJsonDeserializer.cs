@@ -1004,6 +1004,18 @@ namespace WebAPI.Reflection
                 case "KalturaIotListResponse":
                     return new KalturaIotListResponse(parameters);
                     
+                case "KalturaIotProfile":
+                    return new KalturaIotProfile(parameters);
+                    
+                case "KalturaIotProfileAws":
+                    return new KalturaIotProfileAws(parameters);
+                    
+                case "KalturaIotProfileFilter":
+                    return new KalturaIotProfileFilter(parameters);
+                    
+                case "KalturaIotProfileListResponse":
+                    return new KalturaIotProfileListResponse(parameters);
+                    
                 case "KalturaIpRangeCondition":
                     return new KalturaIpRangeCondition(parameters);
                     
@@ -16986,6 +16998,103 @@ namespace WebAPI.Models.API
     public partial class KalturaIotListResponse
     {
         public KalturaIotListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaIotProfile
+    {
+        public KalturaIotProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("adapterUrl") && parameters["adapterUrl"] != null)
+                {
+                    AdapterUrl = (String) Convert.ChangeType(parameters["adapterUrl"], typeof(String));
+                }
+                if (parameters.ContainsKey("kalturaIotProfileAws") && parameters["kalturaIotProfileAws"] != null)
+                {
+                    if (parameters["kalturaIotProfileAws"] is JObject)
+                    {
+                        IotProfileAws = (KalturaIotProfileAws) Deserializer.deserialize(typeof(KalturaIotProfileAws), ((JObject) parameters["kalturaIotProfileAws"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["kalturaIotProfileAws"] is IDictionary)
+                    {
+                        IotProfileAws = (KalturaIotProfileAws) Deserializer.deserialize(typeof(KalturaIotProfileAws), (Dictionary<string, object>) parameters["kalturaIotProfileAws"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIotProfileAws
+    {
+        public KalturaIotProfileAws(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("iotEndPoint") && parameters["iotEndPoint"] != null)
+                {
+                    IotEndPoint = (String) Convert.ChangeType(parameters["iotEndPoint"], typeof(String));
+                }
+                if (parameters.ContainsKey("pfxPath") && parameters["pfxPath"] != null)
+                {
+                    PfxPath = (String) Convert.ChangeType(parameters["pfxPath"], typeof(String));
+                }
+                if (parameters.ContainsKey("pfxPassword") && parameters["pfxPassword"] != null)
+                {
+                    PfxPassword = (String) Convert.ChangeType(parameters["pfxPassword"], typeof(String));
+                }
+                if (parameters.ContainsKey("certificatePath") && parameters["certificatePath"] != null)
+                {
+                    CertificatePath = (String) Convert.ChangeType(parameters["certificatePath"], typeof(String));
+                }
+                //if (parameters.ContainsKey("brokerPort") && parameters["brokerPort"] != null)
+                //{
+                //    BrokerPort = (String) Convert.ChangeType(parameters["brokerPort"], typeof(String));
+                //}
+                if (parameters.ContainsKey("accessKeyId") && parameters["accessKeyId"] != null)
+                {
+                    AccessKeyId = (String) Convert.ChangeType(parameters["accessKeyId"], typeof(String));
+                }
+                if (parameters.ContainsKey("secretAccessKey") && parameters["secretAccessKey"] != null)
+                {
+                    SecretAccessKey = (String) Convert.ChangeType(parameters["secretAccessKey"], typeof(String));
+                }
+                if (parameters.ContainsKey("tTL") && parameters["tTL"] != null)
+                {
+                    TTL = (String) Convert.ChangeType(parameters["tTL"], typeof(String));
+                }
+                if (parameters.ContainsKey("iotPolicyName") && parameters["iotPolicyName"] != null)
+                {
+                    IotPolicyName = (String) Convert.ChangeType(parameters["iotPolicyName"], typeof(String));
+                }
+                if (parameters.ContainsKey("userPoolId") && parameters["userPoolId"] != null)
+                {
+                    UserPoolId = (String) Convert.ChangeType(parameters["userPoolId"], typeof(String));
+                }
+                if (parameters.ContainsKey("clientId") && parameters["clientId"] != null)
+                {
+                    ClientId = (String) Convert.ChangeType(parameters["clientId"], typeof(String));
+                }
+                if (parameters.ContainsKey("identityPoolId") && parameters["identityPoolId"] != null)
+                {
+                    IdentityPoolId = (String) Convert.ChangeType(parameters["identityPoolId"], typeof(String));
+                }
+                if (parameters.ContainsKey("region") && parameters["region"] != null)
+                {
+                    Region = (String) Convert.ChangeType(parameters["region"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaIotProfileFilter
+    {
+        public KalturaIotProfileFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaIotProfileListResponse
+    {
+        public KalturaIotProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
         {
         }
     }

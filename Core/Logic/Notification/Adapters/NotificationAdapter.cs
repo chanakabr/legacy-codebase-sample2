@@ -3,7 +3,6 @@ using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -26,52 +25,20 @@ namespace Core.Notification.Adapters
             return client;
         }
 
-        public static T SendHttpRequest<T>(string url, string requestJson, HttpMethod method,
-             HttpStatusCode noConfigStatus = HttpStatusCode.NoContent)
+
+        public static T ParseResponse<T>(HttpResponseMessage httpResponse)
         {
-            try
+            if (httpResponse.IsSuccessStatusCode)
             {
-                var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
-                httpWebRequest.ContentType = "application/json";
-                httpWebRequest.Method = method.Method;
-
-                if (method != HttpMethod.Get)
+                if (httpResponse.StatusCode == HttpStatusCode.NoContent)
                 {
-                    using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
-                    {
-                        if (!string.IsNullOrEmpty(requestJson))
-                        {
-                            streamWriter.Write(requestJson);
-                        }
-                    }
+                    throw new ConfigurationErrorsException($"No configurations");
                 }
 
-                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-                if (httpResponse.StatusCode == noConfigStatus)
-                {
-                    throw new ConfigurationErrorsException($"No configurations in the request: {requestJson}");
-                }
-
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = streamReader.ReadToEnd();
-                    if (!string.IsNullOrEmpty(result))
-                    {
-                        var response = JsonConvert.DeserializeObject<HttpResponseMessage>(result);
-                        if (response.IsSuccessStatusCode)
-                        {
-                            //var _result = response.Content.ReadAsStringAsync().Result;
-                            return JsonConvert.DeserializeObject<T>(result);
-                        }
-                    }
-                }
+                return JsonConvert.DeserializeObject<T>(httpResponse.Content.ReadAsStringAsync().Result);
             }
-            catch (Exception ex)
-            {
-                log.Error($"Exception while calling the url: {url}, request: {requestJson} " +
-                    $"type: [{method.Method}], ex: {ex.Message}");
-            }
+
+            log.Error($"Failed to parse http response, status: {httpResponse.StatusCode}, response object: {JsonConvert.SerializeObject(httpResponse)}");
             return default;
         }
 
@@ -274,17 +241,15 @@ namespace Core.Notification.Adapters
             IotPublishResponse response = null;
             var _topic = $"{groupId}/{topic}";
 
-            var iotAdapterUrl = NotificationSettings.GetIotAdapterUrl(groupId);
-            if (string.IsNullOrEmpty(iotAdapterUrl))
+            var iotAdapter = NotificationSettings.GetIotAdapter(groupId);
+            if (string.IsNullOrEmpty(iotAdapter?.AdapterUrl))
                 log.Error("IOT Notification URL wasn't found");
             else
             {
                 try
                 {
-                    var requestUrl = $"{iotAdapterUrl}{IotManager.PUBLISH}";
-                    //Todo Matan - Test
                     var request = new { GroupId = groupId, Message = message, Topic = _topic };
-                    response = SendHttpRequest<IotPublishResponse>(requestUrl, JsonConvert.SerializeObject(request), HttpMethod.Post);
+                    response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post);
 
                     if (response == null || response.ResponseObject == null || !response.ResponseObject.IsSuccess)
                         log.Error($"Error while trying to publish announcement. message: {message}");
@@ -307,17 +272,15 @@ namespace Core.Notification.Adapters
         {
             var response = false;
 
-            var iotAdapterUrl = NotificationSettings.GetIotAdapterUrl(groupId);
-            if (string.IsNullOrEmpty(iotAdapterUrl))
+            var iotAdapter = NotificationSettings.GetIotAdapter(groupId);
+            if (string.IsNullOrEmpty(iotAdapter?.AdapterUrl))
                 log.Error("IOT Notification URL wasn't found");
             else
             {
                 try
                 {
-                    var requestUrl = $"{iotAdapterUrl}{IotManager.ADD_TO_SHADOW}";
-                    //Todo Matan - Test
-                    var request = new { thingArn = thingArn, message = message };
-                    response = SendHttpRequest<bool>(requestUrl, JsonConvert.SerializeObject(request), HttpMethod.Post);
+                    var request = new { groupId = groupId, thingArn = thingArn, message = message };
+                    response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post);
 
                     if (!response)
                         log.Error($"Error while trying to add message to thing shadow. message: {message}, thing: {thingArn}");

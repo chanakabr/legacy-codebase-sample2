@@ -83,7 +83,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
                  .ForMember(dest => dest.IotEnabled, opt => opt.MapFrom(src => src.IsIotEnabled))
-                 .ForMember(dest => dest.IotAdapterUrl, opt => opt.MapFrom(src => src.IotAdapterUrl))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
@@ -106,7 +105,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
                  .ForMember(dest => dest.IsIotEnabled, opt => opt.MapFrom(src => src.IotEnabled))
-                 .ForMember(dest => dest.IotAdapterUrl, opt => opt.MapFrom(src => src.IotAdapterUrl))
                  ;
 
             cfg.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
@@ -189,7 +187,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IncludeMail, opt => opt.MapFrom(src => src.IncludeMail))
                  .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
-                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms));
+                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms))
+                 .ForMember(dest => dest.IncludeIot, opt => opt.MapFrom(src => src.IncludeIot));
 
             cfg.CreateMap<eAnnouncementRecipientsType, KalturaAnnouncementRecipientsType>()
                 .ConvertUsing(recipientsType =>

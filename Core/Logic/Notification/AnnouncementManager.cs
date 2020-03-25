@@ -1,4 +1,5 @@
-﻿using APILogic.AmazonSnsAdapter;
+﻿using ApiLogic.Notification;
+using APILogic.AmazonSnsAdapter;
 using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
@@ -1036,7 +1037,7 @@ namespace Core.Notification
             if (iotAnnouncement != null)
             {
                 var result = NotificationAdapter.IotPublishAnnouncement(groupId,
-                    ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), "PublicAnnouncement");
+                    ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), IotManager.SYSTEM_ANNOUNCEMENT);
 
                 if (result == null || result.ResponseObject == null || !result.ResponseObject.IsSuccess)
                 {

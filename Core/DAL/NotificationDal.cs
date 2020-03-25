@@ -65,6 +65,23 @@ namespace DAL
             return string.Format("user_push:{0}:{1}", groupId, userId);
         }
 
+        public static bool SaveIotProfile(int groupId, IotProfile msResponse)
+        {
+            string key = GetIotProfileKey(groupId);
+            return UtilsDal.SaveObjectInCB<IotProfile>(eCouchbaseBucket.NOTIFICATION, key, msResponse);
+        }
+
+        public static IotProfile GetIotProfile(int groupId)
+        {
+            string key = GetIotProfileKey(groupId);
+            return UtilsDal.GetObjectFromCB<IotProfile>(eCouchbaseBucket.NOTIFICATION, key);
+        }
+
+        private static string GetIotProfileKey(int groupId)
+        {
+            return $"Iot_Profile_{groupId}";
+        }
+
         private static string GetInboxSystemAnnouncementKey(int groupId, string messageId)
         {
             return string.Format("system_inbox:{0}:{1}", groupId, messageId);
@@ -737,9 +754,6 @@ namespace DAL
             if (settings.IsIotEnabled.HasValue)
                 sp.AddParameter("@isIotEnabled", settings.IsIotEnabled.Value);
 
-            if (settings.IsIotEnabled.HasValue && !string.IsNullOrEmpty(settings.IotAdapterUrl))
-                sp.AddParameter("@iotAdapterUrl", settings.IotAdapterUrl);
-
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -786,8 +800,7 @@ namespace DAL
                         SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email"),
                         MailNotificationAdapterId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "MAIL_NOTIFICATION_ADAPTER_ID"),
                         IsSMSEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_sms_enable") == 1 ? true : false,
-                        IsIotEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_iot_enable") == 1 ? true : false,
-                        IotAdapterUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "iot_adapter_url")
+                        IsIotEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_iot_enable") == 1 ? true : false
                     });
                 }
             }

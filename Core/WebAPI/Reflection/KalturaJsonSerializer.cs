@@ -16581,6 +16581,208 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaIotProfile
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AdapterUrl != null)
+            {
+                ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
+            }
+            if(IotProfileAws != null)
+            {
+                propertyValue = IotProfileAws.ToJson(currentVersion, omitObsolete);
+                ret.Add("kalturaIotProfileAws", "\"kalturaIotProfileAws\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AdapterUrl != null)
+            {
+                ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
+            }
+            if(IotProfileAws != null)
+            {
+                propertyValue = IotProfileAws.ToXml(currentVersion, omitObsolete);
+                ret.Add("kalturaIotProfileAws", "<kalturaIotProfileAws>" + propertyValue + "</kalturaIotProfileAws>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaIotProfileAws
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AccessKeyId != null)
+            {
+                ret.Add("accessKeyId", "\"accessKeyId\": " + "\"" + EscapeJson(AccessKeyId) + "\"");
+            }
+            //if(BrokerPort != null)
+            //{
+            //    ret.Add("brokerPort", "\"brokerPort\": " + "\"" + EscapeJson(BrokerPort) + "\"");
+            //}
+            if(CertificatePath != null)
+            {
+                ret.Add("certificatePath", "\"certificatePath\": " + "\"" + EscapeJson(CertificatePath) + "\"");
+            }
+            if(ClientId != null)
+            {
+                ret.Add("clientId", "\"clientId\": " + "\"" + EscapeJson(ClientId) + "\"");
+            }
+            if(IdentityPoolId != null)
+            {
+                ret.Add("identityPoolId", "\"identityPoolId\": " + "\"" + EscapeJson(IdentityPoolId) + "\"");
+            }
+            if(IotEndPoint != null)
+            {
+                ret.Add("iotEndPoint", "\"iotEndPoint\": " + "\"" + EscapeJson(IotEndPoint) + "\"");
+            }
+            if(IotPolicyName != null)
+            {
+                ret.Add("iotPolicyName", "\"iotPolicyName\": " + "\"" + EscapeJson(IotPolicyName) + "\"");
+            }
+            if(PfxPassword != null)
+            {
+                ret.Add("pfxPassword", "\"pfxPassword\": " + "\"" + EscapeJson(PfxPassword) + "\"");
+            }
+            if(PfxPath != null)
+            {
+                ret.Add("pfxPath", "\"pfxPath\": " + "\"" + EscapeJson(PfxPath) + "\"");
+            }
+            if(Region != null)
+            {
+                ret.Add("region", "\"region\": " + "\"" + EscapeJson(Region) + "\"");
+            }
+            if(SecretAccessKey != null)
+            {
+                ret.Add("secretAccessKey", "\"secretAccessKey\": " + "\"" + EscapeJson(SecretAccessKey) + "\"");
+            }
+            if(TTL != null)
+            {
+                ret.Add("tTL", "\"tTL\": " + "\"" + EscapeJson(TTL) + "\"");
+            }
+            if(UserPoolId != null)
+            {
+                ret.Add("userPoolId", "\"userPoolId\": " + "\"" + EscapeJson(UserPoolId) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AccessKeyId != null)
+            {
+                ret.Add("accessKeyId", "<accessKeyId>" + EscapeXml(AccessKeyId) + "</accessKeyId>");
+            }
+            //if(BrokerPort != null)
+            //{
+            //    ret.Add("brokerPort", "<brokerPort>" + EscapeXml(BrokerPort) + "</brokerPort>");
+            //}
+            if(CertificatePath != null)
+            {
+                ret.Add("certificatePath", "<certificatePath>" + EscapeXml(CertificatePath) + "</certificatePath>");
+            }
+            if(ClientId != null)
+            {
+                ret.Add("clientId", "<clientId>" + EscapeXml(ClientId) + "</clientId>");
+            }
+            if(IdentityPoolId != null)
+            {
+                ret.Add("identityPoolId", "<identityPoolId>" + EscapeXml(IdentityPoolId) + "</identityPoolId>");
+            }
+            if(IotEndPoint != null)
+            {
+                ret.Add("iotEndPoint", "<iotEndPoint>" + EscapeXml(IotEndPoint) + "</iotEndPoint>");
+            }
+            if(IotPolicyName != null)
+            {
+                ret.Add("iotPolicyName", "<iotPolicyName>" + EscapeXml(IotPolicyName) + "</iotPolicyName>");
+            }
+            if(PfxPassword != null)
+            {
+                ret.Add("pfxPassword", "<pfxPassword>" + EscapeXml(PfxPassword) + "</pfxPassword>");
+            }
+            if(PfxPath != null)
+            {
+                ret.Add("pfxPath", "<pfxPath>" + EscapeXml(PfxPath) + "</pfxPath>");
+            }
+            if(Region != null)
+            {
+                ret.Add("region", "<region>" + EscapeXml(Region) + "</region>");
+            }
+            if(SecretAccessKey != null)
+            {
+                ret.Add("secretAccessKey", "<secretAccessKey>" + EscapeXml(SecretAccessKey) + "</secretAccessKey>");
+            }
+            if(TTL != null)
+            {
+                ret.Add("tTL", "<tTL>" + EscapeXml(TTL) + "</tTL>");
+            }
+            if(UserPoolId != null)
+            {
+                ret.Add("userPoolId", "<userPoolId>" + EscapeXml(UserPoolId) + "</userPoolId>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaIotProfileFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
+    public partial class KalturaIotProfileListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
     public partial class KalturaIpRangeCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)

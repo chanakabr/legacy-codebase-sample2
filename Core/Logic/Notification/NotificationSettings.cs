@@ -298,15 +298,15 @@ namespace Core.Notification
             return response;
         }
 
-        public static string GetIotAdapterUrl(int groupId)
+        public static ApiObjects.IotProfile GetIotAdapter(int groupId)
         {
             var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
             if (partnerSettingsResponse != null &&
                 partnerSettingsResponse.settings != null)
             {
-                return partnerSettingsResponse.settings.IotAdapterUrl;
+                return NotificationDal.GetIotProfile(groupId);
             }
-            return string.Empty;
+            return null;
         }
 
         public static bool IsUserFollowPushEnabled(UserNotificationSettings userSettings)

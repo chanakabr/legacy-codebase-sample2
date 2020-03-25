@@ -9,6 +9,13 @@ using System.Net.Http;
 using System.Configuration;
 using Core.Notification;
 using Newtonsoft.Json;
+using ApiObjects.Notification;
+using DAL;
+using TVinciShared;
+using ConfigurationManager.Types;
+using ConfigurationManager;
+using System.Text;
+using Core.Notification.Adapters;
 
 namespace ApiLogic.Notification
 {
@@ -16,11 +23,14 @@ namespace ApiLogic.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<IotManager> lazy = new Lazy<IotManager>(() => new IotManager());
-        private const string REGISTER_PATH = "/api/IOT/RegisterDevice";
-        private const string GET_CLIENT_PATH = "/api/IOT/Configuration/List?";
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.IotHttpClientConfiguration);
+        private const string REGISTER = "/api/IOT/RegisterDevice";
+        private const string GET_IOT_CONFIGURATION = "/api/IOT/Configuration/List?";
         public const string ADD_TO_SHADOW = "/api/IOT/AddToShadow";
         public const string PUBLISH = "/api/IOT/Publish";
         public const string DELETE_DEVICE = "/api/IOT/DeleteDevice";
+        public const string SYSTEM_ANNOUNCEMENT = "SystemAnnouncement";
+        public const string ADD_CONFIG = "/api/IOT/Configuration/Update";
 
         public static IotManager Instance { get { return lazy.Value; } }
 
@@ -33,7 +43,7 @@ namespace ApiLogic.Notification
             var udid = contextData.Udid;
             try
             {
-                var partnerSettings = Core.Notification.NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+                var partnerSettings = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
 
                 if (!IsIotAllowed(partnerSettings))
                 {
@@ -42,10 +52,8 @@ namespace ApiLogic.Notification
                 }
 
                 var _request = new { GroupId = groupId.ToString(), Udid = udid };
-                var url = $"{partnerSettings.settings.IotAdapterUrl}{REGISTER_PATH}";
 
-                var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<Iot>
-                    (url, Newtonsoft.Json.JsonConvert.SerializeObject(_request), HttpMethod.Post);
+                var msResponse = SendToAdapter<Iot>(groupId, IotAction.REGISTER, _request, MethodType.Post);
 
                 if (msResponse == null)
                 {
@@ -70,11 +78,10 @@ namespace ApiLogic.Notification
             return response;
         }
 
-        private static bool IsIotAllowed(ApiObjects.Notification.NotificationPartnerSettingsResponse partnerSettings)
+        public static bool IsIotAllowed(NotificationPartnerSettingsResponse partnerSettings)
         {
             return partnerSettings != null && partnerSettings.settings != null &&
-                partnerSettings.settings.IsIotEnabled != null && partnerSettings.settings.IsIotEnabled.Value == true
-                && !string.IsNullOrEmpty(partnerSettings.settings.IotAdapterUrl);
+                partnerSettings.settings.IsIotEnabled != null && partnerSettings.settings.IsIotEnabled.Value == true;
         }
 
         private bool SaveRegisteredDevice(int groupId, string udid, Iot msResponse)
@@ -96,26 +103,38 @@ namespace ApiLogic.Notification
             var groupId = contextData.GroupId;
             try
             {
-                var partnerSettings = Core.Notification.NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+                var partnerSettings = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
                 if (!IsIotAllowed(partnerSettings))
                 {
                     log.Error($"Error while getting PartnerNotificationSettings for group: {groupId}.");
                     return response;
                 }
 
-                var url = $"{partnerSettings.settings.IotAdapterUrl}{GET_CLIENT_PATH}groupId={groupId}&forClient={isClient}";
-
-                var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<IotClientConfiguration>
-                    (url, Newtonsoft.Json.JsonConvert.SerializeObject(string.Empty), HttpMethod.Get);
-
-                if (msResponse == null)
+                var iotProfile = NotificationDal.GetIotProfile(groupId);
+                if (iotProfile == null)
                 {
                     log.Error($"Error while getting configurations for group: {groupId}.");
                     return response;
                 }
 
+                //TODO Matan - add cache layered cache
+                response.Object = new IotClientConfiguration
+                {
+                    AnnouncementTopic = $"{groupId}/{SYSTEM_ANNOUNCEMENT}",
+                    CredentialsProvider = new CredentialsProvider
+                    {
+                        CognitoIdentity = new CognitoIdentity
+                        {
+                            Default = new Default { PoolId = iotProfile.IotProfileAws.IdentityPoolId, Region = iotProfile.IotProfileAws.Region }
+                        }
+                    },
+                    CognitoUserPool = new CognitoUserPool
+                    {
+                        Default = new Default { PoolId = iotProfile.IotProfileAws.UserPoolId, AppClientId = iotProfile.IotProfileAws.ClientId, Region = iotProfile.IotProfileAws.Region }
+                    }
+                };
+
                 response.SetStatus(Status.Ok);
-                response.Object = msResponse;
             }
             catch (ConfigurationErrorsException)
             {
@@ -148,10 +167,8 @@ namespace ApiLogic.Notification
 
                 //Todo - Matan Create perm object
                 var _request = new { GroupId = m_nGroupID.ToString(), Udid = udid, IdentityId = iotDevice.IdentityId };
-                var url = $"{partnerSettings.settings.IotAdapterUrl}{IotManager.DELETE_DEVICE}";
 
-                var msResponse = Core.Notification.Adapters.NotificationAdapter.SendHttpRequest<bool>
-                    (url, JsonConvert.SerializeObject(_request), HttpMethod.Delete);
+                var msResponse = SendToAdapter<bool>(m_nGroupID, IotAction.DELETE_DEVICE, _request, MethodType.Delete);
 
                 if (!msResponse)
                 {
@@ -178,5 +195,80 @@ namespace ApiLogic.Notification
         {
             throw new NotImplementedException();
         }
+
+        private string GetAdapterUrl(int groupId, IotAction action, IotProfile iotProfile = null)
+        {
+            var adapterUrl = iotProfile != null ? iotProfile.AdapterUrl : NotificationDal.GetIotProfile(groupId).AdapterUrl;
+            var configValue = string.Empty;
+            switch (action)
+            {
+                case IotAction.REGISTER:
+                    configValue = REGISTER;
+                    break;
+                case IotAction.GET_IOT_CONFIGURATION:
+                    configValue = GET_IOT_CONFIGURATION;
+                    break;
+                case IotAction.ADD_TO_SHADOW:
+                    configValue = ADD_TO_SHADOW;
+                    break;
+                case IotAction.PUBLISH:
+                    configValue = PUBLISH;
+                    break;
+                case IotAction.DELETE_DEVICE:
+                    configValue = DELETE_DEVICE;
+                    break;
+                case IotAction.SYSTEM_ANNOUNCEMENT:
+                    configValue = SYSTEM_ANNOUNCEMENT;
+                    break;
+                case IotAction.ADD_CONFIG:
+                    configValue = ADD_CONFIG;
+                    break;
+            }
+            return $"{adapterUrl}{configValue}";
+        }
+
+        public T SendToAdapter<T>(int groupId, IotAction action, object request, MethodType method, IotProfile iotProfile = null, bool groupNeeded = false)
+        {
+            var url = GetAdapterUrl(groupId, action, iotProfile);
+            url = groupNeeded ? url + $"?groupId={groupId}" : string.Empty;
+            StringContent content = null;
+
+            switch (method)
+            {
+                case MethodType.Post:
+                    content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                    var postResponse = httpClient.PostAsync(url, content).Result;
+                    return NotificationAdapter.ParseResponse<T>(postResponse);
+                case MethodType.Put:
+                    content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                    var putResponse = httpClient.PutAsync(url, content).Result;
+                    return NotificationAdapter.ParseResponse<T>(putResponse);
+                case MethodType.Get:
+                    var fullUrl = $"{url}{request}";
+                    var _response = httpClient.GetAsync(fullUrl).Result;
+                    return NotificationAdapter.ParseResponse<T>(_response);
+                case MethodType.Delete:
+                    var _request = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Delete,
+                        RequestUri = new Uri(url),
+                        Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json")
+                    };
+                    var deleteResponse = httpClient.SendAsync(_request).Result;
+                    return NotificationAdapter.ParseResponse<T>(deleteResponse);
+                default:
+                    log.Error($"Invalid attempt to call method: {method}, url: {url} group: {groupId}");
+                    return default;
+            }
+        }
+    }
+
+    public enum IotAction
+    {
+        REGISTER, GET_IOT_CONFIGURATION, ADD_TO_SHADOW, PUBLISH, DELETE_DEVICE, SYSTEM_ANNOUNCEMENT, ADD_CONFIG
+    }
+    public enum MethodType
+    {
+        Post, Get, Delete, Put
     }
 }

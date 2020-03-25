@@ -37,6 +37,7 @@ namespace ApiObjects
     {
         public CredentialsProvider CredentialsProvider { get; set; }
         public CognitoUserPool CognitoUserPool { get; set; }
+        public string AnnouncementTopic { get; set; }
     }
 
     public class CredentialsProvider
