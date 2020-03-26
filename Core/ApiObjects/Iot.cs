@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Base;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -38,6 +39,12 @@ namespace ApiObjects
         public CredentialsProvider CredentialsProvider { get; set; }
         public CognitoUserPool CognitoUserPool { get; set; }
         public string AnnouncementTopic { get; set; }
+        public string Json { get; set; }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(new { this.CredentialsProvider, this.CognitoUserPool }, Formatting.None);
+        }
     }
 
     public class CredentialsProvider

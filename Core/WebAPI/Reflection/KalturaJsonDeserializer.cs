@@ -16990,6 +16990,10 @@ namespace WebAPI.Models.API
                         CognitoUserPool = (KalturaCognitoUserPool) Deserializer.deserialize(typeof(KalturaCognitoUserPool), (Dictionary<string, object>) parameters["cognitoUserPool"]);
                     }
                 }
+                if (parameters.ContainsKey("json") && parameters["json"] != null)
+                {
+                    Json = (String) Convert.ChangeType(parameters["json"], typeof(String));
+                }
             }
         }
     }
@@ -17015,15 +17019,15 @@ namespace WebAPI.Models.API
                 {
                     AdapterUrl = (String) Convert.ChangeType(parameters["adapterUrl"], typeof(String));
                 }
-                if (parameters.ContainsKey("kalturaIotProfileAws") && parameters["kalturaIotProfileAws"] != null)
+                if (parameters.ContainsKey("iotProfileAws") && parameters["iotProfileAws"] != null)
                 {
-                    if (parameters["kalturaIotProfileAws"] is JObject)
+                    if (parameters["iotProfileAws"] is JObject)
                     {
-                        IotProfileAws = (KalturaIotProfileAws) Deserializer.deserialize(typeof(KalturaIotProfileAws), ((JObject) parameters["kalturaIotProfileAws"]).ToObject<Dictionary<string, object>>());
+                        IotProfileAws = (KalturaIotProfileAws) Deserializer.deserialize(typeof(KalturaIotProfileAws), ((JObject) parameters["iotProfileAws"]).ToObject<Dictionary<string, object>>());
                     }
-                    else if (parameters["kalturaIotProfileAws"] is IDictionary)
+                    else if (parameters["iotProfileAws"] is IDictionary)
                     {
-                        IotProfileAws = (KalturaIotProfileAws) Deserializer.deserialize(typeof(KalturaIotProfileAws), (Dictionary<string, object>) parameters["kalturaIotProfileAws"]);
+                        IotProfileAws = (KalturaIotProfileAws) Deserializer.deserialize(typeof(KalturaIotProfileAws), (Dictionary<string, object>) parameters["iotProfileAws"]);
                     }
                 }
             }

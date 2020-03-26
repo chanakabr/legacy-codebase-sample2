@@ -26,9 +26,9 @@ namespace WebAPI.Models.API
         /// <summary>
         /// kalturaIotProfileAws
         /// </summary>
-        [DataMember(Name = "kalturaIotProfileAws")]
-        [JsonProperty(PropertyName = "kalturaIotProfileAws")]
-        [XmlElement(ElementName = "kalturaIotProfileAws")]
+        [DataMember(Name = "iotProfileAws")]
+        [JsonProperty(PropertyName = "iotProfileAws")]
+        [XmlElement(ElementName = "iotProfileAws")]
         public KalturaIotProfileAws IotProfileAws { get; set; }
 
 

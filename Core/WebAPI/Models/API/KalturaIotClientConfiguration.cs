@@ -39,6 +39,14 @@ namespace WebAPI.Models.API
         [JsonProperty(PropertyName = "cognitoUserPool")]
         [XmlElement(ElementName = "cognitoUserPool")]
         public KalturaCognitoUserPool CognitoUserPool { get; set; }
+
+        /// <summary>
+        /// json
+        /// </summary>
+        [DataMember(Name = "json")]
+        [JsonProperty(PropertyName = "json")]
+        [XmlElement(ElementName = "json")]
+        public string Json { get; set; }
     }
 
     public partial class KalturaCredentialsProvider : KalturaOTTObject

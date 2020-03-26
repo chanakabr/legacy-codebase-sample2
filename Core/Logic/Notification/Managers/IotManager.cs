@@ -123,7 +123,7 @@ namespace ApiLogic.Notification
                 }
 
                 //TODO Matan - add cache layered cache
-                response.Object = new IotClientConfiguration
+                var iotClientConfiguration = new IotClientConfiguration
                 {
                     AnnouncementTopic = $"{groupId}/{SYSTEM_ANNOUNCEMENT}",
                     CredentialsProvider = new CredentialsProvider
@@ -138,6 +138,9 @@ namespace ApiLogic.Notification
                         Default = new Default { PoolId = iotProfile.IotProfileAws.UserPoolId, AppClientId = iotProfile.IotProfileAws.ClientId, Region = iotProfile.IotProfileAws.Region }
                     }
                 };
+                iotClientConfiguration.Json = iotClientConfiguration.ToString();
+
+                response.Object = iotClientConfiguration;
 
                 response.SetStatus(Status.Ok);
             }

@@ -105,21 +105,6 @@ namespace WebAPI.Models.API
         [JsonProperty(PropertyName = "identityPoolId")]
         [XmlElement(ElementName = "identityPoolId")]
         public string IdentityPoolId { get; set; }
-        ///// <summary>
-        ///// UserPoolId
-        ///// </summary>
-        //[DataMember(Name = "userPoolId")]
-        //[JsonProperty(PropertyName = "userPoolId")]
-        //[XmlElement(ElementName = "userPoolId")]
-        //public string UserPoolId { get; set; }
-        ///// <summary>
-        ///// UserPoolWebClientId
-        ///// </summary>
-        //[DataMember(Name = "userPoolWebClientId")]
-        //[JsonProperty(PropertyName = "userPoolWebClientId")]
-        //[XmlElement(ElementName = "userPoolWebClientId")]
-        //public string UserPoolWebClientId { get; set; }
-
 
         public KalturaIot()
         {

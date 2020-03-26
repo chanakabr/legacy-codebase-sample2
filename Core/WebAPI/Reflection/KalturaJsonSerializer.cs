@@ -16523,6 +16523,10 @@ namespace WebAPI.Models.API
                 propertyValue = CredentialsProvider.ToJson(currentVersion, omitObsolete);
                 ret.Add("credentialsProvider", "\"credentialsProvider\": " + propertyValue);
             }
+            if(Json != null)
+            {
+                ret.Add("json", "\"json\": " + "\"" + EscapeJson(Json) + "\"");
+            }
             return ret;
         }
         
@@ -16545,6 +16549,10 @@ namespace WebAPI.Models.API
             {
                 propertyValue = CredentialsProvider.ToXml(currentVersion, omitObsolete);
                 ret.Add("credentialsProvider", "<credentialsProvider>" + propertyValue + "</credentialsProvider>");
+            }
+            if(Json != null)
+            {
+                ret.Add("json", "<json>" + EscapeXml(Json) + "</json>");
             }
             return ret;
         }
@@ -16604,7 +16612,7 @@ namespace WebAPI.Models.API
             if(IotProfileAws != null)
             {
                 propertyValue = IotProfileAws.ToJson(currentVersion, omitObsolete);
-                ret.Add("kalturaIotProfileAws", "\"kalturaIotProfileAws\": " + propertyValue);
+                ret.Add("iotProfileAws", "\"iotProfileAws\": " + propertyValue);
             }
             return ret;
         }
@@ -16622,7 +16630,7 @@ namespace WebAPI.Models.API
             if(IotProfileAws != null)
             {
                 propertyValue = IotProfileAws.ToXml(currentVersion, omitObsolete);
-                ret.Add("kalturaIotProfileAws", "<kalturaIotProfileAws>" + propertyValue + "</kalturaIotProfileAws>");
+                ret.Add("iotProfileAws", "<iotProfileAws>" + propertyValue + "</iotProfileAws>");
             }
             return ret;
         }

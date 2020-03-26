@@ -3363,6 +3363,8 @@ namespace WebAPI.Reflection
                             return "cognitoUserPool";
                         case "CredentialsProvider":
                             return "credentialsProvider";
+                        case "Json":
+                            return "json";
                     }
                     break;
                     
@@ -3372,7 +3374,7 @@ namespace WebAPI.Reflection
                         case "AdapterUrl":
                             return "adapterUrl";
                         case "IotProfileAws":
-                            return "kalturaIotProfileAws";
+                            return "iotProfileAws";
                     }
                     break;
                     

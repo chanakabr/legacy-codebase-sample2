@@ -192,12 +192,14 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.CognitoUserPool, opt => opt.MapFrom(src => src.CognitoUserPool))
                 .ForMember(dest => dest.CredentialsProvider, opt => opt.MapFrom(src => src.CredentialsProvider))
                 .ForMember(dest => dest.AnnouncementTopic, opt => opt.MapFrom(src => src.AnnouncementTopic))
+                .ForMember(dest => dest.Json, opt => opt.MapFrom(src => src.Json))
                 ;
 
             cfg.CreateMap<KalturaIotClientConfiguration, IotClientConfiguration>()
                 .ForMember(dest => dest.CognitoUserPool, opt => opt.MapFrom(src => src.CognitoUserPool))
                 .ForMember(dest => dest.CredentialsProvider, opt => opt.MapFrom(src => src.CredentialsProvider))
                 .ForMember(dest => dest.AnnouncementTopic, opt => opt.MapFrom(src => src.AnnouncementTopic))
+                .ForMember(dest => dest.Json, opt => opt.MapFrom(src => src.Json))
                 ;
 
             cfg.CreateMap<CognitoUserPool, KalturaCognitoUserPool>()
