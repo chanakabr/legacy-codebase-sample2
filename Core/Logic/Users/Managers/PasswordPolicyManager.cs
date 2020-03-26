@@ -296,7 +296,8 @@ namespace ApiLogic.Users.Managers
 
                     if (response.Args != null && response.Args.Count > 0)
                     {
-                        response.Set(eResponseStatus.PasswordPolicyViolation);
+                        var args = response.Args;
+                        response.Set(eResponseStatus.PasswordPolicyViolation, eResponseStatus.PasswordPolicyViolation.ToString(), args);
                     }
                     else
                     {

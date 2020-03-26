@@ -54,7 +54,7 @@ namespace WebAPI.Clients
 
             if (userResponse == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (!userResponse.IsOkStatusCode())
@@ -65,13 +65,13 @@ namespace WebAPI.Clients
                 }
                 else
                 {
-                    throw new ClientException((int)userResponse.Status.Code, userResponse.Status.Message, userResponse.Status.Args);
+                    throw new ClientException(userResponse.Status);
                 }
             }
 
             if (userResponse.Object == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(userResponse.Object);
@@ -136,13 +136,13 @@ namespace WebAPI.Clients
                 }
                 else
                 {
-                    throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
+                    throw new ClientException(response.Status);
                 }
             }
 
             if (response.Object == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             var user = Mapper.Map<KalturaOTTUser>(response.Object);
@@ -174,12 +174,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -204,12 +204,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -234,40 +234,16 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
         }
-
-        //public WebAPI.Models.Users.ClientUser SignIn(int groupId, string userName, string password)
-        //{
-        //    WebAPI.Models.Users.ClientUser user = null;
-        //    
-
-        //    try
-        //    {
-        //        //TODO: add parameters
-        //        UserResponseObject response;
-        //        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-        //        {
-        //            response = Core.Users.Module.SignIn(groupId, userName, password, string.Empty, string.Empty, string.Empty, false);
-        //        }
-
-        //        user = Mapper.Map<WebAPI.Models.Users.ClientUser>(response);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Error while signing in. Username: {0}, exception: {1}", userName, ex);
-        //        throw new ClientException((int)StatusCode.InternalConnectionIssue);
-        //    }
-        //    return user;
-        //}
 
         public KalturaUserLoginPin GenerateLoginPin(int groupId, string userId, string secret)
         {
@@ -290,12 +266,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.resp.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.resp.Code, response.resp.Message);
+                throw new ClientException(response.resp);
             }
 
             pinCode = Mapper.Map<KalturaUserLoginPin>(response);
@@ -323,12 +299,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Object == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
+                throw new ClientException(response.Status);
             }
 
             user = Mapper.Map<KalturaOTTUser>(response.Object);
@@ -355,12 +331,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Object == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(response.Object.m_user);
@@ -387,12 +363,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.resp.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.resp.Code, response.resp.Message);
+                throw new ClientException(response.resp);
             }
 
             pinCode = Mapper.Map<WebAPI.Models.Users.KalturaUserLoginPin>(response);
@@ -402,8 +378,6 @@ namespace WebAPI.Clients
 
         public bool ClearLoginPIN(int groupId, string userId, string pinCode)
         {
-
-
             ApiObjects.Response.Status response = null;
             try
             {
@@ -420,12 +394,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -479,12 +453,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.users == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.resp.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.resp.Code, response.resp.Message);
+                throw new ClientException(response.resp);
             }
 
             users = Mapper.Map<List<WebAPI.Models.Users.KalturaOTTUser>>(response.users);
@@ -513,12 +487,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Object == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
+                throw new ClientException(response.Status);
             }
 
             KalturaOTTUser responseUser = Mapper.Map<KalturaOTTUser>(response.Object);
@@ -546,12 +520,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
             else
                 res = true;
@@ -572,8 +546,6 @@ namespace WebAPI.Clients
 
         public bool RemoveUserFavorite(int groupId, string userId, int domainID, long[] mediaIDs)
         {
-
-
             ApiObjects.Response.Status response = null;
             try
             {
@@ -590,12 +562,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return response.Code == (int)StatusCode.OK;
@@ -604,10 +576,7 @@ namespace WebAPI.Clients
         public List<Models.Users.KalturaFavorite> GetUserFavorites(int groupId, string userId, int domainID, string udid, string mediaType, KalturaFavoriteOrderBy orderBy)
         {
             List<WebAPI.Models.Users.KalturaFavorite> favorites = null;
-
-
             FavoriteOrderBy wsOrderBy = UsersMappings.ConvertFavoriteOrderBy(orderBy);
-
             FavoriteResponse response = null;
 
             try
@@ -625,12 +594,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             favorites = Mapper.Map<List<WebAPI.Models.Users.KalturaFavorite>>(response.Favorites);
@@ -641,9 +610,6 @@ namespace WebAPI.Clients
         public List<KalturaUserAssetsList> GetItemFromList(int groupId, List<string> userIds, KalturaUserAssetsListType listType, KalturaUserAssetsListItemType assetType)
         {
             List<KalturaUserAssetsList> userAssetsList = null;
-
-
-
             UsersItemsListsResponse response = null;
             ListType wsListType = UsersMappings.ConvertUserAssetsListType(listType);
             ListItemType wsAssetType = UsersMappings.ConvertUserAssetsListItemType(assetType);
@@ -663,12 +629,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             userAssetsList = Mapper.Map<List<WebAPI.Models.Users.KalturaUserAssetsList>>(response.UsersItemsLists);
@@ -679,8 +645,6 @@ namespace WebAPI.Clients
         internal List<KalturaFavorite> FilterFavoriteMedias(int groupId, string userId, List<int> mediaIds, string udid, string mediaType, KalturaFavoriteOrderBy orderBy)
         {
             FavoriteResponse response = null;
-
-
             FavoriteOrderBy wsOrderBy = UsersMappings.ConvertFavoriteOrderBy(orderBy);
 
             try
@@ -698,12 +662,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             return Mapper.Map<List<WebAPI.Models.Users.KalturaFavorite>>(response.Favorites);
@@ -729,12 +693,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.Ids != null)
@@ -764,12 +728,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -778,8 +742,6 @@ namespace WebAPI.Clients
         internal bool DeleteUser(int groupId, int userId)
         {
             ApiObjects.Response.Status response = null;
-
-
 
             try
             {
@@ -796,12 +758,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -852,17 +814,17 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
+                throw new ClientException(response.Status);
             }
 
             if (response.Object == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(response.Object);
@@ -891,12 +853,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
 
 
@@ -907,8 +869,6 @@ namespace WebAPI.Clients
         {
             KalturaUserAssetsListItem listItem = null;
             UsersListItemResponse response = null;
-
-
 
             try
             {
@@ -927,17 +887,17 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.Item == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             listItem = Mapper.Map<KalturaUserAssetsListItem>(response.Item);
@@ -948,8 +908,6 @@ namespace WebAPI.Clients
         internal bool DeleteItemFromUsersList(int groupId, string userId, string assetId, KalturaUserAssetsListType listType)
         {
             ApiObjects.Response.Status response = null;
-
-
 
             try
             {
@@ -974,12 +932,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -989,8 +947,6 @@ namespace WebAPI.Clients
         internal bool DeleteItemFromUsersList(int groupId, string userId, KalturaUserAssetsListItem userAssetsListItem)
         {
             ApiObjects.Response.Status response = null;
-
-
 
             try
             {
@@ -1009,12 +965,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -1024,8 +980,6 @@ namespace WebAPI.Clients
         {
             KalturaUserAssetsListItem listItem = null;
             UsersListItemResponse response = null;
-
-
 
             try
             {
@@ -1050,17 +1004,17 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.Item == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             listItem = Mapper.Map<KalturaUserAssetsListItem>(response.Item);
@@ -1073,8 +1027,6 @@ namespace WebAPI.Clients
         {
             KalturaUserAssetsListItem listItem = null;
             UsersListItemResponse response = null;
-
-
 
             try
             {
@@ -1093,17 +1045,17 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.Item == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             listItem = Mapper.Map<KalturaUserAssetsListItem>(response.Item);
@@ -1131,12 +1083,12 @@ namespace WebAPI.Clients
 
             if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message.ToString());
+                throw new ClientException(response.Status);
             }
 
             if (response.Object == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             KalturaOTTUser User;
@@ -1169,17 +1121,17 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
+                throw new ClientException(response.Status);
             }
 
             if (response.Object == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             KalturaOTTUser User = Mapper.Map<KalturaOTTUser>(response.Object);
@@ -1211,12 +1163,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message, response.Args);
+                throw new ClientException(response);
             }
         }
 
@@ -1241,17 +1193,16 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
         }
-
 
         internal KalturaUserInterest InsertUserInterest(int groupId, string user, KalturaUserInterest kalturaUserInterest)
         {
@@ -1273,11 +1224,11 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return kalturaUserInterest;
@@ -1303,12 +1254,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             list = Mapper.Map<List<KalturaUserInterest>>(response.UserInterests);
@@ -1336,12 +1287,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
             else
             {
@@ -1371,12 +1322,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Object == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (!response.IsOkStatusCode())
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(response.Object);
@@ -1404,7 +1355,7 @@ namespace WebAPI.Clients
 
             if (!success)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
 
@@ -1431,8 +1382,8 @@ namespace WebAPI.Clients
 
             if (response.RespStatus.Code != (int)StatusCode.OK)
             {
-                log.ErrorFormat("Error while GetSSOAdapters. groupID: {0}, message: {1}", groupId, response.RespStatus.Message);
-                throw new ClientException(response.RespStatus.Code, response.RespStatus.Message);
+                log.Error($"Error while GetSSOAdapters. groupID: {groupId}, message: {response.RespStatus.Message}");
+                throw new ClientException(response.RespStatus);
             }
 
             return Mapper.Map<List<KalturaSSOAdapterProfile>>(response.SSOAdapters);
@@ -1459,7 +1410,7 @@ namespace WebAPI.Clients
             if (response.RespStatus.Code != (int)eResponseStatus.OK)
             {
                 log.ErrorFormat("Error while InsertSSOAdapter. groupID: {0} message: {1}", groupId, response.RespStatus.Message);
-                throw new ClientException(response.RespStatus.Code, response.RespStatus.Message);
+                throw new ClientException(response.RespStatus);
             }
 
             return Mapper.Map<KalturaSSOAdapterProfile>(response.SSOAdapter);
@@ -1491,7 +1442,7 @@ namespace WebAPI.Clients
             if (response.RespStatus.Code != (int)eResponseStatus.OK)
             {
                 log.ErrorFormat("Error while UpdateSSOAdapter. groupID: {0} adapterId:{1}", groupId, ssoAdapterId);
-                throw new ClientException(response.RespStatus.Code, response.RespStatus.Message);
+                throw new ClientException(response.RespStatus);
             }
 
             return Mapper.Map<KalturaSSOAdapterProfile>(response.SSOAdapter);
@@ -1516,7 +1467,7 @@ namespace WebAPI.Clients
             if (response.Code != (int)StatusCode.OK)
             {
                 log.ErrorFormat("Error while DeleteSSOAdapater. groupID: {0}, message: {1}", groupId, response.Message);
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return response;
@@ -1542,7 +1493,7 @@ namespace WebAPI.Clients
             if (response.RespStatus.Code != (int)StatusCode.OK)
             {
                 log.ErrorFormat("Error while InsertSSOAdapter. groupID: {0}, message: {1}", groupId, response.RespStatus.Message);
-                throw new ClientException(response.RespStatus.Code, response.RespStatus.Message);
+                throw new ClientException(response.RespStatus);
             }
 
             return Mapper.Map<KalturaSSOAdapterProfile>(response.SSOAdapter);

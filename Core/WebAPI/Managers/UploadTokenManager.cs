@@ -94,7 +94,7 @@ namespace WebAPI.Managers
 
             if (!saveFileResponse.HasObject())
             {
-                throw new ClientException(saveFileResponse.Status.Code, saveFileResponse.Status.Message);
+                throw new ClientException(saveFileResponse.Status);
             }
 
             log.DebugFormat("UploadUploadToken save file response -> Object: {0}", saveFileResponse.Object);

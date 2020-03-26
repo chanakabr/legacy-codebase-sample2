@@ -62,10 +62,12 @@ namespace WebAPI.Controllers
             {
                 // call client
                 var response = ClientsManager.UsersClient().DeleteSSOAdapater(groupId, ssoAdapterId, int.Parse(userId));
-                if (response.Code != (int)eResponseStatus.OK) { throw new ClientException(response.Code); }
+                if (response.Code != (int)eResponseStatus.OK) 
+                { 
+                    throw new ClientException(response);
+                }
+
                 return true;
-
-
             }
             catch (ClientException ex)
             {

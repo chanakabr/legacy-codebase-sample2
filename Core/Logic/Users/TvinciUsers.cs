@@ -1146,10 +1146,10 @@ namespace Core.Users
                 return response;
             }
             
-            var validationResponse = PasswordPolicyManager.Instance.ValidatePassword(sPass, nGroupID, long.Parse(userResponseObject.m_user.m_sSiteGUID), userResponseObject.m_user.m_oBasicData.RoleIds);
-            if (!validationResponse.IsOkStatusCode())
+            var validationStatus = PasswordPolicyManager.Instance.ValidatePassword(sPass, nGroupID, long.Parse(userResponseObject.m_user.m_sSiteGUID), userResponseObject.m_user.m_oBasicData.RoleIds);
+            if (!validationStatus.IsOkStatusCode())
             {
-                response.SetStatus(validationResponse);
+                response.SetStatus(validationStatus);
                 response.Object.m_RespStatus = ResponseStatus.PasswordPolicyViolation;
                 return response;
             }

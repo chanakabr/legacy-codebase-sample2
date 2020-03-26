@@ -56,12 +56,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -86,12 +86,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
         }
 
@@ -116,12 +116,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.entitelments == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.status.Code, response.status.Message);
+                throw new ClientException(response.status);
             }
 
             entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(response.entitelments);
@@ -152,12 +152,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.resp.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.resp.Code, response.resp.Message);
+                throw new ClientException(response.resp);
             }
 
             transactions = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaBillingTransactionListResponse>(response.transactions);
@@ -189,17 +189,17 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.BillingResponse == null || response.BillingResponse == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             result = Mapper.Map<KalturaBillingResponse>(response.BillingResponse);
@@ -230,17 +230,17 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.BillingResponse == null || response.BillingResponse == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             result = Mapper.Map<KalturaBillingResponse>(response.BillingResponse);
@@ -269,12 +269,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.SubscriptionsPrices != null && response.SubscriptionsPrices.Length > 0)
@@ -309,12 +309,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             prices = AutoMapper.Mapper.Map<List<WebAPI.Models.Pricing.KalturaItemPrice>>(response.ItemsPrices);
@@ -343,12 +343,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             prices = PricingMappings.ConvertPpvPrice(response.ItemsPrices);
@@ -386,13 +386,13 @@ namespace WebAPI.Clients
             if (wsResponse == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (wsResponse.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException((int)wsResponse.Status.Code, wsResponse.Status.Message, wsResponse.Status.Args);
+                throw new ClientException(wsResponse.Status);
             }
 
             // convert response
@@ -431,13 +431,13 @@ namespace WebAPI.Clients
             if (wsResponse == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (wsResponse.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+                throw new ClientException(wsResponse.Status);
             }
 
             // convert response
@@ -473,55 +473,16 @@ namespace WebAPI.Clients
             if (wsResponse == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (wsResponse.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(wsResponse.Code, wsResponse.Message);
+                throw new ClientException(wsResponse);
             }
         }
 
-        //internal List<KalturaEntitlement> GetDomainPermittedItems(int groupId, int domainId)
-        //{
-        //    List<KalturaEntitlement> entitlements = null;
-        //    PermittedMediaContainerResponse wsResponse = new PermittedMediaContainerResponse();
-
-        //    // get group ID
-        //    
-
-        //    try
-        //    {
-        //        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-        //        {
-        //            // fire request
-        //            wsResponse = Core.ConditionalAccess.Module.GetDomainPermittedItems(groupId, domainId);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
-        //        ErrorUtils.HandleWSException(ex);
-        //    }
-
-        //    if (wsResponse == null)
-        //    {
-        //        // general exception
-        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-        //    }
-
-        //    if (wsResponse.Status.Code != (int)StatusCode.OK)
-        //    {
-        //        // internal web service exception
-        //        throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
-        //    }
-
-        //    // convert response
-        //    entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(wsResponse.PermittedMediaContainer);
-
-        //    return entitlements;
-        //}
         internal KalturaEntitlementListResponse GetDomainEntitlements(int groupId, int domainId, KalturaTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0,
             KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC)
         {
@@ -556,13 +517,13 @@ namespace WebAPI.Clients
             if (wsResponse == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (wsResponse.status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(wsResponse.status.Code, wsResponse.status.Message);
+                throw new ClientException(wsResponse.status);
             }
 
             // convert response
@@ -612,13 +573,13 @@ namespace WebAPI.Clients
             if (wsResponse == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (wsResponse.status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(wsResponse.status.Code, wsResponse.status.Message);
+                throw new ClientException(wsResponse.status);
             }
 
             // convert response
@@ -675,13 +636,13 @@ namespace WebAPI.Clients
             if (wsResponse == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (wsResponse.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+                throw new ClientException(wsResponse.Status);
             }
 
             // Conversion and paging
@@ -759,12 +720,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             assetPrices = AutoMapper.Mapper.Map<List<WebAPI.Models.Pricing.KalturaAssetPrice>>(response.Prices);
@@ -793,12 +754,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -826,12 +787,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             result = new KalturaHouseholdPremiumServiceListResponse()
@@ -866,12 +827,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             result = Mapper.Map<List<KalturaPremiumService>>(response.Services);
@@ -905,12 +866,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -943,12 +904,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null || response.PurchaseCustomDataId == 0)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             return response.PurchaseCustomDataId;
@@ -976,12 +937,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             urls = Mapper.Map<KalturaLicensedUrl>(response);
@@ -1016,12 +977,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             urls = Mapper.Map<KalturaLicensedUrl>(response);
@@ -1054,12 +1015,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             urls = Mapper.Map<KalturaLicensedUrl>(response);
@@ -1089,12 +1050,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.Adapters.Count > 0)
@@ -1125,12 +1086,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -1161,12 +1122,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             adapter = AutoMapper.Mapper.Map<KalturaCDVRAdapterProfile>(response.Adapter);
@@ -1199,12 +1160,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             adapterResponse = AutoMapper.Mapper.Map<KalturaCDVRAdapterProfile>(response.Adapter);
@@ -1234,12 +1195,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             adapter = AutoMapper.Mapper.Map<KalturaCDVRAdapterProfile>(response.Adapter);
@@ -1272,13 +1233,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             // convert response
@@ -1312,13 +1273,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.Recordings != null && response.Recordings.Count > 0)
@@ -1365,13 +1326,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             // convert response
@@ -1409,13 +1370,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.Recordings != null && response.Recordings.Count > 0)
@@ -1489,13 +1450,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.Recordings != null && response.Recordings.Count > 0)
@@ -1529,12 +1490,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -1564,13 +1525,13 @@ namespace WebAPI.Clients
             if (webServiceResponse == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (webServiceResponse.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(webServiceResponse.Status.Code, webServiceResponse.Status.Message);
+                throw new ClientException(webServiceResponse.Status);
             }
 
             KalturaHouseholdQuota response = null;
@@ -1607,13 +1568,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             // convert response
@@ -1647,13 +1608,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             // convert response
@@ -1687,13 +1648,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             // convert response
@@ -1727,13 +1688,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             // convert response
@@ -1767,13 +1728,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             // convert response
@@ -1841,13 +1802,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
             // convert response
             recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>(response);
@@ -1884,7 +1845,7 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
             // convert response        
             kalturaResponse = Mapper.Map<KalturaAssetFileContext>(response);
@@ -1919,13 +1880,13 @@ namespace WebAPI.Clients
             if (status == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(status.Code, status.Message);
+                throw new ClientException(status);
             }
 
             return true;
@@ -1962,19 +1923,19 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.status.Code, response.status.Message);
+                throw new ClientException(response.status);
             }
 
             if (response.entitelments == null || response.entitelments.Count < 1)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             // convert response
@@ -2006,12 +1967,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -2057,7 +2018,7 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)eResponseStatus.OK && 
@@ -2071,7 +2032,7 @@ namespace WebAPI.Clients
                 response.Status.Code != (int)eResponseStatus.NoFilesFound &&
                 response.Status.Code != (int)eResponseStatus.NetworkRuleBlock)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
             else if (response.Status.Code != (int)eResponseStatus.OK)
             {
@@ -2123,12 +2084,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             return response.Url;
@@ -2154,12 +2115,12 @@ namespace WebAPI.Clients
             }
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             return Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaCompensation>(response.Compensation);
@@ -2184,12 +2145,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response);
             }
         }
 
@@ -2212,12 +2173,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             return Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaCompensation>(response.Compensation);
@@ -2247,13 +2208,13 @@ namespace WebAPI.Clients
             if (wsResponse == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (wsResponse.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+                throw new ClientException(wsResponse.Status);
             }
 
             // convert response
@@ -2285,13 +2246,13 @@ namespace WebAPI.Clients
             if (wsResponse == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (wsResponse.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(wsResponse.Code, wsResponse.Message);
+                throw new ClientException(wsResponse);
             }
         }
 
@@ -2316,13 +2277,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
 
             return true;
@@ -2362,12 +2323,12 @@ namespace WebAPI.Clients
             if (response == null || response.Status == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)eResponseStatus.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             kalturaAdsContext.Sources = Mapper.Map<List<KalturaAdsSource>>(response.Sources);
@@ -2395,12 +2356,12 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)eResponseStatus.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
         }
 
@@ -2424,12 +2385,12 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)eResponseStatus.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
         }
 
@@ -2453,12 +2414,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             prices = PricingMappings.ConvertCollectionPrice(response.CollectionsPrices);
@@ -2485,12 +2446,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             return Mapper.Map<KalturaEntitlementRenewal>(response.EntitlementRenewal);
@@ -2515,12 +2476,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             return Mapper.Map<KalturaUnifiedPaymentRenewal>(response.UnifiedPaymentRenewal);
@@ -2557,13 +2518,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             // convert response
