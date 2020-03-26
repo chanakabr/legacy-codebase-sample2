@@ -46,7 +46,6 @@ namespace ConfigurationManager
         public BaseValue<string> PicsBasePath = new BaseValue<string>("pics_base_path", TcmObjectKeys.Stub, true);
         public BaseValue<string> AdyenPSPReferenceRegexOverride = new BaseValue<string>("AdyenPSPReferenceRegexOverride", TcmObjectKeys.Stub, true);
         public BaseValue<string> MetaFeaturesPattern = new BaseValue<string>("meta_features_pattern", @"\W|[^ ]{64}[^ ]", false);
-        public BaseValue<string> LogConfigurationDocumentKey = new BaseValue<string>("log_configuration_document_key", "phoenix_log_configuration", false, "Document key in Couchbase from which the log reloader mechanism will read the configuration of log4net.config");
         public BaseValue<int> PwwawpMaxResultsSize = new BaseValue<int>("PWWAWP_MAX_RESULTS_SIZE", 8);
         public BaseValue<int> PwlalPMaxResultsSize = new BaseValue<int>("PWLALP_MAX_RESULTS_SIZE", 8);
         public BaseValue<int> PreviewModuleNumOfCancelOrRefundAttempts = new BaseValue<int>("PreviewModuleNumOfCancelOrRefundAttempts", 4, false, "Number of attempts when Adyen Direct Debit sends a cancel or refund request to the payment port client"); 
@@ -63,7 +62,7 @@ namespace ConfigurationManager
         public BaseValue<int> EPGDeleteBulkSize = new BaseValue<int>("epg_delete_bulk_size", 10);
         public BaseValue<int> MediaMarksListLength = new BaseValue<int>("media_marks_list_limit", 300);
         public BaseValue<int> MediaMarksTTL = new BaseValue<int>("media_marks_ttl_days", 90);
-        public BaseValue<int> LogReloadInterval = new BaseValue<int>("log_reload_interval", 0, false, "Interval of reloading the KLogger configuration from Couchbase, in milliseconds.");
+        public BaseValue<int> LogReloadInterval = new BaseValue<int>("log_reload_interval", 0, false, "Interval of reloading the KLogger configuration from Couchbase, in milliseconds. If set to a positive value, log reload mechanism will be initiated on this application.");
 
         public BaseValue<double> CrowdSourceTimeSpan = new BaseValue<double>("CrowdSourceTimeSpan", 30);
         public BaseValue<double> BillingCacheTTL = new BaseValue<double>("BillingCacheTTL", 60);

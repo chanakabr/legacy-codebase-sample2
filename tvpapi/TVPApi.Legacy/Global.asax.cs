@@ -50,6 +50,8 @@ namespace WAP_TVPApi
 
             // This line is here to avoid error while deserilizing json that was serlizied using net core with TypeNameHandling
             AssemblyUtils.RedirectAssembly("System.Private.CoreLib", "mscorlib");
+
+            KLogMonitor.ConfigurationReloader.LogReloader.GetInstance().Initiate("tvpapi_log_configuration");
         }
 
         protected void Session_Start(object sender, EventArgs e)

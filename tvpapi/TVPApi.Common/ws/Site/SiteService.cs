@@ -2107,6 +2107,94 @@ namespace TVPApiServices
             return response;
         }
 
+        public bool SetLogLevel(InitializationObject initObj, string level)
+        {
+            bool response = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetLogLevel", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID == 1)
+            {
+                try
+                {
+                    log4net.Core.Level logLevel = ParseLogLevel(level);
+
+                    if (logLevel != null)
+                    {
+                        KLogMonitor.KLogger.SetLogLevel(logLevel);
+                        response = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        public string GetLogLevel(InitializationObject initObj)
+        {
+            string response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLogLevel", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID == 1)
+            {
+                try
+                {
+                    var level = KLogMonitor.KLogger.GetLogLevel();
+                    response = level.Name;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        private static log4net.Core.Level ParseLogLevel(string level)
+        {
+            log4net.Core.Level logLevel = null;
+
+            switch (level.ToUpper())
+            {
+                case "TRACE":
+                    logLevel = log4net.Core.Level.Trace;
+                    break;
+                case "DEBUG":
+                    logLevel = log4net.Core.Level.Debug;
+                    break;
+                case "INFO":
+                    logLevel = log4net.Core.Level.Info;
+                    break;
+                case "WARN":
+                    logLevel = log4net.Core.Level.Warn;
+                    break;
+                case "ERROR":
+                    logLevel = log4net.Core.Level.Error;
+                    break;
+                case "ALL":
+                    logLevel = log4net.Core.Level.All;
+                    break;
+                default:
+                    logger.Error($"Unknown log level sent {level}");
+                    break;
+            }
+
+            return logLevel;
+        }
         #endregion
 
     }
