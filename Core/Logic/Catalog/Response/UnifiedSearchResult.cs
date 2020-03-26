@@ -32,6 +32,9 @@ namespace Core.Catalog.Response
         [DataMember]
         public RecordingType? RecordingType { get; set; }
 
+        [DataMember]
+        public string RecordingId { get; set; }
+
         public RecordingSearchResult()
             : base() { }
 

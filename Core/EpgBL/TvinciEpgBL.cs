@@ -349,13 +349,13 @@ namespace EpgBL
             return (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null; ;
         }
 
-        public override List<EpgCB> GetEpgCB(ulong nProgramID, List<string> languages)
+        public override List<EpgCB> GetEpgCB(ulong nProgramID, List<string> languages, bool isAddAction = false)
         {
             try
             {
                 var partialLangObjects = languages.Select(landCode => new LanguageObj { Code = landCode });
-                var docIDs = GetEpgCBKeys(m_nGroupID, (long)nProgramID, partialLangObjects);
-                var defaultLangDocId = GetEpgCBKey(m_nGroupID, (long)nProgramID);
+                var docIDs = GetEpgCBKeys(m_nGroupID, (long)nProgramID, partialLangObjects, isAddAction);
+                var defaultLangDocId = GetEpgCBKey(m_nGroupID, (long)nProgramID, null, isAddAction);
                 docIDs.Add(defaultLangDocId);
                 var lResCB = m_oEpgCouchbase.GetProgram(docIDs);
 
@@ -1190,27 +1190,56 @@ namespace EpgBL
         //    return result;
         //}
 
-        public List<string> GetEpgCBKeys(int groupId, long epgId, IEnumerable<LanguageObj> langCodes)
+        public List<string> GetEpgCBKeys(int groupId, long epgId, IEnumerable<LanguageObj> langCodes, bool isAddAction)
         {
+            var result = new List<string>();
             var isNewEpgIngestEnabled = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+
             if (isNewEpgIngestEnabled)
             {
-                // using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it
-                // so there is no way for us to now what is the document id.
-                // elastisearch holds the current document in CB so we go there to take it
-                return GetEpgCBDocumentIdsByEpgIdFromElasticsearch(groupId, epgId, langCodes);
+                if (!isAddAction)
+                {
+                    // using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it
+                    // so there is no way for us to now what is the document id.
+                    // elastisearch holds the current document in CB so we go there to take it
+                    result = GetEpgCBDocumentIdsByEpgIdFromElasticsearch(groupId, epgId, langCodes);
+                }
+                else
+                {
+                    if (langCodes == null)
+                    {
+                        result = new List<string> { $"{epgId}" };
+                    }
+                    else
+                    {
+                        var keys = langCodes.Select(langCode => langCode.IsDefault ?
+                            $"{epgId}" :
+                            $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
+                        result = keys.ToList();
+                    }
+                }
+            }
+            else
+            {
+                if (langCodes == null)
+                {
+                    result = new List<string> { epgId.ToString() };
+                }
+                else
+                {
+                    var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
+                    result = keys.ToList();
+                }
             }
 
-            if (langCodes == null) { return new List<string> { epgId.ToString() }; }
-            var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
-            return keys.ToList();
+            return result;
         }
 
-        public string GetEpgCBKey(int groupId, long epgId, string langCode = null)
+        public string GetEpgCBKey(int groupId, long epgId, string langCode = null, bool isAddAction = false)
         {
 
             var langs = string.IsNullOrEmpty(langCode) ? null : new[] {new LanguageObj { Code = langCode } };
-            var keys = GetEpgCBKeys(groupId, epgId, langs);
+            var keys = GetEpgCBKeys(groupId, epgId, langs, isAddAction);
             return keys.FirstOrDefault();
         }
 

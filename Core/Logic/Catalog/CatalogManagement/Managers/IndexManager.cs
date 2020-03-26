@@ -744,7 +744,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static bool UpsertProgram(int groupId, List<int> epgIds)
+        public static bool UpsertProgram(int groupId, List<int> epgIds, bool isAddAction = false)
         {
             bool result = true;
 
@@ -792,7 +792,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (epgIds.Count == 1)
                 {
-                    epgObjects = GetEpgPrograms(groupId, epgIds[0], languageCodes);
+                    epgObjects = GetEpgPrograms(groupId, epgIds[0], languageCodes, null, isAddAction);
                 }
                 else
                 {
@@ -807,7 +807,7 @@ namespace Core.Catalog.CatalogManagement
                         programsTasks[i] = Task.Run<List<EpgCB>>(() =>
                         {
                             cd.Load();
-                            return GetEpgPrograms(groupId, epgIds[i], languageCodes);
+                            return GetEpgPrograms(groupId, epgIds[i], languageCodes, null, isAddAction);
                         });
                     }
 
@@ -1498,7 +1498,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        private static List<EpgCB> GetEpgPrograms(int groupId, int epgId, List<string> languages, EpgBL.BaseEpgBL epgBL = null)
+        private static List<EpgCB> GetEpgPrograms(int groupId, int epgId, List<string> languages, EpgBL.BaseEpgBL epgBL = null, bool isAddAction = false)
         {
             List<EpgCB> results = new List<EpgCB>();
 
@@ -1519,7 +1519,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     ulong uEpgID = (ulong)epgId;
-                    results = epgBL.GetEpgCB(uEpgID, languages);
+                    results = epgBL.GetEpgCB(uEpgID, languages, isAddAction);
                 }
                 catch (Exception ex)
                 {
