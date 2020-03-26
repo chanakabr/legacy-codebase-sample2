@@ -241,30 +241,30 @@ namespace Core.Notification.Adapters
             IotPublishResponse response = null;
             var _topic = $"{groupId}/{topic}";
 
-            var iotAdapter = NotificationSettings.GetIotAdapter(groupId);
-            if (string.IsNullOrEmpty(iotAdapter?.AdapterUrl))
-                log.Error("IOT Notification URL wasn't found");
-            else
+            try
             {
-                try
-                {
-                    var request = new { GroupId = groupId, Message = message, Topic = _topic };
-                    response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post);
+                var request = new { GroupId = groupId, Message = message, Topic = _topic };
+                response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out bool hasConfig);
 
-                    if (response == null || response.ResponseObject == null || !response.ResponseObject.IsSuccess)
-                        log.Error($"Error while trying to publish announcement. message: {message}");
-                    else
-                        log.Debug($"successfully published announcement.");
-                }
-                catch (ConfigurationErrorsException)
+                if (!hasConfig)
                 {
-                    log.Error($"No configurations for group: {groupId}.");
+                    var update = IotManager.Instance.UpdateIotProfile(groupId, new ApiObjects.Base.ContextData(groupId));
+                    if (update != null)
+                    {
+                        response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out hasConfig);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    log.Error($"Error while trying to publish announcement. message: {message} ex: {ex}");
-                }
+
+                if (response == null || response.ResponseObject == null || !response.ResponseObject.IsSuccess)
+                    log.Error($"Error while trying to publish announcement. message: {message}");
+                else
+                    log.Debug($"successfully published announcement.");
             }
+            catch (Exception ex)
+            {
+                log.Error($"Error while trying to publish announcement. message: {message} ex: {ex}");
+            }
+
             return response;
         }
 
@@ -272,30 +272,30 @@ namespace Core.Notification.Adapters
         {
             var response = false;
 
-            var iotAdapter = NotificationSettings.GetIotAdapter(groupId);
-            if (string.IsNullOrEmpty(iotAdapter?.AdapterUrl))
-                log.Error("IOT Notification URL wasn't found");
-            else
+            try
             {
-                try
-                {
-                    var request = new { groupId = groupId, thingArn = thingArn, message = message };
-                    response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post);
+                var request = new { groupId = groupId, thingArn = thingArn, message = message };
+                response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out bool hasConfig);
 
-                    if (!response)
-                        log.Error($"Error while trying to add message to thing shadow. message: {message}, thing: {thingArn}");
-                    else
-                        log.Debug($"successfully added message to thing shadow.");
-                }
-                catch (ConfigurationErrorsException)
+                if (!hasConfig)
                 {
-                    log.Error($"No configurations for group: {groupId}.");
+                    var update = IotManager.Instance.UpdateIotProfile(groupId, new ApiObjects.Base.ContextData(groupId));
+                    if (update != null)
+                    {
+                        response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out hasConfig);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    log.Error($"Error while trying to publish announcement. message: {message} ex: {ex}");
-                }
+
+                if (!response)
+                    log.Error($"Error while trying to add message to thing shadow. message: {message}, thing: {thingArn}");
+                else
+                    log.Debug($"successfully added message to thing shadow");
             }
+            catch (Exception ex)
+            {
+                log.Error($"Error while trying to publish announcement. message: {message} ex: {ex}");
+            }
+
             return response;
         }
 

@@ -486,8 +486,6 @@ namespace Core.Notification
 
                     userNotificationData.Settings.EnableSms = NotificationSettings.IsPartnerSmsNotificationEnabled(groupId);
 
-                    userNotificationData.Settings.EnableIot = NotificationSettings.IsPartnerIotNotificationEnabled(groupId);
-
                     if (userNotificationData.Settings.EnableMail.Value || userNotificationData.Settings.EnableSms.Value)
                     {
                         Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);

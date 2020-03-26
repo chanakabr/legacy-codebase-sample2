@@ -111,8 +111,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
                  .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnablePush))
                  .ForMember(dest => dest.MailEnabled, opt => opt.MapFrom(src => src.EnableMail))
-                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.EnableSms));
-
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.EnableSms))
+                ;
             cfg.CreateMap<bool?, UserFollowSettings>()
                .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src));
 

@@ -79,7 +79,7 @@ namespace WebAPI.Controllers
                 }
 
                 Func<GenericResponse<IotClientConfiguration>> coreFunc = () =>
-                    IotManager.Instance.GetIotClientConfiguration(contextData);
+                    IotManager.Instance.GetClientConfiguration(contextData);
 
                 response.Object = ClientUtils.GetResponseFromWS<KalturaIotClientConfiguration, IotClientConfiguration>(coreFunc);
 

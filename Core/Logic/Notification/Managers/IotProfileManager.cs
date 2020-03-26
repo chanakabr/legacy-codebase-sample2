@@ -5,15 +5,11 @@ using ApiObjects.Response;
 using System;
 using System.Reflection;
 using KLogMonitor;
-using System.Net.Http;
 using System.Configuration;
 using Core.Notification;
 using Newtonsoft.Json;
 using DAL;
 using TVinciShared;
-using ConfigurationManager;
-using System.Net;
-using System.Text;
 
 namespace ApiLogic.Notification
 {
@@ -21,7 +17,6 @@ namespace ApiLogic.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<IotProfileManager> lazy = new Lazy<IotProfileManager>(() => new IotProfileManager());
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.IotHttpClientConfiguration);
 
         public static IotProfileManager Instance { get { return lazy.Value; } }
 
@@ -35,18 +30,18 @@ namespace ApiLogic.Notification
         public GenericResponse<IotProfile> Update(ContextData contextData, IotProfile iotProfile)
         {
             var response = new GenericResponse<IotProfile>();
+            var currentConfigurations = NotificationDal.GetIotProfile(contextData.GroupId);
 
-            var currentConfigurations = GetIotConfiguration(contextData);
-            if (currentConfigurations == null || currentConfigurations.Status == Status.Error)
+            if (currentConfigurations == null)
             {
-                var error = $"Error: IotProfile doesn't exists or not found for group: {contextData.GroupId}.";
+                var error = $"Error: IotProfile doesn't exists for group: {contextData.GroupId}.";
                 log.Error(error);
-                response.SetStatus(eResponseStatus.AlreadyExist, error);
+                response.SetStatus(eResponseStatus.NoConfigurationFound, error);
                 return response;
             }
             else
             {
-                var newConfigurations = FillMissingConfigurations(currentConfigurations.Object, iotProfile);
+                var newConfigurations = FillMissingConfigurations(currentConfigurations, iotProfile);
                 return Add(contextData, newConfigurations, true);
             }
         }
@@ -114,7 +109,16 @@ namespace ApiLogic.Notification
 
                 var saved = SaveIotProfile(groupId, iotProfile);
 
-                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, iotProfile.IotProfileAws, MethodType.Put, iotProfile, true);
+                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, iotProfile.IotProfileAws, MethodType.Put, out bool hasConfig, iotProfile, true);
+
+                if (!hasConfig)
+                {
+                    var update = IotManager.Instance.UpdateIotProfile(groupId, contextData);
+                    if (update != null)
+                    {
+                        msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, iotProfile.IotProfileAws, MethodType.Put, out hasConfig, iotProfile, true);
+                    }
+                }
 
                 if (msResponse == null)
                 {
@@ -126,10 +130,6 @@ namespace ApiLogic.Notification
 
                 response.SetStatus(saved ? Status.Ok : Status.Error);
                 response.Object = new IotProfile { AdapterUrl = iotProfile.AdapterUrl, IotProfileAws = msResponse };
-            }
-            catch (ConfigurationErrorsException)
-            {
-                log.Error($"No configurations for group: {groupId}.");
             }
             catch (Exception ex)
             {
@@ -155,7 +155,16 @@ namespace ApiLogic.Notification
                 var iotProfile = NotificationDal.GetIotProfile(groupId);
                 var urlSuffix = $"groupId={groupId}&forClient={false}";
 
-                var profileAws = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get);
+                var profileAws = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get, out bool hasConfig);
+
+                if (!hasConfig)
+                {
+                    var update = IotManager.Instance.UpdateIotProfile(groupId, contextData);
+                    if (update != null)
+                    {
+                        profileAws = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get, out hasConfig);
+                    }
+                }
 
                 response.Object = new IotProfile
                 {
@@ -164,10 +173,6 @@ namespace ApiLogic.Notification
                 };
 
                 response.SetStatus(Status.Ok);
-            }
-            catch (ConfigurationErrorsException)
-            {
-                log.Error($"No configurations for group: {groupId}.");
             }
             catch (Exception ex)
             {
