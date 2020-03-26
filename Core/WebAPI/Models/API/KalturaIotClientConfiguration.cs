@@ -18,6 +18,14 @@ namespace WebAPI.Models.API
     public partial class KalturaIotClientConfiguration : KalturaOTTObject
     {
         /// <summary>
+        /// announcementTopic
+        /// </summary>
+        [DataMember(Name = "announcementTopic")]
+        [JsonProperty(PropertyName = "announcementTopic")]
+        [XmlElement(ElementName = "announcementTopic")]
+        public string AnnouncementTopic { get; set; }
+
+        /// <summary>
         /// KalturaCredentialsProvider
         /// </summary>
         [DataMember(Name = "credentialsProvider")]
