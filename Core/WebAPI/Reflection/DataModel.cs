@@ -3357,6 +3357,8 @@ namespace WebAPI.Reflection
                 case "KalturaIotClientConfiguration":
                     switch(property.Name)
                     {
+                        case "AnnouncementTopic":
+                            return "announcementTopic";
                         case "CognitoUserPool":
                             return "cognitoUserPool";
                         case "CredentialsProvider":
@@ -3401,6 +3403,8 @@ namespace WebAPI.Reflection
                             return "secretAccessKey";
                         case "TTL":
                             return "tTL";
+                        case "UpdateDate":
+                            return "updateDate";
                         case "UserPoolId":
                             return "userPoolId";
                     }

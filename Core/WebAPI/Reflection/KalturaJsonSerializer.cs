@@ -16509,6 +16509,10 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(AnnouncementTopic != null)
+            {
+                ret.Add("announcementTopic", "\"announcementTopic\": " + "\"" + EscapeJson(AnnouncementTopic) + "\"");
+            }
             if(CognitoUserPool != null)
             {
                 propertyValue = CognitoUserPool.ToJson(currentVersion, omitObsolete);
@@ -16528,6 +16532,10 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(AnnouncementTopic != null)
+            {
+                ret.Add("announcementTopic", "<announcementTopic>" + EscapeXml(AnnouncementTopic) + "</announcementTopic>");
+            }
             if(CognitoUserPool != null)
             {
                 propertyValue = CognitoUserPool.ToXml(currentVersion, omitObsolete);
@@ -16631,10 +16639,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("accessKeyId", "\"accessKeyId\": " + "\"" + EscapeJson(AccessKeyId) + "\"");
             }
-            //if(BrokerPort != null)
-            //{
-            //    ret.Add("brokerPort", "\"brokerPort\": " + "\"" + EscapeJson(BrokerPort) + "\"");
-            //}
+            ret.Add("brokerPort", "\"brokerPort\": " + BrokerPort);
             if(CertificatePath != null)
             {
                 ret.Add("certificatePath", "\"certificatePath\": " + "\"" + EscapeJson(CertificatePath) + "\"");
@@ -16675,6 +16680,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("tTL", "\"tTL\": " + "\"" + EscapeJson(TTL) + "\"");
             }
+            ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             if(UserPoolId != null)
             {
                 ret.Add("userPoolId", "\"userPoolId\": " + "\"" + EscapeJson(UserPoolId) + "\"");
@@ -16692,10 +16698,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("accessKeyId", "<accessKeyId>" + EscapeXml(AccessKeyId) + "</accessKeyId>");
             }
-            //if(BrokerPort != null)
-            //{
-            //    ret.Add("brokerPort", "<brokerPort>" + EscapeXml(BrokerPort) + "</brokerPort>");
-            //}
+            ret.Add("brokerPort", "<brokerPort>" + BrokerPort + "</brokerPort>");
             if(CertificatePath != null)
             {
                 ret.Add("certificatePath", "<certificatePath>" + EscapeXml(CertificatePath) + "</certificatePath>");
@@ -16736,6 +16739,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("tTL", "<tTL>" + EscapeXml(TTL) + "</tTL>");
             }
+            ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             if(UserPoolId != null)
             {
                 ret.Add("userPoolId", "<userPoolId>" + EscapeXml(UserPoolId) + "</userPoolId>");

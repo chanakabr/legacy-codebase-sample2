@@ -16964,6 +16964,10 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
+                if (parameters.ContainsKey("announcementTopic") && parameters["announcementTopic"] != null)
+                {
+                    AnnouncementTopic = (String) Convert.ChangeType(parameters["announcementTopic"], typeof(String));
+                }
                 if (parameters.ContainsKey("credentialsProvider") && parameters["credentialsProvider"] != null)
                 {
                     if (parameters["credentialsProvider"] is JObject)
@@ -17047,10 +17051,10 @@ namespace WebAPI.Models.API
                 {
                     CertificatePath = (String) Convert.ChangeType(parameters["certificatePath"], typeof(String));
                 }
-                //if (parameters.ContainsKey("brokerPort") && parameters["brokerPort"] != null)
-                //{
-                //    BrokerPort = (String) Convert.ChangeType(parameters["brokerPort"], typeof(String));
-                //}
+                if (parameters.ContainsKey("brokerPort") && parameters["brokerPort"] != null)
+                {
+                    BrokerPort = (Int32) Convert.ChangeType(parameters["brokerPort"], typeof(Int32));
+                }
                 if (parameters.ContainsKey("accessKeyId") && parameters["accessKeyId"] != null)
                 {
                     AccessKeyId = (String) Convert.ChangeType(parameters["accessKeyId"], typeof(String));
@@ -17082,6 +17086,10 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("region") && parameters["region"] != null)
                 {
                     Region = (String) Convert.ChangeType(parameters["region"], typeof(String));
+                }
+                if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
+                {
+                    UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
             }
         }
