@@ -26,7 +26,7 @@ namespace ConfigurationManager
         public BaseValue<string> DMSAdapterUrl = new BaseValue<string>("DMS_ADAPTER_URL", "https://dms.service.consul/");
         public BaseValue<string> PlayManifestDynamicQueryStringParamsNames = new BaseValue<string>("PlayManifestDynamicQueryStringParamsNames", "clientTag,playSessionId");
         public BaseValue<string> Version = new BaseValue<string>("Version", "SV", false, "CouchBase document prefix. Each version has its own cached document to avoid backward compatibilty issues.");
-        public BaseValue<string> PictureUploaderPath = new BaseValue<string>("pic_uploader_path", TcmObjectKeys.Stub, true, "Configuration for DBManipulator/CouchBaseManipulator in TVM.");
+        public BaseValue<string> PictureUploaderPath = new BaseValue<string>("pic_uploader_path", string.Empty, false, "Configuration for DBManipulator/CouchBaseManipulator in TVM.");
         public BaseValue<string> TVMBaseUrl = new BaseValue<string>("BASE_URL", TcmObjectKeys.Stub, true, "Base URL for TVM.");
         public BaseValue<string> BatchUpload = new BaseValue<string>("batch_upload", TcmObjectKeys.Stub, true);
         public BaseValue<string> LookupGenericUpload = new BaseValue<string>("lookup_generic_upload", TcmObjectKeys.Stub, true);
