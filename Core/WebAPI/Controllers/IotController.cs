@@ -26,27 +26,19 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InternalConnectionIssue)]
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public static GenericResponse<KalturaIot> Register()
+        public static KalturaIot Register()
         {
-            var response = new GenericResponse<KalturaIot>();
+            KalturaIot response = null;
             var contextData = KS.GetContextData();
 
             try
             {
-                if (!ValidateRequest(contextData, response))
-                {
-                    return response;
-                }
+                ValidateRequest(contextData);
 
                 Func<GenericResponse<Iot>> coreFunc = () =>
                     IotManager.Instance.Register(contextData);
 
-                response.Object = ClientUtils.GetResponseFromWS<KalturaIot, Iot>(coreFunc);
-
-                if (response.Object != null)
-                {
-                    response.SetStatus(eResponseStatus.OK);
-                }
+                response = ClientUtils.GetResponseFromWS<KalturaIot, Iot>(coreFunc);
             }
             catch (ClientException ex)
             {
@@ -66,27 +58,19 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InternalConnectionIssue)]
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public static GenericResponse<KalturaIotClientConfiguration> GetClientConfiguration()
+        public static KalturaIotClientConfiguration GetClientConfiguration()
         {
-            var response = new GenericResponse<KalturaIotClientConfiguration>();
+            KalturaIotClientConfiguration response = null;
             var contextData = KS.GetContextData();
 
             try
             {
-                if (!ValidateRequest(contextData, response))
-                {
-                    return response;
-                }
+                ValidateRequest(contextData);
 
                 Func<GenericResponse<IotClientConfiguration>> coreFunc = () =>
                     IotManager.Instance.GetClientConfiguration(contextData);
 
-                response.Object = ClientUtils.GetResponseFromWS<KalturaIotClientConfiguration, IotClientConfiguration>(coreFunc);
-
-                if (response.Object != null)
-                {
-                    response.SetStatus(eResponseStatus.OK);
-                }
+                response = ClientUtils.GetResponseFromWS<KalturaIotClientConfiguration, IotClientConfiguration>(coreFunc);
             }
             catch (ClientException ex)
             {
@@ -96,16 +80,14 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        private static bool ValidateRequest<T>(ContextData contextData, GenericResponse<T> genericResponse)
+        private static void ValidateRequest(ContextData contextData)
         {
             var devices = ConcurrencyManager.GetDomainDevices((int)contextData.DomainId, contextData.GroupId);
 
             if (devices == null || !devices.ContainsKey(contextData.Udid))
             {
-                genericResponse.SetStatus(eResponseStatus.DeviceNotInDomain);
-                return false;
+                throw new BadRequestException(BadRequestException.INVALID_UDID, contextData.Udid);
             }
-            return true;
         }
     }
 }
