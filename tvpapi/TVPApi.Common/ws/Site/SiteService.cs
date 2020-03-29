@@ -752,7 +752,7 @@ namespace TVPApiServices
         }
 
         public UserResponseObject SignUp(InitializationObject initObj, UserBasicDataDTO userBasicData,
-            UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
+            UserDynamicDataDTO userDynamicData, string sPassword, string sAffiliateCode)
         {
             UserResponseObject response = new UserResponseObject();
 
@@ -763,8 +763,9 @@ namespace TVPApiServices
                 try
                 {
                     Core.Users.UserBasicData coreUserBasicData = userBasicData != null ? userBasicData.ToCore() : null;
+                    Core.Users.UserDynamicData coreUserDynamicData = userDynamicData != null ? userDynamicData.ToCore() : null;
 
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignUp(coreUserBasicData, userDynamicData, sPassword, sAffiliateCode);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignUp(coreUserBasicData, coreUserDynamicData, sPassword, sAffiliateCode);
                 }
                 catch (Exception ex)
                 {
@@ -836,7 +837,7 @@ namespace TVPApiServices
 
         [PrivateMethod]
         public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, UserBasicDataDTO userBasicData,
-            UserDynamicData userDynamicData)
+            UserDynamicDataDTO userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
 
@@ -853,8 +854,9 @@ namespace TVPApiServices
                 try
                 {
                     UserBasicData coreUserBasicData = userBasicData != null ? userBasicData.ToCore() : null;
+                    UserDynamicData coreUserDynamicData = userDynamicData != null ? userDynamicData.ToCore() : null;
 
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, coreUserBasicData, userDynamicData);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, coreUserBasicData, coreUserDynamicData);
                 }
                 catch (Exception ex)
                 {

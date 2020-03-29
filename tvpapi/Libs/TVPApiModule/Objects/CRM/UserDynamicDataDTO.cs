@@ -8,20 +8,16 @@ namespace TVPApiModule.Objects.CRM
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public UserDynamicDataContainerDTO[] m_sUserData;
+        public UserDynamicDataContainerDTO[] m_sUserDataField { get { return m_sUserData; } set { m_sUserData = value; } }
         public int UserId;
-        public int GroupId;
-        public long Id;
 
         public static UserDynamicDataDTO ConvertToDTO(UserDynamicData m_oDynamicData)
         {
-            if(m_oDynamicData == null)
+            if (m_oDynamicData == null)
             {
                 return null;
             }
             UserDynamicDataDTO res = new UserDynamicDataDTO();
-            res.Id = m_oDynamicData.Id;
-            res.GroupId = m_oDynamicData.GroupId;
-            res.UserId = m_oDynamicData.UserId;
 
             if (m_oDynamicData.m_sUserData != null && m_oDynamicData.m_sUserData.Length > 0)
             {
@@ -29,6 +25,21 @@ namespace TVPApiModule.Objects.CRM
             }
 
             return res;
+        }
+
+        public UserDynamicData ToCore()
+        {
+            UserDynamicData result = new UserDynamicData()
+            {
+                UserId = this.UserId
+            };
+
+            if (this.m_sUserData != null && this.m_sUserData.Length > 0)
+            {
+                result.m_sUserData = Array.ConvertAll(this.m_sUserData, new Converter<UserDynamicDataContainerDTO, UserDynamicDataContainer>(UserDynamicDataContainerDTO.ConvertToCore));
+            }
+
+            return result;
         }
     }
 }
