@@ -16684,10 +16684,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("secretAccessKey", "\"secretAccessKey\": " + "\"" + EscapeJson(SecretAccessKey) + "\"");
             }
-            if(TTL != null)
-            {
-                ret.Add("tTL", "\"tTL\": " + "\"" + EscapeJson(TTL) + "\"");
-            }
+            //if(TTL != null)
+            //{
+            //    ret.Add("tTL", "\"tTL\": " + "\"" + EscapeJson(TTL) + "\"");
+            //}
             ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             if(UserPoolId != null)
             {
@@ -16743,10 +16743,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("secretAccessKey", "<secretAccessKey>" + EscapeXml(SecretAccessKey) + "</secretAccessKey>");
             }
-            if(TTL != null)
-            {
-                ret.Add("tTL", "<tTL>" + EscapeXml(TTL) + "</tTL>");
-            }
+            //if(TTL != null)
+            //{
+            //    ret.Add("tTL", "<tTL>" + EscapeXml(TTL) + "</tTL>");
+            //}
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             if(UserPoolId != null)
             {

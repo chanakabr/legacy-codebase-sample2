@@ -254,7 +254,6 @@ namespace WebAPI.Mapping.ObjectsConvertor
                  .ForMember(dest => dest.PfxPath, opt => opt.MapFrom(src => src.PfxPath))
                  .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
                  .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))
-                 .ForMember(dest => dest.TTL, opt => opt.MapFrom(src => src.TTL))
                  .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                  ;
 
@@ -275,7 +274,6 @@ namespace WebAPI.Mapping.ObjectsConvertor
                  .ForMember(dest => dest.PfxPath, opt => opt.MapFrom(src => src.PfxPath))
                  .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
                  .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))
-                 .ForMember(dest => dest.TTL, opt => opt.MapFrom(src => src.TTL))
                  .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                  ;
         }

@@ -145,13 +145,6 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "secretAccessKey")]
         public string SecretAccessKey { get; set; }
 
-        /// <summary>
-        /// tTL
-        /// </summary>
-        [DataMember(Name = "tTL")]
-        [JsonProperty(PropertyName = "tTL")]
-        [XmlElement(ElementName = "tTL")]
-        public string TTL { get; set; }
 
         /// <summary>
         /// iotPolicyName

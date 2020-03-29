@@ -17067,10 +17067,10 @@ namespace WebAPI.Models.API
                 {
                     SecretAccessKey = (String) Convert.ChangeType(parameters["secretAccessKey"], typeof(String));
                 }
-                if (parameters.ContainsKey("tTL") && parameters["tTL"] != null)
-                {
-                    TTL = (String) Convert.ChangeType(parameters["tTL"], typeof(String));
-                }
+                //if (parameters.ContainsKey("tTL") && parameters["tTL"] != null)
+                //{
+                //    TTL = (String) Convert.ChangeType(parameters["tTL"], typeof(String));
+                //}
                 if (parameters.ContainsKey("iotPolicyName") && parameters["iotPolicyName"] != null)
                 {
                     IotPolicyName = (String) Convert.ChangeType(parameters["iotPolicyName"], typeof(String));

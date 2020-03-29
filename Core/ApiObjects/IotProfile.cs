@@ -20,8 +20,7 @@ namespace ApiObjects
         public int BrokerPort { get; set; }
         public string AccessKeyId { get; set; }
         public string SecretAccessKey { get; set; }
-        public string TTL { get; set; }
-        public string IotPolicyName { get; set; }
+        public string IotPolicyName { get; set; }//Suffix {groupId}_IotPolicyName
         public string UserPoolId { get; set; }
         public string ClientId { get; set; }
         public string IdentityPoolId { get; set; }

@@ -64,7 +64,6 @@ namespace ApiLogic.Notification
                     PfxPassword = newConfig.IotProfileAws?.PfxPassword ?? oldConfig.IotProfileAws?.PfxPassword,
                     PfxPath = newConfig.IotProfileAws?.PfxPath ?? oldConfig.IotProfileAws?.PfxPath,
                     Region = newConfig.IotProfileAws?.Region ?? oldConfig.IotProfileAws?.Region,
-                    TTL = newConfig.IotProfileAws?.TTL ?? oldConfig.IotProfileAws?.TTL,
                     UserPoolId = newConfig.IotProfileAws?.UserPoolId ?? oldConfig.IotProfileAws?.UserPoolId
                 },
             };
