@@ -27,5 +27,30 @@ namespace ApiObjects
         public int? DefaultRegion { get; set; }
 
         public bool? EnableRegionFiltering { get; set; }
+
+        public bool SetUnchangedProperties(GeneralPartnerConfig oldConfig)
+        {
+            var needToUpdate = false;
+            if ( this.SecondaryCurrencies != null)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                this.SecondaryCurrencies = oldConfig.SecondaryCurrencies;
+            }
+
+            if (this.SecondaryLanguages != null)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                this.SecondaryLanguages = oldConfig.SecondaryLanguages;
+            }
+
+
+            return needToUpdate;
+        }
     }
 }
