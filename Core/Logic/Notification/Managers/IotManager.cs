@@ -254,7 +254,9 @@ namespace ApiLogic.Notification
         public T SendToAdapter<T>(int groupId, IotAction action, object request, MethodType method, out bool hasConfig, IotProfile iotProfile = null, bool groupNeeded = false)
         {
             var url = GetAdapterUrl(groupId, action, iotProfile);
-            url = groupNeeded ? url + $"?groupId={groupId}" : string.Empty;
+            if (groupNeeded)
+                url += $"?groupId={groupId}";
+
             StringContent content = null;
             hasConfig = true;
             switch (method)

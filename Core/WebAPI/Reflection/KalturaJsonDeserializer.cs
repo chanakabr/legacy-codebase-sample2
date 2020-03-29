@@ -9320,10 +9320,6 @@ namespace WebAPI.Models.Notification
                 {
                     IotEnabled = (Boolean) Convert.ChangeType(parameters["iotEnabled"], typeof(Boolean));
                 }
-                if (parameters.ContainsKey("iotAdapterUrl") && parameters["iotAdapterUrl"] != null)
-                {
-                    IotAdapterUrl = (String) Convert.ChangeType(parameters["iotAdapterUrl"], typeof(String));
-                }
             }
         }
     }

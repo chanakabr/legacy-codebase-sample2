@@ -162,14 +162,6 @@ namespace WebAPI.Models.Notification
         [JsonProperty("iotEnabled")]
         [XmlElement(ElementName = "iotEnabled", IsNullable = true)]
         public bool? IotEnabled { get; set; }
-
-        /// <summary>
-        /// IOT adapter url and port
-        /// </summary>
-        [DataMember(Name = "iotAdapterUrl")]
-        [JsonProperty("iotAdapterUrl")]
-        [XmlElement(ElementName = "iotAdapterUrl", IsNullable = true)]
-        public string IotAdapterUrl { get; set; }
     }
 
     [Obsolete]

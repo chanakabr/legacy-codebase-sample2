@@ -4061,8 +4061,6 @@ namespace WebAPI.Reflection
                             return "churnMailTemplateName";
                         case "InboxEnabled":
                             return "inboxEnabled";
-                        case "IotAdapterUrl":
-                            return "iotAdapterUrl";
                         case "IotEnabled":
                             return "iotEnabled";
                         case "MailNotificationAdapterId":
