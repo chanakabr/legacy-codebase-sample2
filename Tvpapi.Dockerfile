@@ -29,6 +29,16 @@ ENV API_STD_OUT_LOG_LEVEL "Off"
 COPY --from=builder /src/published/tvpapi /opt/tvpapi
 WORKDIR /opt/tvpapi
 
+###### locale change ######
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales
+
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    dpkg-reconfigure --frontend=noninteractive locales && \
+    update-locale LANG=en_US.UTF-8
+
+ENV LANG en_US.UTF-8 
+###### locale change ######
+
 ENV ARGS "--urls http://0.0.0.0:80"
 
 EXPOSE 80
