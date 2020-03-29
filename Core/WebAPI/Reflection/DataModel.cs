@@ -3403,8 +3403,6 @@ namespace WebAPI.Reflection
                             return "region";
                         case "SecretAccessKey":
                             return "secretAccessKey";
-                        case "TTL":
-                            return "tTL";
                         case "UpdateDate":
                             return "updateDate";
                         case "UserPoolId":
