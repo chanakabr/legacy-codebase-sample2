@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
@@ -64,9 +66,14 @@ namespace WebAPI.Models.Partner
 
             return values;
         }
+        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         internal override bool Update(int groupId)
         {
+            log.Debug($"ConcurrencyThresholdInSeconds: {this.ConcurrencyThresholdInSeconds}");   
+            log.Debug($"ConfigurationType: {this.ConfigurationType}");   
             return ClientsManager.ApiClient().UpdateConcurrencyPartner(groupId, this);
         }
 

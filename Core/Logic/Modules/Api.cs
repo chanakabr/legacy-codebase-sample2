@@ -1963,6 +1963,8 @@ namespace Core.Api
             GenericListResponse<DeviceConcurrencyPriority> response = new GenericListResponse<DeviceConcurrencyPriority>();
             var deviceConcurrencyPriority = Core.Api.api.GetDeviceConcurrencyPriority(groupId);
 
+            log.Debug($"ConcurrencyThresholdInSeconds : {deviceConcurrencyPriority.ConcurrencyThresholdInSeconds}");
+
             if (deviceConcurrencyPriority != null)
             {
                 response.Objects.Add(deviceConcurrencyPriority);
