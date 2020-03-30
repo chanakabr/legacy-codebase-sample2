@@ -1,10 +1,14 @@
 ﻿
+using KLogMonitor;
 using System;
+using System.Reflection;
 
 namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
 {
     public class BaseValue<T> : IBaseValue<T>
     {
+        protected static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         internal string Key { get; }
         internal T DefaultValue { get; }
 
@@ -20,7 +24,10 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
             {
                 if (MustBeOverwriteInTcm && (typeof(string) == typeof(T) && ActualValue.ToString() == TcmObjectKeys.Stub || ActualValue == null))
                 {
-                    throw new MissingFieldException($"key [{Key}] must be set in TCM ");
+                    string message = $"key [{Key}] must be set in TCM.";
+                    var ex = new MissingFieldException(message);
+                    _Logger.Warn(message, ex);
+                    throw ex;
                 }
 
                 return ActualValue == null ? DefaultValue : ActualValue;
