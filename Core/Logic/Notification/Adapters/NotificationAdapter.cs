@@ -239,11 +239,11 @@ namespace Core.Notification.Adapters
         public static IotPublishResponse IotPublishAnnouncement(int groupId, string message, string topic)
         {
             IotPublishResponse response = null;
-            var _topic = $"{groupId}/{topic}";
+            var _topic = $@"{groupId}/{topic}";
 
             try
             {
-                var request = new { GroupId = groupId, Message = message, Topic = _topic };
+                var request = new { GroupId = groupId.ToString(), Message = @message, Topic = _topic, ExternalAnnouncementId = "string" };
                 response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out bool hasConfig);
 
                 if (!hasConfig)

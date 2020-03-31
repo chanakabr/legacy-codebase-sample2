@@ -259,39 +259,63 @@ namespace ApiLogic.Notification
 
             StringContent content = null;
             hasConfig = true;
-            switch (method)
+            var counter = 0;
+            while (counter < 3)
             {
-                case MethodType.Post:
-                    content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-                    var postResponse = httpClient.PostAsync(url, content).Result;
-                    if (postResponse?.StatusCode == System.Net.HttpStatusCode.NoContent)
-                        hasConfig = false;
-                    return NotificationAdapter.ParseResponse<T>(postResponse);
-                case MethodType.Put:
-                    content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-                    var putResponse = httpClient.PutAsync(url, content).Result;
-                    if (putResponse?.StatusCode == System.Net.HttpStatusCode.NoContent)
-                        hasConfig = false;
-                    return NotificationAdapter.ParseResponse<T>(putResponse);
-                case MethodType.Get:
-                    var fullUrl = $"{url}{request}";
-                    var _response = httpClient.GetAsync(fullUrl).Result;
-                    if (_response?.StatusCode == System.Net.HttpStatusCode.NoContent)
-                        hasConfig = false;
-                    return NotificationAdapter.ParseResponse<T>(_response);
-                case MethodType.Delete:
-                    var _request = new HttpRequestMessage
-                    {
-                        Method = HttpMethod.Delete,
-                        RequestUri = new Uri(url),
-                        Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json")
-                    };
-                    var deleteResponse = httpClient.SendAsync(_request).Result;
-                    return NotificationAdapter.ParseResponse<T>(deleteResponse);
-                default:
-                    log.Error($"Invalid attempt to call method: {method}, url: {url} group: {groupId}");
-                    return default;
+                counter++;
+                switch (method)
+                {
+                    case MethodType.Post:
+                        content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                        var postResponse = httpClient.PostAsync(url, content).Result;
+                        if (postResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; return default; }
+                        if (postResponse?.StatusCode == System.Net.HttpStatusCode.OK || postResponse?.StatusCode == System.Net.HttpStatusCode.Created)
+                        {
+                            return NotificationAdapter.ParseResponse<T>(postResponse);
+                        }
+                        break;
+
+                    case MethodType.Put:
+                        content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                        var putResponse = httpClient.PutAsync(url, content).Result;
+                        if (putResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; return default; }
+                        if (putResponse?.StatusCode == System.Net.HttpStatusCode.OK || putResponse?.StatusCode == System.Net.HttpStatusCode.Created)
+                        {
+                            return NotificationAdapter.ParseResponse<T>(putResponse);
+                        }
+                        break;
+
+                    case MethodType.Get:
+                        var fullUrl = $"{url}{request}";
+                        var _response = httpClient.GetAsync(fullUrl).Result;
+                        if (_response?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; return default; }
+                        if (_response?.StatusCode == System.Net.HttpStatusCode.OK || _response?.StatusCode == System.Net.HttpStatusCode.Created)
+                        {
+                            return NotificationAdapter.ParseResponse<T>(_response);
+                        }
+                        break;
+
+                    case MethodType.Delete:
+                        var _request = new HttpRequestMessage
+                        {
+                            Method = HttpMethod.Delete,
+                            RequestUri = new Uri(url),
+                            Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json")
+                        };
+                        var deleteResponse = httpClient.SendAsync(_request).Result;
+                        if (deleteResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; return default; }
+                        if (deleteResponse?.StatusCode == System.Net.HttpStatusCode.OK || deleteResponse?.StatusCode == System.Net.HttpStatusCode.Created)
+                        {
+                            return NotificationAdapter.ParseResponse<T>(deleteResponse);
+                        }
+                        break;
+
+                    default:
+                        log.Error($"Invalid attempt to call method: {method}, url: {url} group: {groupId}");
+                        return default;
+                }
             }
+            return default;
         }
 
         public IotProfile UpdateIotProfile(int groupId, ContextData contextData)

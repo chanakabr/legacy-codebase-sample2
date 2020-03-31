@@ -152,6 +152,13 @@ namespace ApiLogic.Notification
                 }
 
                 var iotProfile = NotificationDal.GetIotProfile(groupId);
+
+                if (iotProfile == null)
+                {
+                    log.Error($"No Iot Profile for group: {groupId}.");
+                    return response;
+                }
+
                 var urlSuffix = $"groupId={groupId}&forClient={false}";
 
                 var profileAws = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get, out bool hasConfig);
