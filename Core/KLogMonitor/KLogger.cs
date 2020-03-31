@@ -85,6 +85,12 @@ namespace KLogMonitor
         public static void InitLogger(string logConfigFile, KLogEnums.AppType appType, string defaultLogsPath)
         {
             var assembly = Assembly.GetEntryAssembly();
+            // in case we are calling from unmanaged code
+            if (assembly == null)
+            {
+                assembly = Assembly.GetCallingAssembly();
+            }
+
             var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
             var assemblyVersion = $"{fvi.FileMajorPart}_{fvi.FileMinorPart}_{fvi.FileBuildPart}";
             var logDir = Environment.GetEnvironmentVariable("API_LOG_DIR");
