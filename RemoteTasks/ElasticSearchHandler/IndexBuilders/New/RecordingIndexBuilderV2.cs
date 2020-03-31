@@ -11,6 +11,7 @@ using EpgBL;
 using ElasticSearch.Common;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog;
+using GroupsCacheManager;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -43,6 +44,11 @@ namespace ElasticSearchHandler.IndexBuilders
         protected override string GetNewIndexName()
         {
             return ElasticsearchTasksCommon.Utils.GetNewRecordingIndexStr(this.groupId);
+        }
+
+        protected override HashSet<string> CreateNewIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, string newIndexName)
+        {
+            return IndexManager.CreateNewEpgIndex(groupId, catalogGroupCache, group, languages, defaultLanguage, newIndexName, true);
         }
 
         protected override void PopulateIndex(string newIndexName, GroupsCacheManager.Group group)
