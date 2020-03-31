@@ -1143,7 +1143,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         public static void AddMappingsToEpgIndex(int groupId, string indexName, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
-            out HashSet<string> metasToPad, Group group = null, CatalogGroupCache catalogGroupCache = null)
+             bool isRecording, out HashSet<string> metasToPad, Group group = null, CatalogGroupCache catalogGroupCache = null)
         {
             var esClient = new ElasticSearchApi();
             var serializer = new ESSerializerV2();
@@ -1159,7 +1159,7 @@ namespace Core.Catalog.CatalogManagement
             foreach (ApiObjects.LanguageObj language in languages)
             {
                 MappingAnalyzers specificMappingAnalyzers = GetMappingAnalyzers(language, ES_VERSION);
-                string specificType = GetIndexType(language);
+                string specificType = GetIndexType(isRecording, language);
 
                 var shouldAddRouting = true;
                 string mappingString = serializer.CreateEpgMapping(metas, tags, metasToPad, specificMappingAnalyzers, defaultMappingAnalyzers, specificType, shouldAddRouting);
@@ -1222,7 +1222,7 @@ namespace Core.Catalog.CatalogManagement
             return specificMappingAnlyzers;
         }
 
-        public static HashSet<string> CreateNewEpgIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, string newIndexName)
+        public static HashSet<string> CreateNewEpgIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, string newIndexName, bool isRecording = false)
         {
             int maxResults = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
             maxResults = maxResults == 0 ? 100000 : maxResults;
@@ -1232,14 +1232,16 @@ namespace Core.Catalog.CatalogManagement
             var isIndexCreated = esClient.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers, maxResults);
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
 
-            AddMappingsToEpgIndex(groupId, newIndexName, languages, defaultLanguage, out var metasToPad, group, catalogGroupCache);
+            AddMappingsToEpgIndex(groupId, newIndexName, languages, defaultLanguage, isRecording, out var metasToPad, group, catalogGroupCache);
             return metasToPad;
         }
 
-        public static string GetIndexType(ApiObjects.LanguageObj language = null)
+        public static string GetIndexType(bool isRecording, ApiObjects.LanguageObj language = null)
         {
-            if (language == null || language.IsDefault) { return EPG_INDEX_TYPE; }
-            else { return $"{EPG_INDEX_TYPE}_{language.Code}"; }
+            string indexTypePrefix = isRecording ? RECORDING_IDEX_TYPE : EPG_INDEX_TYPE;
+
+            if (language == null || language.IsDefault) { return indexTypePrefix; }
+            else { return $"{indexTypePrefix}_{language.Code}"; }
         }
 
         #endregion
