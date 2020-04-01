@@ -25203,8 +25203,8 @@ namespace WebAPI.Models.Partner
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MaxInteger = 600,
-            MinInteger = 35,
+            MaxInteger = 1200,
+            MinInteger = 30,
         };
         public KalturaConcurrencyPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
         {

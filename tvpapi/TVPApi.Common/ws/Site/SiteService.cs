@@ -752,7 +752,7 @@ namespace TVPApiServices
         }
 
         public UserResponseObject SignUp(InitializationObject initObj, UserBasicDataDTO userBasicData,
-            UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
+            UserDynamicDataDTO userDynamicData, string sPassword, string sAffiliateCode)
         {
             UserResponseObject response = new UserResponseObject();
 
@@ -763,8 +763,9 @@ namespace TVPApiServices
                 try
                 {
                     Core.Users.UserBasicData coreUserBasicData = userBasicData != null ? userBasicData.ToCore() : null;
+                    Core.Users.UserDynamicData coreUserDynamicData = userDynamicData != null ? userDynamicData.ToCore() : null;
 
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignUp(coreUserBasicData, userDynamicData, sPassword, sAffiliateCode);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignUp(coreUserBasicData, coreUserDynamicData, sPassword, sAffiliateCode);
                 }
                 catch (Exception ex)
                 {
@@ -836,7 +837,7 @@ namespace TVPApiServices
 
         [PrivateMethod]
         public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, UserBasicDataDTO userBasicData,
-            UserDynamicData userDynamicData)
+            UserDynamicDataDTO userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
 
@@ -853,8 +854,9 @@ namespace TVPApiServices
                 try
                 {
                     UserBasicData coreUserBasicData = userBasicData != null ? userBasicData.ToCore() : null;
+                    UserDynamicData coreUserDynamicData = userDynamicData != null ? userDynamicData.ToCore() : null;
 
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, coreUserBasicData, userDynamicData);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, coreUserBasicData, coreUserDynamicData);
                 }
                 catch (Exception ex)
                 {
@@ -2105,6 +2107,94 @@ namespace TVPApiServices
             return response;
         }
 
+        public bool SetLogLevel(InitializationObject initObj, string level)
+        {
+            bool response = false;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetLogLevel", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID == 1)
+            {
+                try
+                {
+                    log4net.Core.Level logLevel = ParseLogLevel(level);
+
+                    if (logLevel != null)
+                    {
+                        KLogMonitor.KLogger.SetLogLevel(logLevel);
+                        response = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        public string GetLogLevel(InitializationObject initObj)
+        {
+            string response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetLogLevel", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID == 1)
+            {
+                try
+                {
+                    var level = KLogMonitor.KLogger.GetLogLevel();
+                    response = level.Name;
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items.Add("Error", ex);
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items.Add("Error", "Unknown group");
+            }
+
+            return response;
+        }
+
+        private static log4net.Core.Level ParseLogLevel(string level)
+        {
+            log4net.Core.Level logLevel = null;
+
+            switch (level.ToUpper())
+            {
+                case "TRACE":
+                    logLevel = log4net.Core.Level.Trace;
+                    break;
+                case "DEBUG":
+                    logLevel = log4net.Core.Level.Debug;
+                    break;
+                case "INFO":
+                    logLevel = log4net.Core.Level.Info;
+                    break;
+                case "WARN":
+                    logLevel = log4net.Core.Level.Warn;
+                    break;
+                case "ERROR":
+                    logLevel = log4net.Core.Level.Error;
+                    break;
+                case "ALL":
+                    logLevel = log4net.Core.Level.All;
+                    break;
+                default:
+                    logger.Error($"Unknown log level sent {level}");
+                    break;
+            }
+
+            return logLevel;
+        }
         #endregion
 
     }
