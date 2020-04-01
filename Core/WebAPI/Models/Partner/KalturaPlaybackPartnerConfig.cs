@@ -6,6 +6,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Clients;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Partner
@@ -44,6 +45,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "mediaAdapterId")]
         [JsonProperty("mediaAdapterId")]
         [XmlElement(ElementName = "mediaAdapterId")]
+        [SchemeProperty(MinInteger = 1)]
         public long MediaAdapterId { get; set; }
 
         /// <summary>
@@ -52,6 +54,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "epgAdapterId")]
         [JsonProperty("epgAdapterId")]
         [XmlElement(ElementName = "epgAdapterId")]
+        [SchemeProperty(MinInteger = 1)]
         public long EpgAdapterId { get; set; }
 
         /// <summary>
@@ -60,6 +63,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "recordingAdapterId")]
         [JsonProperty("recordingAdapterId")]
         [XmlElement(ElementName = "recordingAdapterId")]
+        [SchemeProperty(MinInteger = 1)]
         public long RecordingAdapterId { get; set; }       
     }
 }

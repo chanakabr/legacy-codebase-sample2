@@ -25238,20 +25238,67 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaDefaultPlaybackAdapters
     {
+        private static RuntimeSchemePropertyAttribute MediaAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        private static RuntimeSchemePropertyAttribute EpgAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        private static RuntimeSchemePropertyAttribute RecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
         public KalturaDefaultPlaybackAdapters(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("mediaAdapterId") && parameters["mediaAdapterId"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        MediaAdapterIdSchemaProperty.Validate("mediaAdapterId", parameters["mediaAdapterId"]);
+                    }
                     MediaAdapterId = (Int64) Convert.ChangeType(parameters["mediaAdapterId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("epgAdapterId") && parameters["epgAdapterId"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        EpgAdapterIdSchemaProperty.Validate("epgAdapterId", parameters["epgAdapterId"]);
+                    }
                     EpgAdapterId = (Int64) Convert.ChangeType(parameters["epgAdapterId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("recordingAdapterId") && parameters["recordingAdapterId"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        RecordingAdapterIdSchemaProperty.Validate("recordingAdapterId", parameters["recordingAdapterId"]);
+                    }
                     RecordingAdapterId = (Int64) Convert.ChangeType(parameters["recordingAdapterId"], typeof(Int64));
                 }
             }
