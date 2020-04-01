@@ -268,13 +268,13 @@ namespace Core.Notification.Adapters
             return response;
         }
 
-        public static bool AddPrivateMessageToShadowIot(int groupId, string message, string thingArn)
+        public static bool AddPrivateMessageToShadowIot(int groupId, string message, string thingArn, string udid)
         {
             var response = false;
 
             try
             {
-                var request = new { groupId = groupId, thingArn = thingArn, message = message };
+                var request = new { GroupId = groupId, ThingArn = thingArn, Message = message, Udid = udid };
                 response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out bool hasConfig);
 
                 if (!hasConfig)

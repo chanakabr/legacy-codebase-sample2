@@ -1348,9 +1348,9 @@ namespace Core.Notification
 
         private static Status PublishToIot(int partnerId, PushMessage pushMessage, Iot iotDevice)
         {
-            if (!NotificationAdapter.AddPrivateMessageToShadowIot(partnerId, pushMessage.Message, iotDevice.ThingArn))
+            if (!NotificationAdapter.AddPrivateMessageToShadowIot(partnerId, pushMessage.Message, iotDevice.ThingArn, iotDevice.Udid))
             {
-                log.Error($"Cannot update thing's shadow. thing: {iotDevice.ThingArn}");
+                log.Error($"Can't update thing's shadow. thing: {iotDevice.ThingArn}");
                 return new Status() { Code = (int)eResponseStatus.Error, Message = FAILED_TO_UPDATE_THING_SHADOW }; ;
             }
 
