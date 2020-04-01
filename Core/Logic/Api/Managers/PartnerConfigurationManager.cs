@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using Core.Api;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Pricing;
@@ -48,7 +49,7 @@ namespace ApiLogic.Api.Managers
             }
 
             return response;
-        }       
+        }
 
         internal static Status UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
         {
@@ -371,7 +372,7 @@ namespace ApiLogic.Api.Managers
         {
             var response = new GenericListResponse<CommercePartnerConfig>();
             var commercePartnerConfig = GetCommercePartnerConfig(groupId);
-            
+
             if (commercePartnerConfig.HasObject())
             {
                 response.Objects.Add(commercePartnerConfig.Object);
@@ -475,7 +476,7 @@ namespace ApiLogic.Api.Managers
                 var needToUpdate = false;
                 var oldPlayadapterConfig = GetPlaybackConfig(groupId);
 
-                if (oldPlayadapterConfig == null ||!oldPlayadapterConfig.HasObject())
+                if (oldPlayadapterConfig == null || !oldPlayadapterConfig.HasObject())
                 {
                     needToUpdate = true;
                 }
@@ -486,6 +487,12 @@ namespace ApiLogic.Api.Managers
 
                 if (needToUpdate)
                 {
+                    response = ValidateDefaultAdapters(groupId, playbackPartnerConfig.DefaultAdapters);
+                    if (!response.IsOkStatusCode())
+                    {
+                        return response;
+                    }
+
                     if (!ApiDAL.SavePlaybackPartnerConfig(groupId, playbackPartnerConfig))
                     {
                         log.Error($"Error while save PlaybackPartnerConfig. groupId: {groupId}.");
@@ -870,6 +877,45 @@ namespace ApiLogic.Api.Managers
             }
 
             return new Tuple<PlaybackPartnerConfig, bool>(partnerConfig, result);
+        }
+
+        private static Status ValidateDefaultAdapters(int groupId, DefaultPlaybackAdapters defaultAdapters)
+        {
+            if (defaultAdapters != null)
+            {
+                GenericListResponse<PlaybackProfile> playbackProfile = null;
+                if (defaultAdapters.EpgAdapterId > 0)
+                {
+                    playbackProfile = api.GetPlaybackProfile(groupId, defaultAdapters.EpgAdapterId, false);
+                    if (playbackProfile == null || playbackProfile.HasObjects() == false)
+                    {
+                        log.Debug($"ValidateDefaultAdapters EpgAdapterId {defaultAdapters.EpgAdapterId} not exist");
+                        return new Status(eResponseStatus.AdapterNotExists, $"Adapter ID = {defaultAdapters.EpgAdapterId} does not exist");
+                    }
+                }
+
+                if (defaultAdapters.MediaAdapterId > 0)
+                {
+                    playbackProfile = api.GetPlaybackProfile(groupId, defaultAdapters.MediaAdapterId, false);
+                    if (playbackProfile == null || playbackProfile.HasObjects() == false)
+                    {
+                        log.Debug($"ValidateDefaultAdapters EpgAdapterId {defaultAdapters.MediaAdapterId} not exist");
+                        return new Status(eResponseStatus.AdapterNotExists, $"Adapter ID = {defaultAdapters.MediaAdapterId} does not exist");
+                    }
+                }
+
+                if (defaultAdapters.RecordingAdapterId > 0)
+                {
+                    playbackProfile = api.GetPlaybackProfile(groupId, defaultAdapters.RecordingAdapterId, false);
+                    if (playbackProfile == null || playbackProfile.HasObjects() == false)
+                    {
+                        log.Debug($"ValidateDefaultAdapters EpgAdapterId {defaultAdapters.RecordingAdapterId} not exist");
+                        return new Status(eResponseStatus.AdapterNotExists, $"Adapter ID = {defaultAdapters.RecordingAdapterId} does not exist");
+                    }
+                }
+            }
+
+            return new Status(eResponseStatus.OK);
         }
 
         #endregion
