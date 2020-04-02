@@ -1038,6 +1038,15 @@ namespace ApiObjects
         Delete = 1
     }
 
+    public enum RollingDevicePolicy
+    {
+        NONE = 0,
+        LIFO = 1,
+        FIFO = 2 ,
+        ACTIVE_DEVICE_ASCENDING = 3
+    }
+
+
     public enum MediaFileTypeQuality
     {
         None = 0,

@@ -25671,6 +25671,11 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("partnerName", "\"partnerName\": " + "\"" + EscapeJson(PartnerName) + "\"");
             }
+            if(RollingDeviceRemovalData != null)
+            {
+                propertyValue = RollingDeviceRemovalData.ToJson(currentVersion, omitObsolete);
+                ret.Add("rollingDeviceData", "\"rollingDeviceData\": " + propertyValue);
+            }
             if(SecondaryCurrencies != null)
             {
                 ret.Add("secondaryCurrencies", "\"secondaryCurrencies\": " + "\"" + EscapeJson(SecondaryCurrencies) + "\"");
@@ -25727,6 +25732,11 @@ namespace WebAPI.Models.Partner
             if(PartnerName != null)
             {
                 ret.Add("partnerName", "<partnerName>" + EscapeXml(PartnerName) + "</partnerName>");
+            }
+            if(RollingDeviceRemovalData != null)
+            {
+                propertyValue = RollingDeviceRemovalData.ToXml(currentVersion, omitObsolete);
+                ret.Add("rollingDeviceData", "<rollingDeviceData>" + propertyValue + "</rollingDeviceData>");
             }
             if(SecondaryCurrencies != null)
             {
@@ -25885,6 +25895,42 @@ namespace WebAPI.Models.Partner
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaRollingDeviceRemovalData
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(RollingDeviceRemovalFamilyIds != null)
+            {
+                ret.Add("rollingDeviceRemovalFamilyIds", "\"rollingDeviceRemovalFamilyIds\": " + "\"" + EscapeJson(RollingDeviceRemovalFamilyIds) + "\"");
+            }
+            if(RollingDeviceRemovalPolicy.HasValue)
+            {
+                ret.Add("rollingDeviceRemovalPolicy", "\"rollingDeviceRemovalPolicy\": " + "\"" + Enum.GetName(typeof(KalturaRollingDevicePolicy), RollingDeviceRemovalPolicy) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(RollingDeviceRemovalFamilyIds != null)
+            {
+                ret.Add("rollingDeviceRemovalFamilyIds", "<rollingDeviceRemovalFamilyIds>" + EscapeXml(RollingDeviceRemovalFamilyIds) + "</rollingDeviceRemovalFamilyIds>");
+            }
+            if(RollingDeviceRemovalPolicy.HasValue)
+            {
+                ret.Add("rollingDeviceRemovalPolicy", "<rollingDeviceRemovalPolicy>" + "" + Enum.GetName(typeof(KalturaRollingDevicePolicy), RollingDeviceRemovalPolicy) + "" + "</rollingDeviceRemovalPolicy>");
             }
             return ret;
         }

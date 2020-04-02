@@ -4523,17 +4523,22 @@ namespace Tvinci.Core.DAL
         {
             return string.Format("domain_devices_mapping_{0}", domainId);
         }
+        
+        
 
         public static bool SaveDomainDevices(Dictionary<string, int> domainDevices, long domainId)
         {
             var key = GetDomainDevicesKey(domainId);
             List<DomainDevice> domainDevicesList = new List<DomainDevice>(domainDevices.Select(x => new DomainDevice() { UDID = x.Key, DeviceFamilyId = x.Value }));
+           
             return UtilsDal.SaveObjectInCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, domainDevicesList, true);
         }
 
+        
+
         public static Dictionary<string, int> GetDomainDevices(long domainId)
         {
-            string key = GetDomainDevicesKey(domainId);
+            var key = GetDomainDevicesKey(domainId);
             var domainDevices = UtilsDal.GetObjectFromCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, true);
             if (domainDevices != null)
             {

@@ -108,52 +108,33 @@ namespace Core.Users
         {
             bool bRes = false;
 
-            Device deviceToRemove = null;
-            if (m_DeviceInstances != null)
+            if (m_DeviceInstances == null) return false;
+
+            var deviceToRemove = m_DeviceInstances.FirstOrDefault(device => device.m_deviceUDID.Equals(deviceUDID));
+
+            if (deviceToRemove != null)
             {
-                foreach (Device device in m_DeviceInstances)
-                {
-                    if (device.m_deviceUDID.Equals(deviceUDID))
-                    {
-                        deviceToRemove = device;
-                        break;
-                    }
-                }
-                if (deviceToRemove != null)
-                {
-                    bRes = m_DeviceInstances.Remove(deviceToRemove);
-                }
+                bRes = m_DeviceInstances.Remove(deviceToRemove);
             }
             return bRes;
         }
 
         public int GetActivatedDeviceCount()
         {
-            int retVal = 0;
-            if (m_DeviceInstances != null)
-            {
-                foreach (Device device in m_DeviceInstances)
-                {
-                    if (device.IsActivated())
-                    {
-                        retVal++;
-                    }
-                }
-            }
-            return retVal;
+            return m_DeviceInstances?.Count(x => x.IsActivated()) ?? 0;
         }
 
         public bool IsContainingDevice(Device device, ref bool bIsDeviceActivated)
         {
-            if (m_DeviceInstances != null)
+            if (m_DeviceInstances == null) 
+                return false;
+
+            for (int i = 0; i < m_DeviceInstances.Count; i++)
             {
-                for (int i = 0; i < m_DeviceInstances.Count; i++)
+                if (m_DeviceInstances[i].Equals(device))
                 {
-                    if (m_DeviceInstances[i].Equals(device))
-                    {
-                        bIsDeviceActivated = m_DeviceInstances[i].IsActivated();
-                        return true;
-                    }
+                    bIsDeviceActivated = m_DeviceInstances[i].IsActivated();
+                    return true;
                 }
             }
 

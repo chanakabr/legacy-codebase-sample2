@@ -1553,6 +1553,9 @@ namespace WebAPI.Reflection
                 case "KalturaRequestConfiguration":
                     return new KalturaRequestConfiguration(parameters);
                     
+                case "KalturaRollingDeviceRemovalData":
+                    return new KalturaRollingDeviceRemovalData(parameters);
+                    
                 case "KalturaRule":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -25721,6 +25724,17 @@ namespace WebAPI.Models.Partner
                 {
                     DefaultRegion = (Int32) Convert.ChangeType(parameters["defaultRegion"], typeof(Int32));
                 }
+                if (parameters.ContainsKey("rollingDeviceData") && parameters["rollingDeviceData"] != null)
+                {
+                    if (parameters["rollingDeviceData"] is JObject)
+                    {
+                        RollingDeviceRemovalData = (KalturaRollingDeviceRemovalData) Deserializer.deserialize(typeof(KalturaRollingDeviceRemovalData), ((JObject) parameters["rollingDeviceData"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["rollingDeviceData"] is IDictionary)
+                    {
+                        RollingDeviceRemovalData = (KalturaRollingDeviceRemovalData) Deserializer.deserialize(typeof(KalturaRollingDeviceRemovalData), (Dictionary<string, object>) parameters["rollingDeviceData"]);
+                    }
+                }
             }
         }
     }
@@ -25828,6 +25842,28 @@ namespace WebAPI.Models.Partner
                     {
                         Objects = buildList(typeof(KalturaPartnerConfiguration), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaRollingDeviceRemovalData
+    {
+        public KalturaRollingDeviceRemovalData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("rollingDeviceRemovalPolicy") && parameters["rollingDeviceRemovalPolicy"] != null)
+                {
+                    RollingDeviceRemovalPolicy = (KalturaRollingDevicePolicy) Enum.Parse(typeof(KalturaRollingDevicePolicy), parameters["rollingDeviceRemovalPolicy"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRollingDevicePolicy), RollingDeviceRemovalPolicy))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", RollingDeviceRemovalPolicy, typeof(KalturaRollingDevicePolicy)));
+                    }
+                }
+                if (parameters.ContainsKey("rollingDeviceRemovalFamilyIds") && parameters["rollingDeviceRemovalFamilyIds"] != null)
+                {
+                    RollingDeviceRemovalFamilyIds = (String) Convert.ChangeType(parameters["rollingDeviceRemovalFamilyIds"], typeof(String));
                 }
             }
         }

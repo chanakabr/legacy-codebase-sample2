@@ -42,8 +42,15 @@ namespace WebAPI.Clients
                     {
                         keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key, value = p.Value.value }).ToList();
                     }
-                    userResponse = Core.Users.Module.LogIn(groupId, userName, password, string.Empty, Utils.Utils.GetClientIP(), deviceId,
-                        shouldSupportSingleLogin, keyValueList);
+
+                    userResponse = Core.Users.Module.LogIn(groupId, 
+                        userName, 
+                        password, 
+                        string.Empty,
+                        Utils.Utils.GetClientIP(),
+                        deviceId,
+                        shouldSupportSingleLogin, 
+                        keyValueList);
                 }
             }
             catch (Exception ex)
@@ -78,7 +85,8 @@ namespace WebAPI.Clients
             return user;
         }
 
-        internal KalturaOTTUser Login(int partnerId, string userName, string password, string udid, SerializableDictionary<string, KalturaStringValue> extraParams, NameValueCollection nameValueCollection, bool shouldSupportSingleLogin)
+        internal KalturaOTTUser Login(int partnerId, string userName, string password,
+            string udid, SerializableDictionary<string, KalturaStringValue> extraParams, NameValueCollection nameValueCollection, bool shouldSupportSingleLogin)
         {
             return Login(partnerId, userName, password, udid, GetMergedExtraParams(extraParams, nameValueCollection), shouldSupportSingleLogin);
         }

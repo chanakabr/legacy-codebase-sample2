@@ -52,5 +52,14 @@ namespace ApiObjects
 
             return needToUpdate;
         }
+
+        public RollingDeviceRemovalData RollingDeviceRemovalData { get; set; }
+    }
+
+    public class RollingDeviceRemovalData
+    {
+        public RollingDevicePolicy? RollingDeviceRemovalPolicy { get; set; }
+
+        public List<int> RollingDeviceRemovalFamilyIds { get; set; }
     }
 }

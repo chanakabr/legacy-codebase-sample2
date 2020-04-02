@@ -71,6 +71,7 @@
         public const string EPGIngestV2Configuration = "epg_ingest_v2";
         public const string HealthCheckConfiguration = "health_check";
         public const string IotConfiguration = "iot_configuration";
+        public const string UdidUsageConfiguration = "udid_usage";
     }    
 }
 

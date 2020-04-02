@@ -1,15 +1,11 @@
 ﻿using ApiObjects;
 using CachingProvider.LayeredCache;
-using Core.Users;
 using Core.Users.Cache;
 using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Users
 {
@@ -73,6 +69,12 @@ namespace Core.Users
 
             return Id > 0;
         }
+
+
+        
+
+
+       
 
         protected override bool DoUpdate()
         {
@@ -144,7 +146,7 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
                 {
-                    string.Format("invalidationKey_domain_{0}_device_{1}", this.DomainId, this.DeviceId)
+                    String.Format("invalidationKey_domain_{0}_device_{1}", this.DomainId, this.DeviceId)
                 };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);

@@ -2779,6 +2779,8 @@ namespace WebAPI.Reflection
                             return "mainLanguage";
                         case "PartnerName":
                             return "partnerName";
+                        case "RollingDeviceRemovalData":
+                            return "rollingDeviceData";
                         case "SecondaryCurrencies":
                             return "secondaryCurrencies";
                         case "SecondaryLanguages":
@@ -5573,6 +5575,16 @@ namespace WebAPI.Reflection
                             return "skipCondition";
                         case "UserID":
                             return "userId";
+                    }
+                    break;
+                    
+                case "KalturaRollingDeviceRemovalData":
+                    switch(property.Name)
+                    {
+                        case "RollingDeviceRemovalFamilyIds":
+                            return "rollingDeviceRemovalFamilyIds";
+                        case "RollingDeviceRemovalPolicy":
+                            return "rollingDeviceRemovalPolicy";
                     }
                     break;
                     

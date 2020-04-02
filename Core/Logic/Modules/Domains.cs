@@ -239,10 +239,12 @@ namespace Core.Domains
         
         public static DeviceResponse AddDevice(int nGroupID, int nDomainID, string udid, string deviceName, int deviceBrandID, string externalId)
         {
-            DeviceResponse response = new DeviceResponse();
-            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            var response = new DeviceResponse
+            {
+                Status = new ApiObjects.Response.Status((int) eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
 
-            Core.Users.BaseDomain baseDomain = null;
+            BaseDomain baseDomain = null;
             Utils.GetBaseImpl(ref baseDomain, nGroupID);
             if (baseDomain != null)
             {
@@ -668,7 +670,7 @@ namespace Core.Domains
             {
                 return baseDomain.ValidateLimitationModule(deviceBrandId, validationType, devicePlayData);
             }
-
+            
             return new ValidationResponseObject(DomainResponseStatus.UnKnown, devicePlayData.DomainId);
         }
 
