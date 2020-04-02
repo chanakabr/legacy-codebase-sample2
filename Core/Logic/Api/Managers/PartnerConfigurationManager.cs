@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using Core.Api;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Pricing;
@@ -472,6 +473,110 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
+        public static Status UpdatePlaybackConfig(int groupId, PlaybackPartnerConfig playbackPartnerConfig)
+        {
+            Status response = new Status(eResponseStatus.Error);
+
+            try
+            {
+                var needToUpdate = false;
+                var oldPlayadapterConfig = GetPlaybackConfig(groupId);
+
+                if (oldPlayadapterConfig == null || !oldPlayadapterConfig.HasObject())
+                {
+                    needToUpdate = true;
+                }
+                else
+                {
+                    needToUpdate = playbackPartnerConfig.SetUnchangedProperties(oldPlayadapterConfig.Object);
+                }
+
+                if (needToUpdate)
+                {
+                    response = ValidateDefaultAdapters(groupId, playbackPartnerConfig.DefaultAdapters);
+                    if (!response.IsOkStatusCode())
+                    {
+                        return response;
+                    }
+
+                    if (!ApiDAL.SavePlaybackPartnerConfig(groupId, playbackPartnerConfig))
+                    {
+                        log.Error($"Error while save PlaybackPartnerConfig. groupId: {groupId}.");
+                        return response;
+                    }
+
+                    string invalidationKey = LayeredCacheKeys.GetPlaybackPartnerConfigInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.Error($"Failed to set invalidation key for PlaybackPartnerConfig with invalidationKey: {invalidationKey}.");
+                    }
+                }
+
+                response.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                response.Set(eResponseStatus.Error);
+                log.Error($"An Exception was occurred in UpdatePlaybackConfig. groupId:{groupId}.", ex);
+            }
+
+            return response;
+        }
+
+        public static GenericResponse<PlaybackPartnerConfig> GetPlaybackConfig(int groupId)
+        {
+            var response = new GenericResponse<PlaybackPartnerConfig>();
+
+            try
+            {
+                PlaybackPartnerConfig partnerConfig = null;
+                string key = LayeredCacheKeys.GetPlaybackPartnerConfigKey(groupId);
+                var invalidationKey = new List<string>() { LayeredCacheKeys.GetPlaybackPartnerConfigInvalidationKey(groupId) };
+                if (!LayeredCache.Instance.Get(key,
+                                               ref partnerConfig,
+                                               GetPlaybackPartnerConfigDB,
+                                               new Dictionary<string, object>() { { "groupId", groupId } },
+                                               groupId,
+                                               LayeredCacheConfigNames.GET_COMMERCE_PARTNER_CONFIG,
+                                               invalidationKey))
+                {
+                    log.Error($"Failed getting GetCommercePartnerConfig from LayeredCache, groupId: {groupId}, key: {key}");
+                }
+                else
+                {
+                    if (partnerConfig == null)
+                    {
+                        response.SetStatus(eResponseStatus.PartnerConfigurationDoesNotExist, "Playback partner configuration does not exist.");
+                    }
+                    else
+                    {
+                        response.Object = partnerConfig;
+                        response.SetStatus(eResponseStatus.OK);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed GetPlaybackConfig for groupId: {groupId}", ex);
+            }
+
+            return response;
+        }
+
+        public static GenericListResponse<PlaybackPartnerConfig> GetPlaybackConfigList(int groupId)
+        {
+            var response = new GenericListResponse<PlaybackPartnerConfig>();
+            var partnerConfig = GetPlaybackConfig(groupId);
+
+            if (partnerConfig.HasObject())
+            {
+                response.Objects.Add(partnerConfig.Object);
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+
+            return response;
+        }
         #endregion
 
         #region private methods
@@ -756,6 +861,67 @@ namespace ApiLogic.Api.Managers
             }
 
             return new Tuple<CommercePartnerConfig, bool>(commercePartnerConfig, result);
+        }
+
+        private static Tuple<PlaybackPartnerConfig, bool> GetPlaybackPartnerConfigDB(Dictionary<string, object> funcParams)
+        {
+            PlaybackPartnerConfig partnerConfig = null;
+            bool result = false;
+
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue)
+                {
+                    partnerConfig = ApiDAL.GetPlaybackPartnerConfig(groupId.Value);
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetPlaybackPartnerConfigDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<PlaybackPartnerConfig, bool>(partnerConfig, result);
+        }
+
+        private static Status ValidateDefaultAdapters(int groupId, DefaultPlaybackAdapters defaultAdapters)
+        {
+            if (defaultAdapters != null)
+            {
+                GenericListResponse<PlaybackProfile> playbackProfile = null;
+                if (defaultAdapters.EpgAdapterId > 0)
+                {
+                    playbackProfile = api.GetPlaybackProfile(groupId, defaultAdapters.EpgAdapterId, false);
+                    if (playbackProfile == null || playbackProfile.HasObjects() == false)
+                    {
+                        log.Debug($"ValidateDefaultAdapters EpgAdapterId {defaultAdapters.EpgAdapterId} not exist");
+                        return new Status(eResponseStatus.AdapterNotExists, $"Adapter ID = {defaultAdapters.EpgAdapterId} does not exist");
+                    }
+                }
+
+                if (defaultAdapters.MediaAdapterId > 0)
+                {
+                    playbackProfile = api.GetPlaybackProfile(groupId, defaultAdapters.MediaAdapterId, false);
+                    if (playbackProfile == null || playbackProfile.HasObjects() == false)
+                    {
+                        log.Debug($"ValidateDefaultAdapters MediaAdapterId {defaultAdapters.MediaAdapterId} not exist");
+                        return new Status(eResponseStatus.AdapterNotExists, $"Adapter ID = {defaultAdapters.MediaAdapterId} does not exist");
+                    }
+                }
+
+                if (defaultAdapters.RecordingAdapterId > 0)
+                {
+                    playbackProfile = api.GetPlaybackProfile(groupId, defaultAdapters.RecordingAdapterId, false);
+                    if (playbackProfile == null || playbackProfile.HasObjects() == false)
+                    {
+                        log.Debug($"ValidateDefaultAdapters RecordingAdapterId {defaultAdapters.RecordingAdapterId} not exist");
+                        return new Status(eResponseStatus.AdapterNotExists, $"Adapter ID = {defaultAdapters.RecordingAdapterId} does not exist");
+                    }
+                }
+            }
+
+            return new Status(eResponseStatus.OK);
         }
 
         #endregion

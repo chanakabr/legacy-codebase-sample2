@@ -485,12 +485,6 @@ namespace WebAPI.Reflection
                 case "KalturaCloudSeriesRecordingFilter":
                     return new KalturaCloudSeriesRecordingFilter(parameters);
                     
-                case "KalturaCognitoIdentity":
-                    return new KalturaCognitoIdentity(parameters);
-                    
-                case "KalturaCognitoUserPool":
-                    return new KalturaCognitoUserPool(parameters);
-                    
                 case "KalturaCollection":
                     return new KalturaCollection(parameters);
                     
@@ -602,9 +596,6 @@ namespace WebAPI.Reflection
                 case "KalturaCouponsGroupListResponse":
                     return new KalturaCouponsGroupListResponse(parameters);
                     
-                case "KalturaCredentialsProvider":
-                    return new KalturaCredentialsProvider(parameters);
-                    
                 case "KalturaCrudObject":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -626,8 +617,8 @@ namespace WebAPI.Reflection
                 case "KalturaDateTrigger":
                     return new KalturaDateTrigger(parameters);
                     
-                case "KalturaDefault":
-                    return new KalturaDefault(parameters);
+                case "KalturaDefaultPlaybackAdapters":
+                    return new KalturaDefaultPlaybackAdapters(parameters);
                     
                 case "KalturaDefaultRegionFilter":
                     return new KalturaDefaultRegionFilter(parameters);
@@ -992,30 +983,6 @@ namespace WebAPI.Reflection
                 case "KalturaIntegerValueListResponse":
                     return new KalturaIntegerValueListResponse(parameters);
                     
-                case "KalturaIot":
-                    return new KalturaIot(parameters);
-                    
-                case "KalturaIotClientConfiguration":
-                    return new KalturaIotClientConfiguration(parameters);
-                    
-                case "KalturaIotFilter":
-                    return new KalturaIotFilter(parameters);
-                    
-                case "KalturaIotListResponse":
-                    return new KalturaIotListResponse(parameters);
-                    
-                case "KalturaIotProfile":
-                    return new KalturaIotProfile(parameters);
-                    
-                case "KalturaIotProfileAws":
-                    return new KalturaIotProfileAws(parameters);
-                    
-                case "KalturaIotProfileFilter":
-                    return new KalturaIotProfileFilter(parameters);
-                    
-                case "KalturaIotProfileListResponse":
-                    return new KalturaIotProfileListResponse(parameters);
-                    
                 case "KalturaIpRangeCondition":
                     return new KalturaIpRangeCondition(parameters);
                     
@@ -1339,6 +1306,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPlaybackContextOptions":
                     return new KalturaPlaybackContextOptions(parameters);
+                    
+                case "KalturaPlaybackPartnerConfig":
+                    return new KalturaPlaybackPartnerConfig(parameters);
                     
                 case "KalturaPlaybackPluginData":
                     return new KalturaPlaybackPluginData(parameters);
@@ -6979,7 +6949,7 @@ namespace WebAPI.Models.General
             }
         }
     }
-    public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT>
+    public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>
     {
         public KalturaCrudObject(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -7677,10 +7647,6 @@ namespace WebAPI.Models.Notifications
                 if (parameters.ContainsKey("includeSms") && parameters["includeSms"] != null)
                 {
                     IncludeSms = (Boolean) Convert.ChangeType(parameters["includeSms"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("includeIot") && parameters["includeIot"] != null)
-                {
-                    IncludeIot = (Boolean) Convert.ChangeType(parameters["includeIot"], typeof(Boolean));
                 }
             }
         }
@@ -9316,10 +9282,6 @@ namespace WebAPI.Models.Notification
                 {
                     SmsEnabled = (Boolean) Convert.ChangeType(parameters["smsEnabled"], typeof(Boolean));
                 }
-                if (parameters.ContainsKey("iotEnabled") && parameters["iotEnabled"] != null)
-                {
-                    IotEnabled = (Boolean) Convert.ChangeType(parameters["iotEnabled"], typeof(Boolean));
-                }
             }
         }
     }
@@ -9434,17 +9396,6 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = 1,
         };
-        private static RuntimeSchemePropertyAttribute PushChannelsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPushMessage")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            DynamicType = typeof(KalturaPushChannel),
-            MaxLength = -1,
-            MinLength = -1,
-        };
         public KalturaPushMessage(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -9470,18 +9421,6 @@ namespace WebAPI.Models.Notification
                 if (parameters.ContainsKey("url") && parameters["url"] != null)
                 {
                     Url = (String) Convert.ChangeType(parameters["url"], typeof(String));
-                }
-                if (parameters.ContainsKey("udid") && parameters["udid"] != null)
-                {
-                    Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
-                }
-                if (parameters.ContainsKey("pushChannels") && parameters["pushChannels"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        PushChannelsSchemaProperty.Validate("pushChannels", parameters["pushChannels"]);
-                    }
-                    PushChannels = (String) Convert.ChangeType(parameters["pushChannels"], typeof(String));
                 }
             }
         }
@@ -15805,46 +15744,6 @@ namespace WebAPI.Models.API
             }
         }
     }
-    public partial class KalturaCognitoIdentity
-    {
-        public KalturaCognitoIdentity(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("default") && parameters["default"] != null)
-                {
-                    if (parameters["default"] is JObject)
-                    {
-                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), ((JObject) parameters["default"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["default"] is IDictionary)
-                    {
-                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), (Dictionary<string, object>) parameters["default"]);
-                    }
-                }
-            }
-        }
-    }
-    public partial class KalturaCognitoUserPool
-    {
-        public KalturaCognitoUserPool(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("default") && parameters["default"] != null)
-                {
-                    if (parameters["default"] is JObject)
-                    {
-                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), ((JObject) parameters["default"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["default"] is IDictionary)
-                    {
-                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), (Dictionary<string, object>) parameters["default"]);
-                    }
-                }
-            }
-        }
-    }
     public partial class KalturaConcurrencyCondition
     {
         public KalturaConcurrencyCondition(Dictionary<string, object> parameters = null) : base(parameters)
@@ -15976,26 +15875,6 @@ namespace WebAPI.Models.API
             }
         }
     }
-    public partial class KalturaCredentialsProvider
-    {
-        public KalturaCredentialsProvider(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("cognitoIdentity") && parameters["cognitoIdentity"] != null)
-                {
-                    if (parameters["cognitoIdentity"] is JObject)
-                    {
-                        CognitoIdentity = (KalturaCognitoIdentity) Deserializer.deserialize(typeof(KalturaCognitoIdentity), ((JObject) parameters["cognitoIdentity"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["cognitoIdentity"] is IDictionary)
-                    {
-                        CognitoIdentity = (KalturaCognitoIdentity) Deserializer.deserialize(typeof(KalturaCognitoIdentity), (Dictionary<string, object>) parameters["cognitoIdentity"]);
-                    }
-                }
-            }
-        }
-    }
     public partial class KalturaCurrency
     {
         public KalturaCurrency(Dictionary<string, object> parameters = null) : base(parameters)
@@ -16075,27 +15954,6 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
-                }
-            }
-        }
-    }
-    public partial class KalturaDefault
-    {
-        public KalturaDefault(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("poolId") && parameters["poolId"] != null)
-                {
-                    PoolId = (String) Convert.ChangeType(parameters["poolId"], typeof(String));
-                }
-                if (parameters.ContainsKey("region") && parameters["region"] != null)
-                {
-                    Region = (String) Convert.ChangeType(parameters["region"], typeof(String));
-                }
-                if (parameters.ContainsKey("appClientId") && parameters["appClientId"] != null)
-                {
-                    AppClientId = (String) Convert.ChangeType(parameters["appClientId"], typeof(String));
                 }
             }
         }
@@ -16895,211 +16753,6 @@ namespace WebAPI.Models.API
                     }
                 }
             }
-        }
-    }
-    public partial class KalturaIot
-    {
-        public KalturaIot(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("udid") && parameters["udid"] != null)
-                {
-                    Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
-                }
-                if (parameters.ContainsKey("accessKey") && parameters["accessKey"] != null)
-                {
-                    AccessKey = (String) Convert.ChangeType(parameters["accessKey"], typeof(String));
-                }
-                if (parameters.ContainsKey("accessSecretKey") && parameters["accessSecretKey"] != null)
-                {
-                    AccessSecretKey = (String) Convert.ChangeType(parameters["accessSecretKey"], typeof(String));
-                }
-                if (parameters.ContainsKey("username") && parameters["username"] != null)
-                {
-                    Username = (String) Convert.ChangeType(parameters["username"], typeof(String));
-                }
-                if (parameters.ContainsKey("userPassword") && parameters["userPassword"] != null)
-                {
-                    UserPassword = (String) Convert.ChangeType(parameters["userPassword"], typeof(String));
-                }
-                if (parameters.ContainsKey("identityId") && parameters["identityId"] != null)
-                {
-                    IdentityId = (String) Convert.ChangeType(parameters["identityId"], typeof(String));
-                }
-                if (parameters.ContainsKey("thingArn") && parameters["thingArn"] != null)
-                {
-                    ThingArn = (String) Convert.ChangeType(parameters["thingArn"], typeof(String));
-                }
-                if (parameters.ContainsKey("thingId") && parameters["thingId"] != null)
-                {
-                    ThingId = (String) Convert.ChangeType(parameters["thingId"], typeof(String));
-                }
-                if (parameters.ContainsKey("principal") && parameters["principal"] != null)
-                {
-                    Principal = (String) Convert.ChangeType(parameters["principal"], typeof(String));
-                }
-                if (parameters.ContainsKey("endPoint") && parameters["endPoint"] != null)
-                {
-                    EndPoint = (String) Convert.ChangeType(parameters["endPoint"], typeof(String));
-                }
-                if (parameters.ContainsKey("extendedEndPoint") && parameters["extendedEndPoint"] != null)
-                {
-                    ExtendedEndPoint = (String) Convert.ChangeType(parameters["extendedEndPoint"], typeof(String));
-                }
-                if (parameters.ContainsKey("identityPoolId") && parameters["identityPoolId"] != null)
-                {
-                    IdentityPoolId = (String) Convert.ChangeType(parameters["identityPoolId"], typeof(String));
-                }
-            }
-        }
-    }
-    public partial class KalturaIotClientConfiguration
-    {
-        public KalturaIotClientConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("announcementTopic") && parameters["announcementTopic"] != null)
-                {
-                    AnnouncementTopic = (String) Convert.ChangeType(parameters["announcementTopic"], typeof(String));
-                }
-                if (parameters.ContainsKey("credentialsProvider") && parameters["credentialsProvider"] != null)
-                {
-                    if (parameters["credentialsProvider"] is JObject)
-                    {
-                        CredentialsProvider = (KalturaCredentialsProvider) Deserializer.deserialize(typeof(KalturaCredentialsProvider), ((JObject) parameters["credentialsProvider"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["credentialsProvider"] is IDictionary)
-                    {
-                        CredentialsProvider = (KalturaCredentialsProvider) Deserializer.deserialize(typeof(KalturaCredentialsProvider), (Dictionary<string, object>) parameters["credentialsProvider"]);
-                    }
-                }
-                if (parameters.ContainsKey("cognitoUserPool") && parameters["cognitoUserPool"] != null)
-                {
-                    if (parameters["cognitoUserPool"] is JObject)
-                    {
-                        CognitoUserPool = (KalturaCognitoUserPool) Deserializer.deserialize(typeof(KalturaCognitoUserPool), ((JObject) parameters["cognitoUserPool"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["cognitoUserPool"] is IDictionary)
-                    {
-                        CognitoUserPool = (KalturaCognitoUserPool) Deserializer.deserialize(typeof(KalturaCognitoUserPool), (Dictionary<string, object>) parameters["cognitoUserPool"]);
-                    }
-                }
-                if (parameters.ContainsKey("json") && parameters["json"] != null)
-                {
-                    Json = (String) Convert.ChangeType(parameters["json"], typeof(String));
-                }
-            }
-        }
-    }
-    public partial class KalturaIotFilter
-    {
-        public KalturaIotFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
-    public partial class KalturaIotListResponse
-    {
-        public KalturaIotListResponse(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
-    public partial class KalturaIotProfile
-    {
-        public KalturaIotProfile(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("adapterUrl") && parameters["adapterUrl"] != null)
-                {
-                    AdapterUrl = (String) Convert.ChangeType(parameters["adapterUrl"], typeof(String));
-                }
-                if (parameters.ContainsKey("iotProfileAws") && parameters["iotProfileAws"] != null)
-                {
-                    if (parameters["iotProfileAws"] is JObject)
-                    {
-                        IotProfileAws = (KalturaIotProfileAws) Deserializer.deserialize(typeof(KalturaIotProfileAws), ((JObject) parameters["iotProfileAws"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["iotProfileAws"] is IDictionary)
-                    {
-                        IotProfileAws = (KalturaIotProfileAws) Deserializer.deserialize(typeof(KalturaIotProfileAws), (Dictionary<string, object>) parameters["iotProfileAws"]);
-                    }
-                }
-            }
-        }
-    }
-    public partial class KalturaIotProfileAws
-    {
-        public KalturaIotProfileAws(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("iotEndPoint") && parameters["iotEndPoint"] != null)
-                {
-                    IotEndPoint = (String) Convert.ChangeType(parameters["iotEndPoint"], typeof(String));
-                }
-                if (parameters.ContainsKey("pfxPath") && parameters["pfxPath"] != null)
-                {
-                    PfxPath = (String) Convert.ChangeType(parameters["pfxPath"], typeof(String));
-                }
-                if (parameters.ContainsKey("pfxPassword") && parameters["pfxPassword"] != null)
-                {
-                    PfxPassword = (String) Convert.ChangeType(parameters["pfxPassword"], typeof(String));
-                }
-                if (parameters.ContainsKey("certificatePath") && parameters["certificatePath"] != null)
-                {
-                    CertificatePath = (String) Convert.ChangeType(parameters["certificatePath"], typeof(String));
-                }
-                if (parameters.ContainsKey("brokerPort") && parameters["brokerPort"] != null)
-                {
-                    BrokerPort = (Int32) Convert.ChangeType(parameters["brokerPort"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("accessKeyId") && parameters["accessKeyId"] != null)
-                {
-                    AccessKeyId = (String) Convert.ChangeType(parameters["accessKeyId"], typeof(String));
-                }
-                if (parameters.ContainsKey("secretAccessKey") && parameters["secretAccessKey"] != null)
-                {
-                    SecretAccessKey = (String) Convert.ChangeType(parameters["secretAccessKey"], typeof(String));
-                }
-                if (parameters.ContainsKey("iotPolicyName") && parameters["iotPolicyName"] != null)
-                {
-                    IotPolicyName = (String) Convert.ChangeType(parameters["iotPolicyName"], typeof(String));
-                }
-                if (parameters.ContainsKey("userPoolId") && parameters["userPoolId"] != null)
-                {
-                    UserPoolId = (String) Convert.ChangeType(parameters["userPoolId"], typeof(String));
-                }
-                if (parameters.ContainsKey("clientId") && parameters["clientId"] != null)
-                {
-                    ClientId = (String) Convert.ChangeType(parameters["clientId"], typeof(String));
-                }
-                if (parameters.ContainsKey("identityPoolId") && parameters["identityPoolId"] != null)
-                {
-                    IdentityPoolId = (String) Convert.ChangeType(parameters["identityPoolId"], typeof(String));
-                }
-                if (parameters.ContainsKey("region") && parameters["region"] != null)
-                {
-                    Region = (String) Convert.ChangeType(parameters["region"], typeof(String));
-                }
-                if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
-                {
-                    UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
-                }
-            }
-        }
-    }
-    public partial class KalturaIotProfileFilter
-    {
-        public KalturaIotProfileFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
-    public partial class KalturaIotProfileListResponse
-    {
-        public KalturaIotProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
-        {
         }
     }
     public partial class KalturaIpRangeCondition
@@ -25583,6 +25236,74 @@ namespace WebAPI.Models.Partner
             }
         }
     }
+    public partial class KalturaDefaultPlaybackAdapters
+    {
+        private static RuntimeSchemePropertyAttribute MediaAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        private static RuntimeSchemePropertyAttribute EpgAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        private static RuntimeSchemePropertyAttribute RecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        public KalturaDefaultPlaybackAdapters(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("mediaAdapterId") && parameters["mediaAdapterId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        MediaAdapterIdSchemaProperty.Validate("mediaAdapterId", parameters["mediaAdapterId"]);
+                    }
+                    MediaAdapterId = (Int64) Convert.ChangeType(parameters["mediaAdapterId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("epgAdapterId") && parameters["epgAdapterId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        EpgAdapterIdSchemaProperty.Validate("epgAdapterId", parameters["epgAdapterId"]);
+                    }
+                    EpgAdapterId = (Int64) Convert.ChangeType(parameters["epgAdapterId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("recordingAdapterId") && parameters["recordingAdapterId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        RecordingAdapterIdSchemaProperty.Validate("recordingAdapterId", parameters["recordingAdapterId"]);
+                    }
+                    RecordingAdapterId = (Int64) Convert.ChangeType(parameters["recordingAdapterId"], typeof(Int64));
+                }
+            }
+        }
+    }
     public partial class KalturaGeneralPartnerConfig
     {
         public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
@@ -25753,6 +25474,26 @@ namespace WebAPI.Models.Partner
                     else if (parameters["objects"] is IList)
                     {
                         Objects = buildList(typeof(KalturaPartnerConfiguration), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaPlaybackPartnerConfig
+    {
+        public KalturaPlaybackPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("defaultAdapters") && parameters["defaultAdapters"] != null)
+                {
+                    if (parameters["defaultAdapters"] is JObject)
+                    {
+                        DefaultAdapters = (KalturaDefaultPlaybackAdapters) Deserializer.deserialize(typeof(KalturaDefaultPlaybackAdapters), ((JObject) parameters["defaultAdapters"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["defaultAdapters"] is IDictionary)
+                    {
+                        DefaultAdapters = (KalturaDefaultPlaybackAdapters) Deserializer.deserialize(typeof(KalturaDefaultPlaybackAdapters), (Dictionary<string, object>) parameters["defaultAdapters"]);
                     }
                 }
             }

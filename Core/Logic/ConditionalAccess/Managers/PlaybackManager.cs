@@ -1,6 +1,5 @@
 ﻿using AdapterControllers;
 using AdapterControllers.CDVR;
-using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using ApiObjects;
@@ -14,7 +13,6 @@ using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Api;
 using Core.Api.Managers;
-using Core.Catalog;
 using Core.Catalog.Response;
 using Core.Pricing;
 using Core.Users;
@@ -34,10 +32,11 @@ namespace Core.ConditionalAccess
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public const string RECORDING_CONVERT_KEY = "GetPlaybackContextAssetConvert";
+        public const string PROGRAM_ID_KEY = "PROGRAM_ID";
 
         public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType,
-                                                                 List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context,
-                                                                 string ip, string udid, out MediaFileItemPricesContainer filePrice, UrlType urlType, string sourceType = null)
+            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context,
+            string ip, string udid, out MediaFileItemPricesContainer filePrice, UrlType urlType, string sourceType = null, Dictionary<string, string> adapterData = null)
         {
             PlaybackContextResponse response = new PlaybackContextResponse()
             {
@@ -120,6 +119,7 @@ namespace Core.ConditionalAccess
                 {
                     mediaId = long.Parse(assetId);
                 }
+
                 // Allow to continue for external recording (and asset type = NPVR) since we may not be updated on them in real time
                 if (response.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -127,6 +127,16 @@ namespace Core.ConditionalAccess
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         mediaId = Utils.GetMediaIdByFileId(groupId, (int)fileIds[0]);
+
+                        long programId = 0;
+                        // check if programId exist at adapterData
+                        if (adapterData?.Count > 0 && adapterData.ContainsKey(PROGRAM_ID_KEY) && long.TryParse(adapterData[PROGRAM_ID_KEY], out programId))
+                        {
+                            if (programId > 0)
+                            {
+                                recording = new Recording() { EpgId = programId };
+                            }
+                        }
                     }
                     else
                     {
@@ -166,7 +176,7 @@ namespace Core.ConditionalAccess
                                                 Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY, assetId);
                         }
 
-                        assetsToCheck = new List<SlimAsset>() { new SlimAsset(recording.EpgId, eAssetTypes.NPVR) };
+                        assetsToCheck = new List<SlimAsset>() { new SlimAsset(recording.EpgId, recording.Id > 0 ? eAssetTypes.NPVR : eAssetTypes.EPG) };
                         if (mediaId > 0)
                         {
                             assetsToCheck.Add(new SlimAsset(mediaId, eAssetTypes.MEDIA));
@@ -1003,6 +1013,7 @@ namespace Core.ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
 
+            
             return response;
         }
     }

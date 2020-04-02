@@ -122,6 +122,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_CATEGORIES = "GetGroupCategories";
         public const string GET_CATEGORY_ITEM = "GetCategoryItem";
         public const string GET_IOT_CLIENT_CONFIGURATION = "GetIotClientConfiguration";
+        public const string GET_PLAYBACK_PARTNER_CONFIG = "GetPlaybackPartnerConfigDB";
 
         #endregion
 

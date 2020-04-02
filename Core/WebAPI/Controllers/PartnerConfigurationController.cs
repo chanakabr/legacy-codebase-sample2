@@ -42,6 +42,10 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.ApiClient().GetCommerceConfigList(groupId);
                 }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.Playback)
+                {
+                    response = ClientsManager.ApiClient().GetPlaybackAdapterConfiguration(groupId);
+                }
                 else
                 {
                     throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "filter.partnerConfigurationTypeEqual", filter.PartnerConfigurationTypeEqual);
