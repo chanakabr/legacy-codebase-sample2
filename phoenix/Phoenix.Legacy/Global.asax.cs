@@ -36,7 +36,7 @@ namespace WebAPI
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
 
-            KLogMonitor.ConfigurationReloader.LogReloader.GetInstance().Initiate(); 
+            KLogMonitor.ConfigurationReloader.LogReloader.GetInstance().Initiate("phoenix_log_configuration"); 
         }
 
         private static void InitializeLogging()

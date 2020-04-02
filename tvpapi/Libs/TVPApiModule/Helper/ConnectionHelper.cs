@@ -67,6 +67,19 @@ namespace TVPApi
 
         private static int GetValueFromDict(string sWSName, string sModuleName, string sUN, string sPass, string sIP)
         {
+            if (sModuleName.ToLower() == "setloglevel" || sModuleName.ToLower() == "getloglevel")
+            {
+                if (_groupsModulesIPs[sUN + ":" + sPass].ContainsKey(sModuleName + ":" + sWSName + ":" + "00000"))
+                {
+                    return _groupsModulesIPs[sUN + ":" + sPass][sModuleName + ":" + sWSName + ":" + "00000"];
+                }
+                else if (_groupsModulesIPs[sUN + ":" + sPass].ContainsKey(sModuleName + ":" + sWSName + ":" + sIP))
+                {
+                    return _groupsModulesIPs[sUN + ":" + sPass][sModuleName + ":" + sWSName + ":" + sIP];
+                }
+                return 0;
+            }
+
             if (_groupsModulesIPs[sUN + ":" + sPass].ContainsKey("00000" + ":" + sWSName + ":" + "00000"))
             {
                 return _groupsModulesIPs[sUN + ":" + sPass]["00000" + ":" + sWSName + ":" + "00000"];

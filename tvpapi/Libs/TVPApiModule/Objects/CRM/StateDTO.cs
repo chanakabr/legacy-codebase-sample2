@@ -9,9 +9,13 @@ namespace TVPApiModule.Objects.CRM
     public class StateDTO
     {
         private CountryDTO m_Country;
+        public CountryDTO m_CountryField { get { return m_Country; } set { m_Country = value; } }
         private int m_nObjecrtID;
+        public int m_nObjecrtIDField { get { return m_nObjecrtID; } set { m_nObjecrtID = value; } }
         private string m_sStateCode;
+        public string m_sStateCodeField { get { return m_sStateCode; } set { m_sStateCode = value; } }
         private string m_sStateName;
+        public string m_sStateNameField { get { return m_sStateName; } set { m_sStateName = value; } }
 
         public static StateDTO ConvertToDTO(State state)
         {

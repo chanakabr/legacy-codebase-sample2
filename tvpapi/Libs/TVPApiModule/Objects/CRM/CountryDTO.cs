@@ -6,8 +6,11 @@ namespace TVPApiModule.Objects.CRM
     public class CountryDTO
     {
         public int m_nObjecrtID;
+        public int m_nObjecrtIDField { get { return m_nObjecrtID; } set { m_nObjecrtID = value; } }
         public string m_sCountryName;
+        public string m_sCountryNameField { get { return m_sCountryName; } set { m_sCountryName = value; } }
         public string m_sCountryCode;
+        public string m_sCountryCodeField { get { return m_sCountryCode; } set { m_sCountryCode = value; } }
 
         public static CountryDTO ConvertToDTO(Country country)
         {

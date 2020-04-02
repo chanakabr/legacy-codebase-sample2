@@ -83,7 +83,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             try
             {
-                MetasToPad = IndexManager.CreateNewEpgIndex(groupId, catalogGroupCache, group, languages, defaultLanguage, newIndexName);
+                MetasToPad = CreateNewIndex(groupId, catalogGroupCache, group, languages, defaultLanguage, newIndexName);
             }
             catch (Exception e)
             {
@@ -300,7 +300,10 @@ namespace ElasticSearchHandler.IndexBuilders
             return ElasticSearchTaskUtils.GetNewEpgIndexStr(groupId);
         }
 
-
+        protected virtual HashSet<string> CreateNewIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, string newIndexName)
+        {
+            return IndexManager.CreateNewEpgIndex(groupId, catalogGroupCache, group, languages, defaultLanguage, newIndexName);
+        }
 
         protected void PopulateEpgIndex(string index, string type, DateTime date, Group group)
         {
