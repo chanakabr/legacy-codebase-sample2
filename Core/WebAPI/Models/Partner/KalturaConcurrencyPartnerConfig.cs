@@ -36,7 +36,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "concurrencyThresholdInSeconds")]
         [JsonProperty("concurrencyThresholdInSeconds")]
         [XmlElement(ElementName = "concurrencyThresholdInSeconds")] 
-        [SchemeProperty(MinInteger = 35, MaxInteger = 600)]
+        [SchemeProperty(MinInteger = 30, MaxInteger = 1200)]
         public long? ConcurrencyThresholdInSeconds { get; set; }
 
         internal HashSet<int> GetDeviceFamilyIds()

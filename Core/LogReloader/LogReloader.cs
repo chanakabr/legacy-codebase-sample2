@@ -23,6 +23,7 @@ namespace KLogMonitor.ConfigurationReloader
         private CouchbaseManager.CouchbaseManager couchbaseManager;
         private KLoggerConfiguration configuration;
 
+        public string DocumentKey { get; set; }
         #endregion
 
         #region Singleton
@@ -58,12 +59,13 @@ namespace KLogMonitor.ConfigurationReloader
 
         #region Main Methods
 
-        public void Initiate()
+        public void Initiate(string documentKey)
         {
             interval = ApplicationConfiguration.Current.LogReloadInterval.Value;
 
             if (interval > 0)
             {
+                this.DocumentKey = documentKey;
                 couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
                 string configurationXml = KLogger.GetConfigurationXML();
@@ -93,7 +95,7 @@ namespace KLogMonitor.ConfigurationReloader
         {
             try
             {
-                var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>(ApplicationConfiguration.Current.LogConfigurationDocumentKey.Value);
+                var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>(this.DocumentKey);
 
                 // if configuration was updated
                 if (cbConfiguration != null && (configuration == null || cbConfiguration.timeStamp > configuration.timeStamp))

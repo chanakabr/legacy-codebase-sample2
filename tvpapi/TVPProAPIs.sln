@@ -167,6 +167,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "..\Core\WebAPI\We
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck", "..\Core\HealthCheck\HealthCheck.csproj", "{678EAB95-EEF6-434C-A251-90F32B887DB3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogReloader", "..\Core\LogReloader\LogReloader.csproj", "{C02477CD-FE0B-459B-B760-281948BF3931}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		AllClients|Any CPU = AllClients|Any CPU
@@ -1102,6 +1104,20 @@ Global
 		{678EAB95-EEF6-434C-A251-90F32B887DB3}.test|Any CPU.Build.0 = Debug|Any CPU
 		{678EAB95-EEF6-434C-A251-90F32B887DB3}.Yes|Any CPU.ActiveCfg = Debug|Any CPU
 		{678EAB95-EEF6-434C-A251-90F32B887DB3}.Yes|Any CPU.Build.0 = Debug|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.AllClients|Any CPU.ActiveCfg = Release|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.AllClients|Any CPU.Build.0 = Release|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.debug32|Any CPU.Build.0 = Debug|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.Local|Any CPU.Build.0 = Release|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.test|Any CPU.ActiveCfg = Release|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.test|Any CPU.Build.0 = Release|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.Yes|Any CPU.ActiveCfg = Release|Any CPU
+		{C02477CD-FE0B-459B-B760-281948BF3931}.Yes|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1179,9 +1195,10 @@ Global
 		{F2A5E10B-E848-4F0B-A730-BFCD76FE5043} = {173647D2-B5B7-46DC-80FB-0326B428418A}
 		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3} = {80535B55-CED9-4B4A-9040-933D6AC84B2E}
 		{678EAB95-EEF6-434C-A251-90F32B887DB3} = {80535B55-CED9-4B4A-9040-933D6AC84B2E}
+		{C02477CD-FE0B-459B-B760-281948BF3931} = {470ABA49-ACF5-4698-B8A6-8EE9ABE07803}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {5604D01E-691A-49EC-9DF9-EECBFAFD1E19}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {5604D01E-691A-49EC-9DF9-EECBFAFD1E19}
 	EndGlobalSection
 EndGlobal

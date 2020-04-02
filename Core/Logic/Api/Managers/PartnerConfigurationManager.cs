@@ -121,7 +121,7 @@ namespace ApiLogic.Api.Managers
             try
             {
                 bool shouldInvalidateRegions = false;
-
+                
                 // check for MainLanguage valid
                 if (partnerConfigToUpdate.MainLanguage.HasValue)
                 {
@@ -199,6 +199,12 @@ namespace ApiLogic.Api.Managers
                         shouldInvalidateRegions = (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache)
                             && defaultRegion.id != catalogGroupCache.DefaultRegion);
                     }
+                }
+
+                var generalPartnerConfig = GetGeneralPartnerConfig(groupId);
+                if (generalPartnerConfig != null)
+                {
+                    partnerConfigToUpdate.SetUnchangedProperties(generalPartnerConfig);
                 }
 
                 // upsert GeneralPartnerConfig            
@@ -371,7 +377,7 @@ namespace ApiLogic.Api.Managers
         {
             var response = new GenericListResponse<CommercePartnerConfig>();
             var commercePartnerConfig = GetCommercePartnerConfig(groupId);
-            
+
             if (commercePartnerConfig.HasObject())
             {
                 response.Objects.Add(commercePartnerConfig.Object);

@@ -133,7 +133,7 @@ namespace Core.Catalog.Request
             if (devicePlayData.TimeStamp != 0)
             {
                 devicePlayData.TimeStamp = 0;
-                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, CatalogDAL.LONG_TTL);
+                CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, ConcurrencyManager.LONG_TTL);
             }
         }
 

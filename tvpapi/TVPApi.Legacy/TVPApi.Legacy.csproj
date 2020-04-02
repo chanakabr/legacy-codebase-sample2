@@ -969,6 +969,10 @@
       <Project>{30B747E2-22E4-407E-BB76-83B3479C8132}</Project>
       <Name>ApiLogic</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Core\LogReloader\LogReloader.csproj">
+      <Project>{c02477cd-fe0b-459b-b760-281948bf3931}</Project>
+      <Name>LogReloader</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Core\NPVR\NPVR.csproj">
       <Project>{939556AF-A17E-4719-B87C-7C0916602FA3}</Project>
       <Name>NPVR</Name>

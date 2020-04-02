@@ -1597,6 +1597,7 @@ namespace Core.ConditionalAccess
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
                     selectQuery += "and";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nSubscriptionPurchaseID);
+                    selectQuery.SetConnectionKey("CA_CONNECTION_STRING");
                     if (m_nGroupID != 0)
                     {
                         selectQuery += "and";
@@ -1610,8 +1611,10 @@ namespace Core.ConditionalAccess
                             Int32 nID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
                             updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 1);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("subscription_status", "=", 0);
                             updateQuery += " where ";
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
+                            updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
                             updateQuery.Execute();
                             bRet = true;
 
@@ -1626,6 +1629,7 @@ namespace Core.ConditionalAccess
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", "");
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", "");
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", "");
+                            insertQuery.SetConnectionKey("CA_CONNECTION_STRING");
                             insertQuery.Execute();
 
 
@@ -16189,6 +16193,15 @@ namespace Core.ConditionalAccess
                         if (!res)
                         {
                             seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to cancel or delete epgid");
+                        }
+                        else
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+
+                            if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
+                            {
+                                recording.Status = RecordingsManager.Instance.CacnelOrDeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, tstvRecordingStatus == TstvRecordingStatus.Deleted);
+                            }
                         }
                     }
                 }

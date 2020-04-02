@@ -325,13 +325,13 @@ namespace Core.Users
             foreach (KeyValuePair<string, string> kvp in dynamicDataToInsert)
             {
 
-                if(string.IsNullOrEmpty(kvp.Key) || string.IsNullOrEmpty(kvp.Value))
+                if(string.IsNullOrEmpty(kvp.Key))
                 {
                     continue;
                 }
 
                 var key = kvp.Key.Replace("'", "''");
-                var value = kvp.Value.Replace("'", "''");
+                var value = !string.IsNullOrEmpty(kvp.Value) ? kvp.Value.Replace("'", "''") : string.Empty;
 
                 directQuery += "insert into #x (id, user_id, data_type, data_value, is_active, status, group_id, create_date, update_date, publish_date) values";
                 directQuery += "(0, " + UserId.ToString() + ", '" + key + "' , N'" + value + "' ,1 , 1, " + this.GroupId.ToString() + ",";
