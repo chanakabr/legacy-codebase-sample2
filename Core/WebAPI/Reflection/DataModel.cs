@@ -103,6 +103,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "ImageUrl":
                             return "imageUrl";
+                        case "IncludeIot":
+                            return "includeIot";
                         case "IncludeMail":
                             return "includeMail";
                         case "IncludeSms":
@@ -1472,6 +1474,22 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCognitoIdentity":
+                    switch(property.Name)
+                    {
+                        case "Default":
+                            return "default";
+                    }
+                    break;
+                    
+                case "KalturaCognitoUserPool":
+                    switch(property.Name)
+                    {
+                        case "Default":
+                            return "default";
+                    }
+                    break;
+                    
                 case "KalturaCollection":
                     switch(property.Name)
                     {
@@ -1886,6 +1904,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCredentialsProvider":
+                    switch(property.Name)
+                    {
+                        case "CognitoIdentity":
+                            return "cognitoIdentity";
+                    }
+                    break;
+                    
                 case "KalturaCurrency":
                     switch(property.Name)
                     {
@@ -1943,6 +1969,18 @@ namespace WebAPI.Reflection
                     {
                         case "Date":
                             return "date";
+                    }
+                    break;
+                    
+                case "KalturaDefault":
+                    switch(property.Name)
+                    {
+                        case "AppClientId":
+                            return "appClientId";
+                        case "PoolId":
+                            return "poolId";
+                        case "Region":
+                            return "region";
                     }
                     break;
                     
@@ -3298,6 +3336,92 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaIot":
+                    switch(property.Name)
+                    {
+                        case "AccessKey":
+                            return "accessKey";
+                        case "AccessSecretKey":
+                            return "accessSecretKey";
+                        case "EndPoint":
+                            return "endPoint";
+                        case "ExtendedEndPoint":
+                            return "extendedEndPoint";
+                        case "IdentityId":
+                            return "identityId";
+                        case "IdentityPoolId":
+                            return "identityPoolId";
+                        case "Principal":
+                            return "principal";
+                        case "ThingArn":
+                            return "thingArn";
+                        case "ThingId":
+                            return "thingId";
+                        case "Udid":
+                            return "udid";
+                        case "Username":
+                            return "username";
+                        case "UserPassword":
+                            return "userPassword";
+                    }
+                    break;
+                    
+                case "KalturaIotClientConfiguration":
+                    switch(property.Name)
+                    {
+                        case "AnnouncementTopic":
+                            return "announcementTopic";
+                        case "CognitoUserPool":
+                            return "cognitoUserPool";
+                        case "CredentialsProvider":
+                            return "credentialsProvider";
+                        case "Json":
+                            return "json";
+                    }
+                    break;
+                    
+                case "KalturaIotProfile":
+                    switch(property.Name)
+                    {
+                        case "AdapterUrl":
+                            return "adapterUrl";
+                        case "IotProfileAws":
+                            return "iotProfileAws";
+                    }
+                    break;
+                    
+                case "KalturaIotProfileAws":
+                    switch(property.Name)
+                    {
+                        case "AccessKeyId":
+                            return "accessKeyId";
+                        case "BrokerPort":
+                            return "brokerPort";
+                        case "CertificatePath":
+                            return "certificatePath";
+                        case "ClientId":
+                            return "clientId";
+                        case "IdentityPoolId":
+                            return "identityPoolId";
+                        case "IotEndPoint":
+                            return "iotEndPoint";
+                        case "IotPolicyName":
+                            return "iotPolicyName";
+                        case "PfxPassword":
+                            return "pfxPassword";
+                        case "PfxPath":
+                            return "pfxPath";
+                        case "Region":
+                            return "region";
+                        case "SecretAccessKey":
+                            return "secretAccessKey";
+                        case "UpdateDate":
+                            return "updateDate";
+                        case "UserPoolId":
+                            return "userPoolId";
+                    }
+                    break;
+                    
                 case "KalturaIpRangeCondition":
                     switch(property.Name)
                     {
@@ -3949,6 +4073,8 @@ namespace WebAPI.Reflection
                             return "churnMailTemplateName";
                         case "InboxEnabled":
                             return "inboxEnabled";
+                        case "IotEnabled":
+                            return "iotEnabled";
                         case "MailNotificationAdapterId":
                             return "mailNotificationAdapterId";
                         case "MailSenderName":
@@ -5083,8 +5209,12 @@ namespace WebAPI.Reflection
                             return "action";
                         case "Message":
                             return "message";
+                        case "PushChannels":
+                            return "pushChannels";
                         case "Sound":
                             return "sound";
+                        case "Udid":
+                            return "udid";
                         case "Url":
                             return "url";
                     }
@@ -8571,6 +8701,38 @@ namespace WebAPI.Reflection
                         case "update":
                             RolesManager.ValidateActionPermitted("IngestProfile", "update", false);
                             return IngestProfileController.Update((int) methodParams[0], (KalturaIngestProfile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "iot":
+                    switch(action)
+                    {
+                        case "getclientconfiguration":
+                            RolesManager.ValidateActionPermitted("iot", "getClientConfiguration", false);
+                            return IotController.GetClientConfiguration();
+                            
+                        case "register":
+                            RolesManager.ValidateActionPermitted("iot", "register", false);
+                            return IotController.Register();
+                            
+                    }
+                    break;
+                    
+                case "iotprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("iotprofile", "add");
+                            return IotProfileController.Add((KalturaIotProfile) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("iotprofile", "update");
+                            return IotProfileController.Update((long) methodParams[0], (KalturaIotProfile) methodParams[1]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("iotprofile", "get");
+                            return IotProfileController.Get((long) methodParams[0]);
                             
                     }
                     break;
@@ -14845,6 +15007,51 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaIngestProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "iot":
+                    switch(action)
+                    {
+                        case "getclientconfiguration":
+                            return ret;
+                            
+                        case "register":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "iotprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIotProfile),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaIotProfile),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
                             });
                             return ret;
                             
