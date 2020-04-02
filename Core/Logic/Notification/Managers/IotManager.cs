@@ -115,32 +115,7 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                var iotProfile = NotificationDal.GetIotProfile(groupId);
-                if (iotProfile == null)
-                {
-                    log.Error($"Error while getting configurations for group: {groupId}.");
-                    return response;
-                }
-
-                //TODO Matan - add cache layered cache
-                var iotClientConfiguration = new IotClientConfiguration
-                {
-                    AnnouncementTopic = $"{groupId}/{SYSTEM_ANNOUNCEMENT}",
-                    CredentialsProvider = new CredentialsProvider
-                    {
-                        CognitoIdentity = new CognitoIdentity
-                        {
-                            Default = new Default { PoolId = iotProfile.IotProfileAws.IdentityPoolId, Region = iotProfile.IotProfileAws.Region }
-                        }
-                    },
-                    CognitoUserPool = new CognitoUserPool
-                    {
-                        Default = new Default { PoolId = iotProfile.IotProfileAws.UserPoolId, AppClientId = iotProfile.IotProfileAws.ClientId, Region = iotProfile.IotProfileAws.Region }
-                    }
-                };
-                iotClientConfiguration.Json = iotClientConfiguration.ToString();
-
-                response.Object = iotClientConfiguration;
+                response.Object = GetClientConfigurationCache(groupId);
 
                 response.SetStatus(Status.Ok);
             }
@@ -154,6 +129,94 @@ namespace ApiLogic.Notification
             }
 
             return response;
+        }
+
+        private IotClientConfiguration GetClientConfigurationCache(int groupId)
+        {
+            var result = new IotClientConfiguration();
+            try
+            {
+                string key = CachingProvider.LayeredCache.LayeredCacheKeys.GetGroupIotClientConfig(groupId);
+                string invalidationKey = CachingProvider.LayeredCache.LayeredCacheKeys.GetGroupIotClientConfigInvalidationKey(groupId);
+
+                var _result = CachingProvider.LayeredCache.LayeredCache.Instance.Get
+                    (key, ref result, this.GetClientConfiguration, new System.Collections.Generic.Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, CachingProvider.LayeredCache.LayeredCacheConfigNames.GET_IOT_CLIENT_CONFIGURATION, new System.Collections.Generic.List<string> { invalidationKey });
+
+                if (!_result || result == null)
+                {
+                    log.ErrorFormat("Failed GetClientConfiguration, groupId: {0}", groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupPermissionItemsDictionary, groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        public void InvalidateClientConfiguration(int groupId)
+        {
+            string invalidationKey = CachingProvider.LayeredCache.LayeredCacheKeys.GetGroupIotClientConfigInvalidationKey(groupId);
+            if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+            {
+                log.ErrorFormat("Failed to set invalidation key on InvalidateClientConfiguration key = {0}", invalidationKey);
+            }
+        }
+
+        private Tuple<IotClientConfiguration, bool> GetClientConfiguration(System.Collections.Generic.Dictionary<string, object> funcParams)
+        {
+            IotClientConfiguration result = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        int? groupId;
+                        groupId = funcParams["groupId"] as int?;
+
+                        if (!groupId.HasValue)
+                        {
+                            return Tuple.Create(result, false);
+                        }
+
+                        var iotProfile = NotificationDal.GetIotProfile(groupId.Value);
+                        if (iotProfile == null)
+                        {
+                            log.Error($"Error while getting configurations for group: {groupId}.");
+                            return Tuple.Create(result, false);
+                        }
+
+                        result = new IotClientConfiguration
+                        {
+                            AnnouncementTopic = $"{groupId}/{SYSTEM_ANNOUNCEMENT}",
+                            CredentialsProvider = new CredentialsProvider
+                            {
+                                CognitoIdentity = new CognitoIdentity
+                                {
+                                    Default = new Default { PoolId = iotProfile.IotProfileAws.IdentityPoolId, Region = iotProfile.IotProfileAws.Region }
+                                }
+                            },
+                            CognitoUserPool = new CognitoUserPool
+                            {
+                                Default = new Default { PoolId = iotProfile.IotProfileAws.UserPoolId, AppClientId = iotProfile.IotProfileAws.ClientId, Region = iotProfile.IotProfileAws.Region }
+                            }
+                        };
+
+                        result.Json = result.ToString();
+
+                        return Tuple.Create(result, true);
+                    }
+                }
+                return Tuple.Create(result, false);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetClientConfiguration failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+                return Tuple.Create(result, false);
+            }
         }
 
         public Status Delete(ContextData contextData, long id)

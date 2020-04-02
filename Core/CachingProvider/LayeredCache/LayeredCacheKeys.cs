@@ -96,6 +96,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("groupPermissionItemsDictionaryKey_groupId_{0}", groupId);
         }
 
+        public static string GetGroupIotClientConfig(int groupId)
+        {
+            return string.Format("groupIotClientConfig_groupId_{0}", groupId);
+        }
+
         public static string GetPermissionItemsToFeaturesDictionaryKey(int groupId)
         {
             return string.Format("permissionItemsToFeaturesDictionaryKey_groupId_{0}", groupId);
@@ -1302,6 +1307,11 @@ namespace CachingProvider.LayeredCache
                 GetAssetInvalidationKey(assetType, id),
                 GetMediaInvalidationKey(groupId, id)
             };
+        }
+
+        public static string GetGroupIotClientConfigInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_groupIotClientConfig_groupId_{0}", groupId);
         }
 
         #endregion

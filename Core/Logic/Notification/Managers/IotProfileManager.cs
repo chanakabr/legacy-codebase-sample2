@@ -32,6 +32,8 @@ namespace ApiLogic.Notification
             var response = new GenericResponse<IotProfile>();
             var currentConfigurations = NotificationDal.GetIotProfile(contextData.GroupId);
 
+            IotManager.Instance.InvalidateClientConfiguration(contextData.GroupId);
+
             if (currentConfigurations == null)
             {
                 var error = $"Error: IotProfile doesn't exists for group: {contextData.GroupId}.";
