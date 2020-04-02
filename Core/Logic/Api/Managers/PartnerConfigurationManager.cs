@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using TVinciShared;
 
 namespace ApiLogic.Api.Managers
 {
@@ -187,18 +188,43 @@ namespace ApiLogic.Api.Managers
 
                 if (partnerConfigToUpdate.DefaultRegion.HasValue)
                 {
-                    var defaultRegion = ApiLogic.Api.Managers.RegionManager.GetRegion(groupId, partnerConfigToUpdate.DefaultRegion.Value);
+                    var defaultRegion = RegionManager.GetRegion(groupId, partnerConfigToUpdate.DefaultRegion.Value);
                     if (defaultRegion == null)
                     {
                         log.ErrorFormat("Error while update generalPartnerConfig. DefaultRegion {0} not exist in groupId: {1}", partnerConfigToUpdate.DefaultRegion.Value, groupId);
                         response.Set((int)eResponseStatus.RegionDoesNotExist, eResponseStatus.RegionDoesNotExist.ToString());
                         return response;
                     }
-                    else
+
+                    CatalogGroupCache catalogGroupCache;
+                    shouldInvalidateRegions = (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache)
+                                               && defaultRegion.id != catalogGroupCache.DefaultRegion);
+                }
+
+                List<int> rollingDeviceRemovalFamilyIds = partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds;
+                if (rollingDeviceRemovalFamilyIds.Count > 0)
+                {
+
+                    partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds =
+                        rollingDeviceRemovalFamilyIds.Distinct().ToList();
+
+                    // validate deviceFamilyIds
+                    var deviceFamilyList = Core.Api.Module.GetDeviceFamilyList(groupId);
+                    List<DeviceFamily> deviceFamilies = deviceFamilyList.DeviceFamilies;
+                    if (deviceFamilyList.Status.Code != (int) eResponseStatus.OK || deviceFamilies.Count == 0)
                     {
-                        CatalogGroupCache catalogGroupCache;
-                        shouldInvalidateRegions = (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache)
-                            && defaultRegion.id != catalogGroupCache.DefaultRegion);
+                        response.Message = "No DeviceFamilies";
+                        return response;
+                    }
+
+                    var existingFamilies = rollingDeviceRemovalFamilyIds.Intersect(deviceFamilies.Select(x => x.Id));
+                    var notDeviceFamilies = rollingDeviceRemovalFamilyIds.Except(existingFamilies).ToList();
+
+                    if (notDeviceFamilies.Count > 0)
+                    {
+                        response.Set((int) eResponseStatus.NonExistingDeviceFamilyIds,
+                            $"The ids: {string.Join(", ", notDeviceFamilies)} are non-existing DeviceFamilyIds");
+                        return response;
                     }
                 }
 
@@ -630,7 +656,8 @@ namespace ApiLogic.Api.Managers
                                 MailSettings = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_settings"),
                                 MainCurrency = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "CURRENCY_ID"),
                                 PartnerName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "GROUP_NAME"),
-                                MainLanguage = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "LANGUAGE_ID")
+                                MainLanguage = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "LANGUAGE_ID"),
+                                RollingDeviceRemovalData = GetRollingDeviceRemovalData(dt.Rows[0])
                             };
 
                             int? deleteMediaPolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DELETE_MEDIA_POLICY");
@@ -680,6 +707,11 @@ namespace ApiLogic.Api.Managers
                                 generalPartnerConfig.SecondaryCurrencies.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
                             }
                         }
+
+                        
+
+
+                       
                     }
                 }
             }
@@ -689,6 +721,41 @@ namespace ApiLogic.Api.Managers
             }
 
             return new Tuple<GeneralPartnerConfig, bool>(generalPartnerConfig, generalPartnerConfig != null);
+        }
+
+        private static RollingDeviceRemovalData GetRollingDeviceRemovalData(DataRow dataRow)
+        {
+            //get rolling device data
+            //default data
+            var rollingDeviceRemovalData = new RollingDeviceRemovalData
+            {
+                RollingDeviceRemovalPolicy = RollingDevicePolicy.NONE,
+                RollingDeviceRemovalFamilyIds = new List<int>()
+            };
+
+            string rollingDeviceRemovalPolicyIds =
+                ODBCWrapper.Utils.GetSafeStr(dataRow, "ROLLING_DEVICE_REMOVAL_FAMILY_IDS");
+
+            
+            if (!rollingDeviceRemovalPolicyIds.IsNullOrEmptyOrWhiteSpace())
+            {
+                //gets the family ids
+                var familyIds = rollingDeviceRemovalPolicyIds.Split(',').Select(int.Parse);
+
+                if (familyIds.Any())
+                {
+
+
+                    rollingDeviceRemovalData.RollingDeviceRemovalFamilyIds.AddRange(familyIds);
+
+                    //gets policy
+                    rollingDeviceRemovalData.RollingDeviceRemovalPolicy =
+                        (RollingDevicePolicy) ODBCWrapper.Utils.GetNullableInt(dataRow, "ROLLING_DEVICE_REMOVAL_POLICY")
+                            .Value;
+                }
+            }
+
+            return rollingDeviceRemovalData;
         }
 
         private static ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfig(int groupId, out eResultStatus resultStatus)

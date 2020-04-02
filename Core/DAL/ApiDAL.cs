@@ -5577,7 +5577,14 @@ namespace DAL
                 sp.AddParameter("@defaultRegion", partnerConfig.DefaultRegion.Value);
             }
 
-            return sp.ExecuteReturnValue<int>() > 0;
+
+            var rollingDeviceRemovalPolicy = partnerConfig.RollingDeviceRemovalData?.RollingDeviceRemovalPolicy ?? RollingDevicePolicy.NONE;
+
+            sp.AddParameter("@rollingDeviceRemovalPolicy",rollingDeviceRemovalPolicy);
+
+            sp.AddParameter("@rollingDeviceRemovalFamilyIds",
+                    string.Join(",", partnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds));
+                return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public static DataSet GetGeneralPartnerConfig(int groupId)

@@ -12,6 +12,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using ApiLogic.Users.Services;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Users
@@ -338,6 +339,7 @@ namespace Core.Users
                 return response;
 
             var device_Id = Device.GetDeviceIDByExternalId(groupId, externalId);
+
 
             //device with same external Id already exists
             if (!string.IsNullOrEmpty(device_Id))
@@ -2223,7 +2225,7 @@ namespace Core.Users
             {
                 log.ErrorFormat("Failed to delete pin for device after successful login. udid = {0}, pin = {1}", udid, pin);
             }
-
+            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid);
             return response;
         }
 

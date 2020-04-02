@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using System;
+using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.Rules;
 using AutoMapper.Configuration;
@@ -30,6 +31,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PriorityOrder, opt => opt.ResolveUsing(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)))
                 .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds));
 
+            // map RollingDeviceRemovalData to KalturaRollingDeviceRemovalData
+            cfg.CreateMap<RollingDeviceRemovalData, KalturaRollingDeviceRemovalData>()
+                .ForMember(dest => dest.RollingDeviceRemovalFamilyIds, opt => opt.MapFrom(src => src.RollingDeviceRemovalFamilyIds != null ? 
+                    string.Join(",", src.RollingDeviceRemovalFamilyIds) : string.Empty))
+                .ForMember(dest => dest.RollingDeviceRemovalPolicy, opt => opt.ResolveUsing(src => ConvertRollingDevicePolicy(src.RollingDeviceRemovalPolicy)))
+                
+                ;
+
+            // map KalturaRollingDeviceRemovalData to KalturaRollingDeviceRemovalData
+            cfg.CreateMap<KalturaRollingDeviceRemovalData, RollingDeviceRemovalData>()
+                .ForMember(dest => dest.RollingDeviceRemovalFamilyIds, opt => opt.MapFrom(src => src.GetRollingDeviceRemovalFamilyIds()))
+                .ForMember(dest => dest.RollingDeviceRemovalPolicy, opt => opt.ResolveUsing(src => ConvertRollingDevicePolicy(src.RollingDeviceRemovalPolicy)))
+                ;
+
+
             // map GeneralPartnerConfig to KalturaGeneralPartnerConfig
             cfg.CreateMap<GeneralPartnerConfig, KalturaGeneralPartnerConfig>()
                 .ForMember(dest => dest.PartnerName, opt => opt.MapFrom(src => src.PartnerName))
@@ -44,6 +60,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.HouseholdLimitationModule, opt => opt.MapFrom(src => src.HouseholdLimitationModule))
                 .ForMember(dest => dest.EnableRegionFiltering, opt => opt.MapFrom(src => src.EnableRegionFiltering))
                 .ForMember(dest => dest.DefaultRegion, opt => opt.MapFrom(src => src.DefaultRegion))
+                .ForMember(dest => dest.RollingDeviceRemovalData, opt => opt.MapFrom(src => src.RollingDeviceRemovalData))
                 ;
 
             // map KalturaGeneralPartnerConfig to GeneralPartnerConfig
@@ -60,6 +77,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.HouseholdLimitationModule, opt => opt.MapFrom(src => src.HouseholdLimitationModule))
                 .ForMember(dest => dest.EnableRegionFiltering, opt => opt.MapFrom(src => src.EnableRegionFiltering))
                 .ForMember(dest => dest.DefaultRegion, opt => opt.MapFrom(src => src.DefaultRegion))
+                .ForMember(dest => dest.RollingDeviceRemovalData, opt => opt.MapFrom(src => src.RollingDeviceRemovalData))
                 .AfterMap((src, dest) => dest.SecondaryLanguages = src.SecondaryLanguages == null ? null : dest.SecondaryLanguages)
                 .AfterMap((src, dest) => dest.SecondaryCurrencies = src.SecondaryCurrencies == null ? null : dest.SecondaryCurrencies)
                 ;
@@ -150,6 +168,55 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EpgAdapterId, opt => opt.MapFrom(src => src.EpgAdapterId))
                .ForMember(dest => dest.MediaAdapterId, opt => opt.MapFrom(src => src.MediaAdapterId))
                .ForMember(dest => dest.RecordingAdapterId, opt => opt.MapFrom(src => src.RecordingAdapterId));
+        }
+
+        private static KalturaRollingDevicePolicy ConvertRollingDevicePolicy(
+            RollingDevicePolicy? srcRollingDeviceRemovalPolicy)
+        {
+            KalturaRollingDevicePolicy res;
+            switch (srcRollingDeviceRemovalPolicy)
+            {
+                case RollingDevicePolicy.NONE:
+                    res = KalturaRollingDevicePolicy.NONE;
+                    break;
+                case RollingDevicePolicy.LIFO:
+                    res = KalturaRollingDevicePolicy.LIFO;
+                    break;
+                case RollingDevicePolicy.FIFO:
+                    res = KalturaRollingDevicePolicy.FIFO;
+                    break;
+                case RollingDevicePolicy.ACTIVE_DEVICE_ASCENDING:
+                    res = KalturaRollingDevicePolicy.ACTIVE_DEVICE_ASCENDING;
+                    break;
+                default:
+                    throw new ClientException((int) StatusCode.Error, "Unknown partner configuration type");
+            }
+
+            return res;
+        }
+        private static RollingDevicePolicy ConvertRollingDevicePolicy(
+            KalturaRollingDevicePolicy? srcRollingDeviceRemovalPolicy)
+        {
+            RollingDevicePolicy res;
+            switch (srcRollingDeviceRemovalPolicy)
+            {
+                case KalturaRollingDevicePolicy.NONE:
+                    res = RollingDevicePolicy.NONE;
+                    break;
+                case KalturaRollingDevicePolicy.LIFO:
+                    res = RollingDevicePolicy.LIFO;
+                    break;
+                case KalturaRollingDevicePolicy.FIFO:
+                    res = RollingDevicePolicy.FIFO;
+                    break;
+                case KalturaRollingDevicePolicy.ACTIVE_DEVICE_ASCENDING:
+                    res = RollingDevicePolicy.ACTIVE_DEVICE_ASCENDING;
+                    break;
+                default:
+                    throw new ClientException((int) StatusCode.Error, "Unknown partner configuration type");
+            }
+
+            return res;
         }
 
         private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationType type)
