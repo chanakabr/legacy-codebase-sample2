@@ -6162,6 +6162,23 @@ namespace DAL
         {
             string key = GetCommercePartnerConfigKey(groupId);
             return UtilsDal.SaveObjectInCB<CommercePartnerConfig>(eCouchbaseBucket.OTT_APPS, key, commercePartnerConfig);
-        }       
+        }
+
+        private static string GetPlaybackPartnerConfigKey(int groupId)
+        {
+            return $"playback_partner_config_{groupId}";
+        }
+
+        public static PlaybackPartnerConfig GetPlaybackPartnerConfig(int groupId)
+        {
+            string key = GetPlaybackPartnerConfigKey(groupId);
+            return UtilsDal.GetObjectFromCB<PlaybackPartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SavePlaybackPartnerConfig(int groupId, PlaybackPartnerConfig partnerConfig)
+        {
+            string key = GetPlaybackPartnerConfigKey(groupId);
+            return UtilsDal.SaveObjectInCB<PlaybackPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, partnerConfig);
+        }
     }
 }

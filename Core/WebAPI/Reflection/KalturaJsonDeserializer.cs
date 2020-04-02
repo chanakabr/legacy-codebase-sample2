@@ -617,6 +617,9 @@ namespace WebAPI.Reflection
                 case "KalturaDateTrigger":
                     return new KalturaDateTrigger(parameters);
                     
+                case "KalturaDefaultPlaybackAdapters":
+                    return new KalturaDefaultPlaybackAdapters(parameters);
+                    
                 case "KalturaDefaultRegionFilter":
                     return new KalturaDefaultRegionFilter(parameters);
                     
@@ -1303,6 +1306,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPlaybackContextOptions":
                     return new KalturaPlaybackContextOptions(parameters);
+                    
+                case "KalturaPlaybackPartnerConfig":
+                    return new KalturaPlaybackPartnerConfig(parameters);
                     
                 case "KalturaPlaybackPluginData":
                     return new KalturaPlaybackPluginData(parameters);
@@ -25230,6 +25236,74 @@ namespace WebAPI.Models.Partner
             }
         }
     }
+    public partial class KalturaDefaultPlaybackAdapters
+    {
+        private static RuntimeSchemePropertyAttribute MediaAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        private static RuntimeSchemePropertyAttribute EpgAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        private static RuntimeSchemePropertyAttribute RecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        public KalturaDefaultPlaybackAdapters(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("mediaAdapterId") && parameters["mediaAdapterId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        MediaAdapterIdSchemaProperty.Validate("mediaAdapterId", parameters["mediaAdapterId"]);
+                    }
+                    MediaAdapterId = (Int64) Convert.ChangeType(parameters["mediaAdapterId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("epgAdapterId") && parameters["epgAdapterId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        EpgAdapterIdSchemaProperty.Validate("epgAdapterId", parameters["epgAdapterId"]);
+                    }
+                    EpgAdapterId = (Int64) Convert.ChangeType(parameters["epgAdapterId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("recordingAdapterId") && parameters["recordingAdapterId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        RecordingAdapterIdSchemaProperty.Validate("recordingAdapterId", parameters["recordingAdapterId"]);
+                    }
+                    RecordingAdapterId = (Int64) Convert.ChangeType(parameters["recordingAdapterId"], typeof(Int64));
+                }
+            }
+        }
+    }
     public partial class KalturaGeneralPartnerConfig
     {
         public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
@@ -25400,6 +25474,26 @@ namespace WebAPI.Models.Partner
                     else if (parameters["objects"] is IList)
                     {
                         Objects = buildList(typeof(KalturaPartnerConfiguration), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaPlaybackPartnerConfig
+    {
+        public KalturaPlaybackPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("defaultAdapters") && parameters["defaultAdapters"] != null)
+                {
+                    if (parameters["defaultAdapters"] is JObject)
+                    {
+                        DefaultAdapters = (KalturaDefaultPlaybackAdapters) Deserializer.deserialize(typeof(KalturaDefaultPlaybackAdapters), ((JObject) parameters["defaultAdapters"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["defaultAdapters"] is IDictionary)
+                    {
+                        DefaultAdapters = (KalturaDefaultPlaybackAdapters) Deserializer.deserialize(typeof(KalturaDefaultPlaybackAdapters), (Dictionary<string, object>) parameters["defaultAdapters"]);
                     }
                 }
             }

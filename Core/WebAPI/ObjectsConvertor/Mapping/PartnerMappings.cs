@@ -134,6 +134,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //cfg.CreateMap<IGrouping<eTransactionType, DbCustomProperty>, DTOCustomProperty>()
             //.ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
             //.ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value)));
+
+            cfg.CreateMap<KalturaPlaybackPartnerConfig, PlaybackPartnerConfig>()
+               .ForMember(dest => dest.DefaultAdapters, opt => opt.MapFrom(src => src.DefaultAdapters));
+
+            cfg.CreateMap<PlaybackPartnerConfig, KalturaPlaybackPartnerConfig>()
+               .ForMember(dest => dest.DefaultAdapters, opt => opt.MapFrom(src => src.DefaultAdapters));
+
+            cfg.CreateMap<KalturaDefaultPlaybackAdapters, DefaultPlaybackAdapters>()
+               .ForMember(dest => dest.EpgAdapterId, opt => opt.MapFrom(src => src.EpgAdapterId))
+               .ForMember(dest => dest.MediaAdapterId, opt => opt.MapFrom(src => src.MediaAdapterId))
+               .ForMember(dest => dest.RecordingAdapterId, opt => opt.MapFrom(src => src.RecordingAdapterId));
+
+            cfg.CreateMap<DefaultPlaybackAdapters, KalturaDefaultPlaybackAdapters>()
+               .ForMember(dest => dest.EpgAdapterId, opt => opt.MapFrom(src => src.EpgAdapterId))
+               .ForMember(dest => dest.MediaAdapterId, opt => opt.MapFrom(src => src.MediaAdapterId))
+               .ForMember(dest => dest.RecordingAdapterId, opt => opt.MapFrom(src => src.RecordingAdapterId));
         }
 
         private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationType type)

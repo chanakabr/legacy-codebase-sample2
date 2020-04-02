@@ -680,6 +680,11 @@ namespace CachingProvider.LayeredCache
             return $"categoryItem_{groupId}_{id}";
         }
 
+        public static string GetPlaybackPartnerConfigKey(int groupId)
+        {
+            return string.Format("playback_partner_config_{0}", groupId);
+        }        
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1202,6 +1207,11 @@ namespace CachingProvider.LayeredCache
         public static string GetCommercePartnerConfigInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_{0}", GetCommercePartnerConfigKey(groupId));
+        }
+
+        public static string GetPlaybackPartnerConfigInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_{0}", GetPlaybackPartnerConfigKey(groupId));
         }
 
         #endregion

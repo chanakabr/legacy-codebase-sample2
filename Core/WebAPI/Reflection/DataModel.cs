@@ -1946,6 +1946,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDefaultPlaybackAdapters":
+                    switch(property.Name)
+                    {
+                        case "EpgAdapterId":
+                            return "epgAdapterId";
+                        case "MediaAdapterId":
+                            return "mediaAdapterId";
+                        case "RecordingAdapterId":
+                            return "recordingAdapterId";
+                    }
+                    break;
+                    
                 case "KalturaDetachedResponseProfile":
                     switch(property.Name)
                     {
@@ -4585,6 +4597,14 @@ namespace WebAPI.Reflection
                             return "streamerType";
                         case "UrlType":
                             return "urlType";
+                    }
+                    break;
+                    
+                case "KalturaPlaybackPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "DefaultAdapters":
+                            return "defaultAdapters";
                     }
                     break;
                     
