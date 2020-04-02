@@ -905,7 +905,7 @@ namespace ApiLogic.Api.Managers
                     playbackProfile = api.GetPlaybackProfile(groupId, defaultAdapters.MediaAdapterId, false);
                     if (playbackProfile == null || playbackProfile.HasObjects() == false)
                     {
-                        log.Debug($"ValidateDefaultAdapters EpgAdapterId {defaultAdapters.MediaAdapterId} not exist");
+                        log.Debug($"ValidateDefaultAdapters MediaAdapterId {defaultAdapters.MediaAdapterId} not exist");
                         return new Status(eResponseStatus.AdapterNotExists, $"Adapter ID = {defaultAdapters.MediaAdapterId} does not exist");
                     }
                 }
@@ -915,7 +915,7 @@ namespace ApiLogic.Api.Managers
                     playbackProfile = api.GetPlaybackProfile(groupId, defaultAdapters.RecordingAdapterId, false);
                     if (playbackProfile == null || playbackProfile.HasObjects() == false)
                     {
-                        log.Debug($"ValidateDefaultAdapters EpgAdapterId {defaultAdapters.RecordingAdapterId} not exist");
+                        log.Debug($"ValidateDefaultAdapters RecordingAdapterId {defaultAdapters.RecordingAdapterId} not exist");
                         return new Status(eResponseStatus.AdapterNotExists, $"Adapter ID = {defaultAdapters.RecordingAdapterId} does not exist");
                     }
                 }
