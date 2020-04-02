@@ -14,7 +14,8 @@ namespace WebAPI.Models.Partner
         Concurrency,
         General,
         ObjectVirtualAsset,
-        Commerce
+        Commerce,
+        Playback
     }
 
     /// <summary>

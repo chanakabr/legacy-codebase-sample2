@@ -60,6 +60,8 @@ namespace TVPApi.Web
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 await context.Response.WriteAsync("");
             });
+
+            KLogMonitor.ConfigurationReloader.LogReloader.GetInstance().Initiate("tvpapi_log_configuration");
         }
     }
 }

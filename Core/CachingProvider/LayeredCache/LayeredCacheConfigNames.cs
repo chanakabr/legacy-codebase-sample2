@@ -121,6 +121,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_COMMERCE_PARTNER_CONFIG = "GetCommercePartnerConfigDB";
         public const string GET_GROUP_CATEGORIES = "GetGroupCategories";
         public const string GET_CATEGORY_ITEM = "GetCategoryItem";
+        public const string GET_PLAYBACK_PARTNER_CONFIG = "GetPlaybackPartnerConfigDB";
 
         #endregion
 

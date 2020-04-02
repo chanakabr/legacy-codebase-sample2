@@ -42,9 +42,7 @@ namespace Tvinci.Core.DAL
         /// 5
         /// </summary>
         private const int RETRY_LIMIT = 5;
-        public const int SHORT_TTL = 65;
-        public const int LONG_TTL = 21600; // 6 HOURS
-
+        
         private static readonly Random _rand = new Random();
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)

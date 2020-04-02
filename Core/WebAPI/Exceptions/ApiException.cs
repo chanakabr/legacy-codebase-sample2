@@ -438,6 +438,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ADAPTER_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.AdapterIdentifierRequired, "Adapter Identifier Required", "The mandatory adapter ID field is missing from the request");
         public static ClientExceptionType ADAPTER_IS_REQUIRED = new ClientExceptionType(eResponseStatus.AdapterIsRequired, "Adapter Is Required");
         public static ClientExceptionType NO_ADAPTER_TO_INSERT = new ClientExceptionType(eResponseStatus.NoAdapterToInsert, "No Adapter To Insert");
+        public static ClientExceptionType CAN_NOT_DELETE_DEFAULT_ADAPTER = new ClientExceptionType(eResponseStatus.CanNotDeleteDefaultAdapter, "Can not delete default adapter");
 
         #endregion
 

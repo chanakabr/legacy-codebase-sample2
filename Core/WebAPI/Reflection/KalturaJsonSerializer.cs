@@ -25035,6 +25035,32 @@ namespace WebAPI.Models.Partner
             return ret;
         }
     }
+    public partial class KalturaDefaultPlaybackAdapters
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("epgAdapterId", "\"epgAdapterId\": " + EpgAdapterId);
+            ret.Add("mediaAdapterId", "\"mediaAdapterId\": " + MediaAdapterId);
+            ret.Add("recordingAdapterId", "\"recordingAdapterId\": " + RecordingAdapterId);
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("epgAdapterId", "<epgAdapterId>" + EpgAdapterId + "</epgAdapterId>");
+            ret.Add("mediaAdapterId", "<mediaAdapterId>" + MediaAdapterId + "</mediaAdapterId>");
+            ret.Add("recordingAdapterId", "<recordingAdapterId>" + RecordingAdapterId + "</recordingAdapterId>");
+            return ret;
+        }
+    }
     public partial class KalturaGeneralPartnerConfig
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -25297,6 +25323,36 @@ namespace WebAPI.Models.Partner
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPlaybackPartnerConfig
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(DefaultAdapters != null)
+            {
+                propertyValue = DefaultAdapters.ToJson(currentVersion, omitObsolete);
+                ret.Add("defaultAdapters", "\"defaultAdapters\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(DefaultAdapters != null)
+            {
+                propertyValue = DefaultAdapters.ToXml(currentVersion, omitObsolete);
+                ret.Add("defaultAdapters", "<defaultAdapters>" + propertyValue + "</defaultAdapters>");
             }
             return ret;
         }

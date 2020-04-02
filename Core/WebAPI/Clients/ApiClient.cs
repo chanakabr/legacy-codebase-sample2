@@ -4515,5 +4515,20 @@ namespace WebAPI.Clients
             result.TotalCount = response.TotalCount;
             return result;
         }
+
+        internal KalturaPartnerConfigurationListResponse GetPlaybackAdapterConfiguration(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<PlaybackPartnerConfig>> getPartnerConfigListFunc = () =>
+                PartnerConfigurationManager.GetPlaybackConfigList(groupId);
+
+            KalturaGenericListResponse<KalturaPlaybackPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaPlaybackPartnerConfig, PlaybackPartnerConfig>(getPartnerConfigListFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+            return result;
+        }
     }
 }

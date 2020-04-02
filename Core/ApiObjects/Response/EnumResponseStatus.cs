@@ -534,6 +534,7 @@ namespace ApiObjects.Response
         AdapterIdentifierRequired = 10001,
         AdapterIsRequired = 10002,
         NoAdapterToInsert = 10003,
+        CanNotDeleteDefaultAdapter = 10004,
 
         #endregion
 

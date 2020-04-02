@@ -119,6 +119,8 @@ namespace Core.Api
         private static int ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN = 5;
 
         private const string PERMISSION_NOT_EXIST = "Permission doesn't exist";
+        private const string CAN_NOT_DELETE_DEFAULT_ADAPTER = "Can not delete default adapter";
+
         #endregion
 
         protected api() { }
@@ -11530,6 +11532,18 @@ namespace Core.Api
                 {
                     response.Set((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                     return response;
+                }
+
+                // Check that the adapter is not set as the default playback adapter
+                var defaultConfig = PartnerConfigurationManager.GetPlaybackConfig(groupId);
+                if(defaultConfig != null && defaultConfig.HasObject() && defaultConfig.Object.DefaultAdapters != null)
+                {
+                    long[] defaultAdapters = { defaultConfig.Object.DefaultAdapters.RecordingAdapterId, defaultConfig.Object.DefaultAdapters.EpgAdapterId, defaultConfig.Object.DefaultAdapters.MediaAdapterId};
+                    if (defaultAdapters.Contains(id))
+                    {
+                        response.Set(eResponseStatus.CanNotDeleteDefaultAdapter, CAN_NOT_DELETE_DEFAULT_ADAPTER);
+                        return response;
+                    }
                 }
 
                 if (!ApiDAL.DeletePlaybackAdapter(groupId, userId, id))

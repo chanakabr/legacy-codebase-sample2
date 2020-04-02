@@ -21,6 +21,9 @@ namespace Core.Users
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        public const int SHORT_TTL = 65;
+        public const int LONG_TTL = 21600; // 6 HOURS
+
         public static DomainResponseStatus Validate(DevicePlayData devicePlayData, Domain domain, int groupId)
         {
             // pre check for DevicePlayData
@@ -438,11 +441,11 @@ namespace Core.Users
             uint expirationTTL = 0;
             if (ttl == eExpirationTTL.Long)
             {
-                expirationTTL = CatalogDAL.LONG_TTL;
+                expirationTTL = LONG_TTL;
             }
             else
             {
-                expirationTTL = CatalogDAL.SHORT_TTL;
+                expirationTTL = SHORT_TTL;
 
                 //get DevicePlayDataExpirationTTL from partner confi
                 DeviceConcurrencyPriority deviceConcurrencyPriority = Api.api.GetDeviceConcurrencyPriority(groupId);

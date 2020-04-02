@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiLogic.Api.Managers;
+using KLogMonitor;
 using System.Reflection;
 using System.Web;
 using WebAPI.ClientManagers.Client;
@@ -12,7 +13,7 @@ namespace WebAPI.Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal static KalturaPlaybackContext GetPlaybackAdapterContext(int groupId, string userId, string assetId, KalturaAssetType assetType, 
+        internal static KalturaPlaybackContext GetPlaybackAdapterContext(int groupId, string userId, string assetId, KalturaAssetType assetType,
             string udid, string ip, KalturaPlaybackContext kalturaPlaybackContext, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaPlaybackContext KalturaPlaybackContextResponse = null;
@@ -41,6 +42,7 @@ namespace WebAPI.Utils
                 }
             };
 
+            long adapterId = 0;
             KalturaAssetRuleListResponse assetRuleListResponse = ClientsManager.ApiClient().GetAssetRules(groupId, filter);
             if (assetRuleListResponse != null &&
                 assetRuleListResponse.Objects != null &&
@@ -51,27 +53,58 @@ namespace WebAPI.Utils
                 KalturaApplyPlaybackAdapterAction applyPlaybackAdapterAction = assetRuleListResponse.Objects[0].Actions[0] as KalturaApplyPlaybackAdapterAction;
                 if (applyPlaybackAdapterAction != null)
                 {
-                    long adapterId = applyPlaybackAdapterAction.AdapterId;
+                    adapterId = applyPlaybackAdapterAction.AdapterId;
                     if (adapterId <= 0)
                     {
                         log.ErrorFormat("Error while getting playback adapter id. no adapter found. groupId: {0}, userId:{1}", groupId, userId);
                         return KalturaPlaybackContextResponse;
                     }
+                }
+            }
 
-                    KalturaPlaybackContext playbackContextResponse = ClientsManager.ApiClient().GetPlaybackAdapterContext(adapterId, groupId,
-                        userId, udid, ip, kalturaPlaybackContext, assetId, assetType, contextDataParams);
-
-                    if (playbackContextResponse != null)
+            if(adapterId == 0)
+            {
+                // Get default adpter configuration 
+                var defaultConfig = PartnerConfigurationManager.GetPlaybackConfig(groupId);
+                if (defaultConfig != null && defaultConfig.HasObject() && defaultConfig.Object.DefaultAdapters != null)
+                {
+                    switch (assetType)
                     {
-                        return playbackContextResponse;
+                        case KalturaAssetType.media:
+                            adapterId = defaultConfig.Object.DefaultAdapters.MediaAdapterId;
+                            break;
+                        case KalturaAssetType.recording:
+                            adapterId = defaultConfig.Object.DefaultAdapters.RecordingAdapterId;
+                            break;
+                        case KalturaAssetType.epg:
+                            adapterId = defaultConfig.Object.DefaultAdapters.EpgAdapterId;
+                            break;
+                        default:
+                            break;
                     }
+
+                    if (adapterId > 0)
+                    {
+                        log.Debug($"default playback adapter configuration found. adapterId: {adapterId} ");
+                    }
+                }
+            }
+
+            if (adapterId > 0)
+            {
+                KalturaPlaybackContext playbackContextResponse = ClientsManager.ApiClient().GetPlaybackAdapterContext(adapterId, groupId,
+                    userId, udid, ip, kalturaPlaybackContext, assetId, assetType, contextDataParams);
+
+                if (playbackContextResponse != null)
+                {
+                    return playbackContextResponse;
                 }
             }
 
             return KalturaPlaybackContextResponse;
         }
 
-        internal static KalturaPlaybackContext GetPlaybackAdapterManifest(int groupId, string assetId, KalturaAssetType assetType, KalturaPlaybackContext kalturaPlaybackContext, 
+        internal static KalturaPlaybackContext GetPlaybackAdapterManifest(int groupId, string assetId, KalturaAssetType assetType, KalturaPlaybackContext kalturaPlaybackContext,
             KalturaPlaybackContextOptions contextDataParams, string userId)
         {
             KalturaPlaybackContext KalturaPlaybackContextResponse = null;
@@ -117,7 +150,7 @@ namespace WebAPI.Utils
                         return KalturaPlaybackContextResponse;
                     }
 
-                    KalturaPlaybackContext playbackContextResponse = ClientsManager.ApiClient().GetPlaybackAdapterManifest(adapterId, groupId, kalturaPlaybackContext, 
+                    KalturaPlaybackContext playbackContextResponse = ClientsManager.ApiClient().GetPlaybackAdapterManifest(adapterId, groupId, kalturaPlaybackContext,
                         assetId, assetType, contextDataParams, userId);
 
                     if (playbackContextResponse != null)
