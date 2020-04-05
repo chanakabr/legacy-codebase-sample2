@@ -4,9 +4,13 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.ServiceModel;
 using TVinciShared;
+using ApiLogic.Notification;
+using System.Configuration;
 
 namespace Core.Notification.Adapters
 {
@@ -20,6 +24,24 @@ namespace Core.Notification.Adapters
             client.ConfigureServiceClient();
             return client;
         }
+
+
+        public static T ParseResponse<T>(HttpResponseMessage httpResponse)
+        {
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                if (httpResponse.StatusCode == HttpStatusCode.NoContent)
+                {
+                    throw new ConfigurationErrorsException($"No configurations");
+                }
+
+                return JsonConvert.DeserializeObject<T>(httpResponse.Content.ReadAsStringAsync().Result);
+            }
+
+            log.Error($"Failed to parse http response, status: {httpResponse.StatusCode}, response object: {JsonConvert.SerializeObject(httpResponse)}");
+            return default;
+        }
+
 
         public static string CreateAnnouncement(int groupId, string announcementName, bool isUniqueName = false)
         {
@@ -204,6 +226,77 @@ namespace Core.Notification.Adapters
                 }
             }
             return messageId;
+        }
+
+        /// <summary>
+        /// Publish message via IOT
+        /// </summary>
+        /// <param name="groupId">group Id</param>
+        /// <param name="externalAnnouncementId">optional (log)</param>
+        /// <param name="message">Message body</param>
+        /// <param name="topic">With groupId prefix</param>
+        /// <returns></returns>
+        public static IotPublishResponse IotPublishAnnouncement(int groupId, string message, string topic)
+        {
+            IotPublishResponse response = null;
+            var _topic = $@"{groupId}/{topic}";
+
+            try
+            {
+                var request = new { GroupId = groupId.ToString(), Message = @message, Topic = _topic, ExternalAnnouncementId = "string" };
+                response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out bool hasConfig);
+
+                if (!hasConfig)
+                {
+                    var update = IotManager.Instance.UpdateIotProfile(groupId, new ApiObjects.Base.ContextData(groupId));
+                    if (update != null)
+                    {
+                        response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out hasConfig);
+                    }
+                }
+
+                if (response == null || response.ResponseObject == null || !response.ResponseObject.IsSuccess)
+                    log.Error($"Error while trying to publish announcement. message: {message}");
+                else
+                    log.Debug($"successfully published announcement.");
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while trying to publish announcement. message: {message} ex: {ex}");
+            }
+
+            return response;
+        }
+
+        public static bool AddPrivateMessageToShadowIot(int groupId, string message, string thingArn, string udid)
+        {
+            var response = false;
+
+            try
+            {
+                var request = new { GroupId = groupId, ThingArn = thingArn, Message = message, Udid = udid };
+                response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out bool hasConfig);
+
+                if (!hasConfig)
+                {
+                    var update = IotManager.Instance.UpdateIotProfile(groupId, new ApiObjects.Base.ContextData(groupId));
+                    if (update != null)
+                    {
+                        response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out hasConfig);
+                    }
+                }
+
+                if (!response)
+                    log.Error($"Error while trying to add message to thing shadow. message: {message}, thing: {thingArn}");
+                else
+                    log.Debug($"successfully added message to thing shadow");
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while trying to publish announcement. message: {message} ex: {ex}");
+            }
+
+            return response;
         }
 
         public static List<WSEndPointPublishDataResult> PublishToEndPoint(int groupId, WSEndPointPublishData publishData)

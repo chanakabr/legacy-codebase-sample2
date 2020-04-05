@@ -27,7 +27,7 @@ using TVinciShared;
 
 namespace Core.Notification
 {
-    public class FollowManager : ICrudHandler<FollowDataTvSeries, int, FollowTvSeriesFilter>
+    public class FollowManager : ICrudHandler<FollowDataTvSeries, int>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static DateTime oldEpgSendDate { get; set; }
@@ -776,11 +776,6 @@ namespace Core.Notification
             }
 
             return response;
-        }
-
-        public GenericResponse<FollowDataTvSeries> Update(ContextData contextData, FollowDataTvSeries objectToUpdate)
-        {
-            throw new NotImplementedException();
         }
 
         public Status Delete(ContextData contextData, int id)

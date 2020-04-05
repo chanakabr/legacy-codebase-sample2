@@ -1,4 +1,5 @@
-﻿using APILogic.AmazonSnsAdapter;
+﻿using ApiLogic.Notification;
+using APILogic.AmazonSnsAdapter;
 using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
@@ -137,7 +138,7 @@ namespace Core.Notification
                 }
             }
         }
-        
+
         public static MessageAnnouncementResponse UpdateMessageAnnouncement(int groupId, int announcementId, MessageAnnouncement announcement, bool enforceMsgAllowedTime = false, bool validateMsgStartTime = true)
         {
             var response = new MessageAnnouncementResponse
@@ -181,7 +182,7 @@ namespace Core.Notification
             DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
 
             DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(announcementId, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null,
-                announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject);
+                announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeIot);
             announcement = Utils.GetMessageAnnouncementFromDataRow(row);
 
             // add a new message to queue when new time updated
@@ -198,7 +199,7 @@ namespace Core.Notification
             response.Announcement = announcement;
             return response;
         }
-        
+
         public static Status UpdateMessageSystemAnnouncementStatus(int groupId, long id, bool status)
         {
             // validate system announcements are enabled
@@ -449,7 +450,7 @@ namespace Core.Notification
                 DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
                 DataRow row = DAL.NotificationDal.Insert_MessageAnnouncement(groupId, (int)announcement.Recipients, announcement.Name, announcement.Message,
                     announcement.Enabled, announcementStartTime, announcement.Timezone, 0, announcement.MessageReference, null,
-                    announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeSms, announcement.AnnouncementId);
+                    announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeSms, announcement.IncludeIot, announcement.AnnouncementId);
                 return Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
             }
             catch (Exception ex)
@@ -509,6 +510,13 @@ namespace Core.Notification
                 log.ErrorFormat("Message too long");
                 return new Status((int)eResponseStatus.AnnouncementMessageTooLong, "Announcement Message Too Long");
             }
+
+            if (announcement.IncludeIot && !NotificationSettings.IsPartnerIotNotificationEnabled(groupId))
+            {
+                log.ErrorFormat("Invalid send attempt to IOT");
+                return new Status((int)eResponseStatus.ActionIsNotAllowed, "Invalid send attempt to IOT");
+            }
+
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
@@ -661,6 +669,7 @@ namespace Core.Notification
             List<string> queueNames = new List<string>();
             bool includeMail = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_EMAIL") == 1;
             bool includeSms = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_SMS") == 1;
+            bool includeIot = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "INCLUDE_IOT") == 1;
             string mailTemplate = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "MAIL_TEMPLATE");
             string mailSubject = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "MAIL_SUBJECT");
 
@@ -673,248 +682,261 @@ namespace Core.Notification
             switch (recipients)
             {
                 case eAnnouncementRecipientsType.All:
-
-                    if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
-                        // get topic push external id's of guests and logged in users
-                        List<DbAnnouncement> announcementGuestAndLoggedIn = null;
-                        if (announcements != null)
-                            announcementGuestAndLoggedIn = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || x.RecipientsType == eAnnouncementRecipientsType.Guests).ToList();
-
-                        if (announcementGuestAndLoggedIn != null && announcementGuestAndLoggedIn.Count() > 0)
+                        if (NotificationSettings.IsPartnerPushEnabled(groupId))
                         {
-                            foreach (var announcement in announcementGuestAndLoggedIn)
-                                topicExternalIds.Add(announcement.ExternalId);
+                            // get topic push external id's of guests and logged in users
+                            List<DbAnnouncement> announcementGuestAndLoggedIn = null;
+                            if (announcements != null)
+                                announcementGuestAndLoggedIn = announcements.Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || x.RecipientsType == eAnnouncementRecipientsType.Guests).ToList();
+
+                            if (announcementGuestAndLoggedIn != null && announcementGuestAndLoggedIn.Count() > 0)
+                            {
+                                foreach (var announcement in announcementGuestAndLoggedIn)
+                                    topicExternalIds.Add(announcement.ExternalId);
+                            }
                         }
-                    }
 
-                    // send inbox messages
-                    if (NotificationSettings.IsPartnerInboxEnabled(groupId))
-                    {
-                        InboxMessage inboxMessage = new InboxMessage()
+                        // send inbox messages
+                        if (NotificationSettings.IsPartnerInboxEnabled(groupId))
                         {
-                            Category = eMessageCategory.SystemAnnouncement,
-                            CreatedAtSec = currentTimeSec,
-                            Id = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "ID").ToString(),
-                            Message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
-                            State = eMessageState.Unread,
-                            UpdatedAtSec = currentTimeSec,
-                            Url = url,
-                            ImageUrl = imageUrl
-                        };
+                            InboxMessage inboxMessage = new InboxMessage()
+                            {
+                                Category = eMessageCategory.SystemAnnouncement,
+                                CreatedAtSec = currentTimeSec,
+                                Id = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "ID").ToString(),
+                                Message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
+                                State = eMessageState.Unread,
+                                UpdatedAtSec = currentTimeSec,
+                                Url = url,
+                                ImageUrl = imageUrl
+                            };
 
-                        if (!NotificationDal.SetSystemAnnouncementMessage(groupId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(groupId)))
-                            log.ErrorFormat("Error while setting system announcement inbox message. GID: {0}, InboxMessage: {1}", groupId, JsonConvert.SerializeObject(inboxMessage));
+                            if (!NotificationDal.SetSystemAnnouncementMessage(groupId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(groupId)))
+                                log.ErrorFormat("Error while setting system announcement inbox message. GID: {0}, InboxMessage: {1}", groupId, JsonConvert.SerializeObject(inboxMessage));
+                        }
+
+                        if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && includeMail)
+                        {
+                            PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
+                        }
+
+                        if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
+                        {
+                            PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
+                                ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+                        }
+
+                        // add the Q name to list to be sent to later
+                        DbAnnouncement loggedInAnnouncement = null;
+                        if (announcements != null)
+                            loggedInAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
+
+                        if (loggedInAnnouncement != null && !string.IsNullOrEmpty(loggedInAnnouncement.QueueName))
+                            queueNames.Add(loggedInAnnouncement.QueueName);
+
+                        break;
                     }
-
-                    if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && includeMail)
-                    {
-                        PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
-                    }
-
-                    if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
-                    {
-                        PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
-                            ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
-                    }
-
-                    // add the Q name to list to be sent to later
-                    DbAnnouncement loggedInAnnouncement = null;
-                    if (announcements != null)
-                        loggedInAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
-
-                    if (loggedInAnnouncement != null && !string.IsNullOrEmpty(loggedInAnnouncement.QueueName))
-                        queueNames.Add(loggedInAnnouncement.QueueName);
-
-                    break;
 
                 case eAnnouncementRecipientsType.Guests:
-
-                    if (NotificationSettings.IsPartnerPushEnabled(groupId))
                     {
-                        DbAnnouncement announcementGuest = null;
-                        if (announcements != null)
-                            announcementGuest = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Guests);
-
-                        if (announcementGuest != null)
-                            topicExternalIds.Add(announcementGuest.ExternalId);
-                        else
+                        if (NotificationSettings.IsPartnerPushEnabled(groupId))
                         {
-                            DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
-                            log.ErrorFormat("external announcement id is empty for announcement {0}", messageId);
-                            return false;
-                        }
-                    }
+                            DbAnnouncement announcementGuest = null;
+                            if (announcements != null)
+                                announcementGuest = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.Guests);
 
-                    if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && includeMail)
-                    {
-                        PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
-                    }
-
-                    if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
-                    {
-                        PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
-                            ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
-                    }
-
-                    break;
-
-                case eAnnouncementRecipientsType.LoggedIn:
-
-                    if (NotificationSettings.IsPartnerPushEnabled(groupId))
-                    {
-                        // get topic push external id's of logged-in users
-                        DbAnnouncement announcementLoggedIn = null;
-                        if (announcements != null)
-                            announcementLoggedIn = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
-
-                        if (announcementLoggedIn != null)
-                            topicExternalIds.Add(announcementLoggedIn.ExternalId);
-                        else
-                        {
-                            DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
-                            log.ErrorFormat("external announcement id is empty for announcement {0}", messageId);
-                            return false;
-                        }
-                    }
-
-                    // send inbox messages
-                    if (NotificationSettings.IsPartnerInboxEnabled(groupId))
-                    {
-                        InboxMessage inboxMessage = new InboxMessage()
-                        {
-                            Category = eMessageCategory.SystemAnnouncement,
-                            CreatedAtSec = currentTimeSec,
-                            Id = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "ID").ToString(),
-                            Message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
-                            State = eMessageState.Unread,
-                            UpdatedAtSec = currentTimeSec,
-                            Url = url,
-                            ImageUrl = imageUrl
-                        };
-
-                        if (!NotificationDal.SetSystemAnnouncementMessage(groupId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(groupId)))
-                            log.ErrorFormat("Error while setting system announcement inbox message. GID: {0}, InboxMessage: {1}", groupId, JsonConvert.SerializeObject(inboxMessage));
-                    }
-
-                    if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && includeMail)
-                    {
-                        PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
-                    }
-
-                    if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
-                    {
-                        PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
-                            ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
-                    }
-
-                    // add the Q name to list to be sent to later
-                    DbAnnouncement loggedInAnn = null;
-                    if (announcements != null)
-                        loggedInAnn = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
-
-                    if (loggedInAnn != null && !string.IsNullOrEmpty(loggedInAnn.QueueName))
-                        queueNames.Add(loggedInAnn.QueueName);
-
-                    break;
-
-                case eAnnouncementRecipientsType.Other:
-
-                    bool res;
-
-                    // get announcement id (of series)
-                    int announcementId = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "announcement_id");
-                    if (announcementId == 0)
-                    {
-                        log.DebugFormat("Announcement id invalid for message announcement with recipients 'other': group: {0} message ID: {1}", groupId, ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "ID"));
-                        return false;
-                    }
-
-                    List<KeyValuePair<string, string>> mergeVars = null;
-                    string mailExternalId = string.Empty;
-                    if (!HandleRecipientOtherTvSeries(groupId, messageId, startTime, announcementId, ref messageAnnouncementDataRow, ref url, ref imageUrl, ref sound, ref category, out singleTopicExternalId,
-                        out singleQueueName, out res, out mergeVars, out mailExternalId))
-                    {
-                        DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
-                        return res;
-                    }
-
-                    // add the topic to list to be sent to later
-                    if (!string.IsNullOrEmpty(singleTopicExternalId))
-                        topicExternalIds.Add(singleTopicExternalId);
-
-                    // add the Q name to list to be sent to later
-                    if (!string.IsNullOrEmpty(singleQueueName))
-                        queueNames.Add(singleQueueName);
-
-                    // send inbox messages
-                    if (NotificationSettings.IsPartnerInboxEnabled(groupId))
-                    {
-                        List<int> followingUserIds = NotificationDal.GetUsersFollowNotificationView(groupId, announcementId);
-                        if (followingUserIds != null)
-                            foreach (var userId in followingUserIds)
-                            {
-                                InboxMessage inboxMessage = new InboxMessage()
-                                {
-                                    Category = eMessageCategory.Followed,
-                                    CreatedAtSec = currentTimeSec,
-                                    Id = Guid.NewGuid().ToString(),
-                                    Message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
-                                    State = eMessageState.Unread,
-                                    UpdatedAtSec = currentTimeSec,
-                                    Url = url,
-                                    UserId = userId,
-                                    ImageUrl = imageUrl
-                                };
-
-                                int TtlDays = NotificationSettings.GetInboxMessageTTLDays(groupId);
-                                if (!NotificationDal.SetUserInboxMessage(groupId, inboxMessage, TtlDays))
-                                {
-                                    log.ErrorFormat("Error while setting user follow series inbox message. GID: {0}, InboxMessage: {1}",
-                                        groupId,
-                                        JsonConvert.SerializeObject(inboxMessage));
-                                }
-                                else
-                                    log.DebugFormat("Successfully inserted user message inbox. Group ID: {0}, Inbox message: {1},  TTL in days: {2}", groupId, JsonConvert.SerializeObject(inboxMessage), TtlDays);
-                            }
-                    }
-
-                    if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && !string.IsNullOrEmpty(mailExternalId))
-                    {
-                        var msgTemplateResponse = FollowManager.GetMessageTemplate(groupId, MessageTemplateType.Series);
-                        if (msgTemplateResponse != null &&
-                            msgTemplateResponse.Status != null &&
-                            msgTemplateResponse.Status.Code == (int)eResponseStatus.OK &&
-                            msgTemplateResponse.MessageTemplate != null)
-                        {
-                            string subject = msgTemplateResponse.MessageTemplate.MailSubject;
-                            string template = msgTemplateResponse.MessageTemplate.MailTemplate;
-                            foreach (var mergeVar in mergeVars)
-                            {
-                                subject = subject.Replace("{" + mergeVar.Key + "}", mergeVar.Value);
-                            }
-
-                            if (!MailNotificationAdapterClient.PublishToAnnouncement(groupId, mailExternalId, subject, mergeVars, template))
-                            {
-                                log.ErrorFormat("failed to send follow announcement to mail adapter. annoucementId = {0}", announcementId);
-                            }
+                            if (announcementGuest != null)
+                                topicExternalIds.Add(announcementGuest.ExternalId);
                             else
                             {
-                                log.DebugFormat("Successfully sent follow announcement to mail. announcementId: {0}", announcementId);
+                                DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
+                                log.ErrorFormat("external announcement id is empty for announcement {0}", messageId);
+                                return false;
+                            }
+                        }
 
-                                // update follow external result
-                                if (NotificationDal.AddMailExternalResult(groupId, announcementId, MailMessageType.Follow, string.Empty, true) == 0)
+                        if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && includeMail)
+                        {
+                            PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
+                        }
+
+                        if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
+                        {
+                            PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
+                                ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+                        }
+
+                        break;
+                    }
+
+                case eAnnouncementRecipientsType.LoggedIn:
+                    {
+                        if (NotificationSettings.IsPartnerPushEnabled(groupId))
+                        {
+                            // get topic push external id's of logged-in users
+                            DbAnnouncement announcementLoggedIn = null;
+                            if (announcements != null)
+                                announcementLoggedIn = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
+
+                            if (announcementLoggedIn != null)
+                                topicExternalIds.Add(announcementLoggedIn.ExternalId);
+                            else
+                            {
+                                DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
+                                log.ErrorFormat("external announcement id is empty for announcement {0}", messageId);
+                                return false;
+                            }
+                        }
+
+                        // send inbox messages
+                        if (NotificationSettings.IsPartnerInboxEnabled(groupId))
+                        {
+                            InboxMessage inboxMessage = new InboxMessage()
+                            {
+                                Category = eMessageCategory.SystemAnnouncement,
+                                CreatedAtSec = currentTimeSec,
+                                Id = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "ID").ToString(),
+                                Message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
+                                State = eMessageState.Unread,
+                                UpdatedAtSec = currentTimeSec,
+                                Url = url,
+                                ImageUrl = imageUrl
+                            };
+
+                            if (!NotificationDal.SetSystemAnnouncementMessage(groupId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(groupId)))
+                                log.ErrorFormat("Error while setting system announcement inbox message. GID: {0}, InboxMessage: {1}", groupId, JsonConvert.SerializeObject(inboxMessage));
+                        }
+
+                        if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && includeMail)
+                        {
+                            PublishMailSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, mailTemplate, mailSubject);
+                        }
+
+                        if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
+                        {
+                            PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
+                                ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+                        }
+
+                        // add the Q name to list to be sent to later
+                        DbAnnouncement loggedInAnn = null;
+                        if (announcements != null)
+                            loggedInAnn = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn);
+
+                        if (loggedInAnn != null && !string.IsNullOrEmpty(loggedInAnn.QueueName))
+                            queueNames.Add(loggedInAnn.QueueName);
+
+                        break;
+                    }
+
+                case eAnnouncementRecipientsType.Other:
+                    {
+                        bool res;
+
+                        // get announcement id (of series)
+                        int announcementId = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "announcement_id");
+                        if (announcementId == 0)
+                        {
+                            log.DebugFormat("Announcement id invalid for message announcement with recipients 'other': group: {0} message ID: {1}", groupId, ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "ID"));
+                            return false;
+                        }
+
+                        List<KeyValuePair<string, string>> mergeVars = null;
+                        string mailExternalId = string.Empty;
+                        if (!HandleRecipientOtherTvSeries(groupId, messageId, startTime, announcementId, ref messageAnnouncementDataRow, ref url, ref imageUrl, ref sound, ref category, out singleTopicExternalId,
+                            out singleQueueName, out res, out mergeVars, out mailExternalId))
+                        {
+                            DAL.NotificationDal.Update_MessageAnnouncementActiveStatus(groupId, messageId, 0);
+                            return res;
+                        }
+
+                        // add the topic to list to be sent to later
+                        if (!string.IsNullOrEmpty(singleTopicExternalId))
+                            topicExternalIds.Add(singleTopicExternalId);
+
+                        // add the Q name to list to be sent to later
+                        if (!string.IsNullOrEmpty(singleQueueName))
+                            queueNames.Add(singleQueueName);
+
+                        // send inbox messages
+                        if (NotificationSettings.IsPartnerInboxEnabled(groupId))
+                        {
+                            List<int> followingUserIds = NotificationDal.GetUsersFollowNotificationView(groupId, announcementId);
+                            if (followingUserIds != null)
+                                foreach (var userId in followingUserIds)
                                 {
-                                    log.ErrorFormat("Failed to add mail external result for follow announcement. announcementId = {0}", announcementId);
+                                    InboxMessage inboxMessage = new InboxMessage()
+                                    {
+                                        Category = eMessageCategory.Followed,
+                                        CreatedAtSec = currentTimeSec,
+                                        Id = Guid.NewGuid().ToString(),
+                                        Message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"),
+                                        State = eMessageState.Unread,
+                                        UpdatedAtSec = currentTimeSec,
+                                        Url = url,
+                                        UserId = userId,
+                                        ImageUrl = imageUrl
+                                    };
+
+                                    int TtlDays = NotificationSettings.GetInboxMessageTTLDays(groupId);
+                                    if (!NotificationDal.SetUserInboxMessage(groupId, inboxMessage, TtlDays))
+                                    {
+                                        log.ErrorFormat("Error while setting user follow series inbox message. GID: {0}, InboxMessage: {1}",
+                                            groupId,
+                                            JsonConvert.SerializeObject(inboxMessage));
+                                    }
+                                    else
+                                        log.DebugFormat("Successfully inserted user message inbox. Group ID: {0}, Inbox message: {1},  TTL in days: {2}", groupId, JsonConvert.SerializeObject(inboxMessage), TtlDays);
+                                }
+                        }
+
+                        if (NotificationSettings.IsPartnerMailNotificationEnabled(groupId) && !string.IsNullOrEmpty(mailExternalId))
+                        {
+                            var msgTemplateResponse = FollowManager.GetMessageTemplate(groupId, MessageTemplateType.Series);
+                            if (msgTemplateResponse != null &&
+                                msgTemplateResponse.Status != null &&
+                                msgTemplateResponse.Status.Code == (int)eResponseStatus.OK &&
+                                msgTemplateResponse.MessageTemplate != null)
+                            {
+                                string subject = msgTemplateResponse.MessageTemplate.MailSubject;
+                                string template = msgTemplateResponse.MessageTemplate.MailTemplate;
+                                foreach (var mergeVar in mergeVars)
+                                {
+                                    subject = subject.Replace("{" + mergeVar.Key + "}", mergeVar.Value);
+                                }
+
+                                if (!MailNotificationAdapterClient.PublishToAnnouncement(groupId, mailExternalId, subject, mergeVars, template))
+                                {
+                                    log.ErrorFormat("failed to send follow announcement to mail adapter. annoucementId = {0}", announcementId);
+                                }
+                                else
+                                {
+                                    log.DebugFormat("Successfully sent follow announcement to mail. announcementId: {0}", announcementId);
+
+                                    // update follow external result
+                                    if (NotificationDal.AddMailExternalResult(groupId, announcementId, MailMessageType.Follow, string.Empty, true) == 0)
+                                    {
+                                        log.ErrorFormat("Failed to add mail external result for follow announcement. announcementId = {0}", announcementId);
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    break;
+                        break;
+                    }
             }
 
             string resultMsgIds = "";
+
+            //send IOT message
+            if (NotificationSettings.IsPartnerIotNotificationEnabled(groupId) && includeIot)
+            {
+                //TODO - Matan, Support IOT with type other
+                PublishIotSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
+                    ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
+            }
+
 
             // send push messages
             if (NotificationSettings.IsPartnerPushEnabled(groupId) || NotificationSettings.IsPartnerSmsNotificationEnabled(groupId))
@@ -997,6 +1019,32 @@ namespace Core.Notification
                 else
                 {
                     log.DebugFormat("Successfully sent SMS system announcement. announcementId: {0}", smsAnnouncement.ID);
+                }
+            }
+        }
+
+        private static void PublishIotSystemAnnouncement(int groupId, DataRow messageAnnouncementDataRow, List<DbAnnouncement> announcements,
+            string alert, string url, string sound, string category, string imageUrl)
+        {
+            DbAnnouncement iotAnnouncement = null;
+
+            if (announcements != null)
+                iotAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.All 
+                || x.RecipientsType == eAnnouncementRecipientsType.LoggedIn
+                || x.RecipientsType == eAnnouncementRecipientsType.Other);
+
+            if (iotAnnouncement != null)
+            {
+                var result = NotificationAdapter.IotPublishAnnouncement(groupId,
+                    ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), IotManager.SYSTEM_ANNOUNCEMENT);
+
+                if (result == null || result.ResponseObject == null || !result.ResponseObject.IsSuccess)
+                {
+                    log.Error($"Failed to send IOT system announcement to adapter. annoucementId = {iotAnnouncement.ID}");
+                }
+                else
+                {
+                    log.Debug($"Successfully sent IOT system announcement. announcementId: {iotAnnouncement.ID}");
                 }
             }
         }

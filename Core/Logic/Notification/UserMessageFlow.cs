@@ -1,4 +1,5 @@
-﻿using APILogic.AmazonSnsAdapter;
+﻿using ApiLogic.Notification;
+using APILogic.AmazonSnsAdapter;
 using APILogic.DmsService;
 using ApiObjects;
 using ApiObjects.Notification;
@@ -46,6 +47,12 @@ namespace Core.Notification
             eUserMessageAction.EnableUserSmsNotifications
         };
 
+        private static readonly List<eUserMessageAction> IOT_ACTIONS = new List<eUserMessageAction>() {
+            eUserMessageAction.Login,
+            eUserMessageAction.Logout,
+            eUserMessageAction.DeleteUser,
+            eUserMessageAction.DeleteDevice
+        };
         public static bool InitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken)
         {
             bool result = true;
@@ -86,6 +93,11 @@ namespace Core.Notification
                 if (SMS_ACTIONS.Contains(userAction))
                 {
                     result = result && InitiateSmsAction(groupId, userAction, userId, userNotificationData);
+                }
+
+                if (IOT_ACTIONS.Contains(userAction))
+                {
+                    result = result && InitiateIotAction(groupId, userAction, userId, udid, userNotificationData);
                 }
 
                 if (userAction == eUserMessageAction.DeleteUser)
@@ -224,6 +236,81 @@ namespace Core.Notification
             catch (Exception ex)
             {
                 log.Error("Notification Error", ex);
+            }
+
+            return result;
+        }
+
+        public static bool InitiateIotAction(int groupId, eUserMessageAction userAction, int userId, string udid, UserNotification userNotificationData, int brandId = 0)
+        {
+            var result = false;
+            var domainID = 0;
+
+            if (!NotificationSettings.IsPartnerIotNotificationEnabled(groupId))
+            {
+                return true;
+            }
+            Iot iotDevice = null;
+            log.Debug("Starting IOT action handle");
+
+            try
+            {
+                //get DomainID
+                var user = Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
+                if (user != null && user.m_user != null)
+                {
+                    domainID = user.m_user.m_domianID;
+                }
+
+                // get iot registration data
+                if (!string.IsNullOrEmpty(udid))
+                {
+                    iotDevice = NotificationDal.GetRegisteredDevice(groupId.ToString(), udid);
+                    if (iotDevice == null)
+                    {
+                        log.Error($"Iot device wasn't found. groupId: {groupId}, udid: {udid}");
+                        return false;
+                    }
+                }
+
+                switch (userAction)
+                {
+                    case eUserMessageAction.Login:
+                        result = LoginIotNotification(groupId, userId, iotDevice, domainID, userNotificationData, brandId);
+                        if (result)
+                            log.Debug("Successfully performed Iot device login notification");
+                        else
+                            log.Error("Error occurred while trying to perform Iot device login notification");
+                        break;
+                    case eUserMessageAction.Logout:
+                        result = LogoutIotNotification(groupId, userId, iotDevice, userNotificationData, true);
+                        if (result)
+                            log.Debug("Successfully performed Iot device logout notification");
+                        else
+                            log.Error("Error occurred while trying to perform Iot device logout notification");
+                        break;
+                    case eUserMessageAction.DeleteUser:
+                        result = HandleIotDeleteUser(groupId, userId, userNotificationData, domainID);
+                        if (result)
+                            log.Debug("Successfully performed Iot device Delete User");
+                        else
+                            log.Error("Error occurred while trying to perform Iot device Delete User");
+                        break;
+                    case eUserMessageAction.DeleteDevice:
+                        result = HandleIotDeleteDevice(groupId, iotDevice, udid, userId, domainID, userNotificationData);
+                        if (result)
+                            log.Debug("Successfully performed Iot device Delete Device");
+                        else
+                            log.Error("Error occurred while trying to perform Iot device Delete Device");
+                        break;
+                    default:
+                        log.ErrorFormat("Unidentified Iot action requested. action: {0}", userAction);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Iot Notification Error", ex);
             }
 
             return result;
@@ -762,6 +849,145 @@ namespace Core.Notification
 
             return true;
         }
+
+        #region IOT
+        private static bool LoginIotNotification(int groupId, int userId, Iot device, int domainId, UserNotification userNotificationData, int brandId = 0)
+        {
+            // validate user ID
+            if (userId == 0 || domainId == 0)
+            {
+                log.Error("User Id or domain Id was not received. cannot perform identified set Iot/login flow.");
+                return false;
+            }
+
+            // validate Iot device data
+            if (device == null)
+            {
+                log.Error("Error while trying to register device to Iot notification. device is not registered.");
+                return false;
+            }
+
+            if (userNotificationData.devices == null)
+            {
+                userNotificationData.devices = new List<UserDevice>();
+            }
+
+            var userDevice = new UserDevice()
+            {
+                Udid = device.Udid,
+                PushChannel = PushChannel.Iot,
+                SignInAtSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)
+            };
+            userNotificationData.devices.Add(userDevice);
+
+            // update CB
+            if (userId > 0)
+            {
+                if (!NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+                {
+                    log.Error($"Error while trying to update user notification data. groupId: {groupId}, userId: {userId}, Udid: {device.Udid}");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool LogoutIotNotification(int groupId, int userId, Iot device, UserNotification userNotificationData, bool removeDevice = false)
+        {
+            if (removeDevice)
+            {
+                var deviceToRemove = userNotificationData.devices.FirstOrDefault(d => d.Udid == device.Udid);
+
+                if (deviceToRemove != null)
+                    userNotificationData.devices.Remove(deviceToRemove);
+                else
+                    return false;
+
+                // update CB
+                if (userId > 0)
+                {
+                    if (!NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+                    {
+                        log.Error($"Error while trying to update user notification data. groupId: {groupId}, userId: {userId}, Udid: {device.Udid}");
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private static bool HandleIotDeleteDevice(int groupId, Iot deviceData, string udid, int userId, int domainId, UserNotification userNotificationData)
+        {
+            var result = true;
+
+            if (deviceData == null)
+            {
+                log.Debug($"Iot device is empty. GroupId: {groupId}, UDID: {udid}");
+                return false;
+            }
+
+            if (userNotificationData.devices == null)
+            {
+                log.Error($"No devices available for domain: {domainId} group: {groupId}");
+                return false;
+            }
+
+            //perform logout
+            result &= LogoutIotNotification(groupId, userId, deviceData, userNotificationData);
+
+            // remove device data from user Data
+            userNotificationData.devices.Remove(userNotificationData.devices.Where(x => x.Udid == udid).First());
+
+            //add update document
+            // update CB
+            if (userId > 0)
+            {
+                if (!NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+                {
+                    log.Error($"Error while trying to update user notification data. groupId: {groupId}, userId: {userId}, Udid: {deviceData.Udid}");
+                    return false;
+                }
+            }
+
+            //delete from CB + Iot Core
+            var deleted = IotManager.Instance.RemoveFromIot(groupId, udid);
+
+            return result && deleted;
+        }
+
+        private static bool HandleIotDeleteUser(int groupId, int userId, UserNotification userNotificationData, int domainId)
+        {
+            bool result = true;
+
+            if (userNotificationData == null)
+            {
+                log.DebugFormat("user notification data is empty", groupId, userId);
+                return false;
+            }
+
+            // get all user devices
+            if (userNotificationData.devices != null)
+            {
+                List<string> udids = userNotificationData.devices.Select(x => x.Udid).ToList();
+
+                foreach (var udid in udids)
+                {
+                    //check if iot
+                    var deviceData = NotificationDal.GetRegisteredDevice(groupId.ToString(), udid);
+
+                    if (deviceData == null || string.IsNullOrEmpty(deviceData.Udid))
+                    {
+                        log.DebugFormat("device data wasn't found. GID: {0}, UDID: {1}", groupId, deviceData.Udid);
+                        continue;
+                    }
+
+                    result &= HandleIotDeleteDevice(groupId, deviceData, udid, userId, domainId, userNotificationData);
+                }
+            }
+            return result;
+        }
+        #endregion
 
         private static bool UpdateDeviceDataAccordingToAdapterResult(int groupId, int userId, PushData pushData,
                                                                     DeviceNotificationData deviceData,
@@ -1477,7 +1703,7 @@ namespace Core.Notification
                         log.ErrorFormat("Error while trying to update user notification data. GID: {0}, UID: {1}", groupId, userId);
                         return false;
                     }
-                    
+
                     SmsNotificationData userSmsNotificationData = null;
                     ApiObjects.Response.Status status = Utils.GetUserSmsNotificationData(groupId, userId, userNotificationData, out userSmsNotificationData);
                     if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK || userSmsNotificationData == null)
@@ -1535,7 +1761,7 @@ namespace Core.Notification
         private static bool SubscribeSmsAnnouncements(int groupId, int userId, UserNotification userNotificationData, SmsNotificationData userSmsNotificationData)
         {
             long smsAnnouncementId = 0;
-            List<AnnouncementSubscriptionData> subscribeList = SmsAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId, 
+            List<AnnouncementSubscriptionData> subscribeList = SmsAnnouncementsHelper.InitAllAnnouncementToSubscribeForAdapter(groupId,
                 userNotificationData, userSmsNotificationData, out smsAnnouncementId);
             if (subscribeList == null ||
                 subscribeList.Count == 0 ||
@@ -1619,7 +1845,7 @@ namespace Core.Notification
 
             // remove sms data
             NotificationDal.RemoveSmsNotificationData(groupId, userId, smsData.cas);
-            
+
             return result;
         }
 
@@ -1682,7 +1908,7 @@ namespace Core.Notification
             }
 
             // update SMS notification data
-            if (UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, announcementToUnsubscribe, 
+            if (UpdateSmsDataAccordingToAdapterResult(groupId, userId, userSmsNotificationData, announcementToUnsubscribe,
                 announcementToUnsubscribeResult, null, null, smsAnnouncementsId))
             {
                 log.ErrorFormat("Error updating SMS notification data. Disable all notifications flow. data: {0}",
@@ -1728,12 +1954,12 @@ namespace Core.Notification
             return true;
         }
 
-        private static bool UpdateSmsDataAccordingToAdapterResult(int groupId, int userId, SmsNotificationData smsNotificationData, 
+        private static bool UpdateSmsDataAccordingToAdapterResult(int groupId, int userId, SmsNotificationData smsNotificationData,
             List<UnSubscribe> announcementToUnsubscribe, List<UnSubscribe> unSubscribrAdapterResult,
-            List<AnnouncementSubscriptionData> announcementToSubscribe, List<AnnouncementSubscriptionData> subscribrAdapterResult, 
+            List<AnnouncementSubscriptionData> announcementToSubscribe, List<AnnouncementSubscriptionData> subscribrAdapterResult,
             long smsAnnouncementId)
         {
-   
+
             // update SMS document 
             if (smsNotificationData == null)
             {

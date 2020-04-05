@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Models.General;
 
 
 namespace WebAPI.Models.Partner
@@ -111,6 +112,16 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "defaultRegion")]
         public int? DefaultRegion { get; set; }
 
+        /// <summary>
+        /// Rolling Device Policy
+        /// </summary>
+        [DataMember(Name = "rollingDeviceData")]
+        [JsonProperty("rollingDeviceData")]
+        [XmlElement(ElementName = "rollingDeviceData")]
+        public KalturaRollingDeviceRemovalData RollingDeviceRemovalData { get; set; }
+
+
+
         internal List<int> GetSecondaryLanguagesIds()
         {
             return GetItemsIn<List< int >, int> (SecondaryLanguages, "KalturaGeneralPartnerConfig.secondaryLanguages", false, false);
@@ -127,9 +138,19 @@ namespace WebAPI.Models.Partner
         }
 
         protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.General; } }
+
+
     }
 
     public enum KalturaDeleteMediaPolicy { Disable = 0, Delete = 1 }
 
     public enum KalturaDowngradePolicy { LIFO = 0, FIFO = 1 }
+
+    public enum KalturaRollingDevicePolicy
+    {
+        NONE = 0,
+        LIFO = 1,
+        FIFO = 2,
+        ACTIVE_DEVICE_ASCENDING = 3
+    }
 }

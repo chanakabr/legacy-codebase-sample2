@@ -439,6 +439,7 @@ namespace WebAPI.Managers.Models
         {
             var ks = GetFromRequest();
             long? domainId = null, userId = null;
+            string udid = null;
 
             try
             {
@@ -452,10 +453,17 @@ namespace WebAPI.Managers.Models
             }
             catch (Exception) { }
 
+            try
+            {
+                udid = KSUtils.ExtractKSPayload().UDID;
+            }
+            catch (Exception) { }
+
             var contextData = new ContextData(ks.GroupId)
             {
                 DomainId = domainId,
-                UserId = userId
+                UserId = userId,
+                Udid = udid
             };
 
             return contextData;

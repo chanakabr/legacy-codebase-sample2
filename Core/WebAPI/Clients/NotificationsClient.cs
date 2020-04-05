@@ -4,7 +4,6 @@ using ApiObjects.Notification;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using AutoMapper;
-using Core.Catalog.CatalogManagement;
 using Core.Notification;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -1251,34 +1250,11 @@ namespace WebAPI.Clients
 
         internal bool SendPush(int groupId, int userId, KalturaPushMessage kalturaPushMessage)
         {
-            Status response = new Status();
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    PushMessage pushMessage = new PushMessage()
-                    {
-                        Message = kalturaPushMessage.Message,
-                        Action = kalturaPushMessage.Action,
-                        Sound = kalturaPushMessage.Sound,
-                        Url = kalturaPushMessage.Url
-                    };
+            Func<PushMessage, Status> sendPushFunc =
+              (PushMessage pushMessage) => Core.Notification.Module.SendUserPush(groupId, userId, pushMessage);
 
-                    response = Core.Notification.Module.SendUserPush(groupId, userId, pushMessage);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while sending push to user.  groupID: {0}, userId: {1}, pushMessage: {2}, exception: {3}", groupId, userId, JsonConvert.SerializeObject(kalturaPushMessage), ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-                throw new ClientException(StatusCode.Error);
-
-            if (response.Code != (int)StatusCode.OK)
-                throw new ClientException(response);
-
+            ClientUtils.GetResponseStatusFromWS<KalturaPushMessage, PushMessage>(sendPushFunc, kalturaPushMessage);
+            
             return true;
         }
 
@@ -2030,7 +2006,7 @@ namespace WebAPI.Clients
         internal KalturaFollowTvSeries AddKalturaFollowTvSeries(ContextData contextData, KalturaFollowTvSeries kalturaFollowTvSeriesToAdd)
         {
             Func<FollowDataTvSeries, GenericResponse<FollowDataTvSeries>> addFollowTvSeriesFunc = (FollowDataTvSeries followTvSeriesToAdd) =>
-                   kalturaFollowTvSeriesToAdd.Handler.Add(contextData, followTvSeriesToAdd);
+                   FollowManager.Instance.Add(contextData, followTvSeriesToAdd);
 
             KalturaFollowTvSeries result =
                 ClientUtils.GetResponseFromWS<KalturaFollowTvSeries, FollowDataTvSeries>(kalturaFollowTvSeriesToAdd, addFollowTvSeriesFunc);

@@ -1,10 +1,12 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Notification;
+using ApiObjects;
 using ApiObjects.DRM;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using ApiObjects.Segmentation;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Notification;
 using Core.Users.Cache;
 using DAL;
 using KLogMonitor;
@@ -14,10 +16,15 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Xml.Serialization;
+using ApiLogic.Api.Managers;
+using ApiLogic.Authorization;
+using ApiLogic.Users.Services;
 using Tvinci.Core.DAL;
 using TVinciShared;
+
 
 namespace Core.Users
 {
@@ -1398,6 +1405,7 @@ namespace Core.Users
             {
                 if (bRemoveDomain)
                 {
+                    
                     DomainsCache oDomainCache = DomainsCache.Instance();
                     oDomainCache.RemoveDomain(m_nDomainID);
                     InvalidateDomain();
@@ -1544,15 +1552,12 @@ namespace Core.Users
             }
             else
             {
-                bool bIsDeviceActivated = false;
+                var bIsDeviceActivated = false;
                 if (dc.IsContainingDevice(device, ref bIsDeviceActivated))
                 {
-                    if (bIsDeviceActivated)
-                    {
-                        // device is associated to this domain and activated
-                        res = DomainResponseStatus.DeviceAlreadyExists;
-                    }
-                    else
+                    // device is associated to this domain and activated
+                    res = DomainResponseStatus.DeviceAlreadyExists;
+                    if (!bIsDeviceActivated)
                     {
                         // device is associated to domain but not activated.
                         res = CanAddToDeviceContainer(dc);
@@ -1675,6 +1680,8 @@ namespace Core.Users
             return m_totalNumOfDevices;
         }
 
+        //This function also changes state and not just gets data 
+        //be careful when removing calls to this function!
         protected DomainResponseStatus GetUserList(int nDomainID, int nGroupID, bool bCache = false)
         {
             DomainResponseStatus domainResponseStatus = DomainResponseStatus.UnKnown;
@@ -2004,22 +2011,56 @@ namespace Core.Users
 
         private DomainResponseStatus CanAddToDeviceContainer(DeviceContainer dc)
         {
-            DomainResponseStatus res = DomainResponseStatus.ExceededLimit;
+            var res = DomainResponseStatus.OK;
 
             int activatedDevices = dc.GetActivatedDeviceCount();
 
             // m_oLimitationsManager.Quantity == 0 is unlimited 
             if (dc.m_oLimitationsManager.Quantity > 0 &&
                 ((m_totalNumOfDevices >= m_oLimitationsManager.Quantity && m_oLimitationsManager.Quantity > 0) ||
-                  (activatedDevices >= dc.m_oLimitationsManager.Quantity)))
+                  activatedDevices >= dc.m_oLimitationsManager.Quantity))
             {
                 res = DomainResponseStatus.ExceededLimit;
+
+                if (!PartnerConfigurationManager.GetGeneralPartnerConfiguration(m_nGroupID).HasObjects())
+                    return  res;
+
+                var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfiguration(m_nGroupID).Objects.FirstOrDefault();
+                
+                if (generalPartnerConfig?.RollingDeviceRemovalData.RollingDeviceRemovalPolicy == null ||
+                    generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds.Count <= 0)
+                    return res;
+
+                return TryRemoveHouseholdDevice(
+                    generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalPolicy.Value,
+                    generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds);
+
             }
-            else
-            {
-                res = DomainResponseStatus.OK;
-            }
+
             return res;
+        }
+
+        private DomainResponseStatus TryRemoveHouseholdDevice(RollingDevicePolicy rollingDeviceRemovalPolicy, 
+            List<int> rollingDeviceRemovalFamilyIds)
+        {
+            //remove by policy based on the dates
+            var udid = new DeviceRemovalPolicyHandler()
+                .GetDeviceRemovalCandidate(rollingDeviceRemovalPolicy, rollingDeviceRemovalFamilyIds, m_deviceFamilies);
+
+            if (udid.IsNullOrEmptyOrWhiteSpace())
+            {
+                return DomainResponseStatus.ExceededLimit;
+            }
+
+            //call to remove household device
+            var tryRemoveHouseholdDevice = RemoveDeviceFromDomain(udid, true);
+
+            if (tryRemoveHouseholdDevice != DomainResponseStatus.OK) return tryRemoveHouseholdDevice;
+            foreach (var usersId in m_UsersIDs)
+            {
+                SessionManager.UpdateUsersSessionsRevocationTime(string.Empty, 0, 0, usersId.ToString(), udid, (int)DateUtils.GetUtcUnixTimestampNow(), 0);
+            }
+            return tryRemoveHouseholdDevice;
         }
 
         public List<DevicePlayData> GetConcurrentCount(string udid, ref int concurrentDeviceFamilyIdCount, int deviceFamilyId)
@@ -2737,12 +2778,13 @@ namespace Core.Users
                             currentDC = DeviceFamiliesMapping[item.deviceFamily];
                             if (currentDC != null && currentDC.m_oLimitationsManager != null)
                             {
-                                // quntity of the new dlm is less than the cuurent dlm only if new dlm is <> 0 (0 = unlimited)
+                                // quantity of the new dlm is less than the current dlm only if new dlm is <> 0 (0 = unlimited)
                                 if (currentDC.m_oLimitationsManager.Quantity > item.quantity && item.quantity != 0) // need to delete the laset devices
                                 {
                                     // get from DB the last update date domains_devices table  change status to is_active = 0  update the update _date
                                     List<int> lDevicesID = currentDC.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
-                                    if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity) // only if there is a gap between current devices to needed quantity
+                                    // only if there is a gap between current devices to needed quantity
+                                    if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity) 
                                     {
                                         int nDeviceToDelete = lDevicesID.Count - item.quantity;
 
@@ -2808,7 +2850,7 @@ namespace Core.Users
                         // from all families that are not 0 delete all last devices by activation date
                         foreach (DeviceFamilyLimitations item in oLimitationsManager.lDeviceFamilyLimitations)
                         {
-                            if (item.quantity == 0) // create list of all devices that can't be deleteed!!!!!
+                            if (item.quantity == 0) // create list of all devices that can't be deleted!!!!!
                             {
                                 if (DeviceFamiliesMapping.ContainsKey(item.deviceFamily))
                                 {

@@ -392,7 +392,7 @@ namespace Core.Users
             return DomainResponseStatus.ConcurrencyLimitation;
         }
 
-        internal static Dictionary<string, int> GetDomainDevices(int domainId, int groupId)
+        public static Dictionary<string, int> GetDomainDevices(int domainId, int groupId)
         {
             Dictionary<string, int> domainDevices = CatalogDAL.GetDomainDevices(domainId);
 

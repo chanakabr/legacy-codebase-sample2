@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using WebAPI.Exceptions;
+using ApiObjects.Base;
+using ApiObjects.Response;
 
 namespace WebAPI.Models.Users
 {
@@ -17,7 +19,7 @@ namespace WebAPI.Models.Users
     /// Password policy settings
     /// </summary>
     [Serializable]
-    public partial class KalturaPasswordPolicy : KalturaCrudObject<PasswordPolicy, long, PasswordPolicyFilter>
+    public partial class KalturaPasswordPolicy : KalturaCrudObject<PasswordPolicy, long>
     {
         /// <summary>
         /// id
@@ -80,7 +82,7 @@ namespace WebAPI.Models.Users
 
         public KalturaPasswordPolicy() : base() { }
 
-        internal override ICrudHandler<PasswordPolicy, long, PasswordPolicyFilter> Handler
+        internal override ICrudHandler<PasswordPolicy, long> Handler
         {
             get
             {
@@ -116,6 +118,18 @@ namespace WebAPI.Models.Users
                     pattern.Validate();
                 }
             }
+        }
+
+        internal override GenericResponse<PasswordPolicy> Add(ContextData contextData)
+        {
+            var coreObject = AutoMapper.Mapper.Map<PasswordPolicy>(this);
+            return PasswordPolicyManager.Instance.Add(contextData, coreObject);
+        }
+
+        internal override GenericResponse<PasswordPolicy> Update(ContextData contextData)
+        {
+            var coreObject = AutoMapper.Mapper.Map<PasswordPolicy>(this);
+            return PasswordPolicyManager.Instance.Update(contextData, coreObject);
         }
     }
 

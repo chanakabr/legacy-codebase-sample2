@@ -8,6 +8,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using ApiLogic.Authorization;
+using ApiLogic.Users.Services;
 using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -102,6 +104,7 @@ namespace WebAPI.Managers
                 throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
             }
 
+            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid);
             return new KalturaLoginSession()
             {
                 KS = token.KS,
@@ -156,6 +159,7 @@ namespace WebAPI.Managers
 
             session.KS = token.KS;
             session.Expiry = DateUtils.DateTimeToUtcUnixTimestampSeconds(token.KsObject.Expiration);
+            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(token.Udid);
 
             return session;
         }
@@ -700,74 +704,16 @@ namespace WebAPI.Managers
 
         private static string GetUserSessionsKeyFormat(Group group)
         {
-            string userSessionsKeyFormat = group.UserSessionsKeyFormat;
-            if (string.IsNullOrEmpty(userSessionsKeyFormat))
-            {
-                userSessionsKeyFormat = ApplicationConfiguration.Current.AuthorizationManagerConfiguration.UsersSessionsKeyFormat.Value;
-
-                if (string.IsNullOrEmpty(userSessionsKeyFormat))
-                {
-                    userSessionsKeyFormat = USERS_SESSIONS_KEY_FORMAT;
-                }
-            }
-
-            return userSessionsKeyFormat;
+            return SessionManager.GetUserSessionsKeyFormat(group.UserSessionsKeyFormat);
         }
 
         private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, int revocationTime, int expiration, bool revokeAll = false)
         {
-            if (!string.IsNullOrEmpty(userId) && userId != "0")
-            {
-                string userSessionsKeyFormat = GetUserSessionsKeyFormat(group);
 
-                // get user sessions from CB
-                string userSessionsCbKey = string.Format(userSessionsKeyFormat, userId);
-
-                ulong version;
-                UserSessions usersSessions = cbManager.GetWithVersion<UserSessions>(userSessionsCbKey, out version, true);
-
-                // if not found create one
-                if (usersSessions == null)
-                {
-                    usersSessions = new UserSessions()
-                    {
-                        UserId = userId,
-                    };
-                }
-
-                // calculate new expiration
-                usersSessions.expiration = Math.Max(usersSessions.expiration, expiration);
-
-                if (revokeAll)
-                {
-                    usersSessions.UserRevocation = revocationTime;
-
-                    long now = DateUtils.GetUtcUnixTimestampNow();
-                    usersSessions.expiration = Math.Max(Math.Max(usersSessions.expiration, (int)(now + group.KSExpirationSeconds)), (int)now + group.AppTokenSessionMaxDurationSeconds);
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(udid))
-                    {
-                        if (usersSessions.UserWithUdidRevocations.ContainsKey(udid))
-                        {
-                            usersSessions.UserWithUdidRevocations[udid] = revocationTime;
-                        }
-                        else
-                        {
-                            usersSessions.UserWithUdidRevocations.Add(udid, revocationTime);
-                        }
-                    }
-                }
-
-                // store
-                if (!cbManager.SetWithVersion<UserSessions>(userSessionsCbKey, usersSessions, version, (uint)(usersSessions.expiration - DateUtils.GetUtcUnixTimestampNow()), true))
-                {
-                    log.ErrorFormat("LogOut: failed to set UserSessions in CB, key = {0}", userSessionsCbKey);
-                    return false;
-                }
-            }
-            return true;
+           return SessionManager.UpdateUsersSessionsRevocationTime(group.UserSessionsKeyFormat,
+                group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds, userId, udid, revocationTime,
+                expiration, revokeAll);
+            
         }
 
         internal static void RemoveUserSessions(Group group, string userId)

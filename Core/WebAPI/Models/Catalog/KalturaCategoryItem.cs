@@ -1,5 +1,7 @@
 ﻿using ApiLogic.Base;
 using ApiLogic.Catalog;
+using ApiObjects.Base;
+using ApiObjects.Response;
 using Core.Catalog.Handlers;
 using Newtonsoft.Json;
 using System;
@@ -17,7 +19,7 @@ namespace WebAPI.Models.Catalog
     /// Category details
     /// </summary>
     [Serializable]
-    public partial class KalturaCategoryItem : KalturaCrudObject<CategoryItem, long, CategoryItemFilter>
+    public partial class KalturaCategoryItem : KalturaCrudObject<CategoryItem, long>
     {
         /// <summary>
         /// Unique identifier for the category
@@ -79,7 +81,7 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
-        internal override ICrudHandler<CategoryItem, long, CategoryItemFilter> Handler
+        internal override ICrudHandler<CategoryItem, long> Handler
         {
             get
             {
@@ -125,6 +127,17 @@ namespace WebAPI.Models.Catalog
 
         public KalturaCategoryItem() : base() { }
 
+        internal override GenericResponse<CategoryItem> Add(ContextData contextData)
+        {
+            var coreObject = AutoMapper.Mapper.Map<CategoryItem>(this);
+            return CategoryItemHandler.Instance.Add(contextData, coreObject);
+        }
+
+        internal override GenericResponse<CategoryItem> Update(ContextData contextData)
+        {
+            var coreObject = AutoMapper.Mapper.Map<CategoryItem>(this);
+            return CategoryItemHandler.Instance.Update(contextData, coreObject);
+        }
     }
 
     public partial class KalturaCategoryItemListResponse : KalturaListResponse<KalturaCategoryItem>

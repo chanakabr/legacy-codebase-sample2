@@ -1,6 +1,7 @@
 ﻿using ApiLogic.Base;
 using ApiObjects.Base;
 using ApiObjects.Pricing;
+using ApiObjects.Response;
 using Core.Pricing.Handlers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -21,7 +22,7 @@ namespace WebAPI.Models.Domains
     /// Household Coupon details
     /// </summary>
     [Serializable]
-    public partial class KalturaHouseholdCoupon : KalturaCrudObject<CouponWallet, string, CouponWalletFilter>
+    public partial class KalturaHouseholdCoupon : KalturaCrudObject<CouponWallet, string>
     {        
         /// <summary>
         /// Coupon code
@@ -39,7 +40,7 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "lastUsageDate")]
         public long? LastUsageDate { get; set; }
 
-        internal override ICrudHandler<CouponWallet, string, CouponWalletFilter> Handler
+        internal override ICrudHandler<CouponWallet, string> Handler
         {
             get
             {
@@ -55,17 +56,18 @@ namespace WebAPI.Models.Domains
             }
         }
 
-        internal override void ValidateForUpdate()
-        {
-            throw new System.NotImplementedException();
-        }
-
         internal override void SetId(string id)
         {
             this.Code = id;
         }
 
         public KalturaHouseholdCoupon() : base() { }
+
+        internal override GenericResponse<CouponWallet> Add(ContextData contextData)
+        {
+            var coreObject = AutoMapper.Mapper.Map<CouponWallet>(this);
+            return CouponWalletHandler.Instance.Add(contextData, coreObject);
+        }
     }
 
     public partial class KalturaHouseholdCouponListResponse : KalturaListResponse<KalturaHouseholdCoupon>

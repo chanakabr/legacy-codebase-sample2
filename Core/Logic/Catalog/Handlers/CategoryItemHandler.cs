@@ -16,7 +16,7 @@ using Tvinci.Core.DAL;
 
 namespace Core.Catalog.Handlers
 {
-    public class CategoryItemHandler : ICrudHandler<CategoryItem, long, CategoryItemFilter>
+    public class CategoryItemHandler : ICrudHandler<CategoryItem, long>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

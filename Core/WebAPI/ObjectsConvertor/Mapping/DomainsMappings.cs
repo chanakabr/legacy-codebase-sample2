@@ -7,6 +7,8 @@ using AutoMapper.Configuration;
 using TVinciShared;
 using WebAPI.Models.Pricing;
 using ApiObjects.Pricing;
+using ApiObjects;
+using WebAPI.Models.API;
 
 namespace WebAPI.Mapping.ObjectsConvertor
 {
@@ -82,7 +84,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_UsersIDs))
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit))
                 .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies))
-                .ForMember(dest=> dest.RoleId , opt => opt.MapFrom(src => src.roleId));
+                .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.roleId));
 
             //string (pin) to KalturaDevicePin
             cfg.CreateMap<string, KalturaDevicePin>()
@@ -154,6 +156,126 @@ namespace WebAPI.Mapping.ObjectsConvertor
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown CouponsStatus value : {0}", couponStatus.ToString()));
                     }
                 });
+
+            //Iot
+            cfg.CreateMap<Iot, KalturaIot>()
+                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
+                .ForMember(dest => dest.UserPassword, opt => opt.MapFrom(src => src.UserPassword))
+                .ForMember(dest => dest.ThingArn, opt => opt.MapFrom(src => src.ThingArn))
+                .ForMember(dest => dest.ThingId, opt => opt.MapFrom(src => src.ThingId))
+                .ForMember(dest => dest.AccessKey, opt => opt.MapFrom(src => src.AccessKey))
+                .ForMember(dest => dest.AccessSecretKey, opt => opt.MapFrom(src => src.AccessSecretKey))
+                .ForMember(dest => dest.EndPoint, opt => opt.MapFrom(src => src.EndPoint))
+                .ForMember(dest => dest.ExtendedEndPoint, opt => opt.MapFrom(src => src.ExtendedEndPoint))
+                .ForMember(dest => dest.IdentityId, opt => opt.MapFrom(src => src.IdentityId))
+                .ForMember(dest => dest.IdentityPoolId, opt => opt.MapFrom(src => src.IdentityPoolId))
+                .ForMember(dest => dest.Principal, opt => opt.MapFrom(src => src.Principal))
+                ;
+
+            cfg.CreateMap<KalturaIot, Iot>()
+                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
+                .ForMember(dest => dest.UserPassword, opt => opt.MapFrom(src => src.UserPassword))
+                .ForMember(dest => dest.ThingArn, opt => opt.MapFrom(src => src.ThingArn))
+                .ForMember(dest => dest.ThingId, opt => opt.MapFrom(src => src.ThingId))
+                .ForMember(dest => dest.AccessKey, opt => opt.MapFrom(src => src.AccessKey))
+                .ForMember(dest => dest.AccessSecretKey, opt => opt.MapFrom(src => src.AccessSecretKey))
+                .ForMember(dest => dest.EndPoint, opt => opt.MapFrom(src => src.EndPoint))
+                .ForMember(dest => dest.ExtendedEndPoint, opt => opt.MapFrom(src => src.ExtendedEndPoint))
+                .ForMember(dest => dest.IdentityId, opt => opt.MapFrom(src => src.IdentityId))
+                .ForMember(dest => dest.IdentityPoolId, opt => opt.MapFrom(src => src.IdentityPoolId))
+                .ForMember(dest => dest.Principal, opt => opt.MapFrom(src => src.Principal))
+                ;
+
+            cfg.CreateMap<IotClientConfiguration, KalturaIotClientConfiguration>()
+                .ForMember(dest => dest.CognitoUserPool, opt => opt.MapFrom(src => src.CognitoUserPool))
+                .ForMember(dest => dest.CredentialsProvider, opt => opt.MapFrom(src => src.CredentialsProvider))
+                .ForMember(dest => dest.AnnouncementTopic, opt => opt.MapFrom(src => src.AnnouncementTopic))
+                .ForMember(dest => dest.Json, opt => opt.MapFrom(src => src.Json))
+                ;
+
+            cfg.CreateMap<KalturaIotClientConfiguration, IotClientConfiguration>()
+                .ForMember(dest => dest.CognitoUserPool, opt => opt.MapFrom(src => src.CognitoUserPool))
+                .ForMember(dest => dest.CredentialsProvider, opt => opt.MapFrom(src => src.CredentialsProvider))
+                .ForMember(dest => dest.AnnouncementTopic, opt => opt.MapFrom(src => src.AnnouncementTopic))
+                .ForMember(dest => dest.Json, opt => opt.MapFrom(src => src.Json))
+                ;
+
+            cfg.CreateMap<CognitoUserPool, KalturaCognitoUserPool>()
+                .ForMember(dest => dest.Default, opt => opt.MapFrom(src => src.Default))
+                ;
+
+            cfg.CreateMap<KalturaCognitoUserPool, CognitoUserPool>()
+                .ForMember(dest => dest.Default, opt => opt.MapFrom(src => src.Default))
+                ;
+
+            cfg.CreateMap<CredentialsProvider, KalturaCredentialsProvider>()
+               .ForMember(dest => dest.CognitoIdentity, opt => opt.MapFrom(src => src.CognitoIdentity))
+               ;
+
+            cfg.CreateMap<KalturaCredentialsProvider, CredentialsProvider>()
+                .ForMember(dest => dest.CognitoIdentity, opt => opt.MapFrom(src => src.CognitoIdentity))
+                ;
+
+            cfg.CreateMap<CognitoIdentity, KalturaCognitoIdentity>()
+              .ForMember(dest => dest.Default, opt => opt.MapFrom(src => src.Default))
+              ;
+
+            cfg.CreateMap<KalturaCognitoIdentity, CognitoIdentity>()
+                .ForMember(dest => dest.Default, opt => opt.MapFrom(src => src.Default))
+                ;
+
+            cfg.CreateMap<Default, KalturaDefault>()
+               .ForMember(dest => dest.PoolId, opt => opt.MapFrom(src => src.PoolId))
+               .ForMember(dest => dest.AppClientId, opt => opt.MapFrom(src => src.AppClientId))
+               .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
+                ;
+
+            cfg.CreateMap<KalturaDefault, Default>()
+               .ForMember(dest => dest.PoolId, opt => opt.MapFrom(src => src.PoolId))
+               .ForMember(dest => dest.AppClientId, opt => opt.MapFrom(src => src.AppClientId))
+               .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
+                ;
+
+            cfg.CreateMap<KalturaIotProfile, IotProfile>()
+                 .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+                 .ForMember(dest => dest.IotProfileAws, opt => opt.MapFrom(src => src.IotProfileAws))
+                 ;
+            cfg.CreateMap<KalturaIotProfileAws, IotProfileAws>()
+                 .ForMember(dest => dest.AccessKeyId, opt => opt.MapFrom(src => src.AccessKeyId))
+                 .ForMember(dest => dest.BrokerPort, opt => opt.MapFrom(src => src.BrokerPort))
+                 .ForMember(dest => dest.CertificatePath, opt => opt.MapFrom(src => src.CertificatePath))
+                 .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId))
+                 .ForMember(dest => dest.IdentityPoolId, opt => opt.MapFrom(src => src.IdentityPoolId))
+                 .ForMember(dest => dest.IotEndPoint, opt => opt.MapFrom(src => src.IotEndPoint))
+                 .ForMember(dest => dest.IotPolicyName, opt => opt.MapFrom(src => src.IotPolicyName))
+                 .ForMember(dest => dest.PfxPassword, opt => opt.MapFrom(src => src.PfxPassword))
+                 .ForMember(dest => dest.PfxPath, opt => opt.MapFrom(src => src.PfxPath))
+                 .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
+                 .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))
+                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                 ;
+
+            cfg.CreateMap<IotProfile, KalturaIotProfile>()
+                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+                .ForMember(dest => dest.IotProfileAws, opt => opt.MapFrom(src => src.IotProfileAws))
+                ;
+
+            cfg.CreateMap<IotProfileAws, KalturaIotProfileAws>()
+                 .ForMember(dest => dest.AccessKeyId, opt => opt.MapFrom(src => src.AccessKeyId))
+                 .ForMember(dest => dest.BrokerPort, opt => opt.MapFrom(src => src.BrokerPort))
+                 .ForMember(dest => dest.CertificatePath, opt => opt.MapFrom(src => src.CertificatePath))
+                 .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId))
+                 .ForMember(dest => dest.IdentityPoolId, opt => opt.MapFrom(src => src.IdentityPoolId))
+                 .ForMember(dest => dest.IotEndPoint, opt => opt.MapFrom(src => src.IotEndPoint))
+                 .ForMember(dest => dest.IotPolicyName, opt => opt.MapFrom(src => src.IotPolicyName))
+                 .ForMember(dest => dest.PfxPassword, opt => opt.MapFrom(src => src.PfxPassword))
+                 .ForMember(dest => dest.PfxPath, opt => opt.MapFrom(src => src.PfxPath))
+                 .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
+                 .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))
+                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                 ;
         }
 
         private static KalturaHouseholdState ConvertDomainStatus(DomainStatus type)
@@ -177,7 +299,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                     result = KalturaHouseholdState.pending;
                     break;
                 default:
-                throw new ClientException((int)StatusCode.Error, $"Unknown domain state: {type}");
+                    throw new ClientException((int)StatusCode.Error, $"Unknown domain state: {type}");
             }
             return result;
         }
@@ -264,7 +386,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
             }
             return result;
         }
-        
+
         public static int ConvertKalturaHouseholdFrequency(KalturaHouseholdFrequencyType householdFrequencyType)
         {
             int result;
@@ -272,17 +394,17 @@ namespace WebAPI.Mapping.ObjectsConvertor
             switch (householdFrequencyType)
             {
                 case KalturaHouseholdFrequencyType.devices:
-                    result = 1; 
+                    result = 1;
                     break;
                 case KalturaHouseholdFrequencyType.users:
-                    result = 2; 
+                    result = 2;
                     break;
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown household frequency type");                    
+                    throw new ClientException((int)StatusCode.Error, "Unknown household frequency type");
             }
 
             return result;
         }
-    
+
     }
 }

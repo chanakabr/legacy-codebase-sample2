@@ -2911,9 +2911,9 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static PlaybackContextResponse GetPlaybackContext(int groupID, string userId, string udid, string ip, string assetId, eAssetTypes assetType, List<long> fileIds, 
-                                                                 StreamerType? streamerType, string mediaProtocol, PlayContextType context, UrlType urlType, 
-                                                                 string sourceType = null, bool isPlaybackManifest = false)
+        public static PlaybackContextResponse GetPlaybackContext(int groupID, string userId, string udid, string ip, string assetId, eAssetTypes assetType,
+            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context, UrlType urlType,
+            string sourceType = null, bool isPlaybackManifest = false, Dictionary<string, string> adapterData = null)
         {
             PlaybackContextResponse response = new PlaybackContextResponse();
             ConditionalAccess.BaseConditionalAccess t = null;
@@ -2921,7 +2921,8 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 MediaFileItemPricesContainer price;
-                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price, urlType, sourceType, isPlaybackManifest);
+                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, 
+                    out price, urlType, sourceType, isPlaybackManifest, adapterData);
             }
             else
             {

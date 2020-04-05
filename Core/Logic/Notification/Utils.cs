@@ -78,7 +78,8 @@ namespace Core.Notification
                 MailSubject = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_SUBJECT"),
                 MailTemplate = ODBCWrapper.Utils.GetSafeStr(row, "MAIL_TEMPLATE"),
                 IncludeMail = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_EMAIL") > 0) ? true : false),
-                IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false)
+                IncludeSms = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_SMS") > 0) ? true : false),
+                IncludeIot = ((ODBCWrapper.Utils.GetIntSafeVal(row, "INCLUDE_IOT") > 0) ? true : false)
             };
 
             return msg;

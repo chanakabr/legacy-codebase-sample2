@@ -34,14 +34,6 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "assetId")]
         [SchemeProperty(MinInteger = 1)]
         public int AssetId { get; set; }
-
-        internal ICrudHandler<FollowDataTvSeries, int, FollowTvSeriesFilter> Handler
-        {
-            get
-            {
-                return FollowManager.Instance;
-            }
-        }
     }
 
     public enum KalturaFollowTvSeriesOrderBy

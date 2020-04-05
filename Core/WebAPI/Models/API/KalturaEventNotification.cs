@@ -3,6 +3,7 @@ using ApiLogic.Base;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Pricing;
+using ApiObjects.Response;
 using Core.Pricing.Handlers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,7 +24,7 @@ namespace WebAPI.Models.API
     /// Household Coupon details
     /// </summary>
     [Serializable]
-    public partial class KalturaEventNotification : KalturaCrudObject<EventNotificationAction, string, EventNotificationActionFilter>
+    public partial class KalturaEventNotification : KalturaCrudObject<EventNotificationAction, string>
     {
         /// <summary>
         /// Identifier 
@@ -92,7 +93,7 @@ namespace WebAPI.Models.API
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
-        internal override ICrudHandler<EventNotificationAction, string, EventNotificationActionFilter> Handler
+        internal override ICrudHandler<EventNotificationAction, string> Handler
         {
             get
             {
@@ -102,18 +103,15 @@ namespace WebAPI.Models.API
 
         public KalturaEventNotification() : base() { }
 
-        internal override void ValidateForAdd()
-        {
-            throw new NotImplementedException();
-        }
-
-        internal override void ValidateForUpdate()
-        {            
-        }
-
         internal override void SetId(string id)
         {
             Id = id;            
+        }
+
+        internal override GenericResponse<EventNotificationAction> Update(ContextData contextData)
+        {
+            var coreObject = AutoMapper.Mapper.Map<EventNotificationAction>(this);
+            return EventNotificationActionManager.Instance.Update(contextData, coreObject);
         }
     }
 

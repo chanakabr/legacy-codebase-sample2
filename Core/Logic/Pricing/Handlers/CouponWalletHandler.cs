@@ -12,7 +12,7 @@ using TVinciShared;
 
 namespace Core.Pricing.Handlers
 {
-    public class CouponWalletHandler : ICrudHandler<CouponWallet, string, CouponWalletFilter>
+    public class CouponWalletHandler : ICrudHandler<CouponWallet, string>
     {
         private const int MAX_WALLET_COUPON = 100;
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -93,11 +93,6 @@ namespace Core.Pricing.Handlers
             }
 
             return response;
-        }
-
-        public GenericResponse<CouponWallet> Update(ContextData contextData, CouponWallet objectToUpdate)
-        {
-            throw new NotImplementedException();
         }
 
         public Status Delete(ContextData contextData, string couponCode)

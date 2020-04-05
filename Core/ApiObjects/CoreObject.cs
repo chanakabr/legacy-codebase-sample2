@@ -46,6 +46,8 @@ namespace ApiObjects
 
                  if (insertResult)
                  {
+                    
+
                      var afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent( this.GroupId, this, eKalturaEventActions.Created));
                      if (afterEventResults != null)
                      {

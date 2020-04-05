@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.DRM;
+using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using ODBCWrapper;

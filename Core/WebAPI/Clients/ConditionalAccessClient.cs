@@ -1978,7 +1978,8 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams, string sourceType = null, bool isPlaybackManifest = false)
+        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, 
+            KalturaPlaybackContextOptions contextDataParams, string sourceType = null, bool isPlaybackManifest = false)
         {
             KalturaPlaybackContext kalturaPlaybackContext = null;
             PlaybackContextResponse response = null;
@@ -2004,9 +2005,9 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, ApiMappings.ConvertAssetType(assetType), 
-                                                                                contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext, 
-                                                                                urlType, sourceType, isPlaybackManifest);
+                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, 
+                        ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext,
+                        urlType, sourceType, isPlaybackManifest, WebAPI.Utils.Utils.ConvertSerializeableDictionary(contextDataParams.AdapterData, true));
                 }
             }
             catch (Exception ex)

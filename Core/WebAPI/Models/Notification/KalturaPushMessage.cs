@@ -1,6 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿using Newtonsoft.Json;
+using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -45,5 +45,28 @@ namespace WebAPI.Models.Notification
         [JsonProperty("url")]
         [XmlElement(ElementName = "url")]
         public string Url { get; set; }
+
+        /// <summary>
+        /// Device unique identifier
+        /// </summary>
+        [DataMember(Name = "udid")]
+        [XmlElement(ElementName = "udid")]
+        [JsonProperty("udid")]
+        public string Udid { get; set; }
+
+        /// <summary>
+        /// PushChannels - separated with comma
+        /// </summary>
+        [DataMember(Name = "pushChannels")]
+        [JsonProperty("pushChannels")]
+        [XmlElement(ElementName = "pushChannels", IsNullable = true)]
+        [SchemeProperty(DynamicType = typeof(KalturaPushChannel))]
+        public string PushChannels { get; set; }        
+    }
+
+    public enum KalturaPushChannel
+    {
+        PUSH,
+        IOT
     }
 }

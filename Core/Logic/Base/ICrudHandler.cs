@@ -4,11 +4,9 @@ using System;
 
 namespace ApiLogic.Base
 {
-    public interface ICrudHandler<ICrudHandeledObject, IdentifierT, ICrudFilter>
+    public interface ICrudHandler<ICrudHandeledObject, IdentifierT>
         where IdentifierT : IConvertible
     {
-        GenericResponse<ICrudHandeledObject> Add(ContextData contextData, ICrudHandeledObject objectToAdd);
-        GenericResponse<ICrudHandeledObject> Update(ContextData contextData, ICrudHandeledObject objectToUpdate);
         Status Delete(ContextData contextData, IdentifierT id);
         GenericResponse<ICrudHandeledObject> Get(ContextData contextData, IdentifierT id);
     }

@@ -50,6 +50,9 @@ namespace ApiObjects.Notification
         [DataMember]
         public bool IncludeSms{ get; set; }
 
+        [DataMember]
+        public bool IncludeIot { get; set; }
+
         public MessageAnnouncement() { }
 
         public override string ToString()

@@ -11,7 +11,7 @@ using TVinciShared;
 
 namespace ApiLogic.Api.Managers
 {
-    public class EventNotificationActionManager : ICrudHandler<EventNotificationAction, string, EventNotificationActionFilter>
+    public class EventNotificationActionManager : ICrudHandler<EventNotificationAction, string>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -89,11 +89,6 @@ namespace ApiLogic.Api.Managers
         }
 
         public Status Delete(ContextData contextData, string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public GenericResponse<EventNotificationAction> Add(ContextData contextData, EventNotificationAction eventNotificationActionToAdd)
         {
             throw new NotImplementedException();
         }

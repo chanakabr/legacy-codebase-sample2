@@ -10,5 +10,6 @@ namespace ApiObjects.Notification
     {
         public string Udid { get; set; }
         public long SignInAtSec { get; set; }
+        public PushChannel PushChannel { get; set; }
     }
 }

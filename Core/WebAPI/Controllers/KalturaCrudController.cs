@@ -20,21 +20,20 @@ namespace WebAPI.Controllers
     /// <typeparam name="KalturaT">kaltura object</typeparam>
     /// <typeparam name="ICrudHandeledObject">core object</typeparam>
     /// <typeparam name="IdentifierT">Identifier type</typeparam>
-    /// <typeparam name="ICrudFilter">core filter</typeparam>
-    public abstract class KalturaCrudController<KalturaT, KalturaListResponseT, ICrudHandeledObject, IdentifierT, KalturaFilterT, ICrudFilter> : IKalturaController
-        where KalturaT : KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>, new()
+    public abstract class KalturaCrudController<KalturaT, KalturaListResponseT, ICrudHandeledObject, IdentifierT, KalturaFilterT> : IKalturaController
+        where KalturaT : KalturaCrudObject<ICrudHandeledObject, IdentifierT>, new()
         where KalturaListResponseT : KalturaListResponse<KalturaT>, new()
         where IdentifierT : IConvertible
         where KalturaFilterT : KalturaOTTObject, IKalturaCrudFilter<ICrudHandeledObject>, new()
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected static KalturaT DefaultObject { get; set; }
-        
+
         static KalturaCrudController()
         {
             DefaultObject = new KalturaT();
         }
-        
+
         [Action(AddActionAttribute.Name)]
         [ApiAuthorize]
         public static KalturaT Add(KalturaT objectToAdd)
@@ -45,9 +44,8 @@ namespace WebAPI.Controllers
             {
                 objectToAdd.ValidateForAdd();
                 var contextData = KS.GetContextData();
-                GenericResponse<ICrudHandeledObject> addFunc(ICrudHandeledObject coreObjectToAdd) => 
-                    objectToAdd.Handler.Add(contextData, coreObjectToAdd);
-                response = GetResponseFromCore(objectToAdd, addFunc);
+                GenericResponse<ICrudHandeledObject> addFunc() => objectToAdd.Add(contextData);
+                response = GetResponseFromCore1(addFunc);
             }
             catch (ClientException ex)
             {
@@ -68,15 +66,14 @@ namespace WebAPI.Controllers
                 objectToUpdate.SetId(id);
                 objectToUpdate.ValidateForUpdate();
                 var contextData = KS.GetContextData();
-                GenericResponse<ICrudHandeledObject> updateFunc(ICrudHandeledObject coreObjectToUpdate) =>
-                     objectToUpdate.Handler.Update(contextData, coreObjectToUpdate);
-                response = GetResponseFromCore(objectToUpdate, updateFunc);
+                GenericResponse<ICrudHandeledObject> updateFunc() => objectToUpdate.Update(contextData);
+                response = GetResponseFromCore1(updateFunc);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
-           
+
             return response;
         }
 
@@ -133,13 +130,13 @@ namespace WebAPI.Controllers
 
             return response;
         }
-        
+
         [Action(ListActionAttribute.Name)]
         [ApiAuthorize]
         public static KalturaListResponseT List(KalturaFilterT filter, KalturaFilterPager pager = null)
         {
             KalturaListResponseT response = null;
-            
+
             try
             {
                 if (filter == null)
@@ -163,12 +160,12 @@ namespace WebAPI.Controllers
                 if (response.Objects.Count > 0 && responseProfile != null && filter.RelatedObjectFilterType != null)
                 {
                     KalturaDetachedResponseProfile profile = null;
-                   
+
                     if (responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
                     {
                         profile = detachedResponseProfile.RelatedProfiles.FirstOrDefault(x => x.Filter.GetType() == filter.RelatedObjectFilterType);
                     }
-                    
+
                     if (profile != null && !string.IsNullOrEmpty(profile.Name))
                     {
                         response.SetRelatedObjects(contextData, profile);
@@ -183,16 +180,15 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        private static KalturaT GetResponseFromCore(KalturaT kalturaObjectfromRequest, Func<ICrudHandeledObject, GenericResponse<ICrudHandeledObject>> funcInCore)
+        private static KalturaT GetResponseFromCore1(Func<GenericResponse<ICrudHandeledObject>> funcInCore)
         {
             GenericResponse<ICrudHandeledObject> response = null;
 
             try
             {
-                var mappedCoreObject = AutoMapper.Mapper.Map<ICrudHandeledObject>(kalturaObjectfromRequest);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = funcInCore(mappedCoreObject);
+                    response = funcInCore();
                 }
             }
             catch (Exception ex)

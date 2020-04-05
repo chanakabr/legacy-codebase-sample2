@@ -1,17 +1,18 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Notification;
 using ApiObjects.SearchObjects;
+using AutoMapper.Configuration;
+using System;
 using System.Collections.Generic;
+using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
-using AutoMapper.Configuration;
-using TVinciShared;
 using KeyValuePair = ApiObjects.KeyValuePair;
-using ApiObjects.Catalog;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -37,7 +38,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
-                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled));
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
+                 .ForMember(dest => dest.IotEnabled, opt => opt.MapFrom(src => src.IsIotEnabled));
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
             cfg.CreateMap<KalturaPartnerNotificationSettings, NotificationPartnerSettings>()
@@ -58,6 +60,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
+                 .ForMember(dest => dest.IsIotEnabled, opt => opt.MapFrom(src => src.IotEnabled))
                  ;
 
             //NotificationPartnerSettings to KalturaNotificationPartnerSettings
@@ -79,6 +82,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
+                 .ForMember(dest => dest.IotEnabled, opt => opt.MapFrom(src => src.IsIotEnabled))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
@@ -100,14 +104,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
+                 .ForMember(dest => dest.IsIotEnabled, opt => opt.MapFrom(src => src.IotEnabled))
                  ;
 
             cfg.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
                  .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnablePush))
                  .ForMember(dest => dest.MailEnabled, opt => opt.MapFrom(src => src.EnableMail))
-                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.EnableSms));
-
+                 .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.EnableSms))
+                ;
             cfg.CreateMap<bool?, UserFollowSettings>()
                .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src));
 
@@ -130,7 +135,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IncludeMail, opt => opt.MapFrom(src => src.IncludeMail))
                  .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
-                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms));
+                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms))
+                 .ForMember(dest => dest.IncludeIot, opt => opt.MapFrom(src => src.IncludeIot));
 
             cfg.CreateMap<KalturaAnnouncementRecipientsType, eAnnouncementRecipientsType>()
                 .ConvertUsing(KalturaRecipientsType =>
@@ -181,7 +187,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IncludeMail, opt => opt.MapFrom(src => src.IncludeMail))
                  .ForMember(dest => dest.MailSubject, opt => opt.MapFrom(src => src.MailSubject))
                  .ForMember(dest => dest.MailTemplate, opt => opt.MapFrom(src => src.MailTemplate))
-                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms));
+                 .ForMember(dest => dest.IncludeSms, opt => opt.MapFrom(src => src.IncludeSms))
+                 .ForMember(dest => dest.IncludeIot, opt => opt.MapFrom(src => src.IncludeIot));
 
             cfg.CreateMap<eAnnouncementRecipientsType, KalturaAnnouncementRecipientsType>()
                 .ConvertUsing(recipientsType =>
@@ -278,7 +285,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
-            
+
             cfg.CreateMap<KalturaFollowTvSeries, FollowDataBase>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
@@ -535,7 +542,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaEngagement, Engagement>()
                .ForMember(dest => dest.AdapterDynamicData, opt => opt.MapFrom(src => src.AdapterDynamicData))
                .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId))
-               .ForMember(dest => dest.EngagementType, opt => opt.ResolveUsing(src => ConvertEngagementType( src.Type)))
+               .ForMember(dest => dest.EngagementType, opt => opt.ResolveUsing(src => ConvertEngagementType(src.Type)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.IntervalSeconds, opt => opt.MapFrom(src => src.IntervalSeconds))
                .ForMember(dest => dest.SendTime, opt => opt.ResolveUsing(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.SendTimeInSeconds)))
@@ -648,7 +655,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl));
 
             #endregion
-        }
+
+            #region PushMessage
+
+            cfg.CreateMap<KalturaPushMessage, PushMessage>()
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+                .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
+                .ForMember(dest => dest.PushChannels, opt => opt.MapFrom(src => ConvertPushChannels(src.PushChannels)));                
+
+            #endregion
+        }        
 
         public static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)
         {
@@ -804,7 +823,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case eMessageCategory.Interest:
                     result = KalturaInboxMessageType.Interest;
-                    break;  
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown inbox message type");
             }
@@ -815,55 +834,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
         private static bool? GetFollowSettingsEnablePush(UserNotificationSettings userFollowSettings)
         {
             return userFollowSettings.FollowSettings.EnablePush;
-        }
-
-        // TODO SHIR - DELETE AFTER SET MAPPING
-        public static KalturaAnnouncementRecipientsType ConvertRecipientsType1(eAnnouncementRecipientsType recipients)
-        {
-            KalturaAnnouncementRecipientsType result;
-            switch (recipients)
-            {
-                case eAnnouncementRecipientsType.All:
-                    result = KalturaAnnouncementRecipientsType.All;
-                    break;
-                case eAnnouncementRecipientsType.Guests:
-                    result = KalturaAnnouncementRecipientsType.Guests;
-                    break;
-                case eAnnouncementRecipientsType.LoggedIn:
-                    result = KalturaAnnouncementRecipientsType.LoggedIn;
-                    break;
-                case eAnnouncementRecipientsType.Other:
-                    result = KalturaAnnouncementRecipientsType.Other;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown recipients Type");
-            }
-
-            return result;
-        }
-        // TODO SHIR - DELETE AFTER SET MAPPING
-        public static KalturaAnnouncementStatus ConvertAnnouncementStatusType1(eAnnouncementStatus status)
-        {
-            KalturaAnnouncementStatus result;
-            switch (status)
-            {
-                case eAnnouncementStatus.Aborted:
-                    result = KalturaAnnouncementStatus.Aborted;
-                    break;
-                case eAnnouncementStatus.NotSent:
-                    result = KalturaAnnouncementStatus.NotSent;
-                    break;
-                case eAnnouncementStatus.Sending:
-                    result = KalturaAnnouncementStatus.Sending;
-                    break;
-                case eAnnouncementStatus.Sent:
-                    result = KalturaAnnouncementStatus.Sent;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown status Type");
-            }
-
-            return result;
         }
 
         public static KalturaMessageTemplateType ConvertTemplateAssetType(MessageTemplateType assetType)
@@ -1231,7 +1201,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     throw new ClientException((int)StatusCode.Error, "Unknown subscription trigger type");
                     break;
             }
-          
+
             return result;
         }
 
@@ -1266,7 +1236,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case TopicNotificationMessageStatus.Sent:
                     result = KalturaTopicNotificationMessageStatus.SENT;
                     break;
-               
+
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown status Type");
             }
@@ -1274,5 +1244,33 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        private static List<PushChannel> ConvertPushChannels(string pushChannels)
+        {
+            List<PushChannel> pushChannelList = null;
+
+            if (!string.IsNullOrEmpty(pushChannels))
+            {
+                pushChannelList = new List<PushChannel>();
+                foreach (string pushChannel in pushChannels.Split(','))
+                {
+                    KalturaPushChannel pushChannelType;
+                    if (Enum.TryParse<KalturaPushChannel>(pushChannel.ToUpper(), out pushChannelType))
+                    {
+                        switch (pushChannelType)
+                        {
+                            case KalturaPushChannel.PUSH:
+                                pushChannelList.Add(PushChannel.Push);
+                                break;
+                            case KalturaPushChannel.IOT:
+                                pushChannelList.Add(PushChannel.Iot);
+                                break;
+                            default:
+                                break;
+                        }
+                    }                    
+                }
+            }
+            return pushChannelList;
+        }
     }
 }

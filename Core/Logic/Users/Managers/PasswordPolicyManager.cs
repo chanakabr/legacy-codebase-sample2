@@ -15,7 +15,7 @@ using System.Text.RegularExpressions;
 
 namespace ApiLogic.Users.Managers
 {
-    public class PasswordPolicyManager : ICrudHandler<PasswordPolicy, long, PasswordPolicyFilter>
+    public class PasswordPolicyManager : ICrudHandler<PasswordPolicy, long>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<PasswordPolicyManager> lazy = new Lazy<PasswordPolicyManager>(() => new PasswordPolicyManager());

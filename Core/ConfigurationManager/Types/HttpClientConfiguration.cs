@@ -270,4 +270,11 @@ namespace ConfigurationManager.Types
 
         public override string[] TcmPath => new string[] { TcmKey };
     }
+
+    public class IotHttpClientConfiguration : BaseHttpClientConfiguration
+    {
+        public override string TcmKey => TcmObjectKeys.IotConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+    }
 }

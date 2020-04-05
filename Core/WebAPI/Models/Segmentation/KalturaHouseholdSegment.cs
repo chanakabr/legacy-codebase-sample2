@@ -1,5 +1,7 @@
 ﻿using ApiLogic.Base;
 using ApiLogic.Users.Managers;
+using ApiObjects.Base;
+using ApiObjects.Response;
 using ApiObjects.Segmentation;
 using Newtonsoft.Json;
 using System;
@@ -13,7 +15,7 @@ namespace WebAPI.Models.Segmentation
     /// <summary>
     /// Indicates a segment of a household
     /// </summary>
-    public partial class KalturaHouseholdSegment : KalturaCrudObject<HouseholdSegment, long, HouseholdSegmentFilter>
+    public partial class KalturaHouseholdSegment : KalturaCrudObject<HouseholdSegment, long>
     {
         /// <summary>
         /// Segment Id
@@ -32,7 +34,7 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "householdId")]
         public long HouseholdId { get; set; }
         
-        internal override ICrudHandler<HouseholdSegment, long, HouseholdSegmentFilter> Handler
+        internal override ICrudHandler<HouseholdSegment, long> Handler
         {
             get
             {
@@ -40,21 +42,18 @@ namespace WebAPI.Models.Segmentation
             }
         }
 
-        internal override void ValidateForAdd()
-        {            
-        }
-
-        internal override void ValidateForUpdate()
-        {         
-        }
-
         internal override void SetId(long id)
         {
-            SegmentId = id;
-            
+            throw new NotImplementedException();
         }
 
         public KalturaHouseholdSegment() : base() { }
+
+        internal override GenericResponse<HouseholdSegment> Add(ContextData contextData)
+        {
+            var coreObject = AutoMapper.Mapper.Map<HouseholdSegment>(this);
+            return HouseholdSegmentManager.Instance.Add(contextData, coreObject);
+        }
     }
 
     public partial class KalturaHouseholdSegmentListResponse : KalturaListResponse<KalturaHouseholdSegment>
