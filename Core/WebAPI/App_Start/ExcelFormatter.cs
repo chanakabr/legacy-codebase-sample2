@@ -158,7 +158,8 @@ namespace WebAPI.App_Start
 
                 if (dt != null)
                 {
-                    excelWorksheet.Cells[columnNameRowIndex + 1, 1].LoadFromDataTable(dt, false, OfficeOpenXml.Table.TableStyles.Medium13);
+                    columnNameRowIndex++;
+                    excelWorksheet.Cells[columnNameRowIndex, 1].LoadFromDataTable(dt, false);
                 }
 
                 pack.SaveAs(writeStream);
