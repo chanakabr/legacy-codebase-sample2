@@ -203,11 +203,11 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 ;
 
             cfg.CreateMap<CognitoUserPool, KalturaCognitoUserPool>()
-                .ForMember(dest => dest.Default, opt => opt.MapFrom(src => src.Default))
+                .ForMember(dest => dest.IotDefault, opt => opt.MapFrom(src => src.IotDefault))
                 ;
 
             cfg.CreateMap<KalturaCognitoUserPool, CognitoUserPool>()
-                .ForMember(dest => dest.Default, opt => opt.MapFrom(src => src.Default))
+                .ForMember(dest => dest.IotDefault, opt => opt.MapFrom(src => src.IotDefault))
                 ;
 
             cfg.CreateMap<CredentialsProvider, KalturaCredentialsProvider>()
@@ -219,20 +219,20 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 ;
 
             cfg.CreateMap<CognitoIdentity, KalturaCognitoIdentity>()
-              .ForMember(dest => dest.Default, opt => opt.MapFrom(src => src.Default))
+              .ForMember(dest => dest.IotDefault, opt => opt.MapFrom(src => src.IotDefault))
               ;
 
             cfg.CreateMap<KalturaCognitoIdentity, CognitoIdentity>()
-                .ForMember(dest => dest.Default, opt => opt.MapFrom(src => src.Default))
+                .ForMember(dest => dest.IotDefault, opt => opt.MapFrom(src => src.IotDefault))
                 ;
 
-            cfg.CreateMap<Default, KalturaDefault>()
+            cfg.CreateMap<IotDefault, KalturaIotDefault>()
                .ForMember(dest => dest.PoolId, opt => opt.MapFrom(src => src.PoolId))
                .ForMember(dest => dest.AppClientId, opt => opt.MapFrom(src => src.AppClientId))
                .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
                 ;
 
-            cfg.CreateMap<KalturaDefault, Default>()
+            cfg.CreateMap<KalturaIotDefault, IotDefault>()
                .ForMember(dest => dest.PoolId, opt => opt.MapFrom(src => src.PoolId))
                .ForMember(dest => dest.AppClientId, opt => opt.MapFrom(src => src.AppClientId))
                .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
