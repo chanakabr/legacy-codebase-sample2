@@ -41,6 +41,7 @@ namespace ApiObjects
         public string AnnouncementTopic { get; set; }
         public string Json { get; set; }
 
+
         public override string ToString()
         {
             return JsonConvert.SerializeObject(new { this.CredentialsProvider, this.CognitoUserPool }, Formatting.None).Replace("IotDefault", "Default");
