@@ -95,8 +95,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KLogMonitor", "KLogMonitor\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TCMClient", "TCMClient\TCMClient.csproj", "{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchBaseExtensions", "CouchBaseExtensions\CouchBaseExtensions.csproj", "{F5591A02-7C44-476F-B447-A63F39B2D731}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceExtensions", "ServiceExtensions\ServiceExtensions.csproj", "{2E48DC40-A9AB-485D-A847-8E3662C69696}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KlogMonitorHelper", "KlogMonitorHelper\KlogMonitorHelper.csproj", "{FA277E9A-4C82-4FF7-A6E7-60FEAEB363E2}"

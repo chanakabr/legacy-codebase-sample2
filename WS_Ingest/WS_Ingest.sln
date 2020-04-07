@@ -99,8 +99,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.RabbitMQ", "..\cor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Abstraction", "..\core\EventBus.Abstraction\EventBus.Abstraction.csproj", "{F7EFC128-7294-4E5F-A045-2F35D22CC9F0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchBaseExtensions", "..\Core\CouchBaseExtensions\CouchBaseExtensions.csproj", "{96E09483-F2EF-4F95-A9B8-FC2674C6D7A7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestAdaptersCommon", "..\core\RestAdaptersCommon\RestAdaptersCommon.csproj", "{89BBD0DD-535C-4E8E-9D6E-1B0238B849AC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestTransformationAdapterClient", "..\core\IngestTransformationAdapterClient\IngestTransformationAdapterClient.csproj", "{DCBF813F-A7E7-44AD-BA60-1127F5E709FA}"

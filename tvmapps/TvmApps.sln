@@ -139,8 +139,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KLogMonitor", "..\Core\KLog
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchbaseManager", "..\Core\CouchbaseManager\CouchbaseManager.csproj", "{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchBaseExtensions", "..\Core\CouchBaseExtensions\CouchBaseExtensions.csproj", "{F5591A02-7C44-476F-B447-A63F39B2D731}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceExtensions", "..\Core\ServiceExtensions\ServiceExtensions.csproj", "{2E48DC40-A9AB-485D-A847-8E3662C69696}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KlogMonitorHelper", "..\Core\KlogMonitorHelper\KlogMonitorHelper.csproj", "{FA277E9A-4C82-4FF7-A6E7-60FEAEB363E2}"

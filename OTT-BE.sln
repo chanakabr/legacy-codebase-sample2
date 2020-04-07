@@ -97,8 +97,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KLogMonitor", "Core\KLogMon
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TCMClient", "Core\TCMClient\TCMClient.csproj", "{BC7B010E-BFE3-4666-BB4D-6ECC6FAB9472}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchBaseExtensions", "Core\CouchBaseExtensions\CouchBaseExtensions.csproj", "{F5591A02-7C44-476F-B447-A63F39B2D731}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventBus", "EventBus", "{B73AD4B5-1AC8-4F26-BF58-CD82247DC9C4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Abstraction", "Core\EventBus.Abstraction\EventBus.Abstraction.csproj", "{EB0F4A22-4860-4AE1-943D-BD478EFC3F9A}"

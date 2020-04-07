@@ -77,8 +77,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingHelpers", "..\Core\C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDNTokenizers", "..\Core\CDNTokenizers\CDNTokenizers.csproj", "{F5344336-D876-4785-BE21-19035AF2C558}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchBaseExtensions", "..\Core\CouchBaseExtensions\CouchBaseExtensions.csproj", "{1543408F-0B7C-4F47-B696-8EEBDF54BA96}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoogleAPI", "..\Core\GoogleAPI\GoogleAPI.csproj", "{BF958DAB-F474-4307-AB34-BE59820B92A2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AkamaiTokenGenerator", "..\Core\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj", "{40A35D6A-3415-4BA6-8DF2-A3DF9E036208}"

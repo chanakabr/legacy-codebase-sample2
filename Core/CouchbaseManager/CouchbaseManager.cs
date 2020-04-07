@@ -2,13 +2,11 @@
 using Couchbase.Configuration.Client;
 using Couchbase.Core.Serialization;
 using Couchbase.Core.Transcoders;
-using CouchBaseExtensions;
 using KLogMonitor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Reflection;
 using System.Text;
 using System.Threading;
