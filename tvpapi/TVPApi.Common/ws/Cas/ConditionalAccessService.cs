@@ -1430,7 +1430,7 @@ namespace TVPApiServices
                 }
                 try
                 {
-                    clientResponse = new ApiConditionalAccessService(nGroupId, initObj.Platform).CancelServiceNow(domainID, serviceID, serviceType, forceCancel, initObj.UDID);
+                    clientResponse = new ApiConditionalAccessService(nGroupId, initObj.Platform).CancelServiceNow(domainID, serviceID, serviceType, forceCancel, initObj.UDID, initObj.SiteGuid);
                 }
                 catch (Exception ex)
                 {
