@@ -65,10 +65,10 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Default
         /// </summary>
-        [DataMember(Name = "default")]
-        [JsonProperty(PropertyName = "default")]
-        [XmlElement(ElementName = "default")]
-        public KalturaDefault Default { get; set; }
+        [DataMember(Name = "iotDefault")]
+        [JsonProperty(PropertyName = "iotDefault")]
+        [XmlElement(ElementName = "iotDefault")]
+        public KalturaIotDefault IotDefault { get; set; }
     }
 
     public partial class KalturaCognitoUserPool : KalturaOTTObject
@@ -76,13 +76,13 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Default
         /// </summary>
-        [DataMember(Name = "default")]
-        [JsonProperty(PropertyName = "default")]
-        [XmlElement(ElementName = "default")]
-        public KalturaDefault Default { get; set; }
+        [DataMember(Name = "iotDefault")]
+        [JsonProperty(PropertyName = "iotDefault")]
+        [XmlElement(ElementName = "iotDefault")]
+        public KalturaIotDefault IotDefault { get; set; }
     }
 
-    public partial class KalturaDefault : KalturaOTTObject
+    public partial class KalturaIotDefault : KalturaOTTObject
     {
         /// <summary>
         /// PoolId

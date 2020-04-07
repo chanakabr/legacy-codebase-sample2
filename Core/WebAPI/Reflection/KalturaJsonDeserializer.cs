@@ -626,9 +626,6 @@ namespace WebAPI.Reflection
                 case "KalturaDateTrigger":
                     return new KalturaDateTrigger(parameters);
                     
-                case "KalturaDefault":
-                    return new KalturaDefault(parameters);
-                    
                 case "KalturaDefaultPlaybackAdapters":
                     return new KalturaDefaultPlaybackAdapters(parameters);
                     
@@ -1000,6 +997,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaIotClientConfiguration":
                     return new KalturaIotClientConfiguration(parameters);
+                    
+                case "KalturaIotDefault":
+                    return new KalturaIotDefault(parameters);
                     
                 case "KalturaIotFilter":
                     return new KalturaIotFilter(parameters);
@@ -15820,15 +15820,15 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                if (parameters.ContainsKey("default") && parameters["default"] != null)
+                if (parameters.ContainsKey("iotDefault") && parameters["iotDefault"] != null)
                 {
-                    if (parameters["default"] is JObject)
+                    if (parameters["iotDefault"] is JObject)
                     {
-                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), ((JObject) parameters["default"]).ToObject<Dictionary<string, object>>());
+                        IotDefault = (KalturaIotDefault) Deserializer.deserialize(typeof(KalturaIotDefault), ((JObject) parameters["iotDefault"]).ToObject<Dictionary<string, object>>());
                     }
-                    else if (parameters["default"] is IDictionary)
+                    else if (parameters["iotDefault"] is IDictionary)
                     {
-                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), (Dictionary<string, object>) parameters["default"]);
+                        IotDefault = (KalturaIotDefault) Deserializer.deserialize(typeof(KalturaIotDefault), (Dictionary<string, object>) parameters["iotDefault"]);
                     }
                 }
             }
@@ -15840,15 +15840,15 @@ namespace WebAPI.Models.API
         {
             if (parameters != null)
             {
-                if (parameters.ContainsKey("default") && parameters["default"] != null)
+                if (parameters.ContainsKey("iotDefault") && parameters["iotDefault"] != null)
                 {
-                    if (parameters["default"] is JObject)
+                    if (parameters["iotDefault"] is JObject)
                     {
-                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), ((JObject) parameters["default"]).ToObject<Dictionary<string, object>>());
+                        IotDefault = (KalturaIotDefault) Deserializer.deserialize(typeof(KalturaIotDefault), ((JObject) parameters["iotDefault"]).ToObject<Dictionary<string, object>>());
                     }
-                    else if (parameters["default"] is IDictionary)
+                    else if (parameters["iotDefault"] is IDictionary)
                     {
-                        Default = (KalturaDefault) Deserializer.deserialize(typeof(KalturaDefault), (Dictionary<string, object>) parameters["default"]);
+                        IotDefault = (KalturaIotDefault) Deserializer.deserialize(typeof(KalturaIotDefault), (Dictionary<string, object>) parameters["iotDefault"]);
                     }
                 }
             }
@@ -16084,27 +16084,6 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
-                }
-            }
-        }
-    }
-    public partial class KalturaDefault
-    {
-        public KalturaDefault(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("poolId") && parameters["poolId"] != null)
-                {
-                    PoolId = (String) Convert.ChangeType(parameters["poolId"], typeof(String));
-                }
-                if (parameters.ContainsKey("region") && parameters["region"] != null)
-                {
-                    Region = (String) Convert.ChangeType(parameters["region"], typeof(String));
-                }
-                if (parameters.ContainsKey("appClientId") && parameters["appClientId"] != null)
-                {
-                    AppClientId = (String) Convert.ChangeType(parameters["appClientId"], typeof(String));
                 }
             }
         }
@@ -16998,6 +16977,27 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("json") && parameters["json"] != null)
                 {
                     Json = (String) Convert.ChangeType(parameters["json"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaIotDefault
+    {
+        public KalturaIotDefault(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("poolId") && parameters["poolId"] != null)
+                {
+                    PoolId = (String) Convert.ChangeType(parameters["poolId"], typeof(String));
+                }
+                if (parameters.ContainsKey("region") && parameters["region"] != null)
+                {
+                    Region = (String) Convert.ChangeType(parameters["region"], typeof(String));
+                }
+                if (parameters.ContainsKey("appClientId") && parameters["appClientId"] != null)
+                {
+                    AppClientId = (String) Convert.ChangeType(parameters["appClientId"], typeof(String));
                 }
             }
         }
@@ -25846,6 +25846,26 @@ namespace WebAPI.Models.Partner
             }
         }
     }
+    public partial class KalturaPlaybackPartnerConfig
+    {
+        public KalturaPlaybackPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("defaultAdapters") && parameters["defaultAdapters"] != null)
+                {
+                    if (parameters["defaultAdapters"] is JObject)
+                    {
+                        DefaultAdapters = (KalturaDefaultPlaybackAdapters) Deserializer.deserialize(typeof(KalturaDefaultPlaybackAdapters), ((JObject) parameters["defaultAdapters"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["defaultAdapters"] is IDictionary)
+                    {
+                        DefaultAdapters = (KalturaDefaultPlaybackAdapters) Deserializer.deserialize(typeof(KalturaDefaultPlaybackAdapters), (Dictionary<string, object>) parameters["defaultAdapters"]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaRollingDeviceRemovalData
     {
         public KalturaRollingDeviceRemovalData(Dictionary<string, object> parameters = null) : base(parameters)
@@ -25864,26 +25884,6 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("rollingDeviceRemovalFamilyIds") && parameters["rollingDeviceRemovalFamilyIds"] != null)
                 {
                     RollingDeviceRemovalFamilyIds = (String) Convert.ChangeType(parameters["rollingDeviceRemovalFamilyIds"], typeof(String));
-                }
-            }
-        }
-    }
-    public partial class KalturaPlaybackPartnerConfig
-    {
-        public KalturaPlaybackPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("defaultAdapters") && parameters["defaultAdapters"] != null)
-                {
-                    if (parameters["defaultAdapters"] is JObject)
-                    {
-                        DefaultAdapters = (KalturaDefaultPlaybackAdapters) Deserializer.deserialize(typeof(KalturaDefaultPlaybackAdapters), ((JObject) parameters["defaultAdapters"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["defaultAdapters"] is IDictionary)
-                    {
-                        DefaultAdapters = (KalturaDefaultPlaybackAdapters) Deserializer.deserialize(typeof(KalturaDefaultPlaybackAdapters), (Dictionary<string, object>) parameters["defaultAdapters"]);
-                    }
                 }
             }
         }
