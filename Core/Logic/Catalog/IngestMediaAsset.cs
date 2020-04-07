@@ -354,9 +354,6 @@ namespace Core.Catalog
         [XmlElement("catalog_end")]
         public string CatalogEnd { get; set; }
 
-        [XmlElement("end")]
-        public string End { get; set; }
-
         [XmlElement("final_end")]
         public string FinalEnd { get; set; }
     }
