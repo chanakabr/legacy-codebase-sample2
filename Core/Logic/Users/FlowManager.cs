@@ -252,7 +252,7 @@ namespace Core.Users
             return response;
         }
 
-        public static SSOAdapterProfileInvokeResponse Invoke(int groupId, string intent, List<KeyValuePair> keyValuePairs, KalturaBaseUsers user)
+        public static SSOAdapterProfileInvoke Invoke(int groupId, string intent, List<KeyValuePair> keyValuePairs, KalturaBaseUsers user)
         {
             try
             {

@@ -282,10 +282,10 @@ namespace ObjectsConvertor.Mapping
             cfg.CreateMap<PasswordPolicyFilter, KalturaPasswordPolicyFilter>()
             .ForMember(dest => dest.UserRoleIdIn, opt => opt.MapFrom(src => string.Join(",", src.RoleIdsIn)));
 
-            cfg.CreateMap<SSOAdapterProfileInvokeResponse, KalturaSSOAdapterProfileInvoke>()
+            cfg.CreateMap<SSOAdapterProfileInvoke, KalturaSSOAdapterProfileInvoke>()
             .ForMember(dest => dest.Response, opt => opt.MapFrom(src => src.Response.Select(x => new KalturaKeyValue(null) { key = x.key, value = x.value }).ToList()));
             ;
-            cfg.CreateMap<KalturaSSOAdapterProfileInvoke, SSOAdapterProfileInvokeResponse>()
+            cfg.CreateMap<KalturaSSOAdapterProfileInvoke, SSOAdapterProfileInvoke>()
             .ForMember(dest => dest.Response, opt => opt.MapFrom(src => src.Response.Select(x => new KalturaKeyValue(null) { key = x.key, value = x.value }).ToList()));
             ;
             cfg.CreateMap<KalturaKeyValue, ApiObjects.KeyValuePair>()

@@ -1533,12 +1533,12 @@ namespace WebAPI.Clients
 
         internal KalturaSSOAdapterProfileInvoke Invoke(int groupId, string intent, List<KalturaKeyValue> extraParams)
         {
-            SSOAdapterProfileInvokeResponse response = null;
-
-            var keyValuePairs = Mapper.Map<List<KeyValuePair>>(extraParams);
+            SSOAdapterProfileInvoke response = null;
 
             try
             {
+                var keyValuePairs = Mapper.Map<List<KeyValuePair>>(extraParams);
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Users.Module.Invoke(groupId, intent, keyValuePairs);

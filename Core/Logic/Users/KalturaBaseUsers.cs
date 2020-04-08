@@ -105,7 +105,7 @@ namespace Core.Users
         public abstract void PostDeleteUser(ref ApiObjects.Response.Status response);
 
         // validate request
-        public abstract SSOAdapterProfileInvokeResponse Invoke(int groupId, string intent, List<KeyValuePair> keyValuePairs);
+        public abstract SSOAdapterProfileInvoke Invoke(int groupId, string intent, List<KeyValuePair> keyValuePairs);
 
         public virtual bool SetUserDynamicData(string sSiteGUID, List<KeyValuePair> lKeyValue, UserResponseObject uro)
         {

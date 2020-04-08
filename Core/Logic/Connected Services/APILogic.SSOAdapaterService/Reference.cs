@@ -1063,6 +1063,132 @@ namespace APILogic.SSOAdapaterService
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SSOAdapterProfileInvokeModel", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    public partial class SSOAdapterProfileInvokeModel : object
+    {
+        
+        private System.Collections.Generic.Dictionary<string, string> ExtraParametersField;
+        
+        private string IntentField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.Dictionary<string, string> ExtraParameters
+        {
+            get
+            {
+                return this.ExtraParametersField;
+            }
+            set
+            {
+                this.ExtraParametersField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Intent
+        {
+            get
+            {
+                return this.IntentField;
+            }
+            set
+            {
+                this.IntentField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SSOAdapterProfileInvokeResponse", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
+    public partial class SSOAdapterProfileInvokeResponse : object
+    {
+        
+        private APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatusField;
+        
+        private APILogic.SSOAdapaterService.KeyValue[] ResponseField;
+        
+        private APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatusField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatus
+        {
+            get
+            {
+                return this.AdapterStatusField;
+            }
+            set
+            {
+                this.AdapterStatusField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public APILogic.SSOAdapaterService.KeyValue[] Response
+        {
+            get
+            {
+                return this.ResponseField;
+            }
+            set
+            {
+                this.ResponseField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatus
+        {
+            get
+            {
+                return this.SSOResponseStatusField;
+            }
+            set
+            {
+                this.SSOResponseStatusField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="KeyValue", Namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models")]
+    public partial class KeyValue : object
+    {
+        
+        private string KeyField;
+        
+        private string ValueField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Key
+        {
+            get
+            {
+                return this.KeyField;
+            }
+            set
+            {
+                this.KeyField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Value
+        {
+            get
+            {
+                return this.ValueField;
+            }
+            set
+            {
+                this.ValueField = value;
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="APILogic.SSOAdapaterService.IService")]
     public interface IService
@@ -1091,6 +1217,9 @@ namespace APILogic.SSOAdapaterService
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/PostSignOut", ReplyAction="http://tempuri.org/IService/PostSignOutResponse")]
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostSignOutAsync(int adapterId, APILogic.SSOAdapaterService.PostSignOutModel postSignOutData, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/Invoke", ReplyAction="http://tempuri.org/IService/InvokeResponse")]
+        System.Threading.Tasks.Task<APILogic.SSOAdapaterService.SSOAdapterProfileInvokeResponse> InvokeAsync(int adapterId, APILogic.SSOAdapaterService.SSOAdapterProfileInvokeModel ssoAdapterProfileInvokeModel);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
@@ -1181,6 +1310,11 @@ namespace APILogic.SSOAdapaterService
         public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.UserResponse> PostSignOutAsync(int adapterId, APILogic.SSOAdapaterService.PostSignOutModel postSignOutData, string signature)
         {
             return base.Channel.PostSignOutAsync(adapterId, postSignOutData, signature);
+        }
+        
+        public System.Threading.Tasks.Task<APILogic.SSOAdapaterService.SSOAdapterProfileInvokeResponse> InvokeAsync(int adapterId, APILogic.SSOAdapaterService.SSOAdapterProfileInvokeModel ssoAdapterProfileInvokeModel)
+        {
+            return base.Channel.InvokeAsync(adapterId, ssoAdapterProfileInvokeModel);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()

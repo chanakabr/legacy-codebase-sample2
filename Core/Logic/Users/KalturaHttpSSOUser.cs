@@ -424,7 +424,7 @@ namespace Core.Users
         }
 
 
-        public override SSOAdapterProfileInvokeResponse Invoke(int groupId, string intent, List<KeyValuePair> keyValueList)
+        public override SSOAdapterProfileInvoke Invoke(int groupId, string intent, List<KeyValuePair> keyValueList)
         {
             if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.Invoke))
             {
@@ -435,36 +435,45 @@ namespace Core.Users
             {
                 _Logger.Info($"Calling SSO adapter Invoke [{_AdapterConfig.Name}], group:[{_GroupId}]");
 
-                //Matan - Todo, Add method to SSO IService
-                /*
                 var ssoAdapterProfileInvokeModel = new SSOAdapterProfileInvokeModel() { };
-                var response = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait(); //SSOAdapterProfileInvokeResponse
+                var response = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
 
-                if (!ValidateConfigurationIsSet((AdapterStatusCode)response.Status.Code))
+                if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
                     response = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
                 }
 
+                var status = CreateFromAdapterResponseStatus(response.SSOResponseStatus);
+
                 if (response.SSOResponseStatus.ResponseStatus != eSSOUserResponseStatus.OK)
                 {
-                    var status = CreateFromAdapterResponseStatus(response.SSOResponseStatus);
-                    return new SSOAdapterProfileInvokeResponse
+                    return new SSOAdapterProfileInvoke
                     {
-                        Status = new ApiObjects.Response.Status(status.ExternalCode, status.ExternalMessage)
+                        Status = new ApiObjects.Response.Status(status.ExternalCode)
                     };
                 }
-                */
-                return new SSOAdapterProfileInvokeResponse
+
+                var _adapterResponse = new SSOAdapterProfileInvoke
                 {
-                    Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, status.ExternalMessage),
+                    Response = new List<KeyValuePair>()
                 };
+
+                if (response.Response != null && response.Response.Length > 0)
+                {
+                    foreach (var pair in response.Response)
+                    {
+                        _adapterResponse.Response.Add(new KeyValuePair() { key = pair.Key, value = pair.Value });
+                    }
+                }
+                return _adapterResponse;
             }
             catch (Exception ex)
             {
                 _Logger.Error($"Unexpected error during Invoke for group:[{groupId}], ex:{ex}");
-                return new SSOAdapterProfileInvokeResponse()
+                return new SSOAdapterProfileInvoke()
                 {
-                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                    Status = new ApiObjects.Response.Status(eResponseStatus.Error)
                 };
             }
         }

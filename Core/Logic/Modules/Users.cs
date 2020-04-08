@@ -53,7 +53,7 @@ namespace Core.Users
             return null;
         }
 
-        public static SSOAdapterProfileInvokeResponse Invoke(int groupId, string intent, List<KeyValuePair> keyValuePairs)
+        public static SSOAdapterProfileInvoke Invoke(int groupId, string intent, List<KeyValuePair> keyValuePairs)
         {
             try
             {

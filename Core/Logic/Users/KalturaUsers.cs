@@ -678,9 +678,9 @@ namespace Core.Users
         }
         public override void PostDeleteUser(ref ApiObjects.Response.Status response) { }
 
-        public override SSOAdapterProfileInvokeResponse Invoke(int groupId, string intent, List<KeyValuePair> keyValueList)
+        public override SSOAdapterProfileInvoke Invoke(int groupId, string intent, List<KeyValuePair> keyValueList)
         {
-            return new SSOAdapterProfileInvokeResponse() { Response = new List<KeyValuePair>() };
+            return new SSOAdapterProfileInvoke() { Response = new List<KeyValuePair>() };
         }
     }
 }
