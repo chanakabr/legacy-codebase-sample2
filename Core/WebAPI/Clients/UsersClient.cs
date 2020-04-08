@@ -18,6 +18,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using ApiLogic.Users;
 
 namespace WebAPI.Clients
 {
@@ -43,13 +44,13 @@ namespace WebAPI.Clients
                         keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key, value = p.Value.value }).ToList();
                     }
 
-                    userResponse = Core.Users.Module.LogIn(groupId, 
-                        userName, 
-                        password, 
+                    userResponse = Core.Users.Module.LogIn(groupId,
+                        userName,
+                        password,
                         string.Empty,
                         Utils.Utils.GetClientIP(),
                         deviceId,
-                        shouldSupportSingleLogin, 
+                        shouldSupportSingleLogin,
                         keyValueList);
                 }
             }
@@ -1528,6 +1529,40 @@ namespace WebAPI.Clients
             }
 
             return response;
+        }
+
+        internal KalturaSSOAdapterProfileInvoke Invoke(int groupId, string intent, List<KalturaKeyValue> extraParams)
+        {
+            SSOAdapterProfileInvokeResponse response = null;
+
+            var keyValuePairs = Mapper.Map<List<KeyValuePair>>(extraParams);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Users.Module.Invoke(groupId, intent, keyValuePairs);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while Invoke. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            var profileInvoke = Mapper.Map<KalturaSSOAdapterProfileInvoke>(response);
+
+            return profileInvoke;
         }
 
         internal KalturaSSOAdapterProfile GenerateSSOAdapaterSharedSecret(int groupId, int ssoAdapterId, int updaterId)

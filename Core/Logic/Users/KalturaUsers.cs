@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Users;
+using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Segmentation;
 using CachingProvider.LayeredCache;
@@ -19,7 +20,7 @@ namespace Core.Users
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string DEFAULT_USER_CANNOT_BE_DELETED = "Default user cannot be deleted";
-        private const string EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED = "Exclusive master user cannot be deleted";        
+        private const string EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED = "Exclusive master user cannot be deleted";
         private const string HOUSEHOLD_NOT_INITIALIZED = "Household not initialized";
         private const string USER_NOT_EXISTS_IN_DOMAIN = "User not exists in domain";
 
@@ -209,7 +210,7 @@ namespace Core.Users
                 }
                 return userResponseObject;
             }
-            
+
             userResponseObject.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
 
             return userResponseObject;
@@ -230,7 +231,7 @@ namespace Core.Users
                 basicData.m_sUserName = string.Format(basicData.m_sUserName + "_{0}", User.GetNextGUID());
 
             newUser.InitializeNewUser(basicData, dynamicData, GroupId, password);
-            
+
             if (!string.IsNullOrEmpty(newUser.m_sSiteGUID) || newUser.m_oBasicData != basicData)
             {
                 userResponse.Initialize(ResponseStatus.UserExists, newUser);
@@ -242,7 +243,7 @@ namespace Core.Users
                 userResponse.Initialize(ResponseStatus.ExternalIdAlreadyExists, newUser);
                 return userResponse;
             }
-            
+
             // save user
             int userId = FlowManager.SaveNewUser(ref userResponse, this, ref basicData, newUser, GroupId, !IsActivationNeeded(basicData), keyValueList);
             if (userId <= 0)
@@ -250,7 +251,7 @@ namespace Core.Users
                 userResponse.Initialize(ResponseStatus.ErrorOnSaveUser, newUser);
                 return userResponse;
             }
-            
+
             // add domain
             if (newUser.m_domianID <= 0)
             {
@@ -266,7 +267,7 @@ namespace Core.Users
             {
                 FlowManager.CreateDefaultRules(ref userResponse, this, newUser, userId.ToString(), GroupId, keyValueList);
             }
-            
+
             // send welcome mail
             FlowManager.SendWelcomeMailRequest(ref userResponse, this, newUser, password, keyValueList);
 
@@ -525,7 +526,7 @@ namespace Core.Users
         /// <returns></returns>
         public UserResponseObject SignIn(string sCoGuid, string sPass, int nOperatorID, int nMaxFailCount, int nLockMinutes, string sSessionID, string sIP, string sDeviceID, bool bPreventDoubleLogins) { return null; }
 
-        public override UserResponseObject PreSignOut(ref int siteGuid, ref int groupId, ref string sessionId, ref string ip, ref  string deviceUdid, ref List<KeyValuePair> keyValueList) { return new UserResponseObject(); }
+        public override UserResponseObject PreSignOut(ref int siteGuid, ref int groupId, ref string sessionId, ref string ip, ref string deviceUdid, ref List<KeyValuePair> keyValueList) { return new UserResponseObject(); }
 
         internal override UserResponseObject MidSignOut(int siteGuid, int groupId, string sessionId, string ip, string deviceUdid)
         {
@@ -588,7 +589,7 @@ namespace Core.Users
 
         public override void PostGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP) { }
 
-        public override ApiObjects.Response.Status PreDeleteUser(int siteGuid) 
+        public override ApiObjects.Response.Status PreDeleteUser(int siteGuid)
         {
             return new ApiObjects.Response.Status();
         }
@@ -615,7 +616,7 @@ namespace Core.Users
                     response.Message = HOUSEHOLD_NOT_INITIALIZED;
                     return response;
                 }
-                
+
                 Domain userDomain = baseDomain.GetDomainInfo(userResponse.m_user.m_domianID, GroupId);
                 if (userDomain == null)
                 {
@@ -664,7 +665,7 @@ namespace Core.Users
                     // remove user from cache
                     UsersCache usersCache = UsersCache.Instance();
                     usersCache.RemoveUser(userId, GroupId);
-                    
+
                     return response;
                 }
             }
@@ -676,5 +677,10 @@ namespace Core.Users
             return response;
         }
         public override void PostDeleteUser(ref ApiObjects.Response.Status response) { }
+
+        public override SSOAdapterProfileInvokeResponse Invoke(int groupId, string intent, List<KeyValuePair> keyValueList)
+        {
+            return new SSOAdapterProfileInvokeResponse() { Response = new List<KeyValuePair>() };
+        }
     }
 }

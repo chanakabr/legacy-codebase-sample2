@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiLogic.Users;
 using ApiObjects;
 using DAL;
 using KeyValuePair = ApiObjects.KeyValuePair;
@@ -63,7 +64,7 @@ namespace Core.Users
         public abstract void PostSignIn(ref UserResponseObject userResponse, ref List<KeyValuePair> keyValueList);
 
         // SignOut
-        public abstract UserResponseObject PreSignOut(ref int siteGuid, ref int groupId, ref string sessionId, ref string ip, ref  string deviceUdid, ref List<KeyValuePair> keyValueList);
+        public abstract UserResponseObject PreSignOut(ref int siteGuid, ref int groupId, ref string sessionId, ref string ip, ref string deviceUdid, ref List<KeyValuePair> keyValueList);
         internal abstract UserResponseObject MidSignOut(int siteGuid, int groupId, string sessionId, string ip, string deviceUdid);
         public abstract void PostSignOut(ref UserResponseObject userResponse, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, ref List<KeyValuePair> keyValueList);
 
@@ -102,6 +103,9 @@ namespace Core.Users
         public abstract ApiObjects.Response.Status PreDeleteUser(int siteGuid);
         internal abstract ApiObjects.Response.Status MidDeleteUser(int siteGuid);
         public abstract void PostDeleteUser(ref ApiObjects.Response.Status response);
+
+        // validate request
+        public abstract SSOAdapterProfileInvokeResponse Invoke(int groupId, string intent, List<KeyValuePair> keyValuePairs);
 
         public virtual bool SetUserDynamicData(string sSiteGUID, List<KeyValuePair> lKeyValue, UserResponseObject uro)
         {

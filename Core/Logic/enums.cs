@@ -36,6 +36,7 @@ namespace Core.Api
         PreGetUserData = 2,
         PostGetUserData = 3,
         PreSignOut = 4,
-        PostSignOut = 5
+        PostSignOut = 5,
+        Invoke = 6
     }
 }
