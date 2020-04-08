@@ -13,6 +13,7 @@ pipeline {
     stages {
         stage("Clean"){
             steps{
+                sh(label:"clean published folder", script:"rm -rf *")
                 sh(label:"clean bin and obj folders", script:"find . -iname 'bin' -o -iname 'obj' | xargs rm -rf")
                 sh(label:"clean published folder", script:"rm -rf ./nugets")
             }
@@ -39,7 +40,6 @@ pipeline {
                 bat "dotnet pack Core/StaticHttpContextForNetCore/StaticHttpContextForNetCore.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/KLogMonitor/KLogMonitor.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/KlogMonitorHelper/KlogMonitorHelper.csproj -o ${WORKSPACE}/nugets/" 
-                bat "dotnet pack Core/CouchBaseExtensions/CouchBaseExtensions.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/CouchbaseManager/CouchbaseManager.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/ODBCWrapper/ODBCWrapper.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/CachingManager/CachingManager.csproj -o ${WORKSPACE}/nugets/" 
@@ -66,7 +66,6 @@ pipeline {
                     bat "nuget push StaticHttpContextForNetCore*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push KLogMonitor*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push KlogMonitorHelper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
-                    bat "nuget push CouchBaseExtensions*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push CouchbaseManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push ODBCWrapper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push CachingManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
