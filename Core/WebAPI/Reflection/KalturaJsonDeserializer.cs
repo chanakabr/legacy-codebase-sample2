@@ -1733,6 +1733,9 @@ namespace WebAPI.Reflection
                 case "KalturaSSOAdapterProfile":
                     return new KalturaSSOAdapterProfile(parameters);
                     
+                case "KalturaSSOAdapterProfileInvoke":
+                    return new KalturaSSOAdapterProfileInvoke(parameters);
+                    
                 case "KalturaSSOAdapterProfileListResponse":
                     return new KalturaSSOAdapterProfileListResponse(parameters);
                     
@@ -25102,6 +25105,26 @@ namespace WebAPI.Models.Users
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
                 {
                     SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaSSOAdapterProfileInvoke
+    {
+        public KalturaSSOAdapterProfileInvoke(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("sSOAdapterProfileInvoke") && parameters["sSOAdapterProfileInvoke"] != null)
+                {
+                    if (parameters["sSOAdapterProfileInvoke"] is JArray)
+                    {
+                        Response = buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["sSOAdapterProfileInvoke"]);
+                    }
+                    else if (parameters["sSOAdapterProfileInvoke"] is IList)
+                    {
+                        Response = buildList(typeof(KalturaKeyValue), parameters["sSOAdapterProfileInvoke"] as object[]);
+                    }
                 }
             }
         }

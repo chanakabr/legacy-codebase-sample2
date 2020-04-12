@@ -435,7 +435,12 @@ namespace Core.Users
             {
                 _Logger.Info($"Calling SSO adapter Invoke [{_AdapterConfig.Name}], group:[{_GroupId}]");
 
-                var ssoAdapterProfileInvokeModel = new SSOAdapterProfileInvokeModel() { };
+                var ssoAdapterProfileInvokeModel = new SSOAdapterProfileInvokeModel()
+                {
+                    Intent = intent,
+                    ExtraParameters = keyValueList?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToList()
+                };
+
                 var response = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
 
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
@@ -461,11 +466,9 @@ namespace Core.Users
 
                 if (response.Response != null && response.Response.Length > 0)
                 {
-                    foreach (var pair in response.Response)
-                    {
-                        _adapterResponse.Response.Add(new KeyValuePair() { key = pair.Key, value = pair.Value });
-                    }
+                    _adapterResponse.Response.AddRange(response.Response.Select(x => new KeyValuePair(x.Key, x.Value)));
                 }
+
                 return _adapterResponse;
             }
             catch (Exception ex)

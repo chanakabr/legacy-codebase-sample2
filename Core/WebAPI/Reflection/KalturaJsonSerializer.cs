@@ -25087,6 +25087,36 @@ namespace WebAPI.Models.Users
             return ret;
         }
     }
+    public partial class KalturaSSOAdapterProfileInvoke
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Response != null)
+            {
+                propertyValue = "[" + String.Join(", ", Response.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("sSOAdapterProfileInvoke", "\"sSOAdapterProfileInvoke\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Response != null)
+            {
+                propertyValue = Response.Count > 0 ? "<item>" + String.Join("</item><item>", Response.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("sSOAdapterProfileInvoke", "<sSOAdapterProfileInvoke>" + propertyValue + "</sSOAdapterProfileInvoke>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaSSOAdapterProfileListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
