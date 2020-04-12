@@ -3,6 +3,7 @@ using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using Core.Catalog.CatalogManagement;
+using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,8 +17,10 @@ namespace Core.Catalog
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class MediaAsset : Asset
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region Consts
-        
+
         // ASSET EXCEL COLUMNS
         public const string MEDIA_ASSET_TYPE = "Media Asset Type";
         public const string GEO_RULE = "Geo Block Rule";
@@ -208,10 +211,12 @@ namespace Core.Catalog
                 }
             }
 
+            log.Debug($"MediaAsset.GetExcelValues this.CatalogStartDate: {this.CatalogStartDate}");
             DateTime? catalogStartDate = GetBasicMetaDate(this.CatalogStartDate, AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME);
             if (catalogStartDate.HasValue)
             {
                 var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, null, null, true);
+                log.Debug($"MediaAsset.GetExcelValues catalogStartDate col: {excelColumn}, value: {catalogStartDate}");
                 excelValues.TryAdd(excelColumn, catalogStartDate);
             }
 

@@ -2,11 +2,13 @@
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
+using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using TVinciShared;
 
@@ -14,6 +16,8 @@ namespace Core.Catalog
 {
     public class AssetStruct : IExcelStructureManager
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private static readonly List<string> OVERVIEW_INSTRUCTIONS = new List<string>()
         {
             "//Template Overview",
@@ -334,6 +338,7 @@ namespace Core.Catalog
                                                                    uniqeMeta.Key,
                                                                    null,
                                                                    uniqueMetasToHelpText[uniqeMeta.Key]);
+                        log.Debug($"GetExcelStructure uniqeMetaColumn: {uniqeMetaColumn.ToString()}");
                         excelColumns.TryAdd(uniqeMetaColumn.ToString(), uniqeMetaColumn);
                     }
                 }
