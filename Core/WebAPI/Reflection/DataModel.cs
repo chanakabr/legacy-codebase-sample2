@@ -6153,8 +6153,8 @@ namespace WebAPI.Reflection
                 case "KalturaSSOAdapterProfileInvoke":
                     switch(property.Name)
                     {
-                        case "Response":
-                            return "sSOAdapterProfileInvoke";
+                        case "AdapterData":
+                            return "adapterData";
                     }
                     break;
                     
@@ -18020,7 +18020,7 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(string),
                             });
-                            ret.Add("extraParameters", new MethodParam(){
+                            ret.Add("adapterData", new MethodParam(){
                                 NewName = newParamName,
                                 IsList = true,
                                 GenericType = typeof(KalturaKeyValue),

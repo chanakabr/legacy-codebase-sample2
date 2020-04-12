@@ -25115,15 +25115,11 @@ namespace WebAPI.Models.Users
         {
             if (parameters != null)
             {
-                if (parameters.ContainsKey("sSOAdapterProfileInvoke") && parameters["sSOAdapterProfileInvoke"] != null)
+                if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
                 {
-                    if (parameters["sSOAdapterProfileInvoke"] is JArray)
+                    if (parameters["adapterData"] is JObject)
                     {
-                        Response = buildList<KalturaKeyValue>(typeof(KalturaKeyValue), (JArray) parameters["sSOAdapterProfileInvoke"]);
-                    }
-                    else if (parameters["sSOAdapterProfileInvoke"] is IList)
-                    {
-                        Response = buildList(typeof(KalturaKeyValue), parameters["sSOAdapterProfileInvoke"] as object[]);
+                        AdapterData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
             }

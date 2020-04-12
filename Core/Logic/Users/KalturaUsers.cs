@@ -680,7 +680,7 @@ namespace Core.Users
 
         public override SSOAdapterProfileInvoke Invoke(int groupId, string intent, List<KeyValuePair> keyValueList)
         {
-            return new SSOAdapterProfileInvoke() { Response = new List<KeyValuePair>() };
+            return new SSOAdapterProfileInvoke() { AdapterData = new Dictionary<string, string>() };
         }
     }
 }

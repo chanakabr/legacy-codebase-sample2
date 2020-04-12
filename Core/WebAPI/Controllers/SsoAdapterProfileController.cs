@@ -195,13 +195,13 @@ namespace WebAPI.Controllers
         /// SSO Adapter id required = 2058, sso adapater not exist = 2056
         /// </remarks>
         /// <param name="intent">intent</param>
-        /// <param name="extraParameters">extra Parameters</param>
+        /// <param name="adapterData">adapter Data</param>
         [Action("invoke")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.SSOAdapterIdRequired)]
         [Throws(eResponseStatus.SSOAdapterNotExist)]
-        static public KalturaSSOAdapterProfileInvoke Invoke(string intent, List<KalturaKeyValue> extraParameters)
+        static public KalturaSSOAdapterProfileInvoke Invoke(string intent, List<KalturaKeyValue> adapterData)
         {
             KalturaSSOAdapterProfileInvoke response = null;
             var ks = KS.GetFromRequest();
@@ -210,7 +210,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().Invoke(groupId, intent, extraParameters);
+                response = ClientsManager.UsersClient().Invoke(groupId, intent, adapterData);
 
                 if (response == null) { throw new ClientException((int)eResponseStatus.SSOAdapterNotExist); }
             }

@@ -426,11 +426,6 @@ namespace Core.Users
 
         public override SSOAdapterProfileInvoke Invoke(int groupId, string intent, List<KeyValuePair> keyValueList)
         {
-            if (!_ImplementedMethodsExtend.Contains((int)Api.eSSOMethodsExtend.Invoke))
-            {
-                return base.Invoke(groupId, intent, keyValueList);
-            }
-
             try
             {
                 _Logger.Info($"Calling SSO adapter Invoke [{_AdapterConfig.Name}], group:[{_GroupId}]");
@@ -441,16 +436,16 @@ namespace Core.Users
                     ExtraParameters = keyValueList?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray()
                 };
 
-                var response = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
+                var adapterResponse = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
 
-                if (!ValidateConfigurationIsSet(response.AdapterStatus))
+                if (!ValidateConfigurationIsSet(adapterResponse.AdapterStatus))
                 {
-                    response = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
+                    adapterResponse = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
                 }
 
-                var status = CreateFromAdapterResponseStatus(response.SSOResponseStatus);
+                var status = CreateFromAdapterResponseStatus(adapterResponse.SSOResponseStatus);
 
-                if (response.SSOResponseStatus.ResponseStatus != eSSOUserResponseStatus.OK)
+                if (adapterResponse.SSOResponseStatus.ResponseStatus != eSSOUserResponseStatus.OK)
                 {
                     return new SSOAdapterProfileInvoke
                     {
@@ -461,12 +456,12 @@ namespace Core.Users
                 var _adapterResponse = new SSOAdapterProfileInvoke
                 {
                     Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, status.ExternalMessage),
-                    Response = new List<KeyValuePair>()
+                    AdapterData = new Dictionary<string, string>()
                 };
 
-                if (response.Response != null && response.Response.Length > 0)
+                if (adapterResponse.Response != null && adapterResponse.Response.Length > 0)
                 {
-                    _adapterResponse.Response.AddRange(response.Response.Select(x => new KeyValuePair(x.Key, x.Value)));
+                    _adapterResponse.AdapterData.TryAddRange(adapterResponse.Response.ToDictionary(x => x.Key, x => x.Value));
                 }
 
                 return _adapterResponse;

@@ -282,12 +282,15 @@ namespace ObjectsConvertor.Mapping
             cfg.CreateMap<PasswordPolicyFilter, KalturaPasswordPolicyFilter>()
             .ForMember(dest => dest.UserRoleIdIn, opt => opt.MapFrom(src => string.Join(",", src.RoleIdsIn)));
 
-            cfg.CreateMap<SSOAdapterProfileInvoke, KalturaSSOAdapterProfileInvoke>()
-            .ForMember(dest => dest.Response, opt => opt.MapFrom(src => src.Response.Select(x => new KalturaKeyValue(null) { key = x.key, value = x.value }).ToList()));
-            ;
             cfg.CreateMap<KalturaSSOAdapterProfileInvoke, SSOAdapterProfileInvoke>()
-            .ForMember(dest => dest.Response, opt => opt.MapFrom(src => src.Response.Select(x => new KalturaKeyValue(null) { key = x.key, value = x.value }).ToList()));
+            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.AdapterData, false)))
+            .AfterMap((src, dest) => dest.AdapterData = src.AdapterData != null ? dest.AdapterData : null)
             ;
+
+            cfg.CreateMap<SSOAdapterProfileInvoke, KalturaSSOAdapterProfileInvoke>()
+            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => src.AdapterData != null ? src.AdapterData.ToDictionary(k => k.Key, v => v.Value) : null))
+            ;
+
             cfg.CreateMap<KalturaKeyValue, ApiObjects.KeyValuePair>()
                 .ForMember(dest => dest.key, opt => opt.MapFrom(src => src.key))
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.value));

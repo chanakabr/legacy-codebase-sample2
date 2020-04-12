@@ -25095,10 +25095,10 @@ namespace WebAPI.Models.Users
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(Response != null)
+            if(AdapterData != null)
             {
-                propertyValue = "[" + String.Join(", ", Response.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("sSOAdapterProfileInvoke", "\"sSOAdapterProfileInvoke\": " + propertyValue);
+                propertyValue = "{" + String.Join(", ", AdapterData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("adapterData", "\"adapterData\": " + propertyValue);
             }
             return ret;
         }
@@ -25109,10 +25109,10 @@ namespace WebAPI.Models.Users
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(Response != null)
+            if(AdapterData != null)
             {
-                propertyValue = Response.Count > 0 ? "<item>" + String.Join("</item><item>", Response.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("sSOAdapterProfileInvoke", "<sSOAdapterProfileInvoke>" + propertyValue + "</sSOAdapterProfileInvoke>");
+                propertyValue = AdapterData.Count > 0 ? "<item>" + String.Join("</item><item>", AdapterData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("adapterData", "<adapterData>" + propertyValue + "</adapterData>");
             }
             return ret;
         }
