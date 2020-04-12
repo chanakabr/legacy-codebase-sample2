@@ -1069,12 +1069,12 @@ namespace APILogic.SSOAdapaterService
     public partial class SSOAdapterProfileInvokeModel : object
     {
         
-        private System.Collections.Generic.Dictionary<string, string> ExtraParametersField;
+        private APILogic.SSOAdapaterService.KeyValue[] ExtraParametersField;
         
         private string IntentField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.Dictionary<string, string> ExtraParameters
+        public APILogic.SSOAdapaterService.KeyValue[] ExtraParameters
         {
             get
             {
@@ -1096,6 +1096,43 @@ namespace APILogic.SSOAdapaterService
             set
             {
                 this.IntentField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="KeyValue", Namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models")]
+    public partial class KeyValue : object
+    {
+        
+        private string KeyField;
+        
+        private string ValueField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Key
+        {
+            get
+            {
+                return this.KeyField;
+            }
+            set
+            {
+                this.KeyField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Value
+        {
+            get
+            {
+                return this.ValueField;
+            }
+            set
+            {
+                this.ValueField = value;
             }
         }
     }
@@ -1148,43 +1185,6 @@ namespace APILogic.SSOAdapaterService
             set
             {
                 this.SSOResponseStatusField = value;
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="KeyValue", Namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models")]
-    public partial class KeyValue : object
-    {
-        
-        private string KeyField;
-        
-        private string ValueField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Key
-        {
-            get
-            {
-                return this.KeyField;
-            }
-            set
-            {
-                this.KeyField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Value
-        {
-            get
-            {
-                return this.ValueField;
-            }
-            set
-            {
-                this.ValueField = value;
             }
         }
     }

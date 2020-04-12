@@ -438,7 +438,7 @@ namespace Core.Users
                 var ssoAdapterProfileInvokeModel = new SSOAdapterProfileInvokeModel()
                 {
                     Intent = intent,
-                    ExtraParameters = keyValueList?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToList()
+                    ExtraParameters = keyValueList?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray()
                 };
 
                 var response = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
