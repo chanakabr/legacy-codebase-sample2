@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using AdapaterCommon.Models;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace SSOAdapter.Models
@@ -10,6 +11,6 @@ namespace SSOAdapter.Models
         public string Intent { get; set; }
 
         [DataMember]
-        public IDictionary<string, string> ExtraParameters { get; set; }
+        public List<KeyValue> ExtraParameters { get; set; }
     }
 }
