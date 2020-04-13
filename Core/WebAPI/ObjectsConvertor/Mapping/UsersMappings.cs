@@ -285,10 +285,14 @@ namespace ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaSSOAdapterProfileInvoke, SSOAdapterProfileInvoke>()
             .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.AdapterData, false)))
             .AfterMap((src, dest) => dest.AdapterData = src.AdapterData != null ? dest.AdapterData : null)
+            .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+            .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
             ;
 
             cfg.CreateMap<SSOAdapterProfileInvoke, KalturaSSOAdapterProfileInvoke>()
             .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => src.AdapterData != null ? src.AdapterData.ToDictionary(k => k.Key, v => v.Value) : null))
+            .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+            .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
             ;
 
             cfg.CreateMap<KalturaKeyValue, ApiObjects.KeyValuePair>()

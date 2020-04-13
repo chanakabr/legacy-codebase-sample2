@@ -11,6 +11,6 @@ namespace SSOAdapter.Models
         public string Intent { get; set; }
 
         [DataMember]
-        public List<KeyValue> ExtraParameters { get; set; }
+        public List<KeyValue> AdapterData { get; set; }
     }
 }

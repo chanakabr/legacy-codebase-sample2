@@ -14,5 +14,21 @@ namespace WebAPI.Models.Users
         [JsonProperty("adapterData")]
         [XmlElement(ElementName = "adapterData")]
         public SerializableDictionary<string, KalturaStringValue> AdapterData { get; set; }
+
+        /// <summary>
+        /// code
+        /// </summary>
+        [DataMember(Name = "code")]
+        [JsonProperty("code")]
+        [XmlElement(ElementName = "code")]
+        public string Code { get; set; }
+
+        /// <summary>
+        /// message
+        /// </summary>
+        [DataMember(Name = "message")]
+        [JsonProperty("message")]
+        [XmlElement(ElementName = "message")]
+        public string Message { get; set; }
     }
 }

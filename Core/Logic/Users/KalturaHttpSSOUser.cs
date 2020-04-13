@@ -456,6 +456,8 @@ namespace Core.Users
                 var _adapterResponse = new SSOAdapterProfileInvoke
                 {
                     Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, status.ExternalMessage),
+                    //Code = adapterResponse?.Code,
+                    //Message = adapterResponse?.Message,
                     AdapterData = new Dictionary<string, string>()
                 };
 

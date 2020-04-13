@@ -14,6 +14,12 @@ namespace SSOAdapter.Models
         public SSOResponseStatus SSOResponseStatus { get; set; }
 
         [DataMember]
-        public List<KeyValue> Response { get; set; }
+        public List<KeyValue> AdapterData { get; set; }
+
+        [DataMember]
+        public string Code { get; set; }
+
+        [DataMember]
+        public string Message { get; set; }
     }
 }

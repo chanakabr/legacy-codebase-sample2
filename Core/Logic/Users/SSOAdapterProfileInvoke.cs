@@ -6,5 +6,7 @@ namespace ApiLogic.Users
     {
         public ApiObjects.Response.Status Status { get; set; }
         public Dictionary<string, string> AdapterData { get; set; }
+        public string Code { get; set; }
+        public string Message { get; set; }
     }
 }
