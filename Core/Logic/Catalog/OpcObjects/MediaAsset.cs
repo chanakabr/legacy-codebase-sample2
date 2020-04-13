@@ -211,6 +211,7 @@ namespace Core.Catalog
                 }
             }
 
+            log.Debug($"MediaAsset.GetExcelValues Metas: {string.Join(", ", this.Metas.Select(x => x.m_oTagMeta.m_sName))}");
             log.Debug($"MediaAsset.GetExcelValues this.CatalogStartDate: {this.CatalogStartDate}");
             DateTime? catalogStartDate = GetBasicMetaDate(this.CatalogStartDate, AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME);
             if (catalogStartDate.HasValue)
@@ -270,7 +271,8 @@ namespace Core.Catalog
             }
             else if (this.Metas != null && this.Metas.Count > 0)
             {
-                var metaDate = Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.Equals(metaDateSystemName));
+                log.Debug($"MediaAsset.GetBasicMetaDate metaDateSystemName: {metaDateSystemName}");
+                var metaDate = this.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.Equals(metaDateSystemName));
                 if (metaDate != null)
                 {
                     DateTime assetDate;
