@@ -1069,20 +1069,20 @@ namespace APILogic.SSOAdapaterService
     public partial class SSOAdapterProfileInvokeModel : object
     {
         
-        private APILogic.SSOAdapaterService.KeyValue[] ExtraParametersField;
+        private APILogic.SSOAdapaterService.KeyValue[] AdapterDataField;
         
         private string IntentField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapaterService.KeyValue[] ExtraParameters
+        public APILogic.SSOAdapaterService.KeyValue[] AdapterData
         {
             get
             {
-                return this.ExtraParametersField;
+                return this.AdapterDataField;
             }
             set
             {
-                this.ExtraParametersField = value;
+                this.AdapterDataField = value;
             }
         }
         
@@ -1143,11 +1143,28 @@ namespace APILogic.SSOAdapaterService
     public partial class SSOAdapterProfileInvokeResponse : object
     {
         
+        private APILogic.SSOAdapaterService.KeyValue[] AdapterDataField;
+        
         private APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatusField;
         
-        private APILogic.SSOAdapaterService.KeyValue[] ResponseField;
+        private string CodeField;
+        
+        private string MessageField;
         
         private APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatusField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public APILogic.SSOAdapaterService.KeyValue[] AdapterData
+        {
+            get
+            {
+                return this.AdapterDataField;
+            }
+            set
+            {
+                this.AdapterDataField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.AdapterStatusCode AdapterStatus
@@ -1163,15 +1180,28 @@ namespace APILogic.SSOAdapaterService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public APILogic.SSOAdapaterService.KeyValue[] Response
+        public string Code
         {
             get
             {
-                return this.ResponseField;
+                return this.CodeField;
             }
             set
             {
-                this.ResponseField = value;
+                this.CodeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Message
+        {
+            get
+            {
+                return this.MessageField;
+            }
+            set
+            {
+                this.MessageField = value;
             }
         }
         

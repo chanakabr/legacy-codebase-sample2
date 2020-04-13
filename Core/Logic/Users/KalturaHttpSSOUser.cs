@@ -433,7 +433,7 @@ namespace Core.Users
                 var ssoAdapterProfileInvokeModel = new SSOAdapterProfileInvokeModel()
                 {
                     Intent = intent,
-                    ExtraParameters = keyValueList?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray()
+                    AdapterData = keyValueList?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray()
                 };
 
                 var adapterResponse = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
@@ -449,21 +449,23 @@ namespace Core.Users
                 {
                     return new SSOAdapterProfileInvoke
                     {
-                        Status = new ApiObjects.Response.Status(status.ExternalCode)
+                        Status = new ApiObjects.Response.Status(status.ExternalCode),
+                        Code = adapterResponse.Code,
+                        Message = adapterResponse.Message
                     };
                 }
 
                 var _adapterResponse = new SSOAdapterProfileInvoke
                 {
                     Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, status.ExternalMessage),
-                    //Code = adapterResponse?.Code,
-                    //Message = adapterResponse?.Message,
+                    Code = adapterResponse?.Code,
+                    Message = adapterResponse?.Message,
                     AdapterData = new Dictionary<string, string>()
                 };
 
-                if (adapterResponse.Response != null && adapterResponse.Response.Length > 0)
+                if (adapterResponse.AdapterData != null && adapterResponse.AdapterData.Length > 0)
                 {
-                    _adapterResponse.AdapterData.TryAddRange(adapterResponse.Response.ToDictionary(x => x.Key, x => x.Value));
+                    _adapterResponse.AdapterData.TryAddRange(adapterResponse.AdapterData.ToDictionary(x => x.Key, x => x.Value));
                 }
 
                 return _adapterResponse;
