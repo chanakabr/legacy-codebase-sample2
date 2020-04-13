@@ -3,7 +3,6 @@ using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using Core.Catalog.CatalogManagement;
-using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,8 +16,6 @@ namespace Core.Catalog
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class MediaAsset : Asset
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         #region Consts
 
         // ASSET EXCEL COLUMNS
@@ -211,13 +208,10 @@ namespace Core.Catalog
                 }
             }
 
-            log.Debug($"MediaAsset.GetExcelValues Metas: {string.Join(", ", this.Metas.Select(x => x.m_oTagMeta.m_sName))}");
-            log.Debug($"MediaAsset.GetExcelValues this.CatalogStartDate: {this.CatalogStartDate}");
             DateTime? catalogStartDate = GetBasicMetaDate(this.CatalogStartDate, AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME);
             if (catalogStartDate.HasValue)
             {
                 var excelColumn = ExcelColumn.GetFullColumnName(AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME, null, null, true);
-                log.Debug($"MediaAsset.GetExcelValues catalogStartDate col: {excelColumn}, value: {catalogStartDate}");
                 excelValues.TryAdd(excelColumn, catalogStartDate);
             }
 
@@ -271,15 +265,10 @@ namespace Core.Catalog
             }
             else if (this.Metas != null && this.Metas.Count > 0)
             {
-                log.Debug($"MediaAsset.GetBasicMetaDate metaDateSystemName: {metaDateSystemName}");
                 var metaDate = this.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.Equals(metaDateSystemName));
                 if (metaDate != null)
                 {
-                    DateTime assetDate;
-                    if (DateTime.TryParse(metaDate.m_sValue, out assetDate))
-                    {
-                        basicMetaDate = assetDate;
-                    }
+                    basicMetaDate = DateUtils.TryExtractDate(metaDate.m_sValue);
                 }
             }
 
