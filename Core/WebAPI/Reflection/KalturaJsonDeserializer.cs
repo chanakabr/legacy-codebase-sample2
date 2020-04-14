@@ -25122,6 +25122,14 @@ namespace WebAPI.Models.Users
                         AdapterData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
+                if (parameters.ContainsKey("code") && parameters["code"] != null)
+                {
+                    Code = (String) Convert.ChangeType(parameters["code"], typeof(String));
+                }
+                if (parameters.ContainsKey("message") && parameters["message"] != null)
+                {
+                    Message = (String) Convert.ChangeType(parameters["message"], typeof(String));
+                }
             }
         }
     }

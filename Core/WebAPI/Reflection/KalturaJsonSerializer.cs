@@ -25100,6 +25100,14 @@ namespace WebAPI.Models.Users
                 propertyValue = "{" + String.Join(", ", AdapterData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
                 ret.Add("adapterData", "\"adapterData\": " + propertyValue);
             }
+            if(Code != null)
+            {
+                ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
+            }
+            if(Message != null)
+            {
+                ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
+            }
             return ret;
         }
         
@@ -25113,6 +25121,14 @@ namespace WebAPI.Models.Users
             {
                 propertyValue = AdapterData.Count > 0 ? "<item>" + String.Join("</item><item>", AdapterData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("adapterData", "<adapterData>" + propertyValue + "</adapterData>");
+            }
+            if(Code != null)
+            {
+                ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
+            }
+            if(Message != null)
+            {
+                ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
             }
             return ret;
         }

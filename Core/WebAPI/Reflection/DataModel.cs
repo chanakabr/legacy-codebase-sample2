@@ -6155,6 +6155,10 @@ namespace WebAPI.Reflection
                     {
                         case "AdapterData":
                             return "adapterData";
+                        case "Code":
+                            return "code";
+                        case "Message":
+                            return "message";
                     }
                     break;
                     
