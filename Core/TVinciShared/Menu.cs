@@ -3,6 +3,7 @@ using System.Web;
 using System.Text;
 using KLogMonitor;
 using System.Reflection;
+using System.Xml;
 
 namespace TVinciShared
 {
@@ -204,12 +205,16 @@ namespace TVinciShared
 
         public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID)
         {
-            return GetMainMenu(nMenuID, bAdmin, ref nSelID, "");
+            return GetNewMainMenu(nMenuID, bAdmin, ref nSelID, "");
+        }
+        public static string GetNewMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID)
+        {
+            return GetNewMainMenu(nMenuID, bAdmin, ref nSelID, "");
         }
 
         public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, string sPageURL)
         {
-            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, 0, sPageURL) + "</root>";
+            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, 0, sPageURL) + "</root>";            
 
             StringBuilder sTemp = new StringBuilder();
 
@@ -222,12 +227,7 @@ namespace TVinciShared
             sTemp.Append("{");
             sTemp.Append("e = document.getElementById(\"menu_holder\");");
             sTemp.Append("if(newHeight<200)newHeight=200;");
-            //sTemp += "if (newHeight < 600) {";
-            //sTemp += "e.style.height = '600px';";
-            //sTemp += "}";
-            //sTemp += "else {";
-            sTemp.Append("e.style.height = newHeight + 'px';");
-            //sTemp += "}";
+            sTemp.Append("e.style.height = newHeight + 'px';");            
             sTemp.Append("}");
             sTemp.Append("var flashObj = new SWFObj");
             sTemp.Append("(");
@@ -257,6 +257,28 @@ namespace TVinciShared
             sTemp.Append("flashObj.write('menu_holder');");
             sTemp.Append("</script>");
             return sTemp.ToString();
+        }
+
+        public static string GetNewMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, string sPageURL)
+        {
+            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, 0, sPageURL) + "</root>";
+
+            XmlDocument xmld = new XmlDocument();
+            xmld.LoadXml(sXML);
+            
+            StringBuilder mainStr = new StringBuilder();
+            mainStr.Append("<tr><td><ul>");
+
+            foreach (XmlElement item in xmld.ChildNodes[0].ChildNodes)
+            {
+                AppendItemToMenu(item, mainStr);
+            }
+
+            mainStr.Append("</td></tr></ul>");
+
+            var a = mainStr.ToString();
+
+            return a;
         }
 
         public static string GetMainMenu(ref Int32 nMenuID, bool bAdmin, ref Int32 nSelID, Int32 nParentID)
@@ -515,5 +537,208 @@ namespace TVinciShared
             }
         }
 
+        public static string GetNewMainMenu(ref Int32 nMenuID, bool bAdmin, ref Int32 nSelID, Int32 nParentID, string sPageURL)
+        {
+            if (nParentID == 0)
+            {
+                nSelID = 0;
+                nMenuID = GetOriginalMenuIDByURL(nParentID, sPageURL, false);
+                if (nMenuID == 0)
+                    nMenuID = GetOriginalMenuIDByURL(nParentID, sPageURL, true);
+            }
+            StringBuilder sXML = new StringBuilder();
+            Int32 nCount = 0;
+            Int32 nAcctID = LoginManager.GetLoginID();
+            Int32 nGroupID = LoginManager.GetLoginGroupID();
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select aap.view_permit,am.*, (select count(*) from admin_menu where parent_menu_id = Id) as childCount from admin_menu am,admin_accounts_permissions aap where aap.menu_id=am.id and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("parent_menu_id", "=", nParentID);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("aap.account_id", "=", nAcctID);
+            selectQuery += " order by menu_order_vis";
+            if (selectQuery.Execute("query", true) != null)
+            {
+                nCount = selectQuery.Table("query").DefaultView.Count;
+                for (Int32 i = 0; i < nCount; i++)
+                {
+                    Int32 nAMID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["id"].ToString());
+                    Int32 nOnlyTV = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ONLY_TVINCI"].ToString());
+                    Int32 nOnlyCO = int.Parse(selectQuery.Table("query").DefaultView[i].Row["ONLY_CO"].ToString());
+                    int parentMenuId = int.Parse(selectQuery.Table("query").DefaultView[i].Row["PARENT_MENU_ID"].ToString());
+                    int childCount = int.Parse(selectQuery.Table("query").DefaultView[i].Row["childCount"].ToString());
+                    bool bVisible = true;
+                    if (int.Parse(selectQuery.Table("query").DefaultView[i].Row["view_permit"].ToString()) == 0)
+                        bVisible = false;
+                    if (selectQuery.Table("query").DefaultView[i].Row["menu_text"].ToString() == "")
+                        bVisible = false;
+                    if (nGroupID > 1 && nOnlyTV == 1)
+                        bVisible = false;
+                    if (nGroupID == 1 && nOnlyCO == 1)
+                        bVisible = false;
+                    string menuText = selectQuery.Table("query").DefaultView[i].Row["menu_text"].ToString();
+                    if (nParentID == 0)
+                    {
+                        menuText = menuText.ToUpper();
+                    }
+                    if (!string.IsNullOrEmpty(menuText) && menuText.ToLower().Contains("media store"))
+                    {
+                        bVisible = IsLayoutManagerVisible(nGroupID);
+                    }
+                    if (bVisible == true)
+                    {
+                        string sSelected = "false";
+                        if (nMenuID == nAMID)
+                        {
+                            nSelID = nMenuID;
+                            sSelected = "true";
+                        }
+
+                        sXML.Append($"<li>");
+                        if (childCount > 0)
+                        {
+                            sXML.Append($"<span class='caret'/><span> {menuText}</span>");
+                        }
+                        else
+                        {
+                            sXML.Append(menuText);
+                        }
+
+                        if (parentMenuId == 0)
+                        {
+                            sXML.Append("<ul class='nested'>");
+                            sXML.Append(GetNewMainMenu(ref nMenuID, bAdmin, ref nSelID, nAMID, sPageURL));
+                            sXML.Append("</ul>");
+                        }
+                        else
+                        {
+                            sXML.Append(GetNewMainMenu(ref nMenuID, bAdmin, ref nSelID, nAMID, sPageURL));
+                        }
+
+                        sXML.Append("</li>");
+
+
+                        //sXML.Append("<node label=\"");
+                        //if (nParentID == 0)
+                        //    sXML.Append(selectQuery.Table("query").DefaultView[i].Row["menu_text"].ToString().ToUpper());
+                        //else
+                        //    sXML.Append(selectQuery.Table("query").DefaultView[i].Row["menu_text"].ToString());
+                        //string sUrl = selectQuery.Table("query").DefaultView[i].Row["menu_href"].ToString();
+                        //if (sUrl != "")
+                        //    sUrl = "[navigateURL::" + sUrl + "]";
+                        //sXML.Append("\" selected=\"").Append(sSelected).Append("\" actions=\"").Append(sUrl).Append("\" >");
+                        //sXML.Append(GetMainMenu(ref nMenuID, bAdmin, ref nSelID, nAMID, sPageURL));
+                        //sXML.Append("</node>");
+
+
+
+
+                        //if (nParentID == 0)
+                        //    menuText.ToUpper();
+
+                        //if (parentMenuId == 0)
+                        //{
+                        //    sXML.Append("<li>");
+                        //    sXML.Append("<span class='caret' onclick ='get_nested()'>").Append(menuText);
+                        //    sXML.Append("</span>");
+                        //    sXML.Append("<ul class='nested'>");
+                        //    sXML.Append(GetNewMainMenu(ref nMenuID, bAdmin, ref nSelID, nAMID, sPageURL));
+
+                        //    sXML.Append("</ul>");
+                        //    sXML.Append("</li>");
+                        //}
+                        //else
+                        //{
+                        //    sXML.Append($"<li>{menuText}</li>");
+                        //}                       
+                    }
+                }
+            }
+            else
+            {
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return sXML.ToString();
+        }
+
+        private static void AppendItemToMenu(XmlElement menuItem, StringBuilder mainStr)
+        {
+            SetMenuItemVariable(menuItem, out string name, out string path, out bool isActive, out bool isParentSelected);
+
+            if (menuItem.HasChildNodes)
+            {
+                StringBuilder newNestedLi = new StringBuilder();
+                if (isParentSelected)
+                {
+                    newNestedLi.Append("<li><span class ='caret caret-down' OnClick=\"javascript:expand(this)\"' ></span>");
+                }
+                else
+                {
+                    newNestedLi.Append("<li><span class ='caret' OnClick=\"javascript:expand(this)\"' ></span>");
+                }
+
+                newNestedLi.Append($"<span>{name}</span>");
+
+                StringBuilder nestedUl = new StringBuilder();
+                if (isActive || isParentSelected)
+                {
+                    nestedUl.Append("<ul class='nested active'>");
+                }
+                else
+                {
+                    nestedUl.Append("<ul class='nested'>");
+                }
+
+                foreach (XmlElement child in menuItem.ChildNodes)
+                {
+                    AppendItemToMenu(child, nestedUl);
+                }
+                nestedUl.Append("</ul>");
+                newNestedLi.Append(nestedUl).Append("</li>");
+                mainStr.Append(newNestedLi);
+            }
+            else
+            {
+                if (isActive)
+                {
+                    mainStr.Remove(mainStr.ToString().Length - 2, 2);
+                    mainStr.Append(" active'>");
+                }
+
+                string newLi = $"<li OnClick=\"javascript:window.location.href='{path}'\">{name }</li>";
+
+                mainStr.Append(newLi);
+            }
+        }
+
+        private static void SetMenuItemVariable(XmlElement item, out string name, out string path, out bool isActive, out bool isParentSelected)
+        {
+            name = string.Empty;
+            path = string.Empty;
+            isActive = false;
+            isParentSelected = false;
+
+            if (item.Attributes["label"] != null)
+            {
+                name = item.Attributes["label"].Value;
+            }
+
+            if (item.Attributes["actions"] != null && !string.IsNullOrEmpty(item.Attributes["actions"].Value))
+            {
+                path = item.Attributes["actions"].Value;
+                path = path.Remove(path.Length - 1, 1).Replace("[navigateURL::", "");
+            }
+
+            if (item.Attributes["selected"] != null)
+            {
+                isActive = Convert.ToBoolean(item.Attributes["selected"].Value);
+            }
+
+            if (item.InnerXml.Contains("selected=\"true\""))
+            {
+                isParentSelected = true;
+            }
+        }
     }
 }

@@ -854,3 +854,45 @@ td.formInputs table table { background:none;}
 .playerPop { position:absolute; background:url(../images/pBgSingle.png) no-repeat; _background:none!important;  _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../images/pBgSingle.png', sizingMethod='scale'); }
 .playerPop .inner { clear:both; padding:25px 25px 20px;}
 .playerPop .close { z-index: 600;position:absolute; cursor:pointer; right:0; top:0; width:56px; height:22px; text-indent:-9999px; text-decoration:none; overflow:hidden; background:url(../images/popPlayerClose.png) no-repeat; _right:-1px; _background:none!important;  _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../images/popPlayerClose.png', sizingMethod='scale');}
+
+ul, #myUL {
+	list-style-type: none;
+}
+
+#myUL {
+	margin: 0;
+	padding: 0;
+}
+
+li {
+	cursor: pointer;
+}
+
+.caret {
+	cursor: pointer;
+	-webkit-user-select: none; /* Safari 3.1+ */
+	-moz-user-select: none; /* Firefox 2+ */
+	-ms-user-select: none; /* IE 10+ */
+	user-select: none;
+}
+
+	.caret::before {
+		content: "\25B6";
+		color: black;
+		display: inline-block;
+		margin-right: 6px;
+	}
+
+.caret-down::before {
+	-ms-transform: rotate(90deg); /* IE 9 */
+	-webkit-transform: rotate(90deg); /* Safari */
+	' transform: rotate(90 deg);
+}
+
+.nested {
+	display: none;
+}
+
+.active {
+	display: block;
+}
