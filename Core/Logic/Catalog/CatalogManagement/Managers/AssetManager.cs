@@ -922,7 +922,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // Update asset catalogStartDate and finalEndDate
-                assetToAdd.CatalogStartDate = assetCatalogStartDate;
+                assetToAdd.CatalogStartDate = assetCatalogStartDate ?? assetToAdd.CatalogStartDate;
                 assetToAdd.FinalEndDate = assetFinalEndDate ?? assetToAdd.FinalEndDate;
 
                 // Add Name meta values (for languages that are not default)
