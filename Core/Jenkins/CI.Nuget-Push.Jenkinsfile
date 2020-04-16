@@ -8,7 +8,7 @@ pipeline {
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core branch to pull')
         string(name: 'nuget_server', defaultValue: '10.10.12.70:5555/v3/index.json', description: 'Nuget Server URL')
-        booleanParam(name: 'mark_alpha', defaultValue: 'true', description: 'mark nuget as alpha, uncheck when releasing OFFICIAL nuget')
+        
     }
     stages {
         stage("Checkout and restore Core Source"){
@@ -16,31 +16,12 @@ pipeline {
                 dir('Core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${branch}", credentialsId: "github-ott-ci-cd") }
             }
         }
-        stage("Alpha Version Patch"){
-            when
-            {
-                expression {
-                    params.mark_alpha == true
-                } 
-            }
-            steps {
-                dir("Core"){
-                    bat "sh DllVersioning.Core.sh . -alpha" 
-                }
-            }            
-        }
-        stage("Official Version Patch"){
-            when
-            {
-                expression {
-                    params.mark_alpha == false
-                } 
-            }
-            steps {
+        stage("Version Patch"){
+            steps{
                 dir("Core"){
                     bat "sh DllVersioning.Core.sh ." 
                 }
-            }            
+            }        
         }
         stage("Package Nuget Locally"){
             steps{
@@ -51,8 +32,7 @@ pipeline {
                 bat "dotnet pack Core/TCMClient/TCMClient.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/StaticHttpContextForNetCore/StaticHttpContextForNetCore.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/KLogMonitor/KLogMonitor.csproj -o ${WORKSPACE}/nugets/" 
-                bat "dotnet pack Core/KlogMonitorHelper/KlogMonitorHelper.csproj -o ${WORKSPACE}/nugets/" 
-                bat "dotnet pack Core/CouchBaseExtensions/CouchBaseExtensions.csproj -o ${WORKSPACE}/nugets/" 
+                bat "dotnet pack Core/KlogMonitorHelper/KlogMonitorHelper.csproj -o ${WORKSPACE}/nugets/"                 
                 bat "dotnet pack Core/CouchbaseManager/CouchbaseManager.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/ODBCWrapper/ODBCWrapper.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/CachingManager/CachingManager.csproj -o ${WORKSPACE}/nugets/" 
@@ -79,7 +59,6 @@ pipeline {
                     bat "nuget push StaticHttpContextForNetCore*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push KLogMonitor*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push KlogMonitorHelper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
-                    bat "nuget push CouchBaseExtensions*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push CouchbaseManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push ODBCWrapper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push CachingManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
