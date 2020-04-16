@@ -8,7 +8,7 @@ pipeline {
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core branch to pull')
         string(name: 'nuget_server', defaultValue: '10.10.12.70:5555/v3/index.json', description: 'Nuget Server URL')
-        booleanParam(name: 'mark_alpha', defaultValue: 'true', description: 'mark nuget as alpha, uncheck when releasing OFFICIAL nuget')
+        
     }
     stages {
         stage("Checkout and restore Core Source"){
@@ -16,31 +16,12 @@ pipeline {
                 dir('Core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${branch}", credentialsId: "github-ott-ci-cd") }
             }
         }
-        stage("Alpha Version Patch"){
-            when
-            {
-                expression {
-                    params.mark_alpha == true
-                } 
-            }
-            steps {
-                dir("Core"){
-                    bat "sh DllVersioning.Core.sh . -alpha" 
-                }
-            }            
-        }
-        stage("Official Version Patch"){
-            when
-            {
-                expression {
-                    params.mark_alpha == false
-                } 
-            }
-            steps {
+        stage("Version Patch"){
+            steps{
                 dir("Core"){
                     bat "sh DllVersioning.Core.sh ." 
                 }
-            }            
+            }        
         }
         stage("Package Nuget Locally"){
             steps{
