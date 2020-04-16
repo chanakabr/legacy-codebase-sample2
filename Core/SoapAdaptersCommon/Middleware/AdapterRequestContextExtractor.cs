@@ -34,12 +34,21 @@ namespace SoapAdaptersCommon.Middleware
             action = action.Substring(action.LastIndexOf('/') + 1).TrimEnd('"');
             action = action ?? "null";
 
+            var reqid = _HttpContexAccessor.HttpContext.TraceIdentifier;
+            if (message.Headers.FindHeader(Constants.REQUEST_ID_KEY, string.Empty) >= 0)
+            {
+                reqid = message.Headers.GetHeader<string>(Constants.REQUEST_ID_KEY, string.Empty);
+            }
+
+            reqid = reqid ?? _HttpContexAccessor.HttpContext.TraceIdentifier;
+
             string ks = null;
-            if (message.Headers.FindHeader(Constants.KS, string.Empty) > 0)
+            if (message.Headers.FindHeader(Constants.KS, string.Empty) >= 0)
             {
                 ks = message.Headers.GetHeader<string>(Constants.KS, string.Empty);
             }
 
+            _HttpContexAccessor.HttpContext.Items[Constants.REQUEST_ID_KEY] = reqid;
             _HttpContexAccessor.HttpContext.Items[Constants.KS] = ks;
             _HttpContexAccessor.HttpContext.Items[Constants.ACTION] = action;
             _HttpContexAccessor.HttpContext.Items[Constants.CLIENT_TAG] = Dns.GetHostName();
