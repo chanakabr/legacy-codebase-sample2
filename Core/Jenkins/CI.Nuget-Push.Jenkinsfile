@@ -8,7 +8,7 @@ pipeline {
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core branch to pull')
         string(name: 'nuget_server', defaultValue: '10.10.12.70:5555/v3/index.json', description: 'Nuget Server URL')
-        
+        booleanParam(name: 'mark_alpha', defaultValue: 'true', description: 'mark nuget as alpha, uncheck when releasing OFFICIAL nuget')
     }
     stages {
         stage("Checkout and restore Core Source"){
@@ -19,7 +19,14 @@ pipeline {
         stage("Version Patch"){
             steps{
                 dir("Core"){
-                    bat "sh DllVersioning.Core.sh ." 
+                    if (mark_alpha)
+					{
+						bat "sh DllVersioning.Core.sh . -alpha" 
+					}
+					else
+					{
+						bat "sh DllVersioning.Core.sh ." 
+					}
                 }
             }        
         }
