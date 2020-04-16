@@ -363,7 +363,11 @@ namespace TVinciShared
                             sXML.Append(selectQuery.Table("query").DefaultView[i].Row["menu_text"].ToString());
                         string sUrl = selectQuery.Table("query").DefaultView[i].Row["menu_href"].ToString();
                         if (sUrl != "")
+                        {
+                            sUrl = sUrl.Replace("=", "");
+                            sUrl = sUrl.Replace("&", "");
                             sUrl = "[navigateURL::" + sUrl + "]";
+                        }
                         sXML.Append("\" selected=\"").Append(sSelected).Append("\" actions=\"").Append(sUrl).Append("\" >");
                         sXML.Append(GetMainMenu(ref nMenuID, bAdmin, ref nSelID, nAMID, sPageURL));
                         sXML.Append("</node>");
