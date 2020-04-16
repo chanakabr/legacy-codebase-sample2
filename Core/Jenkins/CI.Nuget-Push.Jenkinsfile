@@ -16,19 +16,31 @@ pipeline {
                 dir('Core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${branch}", credentialsId: "github-ott-ci-cd") }
             }
         }
-        stage("Version Patch"){
-            steps{
+        stage("Alpha Version Patch"){
+            when
+            {
+                expression {
+                    params.mark_alpha == true
+                } 
+            }
+            steps {
                 dir("Core"){
-                    if (mark_alpha)
-					{
-						bat "sh DllVersioning.Core.sh . -alpha" 
-					}
-					else
-					{
-						bat "sh DllVersioning.Core.sh ." 
-					}
+                    bat "sh DllVersioning.Core.sh . -alpha" 
                 }
-            }        
+            }            
+        }
+        stage("Official Version Patch"){
+            when
+            {
+                expression {
+                    params.mark_alpha == false
+                } 
+            }
+            steps {
+                dir("Core"){
+                    bat "sh DllVersioning.Core.sh ." 
+                }
+            }            
         }
         stage("Package Nuget Locally"){
             steps{
