@@ -206,11 +206,7 @@ namespace TVinciShared
         public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID)
         {
             return GetNewMainMenu(nMenuID, bAdmin, ref nSelID, "");
-        }
-        public static string GetNewMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID)
-        {
-            return GetNewMainMenu(nMenuID, bAdmin, ref nSelID, "");
-        }
+        }        
 
         public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, string sPageURL)
         {
@@ -267,14 +263,14 @@ namespace TVinciShared
             xmld.LoadXml(sXML);
             
             StringBuilder mainStr = new StringBuilder();
-            mainStr.Append("<tr><td><ul>");
+            mainStr.Append("<tr><td><div id=\"menu\"><ul>");
 
             foreach (XmlElement item in xmld.ChildNodes[0].ChildNodes)
             {
                 AppendItemToMenu(item, mainStr);
             }
 
-            mainStr.Append("</td></tr></ul>");
+            mainStr.Append("</div></ul></td></tr>");
 
             var a = mainStr.ToString();
 
@@ -710,7 +706,7 @@ namespace TVinciShared
                     mainStr.Append(" active'>");
                 }
 
-                string newLi = $"<li OnClick=\"javascript:window.location.href='{path}'\">{name }</li>";
+                string newLi = $"<li class='no-children' OnClick=\"javascript:window.location.href='{path}'\">{name }</li>";
 
                 mainStr.Append(newLi);
             }
