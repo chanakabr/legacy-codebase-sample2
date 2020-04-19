@@ -896,3 +896,67 @@ li {
 .active {
 	display: block;
 }
+/* ====== changes to menu ========== */
+div#menu {
+	border: 5px solid #c6e2fe;
+}
+
+ ul {
+	padding: 0;
+	margin: 0;
+}
+
+	 ul > li > .caret::before {
+		margin-right: 0;
+		padding: 0 15px;
+		content: "";
+	}
+
+	 ul > li > .caret {
+		display: inline-block;
+		background: url(../Images/folder.svg) top center no-repeat;
+		width: 35px;
+		height: 16px;
+	}
+
+	 ul:first-child:not(.nested) > li {
+		text-transform: uppercase;
+		color: #3399ff;
+		font-family: arial, sans-serif;
+		font-size: 16px;
+		padding: 10px 0;
+		border-bottom: 1px solid #c6e2ff;
+	}
+
+ul.nested {
+	padding-left: 32px;
+	padding-top: 10px;
+}
+
+	ul.nested ul.nested {
+		padding-left: 14px;
+	}
+
+.nested li {
+	font-family: arial, sans-serif;
+	text-transform: none;
+	color: #4c4c4c;
+	font-size: 14px;
+	padding: 5px;
+}
+
+.nested .caret:before {
+	content: "";
+}
+
+.nested .caret {
+	display: inline-block;
+	background: url(../Images/plus.svg) top center no-repeat;
+	width: 16px;
+	height: 16px;
+	margin-right: 10px;
+}
+
+	.nested .caret.caret-down {
+		background: url(../Images/minus.svg) top center no-repeat;
+	}
