@@ -64,7 +64,7 @@ namespace Phoenix.Rest.Middleware
             // get proper response formatter but make sure errors should be only xml or json ...
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
             var format = ctx.Format != "1" || ctx.Format != "2" ? "1" : ctx.Format;
-            var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), ctx.Format);
+            var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), format);
 
             context.Response.Headers.Add("X-Kaltura-App", $"exiting on error {code} - {message}");
             context.Response.Headers.Add("X-Kaltura", $"error-{code}");
