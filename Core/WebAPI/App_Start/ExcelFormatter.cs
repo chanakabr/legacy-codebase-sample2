@@ -24,7 +24,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.App_Start
 {
-
     public class ExcelFormatter : BaseFormatter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -252,10 +251,12 @@ namespace WebAPI.App_Start
                 }
                 catch (ApiException ex)
                 {
+                    log.Error($"An ApiException was occurred in ExcelFormatter.WriteToStreamAsync. Details:{ex.ToString()}.");
                     throw ex;
                 }
                 catch (Exception ex)
                 {
+                    log.Error($"An Exception was occurred in ExcelFormatter.WriteToStreamAsync. Details:{ex.ToString()}.");
                     var apiException = new ApiException(ex, HttpStatusCode.InternalServerError);
                     throw apiException;
                 }
