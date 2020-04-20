@@ -206,11 +206,11 @@ namespace TVinciShared
         public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID)
         {
             return GetNewMainMenu(nMenuID, bAdmin, ref nSelID, "");
-        }        
+        }
 
         public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, string sPageURL)
         {
-            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, 0, sPageURL) + "</root>";            
+            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, 0, sPageURL) + "</root>";
 
             StringBuilder sTemp = new StringBuilder();
 
@@ -223,7 +223,7 @@ namespace TVinciShared
             sTemp.Append("{");
             sTemp.Append("e = document.getElementById(\"menu_holder\");");
             sTemp.Append("if(newHeight<200)newHeight=200;");
-            sTemp.Append("e.style.height = newHeight + 'px';");            
+            sTemp.Append("e.style.height = newHeight + 'px';");
             sTemp.Append("}");
             sTemp.Append("var flashObj = new SWFObj");
             sTemp.Append("(");
@@ -261,7 +261,7 @@ namespace TVinciShared
 
             XmlDocument xmld = new XmlDocument();
             xmld.LoadXml(sXML);
-            
+
             StringBuilder mainStr = new StringBuilder();
             mainStr.Append("<tr><td><div id=\"menu\"><ul>");
 
@@ -700,13 +700,17 @@ namespace TVinciShared
             }
             else
             {
+                string newLi = string.Empty;
                 if (isActive)
                 {
                     mainStr.Remove(mainStr.ToString().Length - 2, 2);
                     mainStr.Append(" active'>");
+                    newLi = $"<li class='no-children selected' OnClick=\"javascript:window.location.href='{path}'\">{name }</li>";
                 }
-
-                string newLi = $"<li class='no-children' OnClick=\"javascript:window.location.href='{path}'\">{name }</li>";
+                else
+                {
+                    newLi = $"<li class='no-children' OnClick=\"javascript:window.location.href='{path}'\">{name }</li>";
+                }
 
                 mainStr.Append(newLi);
             }
