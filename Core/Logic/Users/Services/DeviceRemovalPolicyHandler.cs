@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TVinciShared;
+using ApiLogic.Api.Managers;
 
 namespace ApiLogic.Users.Services
 {
@@ -73,8 +74,22 @@ namespace ApiLogic.Users.Services
         }
 
 
-        public void SaveDomainDeviceUsageDate(string UDID)
+        public void SaveDomainDeviceUsageDate(string UDID,int groupId)
         {
+
+            if (!PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId).HasObjects())
+                return;
+
+            var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId).Objects.FirstOrDefault();
+
+            if (generalPartnerConfig?.RollingDeviceRemovalData.RollingDeviceRemovalPolicy == null ||
+                generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds.Count <= 0)
+                return;
+
+            if (generalPartnerConfig?.RollingDeviceRemovalData.RollingDeviceRemovalPolicy != RollingDevicePolicy.ACTIVE_DEVICE_ASCENDING)
+                return;
+
+
             var tryParse = Enum.TryParse(ApplicationConfiguration.Current.UdidUsageConfiguration.BucketName.Value,
                 true,
                 out eCouchbaseBucket couchbaseBucket);
