@@ -15,6 +15,7 @@ using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using Core.Middleware;
+using WebAPI.Models.API;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -74,7 +75,7 @@ namespace Phoenix.Rest.Middleware
             _Logger.Error($"Error while calling api:[{ctx.RouteData}] response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
             return new ApiExceptionHandlerResponse
             {
-                HttpStatusCode = (int)HttpStatusCode.OK,
+                HttpStatusCode = ctx.Format == "31" ? (int)HttpStatusCode.InternalServerError : (int)HttpStatusCode.OK,
                 ContentType = formatter.AcceptContentTypes[0],
                 Reponse = stringResponse,
             };

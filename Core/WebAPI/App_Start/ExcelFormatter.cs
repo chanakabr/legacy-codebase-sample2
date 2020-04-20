@@ -1,27 +1,26 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using WebAPI.Models.General;
-using WebAPI.Managers.Models;
-using WebAPI.Exceptions;
-using System.Collections.Generic;
-using System.Collections;
-using System.Web;
-using WebAPI.Filters;
-using KLogMonitor;
-using System.Reflection;
-using System.Data;
-using System.Linq;
+﻿using ApiObjects.BulkUpload;
 using ApiObjects.Response;
-
-using WebAPI.Models.API;
-using ApiObjects.BulkUpload;
-using System.Net;
-using System.Text;
+using KLogMonitor;
+using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Web;
 using TVinciShared;
+using WebAPI.Exceptions;
+using WebAPI.Filters;
+using WebAPI.Managers;
+using WebAPI.Managers.Models;
+using WebAPI.Models.API;
+using WebAPI.Models.General;
 
 namespace WebAPI.App_Start
 {
@@ -30,8 +29,11 @@ namespace WebAPI.App_Start
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
+        protected JsonManager jsonManager;
+
         public ExcelFormatter() : base(KalturaResponseType.EXCEL, ExcelFormatterConsts.EXCEL_CONTENT_TYPE)
         {
+            jsonManager = JsonManager.GetInstance();
         }
 
         public override bool CanReadType(Type type)
@@ -45,32 +47,6 @@ namespace WebAPI.App_Start
         public override bool CanWriteType(Type type)
         {
             return true;
-        }
-
-        private static StatusWrapper CreateStatusWrapper(ApiException ex, object value)
-        {
-            var subCode = ex.Code;
-            var message = ex.Message;
-            var exceptionWrapper = KalturaApiExceptionHelpers.prepareExceptionResponse(ex.Code, ex.Message, ex.Args);
-
-            var exceptionContentValue = (ex.Response.Content as System.Net.Http.ObjectContent).Value;
-            if (exceptionContentValue is ApiException.ExceptionPayload && (exceptionContentValue as ApiException.ExceptionPayload).code != 0)
-            {
-                var payload = exceptionContentValue as WebAPI.Exceptions.ApiException.ExceptionPayload;
-                subCode = payload.code;
-                message = KalturaApiExceptionHelpers.HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
-                exceptionWrapper = KalturaApiExceptionHelpers.prepareExceptionResponse(payload.code, message, payload.arguments);
-                if (payload.failureHttpCode != System.Net.HttpStatusCode.OK && payload.failureHttpCode != 0)
-                {
-                    HttpContext.Current.Response.StatusCode = (int)payload.failureHttpCode;
-                    HttpContext.Current.Response.Headers.Add("X-Kaltura-App", string.Format("exiting on error {0} - {1}", payload.code, message));
-                    HttpContext.Current.Response.Headers.Add("X-Kaltura", string.Format("error-{0}", payload.code));
-                }
-            }
-
-            var oldStatusWrapper = value as StatusWrapper;
-            var statusWrapper = new StatusWrapper(subCode, Guid.Empty, oldStatusWrapper.ExecutionTime, exceptionWrapper, message);
-            return statusWrapper;
         }
 
         private static bool TryGetDataFromRequest(out int? groupId, out string fileName)
@@ -276,24 +252,19 @@ namespace WebAPI.App_Start
                 }
                 catch (ApiException ex)
                 {
-                    value = CreateStatusWrapper(ex, value);
+                    throw ex;
                 }
                 catch (Exception ex)
                 {
                     var apiException = new ApiException(ex, HttpStatusCode.InternalServerError);
-                    value = CreateStatusWrapper(apiException, value);
+                    throw apiException;
                 }
             }
 
-            if (HttpContext.Current.Request.GetHttpMethod().Equals("POST") && HttpContext.Current.Response.StatusCode == (int)HttpStatusCode.OK)
+            using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
-                HttpContext.Current.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            }
-
-            using (var streamWriter = new StreamWriter(writeStream))
-            {
-                HttpContext.Current.Response.ContentType = "application/json";
-                streamWriter.Write(JsonConvert.SerializeObject(value));
+                string json = jsonManager.Serialize(value);
+                streamWriter.Write(json);
                 return Task.FromResult(writeStream);
             }
         }
