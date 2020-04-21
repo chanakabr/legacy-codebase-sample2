@@ -4,6 +4,7 @@
 
 startScanPath=$1
 allProjFiles=$(grep --include=\*.csproj -rnwl -E "(netcoreapp[0-9]+\.[0-9]+)|netstandard[0-9]+\.[0-9]+" ${startScanPath})
+long_tag=$(git describe --tags --always --dirty --long)
 tag=$(git describe --tags)
 
 echo "VERSION_TAG: $VERSION_TAG"
@@ -29,7 +30,7 @@ then
 	else
 		version="${major}"."${minor}"."${build}"."${revision}"
 	fi
-	description="$(date +'%Y-%m-%d %H:%M:%S') \| Hostname:$(hostname) \| Published by:${commiter} \| Tag:${tag}"
+	description="$(date +'%Y-%m-%d %H:%M:%S') \| Hostname:$(hostname) \| Published by:${commiter} \| Tag:${long_tag}"
 	echo "Identified Version: $version"
 	echo "Identified Description: $description"
 	echo 
