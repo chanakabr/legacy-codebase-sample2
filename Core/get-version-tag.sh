@@ -3,7 +3,7 @@
 # set -o xtrace
 
 tag=$(git describe --tags --always --dirty --long)
-tag=${tag::-21}
+tag=${tag::(-15)}
 commitCount=$(git rev-list --count HEAD)
 
 #If no tag has been added only the sha1 will be returned
