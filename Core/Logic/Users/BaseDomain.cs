@@ -1050,7 +1050,7 @@ namespace Core.Users
                 List<int> usersInDomain = domain.m_DefaultUsersIDs;
                 usersInDomain.AddRange(domain.m_UsersIDs);
 
-                rowCount = UsersDal.Upsert_SuspendedUsersRole(groupId, usersInDomain, currentRoleId.HasValue ? currentRoleId.Value : 0, newRoleId.HasValue ? newRoleId.Value : 0);
+                rowCount = UsersDal.Upsert_SuspendedUsersRole(groupId, usersInDomain?.Distinct().ToList(), currentRoleId.HasValue ? currentRoleId.Value : 0, newRoleId.HasValue ? newRoleId.Value : 0);
             }
             catch (Exception ex)
             {
