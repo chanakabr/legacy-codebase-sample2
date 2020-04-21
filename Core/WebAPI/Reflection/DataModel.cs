@@ -3397,22 +3397,12 @@ namespace WebAPI.Reflection
                     {
                         case "AccessKeyId":
                             return "accessKeyId";
-                        case "BrokerPort":
-                            return "brokerPort";
-                        case "CertificatePath":
-                            return "certificatePath";
                         case "ClientId":
                             return "clientId";
                         case "IdentityPoolId":
                             return "identityPoolId";
                         case "IotEndPoint":
                             return "iotEndPoint";
-                        case "IotPolicyName":
-                            return "iotPolicyName";
-                        case "PfxPassword":
-                            return "pfxPassword";
-                        case "PfxPath":
-                            return "pfxPath";
                         case "Region":
                             return "region";
                         case "SecretAccessKey":

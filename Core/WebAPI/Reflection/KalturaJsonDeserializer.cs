@@ -17048,22 +17048,6 @@ namespace WebAPI.Models.API
                 {
                     IotEndPoint = (String) Convert.ChangeType(parameters["iotEndPoint"], typeof(String));
                 }
-                if (parameters.ContainsKey("pfxPath") && parameters["pfxPath"] != null)
-                {
-                    PfxPath = (String) Convert.ChangeType(parameters["pfxPath"], typeof(String));
-                }
-                if (parameters.ContainsKey("pfxPassword") && parameters["pfxPassword"] != null)
-                {
-                    PfxPassword = (String) Convert.ChangeType(parameters["pfxPassword"], typeof(String));
-                }
-                if (parameters.ContainsKey("certificatePath") && parameters["certificatePath"] != null)
-                {
-                    CertificatePath = (String) Convert.ChangeType(parameters["certificatePath"], typeof(String));
-                }
-                if (parameters.ContainsKey("brokerPort") && parameters["brokerPort"] != null)
-                {
-                    BrokerPort = (Int32) Convert.ChangeType(parameters["brokerPort"], typeof(Int32));
-                }
                 if (parameters.ContainsKey("accessKeyId") && parameters["accessKeyId"] != null)
                 {
                     AccessKeyId = (String) Convert.ChangeType(parameters["accessKeyId"], typeof(String));
@@ -17071,10 +17055,6 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("secretAccessKey") && parameters["secretAccessKey"] != null)
                 {
                     SecretAccessKey = (String) Convert.ChangeType(parameters["secretAccessKey"], typeof(String));
-                }
-                if (parameters.ContainsKey("iotPolicyName") && parameters["iotPolicyName"] != null)
-                {
-                    IotPolicyName = (String) Convert.ChangeType(parameters["iotPolicyName"], typeof(String));
                 }
                 if (parameters.ContainsKey("userPoolId") && parameters["userPoolId"] != null)
                 {

@@ -31,6 +31,7 @@ namespace ApiLogic.Notification
         public const string DELETE_DEVICE = "/api/IOT/DeleteDevice";
         public const string SYSTEM_ANNOUNCEMENT = "SystemAnnouncement";
         public const string ADD_CONFIG = "/api/IOT/Configuration/Update";
+        private const string CREATE_ENVIRONMENT = "/api/IOT/Configuration/Create?";
 
         public static IotManager Instance { get { return lazy.Value; } }
 
@@ -310,6 +311,9 @@ namespace ApiLogic.Notification
                 case IotAction.ADD_CONFIG:
                     configValue = ADD_CONFIG;
                     break;
+                case IotAction.CREATE_ENVIRONMENT:
+                    configValue = CREATE_ENVIRONMENT;
+                    break;
             }
             return $"{adapterUrl}{configValue}";
         }
@@ -396,7 +400,7 @@ namespace ApiLogic.Notification
 
     public enum IotAction
     {
-        REGISTER, GET_IOT_CONFIGURATION, ADD_TO_SHADOW, PUBLISH, DELETE_DEVICE, SYSTEM_ANNOUNCEMENT, ADD_CONFIG
+        REGISTER, GET_IOT_CONFIGURATION, ADD_TO_SHADOW, PUBLISH, DELETE_DEVICE, SYSTEM_ANNOUNCEMENT, ADD_CONFIG, CREATE_ENVIRONMENT
     }
     public enum MethodType
     {

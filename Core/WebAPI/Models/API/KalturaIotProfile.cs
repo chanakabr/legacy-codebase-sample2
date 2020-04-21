@@ -51,8 +51,7 @@ namespace WebAPI.Models.API
 
         internal override GenericResponse<IotProfile> Add(ContextData contextData)
         {
-            var coreObject = AutoMapper.Mapper.Map<IotProfile>(this);
-            return IotProfileManager.Instance.Add(contextData, coreObject);
+            return IotProfileManager.Instance.Add(contextData);
         }
 
         internal override GenericResponse<IotProfile> Update(ContextData contextData)
@@ -98,38 +97,6 @@ namespace WebAPI.Models.API
         public string IotEndPoint { get; set; }
 
         /// <summary>
-        /// pfxPath
-        /// </summary>
-        [DataMember(Name = "pfxPath")]
-        [JsonProperty(PropertyName = "pfxPath")]
-        [XmlElement(ElementName = "pfxPath")]
-        public string PfxPath { get; set; }
-
-        /// <summary>
-        /// pfxPassword
-        /// </summary>
-        [DataMember(Name = "pfxPassword")]
-        [JsonProperty(PropertyName = "pfxPassword")]
-        [XmlElement(ElementName = "pfxPassword")]
-        public string PfxPassword { get; set; }
-
-        /// <summary>
-        /// certificatePath
-        /// </summary>
-        [DataMember(Name = "certificatePath")]
-        [JsonProperty(PropertyName = "certificatePath")]
-        [XmlElement(ElementName = "certificatePath")]
-        public string CertificatePath { get; set; }
-
-        /// <summary>
-        /// brokerPort
-        /// </summary>
-        [DataMember(Name = "brokerPort")]
-        [JsonProperty(PropertyName = "brokerPort")]
-        [XmlElement(ElementName = "brokerPort")]
-        public int BrokerPort { get; set; }
-
-        /// <summary>
         /// accessKeyId
         /// </summary>
         [DataMember(Name = "accessKeyId")]
@@ -144,15 +111,6 @@ namespace WebAPI.Models.API
         [JsonProperty(PropertyName = "secretAccessKey")]
         [XmlElement(ElementName = "secretAccessKey")]
         public string SecretAccessKey { get; set; }
-
-
-        /// <summary>
-        /// iotPolicyName
-        /// </summary>
-        [DataMember(Name = "iotPolicyName")]
-        [JsonProperty(PropertyName = "iotPolicyName")]
-        [XmlElement(ElementName = "iotPolicyName")]
-        public string IotPolicyName { get; set; }
 
         /// <summary>
         /// userPoolId
