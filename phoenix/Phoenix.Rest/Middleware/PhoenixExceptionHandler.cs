@@ -16,6 +16,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using Core.Middleware;
 using WebAPI.Models.API;
+using TVinciShared;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -64,6 +65,8 @@ namespace Phoenix.Rest.Middleware
 
             // get proper response formatter but make sure errors should be only xml or json ...
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
+
+            ctx.Format ??= context.Items[RequestContextUtils.REQUEST_FORMAT]?.ToString();
             var format = ctx.Format != "1" || ctx.Format != "2" ? "1" : ctx.Format;
             var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), format);
 

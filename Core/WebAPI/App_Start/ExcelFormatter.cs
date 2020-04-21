@@ -137,6 +137,7 @@ namespace WebAPI.App_Start
                     excelWorksheet.Cells[columnNameRowIndex, 1].LoadFromDataTable(dt, false);
                 }
 
+                // TODO SHIR - Synchronous operations are disallowed. Call WriteAsync or set AllowSynchronousIO to true instead.
                 pack.SaveAs(writeStream);
             }
         }

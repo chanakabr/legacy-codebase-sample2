@@ -73,9 +73,8 @@ namespace Phoenix.Rest.Middleware
         private void SetCommonRequestContextItems(HttpContext context, PhoenixRequestContext _PhoenixContext, IDictionary<string, object> parsedActionParams, string service, string action)
         {
             RequestContext.SetContext(parsedActionParams, service, action);
-
-            _PhoenixContext.UserIpAdress = context.Items[RequestContextUtils.USER_IP]?.ToString();
             _PhoenixContext.Format = context.Items[RequestContextUtils.REQUEST_FORMAT]?.ToString();
+            _PhoenixContext.UserIpAdress = context.Items[RequestContextUtils.USER_IP]?.ToString();
             _PhoenixContext.Currency = context.Items[RequestContextUtils.REQUEST_GLOBAL_CURRENCY]?.ToString();
             _PhoenixContext.Language = context.Items[RequestContextUtils.REQUEST_GLOBAL_LANGUAGE]?.ToString();
 
