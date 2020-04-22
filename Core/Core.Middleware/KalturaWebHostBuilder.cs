@@ -21,7 +21,7 @@ namespace Core.Middleware
                     logging.ClearProviders();
                     logging.AddProvider(new KLoggerProvider());
                 })
-                .ConfigureKestrel(o => o.AllowSynchronousIO = false)
+                .ConfigureKestrel(o => o.AllowSynchronousIO = config.AllowSynchronousIO)
                 .UseStartup<TStartup>()
                 .Build();
 
