@@ -1965,10 +1965,11 @@ namespace Core.ConditionalAccess
             return GetMediaIDFromFileID(nMediaFileID, nGroupID);
         }
 
-        public static DateTime GetEndDateTime(DateTime dBase, Int32 nVal, bool bIsAddLifeCycle)
+        static public DateTime GetEndDateTime(DateTime dBase, Int32 nVal, bool bIsAddLifeCycle, bool includeMillisecond = false)
         {
             int mulFactor = bIsAddLifeCycle ? 1 : -1;
-            DateTime dRet = dBase.AddTicks(-(dBase.Ticks % TimeSpan.TicksPerSecond));
+
+            DateTime dRet = includeMillisecond ? dBase : dBase.AddTicks(-(dBase.Ticks % TimeSpan.TicksPerSecond));
 
             if (nVal == 1111111)
                 dRet = dRet.AddMonths(mulFactor * 1);

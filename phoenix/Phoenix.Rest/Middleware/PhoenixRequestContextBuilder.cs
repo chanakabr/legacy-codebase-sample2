@@ -141,7 +141,7 @@ namespace Phoenix.Rest.Middleware
                 var bodyParsedActionParams = await GetActionParamsFromPostBody(request, context);
                 bodyParsedActionParams.ToList().ForEach(bodyParam => parsedActionParams[bodyParam.Key]= bodyParam.Value);
             }
-            else if (httpMethod == HttpMethods.Get && context.RouteData.UrlParams != null)
+            else if (httpMethod == HttpMethods.Get && context.RouteData.UrlParams != null && (parsedActionParams == null || parsedActionParams.Count == 0))
             {
                 parsedActionParams = context.RouteData.UrlParams;
             }
