@@ -85,11 +85,12 @@ namespace ApiLogic.Notification
                     AdapterUrl = ApplicationConfiguration.Current.IotAdapterConfiguration.AdapterUrl.Value
                 };
 
-                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, groupId, MethodType.Post, out bool hasConfig, iotProfile, true);
+                var _request = new { GroupId = groupId };
+                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, MethodType.Post, out bool hasConfig, iotProfile);
 
                 if (msResponse == null || string.IsNullOrEmpty(msResponse.AccessKeyId))
                 {
-                    msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, groupId, MethodType.Post, out hasConfig, iotProfile, true);
+                    msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, MethodType.Post, out hasConfig, iotProfile);
                 }
 
                 iotProfile.IotProfileAws = msResponse;
