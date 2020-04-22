@@ -90,16 +90,22 @@ namespace KlogMonitorHelper
                     case KLogEnums.AppType.WS:
                     default:
 
-                        if (HttpContext.Current?.Items != null)
-                        {
-                            _ContextData[Constants.CLIENT_TAG] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.CLIENT_TAG);
-                            _ContextData[Constants.HOST_IP] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.HOST_IP);
-                            _ContextData[Constants.REQUEST_ID_KEY] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.REQUEST_ID_KEY);
-                            _ContextData[Constants.GROUP_ID] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.GROUP_ID);
-                            _ContextData[Constants.ACTION] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.ACTION);
-                            _ContextData[Constants.USER_ID] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.USER_ID);
-                            _ContextData[Constants.TOPIC] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.TOPIC);
-                        }
+                        // This code should not run in phoenix 
+                        // because all context data is now saved on  
+                        // public static LogicalThreadContextProperties _ContextData => KLogger.LogContextData;
+                        // to avoid removing this object allthogethter I'm just removing this code that will messup the context data 
+                        // when we switch threads.
+                        //if (HttpContext.Current?.Items != null)
+                        //{
+                        //    _ContextData[Constants.CLIENT_TAG] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.CLIENT_TAG);
+                        //    _ContextData[Constants.HOST_IP] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.HOST_IP);
+                        //    _ContextData[Constants.REQUEST_ID_KEY] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.REQUEST_ID_KEY);
+                        //    _ContextData[Constants.GROUP_ID] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.GROUP_ID);
+                        //    _ContextData[Constants.ACTION] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.ACTION);
+                        //    _ContextData[Constants.USER_ID] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.USER_ID);
+                        //    _ContextData[Constants.TOPIC] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.TOPIC);
+                        //    _ContextData[Constants.KS] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.KS);
+                        //}
 
                         break;
                 }
