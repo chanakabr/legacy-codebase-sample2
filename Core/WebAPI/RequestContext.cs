@@ -25,11 +25,11 @@ namespace WebAPI
 
         public static void SetContext(IDictionary<string, object> requestParams, string service, string action, bool globalScope = true)
         {
+            SetRequestFormatContext();
             SetKsContext(requestParams, globalScope);
             SetImpersonateUserContext(requestParams, globalScope);
             SetLanguageContext(requestParams, globalScope);
             SetCurrencyContext(requestParams, globalScope);
-            SetRequestFormatContext();
             SetRequestTypeContext(action);
             SetResponseProfile(requestParams, globalScope);
             SetUserIpContext();

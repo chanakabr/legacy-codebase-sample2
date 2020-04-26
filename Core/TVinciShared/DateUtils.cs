@@ -375,6 +375,7 @@ namespace TVinciShared
         {
             DateTime parsedDate;
             if (DateTime.TryParseExact(date, MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out parsedDate))
+            if (DateTime.TryParseExact(date, MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out parsedDate))
             {
                 return DateTimeToUtcUnixTimestampSeconds(parsedDate);
             }
@@ -393,7 +394,7 @@ namespace TVinciShared
             return StringExactToUtcUnixTimestampSeconds(date);
         }
 
-        public static DateTime? TryExtractDate(string dateTime, string format)
+        public static DateTime? TryExtractDate(string dateTime, string format = MAIN_FORMAT)
         {
             DateTime result;
             if (!string.IsNullOrEmpty(dateTime) && DateTime.TryParseExact(dateTime, format, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out result))

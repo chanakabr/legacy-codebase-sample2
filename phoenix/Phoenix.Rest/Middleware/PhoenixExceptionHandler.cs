@@ -15,6 +15,8 @@ using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using Core.Middleware;
+using WebAPI.Models.API;
+using TVinciShared;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -63,8 +65,10 @@ namespace Phoenix.Rest.Middleware
 
             // get proper response formatter but make sure errors should be only xml or json ...
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
+
+            ctx.Format ??= context.Items[RequestContextUtils.REQUEST_FORMAT]?.ToString();
             var format = ctx.Format != "1" || ctx.Format != "2" ? "1" : ctx.Format;
-            var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), ctx.Format);
+            var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), format);
 
             context.Response.Headers.Add("X-Kaltura-App", $"exiting on error {code} - {message}");
             context.Response.Headers.Add("X-Kaltura", $"error-{code}");
@@ -74,7 +78,7 @@ namespace Phoenix.Rest.Middleware
             _Logger.Error($"Error while calling api:[{ctx.RouteData}] response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
             return new ApiExceptionHandlerResponse
             {
-                HttpStatusCode = (int)HttpStatusCode.OK,
+                HttpStatusCode = ctx.Format == "31" ? (int)HttpStatusCode.InternalServerError : (int)HttpStatusCode.OK,
                 ContentType = formatter.AcceptContentTypes[0],
                 Reponse = stringResponse,
             };
