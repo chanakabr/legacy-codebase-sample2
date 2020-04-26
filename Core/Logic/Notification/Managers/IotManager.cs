@@ -54,14 +54,14 @@ namespace ApiLogic.Notification
 
                 var _request = new { GroupId = groupId.ToString(), Udid = udid };
 
-                var msResponse = SendToAdapter<Iot>(groupId, IotAction.REGISTER, _request, MethodType.Post, out bool hasConfig);
+                var msResponse = SendToAdapter<Iot>(groupId, IotAction.REGISTER, _request, MethodType.Post, out int httpStatus, out bool hasConfig);
 
                 if (!hasConfig)
                 {
                     var update = UpdateIotProfile(groupId, contextData);
                     if (update != null)
                     {
-                        msResponse = SendToAdapter<Iot>(groupId, IotAction.REGISTER, _request, MethodType.Post, out hasConfig);
+                        msResponse = SendToAdapter<Iot>(groupId, IotAction.REGISTER, _request, MethodType.Post, out httpStatus, out hasConfig);
                     }
                 }
 
@@ -240,14 +240,14 @@ namespace ApiLogic.Notification
                 //Todo - Matan Create perm object
                 var _request = new { GroupId = m_nGroupID.ToString(), Udid = udid, IdentityId = iotDevice.IdentityId };
 
-                var msResponse = SendToAdapter<bool>(m_nGroupID, IotAction.DELETE_DEVICE, _request, MethodType.Delete, out bool hasConfig);
+                var msResponse = SendToAdapter<bool>(m_nGroupID, IotAction.DELETE_DEVICE, _request, MethodType.Delete, out int httpStatus, out bool hasConfig);
 
                 if (!hasConfig)
                 {
                     var update = UpdateIotProfile(m_nGroupID, new ContextData(m_nGroupID));
                     if (update != null)
                     {
-                        msResponse = SendToAdapter<bool>(m_nGroupID, IotAction.DELETE_DEVICE, _request, MethodType.Delete, out hasConfig);
+                        msResponse = SendToAdapter<bool>(m_nGroupID, IotAction.DELETE_DEVICE, _request, MethodType.Delete, out httpStatus, out hasConfig);
                     }
                 }
 
@@ -318,7 +318,7 @@ namespace ApiLogic.Notification
             return $"{adapterUrl}{configValue}";
         }
 
-        public T SendToAdapter<T>(int groupId, IotAction action, object request, MethodType method, out bool hasConfig, IotProfile iotProfile = null, bool groupNeeded = false)
+        public T SendToAdapter<T>(int groupId, IotAction action, object request, MethodType method, out int httpStatus, out bool hasConfig, IotProfile iotProfile = null, bool groupNeeded = false)
         {
             var url = GetAdapterUrl(groupId, action, iotProfile);
             if (groupNeeded)
@@ -335,9 +335,10 @@ namespace ApiLogic.Notification
                     case MethodType.Post:
                         content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                         var postResponse = httpClient.PostAsync(url, content).Result;
-                        if (postResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; return default; }
+                        if (postResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; httpStatus = (int)postResponse.StatusCode; return default; }
                         if (postResponse?.StatusCode == System.Net.HttpStatusCode.OK || postResponse?.StatusCode == System.Net.HttpStatusCode.Created)
                         {
+                            httpStatus = postResponse != null ? (int)postResponse.StatusCode : 0;
                             return NotificationAdapter.ParseResponse<T>(postResponse);
                         }
                         break;
@@ -345,9 +346,10 @@ namespace ApiLogic.Notification
                     case MethodType.Put:
                         content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                         var putResponse = httpClient.PutAsync(url, content).Result;
-                        if (putResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; return default; }
+                        if (putResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; httpStatus = (int)putResponse.StatusCode; return default; }
                         if (putResponse?.StatusCode == System.Net.HttpStatusCode.OK || putResponse?.StatusCode == System.Net.HttpStatusCode.Created)
                         {
+                            httpStatus = putResponse != null ? (int)putResponse.StatusCode : 0;
                             return NotificationAdapter.ParseResponse<T>(putResponse);
                         }
                         break;
@@ -355,9 +357,10 @@ namespace ApiLogic.Notification
                     case MethodType.Get:
                         var fullUrl = $"{url}{request}";
                         var _response = httpClient.GetAsync(fullUrl).Result;
-                        if (_response?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; return default; }
+                        if (_response?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; httpStatus = (int)_response.StatusCode; return default; }
                         if (_response?.StatusCode == System.Net.HttpStatusCode.OK || _response?.StatusCode == System.Net.HttpStatusCode.Created)
                         {
+                            httpStatus = _response != null ? (int)_response.StatusCode : 0;
                             return NotificationAdapter.ParseResponse<T>(_response);
                         }
                         break;
@@ -370,18 +373,21 @@ namespace ApiLogic.Notification
                             Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json")
                         };
                         var deleteResponse = httpClient.SendAsync(_request).Result;
-                        if (deleteResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; return default; }
+                        if (deleteResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; httpStatus = (int)deleteResponse.StatusCode; return default; }
                         if (deleteResponse?.StatusCode == System.Net.HttpStatusCode.OK || deleteResponse?.StatusCode == System.Net.HttpStatusCode.Created)
                         {
+                            httpStatus = deleteResponse != null ? (int)deleteResponse.StatusCode : 0;
                             return NotificationAdapter.ParseResponse<T>(deleteResponse);
                         }
                         break;
 
                     default:
                         log.Error($"Invalid attempt to call method: {method}, url: {url} group: {groupId}");
+                        httpStatus = -1;
                         return default;
                 }
             }
+            httpStatus = -1;
             return default;
         }
 
@@ -391,7 +397,7 @@ namespace ApiLogic.Notification
             var config = NotificationDal.GetIotProfile(groupId);
             if (config == null)
             {
-                log.Error($"No config was found for group: {groupId}");
+                log.Error($"No configurations were found for group: {groupId}");
                 return null;
             }
             return IotProfileManager.Instance.Update(contextData, config)?.Object;

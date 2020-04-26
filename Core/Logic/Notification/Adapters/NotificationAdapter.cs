@@ -244,14 +244,14 @@ namespace Core.Notification.Adapters
             try
             {
                 var request = new { GroupId = groupId.ToString(), Message = @message, Topic = _topic, ExternalAnnouncementId = "string" };
-                response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out bool hasConfig);
+                response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out int httpStatus, out bool hasConfig);
 
                 if (!hasConfig)
                 {
                     var update = IotManager.Instance.UpdateIotProfile(groupId, new ApiObjects.Base.ContextData(groupId));
                     if (update != null)
                     {
-                        response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out hasConfig);
+                        response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out httpStatus, out hasConfig);
                     }
                 }
 
@@ -275,14 +275,14 @@ namespace Core.Notification.Adapters
             try
             {
                 var request = new { GroupId = groupId, ThingArn = thingArn, Message = message, Udid = udid };
-                response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out bool hasConfig);
+                response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out int httpStatus, out bool hasConfig);
 
                 if (!hasConfig)
                 {
                     var update = IotManager.Instance.UpdateIotProfile(groupId, new ApiObjects.Base.ContextData(groupId));
                     if (update != null)
                     {
-                        response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out hasConfig);
+                        response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out httpStatus, out hasConfig);
                     }
                 }
 

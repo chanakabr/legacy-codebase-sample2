@@ -86,11 +86,18 @@ namespace ApiLogic.Notification
                 };
 
                 var _request = new { GroupId = groupId };
-                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, MethodType.Post, out bool hasConfig, iotProfile);
+                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, MethodType.Post, out int httpStatus, out bool hasConfig, iotProfile);
+
+                if (msResponse != null && httpStatus == 208)//Already reported
+                {
+                    log.Debug($"Environment already exists for group: {groupId}");
+                    response.SetStatus(httpStatus, "Environment already exists");
+                    return response;
+                }
 
                 if (msResponse == null || string.IsNullOrEmpty(msResponse.AccessKeyId))
                 {
-                    msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, MethodType.Post, out hasConfig, iotProfile);
+                    msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, MethodType.Post, out httpStatus, out hasConfig, iotProfile);
                 }
 
                 iotProfile.IotProfileAws = msResponse;
@@ -159,14 +166,14 @@ namespace ApiLogic.Notification
 
                 var saved = SaveIotProfile(groupId, newConfigurations);
 
-                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, iotProfile.IotProfileAws, MethodType.Put, out bool hasConfig, newConfigurations, true);
+                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, iotProfile.IotProfileAws, MethodType.Put, out int httpStatus, out bool hasConfig, newConfigurations, true);
 
                 if (!hasConfig)
                 {
                     var update = IotManager.Instance.UpdateIotProfile(groupId, contextData);
                     if (update != null)
                     {
-                        msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, iotProfile.IotProfileAws, MethodType.Put, out hasConfig, iotProfile, true);
+                        msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, iotProfile.IotProfileAws, MethodType.Put, out httpStatus, out hasConfig, iotProfile, true);
                     }
                 }
 
@@ -212,14 +219,14 @@ namespace ApiLogic.Notification
 
                 var urlSuffix = $"groupId={groupId}&forClient={false}";
 
-                var profileAws = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get, out bool hasConfig);
+                var profileAws = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get, out int httpStatus, out bool hasConfig);
 
                 if (!hasConfig)
                 {
                     var update = IotManager.Instance.UpdateIotProfile(groupId, contextData);
                     if (update != null)
                     {
-                        profileAws = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get, out hasConfig);
+                        profileAws = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get, out httpStatus, out hasConfig);
                     }
                 }
 
