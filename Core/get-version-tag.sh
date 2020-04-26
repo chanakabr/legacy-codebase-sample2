@@ -18,7 +18,7 @@ then
 	revision=${commitCount}
 	if [[ ${COMMITS[2]} ]];then 
 		fp=${COMMITS[2]}
-		version="${major}"."${minor}"."${build}"."${fp}"|"${revision}"
+		version="${major}"."${minor}"."${build}"."${fp}"ֿ\|"${revision}"
 	else
 		version="${major}"."${minor}"."${build}"."${revision}"
 	fi
