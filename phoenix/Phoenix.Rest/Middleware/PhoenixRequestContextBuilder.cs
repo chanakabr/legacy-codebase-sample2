@@ -73,9 +73,8 @@ namespace Phoenix.Rest.Middleware
         private void SetCommonRequestContextItems(HttpContext context, PhoenixRequestContext _PhoenixContext, IDictionary<string, object> parsedActionParams, string service, string action)
         {
             RequestContext.SetContext(parsedActionParams, service, action);
-
-            _PhoenixContext.UserIpAdress = context.Items[RequestContextUtils.USER_IP]?.ToString();
             _PhoenixContext.Format = context.Items[RequestContextUtils.REQUEST_FORMAT]?.ToString();
+            _PhoenixContext.UserIpAdress = context.Items[RequestContextUtils.USER_IP]?.ToString();
             _PhoenixContext.Currency = context.Items[RequestContextUtils.REQUEST_GLOBAL_CURRENCY]?.ToString();
             _PhoenixContext.Language = context.Items[RequestContextUtils.REQUEST_GLOBAL_LANGUAGE]?.ToString();
 
@@ -139,11 +138,21 @@ namespace Phoenix.Rest.Middleware
             if (httpMethod == HttpMethods.Post)
             {
                 var bodyParsedActionParams = await GetActionParamsFromPostBody(request, context);
-                bodyParsedActionParams.ToList().ForEach(bodyParam => parsedActionParams[bodyParam.Key]= bodyParam.Value);
+                bodyParsedActionParams.ToList().ForEach(bodyParam => parsedActionParams[bodyParam.Key] = bodyParam.Value);
             }
-            else if (httpMethod == HttpMethods.Get && context.RouteData.UrlParams != null)
+            else if (httpMethod == HttpMethods.Get && context.RouteData.UrlParams != null && context.RouteData.UrlParams.Count > 0)
             {
-                parsedActionParams = context.RouteData.UrlParams;
+                if (parsedActionParams != null && parsedActionParams.Count > 0)
+                {
+                    foreach (KeyValuePair<string, object> item in context.RouteData.UrlParams)
+                    {
+                        parsedActionParams[item.Key] = context.RouteData.UrlParams[item.Key];
+                    }
+                }
+                else
+                {
+                    parsedActionParams = context.RouteData.UrlParams;
+                }
             }
 
             return new Dictionary<string, object>(parsedActionParams, StringComparer.OrdinalIgnoreCase);
