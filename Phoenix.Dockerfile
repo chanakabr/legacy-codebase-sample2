@@ -14,6 +14,7 @@ RUN bash get-version-tag.sh > version
 
 WORKDIR /src/phoenix
 RUN bash /src/Core/DllVersioning.Core.sh .
+RUN cat ./Phoenix.Rest/Phoenix.Rest.csproj
 RUN dotnet publish -c Release "./Phoenix.Rest/Phoenix.Rest.csproj" -o /src/published/phoenix-rest
 
 # Cannot use alpine base runtime image because of this issue:
