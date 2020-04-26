@@ -31,7 +31,7 @@ namespace ApiLogic.Notification
         public const string DELETE_DEVICE = "/api/IOT/DeleteDevice";
         public const string SYSTEM_ANNOUNCEMENT = "SystemAnnouncement";
         public const string ADD_CONFIG = "/api/IOT/Configuration/Update";
-        private const string CREATE_ENVIRONMENT = "/api/IOT/Environment/Create?";
+        private const string CREATE_ENVIRONMENT = "/api/IOT/Environment/Create";
 
         public static IotManager Instance { get { return lazy.Value; } }
 

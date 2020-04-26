@@ -67,11 +67,6 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForAdd()
         {
-            if (string.IsNullOrEmpty(this.AdapterUrl))
-            {
-                throw new Exceptions.BadRequestException(Exceptions.BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "AdapterUrl");
-            }
-            this.Validate();
         }
 
         internal override void ValidateForUpdate()

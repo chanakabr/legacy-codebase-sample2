@@ -85,7 +85,7 @@ namespace ApiLogic.Notification
                     AdapterUrl = ApplicationConfiguration.Current.IotAdapterConfiguration.AdapterUrl.Value
                 };
 
-                var _request = new { GroupId = groupId };
+                var _request = new { GroupId = groupId.ToString() };
                 var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, MethodType.Post, out int httpStatus, out bool hasConfig, iotProfile);
 
                 if (msResponse != null && httpStatus == 208)//Already reported
