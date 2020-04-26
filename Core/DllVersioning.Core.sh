@@ -38,7 +38,7 @@ then
 
 	for projFilePath in $allProjFiles; do
 		echo "Patching project: $projFilePath"
-		sed -i "s|\(<Version>\)[^<]*\(<\/Version>\)|\1$version\2|gi" $projFilePath
+		sed -i "s|\(<Version>\)[^<]*\(<\/Version>\)|\1\"$version\"\2|gi" $projFilePath
 		sed -i "s|\(<AssemblyTitle>\)[^<]*\(<\/AssemblyTitle>\)|\1$description\2|gi" $projFilePath
 	done
 
