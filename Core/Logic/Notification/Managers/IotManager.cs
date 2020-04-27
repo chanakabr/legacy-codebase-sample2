@@ -16,6 +16,8 @@ using ConfigurationManager.Types;
 using ConfigurationManager;
 using System.Text;
 using Core.Notification.Adapters;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ApiLogic.Notification
 {
@@ -327,6 +329,7 @@ namespace ApiLogic.Notification
             StringContent content = null;
             hasConfig = true;
             var counter = 0;
+            HttpResponseMessage response;
             while (counter < 3)
             {
                 counter++;
@@ -334,34 +337,34 @@ namespace ApiLogic.Notification
                 {
                     case MethodType.Post:
                         content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-                        var postResponse = httpClient.PostAsync(url, content).Result;
-                        if (postResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; httpStatus = (int)postResponse.StatusCode; return default; }
-                        if (postResponse?.StatusCode == System.Net.HttpStatusCode.OK || postResponse?.StatusCode == System.Net.HttpStatusCode.Created)
+                        response = httpClient.PostAsync(url, content).Result;
+                        if (IsServiceStatusDefined(response.StatusCode, out hasConfig)) { httpStatus = (int)response.StatusCode; return default; }
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.Created)
                         {
-                            httpStatus = postResponse != null ? (int)postResponse.StatusCode : 0;
-                            return NotificationAdapter.ParseResponse<T>(postResponse);
+                            httpStatus = (int)response.StatusCode;
+                            return NotificationAdapter.ParseResponse<T>(response);
                         }
                         break;
 
                     case MethodType.Put:
                         content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-                        var putResponse = httpClient.PutAsync(url, content).Result;
-                        if (putResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; httpStatus = (int)putResponse.StatusCode; return default; }
-                        if (putResponse?.StatusCode == System.Net.HttpStatusCode.OK || putResponse?.StatusCode == System.Net.HttpStatusCode.Created)
+                        response = httpClient.PutAsync(url, content).Result;
+                        if (IsServiceStatusDefined(response.StatusCode, out hasConfig)) { httpStatus = (int)response.StatusCode; return default; }
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.Created)
                         {
-                            httpStatus = putResponse != null ? (int)putResponse.StatusCode : 0;
-                            return NotificationAdapter.ParseResponse<T>(putResponse);
+                            httpStatus = (int)response.StatusCode;
+                            return NotificationAdapter.ParseResponse<T>(response);
                         }
                         break;
 
                     case MethodType.Get:
                         var fullUrl = $"{url}{request}";
-                        var _response = httpClient.GetAsync(fullUrl).Result;
-                        if (_response?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; httpStatus = (int)_response.StatusCode; return default; }
-                        if (_response?.StatusCode == System.Net.HttpStatusCode.OK || _response?.StatusCode == System.Net.HttpStatusCode.Created)
+                        response = httpClient.GetAsync(fullUrl).Result;
+                        if (IsServiceStatusDefined(response.StatusCode, out hasConfig)) { httpStatus = (int)response.StatusCode; return default; }
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.Created)
                         {
-                            httpStatus = _response != null ? (int)_response.StatusCode : 0;
-                            return NotificationAdapter.ParseResponse<T>(_response);
+                            httpStatus = (int)response.StatusCode;
+                            return NotificationAdapter.ParseResponse<T>(response);
                         }
                         break;
 
@@ -372,12 +375,12 @@ namespace ApiLogic.Notification
                             RequestUri = new Uri(url),
                             Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json")
                         };
-                        var deleteResponse = httpClient.SendAsync(_request).Result;
-                        if (deleteResponse?.StatusCode == System.Net.HttpStatusCode.NoContent) { hasConfig = false; httpStatus = (int)deleteResponse.StatusCode; return default; }
-                        if (deleteResponse?.StatusCode == System.Net.HttpStatusCode.OK || deleteResponse?.StatusCode == System.Net.HttpStatusCode.Created)
+                        response = httpClient.SendAsync(_request).Result;
+                        if (IsServiceStatusDefined(response.StatusCode, out hasConfig)) { httpStatus = (int)response.StatusCode; return default; }
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.Created)
                         {
-                            httpStatus = deleteResponse != null ? (int)deleteResponse.StatusCode : 0;
-                            return NotificationAdapter.ParseResponse<T>(deleteResponse);
+                            httpStatus = (int)response.StatusCode;
+                            return NotificationAdapter.ParseResponse<T>(response);
                         }
                         break;
 
@@ -401,6 +404,12 @@ namespace ApiLogic.Notification
                 return null;
             }
             return IotProfileManager.Instance.Update(contextData, config)?.Object;
+        }
+
+        private bool IsServiceStatusDefined(System.Net.HttpStatusCode status, out bool hasConfig)
+        {
+            hasConfig = (int)status != 204;
+            return new List<int> { 204 /*NoContent*/, 208 /*AlreadyReported*/ }.Contains((int)status);
         }
     }
 

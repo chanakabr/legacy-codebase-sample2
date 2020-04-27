@@ -86,18 +86,14 @@ namespace ApiLogic.Notification
                 };
 
                 var _request = new { GroupId = groupId.ToString() };
-                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, MethodType.Post, out int httpStatus, out bool hasConfig, iotProfile);
+                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, 
+                    MethodType.Post, out int httpStatus, out bool hasConfig, iotProfile);
 
-                if (msResponse != null && httpStatus == 208)//Already reported
+                if (httpStatus == 208)
                 {
                     log.Debug($"Environment already exists for group: {groupId}");
-                    response.SetStatus(httpStatus, "Environment already exists");
+                    response.SetStatus(eResponseStatus.AlreadyExist, "Environment already exists");
                     return response;
-                }
-
-                if (msResponse == null || string.IsNullOrEmpty(msResponse.AccessKeyId))
-                {
-                    msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, MethodType.Post, out httpStatus, out hasConfig, iotProfile);
                 }
 
                 iotProfile.IotProfileAws = msResponse;
