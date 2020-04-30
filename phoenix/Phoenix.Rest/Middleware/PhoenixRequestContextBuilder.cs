@@ -256,7 +256,6 @@ namespace Phoenix.Rest.Middleware
 
         private async Task<IDictionary<string, object>> GetActionParamsFromPostBody(HttpRequest request, PhoenixRequestContext context)
         {
-
             if (request.HasFormContentType)
             {
                 return await ParseFormDataBody(request, context);
@@ -270,8 +269,6 @@ namespace Phoenix.Rest.Middleware
                 // TODO: Arthur, handle error
                 throw new Exception("Unsupported content type");
             }
-
-
         }
 
         private IDictionary<string, object> GetActionParamsFromQueryString(HttpRequest request)
@@ -332,7 +329,6 @@ namespace Phoenix.Rest.Middleware
 
         private async Task<IDictionary<string, object>> ParseJsonBody(HttpRequest request, PhoenixRequestContext context)
         {
-
             using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
             using (var jsonReader = new JsonTextReader(streamReader))
             {

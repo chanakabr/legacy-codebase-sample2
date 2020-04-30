@@ -20,8 +20,6 @@ using ConfigurationManager;
 
 namespace Phoenix.Rest.Middleware
 {
-
-
     public static class PhoenixMiddleware
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
