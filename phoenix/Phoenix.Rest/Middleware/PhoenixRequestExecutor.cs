@@ -88,7 +88,7 @@ namespace Phoenix.Rest.Middleware
             }
             catch (Exception e)
             {
-                _Logger.Error("error while writing response stream", e);
+                _Logger.Error($"error while writing response stream, exception: {e.ToString()}.", e);
                 throw;
             }
         }

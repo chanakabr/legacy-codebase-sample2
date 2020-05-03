@@ -414,7 +414,6 @@ namespace APILogic.Api.Managers
                         }
                     }
                 }
-
             }
             catch (Exception ex)
             {
@@ -426,8 +425,8 @@ namespace APILogic.Api.Managers
 
         public static bool IsAllowedToViewInactiveAssets(int groupId, string userId, bool ignoreDoesGroupUsesTemplates = false)
         {
-            return IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS)
-                   && (DoesGroupUsesTemplates(groupId) || ignoreDoesGroupUsesTemplates);
+            return IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS) && 
+                (DoesGroupUsesTemplates(groupId) || ignoreDoesGroupUsesTemplates);
         }
         private static bool DoesGroupUsesTemplates(int groupId)
         {
