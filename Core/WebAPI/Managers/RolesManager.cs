@@ -22,6 +22,7 @@ namespace WebAPI.Managers
 
         private const string PARTNER_WILDCARD = "partner*";
         private const string HOUSEHOLD_WILDCARD = "household*";
+        private const string IS_PROPERTY_PERMITTED = "{0}_{1}_{2}_{3}";
 
         public const long ANONYMOUS_ROLE_ID = 0;
         public const long USER_ROLE_ID = 1;
@@ -386,16 +387,27 @@ namespace WebAPI.Managers
         /// <returns>True if the property is permitted, false otherwise</returns>
         internal static bool IsPropertyPermitted(string type, string property, RequestType action, bool silent = false)
         {
-            try
+            bool result = false;
+            string key = string.Format(IS_PROPERTY_PERMITTED, type, property, action, silent);
+            if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items.ContainsKey(key))
             {
-                ValidatePropertyPermitted(type, property, action, silent);
-                return true;
+                return (bool)HttpContext.Current.Items[key];
             }
-            catch
+            else
             {
-                return false;
-            }
+                try
+                {
+                    ValidatePropertyPermitted(type, property, action, silent);
+                    result = true;
+                }
+                catch
+                {
+                    result = false;
+                }
 
+                HttpContext.Current.Items[key] = result;
+                return result;
+            }            
         }
 
         /// <summary>

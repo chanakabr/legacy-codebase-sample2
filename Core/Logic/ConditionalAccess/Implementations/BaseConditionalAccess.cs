@@ -6662,7 +6662,7 @@ namespace Core.ConditionalAccess
                         Int32 nMediaFileID = oModules[i].m_nMediaFileID;
                         int mediaID = mapper != null ? Utils.ExtractMediaIDOutOfMediaMapper(mapper, nMediaFileID) : 0;
 
-                        if (!isDownloadPlayContext)
+                        if (!isDownloadPlayContext && BusinessModuleRuleManager.IsActionTypeRuleExists(m_nGroupID, RuleActionType.ApplyFreePlayback))
                         {
                             // check if there are any Seasonal promotion rules (free item)
                             var filter = new ConditionScope()
