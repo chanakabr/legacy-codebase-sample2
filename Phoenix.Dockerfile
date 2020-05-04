@@ -30,15 +30,14 @@ ENV API_STD_OUT_LOG_LEVEL "Off"
 COPY --from=builder /src/published/phoenix-rest /opt/phoenix-rest
 WORKDIR /opt/phoenix-rest
 
+###### deploy root CA ######
+COPY consul-root-certificate.crt /usr/local/share/ca-certificates/consul-root-certificate.crt
+RUN update-ca-certificates
+###### deploy root CA ######
+
 ENV ARGS "--urls http://0.0.0.0:80"
 
 EXPOSE 80
 EXPOSE 443
 
 ENTRYPOINT [ "sh", "-c", "dotnet Phoenix.Rest.dll ${ARGS}" ]
-
-
-
-
-
-
