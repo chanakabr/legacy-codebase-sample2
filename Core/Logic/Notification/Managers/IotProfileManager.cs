@@ -85,6 +85,13 @@ namespace ApiLogic.Notification
                     AdapterUrl = ApplicationConfiguration.Current.IotAdapterConfiguration.AdapterUrl.Value
                 };
 
+                if (string.IsNullOrEmpty(iotProfile.AdapterUrl))
+                {
+                    log.Debug("No adapter Url was set in TCM");
+                    response.SetStatus(eResponseStatus.AdapterUrlRequired, "Iot adapter url is missing");
+                    return response;
+                }
+
                 var _request = new { GroupId = groupId.ToString() };
                 var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, 
                     MethodType.Post, out int httpStatus, out bool hasConfig, iotProfile);
