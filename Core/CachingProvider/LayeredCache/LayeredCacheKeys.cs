@@ -555,6 +555,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("business_module_rule_id_{0}", id);
         }
+
+        public static string GetAllRuleActionTypesKey(int groupId)
+        {
+            return string.Format("all_business_module_rules_action_type_groupId_{0}", groupId);
+        }
+
         public static string GetAssetStatsSortKey(string assetId, string orderBy)
         {
             return string.Format("asset_stats_sort_{0}_{1}", assetId, orderBy);

@@ -90,6 +90,7 @@ namespace CachingProvider.LayeredCache
         public const string PPV_MODULES_CACHE_CONFIG_NAME = "PPVModules";
         public const string GET_BUSINESS_MODULE_RULE = "GetBusinessModuleRule";
         public const string GET_ALL_BUSINESS_MODULE_RULE_IDS = "GetAllBusinessModuleRuleIds";
+        public const string GET_ALL_BUSINESS_MODULE_RULE_ACTION_TYPES = "GetAllBusinessModuleRuleActionTypes";
         public const string GET_SSO_ADAPATER_BY_GROUP_ID_CACHE_CONFIG_NAME = "GetSSOAdapaterByGroupId";
         public const string GROUP_MANAGER_GET_GROUP_CONFIG_NAME = "GroupManagerGetGroup";
         public const string PHOENIX_GROUPS_MANAGER_CACHE_CONFIG_NAME = "PhoenixGroupsManager";

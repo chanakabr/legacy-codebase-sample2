@@ -1590,59 +1590,71 @@ namespace Core.ConditionalAccess
         {
             Price lowestPrice = discountPrice ?? currentPrice;
 
-            if (allUserIdsInDomain == null || allUserIdsInDomain.Count == 0)
+            if (BusinessModuleRuleManager.IsActionTypeRuleExists(groupId, RuleActionType.ApplyDiscountModuleRule))
             {
-                allUserIdsInDomain = Domains.Module.GetDomainUserList(groupId, domainId);
-            }
-
-            // get all segments in domain
-            List<long> segmentIds = new List<long>();
-            if (allUserIdsInDomain != null && allUserIdsInDomain.Count > 0)
-            {
-                foreach (var userInDomain in allUserIdsInDomain)
+                if (allUserIdsInDomain == null || allUserIdsInDomain.Count == 0)
                 {
-                    var userSegments = Api.Module.GetUserSegments(groupId, userInDomain, null, 0, 0);
-                    if (userSegments != null && userSegments.HasObjects())
+                    allUserIdsInDomain = Domains.Module.GetDomainUserList(groupId, domainId);
+                }
+
+                // get all segments in domain
+                List<long> segmentIds = new List<long>();
+
+                if (allUserIdsInDomain?.Count > 0)
+                {
+                    //BEO-8004
+                    string key = $"usersSegmentIds_{domainId}";
+                    if (!LayeredCache.Instance.TryGetKeyFromCurrentRequest<List<long>>(key, ref segmentIds)) 
                     {
-                        segmentIds.AddRange(userSegments.Objects.Select(x => x.SegmentId));
+                        segmentIds = new List<long>();
+                        foreach (var userInDomain in allUserIdsInDomain)
+                        {
+                            var userSegments = Api.Module.GetUserSegments(groupId, userInDomain, null, 0, 0);
+                            if (userSegments != null && userSegments.HasObjects())
+                            {
+                                segmentIds.AddRange(userSegments.Objects.Select(x => x.SegmentId));
+                            }
+                        }
+
+                        if (segmentIds.Count > 0)
+                        {
+                            segmentIds = segmentIds.Distinct().ToList();
+                        }
+
+                        Dictionary<string, List<long>> resultsToAdd = new Dictionary<string, List<long>>();
+                        resultsToAdd.Add(key, segmentIds);
+                        LayeredCache.Instance.InsertResultsToCurrentRequest<List<long>>(resultsToAdd, null);
                     }
                 }
-            }
-
-            if (segmentIds.Count > 0)
-            {
-                segmentIds = segmentIds.Distinct().ToList();
-            }
-
-            log.DebugFormat("Utils.GetLowestPrice - segmentIds: {0}", string.Join(", ", segmentIds));
-
-            // calc lowest price
-            ConditionScope filter = new ConditionScope()
-            {
-                BusinessModuleId = businessModuleId,
-                BusinessModuleType = transactionType,
-                SegmentIds = segmentIds,
-                FilterByDate = true,
-                FilterBySegments = true,
-                GroupId = groupId,
-                MediaId = mediaId
-            };
-
-            var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter, RuleActionType.ApplyDiscountModuleRule);
-            if (businessModuleRules.HasObjects())
-            {
-                log.DebugFormat("Utils.GetLowestPrice - businessModuleRules count: {0}", businessModuleRules.Objects.Count);
-                foreach (var businessModuleRule in businessModuleRules.Objects)
+                
+                // calc lowest price
+                ConditionScope filter = new ConditionScope()
                 {
-                    if (businessModuleRule.Actions != null && businessModuleRule.Actions.Count == 1)
+                    BusinessModuleId = businessModuleId,
+                    BusinessModuleType = transactionType,
+                    SegmentIds = segmentIds,
+                    FilterByDate = true,
+                    FilterBySegments = true,
+                    GroupId = groupId,
+                    MediaId = mediaId
+                };
+
+                var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter, RuleActionType.ApplyDiscountModuleRule);
+                if (businessModuleRules.HasObjects())
+                {
+                    log.DebugFormat("Utils.GetLowestPrice - businessModuleRules count: {0}", businessModuleRules.Objects.Count);
+                    foreach (var businessModuleRule in businessModuleRules.Objects)
                     {
-                        var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
-                        if (discountModule != null)
+                        if (businessModuleRule.Actions != null && businessModuleRule.Actions.Count == 1)
                         {
-                            var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
-                            if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
+                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
+                            if (discountModule != null)
                             {
-                                lowestPrice = tempPrice;
+                                var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
+                                if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
+                                {
+                                    lowestPrice = tempPrice;
+                                }
                             }
                         }
                     }
