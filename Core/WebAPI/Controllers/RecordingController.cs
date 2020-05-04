@@ -170,10 +170,6 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
                 if (pager == null)
                 {
                     pager = new KalturaFilterPager();
@@ -184,37 +180,8 @@ namespace WebAPI.Controllers
                     filter = new KalturaRecordingFilter() {StatusIn = string.Empty};
                 }
 
-                // call client                
-                var cloudFilter = filter as KalturaCloudRecordingFilter;
-                if (cloudFilter == null)
-                {
-                    filter.Validate();
-
-                    Dictionary<string, string> metaDataFilter = null;
-                    var externalFilter = filter as KalturaExternalRecordingFilter;
-                    if (externalFilter != null && externalFilter.MetaData != null)
-                    {
-                        metaDataFilter =
-                            externalFilter.MetaData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
-                    }
-
-                    response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId,
-                        filter.ConvertStatusIn(), filter.Ksql, filter.GetExternalRecordingIds(),
-                        pager.getPageIndex(), pager.PageSize, filter.OrderBy, metaDataFilter);
-                }
-                else
-                {
-                    Dictionary<string, string> adapterData = null;
-                    if (cloudFilter.AdapterData != null)
-                    {
-                        adapterData =
-                            cloudFilter.AdapterData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
-                    }
-
-                    response = ClientsManager.ConditionalAccessClient().SearchCloudRecordings(groupId, userId, domainId,
-                        adapterData, cloudFilter.ConvertStatusIn(),
-                        pager.getPageIndex(), pager.PageSize);
-                }
+                var contextData = KS.GetContextData();
+                response = filter.SearchRecordings(contextData, pager);
             }
             catch (ClientException ex)
             {
