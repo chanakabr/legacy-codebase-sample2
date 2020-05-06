@@ -280,7 +280,7 @@ namespace Core.ConditionalAccess
             }
             else
             {
-                tasks.Add(Task.Run(() => Utils.InsertOfflineCollectionUse(groupId, mediaFileId, itemPriceContainer.m_relevantSub.m_sObjectCode, userId,
+                tasks.Add(Task.Run(() => Utils.InsertOfflineCollectionUse(groupId, mediaFileId, itemPriceContainer.m_relevantCol.m_sObjectCode, userId,
                                                                                         countryCode, languageCode, udid, nRelPP, contextData)));
             }
 
