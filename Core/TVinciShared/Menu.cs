@@ -359,8 +359,7 @@ namespace TVinciShared
                             sXML.Append(selectQuery.Table("query").DefaultView[i].Row["menu_text"].ToString());
                         string sUrl = selectQuery.Table("query").DefaultView[i].Row["menu_href"].ToString();
                         if (sUrl != "")
-                        {
-                            sUrl = sUrl.Replace("=", "");
+                        {                            
                             sUrl = sUrl.Replace("&", "");
                             sUrl = "[navigateURL::" + sUrl + "]";
                         }
