@@ -552,7 +552,7 @@ namespace TVinciShared
                     newNestedLi.Append("<li><span class ='caret' OnClick=\"javascript:expand(this)\"' ></span>");
                 }
 
-                newNestedLi.Append($"<span>{name}</span>");
+                newNestedLi.Append($"<span OnClick=\"javascript:expand(this)\">{name}</span>");
 
                 StringBuilder nestedUl = new StringBuilder();
                 if (isActive || isParentSelected)
