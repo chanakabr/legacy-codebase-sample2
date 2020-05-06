@@ -70,7 +70,23 @@ namespace Core.Middleware
                 await request.Body.ReadAsync(buffer, 0, buffer.Length);
                 request.Body.Seek(0, SeekOrigin.Begin);
                 var bodyAsText = Encoding.UTF8.GetString(buffer);
+                bodyAsText = MaskPersonalInformation(bodyAsText);
 
+                result = bodyAsText;
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Erorr while reading request body", e);
+                result = "Error Reading Request Body, See Log for details";
+            }
+
+            return result;
+        }
+
+        public static string MaskPersonalInformation(string bodyAsText)
+        {
+            try
+            {
                 // with regex find all json fields that END with "password", "pass", "email" or "emailfield" -
                 // then after they're found, replace only the VALUE of the field to be masked
                 bodyAsText = Regex.Replace(bodyAsText, "(password|email|pass|emailfield)\"\\s*:\\s*(\"(?:\\\\\"|[^\"])*?\")", (match) =>
@@ -94,16 +110,13 @@ namespace Core.Middleware
                     return replaceResult;
                 },
                 RegexOptions.IgnoreCase);
-
-                result = bodyAsText;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _Logger.Error("Erorr while reading request body", e);
-                result = "Error Reading Request Body, See Log for details";
+                _Logger.Error($"Error when performing regex replace for masking personal information. error = {ex}");
             }
 
-            return result;
+            return bodyAsText;
         }
     }
 }

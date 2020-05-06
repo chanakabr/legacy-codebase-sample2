@@ -195,9 +195,9 @@ namespace WebAPI
         private static void SetKsContext(IDictionary<string, object> requestParams, bool globalScope)
         {
             KS.ClearOnRequest();
+            string ks = null;
             if (requestParams.ContainsKey("ks") && requestParams["ks"] != null)
             {
-                string ks;
                 if (requestParams["ks"].GetType() == typeof(JObject) || requestParams["ks"].GetType().IsSubclassOf(typeof(JObject)))
                 {
                     ks = ((JObject)requestParams["ks"]).ToObject<string>();
@@ -220,6 +220,8 @@ namespace WebAPI
             {
                 HttpContext.Current.Items[Constants.GROUP_ID] = requestParams["partnerId"];
             }
+
+            KLogger.LogContextData[Constants.KS] = ks;
         }
 
         private static void InitKS(string ksVal)
