@@ -217,6 +217,7 @@ namespace ApiLogic.Notification
                 if (iotProfile == null)
                 {
                     log.Error($"No Iot Profile for group: {groupId}.");
+                    response.SetStatus(eResponseStatus.AdapterNotExists, $"No adapter configurations found for group: {groupId}");
                     return response;
                 }
 
@@ -244,6 +245,7 @@ namespace ApiLogic.Notification
             catch (Exception ex)
             {
                 log.Error($"GetIotConfiguration failed, error: {ex.Message}");
+                response.SetStatus(eResponseStatus.Error, "GetIotConfiguration failed");
             }
 
             return response;
