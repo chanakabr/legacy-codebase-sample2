@@ -113,7 +113,7 @@ namespace RecordingTaskHandler
                         break;
                     }
                     case eRecordingTask.DistributeRecording:
-                    {
+                    {                        
                         bool shouldDistributeRecordingSynchronously = ApplicationConfiguration.Current.ShouldDistributeRecordingSynchronously.Value;
 
                         if (shouldDistributeRecordingSynchronously)
@@ -125,12 +125,12 @@ namespace RecordingTaskHandler
                         }
                         else
                         {
-                            KeyValuePair seriesAndSeasonNumber = Core.ConditionalAccess.Module.GetSeriesIdAndSeasonNumberByEpgId(request.GroupID, request.ProgramId);
-                            int seasonNumber = 0;
-                            if (seriesAndSeasonNumber != null && !string.IsNullOrEmpty(seriesAndSeasonNumber.key) && int.TryParse(seriesAndSeasonNumber.value, out seasonNumber))
+                            // Get epg series details (seriesId, seassonNumber and isFIsEpgFirstTimeAirDate
+                            Tuple<string, int, bool> epgSeriesDetails = Core.ConditionalAccess.Module.GetEpgSeriesDetails(request.GroupID, request.ProgramId);
+                            if (epgSeriesDetails != null && !string.IsNullOrEmpty(epgSeriesDetails.Item1) && epgSeriesDetails.Item2 > -1)
                             {
                                 long maxDomainSeriesId = request.MaxDomainSeriesId.HasValue ? request.MaxDomainSeriesId.Value : 0;
-                                HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
+                                HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, epgSeriesDetails.Item1, epgSeriesDetails.Item2, epgSeriesDetails.Item3, ref maxDomainSeriesId);
                                 if (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
                                 {                                    
                                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

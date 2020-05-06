@@ -5764,6 +5764,7 @@ namespace Core.ConditionalAccess
             string seriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID");
             DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
             DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
+            var type = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORD_TYPE");
 
             return new SeriesRecording()
             {
@@ -5772,7 +5773,7 @@ namespace Core.ConditionalAccess
                 Id = domainSeriesRecordingId,
                 SeasonNumber = seasonNumber,
                 SeriesId = seriesId,
-                Type = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series,
+                Type = type,
                 CreateDate = createDate,
                 UpdateDate = updateDate,
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
@@ -5801,9 +5802,10 @@ namespace Core.ConditionalAccess
                             CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE"),
                             UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE"),
                             ExcludedSeasons = new List<int>(),
-                            Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+                            Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
+                            Type = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORD_TYPE", 0)
                         };
-                        seriesRecording.Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
+                       
                         result.Add(seriesRecording.Id, seriesRecording);
                     }
                 }
@@ -6216,7 +6218,7 @@ namespace Core.ConditionalAccess
 
             isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber, channelId);
             // insert or update domain_series table
-            DataTable dt = RecordingsDAL.FollowSeries(groupId, userId, domainID, epgId, channelId, seriesId, seasonNumber, episodeNumber);
+            DataTable dt = RecordingsDAL.FollowSeries(groupId, userId, domainID, epgId, channelId, seriesId, seasonNumber, episodeNumber, (int)recordingType);
             if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
             {
                 seriesRecording = BuildSeriesRecordingDetails(dt.Rows[0]);
@@ -6719,18 +6721,14 @@ namespace Core.ConditionalAccess
                         int.TryParse(field.value, out seasonNumber);
                     }
                 }
-
+                
                 foreach (var serie in series)
                 {
                     if (serie.SeriesId == seriesId && (serie.SeasonNumber == 0 || serie.SeasonNumber == seasonNumber))
                     {
                         userId = serie.UserId;
                         domainSeriesRecordingId = serie.Id;
-                        if (serie.SeasonNumber == 0)
-                            recordingType = RecordingType.Series;
-                        else
-                            recordingType = RecordingType.Season;
-
+                        recordingType = serie.Type;
                         break;
                     }
                 }
@@ -6884,7 +6882,6 @@ namespace Core.ConditionalAccess
                 {
                     foreach (DataRow dr in serieDataSet.Tables[0].Rows)
                     {
-
                         long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                         result.Add(id, new DomainSeriesRecording()
                         {
@@ -6894,7 +6891,9 @@ namespace Core.ConditionalAccess
                             SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"),
                             UserId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID"),
                             EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID", 0),
-                            ExcludedSeasons = new List<int>()
+                            ExcludedSeasons = new List<int>(),
+                            Type =(RecordingType) ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORD_TYPE")
+
                         });
                     }
                 }
@@ -7058,29 +7057,26 @@ namespace Core.ConditionalAccess
                 response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 return response;
             }
-            else
+            
+            string seriesId = epgFieldMappings[Utils.SERIES_ID];
+            int seasonNumber = 0;
+            long channelId;
+            if ((epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber)) || !long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
             {
-                string seriesId = epgFieldMappings[Utils.SERIES_ID];
-                int seasonNumber = 0;
-                long channelId = 0;
-                if ((epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber)) || !long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
-                {
-                    log.ErrorFormat("failed parsing SEASON_NUMBER or EPG_CHANNEL_ID, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
-                    return response;
-                }
-
-                if (IsFollowingSeries(groupId, domainId, seriesId, recordingType == RecordingType.Series ? 0 : seasonNumber, channelId))
-                {
-                    log.DebugFormat("domain already follows the series, can't record as single, DomainID: {0}, seriesID: {1}", domainId, seriesId);
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.AlreadyRecordedAsSeriesOrSeason, eResponseStatus.AlreadyRecordedAsSeriesOrSeason.ToString());
-                    return response;
-                }
-                else
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    return response;
-                }
+                log.ErrorFormat("failed parsing SEASON_NUMBER or EPG_CHANNEL_ID, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
+                return response;
             }
+
+            seasonNumber = recordingType != RecordingType.Season ? 0 : seasonNumber;
+            if (IsFollowingSeries(groupId, domainId, seriesId, seasonNumber, channelId))
+            {
+                log.DebugFormat("domain already follows the series, can't record as single, DomainID: {0}, seriesID: {1}", domainId, seriesId);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.AlreadyRecordedAsSeriesOrSeason, eResponseStatus.AlreadyRecordedAsSeriesOrSeason.ToString());
+                return response;
+            }
+            
+            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return response;
         }
 
         internal static bool ShouldOrderByWithoutCatalg(ApiObjects.SearchObjects.OrderObj orderBy)
