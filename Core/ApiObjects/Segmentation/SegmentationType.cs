@@ -614,7 +614,7 @@ namespace ApiObjects.Segmentation
                             result.Add(key, item.Value);
                         }
 
-                        res = result.Count == segmentationTypeKeys.Count();
+                        res = result.Count > 0;
                     }
                 }
             }

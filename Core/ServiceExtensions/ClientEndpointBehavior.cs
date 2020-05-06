@@ -26,7 +26,7 @@ namespace ServiceExtensions
 
         public void ApplyClientBehavior(ServiceEndpoint endpoint, ClientRuntime clientRuntime)
         {
-            clientRuntime.ClientMessageInspectors.Add(new ClientMessageInspector());
+            clientRuntime.ClientMessageInspectors.Add(new ClientMessageInspector(endpoint));
         }
 
         public void ApplyDispatchBehavior(ServiceEndpoint endpoint, EndpointDispatcher endpointDispatcher)
