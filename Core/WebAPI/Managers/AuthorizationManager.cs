@@ -104,7 +104,7 @@ namespace WebAPI.Managers
                 throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
             }
 
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid);
+            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid,groupId);
             return new KalturaLoginSession()
             {
                 KS = token.KS,
@@ -159,7 +159,7 @@ namespace WebAPI.Managers
 
             session.KS = token.KS;
             session.Expiry = DateUtils.DateTimeToUtcUnixTimestampSeconds(token.KsObject.Expiration);
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(token.Udid);
+            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(token.Udid, token.GroupID);
 
             return session;
         }

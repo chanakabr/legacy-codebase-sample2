@@ -65,6 +65,7 @@ namespace KLogMonitor.ConfigurationReloader
 
             if (interval > 0)
             {
+                log.Info($"Initiaiting log reloading mechanism with interval of {interval}.");
                 this.DocumentKey = documentKey;
                 couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
 
@@ -95,6 +96,7 @@ namespace KLogMonitor.ConfigurationReloader
         {
             try
             {
+                log.Info("Log reloading mechanism - going to get document from couchbase.");
                 var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>(this.DocumentKey);
 
                 // if configuration was updated

@@ -17,7 +17,7 @@ namespace Core.Catalog
     public class MediaAsset : Asset
     {
         #region Consts
-        
+
         // ASSET EXCEL COLUMNS
         public const string MEDIA_ASSET_TYPE = "Media Asset Type";
         public const string GEO_RULE = "Geo Block Rule";
@@ -265,14 +265,10 @@ namespace Core.Catalog
             }
             else if (this.Metas != null && this.Metas.Count > 0)
             {
-                var metaDate = Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.Equals(metaDateSystemName));
+                var metaDate = this.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.Equals(metaDateSystemName));
                 if (metaDate != null)
                 {
-                    DateTime assetDate;
-                    if (DateTime.TryParse(metaDate.m_sValue, out assetDate))
-                    {
-                        basicMetaDate = assetDate;
-                    }
+                    basicMetaDate = DateUtils.TryExtractDate(metaDate.m_sValue);
                 }
             }
 

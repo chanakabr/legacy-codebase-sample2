@@ -368,8 +368,7 @@ namespace Core.ConditionalAccess
                                         {
                                             if (Utils.IsItemPurchased(filePrice))
                                             {
-                                                PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid,
-                                                                           string.Empty, domainId, groupId);
+                                                PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
                                             }
                                             // item must be free otherwise we wouldn't get this far
                                             else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value && filePrice.m_oItemPrices?.Length > 0)
@@ -419,7 +418,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed to GetPlaybackContext for userId = {0}, assetId = {1}, assetType = {2}", userId, assetId, assetType), ex);
+                log.Error($"Failed to GetPlaybackContext for userId = {userId}, assetId = {assetId}, assetType = {assetType}, exception: {ex.ToString()}.", ex);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return response;

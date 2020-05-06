@@ -876,8 +876,6 @@ namespace ElasticSearch.Common
 
             string response = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, bodyRequest, true);
 
-            log.Debug("Finish Elastic Search Bulk requests. result is " + response);
-
             // Find out if there are errors
             try
             {

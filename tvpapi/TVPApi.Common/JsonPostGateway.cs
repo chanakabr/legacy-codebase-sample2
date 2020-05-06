@@ -112,35 +112,44 @@ namespace TVPApi.Common
                     HttpContext.Current.Items[pair.Key] = sValue;
                 }
 
-                // remove api user and password before logging request
+                // mask api user and password before logging request
+
+                #if !NETCOREAPP3_1
+
                 try
                 {
                     var initObj = json["initObj"];
 
-                    if (initObj != null && initObj is JObject)
+                    if (initObj != null && initObj is JObject jInitObj)
                     {
-                        (initObj as JObject).Remove("ApiUser");
-                        (initObj as JObject).Remove("ApiPass");
+                        MaskField(jInitObj, "ApiUser");
+                        MaskField(jInitObj, "ApiPass");
                     }
 
-                    // remove known parameters of passwords
-                    json.Remove("sPassword");
-                    json.Remove("sOldPass");
-                    json.Remove("sPass");
-                    json.Remove("sNewPassword");
-                    json.Remove("sEncryptedPassword");
-                    json.Remove("sOldPass");
-                    json.Remove("password");
+                    // mask known parameters of passwords
+                    MaskField(json, "sPassword");
+                    MaskField(json, "sOldPass");
+                    MaskField(json, "sPass");
+                    MaskField(json, "sNewPassword");
+                    MaskField(json, "sEncryptedPassword");
+                    MaskField(json, "password");
+
+                    var userBasicData = json["userBasicData"];
+
+                    if (userBasicData != null)
+                    {
+                        MaskField(userBasicData, "m_sEmailField");
+                        MaskField(userBasicData, "m_sEmail");
+                    }
 
                     // log request body
-                    #if !NETCOREAPP3_1
                     logger.DebugFormat("API Request - \n{0}", json.ToString(Formatting.Indented));
-                    #endif
                 }
                 catch (Exception ex)
                 {
                     logger.Error($"Error when trying to remove user/password from request body before logging it. ex = {ex}");
                 }
+                #endif
             }
 
             // add web service
@@ -157,6 +166,15 @@ namespace TVPApi.Common
             result = queryServices.ProcessRequest(sJsonRequest);
 
             return result;
+        }
+
+        private static void MaskField(JToken source, string field)
+        {
+            var subField = source[field];
+            if (subField != null && subField is JValue jSubField)
+            {
+                jSubField.Value = "*****";
+            }
         }
 
         #endregion
