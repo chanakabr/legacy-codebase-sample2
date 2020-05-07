@@ -10,7 +10,6 @@ using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.Catalog;
 using ApiObjects.ConditionalAccess;
-using ApiObjects.EventBus;
 using ApiObjects.MediaIndexingObjects;
 using ApiObjects.MediaMarks;
 using ApiObjects.Pricing;
@@ -112,6 +111,8 @@ namespace Core.ConditionalAccess
         public const string DUMMY = "dummy";
         public const string HISTORY = "history";
         public const string RECURRING_NUMBER = "recurringnumber";
+        public const string IS_ORIGINAL_BROADCAST_KEY = "isOriginalBroadcast";
+        public const string IS_ORIGINAL_BROADCAST_VALUE = "true";
 
         protected const int PAYMENT_GATEWAY = 1000;
 
@@ -6679,7 +6680,7 @@ namespace Core.ConditionalAccess
                         Int32 nMediaFileID = oModules[i].m_nMediaFileID;
                         int mediaID = mapper != null ? Utils.ExtractMediaIDOutOfMediaMapper(mapper, nMediaFileID) : 0;
 
-                        if (!isDownloadPlayContext)
+                        if (!isDownloadPlayContext && BusinessModuleRuleManager.IsActionTypeRuleExists(m_nGroupID, RuleActionType.ApplyFreePlayback))
                         {
                             // check if there are any Seasonal promotion rules (free item)
                             var filter = new ConditionScope()
@@ -13637,11 +13638,14 @@ namespace Core.ConditionalAccess
                 {
                     HashSet<long> failedDomainIds;
                     log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                    recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, recording.Crid,
+                    recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId,
+                        recording.EpgStartDate, recording.EpgEndDate, recording.Crid,
                                                                     new List<long>() { domainID }, out failedDomainIds);
 
-                    if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
-                        && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
+                    bool canRecord = recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
+                        && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus);
+
+                    if (canRecord)
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
                         log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
@@ -13695,6 +13699,7 @@ namespace Core.ConditionalAccess
                 if (QuotaManager.Instance.IncreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
                 {
                     recording.Type = recordingType;
+                    
                     if (RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, domainSeriesRecordingId))
                     {
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
@@ -15304,167 +15309,6 @@ namespace Core.ConditionalAccess
             return true;
         }
 
-        public bool CompleteDomainSeriesRecordings(long domainId)
-        {
-            bool response = true;
-            try
-            {
-                // check if recording is enabled only in advanced - in this case nothing to do
-                var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-                if (tstvSettings.IsRecordingScheduleWindowEnabled.HasValue && tstvSettings.IsRecordingScheduleWindowEnabled.Value && tstvSettings.RecordingScheduleWindow <= 0)
-                {
-                    log.DebugFormat("recording is enabled only in advanced, cannot complete series recordings for domainId = {0}", domainId);
-                    return response;
-                }
-
-                // get household quota - if no quota - nothing to do
-                int availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId);
-
-                // min quota threshold for skipping this process                
-                if (availibleQuota <= 60 && (!tstvSettings.QuotaOveragePolicy.HasValue ||
-                    (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.StopAtQuota)))
-                {
-                    log.DebugFormat("Not enough quota to complete series recordings for domainId = {0}", domainId);
-                    return response;
-                }
-
-                List<DomainSeriesRecording> series = null;
-                DataSet serieDs = null;
-                // get household followed series / seasons - if not following anything - nothing to do
-                serieDs = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
-
-                series = Utils.GetDomainSeriesRecordingFromDataSet(serieDs);
-
-                if (series == null || series.Count == 0)
-                {
-                    log.DebugFormat("no series to complete for domainId = {0}", domainId);
-                    return response;
-                }
-                else
-                {
-                    bool shouldCallAgain = false;
-                    foreach (DomainSeriesRecording currentDomainSeries in series)
-                    {
-                        shouldCallAgain = RecordingsDAL.IsFirstFollowerLockExists(m_nGroupID, currentDomainSeries.SeriesId, currentDomainSeries.SeasonNumber, currentDomainSeries.EpgChannelId.ToString());
-                        // if first one of the series is locked we stop and call complete again in 1 min
-                        if (shouldCallAgain)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (shouldCallAgain)
-                    {
-                        var eta = DateTime.UtcNow.AddMinutes(1);
-
-                        QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                        ApiObjects.QueueObjects.SeriesRecordingTaskData data =
-                            new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainId,
-                            string.Empty, string.Empty, 0, eSeriesRecordingTask.CompleteRecordings)
-                            { ETA = eta };
-                        queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
-                        return response;
-                    }
-                }
-
-                // get CRIDs of all household recordings that were recorded as part of the series - all statuses but 'Failed'/ SeriesCancel/SeriesDelete
-                HashSet<string> excludedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, series.Select(s => s.Id).Distinct().ToList());
-
-                // get all the relevant (series + seasons + CRID not in the list of household recordings) existing recordings from ES
-                List<ExtendedSearchResult> relevantRecordingsForRecord = null;
-
-                relevantRecordingsForRecord = Utils.SearchSeriesRecordings(m_nGroupID, excludedCrids.ToList(), series, SearchSeriesRecordingsTimeOptions.past);
-
-                if (relevantRecordingsForRecord == null)
-                {
-                    log.ErrorFormat("failed to search relevant recordings of series for domainId = {0}", domainId);
-                    return false;
-                }
-
-                // if there are no available recordings to complete - nothing to do
-                if (relevantRecordingsForRecord.Count == 0)
-                {
-                    log.DebugFormat("no relevant recordings of series were found for domainId = {0}", domainId);
-                    return response;
-                }
-
-                // calculate the total padding length
-                long padding = (tstvSettings.PaddingBeforeProgramStarts.HasValue ? tstvSettings.PaddingBeforeProgramStarts.Value : 0) +
-                    (tstvSettings.PaddingAfterProgramEnds.HasValue ? tstvSettings.PaddingAfterProgramEnds.Value : 0);
-
-                long programLengthSeconds = 0;
-                string userId = string.Empty;
-                long epgId = 0;
-                string crid = string.Empty;
-                long epgChannelId = 0;
-
-                Dictionary<long, List<string>> recordedCridsPerChannel = new Dictionary<long, List<string>>();
-
-                // calculate which recording should be recorded for the household based on quota 
-                foreach (var potentialRecording in relevantRecordingsForRecord)
-                {
-                    // calculate program length wit padding
-                    programLengthSeconds = (long)(potentialRecording.EndDate - potentialRecording.StartDate).TotalSeconds + padding;
-
-                    if (programLengthSeconds < availibleQuota || (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.FIFOAutoDelete))
-                    {
-                        crid = Utils.GetStringParamFromExtendedSearchResult(potentialRecording, "crid");
-                        epgChannelId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_channel_id");
-
-                        // check if a program with the same CRID was already recorded
-                        if (recordedCridsPerChannel.ContainsKey(epgChannelId) && recordedCridsPerChannel[epgChannelId].Contains(crid))
-                        {
-                            log.DebugFormat("found relevant program to record but a program with the same CRID already recorded for the channel. household  = {0}, crid = {1}, recordingId = {2}",
-                                domainId, crid, potentialRecording.AssetId);
-                            return response;
-                        }
-
-                        RecordingType recordingType;
-                        long domainSeriesRecordingId;
-                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording, out recordingType, out domainSeriesRecordingId);
-                        epgId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_id");
-
-                        if (epgId > 0 && !string.IsNullOrEmpty(userId) && domainSeriesRecordingId > 0)
-                        {
-                            var recording = Record(userId, epgId, recordingType, domainSeriesRecordingId, true);
-
-                            if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK && recording.Id > 0)
-                            {
-                                log.DebugFormat("successfully recorded episode for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, recording.Id);
-
-                                availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId);
-
-                                if (!recordedCridsPerChannel.ContainsKey(epgChannelId))
-                                {
-                                    recordedCridsPerChannel.Add(epgChannelId, new List<string>());
-                                }
-
-                                recordedCridsPerChannel[epgChannelId].Add(recording.Crid);
-                            }
-                            else
-                            {
-                                log.ErrorFormat("failed to record episode for household = {0}, epgId = {1}", domainId, epgId);
-                            }
-                        }
-                        else
-                        {
-                            log.ErrorFormat("received extended search result without 'epg_id' for recording = {0}, for domainId = {1}", potentialRecording.AssetId, domainId);
-                        }
-                    }
-                    else
-                    {
-                        log.DebugFormat("programLengthSeconds = {0}, availibleQuota = {1}", programLengthSeconds, availibleQuota);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Error in 'CompleteHouseholdSeriesRecordings' for domainId = {0}", domainId), ex);
-            }
-
-            return response;
-        }
-
         public bool HandleRecordingsScheduledTasks()
         {
             double scheduledTaskIntervalSec = 0;
@@ -15859,30 +15703,211 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public bool HandleFirstFollowerRecording(string userId, long domainId, string channelId, string seriesId, int seasonNumber)
+        public bool CompleteDomainSeriesRecordings(long domainId)
         {
-            bool result = false;
+            bool response = true;
             try
             {
+                // check if recording is enabled only in advanced - in this case nothing to do
+                var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                if (tstvSettings.IsRecordingScheduleWindowEnabled.HasValue && tstvSettings.IsRecordingScheduleWindowEnabled.Value && tstvSettings.RecordingScheduleWindow <= 0)
+                {
+                    log.DebugFormat("recording is enabled only in advanced, cannot complete series recordings for domainId = {0}", domainId);
+                    return response;
+                }
+
+                // get household quota - if no quota - nothing to do
+                int availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId);
+
+                // min quota threshold for skipping this process                
+                if (availibleQuota <= 60 && (!tstvSettings.QuotaOveragePolicy.HasValue ||
+                    (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.StopAtQuota)))
+                {
+                    log.DebugFormat("Not enough quota to complete series recordings for domainId = {0}", domainId);
+                    return response;
+                }
+
+                List<DomainSeriesRecording> series = null;
+                DataSet serieDs = null;
+                // get household followed series / seasons - if not following anything - nothing to do
+                serieDs = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
+
+                series = Utils.GetDomainSeriesRecordingFromDataSet(serieDs);
+
+                if (series == null || series.Count == 0)
+                {
+                    log.DebugFormat("no series to complete for domainId = {0}", domainId);
+                    return response;
+                }
+
+                bool shouldCallAgain = series.Any(x => RecordingsDAL.GetFirstFollowerLockId(m_nGroupID, x.SeriesId, x.SeasonNumber, x.EpgChannelId.ToString()) > 0);
+
+                if (shouldCallAgain)
+                {
+                    var eta = DateTime.UtcNow.AddMinutes(1);
+
+                    GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                    SeriesRecordingTaskData data =
+                        new SeriesRecordingTaskData(m_nGroupID, string.Empty, domainId,
+                        string.Empty, string.Empty, 0, eSeriesRecordingTask.CompleteRecordings)
+                        { ETA = eta };
+                    queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
+                    return response;
+                }
+
+
+                // get CRIDs of all household recordings that were recorded as part of the series - all statuses but 'Failed'/ SeriesCancel/SeriesDelete
+                HashSet<string> excludedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, series.Select(s => s.Id).Distinct().ToList());
+
+                // get all the relevant (series + seasons + CRID not in the list of household recordings) existing recordings from ES
+                List<ExtendedSearchResult> relevantRecordingsForRecord = null;
+
+                relevantRecordingsForRecord = 
+                    Utils.SearchSeriesRecordings(m_nGroupID,
+                    excludedCrids.ToList(), series, SearchSeriesRecordingsTimeOptions.past);
+
+                if (relevantRecordingsForRecord == null)
+                {
+                    log.ErrorFormat("failed to search relevant recordings of series for domainId = {0}", domainId);
+                    return false;
+                }
+
+                // if there are no available recordings to complete - nothing to do
+                if (relevantRecordingsForRecord.Count == 0)
+                {
+                    log.DebugFormat("no relevant recordings of series were found for domainId = {0}", domainId);
+                    return response;
+                }
+
+                // calculate the total padding length
+                long padding = (tstvSettings.PaddingBeforeProgramStarts.HasValue ? tstvSettings.PaddingBeforeProgramStarts.Value : 0) +
+                    (tstvSettings.PaddingAfterProgramEnds.HasValue ? tstvSettings.PaddingAfterProgramEnds.Value : 0);
+
+                long programLengthSeconds = 0;
+                string userId = string.Empty;
+                long epgId = 0;
+                string crid = string.Empty;
+                long epgChannelId = 0;
+
+                Dictionary<long, List<string>> recordedCridsPerChannel = new Dictionary<long, List<string>>();
+
+                // calculate which recording should be recorded for the household based on quota 
+                foreach (var potentialRecording in relevantRecordingsForRecord)
+                {
+                    // calculate program length wit padding
+                    programLengthSeconds = (long)(potentialRecording.EndDate - potentialRecording.StartDate).TotalSeconds + padding;
+
+                    if (programLengthSeconds < availibleQuota || (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.FIFOAutoDelete))
+                    {
+                        crid = Utils.GetStringParamFromExtendedSearchResult(potentialRecording, "crid");
+                        epgChannelId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_channel_id");
+
+                        // check if a program with the same CRID was already recorded
+                        if (recordedCridsPerChannel.ContainsKey(epgChannelId) && recordedCridsPerChannel[epgChannelId].Contains(crid))
+                        {
+                            log.DebugFormat("found relevant program to record but a program with the same CRID already recorded for the channel. household  = {0}, crid = {1}, recordingId = {2}",
+                                domainId, crid, potentialRecording.AssetId);
+                            return response;
+                        }
+
+                        RecordingType recordingType;
+                        long domainSeriesRecordingId;
+                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording, out recordingType, out domainSeriesRecordingId);
+                        epgId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_id");
+
+                        if (epgId > 0 && !string.IsNullOrEmpty(userId) && domainSeriesRecordingId > 0)
+                        {
+                            //if cannot record 
+                            if (!VerifyCanRecord(epgId, recordingType))
+                            {
+                                log.DebugFormat($"Cannot record EPG {epgId} due to type {recordingType}");
+                                continue;
+                            }
+
+                            var recording = Record(userId, epgId, recordingType, domainSeriesRecordingId, true);
+
+                            var canRecord = recording != null && recording.Status != null &&
+                                            recording.Status.Code == (int)eResponseStatus.OK && recording.Id > 0;
+
+                            
+                            if (canRecord)
+                            {
+                                log.DebugFormat("successfully recorded episode for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, recording.Id);
+
+                                availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId);
+
+                                if (!recordedCridsPerChannel.ContainsKey(epgChannelId))
+                                {
+                                    recordedCridsPerChannel.Add(epgChannelId, new List<string>());
+                                }
+
+                                recordedCridsPerChannel[epgChannelId].Add(recording.Crid);
+                            }
+                            else
+                            {
+                                log.ErrorFormat("failed to record episode for household = {0}, epgId = {1}", domainId, epgId);
+                            }
+                        }
+                        else
+                        {
+                            log.ErrorFormat("received extended search result without 'epg_id' for recording = {0}, for domainId = {1}", potentialRecording.AssetId, domainId);
+                        }
+                    }
+                    else
+                    {
+                        log.DebugFormat("programLengthSeconds = {0}, availibleQuota = {1}", programLengthSeconds, availibleQuota);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in 'CompleteHouseholdSeriesRecordings' for domainId = {0}", domainId), ex);
+            }
+
+            return response;
+        }
+
+        public bool HandleFirstFollowerRecording(string userId, long domainId, string channelId, string seriesId, int seasonNumber)
+        {
+            bool isMyLock = false;
+            try
+            {
+                var lockDomain = RecordingsDAL.GetFirstFollowerLockId(m_nGroupID, seriesId, seasonNumber, channelId);
+                if (lockDomain > 0 && lockDomain != domainId)
+                {
+                    // if another domain is already the first follower, return true to stop remote task retries
+                    return true;
+                }
+                // if it is the same domain, extend the TTL by calling insert first follower lock again
+                else if (!RecordingsDAL.InsertFirstFollowerLock(m_nGroupID, seriesId, seasonNumber, channelId, domainId))
+                {
+                    log.ErrorFormat("Failed InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}, domainId: {4}", m_nGroupID, seriesId, seasonNumber, channelId, domainId);
+                }
+
+                // if we got here then the lock belongs to the current domain
+                isMyLock = true;
+
                 TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
                 DateTime startDate;
                 long windowStartDate = accountSettings.RecordingScheduleWindow.HasValue ? accountSettings.RecordingScheduleWindow.Value : 0;
                 long bufferStartDate = accountSettings.CatchUpBufferLength.HasValue ? accountSettings.CatchUpBufferLength.Value : 0;
+                startDate = DateTime.UtcNow;
                 if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value ||
                     accountSettings.IsCatchUpEnabled.HasValue && accountSettings.IsCatchUpEnabled.Value)
                 {
                     startDate = DateTime.UtcNow.AddMinutes(windowStartDate > bufferStartDate ? -windowStartDate : -bufferStartDate);
-                }
-                else
-                {
-                    startDate = DateTime.UtcNow;
                 }
 
                 List<ExtendedSearchResult> epgsToRecord = Utils.GetFirstFollowerEpgIdsToRecord(m_nGroupID, channelId, seriesId, seasonNumber, startDate);
                 if (epgsToRecord == null)
                 {
                     log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, seriesId: {0}, seassonNumber: {1}", seriesId, seasonNumber);
-                    return result;
+                    return false;
+                }
+                else if (epgsToRecord.Count == 0)
+                {
+                    // no epg to record so no point of retry from RT
+                    return true;
                 }
 
                 long paddingBeforeProgramStarts = 0;
@@ -15904,7 +15929,7 @@ namespace Core.ConditionalAccess
 
                 if (!long.TryParse(channelId, out epgChannelId))
                 {
-                    return result;
+                    return false;
                 }
 
                 long domainSeriesRecordingId = RecordingsDAL.GetDomainSeriesId(m_nGroupID, domainId, seriesId, seasonNumber, epgChannelId);
@@ -15946,7 +15971,7 @@ namespace Core.ConditionalAccess
 
                     recordingId = globalRecording.Id;
 
-
+                    // future episode
                     if (epgPaddedStartDate > DateTime.UtcNow)
                     {
                         // add message which will add the recording to all the following domains
@@ -15954,39 +15979,196 @@ namespace Core.ConditionalAccess
                         eRecordingTask task = eRecordingTask.DistributeRecording;
                         RecordingsManager.EnqueueMessage(m_nGroupID, epgId, recordingId, epgPaddedStartDate, distributeTime, task);
                     }
+                    // if user didn't already record this episode and its past then add it to the user
                     else if (!userRecordingCrids.Contains(crid))
                     {
-                        Recording userRecording = Record(userId, epgId, seasonNumber == 0 ? RecordingType.Series : RecordingType.Season, domainSeriesRecordingId, true);
-                        userRecordingCrids.Add(crid);
-                        if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
+                        // user is OK - see if user sign to recordID
+                        var seriesRecording = Utils.ValidateSeriesRecordID(m_nGroupID, domainId, domainSeriesRecordingId);
+                        if (seriesRecording.Status.Code != (int)eResponseStatus.OK)
                         {
+                            log.DebugFormat("series recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainSeriesRecordingId, domainId, userId, seriesRecording != null ? seriesRecording.ToString() : string.Empty);
+                            return false;
+                        }
+
+                        //if cannot record 
+                        if (!VerifyCanRecord(epgId, seriesRecording.Type))
+                        {
+                            log.DebugFormat($"Cannot record EPG {epgId} due to type {seriesRecording.Type}");
+                            continue;
+                        }
+                        Recording userRecording = Record(userId, epgId, seriesRecording.Type, domainSeriesRecordingId, true);
+                        var canRecord = userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0;
+                        if (canRecord)
+                        {
+                            userRecordingCrids.Add(crid);
                             log.DebugFormat("successfully recorded epgId = {0}, domainId = {1}, new recordingId = {2}", epgId, domainId, userRecording.Id);
                         }
                     }
                 }
 
-                if (epgsToRecord.Count > 0)
-                {
-                    if (!RecordingsDAL.InsertFirstFollowerLock(m_nGroupID, seriesId, seasonNumber, channelId, false))
-                    {
-                        log.ErrorFormat("Failed InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", m_nGroupID, seriesId, seasonNumber, channelId);
-                    }
-                }
-                else if (!RecordingsDAL.DeleteFirstFollowerLock(m_nGroupID, seriesId, seasonNumber, channelId))
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error on HandleFirstFollowerRecording {0} ", seriesId), ex);                
+            }
+            finally
+            {
+                if (isMyLock && !RecordingsDAL.DeleteFirstFollowerLock(m_nGroupID, seriesId, seasonNumber, channelId))
                 {
                     log.ErrorFormat("Failed DeleteFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", m_nGroupID, seriesId, seasonNumber, channelId);
                 }
-
-                result = true;
             }
 
+            return false;
+        }
+
+        public SeriesRecording RecordSeasonOrSeries(string userID, long epgID, RecordingType recordingType)
+        {
+            SeriesRecording seriesRecording = new SeriesRecording() { EpgId = epgID };
+            try
+            {
+                long domainID = 0;
+                RecordingResponse recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, false);
+                if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
+                {
+                    log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
+                    seriesRecording.Status = recordingResponse.Status;
+                    return seriesRecording;
+                }
+
+                seriesRecording = new SeriesRecording(recordingResponse.Recordings[0]);
+                if (seriesRecording == null || seriesRecording.Status == null || seriesRecording.Status.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("Recording status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
+                    return seriesRecording;
+                }
+
+                // check if already following as season or series - QueryRecords checks it only for single recordings
+                List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgID });
+                                
+                // no need to validate epg, it is already checked on QueryRecords
+                if (epgs == null || epgs.Count == 0)
+                {
+                    log.DebugFormat("Failed Getting EPGs from Catalog, DomainID: {0}, UserID: {1}, EpgID: {2}", domainID, userID, epgID);
+                    epgs = new List<EPGChannelProgrammeObject>();
+                }
+
+                ApiObjects.Response.Status IsFollowingResponse = Utils.IsFollowingEpgAsSeriesOrSeason(m_nGroupID, epgs[0], domainID, recordingType);
+                if (IsFollowingResponse.Code != (int)eResponseStatus.OK)
+                {
+                    seriesRecording.Status = IsFollowingResponse;
+                    return seriesRecording;
+                }
+
+                bool isSeriesFollowed = false;
+                List<long> futureSeriesRecordingIds = new List<long>();
+                //saves record to the database
+                seriesRecording = Utils.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed, ref futureSeriesRecordingIds, epgs[0]);
+                if (seriesRecording == null || seriesRecording.Status == null)
+                {
+                    log.ErrorFormat("Failed Utils.FollowSeasonOrSeries, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
+                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return seriesRecording;
+                }
+
+                if (seriesRecording.Status.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("seriesRecording status after FollowSeasonOrSeries is not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
+                    return seriesRecording;
+                }
+
+                // successfully followed season or series and we have found future recordings,
+                // if the domain has programs of this season or series scheduled, they need to be canceled
+                if (futureSeriesRecordingIds.Count > 0)
+                {
+                    Dictionary<long, Recording> domainFutureSingleRecordings = Utils.GetFutureDomainRecordingsByRecordingIDs(m_nGroupID, domainID, futureSeriesRecordingIds, RecordingType.Single);
+                    if (domainFutureSingleRecordings != null)
+                    {
+                        // set max amount of concurrent tasks
+                        int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+                        if (maxDegreeOfParallelism == 0)
+                        {
+                            maxDegreeOfParallelism = 5;
+                        }
+                        ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                        ContextData contextData = new ContextData();
+                        Parallel.ForEach(domainFutureSingleRecordings.AsEnumerable(), options, (pair) =>
+                        {
+                            contextData.Load();
+                            //call cancelOrDelete
+                            if (pair.Value.RecordingStatus == TstvRecordingStatus.Scheduled)
+                            {
+                                CancelOrDeleteRecord(userID, domainID, pair.Key, TstvRecordingStatus.Canceled, false);
+                            }
+                        });
+                    }
+                }
+
+                // if series is already followed then complete the series recordings for the domain
+                if (isSeriesFollowed || RecordingsDAL.GetFirstFollowerLockId(m_nGroupID, seriesRecording.SeriesId, seriesRecording.SeasonNumber, seriesRecording.EpgChannelId.ToString()) > 0)
+                {
+                    var eta = DateTime.UtcNow.AddMinutes(1);
+
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    SeriesRecordingTaskData data =
+                        new SeriesRecordingTaskData(m_nGroupID,
+                        string.Empty,
+                        domainID,
+                        string.Empty,
+                        string.Empty,
+                        0,
+                        eSeriesRecordingTask.CompleteRecordings);
+                    data.ETA = eta;
+                    queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
+                }
+                // if first user, SeriesRecordingTask should be filled on FollowSeasonOrSeries
+                else
+                {
+                    if (!RecordingsDAL.InsertFirstFollowerLock(m_nGroupID, seriesRecording.SeriesId, seriesRecording.SeasonNumber, seriesRecording.EpgChannelId.ToString(), domainID))
+                    {
+                        log.ErrorFormat("Failed InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}, domainId: {4}",
+                                        m_nGroupID, seriesRecording.SeriesId, seriesRecording.SeasonNumber, seriesRecording.EpgChannelId, domainID);
+                    }
+
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    SeriesRecordingTaskData seriesRecordingTask = new SeriesRecordingTaskData(
+                        m_nGroupID, userID, domainID, seriesRecording.EpgChannelId.ToString(), seriesRecording.SeriesId,
+                        seriesRecording.SeasonNumber, eSeriesRecordingTask.FirstFollower);
+                    queue.Enqueue(seriesRecordingTask, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
+                }
+            }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error on HandleFirstFollowerRecording {0} ", seriesId), ex);
+                StringBuilder sb = new StringBuilder("Exception at RecordSeasonOrSeries. ");
+                sb.Append(String.Concat("userId: ", userID));
+                sb.Append(String.Concat(", epgID: ", epgID));
+                sb.Append(String.Concat(", Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
             }
 
-            return result;
+            return seriesRecording;
+        }
 
+        private bool VerifyCanRecord(long epgId, RecordingType type)
+        {
+            if (type == RecordingType.OriginalBroadcast)
+            {
+                List<EPGChannelProgrammeObject> epgData = Utils.GetEpgsByIds(m_nGroupID, new List<long> { epgId });
+
+                return epgData != null && epgData.Count == 1 && IsEpgFirstTimeAirDate(epgData.First());
+            }
+
+            return true;
+        }
+
+        private bool IsEpgFirstTimeAirDate(EPGChannelProgrammeObject epg)
+        {
+            EPGDictionary epgData = epg.EPG_Meta.FirstOrDefault(x => x.Key.ToLower() == IS_ORIGINAL_BROADCAST_KEY.ToLower());
+            return !string.IsNullOrEmpty(epgData.Value) && ( epgData.Value.ToLower() == IS_ORIGINAL_BROADCAST_VALUE.ToLower() || epgData.Value == "1");
         }
 
         public SeriesRecording CancelOrDeleteSeriesRecord(string userId, long domainId, long domainSeriesRecordingId, long epgId, long seasonNumber, TstvRecordingStatus tstvRecordingStatus)
@@ -16331,126 +16513,6 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public SeriesRecording RecordSeasonOrSeries(string userID, long epgID, RecordingType recordingType)
-        {
-            SeriesRecording seriesRecording = new SeriesRecording() { EpgId = epgID };
-            RecordingResponse recordingResponse = new RecordingResponse();
-            try
-            {
-                long domainID = 0;
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, false);
-                if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
-                {
-                    log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
-                    seriesRecording.Status = recordingResponse.Status;
-                    return seriesRecording;
-                }
-
-                seriesRecording = new SeriesRecording(recordingResponse.Recordings[0]);
-                if (seriesRecording == null || seriesRecording.Status == null || seriesRecording.Status.Code != (int)eResponseStatus.OK)
-                {
-                    log.DebugFormat("Recording status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
-                    return seriesRecording;
-                }
-
-                // check if already following as season or series - QueryRecords checks it only for single recordings
-                List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgID });
-                // no need to validate epg, it is already checked on QueryRecords
-                if (epgs == null || epgs.Count == 0)
-                {
-                    log.DebugFormat("Failed Getting EPGs from Catalog, DomainID: {0}, UserID: {1}, EpgID: {2}", domainID, userID, epgID);
-                    epgs = new List<EPGChannelProgrammeObject>();
-                }
-
-                ApiObjects.Response.Status IsFollowingResponse = Utils.IsFollowingEpgAsSeriesOrSeason(m_nGroupID, epgs[0], domainID, recordingType);
-                if (IsFollowingResponse.Code != (int)eResponseStatus.OK)
-                {
-                    seriesRecording.Status = IsFollowingResponse;
-                    return seriesRecording;
-                }
-
-                bool isSeriesFollowed = false;
-                List<long> futureSeriesRecordingIds = new List<long>();
-                seriesRecording = Utils.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed, ref futureSeriesRecordingIds, epgs[0]);
-                if (seriesRecording == null || seriesRecording.Status == null)
-                {
-                    log.ErrorFormat("Failed Utils.FollowSeasonOrSeries, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
-                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    return seriesRecording;
-                }
-                else if (seriesRecording.Status.Code != (int)eResponseStatus.OK)
-                {
-                    log.DebugFormat("seriesRecording status after FollowSeasonOrSeries is not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
-                    return seriesRecording;
-                }
-                // successfully followed season or series and we have found future recordings, if the domain has programs of this season or series scheduled, they need to be canceled
-                else if (futureSeriesRecordingIds.Count > 0)
-                {
-                    Dictionary<long, Recording> domainFutureSingleRecordings = Utils.GetFutureDomainRecordingsByRecordingIDs(m_nGroupID, domainID, futureSeriesRecordingIds, RecordingType.Single);
-                    if (domainFutureSingleRecordings != null)
-                    {
-                        // set max amount of concurrent tasks
-                        int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
-                        if (maxDegreeOfParallelism == 0)
-                        {
-                            maxDegreeOfParallelism = 5;
-                        }
-                        ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                        ContextData contextData = new ContextData();
-                        Parallel.ForEach(domainFutureSingleRecordings.AsEnumerable(), options, (pair) =>
-                        {
-                            contextData.Load();
-                            //call cancelOrDelete
-                            if (pair.Value.RecordingStatus == TstvRecordingStatus.Scheduled)
-                            {
-                                CancelOrDeleteRecord(userID, domainID, pair.Key, TstvRecordingStatus.Canceled, false);
-                            }
-                        });
-                    }
-                }
-
-                // if series is already followed then complete the series recordings for the domain
-                if (isSeriesFollowed)
-                {
-                    var eta = DateTime.UtcNow.AddMinutes(1);
-
-                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                    ApiObjects.QueueObjects.SeriesRecordingTaskData data =
-                        new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainID, string.Empty, string.Empty, 0, eSeriesRecordingTask.CompleteRecordings)
-                        { ETA = eta };
-                    queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
-                }
-                // if first user, SeriesRecordingTask should be filled on FollowSeasonOrSeries
-                else
-                {
-                    if (!RecordingsDAL.InsertFirstFollowerLock(m_nGroupID, seriesRecording.SeriesId, seriesRecording.SeasonNumber, seriesRecording.EpgChannelId.ToString(), true))
-                    {
-                        log.ErrorFormat("Failed InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}",
-                                        m_nGroupID, seriesRecording.SeriesId, seriesRecording.SeasonNumber, seriesRecording.EpgChannelId);
-                    }
-
-                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                    SeriesRecordingTaskData seriesRecordingTask = new SeriesRecordingTaskData(
-                        m_nGroupID, userID, domainID, seriesRecording.EpgChannelId.ToString(), seriesRecording.SeriesId,
-                        seriesRecording.SeasonNumber, eSeriesRecordingTask.FirstFollower);
-                    queue.Enqueue(seriesRecordingTask, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
-                }
-            }
-            catch (Exception ex)
-            {
-                StringBuilder sb = new StringBuilder("Exception at RecordSeasonOrSeries. ");
-                sb.Append(String.Concat("userId: ", userID));
-                sb.Append(String.Concat(", epgID: ", epgID));
-                sb.Append(String.Concat(", Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
-                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
-
-                log.Error(sb.ToString(), ex);
-            }
-
-            return seriesRecording;
-        }
-
         public bool DistributeRecording(long epgId, long id, DateTime epgStartDate, List<long> domainSeriesIds = null)
         {
             bool result = true;
@@ -16494,6 +16556,7 @@ namespace Core.ConditionalAccess
 
             string seriesId = epgFieldMappings[Utils.SERIES_ID];
             int epgSeasonNumber = 0;
+            bool isEpgFirstTimeAirDate = IsEpgFirstTimeAirDate(epg);
 
             if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out epgSeasonNumber))
             {
@@ -16512,7 +16575,7 @@ namespace Core.ConditionalAccess
             }
             else
             {
-                followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, maxDomainSeriesId);
+                followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, isEpgFirstTimeAirDate, maxDomainSeriesId);
             }
 
             while (followingDomains != null && followingDomains.Rows != null && followingDomains.Rows.Count > 0 && maxDomainSeriesId > -1)
@@ -16542,7 +16605,7 @@ namespace Core.ConditionalAccess
                     long userId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "USER_ID", 0);
                     int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "SEASON_NUMBER", 0);
                     long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "ID", 0);
-                    RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
+                    RecordingType recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "RECORD_TYPE");
 
                     if (domainId > 0 && userId > 0)
                     {
@@ -16561,12 +16624,15 @@ namespace Core.ConditionalAccess
                         }
 
                         if (domainRecordedCrids == null || domainRecordedCrids.Count == 0 || !domainRecordedCrids.Contains(epg.CRID))
-                        {
-                            Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId, true);
-
-                            if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
+                        {                            
+                            if (VerifyCanRecord(epgId, recordingType))
                             {
-                                log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
+                                Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId, true);
+
+                                if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
+                                {
+                                    log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
+                                }
                             }
                         }
                     }
@@ -16582,7 +16648,7 @@ namespace Core.ConditionalAccess
                 {
                     // max domain series ID because GetSeriesFollowingDomains is ordered by id asc
                     maxDomainSeriesId = ODBCWrapper.Utils.GetLongSafeVal(followingDomains.Rows[followingDomains.Rows.Count - 1], "ID", -1);
-                    followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, maxDomainSeriesId);
+                    followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, isEpgFirstTimeAirDate, maxDomainSeriesId);
                 }
 
             }
@@ -16626,6 +16692,7 @@ namespace Core.ConditionalAccess
 
                     string seriesId = epgFieldMappings[Utils.SERIES_ID];
                     int epgSeasonNumber = 0;
+                    bool isEpgFirstTimeAirDate = IsEpgFirstTimeAirDate(epg);
 
                     if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out epgSeasonNumber))
                     {
@@ -16633,7 +16700,7 @@ namespace Core.ConditionalAccess
                         return result;
                     }
 
-                    followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, maxDomainSeriesId);
+                    followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, isEpgFirstTimeAirDate, maxDomainSeriesId);
                 }
 
                 // set max amount of concurrent tasks
@@ -16670,7 +16737,7 @@ namespace Core.ConditionalAccess
                 long userId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "USER_ID", 0);
                 int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "SEASON_NUMBER", 0);
                 long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "ID", 0);
-                RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
+                var recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "RECORD_TYPE", 0);
 
                 if (domainId > 0 && userId > 0)
                 {
@@ -17049,13 +17116,14 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        public ApiObjects.KeyValuePair GetSeriesIdAndSeasonNumberByEpgId(long epgId)
+        public Tuple<string, int, bool> GetEpgSeriesDetails(long epgId)
         {
+            Tuple<string, int, bool> result = new Tuple<string, int, bool>(string.Empty, -1, false);
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
             if (epgs == null || epgs.Count != 1)
             {
                 log.DebugFormat("Failed Getting EPG from Catalog, groupId: {0}, EpgId: {1}", m_nGroupID, epgId);
-                return new ApiObjects.KeyValuePair();
+                return result;
             }
 
             EPGChannelProgrammeObject epg = epgs.First();
@@ -17063,19 +17131,18 @@ namespace Core.ConditionalAccess
             if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
-                return new ApiObjects.KeyValuePair();
+                return result;
             }
 
             string seriesId = epgFieldMappings[Utils.SERIES_ID];
             int epgSeasonNumber = 0;
-
             if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out epgSeasonNumber))
             {
                 log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
-                return new ApiObjects.KeyValuePair();
+                return result;
             }
 
-            return new ApiObjects.KeyValuePair(seriesId, epgSeasonNumber.ToString());
+            return new Tuple<string, int, bool>(seriesId, epgSeasonNumber, IsEpgFirstTimeAirDate(epg));
         }
 
         public SearchableRecording[] GetDomainSearchableRecordings(int groupID, long domainId)

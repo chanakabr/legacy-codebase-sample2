@@ -73,10 +73,10 @@ namespace Core.Users
                     IPAddress = ip,
                     DeviceId = deviceId,
                     PreventDoubleLogin = preventDoubleLogin,
-                    CustomParams = keyValueList.ToDictionary(k => k.key, v => v.value),
+                    CustomParams = keyValueList?.ToDictionary(k => k.key, v => v.value),
                 };
 
-                var customParamsStr = string.Concat(preSignInModel.CustomParams.Select(c => c.Key + c.Value));
+                var customParamsStr = preSignInModel.CustomParams != null ? string.Concat(preSignInModel.CustomParams.Select(c => c.Key + c.Value)) : string.Empty;
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, preSignInModel.UserId, preSignInModel.UserName, preSignInModel.Password, customParamsStr);
                 _Logger.InfoFormat("Calling sso adapter PreSignIn [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
                 var response = _AdapterClient.PreSignInAsync(_AdapterId, preSignInModel, signature).ExecuteAndWait();

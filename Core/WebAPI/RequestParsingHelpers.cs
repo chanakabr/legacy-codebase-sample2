@@ -46,7 +46,6 @@ namespace WebAPI
                         }
 
                         throw new RequestParserException(RequestParserException.MISSING_PARAMETER, name);
-
                     }
                 }
 
@@ -125,7 +124,6 @@ namespace WebAPI
                                 groupId = ks.GroupId;
                             }
                         }
-
 
                         res.AfterRequestParsed(service, action, language, groupId, userId, deviceId, jObject);
 
