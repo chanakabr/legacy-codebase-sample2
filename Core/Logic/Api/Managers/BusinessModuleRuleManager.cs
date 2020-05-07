@@ -346,5 +346,90 @@ namespace APILogic.Api.Managers
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetBusinessModuleRuleInvalidationKey(ruleId.Value));
             }
         }
+
+        public static bool IsActionTypeRuleExists(int groupId, RuleActionType ruleActionType)
+        {
+
+            HashSet<int> rules = null;
+            string key = LayeredCacheKeys.GetAllRuleActionTypesKey(groupId);
+            if (!LayeredCache.Instance.Get<HashSet<int>>(key,
+                                                        ref rules,
+                                                        GetAllRuleActionTypes,
+                                                        new Dictionary<string, object>() { { "groupId", groupId } },
+                                                        groupId,
+                                                        LayeredCacheConfigNames.GET_ALL_BUSINESS_MODULE_RULE_ACTION_TYPES,
+                                                        new List<string>() { LayeredCacheKeys.GetAllBusinessModuleRulesGroupInvalidationKey(groupId) }))
+            {
+                log.ErrorFormat("GetGroupRuleIds - GetAllBusinessModuleRulesDB - Failed get data from cache. groupId: {0}", groupId);
+            }
+
+            return rules != null && rules.Contains((int)ruleActionType);
+
+        }
+
+        private static List<long> GetGroupRuleIds(int groupId)
+        {
+            string allBusinessModuleRuleIdsKey = LayeredCacheKeys.GetAllBusinessModuleRuleIdsKey(groupId);
+            List<long> ruleIds = null;
+            if (!LayeredCache.Instance.Get<List<long>>(allBusinessModuleRuleIdsKey,
+                                                                        ref ruleIds,
+                                                                        GetAllBusinessModuleRulesDB,
+                                                                        new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                        groupId,
+                                                                        LayeredCacheConfigNames.GET_ALL_BUSINESS_MODULE_RULE_IDS,
+                                                                        new List<string>() { LayeredCacheKeys.GetAllBusinessModuleRulesGroupInvalidationKey(groupId) }))
+            {
+                log.ErrorFormat("GetGroupRuleIds - GetAllBusinessModuleRulesDB - Failed get data from cache. groupId: {0}", groupId);
+            }
+
+            return ruleIds;
+        }
+
+        private static Tuple<HashSet<int>, bool> GetAllRuleActionTypes(Dictionary<string, object> funcParams)
+        {
+            HashSet<int> availableRuleActionType = new HashSet<int>();
+
+            if (funcParams != null && funcParams.Count == 1)
+            {
+                if (funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+
+                    if (groupId.HasValue)
+                    {
+                        try
+                        {
+                            var ruleIds = GetGroupRuleIds(groupId.Value);
+
+                            if (ruleIds?.Count > 0)
+                            {
+                                var rulesTypes = ApiDAL.GetBusinessModuleRuleTypeCB(ruleIds);
+                                if (rulesTypes?.Count > 0)
+                                {
+                                    foreach (var ruleType in rulesTypes)
+                                    {
+                                        foreach (var action in ruleType.ActionsTypeIdIn)
+                                        {
+                                            if (!availableRuleActionType.Contains(action))
+                                            {
+                                                availableRuleActionType.Add(action);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(string.Format("GetAllBusinessModuleRulesDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+                        }
+                    }
+                }
+            }
+
+            return new Tuple<HashSet<int>, bool>(availableRuleActionType, true);
+        }
+
+
     }
 }

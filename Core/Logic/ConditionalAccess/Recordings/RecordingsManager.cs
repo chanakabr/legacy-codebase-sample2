@@ -967,12 +967,10 @@ namespace Core.Recordings
                 // We're OK
                 recording.Status = new Status((int)eResponseStatus.OK);
                 Recording copyRecording = new Recording(recording);
-                ContextData cd = new ContextData();
 
                 // Async - call adapter. Main flow is done                
                 System.Threading.Tasks.Task async = Task.Run(() =>
                 {
-                    cd.Load();
                     HashSet<long> failedDomainIds;
                     CallAdapterRecord(groupId, programId.ToString(), epgChannelID, startDate, endDate, isCanceled, (Recording)copyRecording, isPrivateCopy, domainIds, out failedDomainIds);
                     if (failedDomainIds != null && failedDomainIds.Count > 0)

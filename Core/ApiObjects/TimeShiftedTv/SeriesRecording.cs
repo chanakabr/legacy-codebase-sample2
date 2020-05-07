@@ -15,8 +15,6 @@ namespace ApiObjects.TimeShiftedTv
 
         public DateTime UpdateDate { get; set; }
 
-        public RecordingType Type { get; set; }
-
         public bool isExternalRecording { get; set; }
 
         public SeriesRecording()

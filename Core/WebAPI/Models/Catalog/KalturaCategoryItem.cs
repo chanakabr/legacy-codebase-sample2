@@ -96,6 +96,11 @@ namespace WebAPI.Models.Catalog
 
         internal override void ValidateForAdd()
         {
+            if (this.Name == null)
+            {
+                throw new Exceptions.BadRequestException(Exceptions.BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "multilingualName");
+            }
+
             this.Name.Validate("multilingualName");
 
             if (DynamicData?.Count > 0)

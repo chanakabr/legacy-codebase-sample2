@@ -18,24 +18,6 @@ namespace ApiObjects.Response
         public static Status Ok => new Status((int)eResponseStatus.OK);
         public static Status Error => new Status((int)eResponseStatus.Error);
 
-        public Status(int code = 0, string message = "", List<KeyValuePair> args = null)
-        {
-            this.Code = code;
-            this.Message = message;
-            this.args = args;
-        }
-
-        public Status(eResponseStatus status, string message = null, List<KeyValuePair> args = null)
-        {
-            this.Message = message;
-            this.Code = (int)status;
-            this.Args = args;
-        }
-
-        public Status()
-        {
-        }
-
         [DataMember]
         [JsonProperty("Code")]
         public int Code
@@ -82,9 +64,25 @@ namespace ApiObjects.Response
             }
         }
 
-        public void Set(int errorCode, string errorMessage)
+        public Status()
+        {
+        }
+
+        public Status(eResponseStatus status, string message = null, List<KeyValuePair> args = null)
+        {
+            this.Set(status, message, args);
+
+        }
+
+        public Status(int code = 0, string message = "", List<KeyValuePair> args = null)
+        {
+            this.Set(code, message, args);
+        }
+
+        public void Set(int errorCode, string errorMessage = null, List<KeyValuePair> args = null)
         {
             this.code = errorCode;
+            this.args = args;
 
             if (string.IsNullOrEmpty(errorMessage))
             {
@@ -96,18 +94,9 @@ namespace ApiObjects.Response
             }
         }
 
-        public void Set(eResponseStatus responseStatus, string responseMessage = null)
+        public void Set(eResponseStatus responseStatus, string responseMessage = null, List<KeyValuePair> args = null)
         {
-            this.code = (int)responseStatus;
-
-            if (string.IsNullOrEmpty(responseMessage))
-            {
-                this.message = responseStatus.ToString();
-            }
-            else
-            {
-                this.message = responseMessage;
-            }
+            this.Set((int)responseStatus, string.IsNullOrEmpty(responseMessage) ? responseStatus.ToString() : responseMessage, args);
         }
 
         public void Set(Status newStatus)
