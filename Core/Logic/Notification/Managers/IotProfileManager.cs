@@ -221,6 +221,8 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
+                IotManager.Instance.InvalidateClientConfiguration(groupId);
+
                 var urlSuffix = $"groupId={groupId}&forClient={false}";
 
                 var profileAws = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get, out int httpStatus, out bool hasConfig);
@@ -239,6 +241,8 @@ namespace ApiLogic.Notification
                     AdapterUrl = iotProfile.AdapterUrl,
                     IotProfileAws = profileAws
                 };
+
+                SaveIotProfile(groupId, iotProfile);
 
                 response.SetStatus(Status.Ok);
             }
