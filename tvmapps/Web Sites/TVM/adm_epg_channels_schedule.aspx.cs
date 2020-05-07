@@ -376,8 +376,9 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
                 m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC,
                 m_sOrderValue = "start_date"
             };
+            
 
-            orderEpgs = epgBL.GetChannelPrograms(channelId, start.AddDays(-1), end);
+            orderEpgs = epgBL.GetChannelPrograms(channelId, start.AddDays(-1), end, new List<ESOrderObj>() { orderObj });
 
             //if (programs != null && programs.Count > 0)
             //{
