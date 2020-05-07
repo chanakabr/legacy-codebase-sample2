@@ -18,7 +18,6 @@ namespace DAL
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
         private const uint FIRST_FOLLOWER_BLOCK_LOCK_TTL_SEC = 300;
-        private const uint FIRST_FOLLOWER_INDEX_LOCK_TTL_SEC = 60;
         private const string RECORDING_CONNECTION = "RECORDING_CONNECTION_STRING";
 
         private static void HandleException(Exception ex)
@@ -541,7 +540,8 @@ namespace DAL
             return dt;
         }
 
-        public static DataTable FollowSeries(int groupId, string userId, long domainID, long epgId, long epgChannelId, string seriesId, int seasonNumber, int episodeNumber)
+        //this is the save to domain series table
+        public static DataTable FollowSeries(int groupId, string userId, long domainID, long epgId, long epgChannelId, string seriesId, int seasonNumber, int episodeNumber,int recordType)
         {
             ODBCWrapper.StoredProcedure spFollowSeries = new ODBCWrapper.StoredProcedure("FollowSeries");
             spFollowSeries.SetConnectionKey(RECORDING_CONNECTION);
@@ -553,6 +553,7 @@ namespace DAL
             spFollowSeries.AddParameter("@SeriesID", seriesId);
             spFollowSeries.AddParameter("@SeasonNumber", seasonNumber);
             spFollowSeries.AddParameter("@EpisodeNumber", episodeNumber);
+            spFollowSeries.AddParameter("@RecordType", recordType);
             DataTable dt = spFollowSeries.Execute();
 
             return dt;
@@ -704,7 +705,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static DataTable GetSeriesFollowingDomains(int groupId, string seriesId, int seasonNumber, long maxDomainSeriesId)
+        public static DataTable GetSeriesFollowingDomains(int groupId, string seriesId, int seasonNumber, bool isEpgFirstTimeAirDate, long maxDomainSeriesId)
         {
             DataTable dt = null;
             ODBCWrapper.StoredProcedure spGetSeriesFollowingDomains = new ODBCWrapper.StoredProcedure("GetSeriesFollowingDomains");
@@ -712,6 +713,7 @@ namespace DAL
             spGetSeriesFollowingDomains.AddParameter("@GroupID", groupId);
             spGetSeriesFollowingDomains.AddParameter("@SeriesId", seriesId);
             spGetSeriesFollowingDomains.AddParameter("@SeasonNumber", seasonNumber);
+            spGetSeriesFollowingDomains.AddParameter("@IsEpgFirstTimeAirDate", isEpgFirstTimeAirDate ? 1 : 0);
             spGetSeriesFollowingDomains.AddParameter("@MaxId", maxDomainSeriesId);
             dt = spGetSeriesFollowingDomains.Execute();
 
@@ -754,7 +756,7 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static HashSet<long> GetSeriesFollowingDomainsIds(int groupId, string seriesId, int seasonNumber, ref long maxDomainSeriesId)
+        public static HashSet<long> GetSeriesFollowingDomainsIds(int groupId, string seriesId, int seasonNumber, bool isFIsEpgFirstTimeAirDate, ref long maxDomainSeriesId)
         {
             HashSet<long> domainSeriesIds = new HashSet<long>();
             ODBCWrapper.StoredProcedure spGetSeriesFollowingDomainsIds = new ODBCWrapper.StoredProcedure("GetSeriesFollowingDomainsIds");
@@ -762,6 +764,7 @@ namespace DAL
             spGetSeriesFollowingDomainsIds.AddParameter("@GroupID", groupId);
             spGetSeriesFollowingDomainsIds.AddParameter("@SeriesId", seriesId);
             spGetSeriesFollowingDomainsIds.AddParameter("@SeasonNumber", seasonNumber);
+            spGetSeriesFollowingDomainsIds.AddParameter("@IsEpgFirstTimeAirDate", isFIsEpgFirstTimeAirDate ? 1 : 0);
             spGetSeriesFollowingDomainsIds.AddParameter("@MaxId", maxDomainSeriesId);
             DataTable dt = spGetSeriesFollowingDomainsIds.Execute();
 
@@ -985,7 +988,7 @@ namespace DAL
             return result;
         }
 
-        public static bool InsertFirstFollowerLock(int groupId, string seriesId, int seasonNumber, string channelId, bool isBlockLock)
+        public static bool InsertFirstFollowerLock(int groupId, string seriesId, int seasonNumber, string channelId, long domainId)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
@@ -994,37 +997,37 @@ namespace DAL
             string firstFollowerLockKey = UtilsDal.GetFirstFollowerLockKey(groupId, seriesId, seasonNumber, channelId);
             if (string.IsNullOrEmpty(firstFollowerLockKey))
             {
-                log.ErrorFormat("Failed getting firstFollowerLockKey for groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}, isBlockLock: {4}", groupId, seriesId, seasonNumber, channelId, isBlockLock);
+                log.ErrorFormat("Failed getting firstFollowerLockKey for groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", groupId, seriesId, seasonNumber, channelId);
                 return result;
             }
 
             try
             {
-                uint ttl = isBlockLock ? FIRST_FOLLOWER_BLOCK_LOCK_TTL_SEC : FIRST_FOLLOWER_INDEX_LOCK_TTL_SEC;
                 int numOfRetries = 0;
                 while (!result && numOfRetries < limitRetries)
                 {
-                    result = cbClient.Set<long>(firstFollowerLockKey, ODBCWrapper.Utils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow), ttl);
+                    result = cbClient.Set<long>(firstFollowerLockKey, domainId, FIRST_FOLLOWER_BLOCK_LOCK_TTL_SEC);
                     if (!result)
                     {
                         numOfRetries++;
-                        log.ErrorFormat("Error while InsertFirstFollowerLock. number of tries: {0}/{1}. groupId: {2}, seriesId: {3}, seasonNumber: {4}, channelId: {5}, isBlockLock: {6}",
-                                        numOfRetries, limitRetries, groupId, seriesId, seasonNumber, channelId, isBlockLock);
+                        log.ErrorFormat("Error while InsertFirstFollowerLock. number of tries: {0}/{1}. groupId: {2}, seriesId: {3}, seasonNumber: {4}, channelId: {5}",
+                                        numOfRetries, limitRetries, groupId, seriesId, seasonNumber, channelId);
                         System.Threading.Thread.Sleep(r.Next(50));
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error on InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}, isBlockLock: {4}",
-                                            groupId, seriesId, seasonNumber, channelId, isBlockLock), ex);
+                log.Error(string.Format("Error on InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}",
+                                            groupId, seriesId, seasonNumber, channelId), ex);
             }
 
             return result;
         }
 
-        public static bool IsFirstFollowerLockExists(int groupId, string seriesId, int seasonNumber, string channelId)
+        public static long GetFirstFollowerLockId(int groupId, string seriesId, int seasonNumber, string channelId)
         {
+            long domainId = 0;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -1032,7 +1035,7 @@ namespace DAL
             if (string.IsNullOrEmpty(firstFollowerLockKey))
             {
                 log.ErrorFormat("Failed getting firstFollowerLockKey for groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", groupId, seriesId, seasonNumber, channelId);
-                return true;
+                return domainId;
             }
 
             try
@@ -1040,33 +1043,30 @@ namespace DAL
                 int numOfRetries = 0;
                 while (numOfRetries < limitRetries)
                 {
-                    CouchbaseManager.eResultStatus cbResponse;
-                    long lockTime = 0;
-                    lockTime = cbClient.Get<long>(firstFollowerLockKey, out cbResponse);
+                    CouchbaseManager.eResultStatus cbResponse;                    
+                    domainId = cbClient.Get<long>(firstFollowerLockKey, out cbResponse);
                     if (cbResponse == CouchbaseManager.eResultStatus.ERROR)
-                    {
-                        numOfRetries++;
+                    {                        
                         log.ErrorFormat("Error while GetFirstFollowerLock. number of tries: {0}/{1}. groupId: {2}, seriesId: {3}, seasonNumber: {4}, channelId: {5}",
                                         numOfRetries, limitRetries, groupId, seriesId, seasonNumber, channelId);
                         System.Threading.Thread.Sleep(r.Next(50));
                     }
-                    // if document exists return true
-                    else if (lockTime > 0)
-                    {
-                        return true;
+                    else if(cbResponse == CouchbaseManager.eResultStatus.KEY_NOT_EXIST ||
+                        cbResponse == CouchbaseManager.eResultStatus.SUCCESS)
+                    {                         
+                        return domainId; 
                     }
-                    // if document does not exists return false
-                    else
-                        return false;
+                    
+                    numOfRetries++;
                 }
 
-                return true;
+                return domainId;
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Error on GetFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}",
                                             groupId, seriesId, seasonNumber, channelId), ex);
-                return true;
+                return domainId;
             }
         }
 

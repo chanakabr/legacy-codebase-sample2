@@ -3150,27 +3150,6 @@ namespace WebAPI.WebServices
         }
 
         [WebMethod]
-        public ApiObjects.KeyValuePair GetSeriesIdAndSeasonNumberByEpgId(string sWSUserName, string sWSPassword, long epgId)
-        {
-
-            ApiObjects.KeyValuePair result = new ApiObjects.KeyValuePair();
-            Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
-            if (nGroupID != 0)
-            {
-                result = Core.ConditionalAccess.Module.GetSeriesIdAndSeasonNumberByEpgId(nGroupID, epgId);
-            }
-            else
-            {
-                if (nGroupID == 0)
-                {
-                    HttpContext.Current.Response.StatusCode = 404;
-                }
-            }
-
-            return result;
-        }
-
-        [WebMethod]
         public SearchableRecording[] GetDomainSearchableRecordings(string sWSUserName, string sWSPassword, long domainId)
         {
 
