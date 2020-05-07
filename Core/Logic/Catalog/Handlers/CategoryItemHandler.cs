@@ -589,7 +589,7 @@ namespace Core.Catalog.Handlers
             {
                 var ec = ExternalChannelManager.GetChannelById(groupId, (int)channelId,true, userId);
 
-                if (ec != null && ec.IsOkStatusCode())
+                if (ec != null && ec.IsOkStatusCode() && ec.Object != null)
                 {
                     UnifiedChannelInfo uci = new UnifiedChannelInfo()
                     {
@@ -605,7 +605,7 @@ namespace Core.Catalog.Handlers
             foreach (var channelId in intenalChannels)
             {
                 var channel = ChannelManager.GetChannelById(groupId, (int)channelId, true, userId);
-                if (channel.HasObject())
+                if (channel.IsOkStatusCode() && channel.Object != null)
                 {
                     UnifiedChannelInfo uci = new UnifiedChannelInfo()
                     {
