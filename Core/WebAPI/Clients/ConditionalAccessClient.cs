@@ -1811,7 +1811,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status);
             }
             // convert response
-            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>(response);
+            recording = Mapper.Map<KalturaSeriesRecording>(response);
 
             return recording;
         }

@@ -14915,10 +14915,10 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(Default != null)
+            if(IotDefault != null)
             {
-                propertyValue = Default.ToJson(currentVersion, omitObsolete);
-                ret.Add("default", "\"default\": " + propertyValue);
+                propertyValue = IotDefault.ToJson(currentVersion, omitObsolete);
+                ret.Add("iotDefault", "\"iotDefault\": " + propertyValue);
             }
             return ret;
         }
@@ -14929,10 +14929,10 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(Default != null)
+            if(IotDefault != null)
             {
-                propertyValue = Default.ToXml(currentVersion, omitObsolete);
-                ret.Add("default", "<default>" + propertyValue + "</default>");
+                propertyValue = IotDefault.ToXml(currentVersion, omitObsolete);
+                ret.Add("iotDefault", "<iotDefault>" + propertyValue + "</iotDefault>");
             }
             return ret;
         }
@@ -14945,10 +14945,10 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(Default != null)
+            if(IotDefault != null)
             {
-                propertyValue = Default.ToJson(currentVersion, omitObsolete);
-                ret.Add("default", "\"default\": " + propertyValue);
+                propertyValue = IotDefault.ToJson(currentVersion, omitObsolete);
+                ret.Add("iotDefault", "\"iotDefault\": " + propertyValue);
             }
             return ret;
         }
@@ -14959,10 +14959,10 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(Default != null)
+            if(IotDefault != null)
             {
-                propertyValue = Default.ToXml(currentVersion, omitObsolete);
-                ret.Add("default", "<default>" + propertyValue + "</default>");
+                propertyValue = IotDefault.ToXml(currentVersion, omitObsolete);
+                ret.Add("iotDefault", "<iotDefault>" + propertyValue + "</iotDefault>");
             }
             return ret;
         }
@@ -15288,50 +15288,6 @@ namespace WebAPI.Models.API
 
             ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
             ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
-            return ret;
-        }
-    }
-    public partial class KalturaDefault
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            if(AppClientId != null)
-            {
-                ret.Add("appClientId", "\"appClientId\": " + "\"" + EscapeJson(AppClientId) + "\"");
-            }
-            if(PoolId != null)
-            {
-                ret.Add("poolId", "\"poolId\": " + "\"" + EscapeJson(PoolId) + "\"");
-            }
-            if(Region != null)
-            {
-                ret.Add("region", "\"region\": " + "\"" + EscapeJson(Region) + "\"");
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            if(AppClientId != null)
-            {
-                ret.Add("appClientId", "<appClientId>" + EscapeXml(AppClientId) + "</appClientId>");
-            }
-            if(PoolId != null)
-            {
-                ret.Add("poolId", "<poolId>" + EscapeXml(PoolId) + "</poolId>");
-            }
-            if(Region != null)
-            {
-                ret.Add("region", "<region>" + EscapeXml(Region) + "</region>");
-            }
             return ret;
         }
     }
@@ -16545,6 +16501,50 @@ namespace WebAPI.Models.API
             if(Json != null)
             {
                 ret.Add("json", "<json>" + EscapeXml(Json) + "</json>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaIotDefault
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AppClientId != null)
+            {
+                ret.Add("appClientId", "\"appClientId\": " + "\"" + EscapeJson(AppClientId) + "\"");
+            }
+            if(PoolId != null)
+            {
+                ret.Add("poolId", "\"poolId\": " + "\"" + EscapeJson(PoolId) + "\"");
+            }
+            if(Region != null)
+            {
+                ret.Add("region", "\"region\": " + "\"" + EscapeJson(Region) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AppClientId != null)
+            {
+                ret.Add("appClientId", "<appClientId>" + EscapeXml(AppClientId) + "</appClientId>");
+            }
+            if(PoolId != null)
+            {
+                ret.Add("poolId", "<poolId>" + EscapeXml(PoolId) + "</poolId>");
+            }
+            if(Region != null)
+            {
+                ret.Add("region", "<region>" + EscapeXml(Region) + "</region>");
             }
             return ret;
         }
@@ -25899,6 +25899,36 @@ namespace WebAPI.Models.Partner
             return ret;
         }
     }
+    public partial class KalturaPlaybackPartnerConfig
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(DefaultAdapters != null)
+            {
+                propertyValue = DefaultAdapters.ToJson(currentVersion, omitObsolete);
+                ret.Add("defaultAdapters", "\"defaultAdapters\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(DefaultAdapters != null)
+            {
+                propertyValue = DefaultAdapters.ToXml(currentVersion, omitObsolete);
+                ret.Add("defaultAdapters", "<defaultAdapters>" + propertyValue + "</defaultAdapters>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaRollingDeviceRemovalData
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -25931,36 +25961,6 @@ namespace WebAPI.Models.Partner
             if(RollingDeviceRemovalPolicy.HasValue)
             {
                 ret.Add("rollingDeviceRemovalPolicy", "<rollingDeviceRemovalPolicy>" + "" + Enum.GetName(typeof(KalturaRollingDevicePolicy), RollingDeviceRemovalPolicy) + "" + "</rollingDeviceRemovalPolicy>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaPlaybackPartnerConfig
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            if(DefaultAdapters != null)
-            {
-                propertyValue = DefaultAdapters.ToJson(currentVersion, omitObsolete);
-                ret.Add("defaultAdapters", "\"defaultAdapters\": " + propertyValue);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            if(DefaultAdapters != null)
-            {
-                propertyValue = DefaultAdapters.ToXml(currentVersion, omitObsolete);
-                ret.Add("defaultAdapters", "<defaultAdapters>" + propertyValue + "</defaultAdapters>");
             }
             return ret;
         }

@@ -23,7 +23,7 @@ then
 	minor=${COMMITS[0]}
 	build=${COMMITS[1]}
 	revision=${commitCount}
-	version="${major}"."${minor}"."${build}"."${revision}"
+	version="${major}"."${minor}"."${build}"."${revision}$2"
 	description="$(date +'%Y-%m-%d %H:%M:%S') \| Hostname:$(hostname) \| Published by:${commiter} \| Tag:${tag}"
 	echo "Identified Version: $version"
 	echo "Identified Description: $description"

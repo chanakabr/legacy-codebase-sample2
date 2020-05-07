@@ -1595,7 +1595,7 @@ namespace TVPApiModule.Services
             return res;
         }        
 
-        public ClientResponseStatus CancelServiceNow(int domainId, int assetId, eTransactionType transactionType, bool bIsForce = false, string udid = null)
+        public ClientResponseStatus CancelServiceNow(int domainId, int assetId, eTransactionType transactionType, bool bIsForce = false, string udid = null, string userId = null)
         {
             ClientResponseStatus clientResponse;
 
@@ -1603,7 +1603,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = Core.ConditionalAccess.Module.CancelServiceNow(m_groupID, domainId, assetId, transactionType, bIsForce, udid);
+                    var result = Core.ConditionalAccess.Module.CancelServiceNow(m_groupID, domainId, assetId, transactionType, bIsForce, udid, userId);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
                 }
             }

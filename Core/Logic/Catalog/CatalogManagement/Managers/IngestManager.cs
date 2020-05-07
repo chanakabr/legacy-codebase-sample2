@@ -219,7 +219,7 @@ namespace Core.Catalog.CatalogManagement
                     mediaType = (assetRespone.Object as MediaAsset).MediaType.m_sTypeName;
                 }
             }
-
+            
             MediaAsset mediaAsset = new MediaAsset()
             {
                 Id = mediaId,
@@ -236,7 +236,7 @@ namespace Core.Catalog.CatalogManagement
                 StartDate = startDate,
                 CatalogStartDate = GetDateTimeFromString(media.Basic.Dates.CatalogStart, startDate),
                 EndDate = endDate,
-                FinalEndDate = GetDateTimeFromString(media.Basic.Dates.End, endDate),
+                FinalEndDate = GetDateTimeFromString(media.Basic.Dates.FinalEnd, endDate),
                 GeoBlockRuleId = (int?)TvmRuleManager.GetGeoBlockRuleId(groupId, media.Basic.Rules.GeoBlockRule),
                 DeviceRuleId = (int?)TvmRuleManager.GetDeviceRuleId(groupId, media.Basic.Rules.DeviceRule),
                 Metas = metas,

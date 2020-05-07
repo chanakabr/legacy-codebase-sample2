@@ -8,11 +8,12 @@ pipeline {
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core branch to pull')
         string(name: 'nuget_server', defaultValue: '10.10.12.70:5555/v3/index.json', description: 'Nuget Server URL')
-        
+		booleanParam(name: 'mark_alpha', defaultValue: 'true', description: 'mark nuget as alpha, uncheck when releasing OFFICIAL nuget')        
     }
     stages {
         stage("Clean"){
             steps{
+                sh(label:"clean published folder", script:"rm -rf *")
                 sh(label:"clean bin and obj folders", script:"find . -iname 'bin' -o -iname 'obj' | xargs rm -rf")
                 sh(label:"clean published folder", script:"rm -rf ./nugets")
             }
@@ -22,12 +23,31 @@ pipeline {
                 git(url: 'https://github.com/kaltura/ott-backend.git', branch: "${branch}", credentialsId: "github-ott-ci-cd")
             }
         }
-        stage("Version Patch"){
-            steps{
+        stage("Alpha Version Patch"){
+            when
+            {
+                expression {
+                    params.mark_alpha == true
+                } 
+            }
+            steps {
+                dir("Core"){
+                    bat "sh DllVersioning.Core.sh . -alpha" 
+                }
+            }            
+        }
+        stage("Official Version Patch"){
+            when
+            {
+                expression {
+                    params.mark_alpha == false
+                } 
+            }
+            steps {
                 dir("Core"){
                     bat "sh DllVersioning.Core.sh ." 
                 }
-            }        
+            }            
         }
         stage("Package Nuget Locally"){
             steps{
@@ -39,7 +59,6 @@ pipeline {
                 bat "dotnet pack Core/StaticHttpContextForNetCore/StaticHttpContextForNetCore.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/KLogMonitor/KLogMonitor.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/KlogMonitorHelper/KlogMonitorHelper.csproj -o ${WORKSPACE}/nugets/" 
-                bat "dotnet pack Core/CouchBaseExtensions/CouchBaseExtensions.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/CouchbaseManager/CouchbaseManager.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/ODBCWrapper/ODBCWrapper.csproj -o ${WORKSPACE}/nugets/" 
                 bat "dotnet pack Core/CachingManager/CachingManager.csproj -o ${WORKSPACE}/nugets/" 
@@ -55,6 +74,8 @@ pipeline {
                 bat "dotnet pack Core/SoapAdaptersCommon/SoapAdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/RestAdaptersCommon/RestAdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/AdaptersCommon/AdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
+				bat "dotnet pack Core/ElasticSearch/ElasticSearch.csproj -o ${WORKSPACE}/nugets/"
+				bat "dotnet pack Core/HealthCheck/HealthCheck.csproj -o ${WORKSPACE}/nugets/"
 
             }        
         }
@@ -66,7 +87,6 @@ pipeline {
                     bat "nuget push StaticHttpContextForNetCore*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push KLogMonitor*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push KlogMonitorHelper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
-                    bat "nuget push CouchBaseExtensions*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push CouchbaseManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push ODBCWrapper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push CachingManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
@@ -82,6 +102,8 @@ pipeline {
                     bat "nuget push SoapAdaptersCommon*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
                     bat "nuget push RestAdaptersCommon*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
                     bat "nuget push AdaptersCommon*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
+					bat "nuget push ElasticSearch*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
+					bat "nuget push HealthCheck*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
                 }
             }
         }

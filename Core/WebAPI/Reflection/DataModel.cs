@@ -1477,16 +1477,16 @@ namespace WebAPI.Reflection
                 case "KalturaCognitoIdentity":
                     switch(property.Name)
                     {
-                        case "Default":
-                            return "default";
+                        case "IotDefault":
+                            return "iotDefault";
                     }
                     break;
                     
                 case "KalturaCognitoUserPool":
                     switch(property.Name)
                     {
-                        case "Default":
-                            return "default";
+                        case "IotDefault":
+                            return "iotDefault";
                     }
                     break;
                     
@@ -1969,18 +1969,6 @@ namespace WebAPI.Reflection
                     {
                         case "Date":
                             return "date";
-                    }
-                    break;
-                    
-                case "KalturaDefault":
-                    switch(property.Name)
-                    {
-                        case "AppClientId":
-                            return "appClientId";
-                        case "PoolId":
-                            return "poolId";
-                        case "Region":
-                            return "region";
                     }
                     break;
                     
@@ -3379,6 +3367,18 @@ namespace WebAPI.Reflection
                             return "credentialsProvider";
                         case "Json":
                             return "json";
+                    }
+                    break;
+                    
+                case "KalturaIotDefault":
+                    switch(property.Name)
+                    {
+                        case "AppClientId":
+                            return "appClientId";
+                        case "PoolId":
+                            return "poolId";
+                        case "Region":
+                            return "region";
                     }
                     break;
                     

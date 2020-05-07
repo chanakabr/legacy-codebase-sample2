@@ -41,9 +41,10 @@ namespace ApiObjects
         public string AnnouncementTopic { get; set; }
         public string Json { get; set; }
 
+
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(new { this.CredentialsProvider, this.CognitoUserPool }, Formatting.None);
+            return JsonConvert.SerializeObject(new { this.CredentialsProvider, this.CognitoUserPool }, Formatting.None).Replace("IotDefault", "Default");
         }
     }
 
@@ -54,15 +55,15 @@ namespace ApiObjects
 
     public class CognitoIdentity
     {
-        public Default Default { get; set; }
+        public IotDefault IotDefault { get; set; }
     }
 
     public class CognitoUserPool
     {
-        public Default Default { get; set; }
+        public IotDefault IotDefault { get; set; }
     }
 
-    public class Default
+    public class IotDefault
     {
         public string PoolId { get; set; }
         public string Region { get; set; }

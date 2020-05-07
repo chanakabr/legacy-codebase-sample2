@@ -35,7 +35,7 @@ namespace SoapAdaptersCommon.Middleware
             action = action ?? "null";
 
             var reqid = _HttpContexAccessor.HttpContext.TraceIdentifier;
-            if (message.Headers.FindHeader(Constants.REQUEST_ID_KEY, string.Empty) > 0)
+            if (message.Headers.FindHeader(Constants.REQUEST_ID_KEY, string.Empty) >= 0)
             {
                 reqid = message.Headers.GetHeader<string>(Constants.REQUEST_ID_KEY, string.Empty);
             }
@@ -43,7 +43,7 @@ namespace SoapAdaptersCommon.Middleware
             reqid = reqid ?? _HttpContexAccessor.HttpContext.TraceIdentifier;
 
             string ks = null;
-            if (message.Headers.FindHeader(Constants.KS, string.Empty) > 0)
+            if (message.Headers.FindHeader(Constants.KS, string.Empty) >= 0)
             {
                 ks = message.Headers.GetHeader<string>(Constants.KS, string.Empty);
             }

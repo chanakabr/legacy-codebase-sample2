@@ -953,10 +953,6 @@
       <Project>{077732d7-e13b-4b91-9356-8ac454f26c65}</Project>
       <Name>ConfigurationManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\CouchBaseExtensions\CouchBaseExtensions.csproj">
-      <Project>{1543408f-0b7c-4f47-b696-8eebdf54ba96}</Project>
-      <Name>CouchBaseExtensions</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Core\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{3c7c3f29-198b-45cc-9f31-9ace194e37e8}</Project>
       <Name>CouchbaseManager</Name>

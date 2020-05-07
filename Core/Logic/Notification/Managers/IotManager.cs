@@ -196,12 +196,12 @@ namespace ApiLogic.Notification
                             {
                                 CognitoIdentity = new CognitoIdentity
                                 {
-                                    Default = new Default { PoolId = iotProfile.IotProfileAws.IdentityPoolId, Region = iotProfile.IotProfileAws.Region }
+                                    IotDefault = new IotDefault { PoolId = iotProfile.IotProfileAws.IdentityPoolId, Region = iotProfile.IotProfileAws.Region }
                                 }
                             },
                             CognitoUserPool = new CognitoUserPool
                             {
-                                Default = new Default { PoolId = iotProfile.IotProfileAws.UserPoolId, AppClientId = iotProfile.IotProfileAws.ClientId, Region = iotProfile.IotProfileAws.Region }
+                                IotDefault = new IotDefault { PoolId = iotProfile.IotProfileAws.UserPoolId, AppClientId = iotProfile.IotProfileAws.ClientId, Region = iotProfile.IotProfileAws.Region }
                             }
                         };
 
