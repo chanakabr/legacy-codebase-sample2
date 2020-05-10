@@ -1733,6 +1733,9 @@ namespace WebAPI.Reflection
                 case "KalturaSSOAdapterProfile":
                     return new KalturaSSOAdapterProfile(parameters);
                     
+                case "KalturaSSOAdapterProfileInvoke":
+                    return new KalturaSSOAdapterProfileInvoke(parameters);
+                    
                 case "KalturaSSOAdapterProfileListResponse":
                     return new KalturaSSOAdapterProfileListResponse(parameters);
                     
@@ -25102,6 +25105,30 @@ namespace WebAPI.Models.Users
                 if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
                 {
                     SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaSSOAdapterProfileInvoke
+    {
+        public KalturaSSOAdapterProfileInvoke(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
+                {
+                    if (parameters["adapterData"] is JObject)
+                    {
+                        AdapterData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
+                if (parameters.ContainsKey("code") && parameters["code"] != null)
+                {
+                    Code = (String) Convert.ChangeType(parameters["code"], typeof(String));
+                }
+                if (parameters.ContainsKey("message") && parameters["message"] != null)
+                {
+                    Message = (String) Convert.ChangeType(parameters["message"], typeof(String));
                 }
             }
         }

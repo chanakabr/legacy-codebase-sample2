@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using ApiLogic.Users;
 using ApiObjects;
 using ApiObjects.Response;
 using KeyValuePair = ApiObjects.KeyValuePair;
@@ -251,6 +250,18 @@ namespace Core.Users
             }
 
             return response;
+        }
+
+        public static SSOAdapterProfileInvoke Invoke(int groupId, string intent, List<KeyValuePair> keyValuePairs, KalturaBaseUsers user)
+        {
+            try
+            {
+                return user.Invoke(groupId, intent, keyValuePairs);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

@@ -15,38 +15,24 @@ namespace ApiObjects.Response
 
         public GenericListResponse()
         {
-            Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Status = new Status(eResponseStatus.Error);
             Objects = new List<T>();
             TotalItems = 0;
         }
 
-        public void SetStatus(eResponseStatus responseStatus, string message = null)
+        public void SetStatus(eResponseStatus responseStatus, string message = null, List<KeyValuePair> args = null)
         {
-            this.Status.Code = (int)responseStatus;
-
-            if (string.IsNullOrEmpty(message))
-            {
-                this.Status.Message = responseStatus.ToString();
-            }
-            else
-            {
-                this.Status.Message = message;
-            }
+            this.Status.Set(responseStatus, message, args);
         }
-        
-        public void SetStatus(int responseStatusCode, string message)
+
+        public void SetStatus(int responseStatusCode, string message = null, List<KeyValuePair> args = null)
         {
-            this.Status.Code = responseStatusCode;
-            this.Status.Message = message;
+            this.Status.Set(responseStatusCode, message, args);
         }
 
         public void SetStatus(Status status)
         {
-            if (status != null)
-            {
-                this.Status.Code = status.Code;
-                this.Status.Message = status.Message;
-            }
+            this.Status.Set(status);
         }
 
         public bool HasObjects()

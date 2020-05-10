@@ -16,6 +16,8 @@ using APILogic.Users;
 using TVinciShared;
 using KeyValuePair = ApiObjects.KeyValuePair;
 using Newtonsoft.Json;
+using ApiLogic.Users;
+using ApiObjects.Response;
 
 namespace Core.Users
 {
@@ -419,6 +421,63 @@ namespace Core.Users
                 ExternalCode = ssoResponseStatus.ExternalCode,
                 ExternalMessage = ssoResponseStatus.ExternalMessage,
             };
+        }
+
+
+        public override SSOAdapterProfileInvoke Invoke(int groupId, string intent, List<KeyValuePair> keyValueList)
+        {
+            try
+            {
+                _Logger.Info($"Calling SSO adapter Invoke [{_AdapterConfig.Name}], group:[{_GroupId}]");
+
+                var ssoAdapterProfileInvokeModel = new SSOAdapterProfileInvokeModel()
+                {
+                    Intent = intent,
+                    AdapterData = keyValueList?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray()
+                };
+
+                var adapterResponse = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
+
+                if (!ValidateConfigurationIsSet(adapterResponse.AdapterStatus))
+                {
+                    adapterResponse = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
+                }
+
+                var status = CreateFromAdapterResponseStatus(adapterResponse.SSOResponseStatus);
+
+                if (adapterResponse.SSOResponseStatus.ResponseStatus != eSSOUserResponseStatus.OK)
+                {
+                    return new SSOAdapterProfileInvoke
+                    {
+                        Status = new ApiObjects.Response.Status(status.ExternalCode),
+                        Code = adapterResponse.Code,
+                        Message = adapterResponse.Message
+                    };
+                }
+
+                var _adapterResponse = new SSOAdapterProfileInvoke
+                {
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, status.ExternalMessage),
+                    Code = adapterResponse?.Code,
+                    Message = adapterResponse?.Message,
+                    AdapterData = new Dictionary<string, string>()
+                };
+
+                if (adapterResponse.AdapterData != null && adapterResponse.AdapterData.Length > 0)
+                {
+                    _adapterResponse.AdapterData.TryAddRange(adapterResponse.AdapterData.ToDictionary(x => x.Key, x => x.Value));
+                }
+
+                return _adapterResponse;
+            }
+            catch (Exception ex)
+            {
+                _Logger.Error($"Unexpected error during Invoke for group:[{groupId}], ex:{ex}");
+                return new SSOAdapterProfileInvoke()
+                {
+                    Status = new ApiObjects.Response.Status(eResponseStatus.Error)
+                };
+            }
         }
 
         public override UserResponseObject PreSignOut(ref int siteGuid, ref int groupId, ref string sessionId, ref string ip, ref string deviceUdid, ref List<KeyValuePair> keyValueList)
