@@ -374,7 +374,7 @@ namespace ApiLogic
                 subDirResponse.SetStatus(eResponseStatus.FileIdNotInCorrectLength, string.Format("file id value is too small, the value is 1. id:{0}", id));
                 return subDirResponse;
             }
-            subDirResponse.Object = string.Format("{0}\\{1}\\{2}", typeName, (long)(id / 1000000), (long)(id / 1000));
+            subDirResponse.Object = Path.Combine(typeName, (id / 1000000).ToString(), (id / 1000).ToString());
             subDirResponse.SetStatus(eResponseStatus.OK);
             return subDirResponse;
         }
