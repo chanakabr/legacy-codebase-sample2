@@ -3288,6 +3288,14 @@ namespace Core.Catalog
                     case eObjectType.Channel:
                         // Set invalidation for the entire group
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
+
+                        if (!doesGroupUsesTemplates)
+                        {
+                            foreach (var id in ids)
+                            {
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)id));
+                            }
+                        }
                         break;
                     case eObjectType.EPG:
                         // invalidate epg's for OPC and NON-OPC accounts
