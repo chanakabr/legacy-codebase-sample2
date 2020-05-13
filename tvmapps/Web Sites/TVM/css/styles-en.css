@@ -854,3 +854,143 @@ td.formInputs table table { background:none;}
 .playerPop { position:absolute; background:url(../images/pBgSingle.png) no-repeat; _background:none!important;  _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../images/pBgSingle.png', sizingMethod='scale'); }
 .playerPop .inner { clear:both; padding:25px 25px 20px;}
 .playerPop .close { z-index: 600;position:absolute; cursor:pointer; right:0; top:0; width:56px; height:22px; text-indent:-9999px; text-decoration:none; overflow:hidden; background:url(../images/popPlayerClose.png) no-repeat; _right:-1px; _background:none!important;  _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../images/popPlayerClose.png', sizingMethod='scale');}
+
+ul, #myUL {
+	list-style-type: none;
+}
+
+#myUL {
+	margin: 0;
+	padding: 0;
+}
+
+li {
+	cursor: pointer;
+}
+
+.caret {
+	cursor: pointer;
+	-webkit-user-select: none; /* Safari 3.1+ */
+	-moz-user-select: none; /* Firefox 2+ */
+	-ms-user-select: none; /* IE 10+ */
+	user-select: none;
+}
+
+	.caret::before {
+		content: "\25B6";
+		color: black;
+		display: inline-block;
+		margin-right: 6px;
+	}
+
+.caret-down::before {
+	-ms-transform: rotate(90deg); /* IE 9 */
+	-webkit-transform: rotate(90deg); /* Safari */
+	transform: rotate(90 deg);
+}
+
+.nested {
+	display: none;
+}
+
+.active {
+	display: block;
+}
+/* ====== changes to menu ========== */
+div#menu {
+	border: 5px solid #c6e2fe;
+}
+
+#menu > ul {
+	padding: 0;
+	margin: 0;
+}
+
+	#menu > ul > li > .caret::before {
+		margin-right: 0;
+		padding: 0 15px;
+		content: "";
+	}
+
+	#menu > ul > li > .caret {
+		display: inline-block;
+		background: url(../Images/folder.svg) top center no-repeat;
+		width: 35px;
+		height: 16px;
+		float:left;
+	}
+
+	#menu > ul:first-child:not(.nested) > li {
+		text-transform: uppercase;
+		color: #3399ff;
+		font-family: arial, sans-serif;
+		font-size: 16px;
+		padding: 10px 0;
+		border-bottom: 1px solid #c6e2ff;
+	}
+
+ul.nested {
+	padding-left: 32px;
+	padding-top: 10px;
+}
+
+	ul.nested ul.nested {
+		padding-left: 14px;
+	}
+
+.nested li {
+	font-family: arial, sans-serif;
+	text-transform: none;
+	color: #4c4c4c;
+	font-size: 14px;
+	padding: 5px;
+}
+
+.nested .caret:before {
+	content: "";
+}
+
+.nested .caret {
+	display: inline-block;
+	background: url(../Images/plus.svg) top center no-repeat;
+	width: 16px;
+	height: 16px;
+	margin-right: 10px;
+	float: left;
+}
+
+.nested .caret.caret-down {
+		background: url(../Images/minus.svg) top center no-repeat;
+		float:left;
+}
+
+li.no-children:before {
+	content: "";
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	background: #ddd;
+	margin-left: 7px;
+	margin-right: 10px;
+}
+li.selected {
+	background: #3499ff;
+	color: #fff;
+	display: inline-block;
+}
+
+li.selected:before {
+		background: #fff;
+}
+
+ul li {
+	font-weight: normal;
+}
+
+#menu > ul > li:hover {
+	color: #333 !important;
+}
+
+li:hover {
+	color: #e0a854;
+}

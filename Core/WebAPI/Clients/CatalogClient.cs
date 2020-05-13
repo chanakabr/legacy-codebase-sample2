@@ -326,7 +326,7 @@ namespace WebAPI.Clients
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             result = Mapper.Map<KalturaAsset>(response.Object);
@@ -365,12 +365,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             KalturaProgramAsset result = null;
@@ -427,7 +427,7 @@ namespace WebAPI.Clients
                 }
                 else if (assetListResponse != null && assetListResponse.Status != null)
                 {
-                    throw new ClientException((int)assetListResponse.Status.Code, assetListResponse.Status.Message.ToString());
+                    throw new ClientException(assetListResponse.Status);
                 }               
             }
 
@@ -601,13 +601,13 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, key.ToString()))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (searchResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+                throw new ClientException(searchResponse.status);
             }
 
             if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
@@ -831,13 +831,13 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, key.ToString()))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (searchResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+                throw new ClientException(searchResponse.status);
             }
 
             result = GetAssetFromUnifiedSearchResponse(groupId, searchResponse, request, isAllowedToViewInactiveAssets, managementData, responseProfile);
@@ -947,13 +947,13 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, key.ToString()))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (searchResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+                throw new ClientException(searchResponse.status);
             }
 
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0)
@@ -1024,13 +1024,13 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, key.ToString()))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (searchResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+                throw new ClientException(searchResponse.status);
             }
 
             if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
@@ -1090,13 +1090,13 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<WatchHistoryResponse>(request, out watchHistoryResponse))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (watchHistoryResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(watchHistoryResponse.status.Code, watchHistoryResponse.status.Message);
+                throw new ClientException(watchHistoryResponse.status);
             }
 
             if (watchHistoryResponse.result != null && watchHistoryResponse.result.Count > 0)
@@ -1167,13 +1167,13 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<WatchHistoryResponse>(request, out watchHistoryResponse))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (watchHistoryResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(watchHistoryResponse.status.Code, watchHistoryResponse.status.Message);
+                throw new ClientException(watchHistoryResponse.status);
             }
 
             if (watchHistoryResponse.result != null && watchHistoryResponse.result.Count > 0)
@@ -1233,7 +1233,7 @@ namespace WebAPI.Clients
             }
             else
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             return result;
@@ -1558,7 +1558,7 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<Core.Catalog.Response.ChannelResponse>(request, out channelResponse, true, key.ToString()))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (channelResponse.m_nMedias != null && channelResponse.m_nMedias.Count > 0)
@@ -1625,13 +1625,13 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out channelResponse, true, key.ToString()))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (channelResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
+                throw new ClientException(channelResponse.status);
             }
 
             if (channelResponse.searchResults != null && channelResponse.searchResults.Count > 0)
@@ -1688,7 +1688,7 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<MediaIdsResponse>(request, out mediaIdsResponse))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
@@ -1737,7 +1737,7 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<MediaIdsResponse>(request, out mediaIdsResponse))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
@@ -1794,7 +1794,7 @@ namespace WebAPI.Clients
                 }
                 else
                 {
-                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                    throw new ClientException(StatusCode.Error);
                 }
             }
 
@@ -1841,7 +1841,7 @@ namespace WebAPI.Clients
                 }
                 else
                 {
-                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                    throw new ClientException(StatusCode.Error);
                 }
             }
 
@@ -1893,7 +1893,7 @@ namespace WebAPI.Clients
                 }
                 else
                 {
-                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                    throw new ClientException(StatusCode.Error);
                 }
             }
 
@@ -1952,7 +1952,7 @@ namespace WebAPI.Clients
                 }
                 else
                 {
-                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                    throw new ClientException(StatusCode.Error);
                 }
             }
 
@@ -1998,7 +1998,7 @@ namespace WebAPI.Clients
 
                 if (result == null)
                 {
-                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                    throw new ClientException(StatusCode.Error);
                 }
             }
 
@@ -2041,7 +2041,7 @@ namespace WebAPI.Clients
             }
             else
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             return result;
@@ -2073,7 +2073,7 @@ namespace WebAPI.Clients
             }
             else
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             return result;
@@ -2133,11 +2133,11 @@ namespace WebAPI.Clients
             AssetsBookmarksResponse response = null;
             if (!CatalogUtils.GetBaseResponse(request, out response) || response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             result = Mapper.Map<List<KalturaAssetBookmarks>>(response.AssetsBookmarks);
@@ -2199,11 +2199,11 @@ namespace WebAPI.Clients
             AssetsBookmarksResponse response = null;
             if (!CatalogUtils.GetBaseResponse(request, out response) || response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             result = CatalogMappings.ConvertBookmarks(response.AssetsBookmarks, orderBy);
@@ -2269,19 +2269,19 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchExternalResponse>(request, out searchResponse, true, key.ToString()))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (searchResponse == null || searchResponse.status == null)
             {
                 // Bad response received from WS
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (searchResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+                throw new ClientException(searchResponse.status);
             }
 
             if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
@@ -2371,13 +2371,13 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<MediaMarkResponse>(request, out response))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(response.status.Code, response.status.Message);
+                throw new ClientException(response.status);
             }
 
             return true;
@@ -2417,13 +2417,13 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, null))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (searchResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+                throw new ClientException(searchResponse.status);
             }
 
             if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
@@ -2459,12 +2459,12 @@ namespace WebAPI.Clients
                 }
                 else
                 {
-                    throw new ClientException(response.Status.Code, response.Status.Message);
+                    throw new ClientException(response.Status);
                 }
             }
             else
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             return result;
@@ -2517,19 +2517,19 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchExternalResponse>(request, out searchResponse, true, key.ToString()))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (searchResponse == null || searchResponse.status == null)
             {
                 // Bad response received from WS
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (searchResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+                throw new ClientException(searchResponse.status);
             }
             if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
             {
@@ -2635,10 +2635,10 @@ namespace WebAPI.Clients
                 || response == null || response.status.Code != (int)StatusCode.OK)
             {
                 if (response == null)
-                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                    throw new ClientException(StatusCode.Error);
 
                 // general error
-                throw new ClientException((int)response.status.Code, response.status.Message);
+                throw new ClientException(response.status);
             }
 
             if (response.searchResults != null && response.searchResults.Count > 0)
@@ -2706,13 +2706,13 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out channelResponse, true, key.ToString()))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (channelResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
+                throw new ClientException(channelResponse.status);
             }
 
             result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, isAllowedToViewInactiveAssets, false, responseProfile);
@@ -2920,7 +2920,7 @@ namespace WebAPI.Clients
                 if (commentResponse.status.Code != (int)StatusCode.OK)
                 {
                     // Bad response received from WS
-                    throw new ClientException(commentResponse.status.Code, commentResponse.status.Message);
+                    throw new ClientException(commentResponse.status);
                 }
                 else
                 {
@@ -2935,7 +2935,7 @@ namespace WebAPI.Clients
             else
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
             return result;
         }
@@ -2980,7 +2980,7 @@ namespace WebAPI.Clients
                 if (assetCommentResponse.Status.Code != (int)StatusCode.OK)
                 {
                     // Bad response received from WS
-                    throw new ClientException(assetCommentResponse.Status.Code, assetCommentResponse.Status.Message);
+                    throw new ClientException(assetCommentResponse.Status);
                 }
                 else
                 {
@@ -2990,7 +2990,7 @@ namespace WebAPI.Clients
             else
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             return result;
@@ -3048,13 +3048,13 @@ namespace WebAPI.Clients
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out scheduledRecordingResponse))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (scheduledRecordingResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(scheduledRecordingResponse.status.Code, scheduledRecordingResponse.status.Message);
+                throw new ClientException(scheduledRecordingResponse.status);
             }
 
             if (scheduledRecordingResponse.searchResults != null && scheduledRecordingResponse.searchResults.Count > 0)
@@ -3123,11 +3123,11 @@ namespace WebAPI.Clients
             AssetsBookmarksResponse response = null;
             if (!CatalogUtils.GetBaseResponse(request, out response) || response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             result = CatalogMappings.ConvertBookmarks(response.AssetsBookmarks);
@@ -3159,12 +3159,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.MetaList != null && response.MetaList.Count > 0)
@@ -3369,12 +3369,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response);
             }
         }
 
@@ -3399,12 +3399,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.Ratio != null)
@@ -3436,12 +3436,12 @@ namespace WebAPI.Clients
 
             if (response == null || response.Status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.Ratio != null)
@@ -3605,13 +3605,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.TotalItems > 0)
@@ -3662,12 +3662,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             // DynamicChannel
@@ -3705,12 +3705,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             result = Mapper.Map<KalturaChannel>(response.Channel);
@@ -3738,12 +3738,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             // DynamicChannel
@@ -3787,12 +3787,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             // DynamicChannel
@@ -3832,12 +3832,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             profile = Mapper.Map<KalturaChannel>(response.Channel);
@@ -3869,12 +3869,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             profile = Mapper.Map<Models.API.KalturaChannelProfile>(response.Channel);
@@ -3905,12 +3905,12 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             profile = Mapper.Map<KalturaChannelProfile>(response.Channel);
@@ -3986,13 +3986,13 @@ namespace WebAPI.Clients
             if (response == null)
             {
                 // general exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status);
             }
 
             if (response.Objects != null && response.Objects.Count > 0)

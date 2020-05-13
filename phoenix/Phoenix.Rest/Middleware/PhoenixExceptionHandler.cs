@@ -74,8 +74,10 @@ namespace Phoenix.Rest.Middleware
             context.Response.Headers.Add("X-Kaltura", $"error-{code}");
 
             var stringResponse = await formatter.GetStringResponse(errorResponse);
-                   
-            _Logger.Error($"Error while calling api:[{ctx.RouteData}] response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
+
+            string phoenixContextMasked = RequestLoggingMiddleware.MaskPersonalInformation(JsonConvert.SerializeObject(ctx));
+
+            _Logger.Error($"Error while calling api:[{ctx.RouteData}] response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{phoenixContextMasked}]{Environment.NewLine}", ex);
             return new ApiExceptionHandlerResponse
             {
                 HttpStatusCode = ctx.Format == "31" ? (int)HttpStatusCode.InternalServerError : (int)HttpStatusCode.OK,

@@ -6140,6 +6140,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSSOAdapterProfileInvoke":
+                    switch(property.Name)
+                    {
+                        case "AdapterData":
+                            return "adapterData";
+                        case "Code":
+                            return "code";
+                        case "Message":
+                            return "message";
+                    }
+                    break;
+                    
                 case "KalturaSSOAdapterProfileListResponse":
                     switch(property.Name)
                     {
@@ -10176,6 +10188,10 @@ namespace WebAPI.Reflection
                         case "generatesharedsecret":
                             RolesManager.ValidateActionPermitted("ssoAdapterProfile", "generateSharedSecret", false);
                             return SsoAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
+                            
+                        case "invoke":
+                            RolesManager.ValidateActionPermitted("ssoAdapterProfile", "invoke", false);
+                            return SsoAdapterProfileController.Invoke((string) methodParams[0], (List<KalturaKeyValue>) methodParams[1]);
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("ssoAdapterProfile", "list", false);
@@ -17990,6 +18006,19 @@ namespace WebAPI.Reflection
                             ret.Add("ssoAdapterId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "invoke":
+                            ret.Add("intent", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("adapterData", new MethodParam(){
+                                NewName = newParamName,
+                                IsList = true,
+                                GenericType = typeof(KalturaKeyValue),
+                                Type = typeof(List<KalturaKeyValue>),
                             });
                             return ret;
                             

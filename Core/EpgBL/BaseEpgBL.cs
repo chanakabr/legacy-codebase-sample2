@@ -1,14 +1,12 @@
 ﻿using ApiObjects;
+using ApiObjects.SearchObjects;
+using ConfigurationManager;
 using DAL;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DalCB;
-using System.Collections.Concurrent;
-using ConfigurationManager;
 
 namespace EpgBL
 {
@@ -165,7 +163,6 @@ namespace EpgBL
             return GetNewEpgIds(1).First();
         }
 
-        public abstract List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate);
-
+        public abstract List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObj = null);
     }
 }

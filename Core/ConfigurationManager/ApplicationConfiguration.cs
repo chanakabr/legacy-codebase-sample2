@@ -71,7 +71,7 @@ namespace ConfigurationManager
         public BaseValue<long> ReconciliationFrequencySeconds = new BaseValue<long>("reconciliation_frequency_seconds", 7200);
         public BaseValue<ulong> EpgInitialId = new BaseValue<ulong>("epg_initial_id", 100000000);
 
-        public BaseValue<bool> ShouldDistributeRecordingSynchronously = new BaseValue<bool>("ShouldDistributeRecordingSynchronously", true);
+        public BaseValue<bool> ShouldDistributeRecordingSynchronously = new BaseValue<bool>("ShouldDistributeRecordingSynchronously", false);
         public BaseValue<bool> ShouldRecoverSubscriptionRenewalToMessageBus = new BaseValue<bool>("should_recover_subscription_renewal_to_message_bus", false);
         public BaseValue<bool> ShouldGetMediaFileDetailsDirectly = new BaseValue<bool>("ShouldGetMediaFileDetailsDirectly", false, false, "description");
         public BaseValue<bool> ShouldGetCatalogDataFromDB = new BaseValue<bool>("get_catalog_data_from_db", false, false, "Just in case media mark information is not in Couchbase, we might want to continue to DB. Should be false or empty.");

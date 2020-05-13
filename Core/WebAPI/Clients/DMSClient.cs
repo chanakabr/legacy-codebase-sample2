@@ -61,7 +61,7 @@ namespace WebAPI.Clients
 
             if (groupConfigurationGetResponse == null || groupConfigurationGetResponse.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (groupConfigurationGetResponse.Result.Status != DMSeResponseStatus.OK)
@@ -95,7 +95,7 @@ namespace WebAPI.Clients
 
             if (groupConfigurationGetListResponse == null || groupConfigurationGetListResponse.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (groupConfigurationGetListResponse.Result.Status != DMSeResponseStatus.OK)
@@ -137,7 +137,7 @@ namespace WebAPI.Clients
 
             if (response == null || response.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Result.Status != DMSeResponseStatus.OK)
@@ -177,7 +177,7 @@ namespace WebAPI.Clients
 
             if (response == null || response.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Result.Status != DMSeResponseStatus.OK)
@@ -210,7 +210,7 @@ namespace WebAPI.Clients
 
             if (statusResponse == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (statusResponse.Status != DMSeResponseStatus.OK)
@@ -321,7 +321,7 @@ namespace WebAPI.Clients
 
             if (dmsTagGetResponse == null || dmsTagGetResponse.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (dmsTagGetResponse.Result.Status != DMSeResponseStatus.OK)
@@ -356,7 +356,7 @@ namespace WebAPI.Clients
 
             if (dmsTagListResponse == null || dmsTagListResponse.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (dmsTagListResponse.Result.Status != DMSeResponseStatus.OK)
@@ -394,7 +394,7 @@ namespace WebAPI.Clients
 
             if (response == null || response.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Result.Status != DMSeResponseStatus.OK)
@@ -427,7 +427,7 @@ namespace WebAPI.Clients
 
             if (statusResponse == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (statusResponse.Status != DMSeResponseStatus.OK)
@@ -463,7 +463,7 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (!(response.Status == DMSeStatus.Success || response.Status == DMSeStatus.Registered))
@@ -495,7 +495,7 @@ namespace WebAPI.Clients
 
             if (response == null || response.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Result.Status != DMSeResponseStatus.OK)
@@ -530,7 +530,7 @@ namespace WebAPI.Clients
 
             if (response == null || response.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Result.Status != DMSeResponseStatus.OK)
@@ -572,7 +572,7 @@ namespace WebAPI.Clients
 
             if (response == null || response.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Result.Status != DMSeResponseStatus.OK)
@@ -613,7 +613,7 @@ namespace WebAPI.Clients
 
             if (response == null || response.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Result.Status != DMSeResponseStatus.OK)
@@ -647,7 +647,7 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status != DMSeResponseStatus.OK)
@@ -682,7 +682,7 @@ namespace WebAPI.Clients
 
             if (response == null || response.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Result.Status != DMSeResponseStatus.OK)
@@ -717,7 +717,7 @@ namespace WebAPI.Clients
 
             if (response == null || response.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Result.Status != DMSeResponseStatus.OK)
@@ -757,7 +757,7 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status != DMSeResponseStatus.OK)
@@ -788,7 +788,7 @@ namespace WebAPI.Clients
 
             if (statusResponse == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (statusResponse.Status != DMSeResponseStatus.OK)
@@ -823,7 +823,7 @@ namespace WebAPI.Clients
 
             if (response == null || response.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Result.Status != DMSeResponseStatus.OK)
@@ -858,7 +858,7 @@ namespace WebAPI.Clients
 
             if (response == null || response.Result == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Result.Status != DMSeResponseStatus.OK)

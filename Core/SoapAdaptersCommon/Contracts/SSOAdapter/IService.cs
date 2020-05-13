@@ -35,5 +35,8 @@ namespace SSOAdapter
 
         [OperationContract]
         UserResponse PostSignOut(int adapterId, PostSignOutModel postSignOutData, string signature);
+
+        [OperationContract]
+        SSOAdapterProfileInvokeResponse Invoke(int adapterId, SSOAdapterProfileInvokeModel ssoAdapterProfileInvokeModel);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.SearchObjects;
 using EpgBL;
 using KLogMonitor;
 using System;
@@ -370,7 +371,14 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         {
             TvinciEpgBL epgBL = new TvinciEpgBL(DAL.UtilsDal.GetParentGroupID(groupId));
 
-            orderEpgs = epgBL.GetChannelPrograms(channelId, start.AddDays(-1), end);
+            ESOrderObj orderObj = new ESOrderObj()
+            {
+                m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC,
+                m_sOrderValue = "start_date"
+            };
+            
+
+            orderEpgs = epgBL.GetChannelPrograms(channelId, start.AddDays(-1), end, new List<ESOrderObj>() { orderObj });
 
             //if (programs != null && programs.Count > 0)
             //{
