@@ -345,7 +345,7 @@ namespace Phoenix.Rest.Middleware
 
         private Dictionary<string, object> GetNestedDictionary(Dictionary<string, object> tokens)
         {
-            var result = new Dictionary<string, object>();
+            var result = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
             // group the params by prefix
             foreach (var kv in tokens)
