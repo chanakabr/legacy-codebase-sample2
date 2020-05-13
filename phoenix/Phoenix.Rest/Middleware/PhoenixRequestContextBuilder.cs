@@ -135,24 +135,28 @@ namespace Phoenix.Rest.Middleware
 
         private async Task<IDictionary<string, object>> GetActionParams(string httpMethod, HttpRequest request, PhoenixRequestContext context)
         {
-            var parsedActionParams = GetActionParamsFromQueryString(request);
+            IDictionary<string, object> parsedActionParams;
             if (httpMethod == HttpMethods.Post)
             {
-                var bodyParsedActionParams = await GetActionParamsFromPostBody(request, context);
-                bodyParsedActionParams.ToList().ForEach(bodyParam => parsedActionParams[bodyParam.Key]= bodyParam.Value);
+                parsedActionParams = await GetActionParamsFromPostBody(request, context);
             }
-            else if (httpMethod == HttpMethods.Get && context.RouteData.UrlParams != null && context.RouteData.UrlParams.Count > 0)
-            {                
-                if (parsedActionParams != null && parsedActionParams.Count > 0)
+            // previous code would have done it for all none POST request so keeping the same behavior
+            else
+            {
+                parsedActionParams = GetActionParamsFromQueryString(request);
+                if (httpMethod == HttpMethods.Get && context.RouteData.UrlParams != null && context.RouteData.UrlParams.Count > 0)
                 {
-                    foreach (KeyValuePair<string,object> item in context.RouteData.UrlParams)
+                    if (parsedActionParams != null && parsedActionParams.Count > 0)
                     {
-                        parsedActionParams[item.Key] = context.RouteData.UrlParams[item.Key];
+                        foreach (KeyValuePair<string, object> item in context.RouteData.UrlParams)
+                        {
+                            parsedActionParams[item.Key] = context.RouteData.UrlParams[item.Key];
+                        }
                     }
-                }
-                else
-                {
-                    parsedActionParams = context.RouteData.UrlParams;
+                    else
+                    {
+                        parsedActionParams = context.RouteData.UrlParams;
+                    }
                 }
             }
 
