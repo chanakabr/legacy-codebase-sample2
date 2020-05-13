@@ -333,15 +333,11 @@ namespace GroupsCacheManager
 
             try
             {
-                string cacheKey = BuildChannelCacheKey(group.m_nParentGroupID, channelId);
-
-                Dictionary<string, object> funcParams = new Dictionary<string, object>() 
-                { 
-                    { "group", group }, { "channelId", channelId }, { "isAlsoInActive", isAlsoInActive } 
-                };
-                bool result = LayeredCache.Instance.Get<Channel>(cacheKey, ref resultChannel, BuildChannel, funcParams, 
-                    group.m_nParentGroupID, LayeredCacheConfigNames.GET_CHANNELS_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetChannelInvalidationKey(group.m_nParentGroupID, channelId) });
-                
+                List<Channel> channels = GetChannels(new List<int>() { channelId }, group, isAlsoInActive);
+                if (channels != null && channels.Count == 1)
+                {
+                    resultChannel = channels.First();
+                }
             }
             catch (Exception ex)
             {
@@ -353,29 +349,76 @@ namespace GroupsCacheManager
             return resultChannel;
         }
 
-        private static Tuple<Channel, bool> BuildChannel(Dictionary<string, object> funcParams)
+        internal List<Channel> GetChannels(List<int> channelIds, Group group, bool isAlsoInActive = false)
         {
-            bool success = false;
-            Channel channel = null;
-
-            if (funcParams != null && funcParams.ContainsKey("group"))
             {
-                Group group = funcParams["group"] as Group;
-                int? channelId = funcParams["channelId"] as int?;
-                bool isAlsoInActive = (bool)funcParams["isAlsoInActive"];
+                List<Channel> channels = new List<Channel>();
 
-                if (group != null && channelId.HasValue)
+                try
                 {
-                    channel = ChannelRepository.GetChannel(channelId.Value, group, isAlsoInActive);
+                    if (channelIds == null || channelIds.Count == 0)
+                    {
+                        return channels;
+                    }
+
+
+                    Dictionary<string, Channel> channelMap = null;
+                    Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetChannelsKeysMap(group.m_nParentGroupID, channelIds);
+                    Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetChannelsInvalidationKeysMap(group.m_nParentGroupID, channelIds);
+                    Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "group", group }, { "channelIds", channelIds }, { "isAlsoInActive", isAlsoInActive } };
+
+                    if (!LayeredCache.Instance.GetValues<Channel>(keyToOriginalValueMap, ref channelMap, BuildChannels, funcParams, group.m_nParentGroupID,
+                                                                    LayeredCacheConfigNames.GET_CHANNELS_CACHE_CONFIG_NAME, invalidationKeysMap))
+                    {
+                        log.ErrorFormat("Failed getting Channels from LayeredCache, groupId: {0}, channelIds: {1}", group.m_nParentGroupID, string.Join(",", channelIds));
+                    }
+                    else if (channelMap != null)
+                    {
+                        channels = channelMap.Values.ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Failed GetChannels for groupId: {0}, channelIds: {1}", group.m_nParentGroupID, string.Join(",", channelIds)), ex);
                 }
 
-                if (channel != null)
+                return channels;
+            }
+        }
+
+        private static Tuple<Dictionary<string, Channel>, bool> BuildChannels(Dictionary<string, object> funcParams)
+        {
+            bool success = false;
+            Dictionary<string, Channel> result = new Dictionary<string, Channel>();
+
+            if (funcParams != null && funcParams.ContainsKey("channelIds") && funcParams.ContainsKey("isAlsoInActive") && funcParams.ContainsKey("group"))
+            {
+                string key = string.Empty;
+                List<int> channelIds;
+                Group group = funcParams["group"] as Group;
+                bool? isAlsoInActive = funcParams["isAlsoInActive"] as bool?;
+                if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                 {
-                    success = true;
+                    channelIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToList();
+                }
+                else
+                {
+                    channelIds = funcParams["channelIds"] != null ? funcParams["channelIds"] as List<int> : null;
+                }
+
+                List<Channel> channels = new List<Channel>();
+                if (group != null && channelIds != null && isAlsoInActive.HasValue)
+                {
+                    channels = ChannelRepository.GetChannels(channelIds, group, isAlsoInActive.Value);
+                    if (channels != null)
+                    {
+                        success = true;
+                        result = channels.ToDictionary(x => LayeredCacheKeys.GetChannelKey(group.m_nParentGroupID, x.m_nChannelID), x => x);
+                    }
                 }
             }
 
-            return new Tuple<Channel, bool>(channel, success);
+            return new Tuple<Dictionary<string, Channel>, bool>(result, success);
         }
 
         internal bool RemoveChannel(int nGroupID, int nChannelId)
