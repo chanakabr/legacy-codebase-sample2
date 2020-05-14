@@ -6036,7 +6036,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels,
-            Dictionary<string, string> dynamicData, bool? isActive)
+            Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot)
         {
             try
             {
@@ -6051,11 +6051,17 @@ namespace Tvinci.Core.DAL
                 sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
                 sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
                 sp.AddParameter("@isActive", isActive.HasValue ? (isActive.Value ? 1 : 0) : 1);
+                sp.AddParameter("@hasTimeSlot", timeSlot == null ? 0 : 1);
 
                 var id = sp.ExecuteReturnValue<long>();
                 if (dynamicData?.Count > 0 && id > 0)
                 {
                     SaveCategoryDynamicData(id, dynamicData);
+                }
+
+                if (timeSlot != null)
+                {
+                    SaveCategoryTimeSlotData(id, timeSlot);
                 }
 
                 return id;
@@ -6068,9 +6074,9 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static bool UpdateCategory(int groupId, long? userId, long id, string name, 
-            List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels, 
-            Dictionary<string, string> dynamicData, bool? isActive)
+        public static bool UpdateCategory(int groupId, long? userId, long id, string name,
+            List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels,
+            Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, bool needToDeleteTimeSlot)
         {
             try
             {
@@ -6088,6 +6094,7 @@ namespace Tvinci.Core.DAL
                 sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "idKey", "value");
                 sp.AddParameter("@updaterId", userId);
                 sp.AddParameter("@isActive", isActive);
+                sp.AddParameter("@hasTimeSlot", needToDeleteTimeSlot ? 0 : 1);
 
                 var result = sp.ExecuteReturnValue<int>() > 0;
                 if (result && dynamicData != null)
@@ -6099,6 +6106,18 @@ namespace Tvinci.Core.DAL
                     else
                     {
                         DeleteCategoryDynamicData(id);
+                    }
+                }
+
+                if (result && timeSlot != null)
+                {
+                    if (needToDeleteTimeSlot)
+                    {
+                        DeleteCategoryTimeSlotData(id);
+                    }
+                    else
+                    {
+                        SaveCategoryTimeSlotData(id, timeSlot);
                     }
                 }
 
@@ -6204,6 +6223,26 @@ namespace Tvinci.Core.DAL
             }
 
             return externalChannels;
+        }
+
+        private static void SaveCategoryTimeSlotData(long id, TimeSlot timeSlot)
+        {
+            var key = CBCategoryTimeSlotData.GetCategoryTimeSlotDataKey(id);
+            UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, new CBCategoryTimeSlotData { Id = id, TimeSlot = timeSlot }, true);
+        }
+
+        public static TimeSlot GetCategoryTimeSlot(long id)
+        {
+            var key = CBCategoryTimeSlotData.GetCategoryTimeSlotDataKey(id);
+            var res = UtilsDal.GetObjectFromCB<CBCategoryTimeSlotData>(eCouchbaseBucket.OTT_APPS, key, true);
+
+            return res.TimeSlot;
+        }
+
+        public static void DeleteCategoryTimeSlotData(long id)
+        {
+            var key = CBCategoryTimeSlotData.GetCategoryTimeSlotDataKey(id);
+            UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
         }
     }
 }

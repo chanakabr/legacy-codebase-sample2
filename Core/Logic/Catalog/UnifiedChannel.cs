@@ -9,6 +9,8 @@ namespace ApiLogic.Catalog
         public long Id { get; set; }
 
         public UnifiedChannelType Type { get; set; }
+
+
     }
 
     public partial class UnifiedChannelInfo : UnifiedChannel

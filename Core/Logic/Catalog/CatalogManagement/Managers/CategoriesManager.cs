@@ -121,6 +121,12 @@ namespace Core.Catalog.CatalogManagement
                         categoryItem.DynamicData = CatalogDAL.GetCategoryDynamicData(id);
                     }
 
+                    bool hasTimeSlot = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_TIMESLOT");
+                    if (hasTimeSlot)
+                    {
+                        categoryItem.TimeSlot = CatalogDAL.GetCategoryTimeSlot(id);
+                    }
+
                     if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                     {
                         categoryItem.UnifiedChannels = new List<UnifiedChannel>();
@@ -431,7 +437,8 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, channels, objectToAdd.DynamicData, objectToAdd.IsActive);
+                long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, channels, objectToAdd.DynamicData,
+                    objectToAdd.IsActive, objectToAdd.TimeSlot);
 
                 if (id == 0)
                 {

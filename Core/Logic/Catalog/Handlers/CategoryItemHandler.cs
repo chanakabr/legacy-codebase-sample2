@@ -172,6 +172,8 @@ namespace Core.Catalog.Handlers
                     objectToUpdate.DynamicData = currentCategory.DynamicData;
                 }
 
+                objectToUpdate.TimeSlot = HandleTimeSlotToUpdate(objectToUpdate.TimeSlot, currentCategory.TimeSlot, out bool needToDeleteTimeSlot);
+
                 //set NamesInOtherLanguages
                 List<KeyValuePair<long, string>> languageCodeToName = null;
                 if (objectToUpdate.NamesInOtherLanguages == null)
@@ -195,7 +197,8 @@ namespace Core.Catalog.Handlers
                     }
                 }
 
-                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, languageCodeToName, channels, objectToUpdate.DynamicData, objectToUpdate.IsActive))
+                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name,
+                    languageCodeToName, channels, objectToUpdate.DynamicData, objectToUpdate.IsActive, objectToUpdate.TimeSlot, needToDeleteTimeSlot))
                 {
                     log.Error($"Error while updateCategory. contextData: {contextData.ToString()}.");
                     return response;
@@ -399,7 +402,7 @@ namespace Core.Catalog.Handlers
             List<long> categoriesIds = new List<long>();
 
             bool isAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true);
-            
+
             if (filter.RootOnly)
             {
                 var groupCategories = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId, null, true);
@@ -466,7 +469,7 @@ namespace Core.Catalog.Handlers
 
                 DuplicateChildren(groupId, userId, root, newTreeMap, isAllowedToViewInactiveAssets);
 
-                response = GetCategoryTree(groupId, newTreeMap[id], isAllowedToViewInactiveAssets); 
+                response = GetCategoryTree(groupId, newTreeMap[id], isAllowedToViewInactiveAssets);
             }
             catch (Exception ex)
             {
@@ -511,7 +514,7 @@ namespace Core.Catalog.Handlers
 
         public GenericResponse<CategoryTree> GetCategoryTree(int groupId, long id, bool isAllowedToViewInactiveAssets)
         {
-            GenericResponse<CategoryTree> response = new GenericResponse<CategoryTree>();            
+            GenericResponse<CategoryTree> response = new GenericResponse<CategoryTree>();
 
             CategoryTree categoryTree = null;
 
@@ -718,5 +721,57 @@ namespace Core.Catalog.Handlers
 
             return true;
         }
+
+        private TimeSlot HandleTimeSlotToUpdate(TimeSlot timeSlotToUpdate, TimeSlot currentTimeSlot, out bool needToDeleteTimeSlot)
+        {
+            needToDeleteTimeSlot = false;
+
+            if (timeSlotToUpdate == null)
+            {
+                timeSlotToUpdate = currentTimeSlot;
+            }
+            else
+            {
+                if (currentTimeSlot != null)
+                {
+                    if (timeSlotToUpdate.DaysOfTheWeek == null && currentTimeSlot.DaysOfTheWeek != null)
+                    {
+                        timeSlotToUpdate.DaysOfTheWeek = currentTimeSlot.DaysOfTheWeek;
+                    }
+
+                    if (!timeSlotToUpdate.StartDateInSeconds.HasValue && currentTimeSlot.StartDateInSeconds.HasValue)
+                    {
+                        timeSlotToUpdate.StartDateInSeconds = currentTimeSlot.StartDateInSeconds;
+                    }
+
+                    if (!timeSlotToUpdate.StartTimeInMinutes.HasValue && currentTimeSlot.StartTimeInMinutes.HasValue)
+                    {
+                        timeSlotToUpdate.StartTimeInMinutes = currentTimeSlot.StartTimeInMinutes;
+                    }
+
+                    if (!timeSlotToUpdate.EndDateInSeconds.HasValue && currentTimeSlot.EndDateInSeconds.HasValue)
+                    {
+                        timeSlotToUpdate.EndDateInSeconds = currentTimeSlot.EndDateInSeconds;
+                    }
+
+                    if (!timeSlotToUpdate.EndTimeInMinutes.HasValue && currentTimeSlot.EndTimeInMinutes.HasValue)
+                    {
+                        timeSlotToUpdate.EndTimeInMinutes = currentTimeSlot.EndTimeInMinutes;
+                    }
+
+                    if (timeSlotToUpdate.DaysOfTheWeek == null &&
+                        !timeSlotToUpdate.EndDateInSeconds.HasValue &&
+                        !timeSlotToUpdate.EndTimeInMinutes.HasValue &&
+                        !timeSlotToUpdate.StartDateInSeconds.HasValue &&
+                        !timeSlotToUpdate.StartTimeInMinutes.HasValue)
+                    {
+                        needToDeleteTimeSlot = true;
+                    }
+                }
+            }
+
+            return timeSlotToUpdate;
+        }
+
     }
 }
