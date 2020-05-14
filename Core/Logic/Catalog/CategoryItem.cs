@@ -15,6 +15,7 @@ namespace ApiLogic.Catalog
         public List<UnifiedChannel> UnifiedChannels { get; set; }
         public Dictionary<string, string> DynamicData { get; set; }
         public DateTime? UpdateDate { get; set; }
+        public bool? IsActive { get; set; }
 
         public CategoryItem()
         {

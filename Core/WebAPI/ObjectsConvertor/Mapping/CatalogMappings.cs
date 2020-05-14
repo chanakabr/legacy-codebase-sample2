@@ -1151,13 +1151,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
               .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
-              .ForMember(dest => dest.ChildrenIds, opt => opt.ResolveUsing(src => src.GetItemsIn<List<long>, long>(src.ChildrenIds, "KalturaCategoryItem.childCategoriesIds")))
+              .ForMember(dest => dest.ChildrenIds, opt => opt.ResolveUsing(src => src.GetItemsIn<List<long>, long>(src.ChildrenIds, "kalturaCategoryItem.childrenIds")))
               .AfterMap((src, dest) => dest.ChildrenIds = src.ChildrenIds != null ? dest.ChildrenIds : null)
               .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
               .AfterMap((src, dest) => dest.UnifiedChannels = src.UnifiedChannels != null ? dest.UnifiedChannels : null)
               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
-              .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null);
-
+              .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
+              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1166,7 +1166,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ChildrenIds, opt => opt.MapFrom(src => src.ChildrenIds != null ? string.Join(",", src.ChildrenIds) : null))
                .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
-               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)));
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
+               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
             cfg.CreateMap<ApiLogic.Catalog.UnifiedChannelType, KalturaChannelType>()
                 .ConvertUsing(type =>
@@ -1218,7 +1220,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Children, opt => opt.MapFrom(src => src.Children))
                 .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
             cfg.CreateMap<KalturaCategoryTree, ApiLogic.Catalog.CategoryTree>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1227,7 +1230,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Children, opt => opt.MapFrom(src => src.Children))
                 .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
             cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));

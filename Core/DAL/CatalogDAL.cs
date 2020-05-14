@@ -42,7 +42,7 @@ namespace Tvinci.Core.DAL
         /// 5
         /// </summary>
         private const int RETRY_LIMIT = 5;
-        
+
         private static readonly Random _rand = new Random();
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
@@ -4523,18 +4523,16 @@ namespace Tvinci.Core.DAL
         {
             return string.Format("domain_devices_mapping_{0}", domainId);
         }
-        
-        
+
+
 
         public static bool SaveDomainDevices(Dictionary<string, int> domainDevices, long domainId)
         {
             var key = GetDomainDevicesKey(domainId);
             List<DomainDevice> domainDevicesList = new List<DomainDevice>(domainDevices.Select(x => new DomainDevice() { UDID = x.Key, DeviceFamilyId = x.Value }));
-           
+
             return UtilsDal.SaveObjectInCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, domainDevicesList, true);
         }
-
-        
 
         public static Dictionary<string, int> GetDomainDevices(long domainId)
         {
@@ -6038,7 +6036,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels,
-            Dictionary<string, string> dynamicData)
+            Dictionary<string, string> dynamicData, bool? isActive)
         {
             try
             {
@@ -6052,6 +6050,7 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
                 sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
                 sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
+                sp.AddParameter("@isActive", isActive.HasValue ? (isActive.Value ? 1 : 0) : 1);
 
                 var id = sp.ExecuteReturnValue<long>();
                 if (dynamicData?.Count > 0 && id > 0)
@@ -6069,7 +6068,9 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels, Dictionary<string, string> dynamicData)
+        public static bool UpdateCategory(int groupId, long? userId, long id, string name, 
+            List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels, 
+            Dictionary<string, string> dynamicData, bool? isActive)
         {
             try
             {
@@ -6086,6 +6087,7 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@needToDeleteCategoriesChannels", channels != null && channels.Count == 0 ? 1 : 0);
                 sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "idKey", "value");
                 sp.AddParameter("@updaterId", userId);
+                sp.AddParameter("@isActive", isActive);
 
                 var result = sp.ExecuteReturnValue<int>() > 0;
                 if (result && dynamicData != null)

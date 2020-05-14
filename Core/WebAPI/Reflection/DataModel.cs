@@ -1201,6 +1201,8 @@ namespace WebAPI.Reflection
                             return "dynamicData";
                         case "Id":
                             return "id";
+                        case "IsActive":
+                            return "isActive";
                         case "Name":
                             return "name";
                         case "ParentId":
@@ -1249,6 +1251,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Images":
                             return "images";
+                        case "IsActive":
+                            return "isActive";
                         case "Name":
                             return "name";
                         case "UnifiedChannels":

@@ -10799,6 +10799,10 @@ namespace WebAPI.Models.Catalog
                 ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
             }
             ret.Add("id", "\"id\": " + Id);
+            if(IsActive.HasValue)
+            {
+                ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
+            }
             propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
             if(propertyValue != null)
             {
@@ -10830,6 +10834,10 @@ namespace WebAPI.Models.Catalog
                 ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
             }
             ret.Add("id", "<id>" + Id + "</id>");
+            if(IsActive.HasValue)
+            {
+                ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
+            }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             ret.Add("parentId", "<parentId>" + ParentId + "</parentId>");
             if(UnifiedChannels != null)
@@ -10985,6 +10993,10 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "[" + String.Join(", ", Images.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("images", "\"images\": " + propertyValue);
             }
+            if(IsActive.HasValue)
+            {
+                ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
+            }
             propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
             if(propertyValue != null)
             {
@@ -11019,6 +11031,10 @@ namespace WebAPI.Models.Catalog
             {
                 propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
+            }
+            if(IsActive.HasValue)
+            {
+                ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
             }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             if(UnifiedChannels != null)

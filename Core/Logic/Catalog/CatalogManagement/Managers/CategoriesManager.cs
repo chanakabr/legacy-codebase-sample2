@@ -111,7 +111,8 @@ namespace Core.Catalog.CatalogManagement
                         Id = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID"),
                         ParentId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "PARENT_CATEGORY_ID"),
                         Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "CATEGORY_NAME"),
-                        UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[0].Rows[0], "UPDATE_DATE")
+                        UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[0].Rows[0], "UPDATE_DATE"),
+                        IsActive = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "IS_ACTIVE")
                     };
 
                     bool hasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA");
@@ -240,7 +241,7 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        internal static CategoryItem GetCategoryItem(int groupId, long id)
+        internal static CategoryItem GetCategoryItem(int groupId, long id, bool isAllowedToViewInactiveAssets)
         {
             CategoryItem result = null;
 
@@ -248,17 +249,26 @@ namespace Core.Catalog.CatalogManagement
             {
                 string key = LayeredCacheKeys.GetCategoryItemKey(groupId, id);
                 string invalidationKey = LayeredCacheKeys.GetCategoryIdInvalidationKey(id);
-                if (!LayeredCache.Instance.Get<CategoryItem>(key,
-                                                            ref result,
+                bool cacheResult = LayeredCache.Instance.Get<CategoryItem>(key,
+                                                        ref result,
                                                         BuildCategoryItem,
                                                         new Dictionary<string, object>() { { "groupId", groupId }, { "id", id } },
                                                         groupId,
                                                         LayeredCacheConfigNames.GET_CATEGORY_ITEM,
-                                                        new List<string>() { invalidationKey }))
+                                                        new List<string>() { invalidationKey });
+                if(!cacheResult)
                 {
-                    log.Error($"Failed getting GetCategoryItem from LayeredCache, groupId: {groupId}, key: {key}");
+                    log.Error($"Failed getting GetCategoryItem from LayeredCache, groupId: {groupId}, key: {key}");                                        
+                    return result;
                 }
-
+                else if (isAllowedToViewInactiveAssets)
+                {
+                    return result;
+                }
+                else
+                {
+                    return result.IsActive.Value ? result : null;
+                }
             }
             catch (Exception ex)
             {
@@ -421,7 +431,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, channels, objectToAdd.DynamicData);
+                long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, channels, objectToAdd.DynamicData, objectToAdd.IsActive);
 
                 if (id == 0)
                 {
@@ -449,7 +459,7 @@ namespace Core.Catalog.CatalogManagement
                     Type = ObjectVirtualAssetInfoType.Category,
                     Id = id,
                     Name = objectToAdd.Name,
-                    UserId = userId
+                    UserId = userId                    
                 };
 
                 api.AddVirtualAsset(groupId, virtualAssetInfo);

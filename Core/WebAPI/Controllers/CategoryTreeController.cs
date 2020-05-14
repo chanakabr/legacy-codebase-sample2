@@ -29,6 +29,7 @@ namespace WebAPI.Controllers
 
             try
             {
+
                 response = ClientsManager.CatalogClient().Duplicate(groupId, long.Parse(userId), categoryItemId, name);
             }
             catch (ClientException ex)
@@ -56,7 +57,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().GetCategoryTree(groupId, long.Parse(userId), categoryItemId);
+                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId, true);
+
+                response = ClientsManager.CatalogClient().GetCategoryTree(groupId, categoryItemId, isAllowedToViewInactiveAssets);
             }
             catch (ClientException ex)
             {

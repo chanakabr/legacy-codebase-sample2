@@ -67,6 +67,11 @@ namespace Core.Catalog.Handlers
                     }
                 }
 
+                if (!objectToAdd.IsActive.HasValue)
+                {
+                    objectToAdd.IsActive = true;
+                }
+
                 if (!CategoriesManager.Add(contextData.GroupId, contextData.UserId.Value, objectToAdd))
                 {
                     response.SetStatus(eResponseStatus.Error, "Failed to add item");
@@ -103,7 +108,7 @@ namespace Core.Catalog.Handlers
             try
             {
                 // Get the current category
-                var currentCategory = CategoriesManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id);
+                var currentCategory = CategoriesManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id, true);
                 if (currentCategory == null)
                 {
                     response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
@@ -190,7 +195,7 @@ namespace Core.Catalog.Handlers
                     }
                 }
 
-                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, languageCodeToName, channels, objectToUpdate.DynamicData))
+                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, languageCodeToName, channels, objectToUpdate.DynamicData, objectToUpdate.IsActive))
                 {
                     log.Error($"Error while updateCategory. contextData: {contextData.ToString()}.");
                     return response;
@@ -231,7 +236,7 @@ namespace Core.Catalog.Handlers
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(objectToUpdate.Id));
 
-                response.Object = CategoriesManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id);
+                response.Object = CategoriesManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id, true);
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -249,7 +254,7 @@ namespace Core.Catalog.Handlers
             try
             {
                 //Check if category exist
-                var item = CategoriesManager.GetCategoryItem(contextData.GroupId, id);
+                var item = CategoriesManager.GetCategoryItem(contextData.GroupId, id, true);
                 if (item == null)
                 {
                     response.Set(eResponseStatus.CategoryNotExist, "Category does not exist");
@@ -291,8 +296,10 @@ namespace Core.Catalog.Handlers
 
             try
             {
+                bool isAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true);
+
                 // Get the current category
-                var currentCategory = CategoriesManager.GetCategoryItem(contextData.GroupId, id);
+                var currentCategory = CategoriesManager.GetCategoryItem(contextData.GroupId, id, isAllowedToViewInactiveAssets);
                 if (currentCategory == null)
                 {
                     response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
@@ -319,13 +326,15 @@ namespace Core.Catalog.Handlers
         {
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
 
+            bool isAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true);
+
             if (pager.PageIndex != 0)
             {
                 response.Status.Set(eResponseStatus.InvalidValue, "Page index value must be 1.");
                 return response;
             }
 
-            CategoryItem ci = CategoriesManager.GetCategoryItem(contextData.GroupId, filter.Id);
+            CategoryItem ci = CategoriesManager.GetCategoryItem(contextData.GroupId, filter.Id, isAllowedToViewInactiveAssets);
 
             if (ci == null)
             {
@@ -336,7 +345,7 @@ namespace Core.Catalog.Handlers
             var ancestors = CategoriesManager.GetCategoryItemAncestors(contextData.GroupId, filter.Id);
             if (ancestors?.Count > 0)
             {
-                response.Objects = ancestors.Select(x => CategoriesManager.GetCategoryItem(contextData.GroupId, x)).ToList();
+                response.Objects = ancestors.Select(x => CategoriesManager.GetCategoryItem(contextData.GroupId, x, isAllowedToViewInactiveAssets)).ToList();
             }
 
             response.SetStatus(eResponseStatus.OK);
@@ -346,6 +355,8 @@ namespace Core.Catalog.Handlers
         public GenericListResponse<CategoryItem> List(ContextData contextData, CategoryItemByIdInFilter filter, CorePager pager)
         {
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
+
+            bool isAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true);
 
             List<long> categoriesIds = null;
             CategoryItem categoryItem = null;
@@ -367,7 +378,7 @@ namespace Core.Catalog.Handlers
                 categoriesIds = filter.IdIn;
                 foreach (var categoryId in categoriesIds)
                 {
-                    categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, categoryId);
+                    categoryItem = CategoriesManager.GetCategoryItem(contextData.GroupId, categoryId, isAllowedToViewInactiveAssets);
                     if (categoryItem != null)
                     {
                         response.Objects.Add(categoryItem);
@@ -387,6 +398,8 @@ namespace Core.Catalog.Handlers
 
             List<long> categoriesIds = new List<long>();
 
+            bool isAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true);
+            
             if (filter.RootOnly)
             {
                 var groupCategories = CategoriesManager.GetGroupCategoriesIds(contextData.GroupId, null, true);
@@ -405,7 +418,7 @@ namespace Core.Catalog.Handlers
             {
                 Filter = filter.Ksql,
                 UserId = contextData.UserId.Value,
-                IsAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true),
+                IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
                 NoSegmentsFilter = true
             };
 
@@ -422,7 +435,7 @@ namespace Core.Catalog.Handlers
 
             if (result.ObjectIds?.Count > 0)
             {
-                response.Objects = result.ObjectIds.Select(x => CategoriesManager.GetCategoryItem(contextData.GroupId, x)).ToList();
+                response.Objects = result.ObjectIds.Select(x => CategoriesManager.GetCategoryItem(contextData.GroupId, x, isAllowedToViewInactiveAssets)).ToList();
                 response.TotalItems = result.TotalItems;
             }
 
@@ -435,9 +448,11 @@ namespace Core.Catalog.Handlers
         {
             var response = new GenericResponse<CategoryTree>();
 
+            bool isAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
+
             try
             {
-                CategoryItem root = CategoriesManager.GetCategoryItem(groupId, id);
+                CategoryItem root = CategoriesManager.GetCategoryItem(groupId, id, isAllowedToViewInactiveAssets);
 
                 if (root == null)
                 {
@@ -449,9 +464,9 @@ namespace Core.Catalog.Handlers
 
                 Dictionary<long, long> newTreeMap = new Dictionary<long, long>();
 
-                DuplicateChildren(groupId, userId, root, newTreeMap);
+                DuplicateChildren(groupId, userId, root, newTreeMap, isAllowedToViewInactiveAssets);
 
-                response = GetCategoryTree(groupId, userId, newTreeMap[id]);
+                response = GetCategoryTree(groupId, newTreeMap[id], isAllowedToViewInactiveAssets); 
             }
             catch (Exception ex)
             {
@@ -461,7 +476,7 @@ namespace Core.Catalog.Handlers
             return response;
         }
 
-        private void DuplicateChildren(int groupId, long userId, CategoryItem parent, Dictionary<long, long> newTreeMap)
+        private void DuplicateChildren(int groupId, long userId, CategoryItem parent, Dictionary<long, long> newTreeMap, bool isAllowedToViewInactiveAssets)
         {
             List<long> children = new List<long>();
             if (parent.ChildrenIds?.Count > 0)
@@ -469,8 +484,8 @@ namespace Core.Catalog.Handlers
                 CategoryItem ci;
                 foreach (var item in parent.ChildrenIds)
                 {
-                    ci = CategoriesManager.GetCategoryItem(groupId, item);
-                    DuplicateChildren(groupId, userId, ci, newTreeMap);
+                    ci = CategoriesManager.GetCategoryItem(groupId, item, isAllowedToViewInactiveAssets);
+                    DuplicateChildren(groupId, userId, ci, newTreeMap, isAllowedToViewInactiveAssets);
                     if (newTreeMap.ContainsKey(item))
                     {
                         children.Add(newTreeMap[item]);
@@ -494,14 +509,14 @@ namespace Core.Catalog.Handlers
             }
         }
 
-        public GenericResponse<CategoryTree> GetCategoryTree(int groupId, long userId, long id)
+        public GenericResponse<CategoryTree> GetCategoryTree(int groupId, long id, bool isAllowedToViewInactiveAssets)
         {
-            GenericResponse<CategoryTree> response = new GenericResponse<CategoryTree>();
+            GenericResponse<CategoryTree> response = new GenericResponse<CategoryTree>();            
 
             CategoryTree categoryTree = null;
 
             // Get the current category
-            var categoryItem = CategoriesManager.GetCategoryItem(groupId, id);
+            var categoryItem = CategoriesManager.GetCategoryItem(groupId, id, isAllowedToViewInactiveAssets);
             if (categoryItem == null)
             {
                 response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
@@ -517,8 +532,14 @@ namespace Core.Catalog.Handlers
 
             if (categoryItem?.ChildrenIds?.Count > 0)
             {
-                List<CategoryItem> childern = categoryItem.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
-                categoryTree.Children = FindTreeChildren(groupId, childern);
+                List<CategoryItem> childern = categoryItem.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x, isAllowedToViewInactiveAssets)).ToList();
+
+                childern.RemoveAll(item => item == null);
+
+                if (childern.Any(i => i != null))
+                {
+                    categoryTree.Children = FindTreeChildren(groupId, childern, isAllowedToViewInactiveAssets);
+                }
             }
 
             response.Object = categoryTree;
@@ -527,15 +548,21 @@ namespace Core.Catalog.Handlers
             return response;
         }
 
-        private List<CategoryTree> FindTreeChildren(int groupId, List<CategoryItem> children)
+        private List<CategoryTree> FindTreeChildren(int groupId, List<CategoryItem> children, bool isAllowedToViewInactiveAssets)
         {
             List<CategoryTree> response = new List<CategoryTree>();
             CategoryTree ct;
+            children.RemoveAll(item => item == null);
+
             foreach (var c in children)
             {
                 ct = BuildCategoryTree(groupId, c);
-                var ch = c.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
-                ct.Children = FindTreeChildren(groupId, ch);
+                var ch = c.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x, isAllowedToViewInactiveAssets)).ToList();
+                ch.RemoveAll(item => item == null);
+                if (ch.Any(i => i != null))
+                {
+                    ct.Children = FindTreeChildren(groupId, ch, isAllowedToViewInactiveAssets);
+                }
                 response.Add(ct);
             }
 
@@ -587,7 +614,7 @@ namespace Core.Catalog.Handlers
             //check external channel exist
             foreach (var channelId in externalChannels)
             {
-                var ec = ExternalChannelManager.GetChannelById(groupId, (int)channelId,true, userId);
+                var ec = ExternalChannelManager.GetChannelById(groupId, (int)channelId, true, userId);
 
                 if (ec != null && ec.IsOkStatusCode() && ec.Object != null)
                 {

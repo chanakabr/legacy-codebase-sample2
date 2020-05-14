@@ -81,6 +81,14 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
+        /// <summary>
+        /// Category active status
+        /// </summary>
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
+        public bool? IsActive { get; set; }
+
         internal override ICrudHandler<CategoryItem, long> Handler
         {
             get

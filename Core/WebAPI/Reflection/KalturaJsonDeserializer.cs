@@ -11754,6 +11754,10 @@ namespace WebAPI.Models.Catalog
                     }
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
+                {
+                    IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
+                }
             }
         }
     }
@@ -11919,6 +11923,10 @@ namespace WebAPI.Models.Catalog
                     {
                         Images = buildList(typeof(KalturaImage), parameters["images"] as object[]);
                     }
+                }
+                if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
+                {
+                    IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
                 }
             }
         }

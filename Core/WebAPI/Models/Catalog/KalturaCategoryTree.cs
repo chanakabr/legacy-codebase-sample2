@@ -68,5 +68,13 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "images", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaImage> Images { get; set; }
+
+        /// <summary>
+        /// Category active status
+        /// </summary>
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
+        public bool? IsActive { get; set; }
     }
 }
