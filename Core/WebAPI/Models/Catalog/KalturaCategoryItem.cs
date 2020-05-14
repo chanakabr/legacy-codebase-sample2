@@ -89,6 +89,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "isActive")]
         public bool? IsActive { get; set; }
 
+        /// <summary>
+        /// Category time slot
+        /// </summary>
+        [DataMember(Name = "timeSlot")]
+        [JsonProperty("timeSlot")]
+        [XmlElement(ElementName = "timeSlot")]
+        public KalturaTimeSlot TimeSlot { get; set; }
+
         internal override ICrudHandler<CategoryItem, long> Handler
         {
             get

@@ -1811,6 +1811,9 @@ namespace WebAPI.Reflection
                 case "KalturaTimeShiftedTvPartnerSettings":
                     return new KalturaTimeShiftedTvPartnerSettings(parameters);
                     
+                case "KalturaTimeSlot":
+                    return new KalturaTimeSlot(parameters);
+                    
                 case "KalturaTopic":
                     return new KalturaTopic(parameters);
                     
@@ -7554,6 +7557,52 @@ namespace WebAPI.Models.General
             }
         }
     }
+    public partial class KalturaTimeSlot
+    {
+        private static RuntimeSchemePropertyAttribute DaysOfTheWeekSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeSlot")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicType = typeof(KalturaDayOfTheWeek),
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaTimeSlot(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("startDateInSeconds") && parameters["startDateInSeconds"] != null)
+                {
+                    StartDateInSeconds = (Int64) Convert.ChangeType(parameters["startDateInSeconds"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("startDendDateInSecondsateInSeconds") && parameters["startDendDateInSecondsateInSeconds"] != null)
+                {
+                    EndDateInSeconds = (Int64) Convert.ChangeType(parameters["startDendDateInSecondsateInSeconds"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("startTimeInMinutes") && parameters["startTimeInMinutes"] != null)
+                {
+                    StartTimeInMinutes = (Int64) Convert.ChangeType(parameters["startTimeInMinutes"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("endTimeInMinutes") && parameters["endTimeInMinutes"] != null)
+                {
+                    EndTimeInMinutes = (Int64) Convert.ChangeType(parameters["endTimeInMinutes"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("daysOfTheWeek") && parameters["daysOfTheWeek"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DaysOfTheWeekSchemaProperty.Validate("daysOfTheWeek", parameters["daysOfTheWeek"]);
+                    }
+                    DaysOfTheWeek = (String) Convert.ChangeType(parameters["daysOfTheWeek"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaTranslationToken
     {
         public KalturaTranslationToken(Dictionary<string, object> parameters = null) : base(parameters)
@@ -11758,6 +11807,17 @@ namespace WebAPI.Models.Catalog
                 {
                     IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("timeSlot") && parameters["timeSlot"] != null)
+                {
+                    if (parameters["timeSlot"] is JObject)
+                    {
+                        TimeSlot = (KalturaTimeSlot) Deserializer.deserialize(typeof(KalturaTimeSlot), ((JObject) parameters["timeSlot"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["timeSlot"] is IDictionary)
+                    {
+                        TimeSlot = (KalturaTimeSlot) Deserializer.deserialize(typeof(KalturaTimeSlot), (Dictionary<string, object>) parameters["timeSlot"]);
+                    }
+                }
             }
         }
     }
@@ -11927,6 +11987,17 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
                     IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("timeSlot") && parameters["timeSlot"] != null)
+                {
+                    if (parameters["timeSlot"] is JObject)
+                    {
+                        TimeSlot = (KalturaTimeSlot) Deserializer.deserialize(typeof(KalturaTimeSlot), ((JObject) parameters["timeSlot"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["timeSlot"] is IDictionary)
+                    {
+                        TimeSlot = (KalturaTimeSlot) Deserializer.deserialize(typeof(KalturaTimeSlot), (Dictionary<string, object>) parameters["timeSlot"]);
+                    }
                 }
             }
         }

@@ -1207,6 +1207,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "ParentId":
                             return "parentId";
+                        case "TimeSlot":
+                            return "timeSlot";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                         case "UpdateDate":
@@ -1255,6 +1257,8 @@ namespace WebAPI.Reflection
                             return "isActive";
                         case "Name":
                             return "name";
+                        case "TimeSlot":
+                            return "timeSlot";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                     }
@@ -6497,6 +6501,22 @@ namespace WebAPI.Reflection
                             return "trickPlayBufferLength";
                         case "TrickPlayEnabled":
                             return "trickPlayEnabled";
+                    }
+                    break;
+                    
+                case "KalturaTimeSlot":
+                    switch(property.Name)
+                    {
+                        case "DaysOfTheWeek":
+                            return "daysOfTheWeek";
+                        case "EndDateInSeconds":
+                            return "startDendDateInSecondsateInSeconds";
+                        case "EndTimeInMinutes":
+                            return "endTimeInMinutes";
+                        case "StartDateInSeconds":
+                            return "startDateInSeconds";
+                        case "StartTimeInMinutes":
+                            return "startTimeInMinutes";
                     }
                     break;
                     

@@ -75,6 +75,15 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
+        //[SchemeProperty(RequiresPermission = (int)RequestType.READ, ReadOnly = true)] //TODO: anat
         public bool? IsActive { get; set; }
+
+        /// <summary>
+        /// Category time slot
+        /// </summary>
+        [DataMember(Name = "timeSlot")]
+        [JsonProperty("timeSlot")]
+        [XmlElement(ElementName = "timeSlot")]
+        public KalturaTimeSlot TimeSlot { get; set; }
     }
 }
