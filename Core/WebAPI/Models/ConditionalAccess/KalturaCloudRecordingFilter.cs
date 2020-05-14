@@ -105,7 +105,7 @@ namespace WebAPI.Models.ConditionalAccess
             var assetsResponse = ClientsManager.CatalogClient().GetAssetFromUnifiedSearchResponse
                 (contextData.GroupId, searchResponse, request, isAllowedToViewInactiveAssets, managementData);
 
-            var assetsMap = assetsResponse.Objects.ToDictionary(x => x.Id, y => new KalturaAssetListResponse() { Objects = new List<KalturaAsset>() { y } });
+            var assetsMap = assetsResponse.Objects.ToDictionary(x => x.Id, y => new KalturaAssetListResponse() { Objects = new List<KalturaAsset>() { y }, TotalCount = 1 });
 
             return assetsMap;
         }
