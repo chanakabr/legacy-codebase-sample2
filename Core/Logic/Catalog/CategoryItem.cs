@@ -24,5 +24,10 @@ namespace ApiLogic.Catalog
             UnifiedChannels = new List<UnifiedChannel>();
             DynamicData = null;
         }
+
+        public bool IsValid()
+        {
+            return IsActive.Value && (TimeSlot == null || TimeSlot.IsValid());
+        }
     }   
 }

@@ -46,34 +46,33 @@ namespace WebAPI.Models.General
         /// <summary>
         /// Days of the week - separated with comma
         /// </summary>
-        [DataMember(Name = "daysOfTheWeek")]
-        [JsonProperty("daysOfTheWeek")]
-        [XmlElement(ElementName = "daysOfTheWeek", IsNullable = true)]
-        [SchemeProperty(DynamicType = typeof(KalturaDayOfTheWeek))]
-        public string DaysOfTheWeek { get; set; }
+        [DataMember(Name = "daysOfWeek")]
+        [JsonProperty("daysOfWeek")]
+        [XmlElement(ElementName = "daysOfWeek", IsNullable = true)]
+        [SchemeProperty(DynamicType = typeof(KalturaDayOfWeek))]
+        public string DaysOfWeek { get; set; }
 
-        public List<KalturaDayOfTheWeek> DayOfTheWeekList()
+        public HashSet<KalturaDayOfWeek> DayOfWeekSet()
         {
-            List<KalturaDayOfTheWeek> dayOfTheWeekList = new List<KalturaDayOfTheWeek>();
-            if (!string.IsNullOrEmpty(this.DaysOfTheWeek))
+            HashSet<KalturaDayOfWeek> dayOfWeekSet = new HashSet<KalturaDayOfWeek>();
+            if (!string.IsNullOrEmpty(this.DaysOfWeek))
             {
-                string[] daysOfTheWeek = this.DaysOfTheWeek.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string dayOfTheWeek in daysOfTheWeek)
+                string[] days = this.DaysOfWeek.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string day in days)
                 {
-                    KalturaDayOfTheWeek kDayOfTheWeek;
-                    if (Enum.TryParse<KalturaDayOfTheWeek>(dayOfTheWeek.ToUpper(), out kDayOfTheWeek))
+                    if (Enum.TryParse<KalturaDayOfWeek>(day.ToUpper(), out KalturaDayOfWeek kDayOfTheWeek) && !dayOfWeekSet.Contains(kDayOfTheWeek))
                     {
-                        dayOfTheWeekList.Add(kDayOfTheWeek);
+                        dayOfWeekSet.Add(kDayOfTheWeek);
                     }
                 }
             }           
 
-            return dayOfTheWeekList;
+            return dayOfWeekSet;
         }
     }
 
     [Serializable]
-    public enum KalturaDayOfTheWeek
+    public enum KalturaDayOfWeek
     {
         SUNDAY = 1,
         MONDAY = 2,

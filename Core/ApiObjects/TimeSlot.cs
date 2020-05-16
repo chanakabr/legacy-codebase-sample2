@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ApiObjects
-
 {
     public class TimeSlot
     {
@@ -13,7 +13,7 @@ namespace ApiObjects
 
         public long? EndTimeInMinutes { get; set; }
 
-        public List<DayOfTheWeek> DaysOfTheWeek { get; set; }
+        public HashSet<int> DaysOfWeek { get; set; }
 
         public bool HasTimeSlot()
         {
@@ -21,18 +21,30 @@ namespace ApiObjects
                 EndDateInSeconds.HasValue ||
                 StartTimeInMinutes.HasValue ||
                 EndTimeInMinutes.HasValue ||
-                (DaysOfTheWeek != null && DaysOfTheWeek.Count > 0);
+                (DaysOfWeek != null && DaysOfWeek.Count > 0);
         }
-    }
 
-    public enum DayOfTheWeek
-    {
-        SUNDAY = 1,
-        MONDAY = 2,
-        TUESDAY = 3,
-        WEDNESDAY = 4,
-        THURSDAY = 5,
-        FRIDAY = 6,
-        SATURDAY = 7
+        public bool IsValid()
+        {
+            DateTime now = DateTime.UtcNow;
+            long unix = 123;
+
+            if (StartDateInSeconds.HasValue && StartDateInSeconds.Value > unix)
+                return false;
+
+            if (EndDateInSeconds.HasValue && EndDateInSeconds.Value < unix)
+                return false;
+
+            if (DaysOfWeek?.Count > 0 && !DaysOfWeek.Contains((int)now.DayOfWeek))
+                return false;
+
+            if (StartTimeInMinutes.HasValue && StartTimeInMinutes.Value > (now.Hour * 60) + now.Minute)
+                return false;
+
+            if (EndTimeInMinutes.HasValue && EndTimeInMinutes.Value > (now.Hour * 60) + now.Minute)
+                return false;
+
+            return true;
+        }
     }
 }

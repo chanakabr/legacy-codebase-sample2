@@ -255,7 +255,7 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        internal static CategoryItem GetCategoryItem(int groupId, long id, bool isAllowedToViewInactiveAssets)
+        internal static CategoryItem GetCategoryItem(int groupId, long id, bool onlyActive = false)
         {
             CategoryItem result = null;
 
@@ -275,14 +275,12 @@ namespace Core.Catalog.CatalogManagement
                     log.Error($"Failed getting GetCategoryItem from LayeredCache, groupId: {groupId}, key: {key}");
                     return result;
                 }
-                else if (isAllowedToViewInactiveAssets)
+                
+                if (result != null && onlyActive && !result.IsValid())
                 {
-                    return result;
+                    return null;
                 }
-                else
-                {
-                    return result.IsActive.Value ? result : null;
-                }
+                
             }
             catch (Exception ex)
             {

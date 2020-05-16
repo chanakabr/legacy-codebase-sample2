@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
             {
                 bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId, true);
 
-                response = ClientsManager.CatalogClient().GetCategoryTree(groupId, categoryItemId, isAllowedToViewInactiveAssets);
+                response = ClientsManager.CatalogClient().GetCategoryTree(groupId, categoryItemId, !isAllowedToViewInactiveAssets);
             }
             catch (ClientException ex)
             {
