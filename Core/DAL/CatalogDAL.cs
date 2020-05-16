@@ -6035,11 +6035,13 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels,
-            Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot)
+        public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
+            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot)
         {
             try
             {
+                DataTable categoriesChannelsValues = SetCategoriesChannelsTable(channels);
+
                 var sp = new StoredProcedure("Insert_Categories");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
@@ -6048,10 +6050,10 @@ namespace Tvinci.Core.DAL
                 sp.AddKeyValueListParameter<long, string>("@namesInOtherLanguages", namesInOtherLanguages, "idKey", "value");
                 sp.AddParameter("@hasMetadata", dynamicData == null || dynamicData.Count == 0 ? 0 : 1);
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
-                sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
+                sp.AddDataTableParameter("@categoriesChannels", categoriesChannelsValues);
                 sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
                 sp.AddParameter("@isActive", isActive.HasValue ? (isActive.Value ? 1 : 0) : 1);
-                sp.AddParameter("@hasTimeSlot", timeSlot == null ? 0 : 1);
+                sp.AddParameter("@hasTimeSlot", (timeSlot == null || !timeSlot.HasTimeSlot()) ? 0 : 1);
 
                 var id = sp.ExecuteReturnValue<long>();
                 if (dynamicData?.Count > 0 && id > 0)
@@ -6059,13 +6061,14 @@ namespace Tvinci.Core.DAL
                     SaveCategoryDynamicData(id, dynamicData);
                 }
 
-                if (timeSlot != null)
+                if (timeSlot == null || !timeSlot.HasTimeSlot())
                 {
                     SaveCategoryTimeSlotData(id, timeSlot);
                 }
 
-                return id;
+                SaveCategoryChannelTimeSlot(id, channels);
 
+                return id;
             }
             catch (Exception ex)
             {
@@ -6074,12 +6077,13 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static bool UpdateCategory(int groupId, long? userId, long id, string name,
-            List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels,
-            Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, bool needToDeleteTimeSlot)
+        public static bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages, 
+            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, bool needToDeleteTimeSlot)
         {
             try
             {
+                DataTable categoriesChannelsValues = SetCategoriesChannelsTable(channels);
+
                 var sp = new StoredProcedure("Update_Categories");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@id", id);
@@ -6091,7 +6095,7 @@ namespace Tvinci.Core.DAL
                 sp.AddKeyValueListParameter<long, string>("@namesInOtherLanguages", namesInOtherLanguages, "idKey", "value");
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
                 sp.AddParameter("@needToDeleteCategoriesChannels", channels != null && channels.Count == 0 ? 1 : 0);
-                sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "idKey", "value");
+                sp.AddDataTableParameter("@categoriesChannels", categoriesChannelsValues);
                 sp.AddParameter("@updaterId", userId);
                 sp.AddParameter("@isActive", isActive);
                 sp.AddParameter("@hasTimeSlot", needToDeleteTimeSlot ? 0 : 1);
@@ -6120,6 +6124,8 @@ namespace Tvinci.Core.DAL
                         SaveCategoryTimeSlotData(id, timeSlot);
                     }
                 }
+
+                SaveCategoryChannelTimeSlot(id, channels);
 
                 return result;
             }
@@ -6231,7 +6237,7 @@ namespace Tvinci.Core.DAL
             UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, new CBCategoryTimeSlotData { Id = id, TimeSlot = timeSlot }, true);
         }
 
-        public static TimeSlot GetCategoryTimeSlot(long id)
+        public static TimeSlot GetCategoryTimeSlotData(long id)
         {
             var key = CBCategoryTimeSlotData.GetCategoryTimeSlotDataKey(id);
             var res = UtilsDal.GetObjectFromCB<CBCategoryTimeSlotData>(eCouchbaseBucket.OTT_APPS, key, true);
@@ -6243,6 +6249,98 @@ namespace Tvinci.Core.DAL
         {
             var key = CBCategoryTimeSlotData.GetCategoryTimeSlotDataKey(id);
             UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        private static DataTable SetCategoriesChannelsTable(List<UnifiedChannel> channels)
+        {
+            DataTable ccTable = new DataTable("categoriesChannelsValues");
+
+            ccTable.Columns.Add("CHANNEL_ID", typeof(long));
+            ccTable.Columns.Add("CHANNEL_TYPE", typeof(int));
+            ccTable.Columns.Add("HAS_TIME_SLOT", typeof(int));
+            ccTable.Columns.Add(new DataColumn()
+            {
+                ColumnName = "ORDERED",
+                DataType = System.Type.GetType("System.Int32"),
+                AutoIncrement = true,
+                AutoIncrementSeed = 1,
+                AutoIncrementStep = 1
+            });
+
+            if (channels != null)
+            {
+                DataRow dr = null;
+                UnifiedChannelInfo unifiedChannelInfo = null;
+                foreach (var channel in channels)
+                {
+                    dr = ccTable.NewRow();
+                    dr["CHANNEL_ID"] = channel.Id;
+                    dr["CHANNEL_TYPE"] = (int)channel.Type;
+                    dr["HAS_TIME_SLOT"] = 0;
+                    unifiedChannelInfo = channel as UnifiedChannelInfo;
+                    if (unifiedChannelInfo != null && unifiedChannelInfo.TimeSlot != null && unifiedChannelInfo.TimeSlot.HasTimeSlot())
+                    {
+                        dr["HAS_TIME_SLOT"] = 1;
+                    }
+
+                    ccTable.Rows.Add(dr);
+                }
+            }
+            return ccTable;
+        }
+
+        private static void SaveCategoryChannelTimeSlotData(long categoryId, long channelId, int channelType, TimeSlot timeSlot)
+        {
+            var key = CBCategoryChannelTimeSlotData.GetKey(categoryId, channelId, channelType);
+            UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, new CBCategoryChannelTimeSlotData
+            {
+                CategoryId = categoryId,
+                ChannelId = channelId,
+                ChanneType = channelType,
+                TimeSlot = timeSlot
+            }, true);
+        }
+
+        public static TimeSlot GetCategoryChannelTimeSlotData(long categoryId, long channelId, int channelType)
+        {
+            var key = CBCategoryChannelTimeSlotData.GetKey(categoryId, channelId, channelType);
+            var res = UtilsDal.GetObjectFromCB<CBCategoryChannelTimeSlotData>(eCouchbaseBucket.OTT_APPS, key, true);
+
+            return res.TimeSlot;
+        }
+
+        public static void DeleteCategoryChannelTimeSlotData(long categoryId, long channelId, int channelType)
+        {
+            var key = CBCategoryChannelTimeSlotData.GetKey(categoryId, channelId, channelType);
+            UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        private static void SaveCategoryChannelTimeSlot(long categoryId, List<UnifiedChannel> channels)
+        {
+            //TOdo anat:
+
+            if (channels?.Count > 0)
+            {
+                UnifiedChannelInfo unifiedChannelInfo = null;
+                foreach (var channel in channels)
+                {
+                    unifiedChannelInfo = channel as UnifiedChannelInfo;
+                    if (unifiedChannelInfo != null)
+                    {
+                        if(unifiedChannelInfo.TimeSlot != null )
+                        {
+                            if (!unifiedChannelInfo.TimeSlot.HasTimeSlot())
+                            {
+                                DeleteCategoryChannelTimeSlotData(categoryId, unifiedChannelInfo.Id, (int)unifiedChannelInfo.Type);
+                            }
+                            else
+                            {
+                                SaveCategoryChannelTimeSlotData(categoryId, unifiedChannelInfo.Id, (int)unifiedChannelInfo.Type, unifiedChannelInfo.TimeSlot);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

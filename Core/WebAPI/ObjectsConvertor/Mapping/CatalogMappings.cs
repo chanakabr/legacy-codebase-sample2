@@ -1173,49 +1173,51 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.TimeSlot, opt => opt.MapFrom(src => src.TimeSlot));
 
-            cfg.CreateMap<ApiLogic.Catalog.UnifiedChannelType, KalturaChannelType>()
+            cfg.CreateMap<UnifiedChannelType, KalturaChannelType>()
                 .ConvertUsing(type =>
                 {
                     switch (type)
                     {
-                        case ApiLogic.Catalog.UnifiedChannelType.Internal:
+                        case UnifiedChannelType.Internal:
                             return KalturaChannelType.Internal;
-                        case ApiLogic.Catalog.UnifiedChannelType.External:
+                        case UnifiedChannelType.External:
                             return KalturaChannelType.External;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown UnifiedChannelType value : {type.ToString()}");
                     }
                 });
 
-            cfg.CreateMap<KalturaChannelType, ApiLogic.Catalog.UnifiedChannelType>()
+            cfg.CreateMap<KalturaChannelType, UnifiedChannelType>()
                 .ConvertUsing(type =>
                 {
                     switch (type)
                     {
                         case KalturaChannelType.Internal:
-                            return ApiLogic.Catalog.UnifiedChannelType.Internal;
+                            return UnifiedChannelType.Internal;
                         case KalturaChannelType.External:
-                            return ApiLogic.Catalog.UnifiedChannelType.External;
+                            return UnifiedChannelType.External;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaChannelType value : {type.ToString()}");
                     }
                 });
 
-            cfg.CreateMap<KalturaUnifiedChannel, ApiLogic.Catalog.UnifiedChannel>()
+            cfg.CreateMap<KalturaUnifiedChannel, UnifiedChannel>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
 
-            cfg.CreateMap<ApiLogic.Catalog.UnifiedChannel, KalturaUnifiedChannel>()
+            cfg.CreateMap<UnifiedChannel, KalturaUnifiedChannel>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
 
-            cfg.CreateMap<KalturaUnifiedChannelInfo, ApiLogic.Catalog.UnifiedChannelInfo>()
-                .IncludeBase<KalturaUnifiedChannel, ApiLogic.Catalog.UnifiedChannel>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+            cfg.CreateMap<KalturaUnifiedChannelInfo, UnifiedChannelInfo>()
+                .IncludeBase<KalturaUnifiedChannel, UnifiedChannel>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.TimeSlot, opt => opt.MapFrom(src => src.TimeSlot));
 
-            cfg.CreateMap<ApiLogic.Catalog.UnifiedChannelInfo, KalturaUnifiedChannelInfo>()
-                .IncludeBase<ApiLogic.Catalog.UnifiedChannel, KalturaUnifiedChannel>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+            cfg.CreateMap<UnifiedChannelInfo, KalturaUnifiedChannelInfo>()
+                .IncludeBase<UnifiedChannel, KalturaUnifiedChannel>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.TimeSlot, opt => opt.MapFrom(src => src.TimeSlot));
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryTree, KalturaCategoryTree>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

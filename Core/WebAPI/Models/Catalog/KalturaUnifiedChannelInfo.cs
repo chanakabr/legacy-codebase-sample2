@@ -35,6 +35,14 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }
+
+        /// <summary>
+        /// Category time slot
+        /// </summary>
+        [DataMember(Name = "timeSlot")]
+        [JsonProperty("timeSlot")]
+        [XmlElement(ElementName = "timeSlot")]
+        public KalturaTimeSlot TimeSlot { get; set; }
     }
 
     public enum KalturaChannelType

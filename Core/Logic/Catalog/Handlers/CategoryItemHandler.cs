@@ -153,8 +153,6 @@ namespace Core.Catalog.Handlers
                 }
                 else
                 {
-                    channels = new List<KeyValuePair<long, int>>();
-
                     if (objectToUpdate.UnifiedChannels?.Count > 0)
                     {
                         if (!IsUnifiedChannelsValid(contextData.GroupId, contextData.UserId.HasValue ? contextData.UserId.Value : 0, objectToUpdate.UnifiedChannels))
@@ -162,8 +160,6 @@ namespace Core.Catalog.Handlers
                             response.SetStatus(eResponseStatus.ChannelDoesNotExist, "Channel does not exist");
                             return response;
                         }
-
-                        channels = objectToUpdate.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
                     }
                 }
 
@@ -198,7 +194,7 @@ namespace Core.Catalog.Handlers
                 }
 
                 if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name,
-                    languageCodeToName, channels, objectToUpdate.DynamicData, objectToUpdate.IsActive, objectToUpdate.TimeSlot, needToDeleteTimeSlot))
+                    languageCodeToName, objectToUpdate.UnifiedChannels, objectToUpdate.DynamicData, objectToUpdate.IsActive, objectToUpdate.TimeSlot, needToDeleteTimeSlot))
                 {
                     log.Error($"Error while updateCategory. contextData: {contextData.ToString()}.");
                     return response;

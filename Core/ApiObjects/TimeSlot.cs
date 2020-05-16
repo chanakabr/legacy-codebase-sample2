@@ -14,6 +14,15 @@ namespace ApiObjects
         public long? EndTimeInMinutes { get; set; }
 
         public List<DayOfTheWeek> DaysOfTheWeek { get; set; }
+
+        public bool HasTimeSlot()
+        {
+            return StartDateInSeconds.HasValue ||
+                EndDateInSeconds.HasValue ||
+                StartTimeInMinutes.HasValue ||
+                EndTimeInMinutes.HasValue ||
+                (DaysOfTheWeek != null && DaysOfTheWeek.Count > 0);
+        }
     }
 
     public enum DayOfTheWeek

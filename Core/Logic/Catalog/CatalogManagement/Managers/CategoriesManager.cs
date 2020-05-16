@@ -112,7 +112,7 @@ namespace Core.Catalog.CatalogManagement
                         ParentId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "PARENT_CATEGORY_ID"),
                         Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "CATEGORY_NAME"),
                         UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[0].Rows[0], "UPDATE_DATE"),
-                        IsActive = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "IS_ACTIVE")
+                        IsActive = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "IS_ACTIVE"),                        
                     };
 
                     bool hasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA");
@@ -121,23 +121,31 @@ namespace Core.Catalog.CatalogManagement
                         categoryItem.DynamicData = CatalogDAL.GetCategoryDynamicData(id);
                     }
 
-                    bool hasTimeSlot = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_TIMESLOT");
+                    bool hasTimeSlot = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_TIME_SLOT");
                     if (hasTimeSlot)
                     {
-                        categoryItem.TimeSlot = CatalogDAL.GetCategoryTimeSlot(id);
+                        categoryItem.TimeSlot = CatalogDAL.GetCategoryTimeSlotData(id);
                     }
 
                     if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                     {
                         categoryItem.UnifiedChannels = new List<UnifiedChannel>();
 
+                        UnifiedChannelInfo unifiedChannelInfo = null;
                         foreach (DataRow dr in ds.Tables[1].Rows)
                         {
-                            categoryItem.UnifiedChannels.Add(new UnifiedChannel()
-                            {
+                            unifiedChannelInfo = new UnifiedChannelInfo() {
                                 Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_ID"),
                                 Type = (UnifiedChannelType)ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_TYPE")
-                            });
+                            };
+
+                            hasTimeSlot = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_TIME_SLOT");
+                            if (hasTimeSlot)
+                            {
+                                unifiedChannelInfo.TimeSlot = CatalogDAL.GetCategoryChannelTimeSlotData(id, unifiedChannelInfo.Id, (int)unifiedChannelInfo.Type);
+                            }
+
+                            categoryItem.UnifiedChannels.Add(unifiedChannelInfo);
 
                             //TODO anat: check if channel exist 
                         }
@@ -262,9 +270,9 @@ namespace Core.Catalog.CatalogManagement
                                                         groupId,
                                                         LayeredCacheConfigNames.GET_CATEGORY_ITEM,
                                                         new List<string>() { invalidationKey });
-                if(!cacheResult)
+                if (!cacheResult)
                 {
-                    log.Error($"Failed getting GetCategoryItem from LayeredCache, groupId: {groupId}, key: {key}");                                        
+                    log.Error($"Failed getting GetCategoryItem from LayeredCache, groupId: {groupId}, key: {key}");
                     return result;
                 }
                 else if (isAllowedToViewInactiveAssets)
@@ -421,11 +429,23 @@ namespace Core.Catalog.CatalogManagement
             bool result = false;
             try
             {
-                List<KeyValuePair<long, int>> channels = null;
+                Dictionary<KeyValuePair<long, int>, int> channels = null;
 
                 if (objectToAdd.UnifiedChannels?.Count > 0)
                 {
-                    channels = objectToAdd.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
+                    UnifiedChannelInfo unifiedChannelnfo = null;
+                    KeyValuePair<long, int> key;
+                    foreach (var channel in objectToAdd.UnifiedChannels)
+                    {
+                        key = new KeyValuePair<long, int>(channel.Id, (int)channel.Type);
+                        channels.Add(key, 0);
+
+                        unifiedChannelnfo = channel as UnifiedChannelInfo;
+                        if(unifiedChannelnfo != null && unifiedChannelnfo.TimeSlot != null && unifiedChannelnfo.TimeSlot.HasTimeSlot())
+                        {
+                            channels[key] = 1;
+                        }
+                    }
                 }
 
                 //set NamesInOtherLanguages
@@ -437,7 +457,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, channels, objectToAdd.DynamicData,
+                long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, objectToAdd.UnifiedChannels, objectToAdd.DynamicData,
                     objectToAdd.IsActive, objectToAdd.TimeSlot);
 
                 if (id == 0)
@@ -466,7 +486,7 @@ namespace Core.Catalog.CatalogManagement
                     Type = ObjectVirtualAssetInfoType.Category,
                     Id = id,
                     Name = objectToAdd.Name,
-                    UserId = userId                    
+                    UserId = userId
                 };
 
                 api.AddVirtualAsset(groupId, virtualAssetInfo);
