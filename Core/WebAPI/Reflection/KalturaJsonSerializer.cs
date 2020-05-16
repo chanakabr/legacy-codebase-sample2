@@ -6133,9 +6133,9 @@ namespace WebAPI.Models.General
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(DaysOfTheWeek != null)
+            if(DaysOfWeek != null)
             {
-                ret.Add("daysOfTheWeek", "\"daysOfTheWeek\": " + "\"" + EscapeJson(DaysOfTheWeek) + "\"");
+                ret.Add("daysOfWeek", "\"daysOfWeek\": " + "\"" + EscapeJson(DaysOfWeek) + "\"");
             }
             if(EndDateInSeconds.HasValue)
             {
@@ -6162,9 +6162,9 @@ namespace WebAPI.Models.General
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(DaysOfTheWeek != null)
+            if(DaysOfWeek != null)
             {
-                ret.Add("daysOfTheWeek", "<daysOfTheWeek>" + EscapeXml(DaysOfTheWeek) + "</daysOfTheWeek>");
+                ret.Add("daysOfWeek", "<daysOfWeek>" + EscapeXml(DaysOfWeek) + "</daysOfWeek>");
             }
             if(EndDateInSeconds.HasValue)
             {
@@ -14073,6 +14073,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
+            if(TimeSlot != null)
+            {
+                propertyValue = TimeSlot.ToJson(currentVersion, omitObsolete);
+                ret.Add("timeSlot", "\"timeSlot\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -14085,6 +14090,11 @@ namespace WebAPI.Models.Catalog
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(TimeSlot != null)
+            {
+                propertyValue = TimeSlot.ToXml(currentVersion, omitObsolete);
+                ret.Add("timeSlot", "<timeSlot>" + propertyValue + "</timeSlot>");
             }
             return ret;
         }

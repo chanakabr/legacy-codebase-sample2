@@ -6507,8 +6507,8 @@ namespace WebAPI.Reflection
                 case "KalturaTimeSlot":
                     switch(property.Name)
                     {
-                        case "DaysOfTheWeek":
-                            return "daysOfTheWeek";
+                        case "DaysOfWeek":
+                            return "daysOfWeek";
                         case "EndDateInSeconds":
                             return "startDendDateInSecondsateInSeconds";
                         case "EndTimeInMinutes":
@@ -6755,6 +6755,8 @@ namespace WebAPI.Reflection
                     {
                         case "Name":
                             return "name";
+                        case "TimeSlot":
+                            return "timeSlot";
                     }
                     break;
                     
