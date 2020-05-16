@@ -1262,14 +1262,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartTimeInMinutes, opt => opt.MapFrom(src => src.StartTimeInMinutes))
                 .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.EndDateInSeconds))
                 .ForMember(dest => dest.EndTimeInMinutes, opt => opt.MapFrom(src => src.EndTimeInMinutes))
-                .ForMember(dest => dest.DaysOfTheWeek, opt => opt.ResolveUsing(src => ConvertDayOfWeek(src.DaysOfTheWeek)));
+                .ForMember(dest => dest.DaysOfWeek, opt => opt.ResolveUsing(src => ConvertDayOfWeek(src.DaysOfWeek)));
 
             cfg.CreateMap<TimeSlot, KalturaTimeSlot>()
                 .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.StartDateInSeconds))
                 .ForMember(dest => dest.StartTimeInMinutes, opt => opt.MapFrom(src => src.StartTimeInMinutes))
                 .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.EndDateInSeconds))
                 .ForMember(dest => dest.EndTimeInMinutes, opt => opt.MapFrom(src => src.EndTimeInMinutes))
-                .ForMember(dest => dest.DaysOfTheWeek, opt => opt.ResolveUsing(src => ConvertDayOfWeek(src.DaysOfTheWeek)));
+                .ForMember(dest => dest.DaysOfWeek, opt => opt.ResolveUsing(src => ConvertDayOfWeek(src.DaysOfWeek)));
 
             #endregion
         }
@@ -2984,15 +2984,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static List<DayOfTheWeek> ConvertDayOfWeek(string dayOfWeek)
+        private static HashSet<DayOfWeek> ConvertDayOfWeek(string daysOfWeek)
         {
-            List<DayOfTheWeek> dayOfWeekList = null;
-
-            if (!string.IsNullOrEmpty(dayOfWeek))
+            HashSet<DayOfWeek> daysOfWeekSet = null;
+            /*
+            if (!string.IsNullOrEmpty(daysOfWeek))
             {
-                dayOfWeekList = new List<DayOfTheWeek>();
-                string[] daysOfWeek = dayOfWeek.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string day in daysOfWeek)
+                daysOfWeekSet = new HashSet<DayOfWeek>();
+                string[] days = daysOfWeek.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string day in days)
                 {
                     KalturaDayOfTheWeek kdayOfWeek;
                     if (Enum.TryParse<KalturaDayOfTheWeek>(day.ToUpper(), out kdayOfWeek))
@@ -3001,13 +3001,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 }
             }
-
-            return dayOfWeekList;
+            */
+            return daysOfWeekSet;
         }
 
-        private static string ConvertDayOfWeek(List<DayOfTheWeek> list)
+        private static string ConvertDayOfWeek(HashSet<int> days)
         {
-            string dayOfTheWeek = string.Empty;
+            string daysOfWeek = string.Empty;
+            /*
             List<KalturaDayOfTheWeek> dayOfTheWeekList;
             if (list != null)
             {
@@ -3019,54 +3020,56 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                 dayOfTheWeek = string.Join(",", dayOfTheWeekList.ToArray());
             }
-
-            return dayOfTheWeek;
+            */
+            return daysOfWeek;
         }
 
-        private static DayOfTheWeek ConvertDayOfTheWeek(KalturaDayOfTheWeek dayOfTheWeek)
+        /*
+        private static int ConvertDayOfTheWeek(KalturaDayOfWeek dayOfWeek)
         {
             switch (dayOfTheWeek)
             {
-                case KalturaDayOfTheWeek.SUNDAY:
+                case KalturaDayOfWeek.SUNDAY:
                     return DayOfTheWeek.SUNDAY;
-                case KalturaDayOfTheWeek.MONDAY:
+                case KalturaDayOfWeek.MONDAY:
                     return DayOfTheWeek.MONDAY;
-                case KalturaDayOfTheWeek.TUESDAY:
+                case KalturaDayOfWeek.TUESDAY:
                     return DayOfTheWeek.TUESDAY;
-                case KalturaDayOfTheWeek.WEDNESDAY:
+                case KalturaDayOfWeek.WEDNESDAY:
                     return DayOfTheWeek.WEDNESDAY;
-                case KalturaDayOfTheWeek.THURSDAY:
+                case KalturaDayOfWeek.THURSDAY:
                     return DayOfTheWeek.THURSDAY;
-                case KalturaDayOfTheWeek.FRIDAY:
+                case KalturaDayOfWeek.FRIDAY:
                     return DayOfTheWeek.FRIDAY;
-                case KalturaDayOfTheWeek.SATURDAY:
+                case KalturaDayOfWeek.SATURDAY:
                     return DayOfTheWeek.SATURDAY;
                 default:
                     throw new ClientException((int)StatusCode.Error, string.Format("Unknown DayOfTheWeek value : {0}", dayOfTheWeek.ToString()));
             }
         }
 
-        private static KalturaDayOfTheWeek ConvertDayOfTheWeek(DayOfTheWeek dayOfTheWeek)
+        private static KalturaDayOfWeek ConvertDayOfTheWeek(int day)
         {
             switch (dayOfTheWeek)
             {
                 case DayOfTheWeek.SUNDAY:
-                    return KalturaDayOfTheWeek.SUNDAY;
+                    return KalturaDayOfWeek.SUNDAY;
                 case DayOfTheWeek.MONDAY:
-                    return KalturaDayOfTheWeek.MONDAY;
+                    return KalturaDayOfWeek.MONDAY;
                 case DayOfTheWeek.TUESDAY:
-                    return KalturaDayOfTheWeek.TUESDAY;
+                    return KalturaDayOfWeek.TUESDAY;
                 case DayOfTheWeek.WEDNESDAY:
-                    return KalturaDayOfTheWeek.WEDNESDAY;
+                    return KalturaDayOfWeek.WEDNESDAY;
                 case DayOfTheWeek.THURSDAY:
-                    return KalturaDayOfTheWeek.THURSDAY;
+                    return KalturaDayOfWeek.THURSDAY;
                 case DayOfTheWeek.FRIDAY:
-                    return KalturaDayOfTheWeek.FRIDAY;
+                    return KalturaDayOfWeek.FRIDAY;
                 case DayOfTheWeek.SATURDAY:
-                    return KalturaDayOfTheWeek.SATURDAY;
+                    return KalturaDayOfWeek.SATURDAY;
                 default:
                     throw new ClientException((int)StatusCode.Error, string.Format("Unknown DayOfTheWeek value : {0}", dayOfTheWeek.ToString()));
             }
         }
+        */
     }
 }
