@@ -41,7 +41,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "startDateInSeconds")]
         [JsonProperty("startDateInSeconds")]
-        [XmlElement(ElementName = "startDateInSeconds")]
+        [XmlElement(ElementName = "startDateInSeconds", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
         public long? StartDateInSeconds { get; set; }
 
         /// <summary>
@@ -49,7 +50,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "endDateInSeconds")]
         [JsonProperty("endDateInSeconds")]
-        [XmlElement(ElementName = "endDateInSeconds")]
+        [XmlElement(ElementName = "endDateInSeconds", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
         public long? EndDateInSeconds { get; set; }
     }
 

@@ -11691,6 +11691,28 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute StartDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+        };
+        private static RuntimeSchemePropertyAttribute EndDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+        };
         public KalturaCategoryItem(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -11760,10 +11782,18 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("startDateInSeconds") && parameters["startDateInSeconds"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        StartDateInSecondsSchemaProperty.Validate("startDateInSeconds", parameters["startDateInSeconds"]);
+                    }
                     StartDateInSeconds = (Int64) Convert.ChangeType(parameters["startDateInSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDateInSeconds") && parameters["endDateInSeconds"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        EndDateInSecondsSchemaProperty.Validate("endDateInSeconds", parameters["endDateInSeconds"]);
+                    }
                     EndDateInSeconds = (Int64) Convert.ChangeType(parameters["endDateInSeconds"], typeof(Int64));
                 }
             }
@@ -11863,6 +11893,28 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute StartDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+        };
+        private static RuntimeSchemePropertyAttribute EndDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+        };
         public KalturaCategoryTree(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -11938,10 +11990,18 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("startDateInSeconds") && parameters["startDateInSeconds"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        StartDateInSecondsSchemaProperty.Validate("startDateInSeconds", parameters["startDateInSeconds"]);
+                    }
                     StartDateInSeconds = (Int64) Convert.ChangeType(parameters["startDateInSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDateInSeconds") && parameters["endDateInSeconds"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        EndDateInSecondsSchemaProperty.Validate("endDateInSeconds", parameters["endDateInSeconds"]);
+                    }
                     EndDateInSeconds = (Int64) Convert.ChangeType(parameters["endDateInSeconds"], typeof(Int64));
                 }
             }
@@ -15118,20 +15178,52 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaUnifiedChannelInfo
     {
+        private static RuntimeSchemePropertyAttribute StartDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUnifiedChannelInfo")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+        };
+        private static RuntimeSchemePropertyAttribute EndDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUnifiedChannelInfo")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+        };
         public KalturaUnifiedChannelInfo(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("startDateInSeconds") && parameters["startDateInSeconds"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        StartDateInSecondsSchemaProperty.Validate("startDateInSeconds", parameters["startDateInSeconds"]);
+                    }
                     StartDateInSeconds = (Int64) Convert.ChangeType(parameters["startDateInSeconds"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDateInSeconds") && parameters["endDateInSeconds"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        EndDateInSecondsSchemaProperty.Validate("endDateInSeconds", parameters["endDateInSeconds"]);
+                    }
                     EndDateInSeconds = (Int64) Convert.ChangeType(parameters["endDateInSeconds"], typeof(Int64));
                 }
             }
