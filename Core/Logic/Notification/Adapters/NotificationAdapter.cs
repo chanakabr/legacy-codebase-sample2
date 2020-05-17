@@ -274,7 +274,7 @@ namespace Core.Notification.Adapters
 
             try
             {
-                var request = new { GroupId = groupId, ThingArn = thingArn, Message = message, Udid = udid };
+                var request = new { GroupId = groupId.ToString(), ThingArn = thingArn, Message = message, Udid = udid };
                 response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out bool hasConfig);
 
                 if (!hasConfig)
