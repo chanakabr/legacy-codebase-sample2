@@ -9,19 +9,9 @@ namespace ApiObjects
 
         public long? EndDateInSeconds { get; set; }
 
-        public long? StartTimeInMinutes { get; set; }
-
-        public long? EndTimeInMinutes { get; set; }
-
-        public HashSet<int> DaysOfWeek { get; set; }
-
         public bool HasTimeSlot()
         {
-            return StartDateInSeconds.HasValue ||
-                EndDateInSeconds.HasValue ||
-                StartTimeInMinutes.HasValue ||
-                EndTimeInMinutes.HasValue ||
-                (DaysOfWeek != null && DaysOfWeek.Count > 0);
+            return StartDateInSeconds.HasValue || EndDateInSeconds.HasValue;
         }
 
         public bool IsValid()
@@ -33,16 +23,7 @@ namespace ApiObjects
                 return false;
 
             if (EndDateInSeconds.HasValue && EndDateInSeconds.Value < unix)
-                return false;
-
-            if (DaysOfWeek?.Count > 0 && !DaysOfWeek.Contains((int)now.DayOfWeek))
-                return false;
-
-            if (StartTimeInMinutes.HasValue && StartTimeInMinutes.Value > (now.Hour * 60) + now.Minute)
-                return false;
-
-            if (EndTimeInMinutes.HasValue && EndTimeInMinutes.Value > (now.Hour * 60) + now.Minute)
-                return false;
+                return false;           
 
             return true;
         }

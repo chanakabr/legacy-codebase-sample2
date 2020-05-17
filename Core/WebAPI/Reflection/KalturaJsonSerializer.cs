@@ -6125,66 +6125,6 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
-    public partial class KalturaTimeSlot
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            if(DaysOfWeek != null)
-            {
-                ret.Add("daysOfWeek", "\"daysOfWeek\": " + "\"" + EscapeJson(DaysOfWeek) + "\"");
-            }
-            if(EndDateInSeconds.HasValue)
-            {
-                ret.Add("startDendDateInSecondsateInSeconds", "\"startDendDateInSecondsateInSeconds\": " + EndDateInSeconds);
-            }
-            if(EndTimeInMinutes.HasValue)
-            {
-                ret.Add("endTimeInMinutes", "\"endTimeInMinutes\": " + EndTimeInMinutes);
-            }
-            if(StartDateInSeconds.HasValue)
-            {
-                ret.Add("startDateInSeconds", "\"startDateInSeconds\": " + StartDateInSeconds);
-            }
-            if(StartTimeInMinutes.HasValue)
-            {
-                ret.Add("startTimeInMinutes", "\"startTimeInMinutes\": " + StartTimeInMinutes);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            if(DaysOfWeek != null)
-            {
-                ret.Add("daysOfWeek", "<daysOfWeek>" + EscapeXml(DaysOfWeek) + "</daysOfWeek>");
-            }
-            if(EndDateInSeconds.HasValue)
-            {
-                ret.Add("startDendDateInSecondsateInSeconds", "<startDendDateInSecondsateInSeconds>" + EndDateInSeconds + "</startDendDateInSecondsateInSeconds>");
-            }
-            if(EndTimeInMinutes.HasValue)
-            {
-                ret.Add("endTimeInMinutes", "<endTimeInMinutes>" + EndTimeInMinutes + "</endTimeInMinutes>");
-            }
-            if(StartDateInSeconds.HasValue)
-            {
-                ret.Add("startDateInSeconds", "<startDateInSeconds>" + StartDateInSeconds + "</startDateInSeconds>");
-            }
-            if(StartTimeInMinutes.HasValue)
-            {
-                ret.Add("startTimeInMinutes", "<startTimeInMinutes>" + StartTimeInMinutes + "</startTimeInMinutes>");
-            }
-            return ret;
-        }
-    }
     public partial class KalturaTranslationToken
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -10858,6 +10798,10 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
                 ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
             }
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "\"endDateInSeconds\": " + EndDateInSeconds);
+            }
             ret.Add("id", "\"id\": " + Id);
             if(IsActive.HasValue)
             {
@@ -10869,10 +10813,9 @@ namespace WebAPI.Models.Catalog
                 ret.Add("name", propertyValue);
             }
             ret.Add("parentId", "\"parentId\": " + ParentId);
-            if(TimeSlot != null)
+            if(StartDateInSeconds.HasValue)
             {
-                propertyValue = TimeSlot.ToJson(currentVersion, omitObsolete);
-                ret.Add("timeSlot", "\"timeSlot\": " + propertyValue);
+                ret.Add("startDateInSeconds", "\"startDateInSeconds\": " + StartDateInSeconds);
             }
             if(UnifiedChannels != null)
             {
@@ -10898,6 +10841,10 @@ namespace WebAPI.Models.Catalog
                 propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
             }
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "<endDateInSeconds>" + EndDateInSeconds + "</endDateInSeconds>");
+            }
             ret.Add("id", "<id>" + Id + "</id>");
             if(IsActive.HasValue)
             {
@@ -10905,10 +10852,9 @@ namespace WebAPI.Models.Catalog
             }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             ret.Add("parentId", "<parentId>" + ParentId + "</parentId>");
-            if(TimeSlot != null)
+            if(StartDateInSeconds.HasValue)
             {
-                propertyValue = TimeSlot.ToXml(currentVersion, omitObsolete);
-                ret.Add("timeSlot", "<timeSlot>" + propertyValue + "</timeSlot>");
+                ret.Add("startDateInSeconds", "<startDateInSeconds>" + StartDateInSeconds + "</startDateInSeconds>");
             }
             if(UnifiedChannels != null)
             {
@@ -11057,6 +11003,10 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
                 ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
             }
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "\"endDateInSeconds\": " + EndDateInSeconds);
+            }
             ret.Add("id", "\"id\": " + Id);
             if(Images != null)
             {
@@ -11072,10 +11022,9 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("name", propertyValue);
             }
-            if(TimeSlot != null)
+            if(StartDateInSeconds.HasValue)
             {
-                propertyValue = TimeSlot.ToJson(currentVersion, omitObsolete);
-                ret.Add("timeSlot", "\"timeSlot\": " + propertyValue);
+                ret.Add("startDateInSeconds", "\"startDateInSeconds\": " + StartDateInSeconds);
             }
             if(UnifiedChannels != null)
             {
@@ -11101,6 +11050,10 @@ namespace WebAPI.Models.Catalog
                 propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
             }
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "<endDateInSeconds>" + EndDateInSeconds + "</endDateInSeconds>");
+            }
             ret.Add("id", "<id>" + Id + "</id>");
             if(Images != null)
             {
@@ -11112,10 +11065,9 @@ namespace WebAPI.Models.Catalog
                 ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
             }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
-            if(TimeSlot != null)
+            if(StartDateInSeconds.HasValue)
             {
-                propertyValue = TimeSlot.ToXml(currentVersion, omitObsolete);
-                ret.Add("timeSlot", "<timeSlot>" + propertyValue + "</timeSlot>");
+                ret.Add("startDateInSeconds", "<startDateInSeconds>" + StartDateInSeconds + "</startDateInSeconds>");
             }
             if(UnifiedChannels != null)
             {
@@ -14069,14 +14021,17 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "\"endDateInSeconds\": " + EndDateInSeconds);
+            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
-            if(TimeSlot != null)
+            if(StartDateInSeconds.HasValue)
             {
-                propertyValue = TimeSlot.ToJson(currentVersion, omitObsolete);
-                ret.Add("timeSlot", "\"timeSlot\": " + propertyValue);
+                ret.Add("startDateInSeconds", "\"startDateInSeconds\": " + StartDateInSeconds);
             }
             return ret;
         }
@@ -14087,14 +14042,17 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "<endDateInSeconds>" + EndDateInSeconds + "</endDateInSeconds>");
+            }
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            if(TimeSlot != null)
+            if(StartDateInSeconds.HasValue)
             {
-                propertyValue = TimeSlot.ToXml(currentVersion, omitObsolete);
-                ret.Add("timeSlot", "<timeSlot>" + propertyValue + "</timeSlot>");
+                ret.Add("startDateInSeconds", "<startDateInSeconds>" + StartDateInSeconds + "</startDateInSeconds>");
             }
             return ret;
         }

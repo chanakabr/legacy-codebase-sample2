@@ -23,6 +23,7 @@ namespace ApiLogic.Catalog
             ChildrenIds = new List<long>();
             UnifiedChannels = new List<UnifiedChannel>();
             DynamicData = null;
+            TimeSlot = new TimeSlot();
         }
 
         public bool IsValid()

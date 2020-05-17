@@ -1199,6 +1199,8 @@ namespace WebAPI.Reflection
                             return "childrenIds";
                         case "DynamicData":
                             return "dynamicData";
+                        case "EndDateInSeconds":
+                            return "endDateInSeconds";
                         case "Id":
                             return "id";
                         case "IsActive":
@@ -1207,8 +1209,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "ParentId":
                             return "parentId";
-                        case "TimeSlot":
-                            return "timeSlot";
+                        case "StartDateInSeconds":
+                            return "startDateInSeconds";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                         case "UpdateDate":
@@ -1249,6 +1251,8 @@ namespace WebAPI.Reflection
                             return "children";
                         case "DynamicData":
                             return "dynamicData";
+                        case "EndDateInSeconds":
+                            return "endDateInSeconds";
                         case "Id":
                             return "id";
                         case "Images":
@@ -1257,8 +1261,8 @@ namespace WebAPI.Reflection
                             return "isActive";
                         case "Name":
                             return "name";
-                        case "TimeSlot":
-                            return "timeSlot";
+                        case "StartDateInSeconds":
+                            return "startDateInSeconds";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                     }
@@ -6504,22 +6508,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaTimeSlot":
-                    switch(property.Name)
-                    {
-                        case "DaysOfWeek":
-                            return "daysOfWeek";
-                        case "EndDateInSeconds":
-                            return "startDendDateInSecondsateInSeconds";
-                        case "EndTimeInMinutes":
-                            return "endTimeInMinutes";
-                        case "StartDateInSeconds":
-                            return "startDateInSeconds";
-                        case "StartTimeInMinutes":
-                            return "startTimeInMinutes";
-                    }
-                    break;
-                    
                 case "KalturaTopic":
                     switch(property.Name)
                     {
@@ -6753,10 +6741,12 @@ namespace WebAPI.Reflection
                 case "KalturaUnifiedChannelInfo":
                     switch(property.Name)
                     {
+                        case "EndDateInSeconds":
+                            return "endDateInSeconds";
                         case "Name":
                             return "name";
-                        case "TimeSlot":
-                            return "timeSlot";
+                        case "StartDateInSeconds":
+                            return "startDateInSeconds";
                     }
                     break;
                     

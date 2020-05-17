@@ -1159,7 +1159,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
               .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              .ForMember(dest => dest.TimeSlot, opt => opt.MapFrom(src => src.TimeSlot));
+              .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds)));
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1171,7 +1171,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-               .ForMember(dest => dest.TimeSlot, opt => opt.MapFrom(src => src.TimeSlot));
+                .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
+                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds));
 
             cfg.CreateMap<UnifiedChannelType, KalturaChannelType>()
                 .ConvertUsing(type =>
@@ -1212,12 +1213,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaUnifiedChannelInfo, UnifiedChannelInfo>()
                 .IncludeBase<KalturaUnifiedChannel, UnifiedChannel>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.TimeSlot, opt => opt.MapFrom(src => src.TimeSlot));
+                .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds)));
+
 
             cfg.CreateMap<UnifiedChannelInfo, KalturaUnifiedChannelInfo>()
                 .IncludeBase<UnifiedChannel, KalturaUnifiedChannel>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.TimeSlot, opt => opt.MapFrom(src => src.TimeSlot));
+                .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
+                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds));
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryTree, KalturaCategoryTree>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1227,7 +1230,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.TimeSlot, opt => opt.MapFrom(src => src.TimeSlot));
+                .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
+                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds));
 
             cfg.CreateMap<KalturaCategoryTree, ApiLogic.Catalog.CategoryTree>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1238,7 +1242,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.TimeSlot, opt => opt.MapFrom(src => src.TimeSlot));
+                .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds)));
+
 
             cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
@@ -1256,24 +1261,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
-            #endregion CategoryItem
-
-            #region TimeSlot
-            cfg.CreateMap<KalturaTimeSlot, TimeSlot>()
-                .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.StartDateInSeconds))
-                .ForMember(dest => dest.StartTimeInMinutes, opt => opt.MapFrom(src => src.StartTimeInMinutes))
-                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.EndDateInSeconds))
-                .ForMember(dest => dest.EndTimeInMinutes, opt => opt.MapFrom(src => src.EndTimeInMinutes))
-                .ForMember(dest => dest.DaysOfWeek, opt => opt.ResolveUsing(src => ConvertDayOfWeek(src.DaysOfWeek)));
-
-            cfg.CreateMap<TimeSlot, KalturaTimeSlot>()
-                .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.StartDateInSeconds))
-                .ForMember(dest => dest.StartTimeInMinutes, opt => opt.MapFrom(src => src.StartTimeInMinutes))
-                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.EndDateInSeconds))
-                .ForMember(dest => dest.EndTimeInMinutes, opt => opt.MapFrom(src => src.EndTimeInMinutes))
-                .ForMember(dest => dest.DaysOfWeek, opt => opt.ResolveUsing(src => ConvertDayOfWeek(src.DaysOfWeek)));
-
-            #endregion
+            #endregion CategoryItem            
         }
 
         private static int? ConvertToNullableInt(bool? value)
@@ -2986,92 +2974,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static HashSet<DayOfWeek> ConvertDayOfWeek(string daysOfWeek)
+        private static TimeSlot ConvertToTimeSlot(long? startDateInSeconds, long? endDateInSeconds)
         {
-            HashSet<DayOfWeek> daysOfWeekSet = null;
-            /*
-            if (!string.IsNullOrEmpty(daysOfWeek))
+            if(startDateInSeconds.HasValue || endDateInSeconds.HasValue)
             {
-                daysOfWeekSet = new HashSet<DayOfWeek>();
-                string[] days = daysOfWeek.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string day in days)
-                {
-                    KalturaDayOfTheWeek kdayOfWeek;
-                    if (Enum.TryParse<KalturaDayOfTheWeek>(day.ToUpper(), out kdayOfWeek))
-                    {
-                        dayOfWeekList.Add(ConvertDayOfTheWeek(kdayOfWeek));
-                    }
-                }
+                return new TimeSlot() { StartDateInSeconds = startDateInSeconds, EndDateInSeconds = endDateInSeconds};
             }
-            */
-            return daysOfWeekSet;
+            return null;
         }
-
-        private static string ConvertDayOfWeek(HashSet<int> days)
-        {
-            string daysOfWeek = string.Empty;
-            /*
-            List<KalturaDayOfTheWeek> dayOfTheWeekList;
-            if (list != null)
-            {
-                dayOfTheWeekList = new List<KalturaDayOfTheWeek>();
-                foreach (DayOfTheWeek day in list)
-                {
-                    dayOfTheWeekList.Add(ConvertDayOfTheWeek(day));
-                }
-
-                dayOfTheWeek = string.Join(",", dayOfTheWeekList.ToArray());
-            }
-            */
-            return daysOfWeek;
-        }
-
-        /*
-        private static int ConvertDayOfTheWeek(KalturaDayOfWeek dayOfWeek)
-        {
-            switch (dayOfTheWeek)
-            {
-                case KalturaDayOfWeek.SUNDAY:
-                    return DayOfTheWeek.SUNDAY;
-                case KalturaDayOfWeek.MONDAY:
-                    return DayOfTheWeek.MONDAY;
-                case KalturaDayOfWeek.TUESDAY:
-                    return DayOfTheWeek.TUESDAY;
-                case KalturaDayOfWeek.WEDNESDAY:
-                    return DayOfTheWeek.WEDNESDAY;
-                case KalturaDayOfWeek.THURSDAY:
-                    return DayOfTheWeek.THURSDAY;
-                case KalturaDayOfWeek.FRIDAY:
-                    return DayOfTheWeek.FRIDAY;
-                case KalturaDayOfWeek.SATURDAY:
-                    return DayOfTheWeek.SATURDAY;
-                default:
-                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown DayOfTheWeek value : {0}", dayOfTheWeek.ToString()));
-            }
-        }
-
-        private static KalturaDayOfWeek ConvertDayOfTheWeek(int day)
-        {
-            switch (dayOfTheWeek)
-            {
-                case DayOfTheWeek.SUNDAY:
-                    return KalturaDayOfWeek.SUNDAY;
-                case DayOfTheWeek.MONDAY:
-                    return KalturaDayOfWeek.MONDAY;
-                case DayOfTheWeek.TUESDAY:
-                    return KalturaDayOfWeek.TUESDAY;
-                case DayOfTheWeek.WEDNESDAY:
-                    return KalturaDayOfWeek.WEDNESDAY;
-                case DayOfTheWeek.THURSDAY:
-                    return KalturaDayOfWeek.THURSDAY;
-                case DayOfTheWeek.FRIDAY:
-                    return KalturaDayOfWeek.FRIDAY;
-                case DayOfTheWeek.SATURDAY:
-                    return KalturaDayOfWeek.SATURDAY;
-                default:
-                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown DayOfTheWeek value : {0}", dayOfTheWeek.ToString()));
-            }
-        }
-        */
     }
 }

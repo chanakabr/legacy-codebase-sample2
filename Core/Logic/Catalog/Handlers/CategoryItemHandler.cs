@@ -142,8 +142,6 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                List<KeyValuePair<long, int>> channels = null;
-
                 if (objectToUpdate.UnifiedChannels == null)
                 {
                     if (currentCategory.UnifiedChannels != null)
@@ -160,6 +158,8 @@ namespace Core.Catalog.Handlers
                             response.SetStatus(eResponseStatus.ChannelDoesNotExist, "Channel does not exist");
                             return response;
                         }
+
+                        objectToUpdate.UnifiedChannels = HandleUnifiedChannelsTimeSlotToUpdate(objectToUpdate.UnifiedChannels, currentCategory.UnifiedChannels);
                     }
                 }
 
@@ -168,7 +168,7 @@ namespace Core.Catalog.Handlers
                     objectToUpdate.DynamicData = currentCategory.DynamicData;
                 }
 
-                objectToUpdate.TimeSlot = HandleTimeSlotToUpdate(objectToUpdate.TimeSlot, currentCategory.TimeSlot, out bool needToDeleteTimeSlot);
+                objectToUpdate.TimeSlot = HandleTimeSlotToUpdate(objectToUpdate.TimeSlot, currentCategory.TimeSlot);
 
                 //set NamesInOtherLanguages
                 List<KeyValuePair<long, string>> languageCodeToName = null;
@@ -194,7 +194,7 @@ namespace Core.Catalog.Handlers
                 }
 
                 if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name,
-                    languageCodeToName, objectToUpdate.UnifiedChannels, objectToUpdate.DynamicData, objectToUpdate.IsActive, objectToUpdate.TimeSlot, needToDeleteTimeSlot))
+                    languageCodeToName, objectToUpdate.UnifiedChannels, objectToUpdate.DynamicData, objectToUpdate.IsActive, objectToUpdate.TimeSlot))
                 {
                     log.Error($"Error while updateCategory. contextData: {contextData.ToString()}.");
                     return response;
@@ -708,10 +708,8 @@ namespace Core.Catalog.Handlers
             return true;
         }
 
-        private TimeSlot HandleTimeSlotToUpdate(TimeSlot timeSlotToUpdate, TimeSlot currentTimeSlot, out bool needToDeleteTimeSlot)
+        private TimeSlot HandleTimeSlotToUpdate(TimeSlot timeSlotToUpdate, TimeSlot currentTimeSlot)
         {
-            needToDeleteTimeSlot = false;
-
             if (timeSlotToUpdate == null)
             {
                 timeSlotToUpdate = currentTimeSlot;
@@ -720,38 +718,14 @@ namespace Core.Catalog.Handlers
             {
                 if (currentTimeSlot != null)
                 {
-                    if (timeSlotToUpdate.DaysOfWeek == null && currentTimeSlot.DaysOfWeek != null)
-                    {
-                        timeSlotToUpdate.DaysOfWeek = currentTimeSlot.DaysOfWeek;
-                    }
-
                     if (!timeSlotToUpdate.StartDateInSeconds.HasValue && currentTimeSlot.StartDateInSeconds.HasValue)
                     {
                         timeSlotToUpdate.StartDateInSeconds = currentTimeSlot.StartDateInSeconds;
                     }
 
-                    if (!timeSlotToUpdate.StartTimeInMinutes.HasValue && currentTimeSlot.StartTimeInMinutes.HasValue)
-                    {
-                        timeSlotToUpdate.StartTimeInMinutes = currentTimeSlot.StartTimeInMinutes;
-                    }
-
                     if (!timeSlotToUpdate.EndDateInSeconds.HasValue && currentTimeSlot.EndDateInSeconds.HasValue)
                     {
                         timeSlotToUpdate.EndDateInSeconds = currentTimeSlot.EndDateInSeconds;
-                    }
-
-                    if (!timeSlotToUpdate.EndTimeInMinutes.HasValue && currentTimeSlot.EndTimeInMinutes.HasValue)
-                    {
-                        timeSlotToUpdate.EndTimeInMinutes = currentTimeSlot.EndTimeInMinutes;
-                    }
-
-                    if (timeSlotToUpdate.DaysOfWeek == null &&
-                        !timeSlotToUpdate.EndDateInSeconds.HasValue &&
-                        !timeSlotToUpdate.EndTimeInMinutes.HasValue &&
-                        !timeSlotToUpdate.StartDateInSeconds.HasValue &&
-                        !timeSlotToUpdate.StartTimeInMinutes.HasValue)
-                    {
-                        needToDeleteTimeSlot = true;
                     }
                 }
             }
@@ -759,5 +733,31 @@ namespace Core.Catalog.Handlers
             return timeSlotToUpdate;
         }
 
+        private List<UnifiedChannel> HandleUnifiedChannelsTimeSlotToUpdate(List<UnifiedChannel> unifiedChannelsToUpdate, List<UnifiedChannel> currentUnifiedChannels)
+        {
+            if (unifiedChannelsToUpdate != null && currentUnifiedChannels != null && currentUnifiedChannels.Count > 0)
+            {
+                UnifiedChannelInfo channelInfoToUpdate = null;
+                UnifiedChannelInfo currentUnifiedChannelInfo = null;
+                foreach (var unifiedChannelToUpdate in unifiedChannelsToUpdate)
+                {
+                    channelInfoToUpdate = unifiedChannelToUpdate as UnifiedChannelInfo;
+                    if (channelInfoToUpdate != null)
+                    {
+                        var channel = currentUnifiedChannels.Where(x => x.Id == channelInfoToUpdate.Id && x.Type == channelInfoToUpdate.Type).First();
+                        if (channel != null)
+                        {
+                            currentUnifiedChannelInfo = channel as UnifiedChannelInfo;
+                            if (currentUnifiedChannelInfo != null)
+                            {
+                                channelInfoToUpdate.TimeSlot = HandleTimeSlotToUpdate(channelInfoToUpdate.TimeSlot, currentUnifiedChannelInfo.TimeSlot);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return unifiedChannelsToUpdate;
+        }
     }
 }

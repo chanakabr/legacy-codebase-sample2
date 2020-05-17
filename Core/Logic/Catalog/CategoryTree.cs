@@ -16,6 +16,10 @@ namespace ApiLogic.Catalog
         public bool? IsActive { get; set; }
         public TimeSlot TimeSlot { get; set; }
 
+        public CategoryTree()
+        {
+            this.TimeSlot = new TimeSlot();
+        }
 
         public CategoryTree(CategoryItem categoryItem)
         {

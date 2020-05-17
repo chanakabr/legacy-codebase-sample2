@@ -11,6 +11,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -112,7 +113,7 @@ namespace Core.Catalog.CatalogManagement
                         ParentId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "PARENT_CATEGORY_ID"),
                         Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "CATEGORY_NAME"),
                         UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[0].Rows[0], "UPDATE_DATE"),
-                        IsActive = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "IS_ACTIVE"),                        
+                        IsActive = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "IS_ACTIVE")                      
                     };
 
                     bool hasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA");
@@ -121,12 +122,17 @@ namespace Core.Catalog.CatalogManagement
                         categoryItem.DynamicData = CatalogDAL.GetCategoryDynamicData(id);
                     }
 
-                    bool hasTimeSlot = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_TIME_SLOT");
-                    if (hasTimeSlot)
+                    DateTime? startDate = ODBCWrapper.Utils.ExtractNullableDateTime(ds.Tables[0].Rows[0], "START_DATE");
+                    DateTime? endDate = ODBCWrapper.Utils.ExtractNullableDateTime(ds.Tables[0].Rows[0], "END_DATE");
+                    if(startDate.HasValue || endDate.HasValue)
                     {
-                        categoryItem.TimeSlot = CatalogDAL.GetCategoryTimeSlotData(id);
+                        categoryItem.TimeSlot = new TimeSlot()
+                        {
+                            StartDateInSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate),
+                            EndDateInSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate)
+                        };                    
                     }
-
+                    
                     if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                     {
                         categoryItem.UnifiedChannels = new List<UnifiedChannel>();
@@ -139,10 +145,15 @@ namespace Core.Catalog.CatalogManagement
                                 Type = (UnifiedChannelType)ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_TYPE")
                             };
 
-                            hasTimeSlot = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_TIME_SLOT");
-                            if (hasTimeSlot)
+                            startDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "START_DATE");
+                            endDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "END_DATE");
+                            if (startDate.HasValue || endDate.HasValue)
                             {
-                                unifiedChannelInfo.TimeSlot = CatalogDAL.GetCategoryChannelTimeSlotData(id, unifiedChannelInfo.Id, (int)unifiedChannelInfo.Type);
+                                unifiedChannelInfo.TimeSlot = new TimeSlot()
+                                {
+                                    StartDateInSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate),
+                                    EndDateInSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate)
+                                };
                             }
 
                             categoryItem.UnifiedChannels.Add(unifiedChannelInfo);
@@ -427,25 +438,6 @@ namespace Core.Catalog.CatalogManagement
             bool result = false;
             try
             {
-                Dictionary<KeyValuePair<long, int>, int> channels = null;
-
-                if (objectToAdd.UnifiedChannels?.Count > 0)
-                {
-                    UnifiedChannelInfo unifiedChannelnfo = null;
-                    KeyValuePair<long, int> key;
-                    foreach (var channel in objectToAdd.UnifiedChannels)
-                    {
-                        key = new KeyValuePair<long, int>(channel.Id, (int)channel.Type);
-                        channels.Add(key, 0);
-
-                        unifiedChannelnfo = channel as UnifiedChannelInfo;
-                        if(unifiedChannelnfo != null && unifiedChannelnfo.TimeSlot != null && unifiedChannelnfo.TimeSlot.HasTimeSlot())
-                        {
-                            channels[key] = 1;
-                        }
-                    }
-                }
-
                 //set NamesInOtherLanguages
                 var status = HandleNamesInOtherLanguages(groupId, objectToAdd.NamesInOtherLanguages, out List<KeyValuePair<long, string>> languageCodeToName);
 

@@ -79,11 +79,19 @@ namespace WebAPI.Models.Catalog
         public bool? IsActive { get; set; }
 
         /// <summary>
-        /// Category time slot
+        /// Start date in seconds
         /// </summary>
-        [DataMember(Name = "timeSlot")]
-        [JsonProperty("timeSlot")]
-        [XmlElement(ElementName = "timeSlot")]
-        public KalturaTimeSlot TimeSlot { get; set; }
+        [DataMember(Name = "startDateInSeconds")]
+        [JsonProperty("startDateInSeconds")]
+        [XmlElement(ElementName = "startDateInSeconds")]
+        public long? StartDateInSeconds { get; set; }
+
+        /// <summary>
+        /// End date in seconds
+        /// </summary>
+        [DataMember(Name = "endDateInSeconds")]
+        [JsonProperty("endDateInSeconds")]
+        [XmlElement(ElementName = "endDateInSeconds")]
+        public long? EndDateInSeconds { get; set; }
     }
 }
