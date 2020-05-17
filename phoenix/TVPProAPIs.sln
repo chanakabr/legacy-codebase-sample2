@@ -317,8 +317,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaptersCommon", "..\core\A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck", "..\Core\HealthCheck\HealthCheck.csproj", "{D7D62DCC-85E5-4E9B-99CD-269338824BD4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitQueueWrapper", "..\Core\RabbitQueueWrapper\RabbitQueueWrapper.csproj", "{F913F2AE-4784-4725-8E27-D4DEF38AD864}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -878,16 +876,6 @@ Global
 		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F913F2AE-4784-4725-8E27-D4DEF38AD864}.Basic|Any CPU.ActiveCfg = Release|Any CPU
-		{F913F2AE-4784-4725-8E27-D4DEF38AD864}.Basic|Any CPU.Build.0 = Release|Any CPU
-		{F913F2AE-4784-4725-8E27-D4DEF38AD864}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F913F2AE-4784-4725-8E27-D4DEF38AD864}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F913F2AE-4784-4725-8E27-D4DEF38AD864}.Local|Any CPU.ActiveCfg = Release|Any CPU
-		{F913F2AE-4784-4725-8E27-D4DEF38AD864}.Local|Any CPU.Build.0 = Release|Any CPU
-		{F913F2AE-4784-4725-8E27-D4DEF38AD864}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{F913F2AE-4784-4725-8E27-D4DEF38AD864}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
-		{F913F2AE-4784-4725-8E27-D4DEF38AD864}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F913F2AE-4784-4725-8E27-D4DEF38AD864}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -951,7 +939,6 @@ Global
 		{5F6A9AB7-1773-4CCC-8654-A09FD59ECDEE} = {936D213B-2884-4167-A81E-057314A3B514}
 		{25F85DA5-F9CA-4A21-A66A-22D5619397B4} = {936D213B-2884-4167-A81E-057314A3B514}
 		{D7D62DCC-85E5-4E9B-99CD-269338824BD4} = {A48B9A9E-0752-4B6D-A2ED-6F42CADAACD4}
-		{F913F2AE-4784-4725-8E27-D4DEF38AD864} = {428EC7F8-E16E-4BB8-B773-36AED1D370D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
