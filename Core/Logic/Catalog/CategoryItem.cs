@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ApiLogic.Catalog
 {
-    public class CategoryItem : ICrudHandeledObject
+    public class CategoryItem : ICrudHandeledObject, ICloneable
     {
         public long Id { get; set; }
         public string Name { get; set; }
@@ -29,6 +29,11 @@ namespace ApiLogic.Catalog
         public bool IsValid()
         {
             return IsActive.Value && (TimeSlot == null || TimeSlot.IsValid());
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone() as CategoryItem;
         }
     }   
 }

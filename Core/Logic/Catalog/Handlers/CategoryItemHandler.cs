@@ -449,11 +449,12 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                root.Name = name;
+                CategoryItem copiedRoot = (CategoryItem)root.Clone();
+                copiedRoot.Name = name;
 
                 Dictionary<long, long> newTreeMap = new Dictionary<long, long>();
 
-                DuplicateChildren(groupId, userId, root, newTreeMap);
+                DuplicateChildren(groupId, userId, copiedRoot, newTreeMap);
 
                 response = GetCategoryTree(groupId, newTreeMap[id]);
             }
