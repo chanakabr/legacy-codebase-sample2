@@ -17,8 +17,8 @@ namespace ApiObjects
         public bool IsValid()
         {
             DateTime now = DateTime.UtcNow;
-            long unix = 123;
-
+            long unix = (long)(now - GetTruncDateTimeUtc()).TotalSeconds;
+            
             if (StartDateInSeconds.HasValue && StartDateInSeconds.Value > unix)
                 return false;
 
@@ -26,6 +26,12 @@ namespace ApiObjects
                 return false;           
 
             return true;
+        }
+
+        private static DateTime GetTruncDateTimeUtc()
+        {
+            DateTime truncDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return truncDateTimeUtc;
         }
     }
 }
