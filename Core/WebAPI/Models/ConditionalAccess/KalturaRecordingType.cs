@@ -7,6 +7,7 @@ namespace WebAPI.Models.ConditionalAccess
     {
         SINGLE = 0,
         SEASON = 1,
-        SERIES = 2
+        SERIES = 2,
+        OriginalBroadcast = 3
     }
 }

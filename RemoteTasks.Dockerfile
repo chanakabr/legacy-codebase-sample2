@@ -32,13 +32,11 @@ ENV CONCURRENT_CONSUMERS=1
 ENV API_LOG_DIR=/var/log/remote-tasks/
 
 COPY --from=builder /src/published .
+###### deploy root CA ######
+COPY consul-root-certificate.crt /usr/local/share/ca-certificates/consul-root-certificate.crt
+RUN update-ca-certificates
+###### deploy root CA ######
 ENTRYPOINT [ "sh", "-c", "dotnet ./${RUN_TASK}/${RUN_TASK}.dll" ]
 
 ARG VERSION
 LABEL version=${VERSION}
-
-
-
-
-
-

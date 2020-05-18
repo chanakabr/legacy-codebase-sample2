@@ -635,12 +635,13 @@ namespace Core.Api.Managers
                             }
                         }
 
-                        res = result.Count == ruleIds.Count();
+                        res = true;
                     }
                 }
             }
             catch (Exception ex)
             {
+                res = false;
                 log.Error(string.Format("GetAssetUserRulesCB failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 

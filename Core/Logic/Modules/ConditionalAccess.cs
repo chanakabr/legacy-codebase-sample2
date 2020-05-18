@@ -2722,11 +2722,9 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 return t.RecordSeasonOrSeries(userID, epgID, recordingType);
-            }
-            else
-            {
-                return null;
-            }
+            }           
+            
+            return null;            
         }
 
 
@@ -2824,14 +2822,14 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static ApiObjects.KeyValuePair GetSeriesIdAndSeasonNumberByEpgId(int groupID, long epgId)
+        public static Tuple<string, int, bool> GetEpgSeriesDetails(int groupID, long epgId)
         {
             BaseConditionalAccess t = null;
-            ApiObjects.KeyValuePair result = new ApiObjects.KeyValuePair();
+            Tuple<string, int, bool> result = new Tuple<string, int, bool>(string.Empty, -1, false);
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                result = t.GetSeriesIdAndSeasonNumberByEpgId(epgId);
+                result = t.GetEpgSeriesDetails(epgId);
             }
 
             return result;

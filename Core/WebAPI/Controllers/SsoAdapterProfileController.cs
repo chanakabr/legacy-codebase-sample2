@@ -1,9 +1,11 @@
 ﻿using ApiObjects.Response;
 using System;
+using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -62,10 +64,12 @@ namespace WebAPI.Controllers
             {
                 // call client
                 var response = ClientsManager.UsersClient().DeleteSSOAdapater(groupId, ssoAdapterId, int.Parse(userId));
-                if (response.Code != (int)eResponseStatus.OK) { throw new ClientException(response.Code); }
+                if (response.Code != (int)eResponseStatus.OK) 
+                { 
+                    throw new ClientException(response);
+                }
+
                 return true;
-
-
             }
             catch (ClientException ex)
             {
@@ -184,5 +188,40 @@ namespace WebAPI.Controllers
             return response;
         }
 
+
+        /// <summary>
+        /// Request validation against 3rd party
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:  
+        /// SSO Adapter id required = 2058, sso adapater not exist = 2056
+        /// </remarks>
+        /// <param name="intent">intent</param>
+        /// <param name="adapterData">adapter Data</param>
+        [Action("invoke")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.SSOAdapterIdRequired)]
+        [Throws(eResponseStatus.SSOAdapterNotExist)]
+        static public KalturaSSOAdapterProfileInvoke Invoke(string intent, List<KalturaKeyValue> adapterData)
+        {
+            KalturaSSOAdapterProfileInvoke response = null;
+            var ks = KS.GetFromRequest();
+            var groupId = ks.GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().Invoke(groupId, intent, adapterData);
+
+                if (response == null) { throw new ClientException((int)eResponseStatus.SSOAdapterNotExist); }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

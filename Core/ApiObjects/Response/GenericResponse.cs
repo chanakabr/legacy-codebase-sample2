@@ -11,31 +11,22 @@ namespace ApiObjects.Response
         public Status Status { get; private set; }
         public T Object { get; set; }
 
+        public GenericResponse()
+        {
+            Status = new Status(eResponseStatus.Error);
+            Object = default(T);
+        }
+
         public GenericResponse(Status status, T obj)
         {
             Status = status;
             Object = obj;
         }
 
-        public GenericResponse(eResponseStatus responseStatus, string message = null)
+        public GenericResponse(eResponseStatus responseStatus, string message = null, List<KeyValuePair> args = null)
         {
             Object = default(T);
-            Status = new Status((int)responseStatus);
-
-            if (string.IsNullOrEmpty(message))
-            {
-                this.Status.Message = responseStatus.ToString();
-            }
-            else
-            {
-                this.Status.Message = message;
-            }
-        }
-
-        public GenericResponse()
-        {
-            Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            Object = default(T);
+            Status = new Status(responseStatus, message, args);
         }
 
         public GenericResponse(Status status)
@@ -46,43 +37,30 @@ namespace ApiObjects.Response
             }
             else
             {
-                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                Status = new Status(eResponseStatus.Error);
             }
             
             Object = default(T);
         }
 
-        public void SetStatus(eResponseStatus responseStatus, string message = null)
+        public void SetStatus(eResponseStatus responseStatus, string message = null, List<KeyValuePair> args = null)
         {
-            this.Status.Code = (int)responseStatus;
-
-            if (string.IsNullOrEmpty(message))
-            {
-                this.Status.Message = responseStatus.ToString();
-            }
-            else
-            {
-                this.Status.Message = message;
-            }
+            this.Status.Set(responseStatus, message, args);
         }
 
-        public void SetStatus(int responseStatusCode, string message)
+        public void SetStatus(int responseStatusCode, string message = null, List<KeyValuePair> args = null)
         {
-            this.Status.Code = responseStatusCode;
-            this.Status.Message = message;
+            this.Status.Set(responseStatusCode, message, args);
         }
 
         public void SetStatus(Status status)
         {
-            if (status != null)
-            {
-                this.Status.Code = status.Code;
-                this.Status.Message = status.Message;
-            }
+            this.Status.Set(status);
         }
 
         public bool IsOkStatusCode()
         {
+            
             return Status != null && Status.IsOkStatusCode();
         }
 

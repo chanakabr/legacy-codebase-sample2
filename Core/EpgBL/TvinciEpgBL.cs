@@ -1005,7 +1005,7 @@ namespace EpgBL
             return lRes;
         }
 
-        public override List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate)
+        public override List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs = null)
         {
             List<EPGChannelProgrammeObject> result = new List<EPGChannelProgrammeObject>();
 
@@ -1034,6 +1034,14 @@ namespace EpgBL
                 query.ReturnFields.Clear();
                 query.AddReturnField("document_id");
                 query.AddReturnField("epg_id");
+
+                if (esOrderObjs != null)
+                {
+                    foreach (ESOrderObj item in esOrderObjs)
+                    {
+                        query.ESSort.Add(item);
+                    }
+                }
 
                 // get the epg document ids from elasticsearch
                 var searchQuery = query.ToString();

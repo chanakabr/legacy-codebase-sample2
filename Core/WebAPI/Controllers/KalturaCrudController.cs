@@ -199,12 +199,12 @@ namespace WebAPI.Controllers
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
+                throw new ClientException(response.Status);
             }
 
             KalturaT result = null;
@@ -235,12 +235,12 @@ namespace WebAPI.Controllers
 
             if (status == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(status.Code, status.Message, status.Args);
+                throw new ClientException(status);
             }
         }
 
@@ -263,12 +263,12 @@ namespace WebAPI.Controllers
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
+                throw new ClientException(response.Status);
             }
 
             KalturaT result = null;
@@ -300,12 +300,12 @@ namespace WebAPI.Controllers
 
             if (response == null)
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (!response.IsOkStatusCode())
             {
-                throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
+                throw new ClientException(response.Status);
             }
 
             var result = new KalturaListResponseT();

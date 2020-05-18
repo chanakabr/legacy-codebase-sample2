@@ -789,6 +789,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaRecordingType.SERIES:
                     result = RecordingType.Series;
                     break;
+                case KalturaRecordingType.OriginalBroadcast:
+                    result = RecordingType.OriginalBroadcast;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
             }
@@ -809,34 +812,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case RecordingType.Series:
                     result = KalturaRecordingType.SERIES;
                     break;
+                case RecordingType.OriginalBroadcast:
+                    result = KalturaRecordingType.OriginalBroadcast;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
             }
             return result;
         }
 
-        public static KalturaRecordingType? ConvertNullableRecordingType(RecordingType? recordingType)
-        {
-            KalturaRecordingType? result = null;
-            if (recordingType.HasValue)
-            {
-                switch (recordingType)
-                {
-                    case RecordingType.Single:
-                        result = KalturaRecordingType.SINGLE;
-                        break;
-                    case RecordingType.Season:
-                        result = KalturaRecordingType.SEASON;
-                        break;
-                    case RecordingType.Series:
-                        result = KalturaRecordingType.SERIES;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
-                }
-            }
-            return result;
-        }
 
         public static ApiObjects.SearchObjects.OrderObj ConvertOrderToOrderObj(KalturaRecordingOrderBy order)
         {

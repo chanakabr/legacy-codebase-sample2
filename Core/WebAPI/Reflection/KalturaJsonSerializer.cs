@@ -25107,6 +25107,52 @@ namespace WebAPI.Models.Users
             return ret;
         }
     }
+    public partial class KalturaSSOAdapterProfileInvoke
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AdapterData != null)
+            {
+                propertyValue = "{" + String.Join(", ", AdapterData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("adapterData", "\"adapterData\": " + propertyValue);
+            }
+            if(Code != null)
+            {
+                ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
+            }
+            if(Message != null)
+            {
+                ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AdapterData != null)
+            {
+                propertyValue = AdapterData.Count > 0 ? "<item>" + String.Join("</item><item>", AdapterData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("adapterData", "<adapterData>" + propertyValue + "</adapterData>");
+            }
+            if(Code != null)
+            {
+                ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
+            }
+            if(Message != null)
+            {
+                ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaSSOAdapterProfileListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
