@@ -456,6 +456,28 @@ namespace Core.Catalog.Handlers
 
                 DuplicateChildren(groupId, userId, copiedRoot, newTreeMap);
 
+                // in case the duplicate category have parent, it should bw updated with his new child :)
+                if (root.ParentId.HasValue && root.ParentId.Value > 0)
+                {
+                    // Get parent
+                    CategoryItem parent = CategoriesManager.GetCategoryItem(groupId, root.ParentId.Value);
+
+                    if (parent == null)
+                    {
+                        response.SetStatus(eResponseStatus.CategoryNotExist, "Parent Category does not exist");
+                        return response;
+                    }
+
+                    // update parent with new child
+                    parent.ChildrenIds.Add(newTreeMap[id]);
+                    if (!CatalogDAL.UpdateCategoryOrderNum(groupId, userId, root.ParentId.Value, parent.ChildrenIds, null))
+                    {
+                        log.Error($"Error while re-order child categories. groupId: {groupId}. after duplicate categoryId: {id}");
+                        response.SetStatus(eResponseStatus.Error);
+                        return response;
+                    }
+                }
+
                 response = GetCategoryTree(groupId, newTreeMap[id]);
             }
             catch (Exception ex)
