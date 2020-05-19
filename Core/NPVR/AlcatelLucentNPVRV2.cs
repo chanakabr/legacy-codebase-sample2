@@ -149,7 +149,7 @@ namespace NPVR
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -203,7 +203,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -253,7 +253,7 @@ namespace NPVR
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -308,7 +308,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -363,7 +363,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -416,7 +416,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -470,7 +470,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -526,7 +526,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -649,7 +649,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -693,7 +693,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));                    
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
 
                     string url = BuildRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_SERIES, urlParams);
 
@@ -701,7 +701,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -775,7 +775,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -829,7 +829,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         // parse here json
                         if (httpStatusCode == HTTP_STATUS_OK)
@@ -882,7 +882,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -951,7 +951,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -1014,7 +1014,7 @@ namespace NPVR
                         headersToAdd = new Dictionary<string, string>() { { ALU_X_KDATA, args.XkData } };
                     }
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders(headersToAdd)))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg, headersToAdd))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -1085,7 +1085,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -1134,7 +1134,7 @@ namespace NPVR
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
-                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, GetRequestHeaders()))
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -2447,8 +2447,12 @@ namespace NPVR
             }
         }
 
-        private Dictionary<string, string> GetRequestHeaders(Dictionary<string, string> headers = null)
+        private bool SendHttpRequest(string url, ref int httpStatusCode, ref string responseJson, ref string errorMsg, Dictionary<string, string> headers = null, Encoding encoding = null)
         {
+            if (encoding == null)
+            {
+                encoding = Encoding.UTF8;
+            }
             if (headers == null)
             {
                 headers = new Dictionary<string, string>();
@@ -2457,7 +2461,8 @@ namespace NPVR
             {
                 headers.Add(OPCO_HEADER, groupID.ToString());
             }
-            return headers;
+
+            return HttpUtils.TrySendHttpGetRequest(url, encoding, ref httpStatusCode, ref responseJson, ref errorMsg, headers);
         }
 
         #endregion
