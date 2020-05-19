@@ -50,7 +50,7 @@ namespace GroupsCacheManager
 
         private GroupsCache()
         {
-            cacheGroupConfiguration = ApplicationConfiguration.Current.GroupsCacheConfiguration.Type.Value; 
+            cacheGroupConfiguration = ApplicationConfiguration.Current.GroupsCacheConfiguration.Type.Value;
             version = ApplicationConfiguration.Current.Version.Value;
 
             switch (cacheGroupConfiguration)
@@ -169,7 +169,7 @@ namespace GroupsCacheManager
             Group group = null;
 
             string cacheKey = BuildGroupCacheKey(groupId);
-            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }};
+            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId } };
             bool result = LayeredCache.Instance.Get<Group>(cacheKey, ref group, BuildGroup, funcParams, groupId,
                 LayeredCacheConfigNames.GROUP_MANAGER_GET_GROUP_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(groupId) });
 
@@ -191,7 +191,7 @@ namespace GroupsCacheManager
                     success = true;
                 }
             }
-            
+
             return new Tuple<Group, bool>(group, success);
         }
 
@@ -333,44 +333,92 @@ namespace GroupsCacheManager
 
             try
             {
-                string cacheKey = BuildChannelCacheKey(group.m_nParentGroupID, channelId);
-
-                if (!this.channelsCache.GetJsonAsT<Channel>(cacheKey, out resultChannel))
+                List<Channel> channels = GetChannels(new List<int>() { channelId }, group, isAlsoInActive);
+                if (channels != null && channels.Count == 1)
                 {
-                    Channel temporaryCahnnel = ChannelRepository.GetChannel(channelId, group, isAlsoInActive);
-
-                    bool wasInserted = false;
-
-                    if (temporaryCahnnel != null)
-                    {
-                        resultChannel = temporaryCahnnel;
-
-                        for (int i = 0; i < 3 && !wasInserted; i++)
-                        {
-                            //try insert to cache
-                            wasInserted = this.groupCacheService.SetJson<Channel>(cacheKey, temporaryCahnnel, dCacheTT);
-                        }
-
-                        if (!wasInserted)
-                        {
-                            log.DebugFormat("Couldn't set channel in CB channel id = {0}, group = {1}, key = {2}", channelId, group.m_nParentGroupID, cacheKey);
-                        }
-                    }
-                    else
-                    {
-                        log.DebugFormat("channel is null (DB) channel id = {0}, group = {1}", channelId, group.m_nParentGroupID);
-                    }
+                    resultChannel = channels.First();
                 }
-
-                return resultChannel;
             }
             catch (Exception ex)
             {
                 log.Error("GetChannel - " +
                     string.Format("Couldn't get channel id = {0}, group = {1}, ex = {2}, ST = {3}", channelId, group.m_nParentGroupID, ex.Message, ex.StackTrace),
                     ex);
-                return null;
             }
+
+            return resultChannel;
+        }
+
+        internal List<Channel> GetChannels(List<int> channelIds, Group group, bool isAlsoInActive = false)
+        {
+            {
+                List<Channel> channels = new List<Channel>();
+
+                try
+                {
+                    if (channelIds == null || channelIds.Count == 0)
+                    {
+                        return channels;
+                    }
+
+
+                    Dictionary<string, Channel> channelMap = null;
+                    Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetChannelsKeysMap(group.m_nParentGroupID, channelIds);
+                    Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetChannelsInvalidationKeysMap(group.m_nParentGroupID, channelIds);
+                    Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "group", group }, { "channelIds", channelIds }, { "isAlsoInActive", isAlsoInActive } };
+
+                    if (!LayeredCache.Instance.GetValues<Channel>(keyToOriginalValueMap, ref channelMap, BuildChannels, funcParams, group.m_nParentGroupID,
+                                                                    LayeredCacheConfigNames.GET_CHANNELS_CACHE_CONFIG_NAME, invalidationKeysMap))
+                    {
+                        log.ErrorFormat("Failed getting Channels from LayeredCache, groupId: {0}, channelIds: {1}", group.m_nParentGroupID, string.Join(",", channelIds));
+                    }
+                    else if (channelMap != null)
+                    {
+                        channels = channelMap.Values.ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Failed GetChannels for groupId: {0}, channelIds: {1}", group.m_nParentGroupID, string.Join(",", channelIds)), ex);
+                }
+
+                return channels;
+            }
+        }
+
+        private static Tuple<Dictionary<string, Channel>, bool> BuildChannels(Dictionary<string, object> funcParams)
+        {
+            bool success = false;
+            Dictionary<string, Channel> result = new Dictionary<string, Channel>();
+
+            if (funcParams != null && funcParams.ContainsKey("channelIds") && funcParams.ContainsKey("isAlsoInActive") && funcParams.ContainsKey("group"))
+            {
+                string key = string.Empty;
+                List<int> channelIds;
+                Group group = funcParams["group"] as Group;
+                bool? isAlsoInActive = funcParams["isAlsoInActive"] as bool?;
+                if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                {
+                    channelIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToList();
+                }
+                else
+                {
+                    channelIds = funcParams["channelIds"] != null ? funcParams["channelIds"] as List<int> : null;
+                }
+
+                List<Channel> channels = new List<Channel>();
+                if (group != null && channelIds != null && isAlsoInActive.HasValue)
+                {
+                    channels = ChannelRepository.GetChannels(channelIds, group, isAlsoInActive.Value);
+                    if (channels != null)
+                    {
+                        success = true;
+                        result = channels.ToDictionary(x => LayeredCacheKeys.GetChannelKey(group.m_nParentGroupID, x.m_nChannelID), x => x);
+                    }
+                }
+            }
+
+            return new Tuple<Dictionary<string, Channel>, bool>(result, success);
         }
 
         internal bool RemoveChannel(int nGroupID, int nChannelId)
@@ -381,14 +429,8 @@ namespace GroupsCacheManager
             {
                 string channelKey = BuildChannelCacheKey(nGroupID, nChannelId);
 
-                var response = channelsCache.Remove(channelKey);
-
-                if (response != null && response.result != null)
-                {
-                    isRemovingChannelSucceded = true;
-                }
-
-                isRemovingChannelSucceded &= LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID) });
+                isRemovingChannelSucceded = LayeredCache.Instance.InvalidateKeys(new List<string>() 
+                    { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(nGroupID), LayeredCacheKeys.GetChannelInvalidationKey(nGroupID, nChannelId) });
             }
             catch (Exception ex)
             {
@@ -509,46 +551,9 @@ namespace GroupsCacheManager
             }
         }
 
-        // XXX - should it be used at all?
-        //internal bool InsertChannels(List<Channel> channels, Group group)
-        //{
-        //    bool inserted = true;
-        //    try
-        //    {
-        //        foreach (Channel channel in channels)
-        //        {                    
-        //            bool currentInserted = false;
-
-        //            for (int i = 0; i < 3 && !currentInserted; i++)
-        //            {
-        //                string key = BuildChannelCacheKey(group.m_nParentGroupID, channel.m_nChannelID);
-
-        //                BaseModuleCache casResult = primaryChannelsCache.GetWithVersion<Channel>(key);
-
-        //                if (casResult != null && casResult.result != null)
-        //                {
-        //                    casResult.result = channel;
-
-        //                    inserted = primaryChannelsCache.Set(key, casResult);
-        //                }
-        //                else
-        //                {
-        //                    inserted = primaryChannelsCache.Add(key, new BaseModuleCache(channel));
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        inserted = false;
-        //    }
-
-        //    return inserted;
-        //}
-
         private string BuildChannelCacheKey(int groupId, int channelId)
         {
-            return string.Format("{2}_group_{0}_channel_{1}", groupId, channelId, this.version);
+            return LayeredCacheKeys.GetChannelKey(groupId, channelId);
         }
 
         private string BuildMediaTypeCacheKey(int groupId, int mediaType)
@@ -720,12 +725,12 @@ namespace GroupsCacheManager
 
         internal int GetLinearMediaTypeId(int groupId)
         {
-            int result = 0;            
+            int result = 0;
 
             try
             {
                 Group group = this.GetGroup(groupId);
-                if (group != null && group.mediaTypes != null && group.mediaTypes.Any(x=> x.isLinear))
+                if (group != null && group.mediaTypes != null && group.mediaTypes.Any(x => x.isLinear))
                 {
                     result = group.mediaTypes.First(x => x.isLinear).id;
                 }
