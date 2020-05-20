@@ -76,6 +76,8 @@ pipeline {
                 bat "dotnet pack Core/RestAdaptersCommon/RestAdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/AdaptersCommon/AdaptersCommon.csproj -o ${WORKSPACE}/nugets/"
 				bat "dotnet pack Core/ElasticSearch/ElasticSearch.csproj -o ${WORKSPACE}/nugets/"
+				bat "dotnet pack Core/GroupsCacheManager/GroupsCacheManager.csproj -o ${WORKSPACE}/nugets/"
+				bat "dotnet pack Core/TVinciShared/TVinciShared.csproj -o ${WORKSPACE}/nugets/"
 				bat "dotnet pack Core/HealthCheck/HealthCheck.csproj -o ${WORKSPACE}/nugets/"
 
             }        
@@ -105,6 +107,8 @@ pipeline {
                     bat "nuget push RestAdaptersCommon*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
                     bat "nuget push AdaptersCommon*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
 					bat "nuget push ElasticSearch*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
+					bat "nuget push GroupsCacheManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
+					bat "nuget push TVinciShared*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
 					bat "nuget push HealthCheck*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
                 }
             }
