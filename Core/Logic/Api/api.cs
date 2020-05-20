@@ -7823,7 +7823,7 @@ namespace Core.Api
                 else
                 {
                     response.Status = new Status((int)eResponseStatus.Error, "external channel failed set changes");
-                }                
+                }
 
                 // invalidate external channel
                 var key = LayeredCacheKeys.GetExternalChannelInvalidationKey(groupId, response.ExternalChannel.ID);
@@ -11152,7 +11152,7 @@ namespace Core.Api
                 else
                 {
                     needToUpdate = true;
-                    if(deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.Count > 0)
+                    if (deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.Count > 0)
                     {
                         // validate deviceFamilyIds
                         var deviceFamilyList = GetDeviceFamilyList();
@@ -11536,9 +11536,9 @@ namespace Core.Api
 
                 // Check that the adapter is not set as the default playback adapter
                 var defaultConfig = PartnerConfigurationManager.GetPlaybackConfig(groupId);
-                if(defaultConfig != null && defaultConfig.HasObject() && defaultConfig.Object.DefaultAdapters != null)
+                if (defaultConfig != null && defaultConfig.HasObject() && defaultConfig.Object.DefaultAdapters != null)
                 {
-                    long[] defaultAdapters = { defaultConfig.Object.DefaultAdapters.RecordingAdapterId, defaultConfig.Object.DefaultAdapters.EpgAdapterId, defaultConfig.Object.DefaultAdapters.MediaAdapterId};
+                    long[] defaultAdapters = { defaultConfig.Object.DefaultAdapters.RecordingAdapterId, defaultConfig.Object.DefaultAdapters.EpgAdapterId, defaultConfig.Object.DefaultAdapters.MediaAdapterId };
                     if (defaultAdapters.Contains(id))
                     {
                         response.Set(eResponseStatus.CanNotDeleteDefaultAdapter, CAN_NOT_DELETE_DEFAULT_ADAPTER);
@@ -12232,6 +12232,47 @@ namespace Core.Api
                 }
             }
             return result;
+        }
+
+        internal static GenericListResponse<ExternalChannel> ListExternalChannels(int groupId, long userId, List<long> channelIds)
+        {
+            GenericListResponse<ExternalChannel> response = new GenericListResponse<ExternalChannel>();
+
+            try
+            {
+                var ds = CatalogDAL.GetExternalChannelsByIds(groupId, channelIds, false);
+
+                if (ds == null || ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                {
+                    response.Status.Set(eResponseStatus.OK, "no external channels related to group");
+                    return response;
+                }
+                
+                response.Objects = CatalogDAL.SetExternalChannels(ds);
+
+                // get userRules action filter && ApplyOnChannel
+                long ruleId = 0;
+                if (userId > 0)
+                {
+                    ruleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
+                }
+
+                if (ruleId > 0)
+                {
+                    // return only channels allowed to user
+                    response.Objects = response.Objects.Where(x => x.AssetUserRuleId == ruleId).ToList();
+                }
+
+                AddMetaData(response.Objects);
+
+                response.Status.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed in ListExternalChannels. groupId:{groupId}", ex);
+            }
+
+            return response;
         }
     }
 }

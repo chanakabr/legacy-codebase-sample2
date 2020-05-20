@@ -2574,6 +2574,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaExternalChannelProfileByIdInFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaExternalChannelProfileListResponse":
                     switch(property.Name)
                     {
@@ -8153,7 +8161,7 @@ namespace WebAPI.Reflection
                                 return ExternalChannelProfileController.ListOldStandard();
                             }
                             RolesManager.ValidateActionPermitted("externalChannelProfile", "list", false);
-                            return ExternalChannelProfileController.List();
+                            return ExternalChannelProfileController.List((KalturaExternalChannelProfileFilter) methodParams[0]);
                             
                         case "listoldstandard":
                             RolesManager.ValidateActionPermitted("externalChannelProfile", "listOldStandard", false);
@@ -13919,6 +13927,13 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaExternalChannelProfileFilter),
+                            });
                             return ret;
                             
                         case "listoldstandard":

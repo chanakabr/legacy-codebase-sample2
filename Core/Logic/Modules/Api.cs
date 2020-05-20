@@ -2640,5 +2640,10 @@ namespace Core.Api
 
             return result;
         }
+
+        public static GenericListResponse<ExternalChannel> ListExternalChannels(int groupId, long userId, List<long> list)
+        {
+            return api.ListExternalChannels(groupId, userId, list);           
+        }
     }
 }
