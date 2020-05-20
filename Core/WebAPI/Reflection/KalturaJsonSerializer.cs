@@ -11381,6 +11381,10 @@ namespace WebAPI.Models.Catalog
             var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             ret.Add("idEqual", "\"idEqual\": " + IdEqual);
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
             if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaChannelsFilter", "MediaIdEqual", requestType.Value)))
             {
                 ret.Add("mediaIdEqual", "\"mediaIdEqual\": " + MediaIdEqual);
@@ -11404,6 +11408,10 @@ namespace WebAPI.Models.Catalog
             var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
             if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaChannelsFilter", "MediaIdEqual", requestType.Value)))
             {
                 ret.Add("mediaIdEqual", "<mediaIdEqual>" + MediaIdEqual + "</mediaIdEqual>");

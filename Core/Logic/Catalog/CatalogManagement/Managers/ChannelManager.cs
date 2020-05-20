@@ -372,7 +372,7 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, Channel>, bool>(result, res);
         }
 
-        private static GenericListResponse<Channel> GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets, int totalItems)
+        public static GenericListResponse<Channel> GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets, int? totalItems)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
@@ -393,7 +393,10 @@ namespace Core.Catalog.CatalogManagement
 
                 if (result.Objects != null)
                 {
-                    result.TotalItems = totalItems;
+                    if (totalItems.HasValue)
+                    {
+                        result.TotalItems = totalItems.Value;
+                    }
                     result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }

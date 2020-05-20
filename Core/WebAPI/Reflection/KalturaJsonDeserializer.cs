@@ -12405,6 +12405,10 @@ namespace WebAPI.Models.Catalog
                 {
                     NameStartsWith = (String) Convert.ChangeType(parameters["nameStartsWith"], typeof(String));
                 }
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
             }
         }
     }

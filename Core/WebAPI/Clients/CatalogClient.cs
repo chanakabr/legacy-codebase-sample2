@@ -4188,5 +4188,24 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaChannelListResponse SearchChannels(int groupId, List<int> channelsIds, bool isAllowedToViewInactiveAssets, long userId)
+        {
+            KalturaChannelListResponse result = new KalturaChannelListResponse();
+
+            Func<GenericListResponse<GroupsCacheManager.Channel>> getFunc = () =>
+             ChannelManager.GetChannelsListResponseByChannelIds(groupId, channelsIds, isAllowedToViewInactiveAssets, null);
+
+            KalturaGenericListResponse<KalturaChannel> response =
+                ClientUtils.GetResponseListFromWS<KalturaChannel, GroupsCacheManager.Channel>(getFunc);
+
+            result.Channels = response.Objects;
+            if (result.Channels?.Count > 0)
+            {
+                result.TotalCount = result.Channels.Count;
+            }
+
+            return result;
+        }
     }
 }

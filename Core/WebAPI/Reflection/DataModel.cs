@@ -1439,6 +1439,8 @@ namespace WebAPI.Reflection
                     {
                         case "IdEqual":
                             return "idEqual";
+                        case "IdIn":
+                            return "idIn";
                         case "MediaIdEqual":
                             return "mediaIdEqual";
                         case "NameEqual":
