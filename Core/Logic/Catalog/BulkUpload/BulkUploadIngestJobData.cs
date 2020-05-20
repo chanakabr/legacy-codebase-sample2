@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using AdapterClients.IngestTransformation;
 using ApiLogic;
+using ApiLogic.Catalog.BulkUpload.Validators;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
@@ -59,7 +60,16 @@ namespace Core.Catalog
                 var epgData = DeserializeXmlTvEpgData(bulkUploadId, xmlTvString);
                 response.Objects = epgData;
 
-                var allPrograms = epgData.Select(r => r.Object).Cast<EpgProgramBulkUploadObject>().ToList();
+                var blukResultToProgrmResultObject
+                    = epgData.ToDictionary(x => x, x => (EpgProgramBulkUploadObject)x.Object);
+
+                foreach (var epg in blukResultToProgrmResultObject.Keys)
+                {
+                    var epgProgramBulkUploadObject = blukResultToProgrmResultObject[epg];
+                    epgProgramBulkUploadObject.Validate(epg);
+                }              
+
+                var allPrograms = blukResultToProgrmResultObject.Values.ToList();                
                 var allProgramDates = allPrograms.Select(p => p.StartDate.Date).Distinct().ToList();
                 LockKeys = allProgramDates.Select(programDate => GetIngestLockKey(programDate)).ToArray();
 
