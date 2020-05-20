@@ -302,17 +302,7 @@ namespace GroupsCacheManager
             if (channelIds != null && channelIds.Count > 0)
             {
                 Group group = this.GetGroup(groupId);
-                ConcurrentBag<Channel> channels = new ConcurrentBag<Channel>();
-                Parallel.ForEach(channelIds, (channelId) =>
-                {
-                    Channel currentChannel = cache.GetChannel(channelId, group, isAlsoInActive);
-                    channels.Add(currentChannel);
-                });
-
-                if (channels != null && channels.Count > 0)
-                {
-                    channelsResults = channels.ToList();
-                }
+                channelsResults = cache.GetChannels(channelIds, group, isAlsoInActive);
             }
 
             return channelsResults;

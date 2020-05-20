@@ -1248,59 +1248,6 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaRecordingContextListResponse QueryRecords(int groupId, string userID, long[] assetIds)
-        {
-            KalturaRecordingContextListResponse result = null;
-            RecordingResponse response = null;
-
-            // get group ID
-
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    // fire request
-                    response = Core.ConditionalAccess.Module.QueryRecords(groupId, userID, assetIds);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                // general exception
-                throw new ClientException(StatusCode.Error);
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                // internal web service exception
-                throw new ClientException(response.Status);
-            }
-
-            if (response.Recordings != null && response.Recordings.Count > 0)
-            {
-                result = new KalturaRecordingContextListResponse() { Objects = new List<KalturaRecordingContext>(), TotalCount = 0 };
-                result.TotalCount = response.TotalItems;
-                // convert recordings
-                foreach (Recording recording in response.Recordings)
-                {
-                    KalturaRecordingContext recordingContext = new KalturaRecordingContext() { Code = recording.Status.Code, Message = recording.Status.Message, AssetId = recording.EpgId, Recording = null };
-                    if (recording.Status.Code == (int)StatusCode.OK && recording.RecordingStatus != TstvRecordingStatus.OK)
-                    {
-                        recordingContext.Recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(recording);
-                    }
-                    result.Objects.Add(recordingContext);
-                }
-            }
-
-            return result;
-        }
-
         internal KalturaRecording Record(int groupId, string userID, long epgID)
         {
             KalturaRecording recording = null;

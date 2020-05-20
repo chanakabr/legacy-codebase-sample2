@@ -797,7 +797,7 @@ namespace Core.Users
             return eRetVal;
         }
 
-        public DomainResponseStatus RemoveDeviceFromDomain(string udid, bool forceRemove = false)
+        public DomainResponseStatus RemoveDeviceFromDomain(string udid, bool forceRemove = false, int deviceId = 0)
         {
             DomainResponseStatus bRes = DomainResponseStatus.UnKnown;
 
@@ -809,9 +809,6 @@ namespace Core.Users
                 return DomainResponseStatus.LimitationPeriod;
             }
 
-            int isActive = 0;
-            int nDeviceID = 0;
-
             //BEO-4478
             if (!forceRemove &&
                 m_DomainStatus == DomainStatus.DomainSuspended &&
@@ -822,14 +819,11 @@ namespace Core.Users
                 return DomainResponseStatus.DomainSuspended;
             }
 
-            // try to get device from cache 
-            DateTime activationDate = DateTime.MaxValue;
-            string name = null;
-            int brandId = 0;
             Device device = null;
 
-            bool bDeviceExist = IsDeviceExistInDomain(this, udid, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);
-            if (!bDeviceExist)
+            // try to get device from cache 
+            bool bDeviceExist = IsDeviceExistInDomain(this, udid, ref deviceId, out device);
+            if (!bDeviceExist && !forceRemove) //BEO-BEO-7897
             {
                 return DomainResponseStatus.DeviceNotInDomain;
             }
@@ -847,14 +841,10 @@ namespace Core.Users
             DomainDevice domainDevice = new DomainDevice()
             {
                 Udid = udid,
-                DeviceId = nDeviceID,
+                DeviceId = deviceId,
                 GroupId = m_nGroupID,
                 DomainId = m_nDomainID,
-                ActivataionStatus = isActive == 1 ? DeviceState.Activated : DeviceState.UnActivated,
-                DeviceBrandId = brandId,
-                ActivatedOn = activationDate,
-                Name = name,
-                DeviceFamilyId = device.m_deviceFamilyID
+                ActivataionStatus = device != null ? device.m_state : DeviceState.UnActivated
             };
 
             bool deleted = domainDevice.Delete();
@@ -865,52 +855,43 @@ namespace Core.Users
                 return DomainResponseStatus.Error;
             }
 
-            // if the first update done successfully - remove domain from cache
-            try
+            // set is_Active = 2; status = 2
+            deleted = DomainDal.UpdateDeviceStatus(deviceId, 2, 2);
+
+            if (!deleted)
             {
-                DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(m_nDomainID);
-            }
-            catch (Exception ex)
-            {
-                log.Error("RemoveDeviceFromDomain - " + String.Format("Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", m_nDomainID, udid, ex), ex);
+                log.ErrorFormat("Failed to update device in devices table. Status=2, Is_Active=2, UDID={0}, deviceId={1}", udid, deviceId);
+                return DomainResponseStatus.OK;
             }
 
-            this.InvalidateDomain();
-
-            if (DomainDal.GetDomainsDevicesCount(m_nGroupID, nDeviceID) == 0) // No other domains attached to this device
+            if (bDeviceExist)
             {
-                // set is_Active = 2; status = 2
-                deleted = DomainDal.UpdateDeviceStatus(nDeviceID, 2, 2);
-
-                if (!deleted)
+                DeviceContainer container = null;
+                device = GetDomainDevice(udid, ref container);
+                if (container != null && device != null)
                 {
-                    log.ErrorFormat("Failed to update device in devices table. Status=2, Is_Active=2, UDID={0}, deviceId={1}", udid, nDeviceID);
-                    return DomainResponseStatus.OK;
-                }
-            }
-
-            DeviceContainer container = null;
-            device = GetDomainDevice(udid, ref container);
-            if (container != null && device != null)
-            {
-                if (container.RemoveDeviceInstance(udid))
-                {
-                    bRes = DomainResponseStatus.OK;
-
-                    if (!forceRemove && m_minPeriodId != 0 && GetDeviceFrequency(udid) != 0)
+                    if (container.RemoveDeviceInstance(udid))
                     {
-                        SetDomainFlag(m_nDomainID, 1);
+                        bRes = DomainResponseStatus.OK;
+
+                        if (!forceRemove && m_minPeriodId != 0 && GetDeviceFrequency(udid) != 0)
+                        {
+                            SetDomainFlag(m_nDomainID, 1);
+                        }
+                    }
+                    else
+                    {
+                        bRes = DomainResponseStatus.Error;
                     }
                 }
                 else
                 {
-                    bRes = DomainResponseStatus.Error;
+                    bRes = DomainResponseStatus.DeviceNotInDomain;
                 }
             }
             else
             {
-                bRes = DomainResponseStatus.DeviceNotInDomain;
+                bRes = DomainResponseStatus.OK;
             }
 
             return bRes;
@@ -980,8 +961,7 @@ namespace Core.Users
             return false;
         }
 
-        private bool IsDeviceExistInDomain(Domain domain, string sUDID, ref int isActive, ref int nDeviceID,
-                                            ref DateTime activationDate, ref int brandId, ref string name, out Device resultDevice)
+        private bool IsDeviceExistInDomain(Domain domain, string sUDID, ref int nDeviceID, out Device resultDevice)
         {
             resultDevice = null;
 
@@ -997,12 +977,8 @@ namespace Core.Users
                         {
                             if (device.m_deviceUDID.Equals(sUDID))
                             {
-                                isActive = device.IsActivated() ? 1 : 0;
                                 nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(device.m_id);
                                 bContinue = false;
-                                activationDate = device.m_activationDate;
-                                brandId = device.m_deviceBrandID;
-                                name = device.m_deviceName;
                                 resultDevice = device;
                             }
                         }
@@ -1013,10 +989,6 @@ namespace Core.Users
                         return true;
                     }
                 }
-
-                // if the values are  (isActive  = -1;nDeviceID = -1;) domain not exsits in cache - go get data from DB
-                isActive = -1;
-                nDeviceID = -1;
 
                 return false;
             }
@@ -1405,7 +1377,7 @@ namespace Core.Users
             {
                 if (bRemoveDomain)
                 {
-                    
+
                     DomainsCache oDomainCache = DomainsCache.Instance();
                     oDomainCache.RemoveDomain(m_nDomainID);
                     InvalidateDomain();
@@ -2023,10 +1995,10 @@ namespace Core.Users
                 res = DomainResponseStatus.ExceededLimit;
 
                 if (!PartnerConfigurationManager.GetGeneralPartnerConfiguration(m_nGroupID).HasObjects())
-                    return  res;
+                    return res;
 
                 var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfiguration(m_nGroupID).Objects.FirstOrDefault();
-                
+
                 if (generalPartnerConfig?.RollingDeviceRemovalData.RollingDeviceRemovalPolicy == null ||
                     generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds.Count <= 0)
                     return res;
@@ -2040,7 +2012,7 @@ namespace Core.Users
             return res;
         }
 
-        private DomainResponseStatus TryRemoveHouseholdDevice(RollingDevicePolicy rollingDeviceRemovalPolicy, 
+        private DomainResponseStatus TryRemoveHouseholdDevice(RollingDevicePolicy rollingDeviceRemovalPolicy,
             List<int> rollingDeviceRemovalFamilyIds)
         {
             //remove by policy based on the dates
@@ -2138,6 +2110,7 @@ namespace Core.Users
             }
 
             #endregion
+
             if (m_deviceFamilies != null)
             {
                 foreach (DeviceContainer container in m_deviceFamilies)
@@ -2784,7 +2757,7 @@ namespace Core.Users
                                     // get from DB the last update date domains_devices table  change status to is_active = 0  update the update _date
                                     List<int> lDevicesID = currentDC.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
                                     // only if there is a gap between current devices to needed quantity
-                                    if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity) 
+                                    if (lDevicesID != null && lDevicesID.Count > 0 && lDevicesID.Count > item.quantity)
                                     {
                                         int nDeviceToDelete = lDevicesID.Count - item.quantity;
 
@@ -3054,7 +3027,7 @@ namespace Core.Users
 
                 foreach (string udid in domainUdids)
                 {
-                    DomainResponseStatus domainResponseStatus = RemoveDeviceFromDomain(udid);
+                    DomainResponseStatus domainResponseStatus = RemoveDeviceFromDomain(udid, true);
                     if (domainResponseStatus != DomainResponseStatus.OK)
                     {
                         log.ErrorFormat("Error while RemoveDeviceFromDomain. domainId: {0}, udid: {1}", m_nDomainID, udid);
