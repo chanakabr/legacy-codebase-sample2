@@ -12781,6 +12781,10 @@ namespace WebAPI.Models.Catalog
                 {
                     IsDefaultEqual = (Boolean) Convert.ChangeType(parameters["isDefaultEqual"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("imageObjectIdIn") && parameters["imageObjectIdIn"] != null)
+                {
+                    ImageObjectIdIn = (String) Convert.ChangeType(parameters["imageObjectIdIn"], typeof(String));
+                }
             }
         }
     }

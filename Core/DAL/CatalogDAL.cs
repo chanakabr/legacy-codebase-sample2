@@ -6203,5 +6203,16 @@ namespace Tvinci.Core.DAL
 
             return externalChannels;
         }
+
+        public static DataTable GetImagesByObject(int groupId, List<long> imageObjectIds, eAssetImageType imageObjectType)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicsByAssetIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter<long>("@AssetIds", imageObjectIds, "Id");
+            sp.AddParameter("@assetImageType", (int)imageObjectType);
+
+            return sp.Execute();
+        }
     }
 }

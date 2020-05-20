@@ -11753,6 +11753,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("imageObjectIdEqual", "\"imageObjectIdEqual\": " + ImageObjectIdEqual);
             }
+            if(ImageObjectIdIn != null)
+            {
+                ret.Add("imageObjectIdIn", "\"imageObjectIdIn\": " + "\"" + EscapeJson(ImageObjectIdIn) + "\"");
+            }
             if(ImageObjectTypeEqual.HasValue)
             {
                 ret.Add("imageObjectTypeEqual", "\"imageObjectTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaImageObjectType), ImageObjectTypeEqual) + "\"");
@@ -11777,6 +11781,10 @@ namespace WebAPI.Models.Catalog
             if(ImageObjectIdEqual.HasValue)
             {
                 ret.Add("imageObjectIdEqual", "<imageObjectIdEqual>" + ImageObjectIdEqual + "</imageObjectIdEqual>");
+            }
+            if(ImageObjectIdIn != null)
+            {
+                ret.Add("imageObjectIdIn", "<imageObjectIdIn>" + EscapeXml(ImageObjectIdIn) + "</imageObjectIdIn>");
             }
             if(ImageObjectTypeEqual.HasValue)
             {

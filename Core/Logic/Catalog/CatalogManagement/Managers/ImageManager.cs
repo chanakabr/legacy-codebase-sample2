@@ -933,141 +933,14 @@ namespace Core.Catalog.CatalogManagement
 
         public static GenericListResponse<Image> GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType, bool? isDefault = null)
         {
-            GenericListResponse<Image> response = new GenericListResponse<Image>();
-            DataTable imagesDT = null;
-            Dictionary<long, Image> pics = null;
-            Dictionary<long, Image> epgPics = null;
-            Image image = null;
-            Dictionary<ImageReferenceTable, Dictionary<long, long>> referncesIds = null;
-
             if (imageObjectType == eAssetImageType.Program)
             {
-                var docId = EpgAssetManager.GetEpgCBKey(groupId, imageObjectId);
-                EpgCB epgCB = EpgDal.GetEpgCB(docId);
-                if (epgCB != null && epgCB.pictures != null)
-                {
-                    pics = new Dictionary<long, Image>();
-                    epgPics = new Dictionary<long, Image>();
-
-                    var ratioNamesToImageTypes = GetImageTypesMapBySystemName(groupId);
-
-                    foreach (var pic in epgCB.pictures)
-                    {
-                        long imageTypeId = pic.ImageTypeId > 0 ? pic.ImageTypeId : ratioNamesToImageTypes.ContainsKey(pic.Ratio) ? ratioNamesToImageTypes[pic.Ratio].Id : 0;
-
-                        image = new Image()
-                        {
-                            Id = pic.PicID,
-                            ContentId = pic.Url,
-                            Version = pic.Version,
-                            IsDefault = false,
-                            ImageObjectId = imageObjectId,
-                            Status = eTableStatus.OK,
-                            ImageTypeId = imageTypeId
-                        };
-
-                        if (pic.IsProgramImage)
-                        {
-                            image.ImageObjectType = eAssetImageType.Program;
-                            pics.Add(image.Id, image);
-                        }
-                        else
-                        {
-                            image.ImageObjectType = eAssetImageType.ProgramGroup;
-                            epgPics.Add(image.Id, image);
-                        }
-
-                        image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
-
-                    }
-
-                    // Get images for updating image.Id 
-                    // if not exist, create new row  and update id.
-                    if (pics != null && pics.Keys.Count > 0)
-                    {
-                        imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.Pics, pics.Keys.ToList());
-                        referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
-
-                        foreach (Image item in pics.Values)
-                        {
-                            if (referncesIds.Keys.Count > 0 && referncesIds[ImageReferenceTable.Pics].ContainsKey(item.Id))
-                            {
-                                item.Id = referncesIds[ImageReferenceTable.Pics][item.Id];
-                            }
-                            else
-                            {
-                                item.Id = CatalogDAL.InsertImage(groupId, (int)ImageReferenceTable.Pics, item.Id);
-                            }
-                        }
-
-                        response.Objects = pics.Values.ToList();
-                    }
-
-                    if (epgPics != null && epgPics.Keys.Count > 0)
-                    {
-                        imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.EpgPics, epgPics.Keys.ToList());
-                        referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
-
-                        foreach (Image item in epgPics.Values)
-                        {
-                            if (referncesIds.Keys.Count > 0 && referncesIds[ImageReferenceTable.EpgPics].ContainsKey(item.Id))
-                            {
-                                item.Id = referncesIds[ImageReferenceTable.EpgPics][item.Id];
-                            }
-                            else
-                            {
-                                item.Id = CatalogDAL.InsertImage(groupId, (int)ImageReferenceTable.EpgPics, item.Id);
-                            }
-                        }
-
-                        response.Objects.AddRange(epgPics.Values.ToList());
-
-                    }
-                }
+                return GetProgramImages(groupId, imageObjectId);
             }
             else
             {
-                DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType);
-                response = CreateImageListResponseFromDataTable(groupId, dt);
-                if (response.HasObjects())
-                {
-                    pics = new Dictionary<long, Image>();
-
-                    foreach (var item in response.Objects)
-                    {
-                        pics.Add(item.Id, item);
-                    }
-
-                    // update IDs
-                    imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.Pics, pics.Keys.ToList());
-                    referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
-
-                    response.Objects = pics.Values.ToList();
-                    foreach (Image item in response.Objects)
-                    {
-                        if (referncesIds.Keys.Count > 0 && referncesIds[ImageReferenceTable.Pics].ContainsKey(item.Id))
-                        {
-                            item.Id = referncesIds[ImageReferenceTable.Pics][item.Id];
-                        }
-                        else
-                        {
-                            item.Id = CatalogDAL.InsertImage(groupId, (int)ImageReferenceTable.Pics, item.Id);
-                        }
-                    }
-
-                    //    // check if group uses pic sizes
-                    //    UpdateImagesForGroupWithPicSizes(groupId, ref response);
-                }
-
-                if (isDefault.HasValue && isDefault.Value)
-                {
-                    List<Image> groupDefualtImages = GetGroupDefaultImages(groupId);
-                    HashSet<long> assetImageTypes = new HashSet<long>(response.Objects.Select(x => x.ImageTypeId).ToList());
-                    response.Objects.AddRange(groupDefualtImages.Where(x => !assetImageTypes.Contains(x.ImageTypeId)));
-                }
+                return GetAssetImages(groupId, imageObjectId, imageObjectType, isDefault);
             }
-            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-            return response;
         }
 
         public static GenericResponse<Image> AddImage(int groupId, Image imageToAdd, long userId)
@@ -1525,6 +1398,211 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return new Tuple<Dictionary<string, List<EpgPicture>>, bool>(epgPictures, res);
+        }
+
+        private static GenericListResponse<Image> GetProgramImages(int groupId, long imageObjectId)
+        {
+            GenericListResponse<Image> response = new GenericListResponse<Image>();
+
+            var docId = EpgAssetManager.GetEpgCBKey(groupId, imageObjectId);
+            EpgCB epgCB = EpgDal.GetEpgCB(docId);
+
+            if (epgCB != null && epgCB.pictures != null)
+            {
+                Dictionary<long, Image> pics = new Dictionary<long, Image>();
+                Dictionary<long, Image> epgPics = new Dictionary<long, Image>();
+                var ratioNamesToImageTypes = GetImageTypesMapBySystemName(groupId);
+
+                foreach (var pic in epgCB.pictures)
+                {
+                    long imageTypeId = pic.ImageTypeId > 0 ? pic.ImageTypeId : ratioNamesToImageTypes.ContainsKey(pic.Ratio) ? ratioNamesToImageTypes[pic.Ratio].Id : 0;
+
+                    Image image = new Image()
+                    {
+                        Id = pic.PicID,
+                        ContentId = pic.Url,
+                        Version = pic.Version,
+                        IsDefault = false,
+                        ImageObjectId = imageObjectId,
+                        Status = eTableStatus.OK,
+                        ImageTypeId = imageTypeId
+                    };
+                    if (pic.IsProgramImage)
+                    {
+                        image.ImageObjectType = eAssetImageType.Program;
+                        pics.Add(image.Id, image);
+                    }
+                    else
+                    {
+                        image.ImageObjectType = eAssetImageType.ProgramGroup;
+                        epgPics.Add(image.Id, image);
+                    }
+
+                    image.Url = TVinciShared.ImageUtils.BuildImageUrl(groupId, image.ContentId, image.Version, 0, 0, 0, true);
+
+                }
+
+                Dictionary<ImageReferenceTable, Dictionary<long, long>> referncesIds;
+                DataTable imagesDT;
+                // Get images for updating image.Id 
+                // if not exist, create new row  and update id.
+                if (pics != null && pics.Keys.Count > 0)
+                {
+                    imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.Pics, pics.Keys.ToList());
+                    referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
+
+                    foreach (Image item in pics.Values)
+                    {
+                        if (referncesIds.Keys.Count > 0 && referncesIds[ImageReferenceTable.Pics].ContainsKey(item.Id))
+                        {
+                            item.Id = referncesIds[ImageReferenceTable.Pics][item.Id];
+                        }
+                        else
+                        {
+                            item.Id = CatalogDAL.InsertImage(groupId, (int)ImageReferenceTable.Pics, item.Id);
+                        }
+                    }
+
+                    response.Objects = pics.Values.ToList();
+                }
+
+                if (epgPics != null && epgPics.Keys.Count > 0)
+                {
+                    imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.EpgPics, epgPics.Keys.ToList());
+                    referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
+
+                    foreach (Image item in epgPics.Values)
+                    {
+                        if (referncesIds.Keys.Count > 0 && referncesIds[ImageReferenceTable.EpgPics].ContainsKey(item.Id))
+                        {
+                            item.Id = referncesIds[ImageReferenceTable.EpgPics][item.Id];
+                        }
+                        else
+                        {
+                            item.Id = CatalogDAL.InsertImage(groupId, (int)ImageReferenceTable.EpgPics, item.Id);
+                        }
+                    }
+
+                    response.Objects.AddRange(epgPics.Values.ToList());
+
+                }
+            }
+
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return response;
+        }
+
+        private static GenericListResponse<Image> GetProgramImages(int groupId, List<long> imageObjectIds)
+        {
+            GenericListResponse<Image> response = new GenericListResponse<Image>();
+            GenericListResponse<Image> result;
+            foreach (var imageObjectId in imageObjectIds)
+            {
+                result = GetProgramImages(groupId, imageObjectId);
+                if (result.Objects?.Count > 0)
+                {
+                    response.Objects.AddRange(result.Objects);
+                }
+            }
+
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return response;
+        }
+
+
+        private static GenericListResponse<Image> GetAssetImages(int groupId, long imageObjectId, eAssetImageType imageObjectType, bool? isDefault = null)
+        {
+            GenericListResponse<Image> response = new GenericListResponse<Image>();
+
+            DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType);
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                return GetAssetImage(groupId, dt, isDefault);
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
+        private static GenericListResponse<Image> GetAssetImage(int groupId, DataTable picsData, bool? isDefault = null)
+        {
+            GenericListResponse<Image> response = new GenericListResponse<Image>();
+            DataTable imagesDT = null;
+            Dictionary<long, Image> pics = null;
+            Dictionary<ImageReferenceTable, Dictionary<long, long>> referncesIds = null;
+
+            if (picsData != null && picsData.Rows.Count > 0)
+            {
+                response = CreateImageListResponseFromDataTable(groupId, picsData);
+                if (response.HasObjects())
+                {
+                    pics = new Dictionary<long, Image>();
+
+                    foreach (var item in response.Objects)
+                    {
+                        pics.Add(item.Id, item);
+                    }
+
+                    // update IDs
+                    imagesDT = CatalogDAL.GetImagesByTableReferenceIds(groupId, ImageReferenceTable.Pics, pics.Keys.ToList());
+                    referncesIds = CreateImageReferncesIdsFromDataTable(imagesDT);
+
+                    response.Objects = pics.Values.ToList();
+                    foreach (Image item in response.Objects)
+                    {
+                        if (referncesIds.Keys.Count > 0 && referncesIds[ImageReferenceTable.Pics].ContainsKey(item.Id))
+                        {
+                            item.Id = referncesIds[ImageReferenceTable.Pics][item.Id];
+                        }
+                        else
+                        {
+                            item.Id = CatalogDAL.InsertImage(groupId, (int)ImageReferenceTable.Pics, item.Id);
+                        }
+                    }
+
+                    //    // check if group uses pic sizes
+                    //    UpdateImagesForGroupWithPicSizes(groupId, ref response);
+                }
+
+                if (isDefault.HasValue && isDefault.Value)
+                {
+                    List<Image> groupDefualtImages = GetGroupDefaultImages(groupId);
+                    HashSet<long> assetImageTypes = new HashSet<long>(response.Objects.Select(x => x.ImageTypeId).ToList());
+                    response.Objects.AddRange(groupDefualtImages.Where(x => !assetImageTypes.Contains(x.ImageTypeId)));
+                }
+
+                if (response.Objects?.Count > 0)
+                {
+                    response.SetStatus(eResponseStatus.OK);
+                }
+            }
+            return response;
+        }
+
+        private static GenericListResponse<Image> GetAssetImages(int groupId, List<long> imageObjectIds, eAssetImageType imageObjectType, bool? isDefault = null)
+        {
+            GenericListResponse<Image> response = new GenericListResponse<Image>();
+
+            DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectIds, imageObjectType);
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                return GetAssetImage(groupId, dt, isDefault);
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
+        public static GenericListResponse<Image> GetImagesByObjects(int groupId, List<long> imageObjectIds, eAssetImageType assetImageType, bool? isDefault)
+        {
+            if (assetImageType == eAssetImageType.Program)
+            {
+                return GetProgramImages(groupId, imageObjectIds);
+            }
+            else
+            {
+                return GetAssetImages(groupId, imageObjectIds, assetImageType, isDefault);
+            }
         }
 
         #endregion

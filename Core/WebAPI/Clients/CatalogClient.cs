@@ -4172,5 +4172,21 @@ namespace WebAPI.Clients
 
             return response;
         }
+
+        internal KalturaImageListResponse GetImagesByObjects(int groupId, List<long> imageObjectIds, KalturaImageObjectType imageObjectType, bool? isDefault = null)
+        {
+            KalturaImageListResponse result = new KalturaImageListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<Image>> getImagesByObjectFunc = () =>
+               Core.Catalog.CatalogManagement.ImageManager.GetImagesByObjects(groupId, imageObjectIds, CatalogMappings.ConvertImageObjectType(imageObjectType), isDefault);
+
+            KalturaGenericListResponse<KalturaImage> response =
+                ClientUtils.GetResponseListFromWS<KalturaImage, Image>(getImagesByObjectFunc);
+
+            result.Images = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
     }
 }
