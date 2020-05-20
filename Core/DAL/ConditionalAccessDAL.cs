@@ -2273,45 +2273,14 @@ namespace DAL
             return sp.ExecuteDataSet();
         }
 
-        public static Dictionary<long, List<int>> GetEpgsToFileIdsMap(int groupId, List<long> epgIds)
+        public static DataTable GetFileIdsByEpgChannelId(int groupId, string epgChannelId)
         {
             Dictionary<long, List<int>> epgToFileIdsMap = new Dictionary<long, List<int>>();
-            ODBCWrapper.StoredProcedure spGet_Get_FilesByEpgIds = new ODBCWrapper.StoredProcedure("Get_FilesByEpgIds");
-            spGet_Get_FilesByEpgIds.SetConnectionKey("MAIN_CONNECTION_STRING");
-            spGet_Get_FilesByEpgIds.AddParameter("@GroupId", groupId);
-            if (epgIds.Count == 1)
-            {
-                spGet_Get_FilesByEpgIds.AddIDListParameter<long>("@EpgIds", new List<long>(), "ID");
-                spGet_Get_FilesByEpgIds.AddParameter("@EpgId", epgIds.First());
-            }
-            else
-            {
-                spGet_Get_FilesByEpgIds.AddIDListParameter<long>("@EpgIds", epgIds, "ID");
-            }
-
-            DataTable dt = spGet_Get_FilesByEpgIds.Execute();
-
-            if (dt != null && dt.Rows != null)
-            {
-                foreach (DataRow dr in dt.Rows)
-                {
-                    int fileId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id", 0);
-                    long epgId = ODBCWrapper.Utils.GetIntSafeVal(dr, "epg_id", 0);
-                    if (fileId > 0 && epgId > 0)
-                    {
-                        if (epgToFileIdsMap.ContainsKey(epgId))
-                        {
-                            epgToFileIdsMap[epgId].Add(fileId);
-                        }
-                        else
-                        {
-                            epgToFileIdsMap.Add(epgId, new List<int>() { fileId });
-                        }
-                    }
-                }
-            }
-
-            return epgToFileIdsMap;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetFileIdsByEpgChannelId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@EpgChannelId", epgChannelId);
+            return sp.Execute();
         }
 
         private static CDVRAdapter CreateCDVRAdapter(DataSet ds)

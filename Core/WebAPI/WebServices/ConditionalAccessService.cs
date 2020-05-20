@@ -2764,13 +2764,13 @@ namespace WebAPI.WebServices
         }
 
         [WebMethod]
-        public RecordingResponse QueryRecords(string sWSUserName, string sWSPassword, string userID, long[] epgIDs)
+        public Recording QueryRecords(string sWSUserName, string sWSPassword, string userID, long epgId)
         {
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.QueryRecords(nGroupID, userID, epgIDs);
+                return Core.ConditionalAccess.Module.QueryRecords(nGroupID, userID, epgId);
             }
             else
             {

@@ -5260,14 +5260,14 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal static Recording ValidateEpgForRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, bool shouldCheckCatchUp)
+        internal static ApiObjects.Response.Status ValidateEpgForRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, bool shouldCheckCatchUp)
         {
-            Recording response = new Recording() { EpgId = epg.EPG_ID, Crid = epg.CRID, Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()) };
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 if (epg.ENABLE_CDVR != 1)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCdvrNotEnabled, eResponseStatus.ProgramCdvrNotEnabled.ToString());
+                    response.Set((int)eResponseStatus.ProgramCdvrNotEnabled, eResponseStatus.ProgramCdvrNotEnabled.ToString());
                     return response;
                 }
 
@@ -5277,7 +5277,7 @@ namespace Core.ConditionalAccess
                     if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate))
                     {
                         log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        response.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         return response;
                     }
 
@@ -5286,7 +5286,7 @@ namespace Core.ConditionalAccess
                     if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value &&
                         accountSettings.RecordingScheduleWindow.HasValue && paddedStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) < DateTime.UtcNow)
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
+                        response.Set((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
                         return response;
                     }
 
@@ -5294,17 +5294,17 @@ namespace Core.ConditionalAccess
                     {
                         if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
                         {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
+                            response.Set((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
                             return response;
                         }
                         if (epg.ENABLE_CATCH_UP != 1)
                         {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
+                            response.Set((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
                             return response;
                         }
                         if (epg.CHANNEL_CATCH_UP_BUFFER == 0 || epgStartDate.AddMinutes(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
                         {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
+                            response.Set((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
                             return response;
                         }
                     }
@@ -5313,27 +5313,19 @@ namespace Core.ConditionalAccess
 
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at ValidateEpgForRecord. ");
-                sb.Append(String.Concat("epgID: ", epg.EPG_ID));
-                sb.Append(String.Concat("Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
-                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
-                log.Error(sb.ToString(), ex);
-
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Exception at ValidateEpgForRecord. epgID: {0}", epg.EPG_ID), ex);
             }
 
             return response;
         }
 
-        internal static List<Recording> CheckDomainExistingRecordingsByEpgs(int groupId, long domainID, Dictionary<long, EPGChannelProgrammeObject> validEpgObjectForRecordingMap)
+        internal static Recording CheckDomainExistingRecordingsByEpgs(int groupId, long domainID, EPGChannelProgrammeObject epg)
         {
-            Dictionary<long, Recording> responseDictionary = new Dictionary<long, Recording>();
-            TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
-            foreach (long epgId in validEpgObjectForRecordingMap.Keys)
+            Recording recording = new Recording() { EpgId = epg.EPG_ID };
+            try
             {
-                Recording recording = new Recording() { EpgId = epgId };
-                EPGChannelProgrammeObject epg = validEpgObjectForRecordingMap[epgId];
+                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
                 DateTime epgStartDate;
                 DateTime epgEndDate;
                 long epgChannelId;
@@ -5360,21 +5352,16 @@ namespace Core.ConditionalAccess
                     else
                     {
                         log.ErrorFormat("Failed getting account padding, epgId: {0}, groupID: {1}", groupId, recording.EpgId);
-                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting account padding settings");
+                        recording.Status.Set((int)eResponseStatus.Error, "Failed getting account padding settings");
+                        return recording;
                     }
                 }
                 else
                 {
                     log.ErrorFormat("Failed parsing EPG start / end date / epgChannelId, epgID: {0}, domainID: {1}, startDate: {2}, endDate: {3}, epgChannelId: {4}", epg.EPG_ID, domainID, epg.START_DATE, epg.END_DATE, epg.EPG_CHANNEL_ID);
-                    recording = new Recording() { EpgId = epg.EPG_ID };
                 }
 
-                responseDictionary.Add(epgId, recording);
-            }
-
-            try
-            {
-                Dictionary<long, Recording> domainIdToDomainRecordingMap = Utils.GetDomainRecordingIdToRecordingMapByEpgIds(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
+                Dictionary<long, Recording> domainIdToDomainRecordingMap = Utils.GetDomainRecordingIdToRecordingMapByEpgIds(groupId, domainID, new List<long>() { epg.EPG_ID });
                 if (domainIdToDomainRecordingMap != null)
                 {
                     foreach (KeyValuePair<long, Recording> pair in domainIdToDomainRecordingMap)
@@ -5385,7 +5372,7 @@ namespace Core.ConditionalAccess
                             && domainRecoridng.RecordingStatus != TstvRecordingStatus.Canceled && domainRecoridng.RecordingStatus != TstvRecordingStatus.Deleted)
                         {
                             domainRecoridng.Id = pair.Key;
-                            responseDictionary[domainRecoridng.EpgId] = domainRecoridng;
+                            recording = new Recording(domainRecoridng);
                         }
                     }
                 }
@@ -5393,16 +5380,10 @@ namespace Core.ConditionalAccess
 
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at CheckDomainExistingRecording. ");
-                sb.Append(String.Concat("domainID: ", domainID));
-                sb.Append(String.Concat("Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
-                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
-
-                log.Error(sb.ToString(), ex);
+                log.Error(string.Format("Exception at CheckDomainExistingRecording. domainID {0}", domainID), ex);
             }
 
-            return responseDictionary.Values.ToList();
+            return recording;
         }
 
         internal static int MapActionTypeForAdapter(eEPGFormatType eformat)
@@ -7219,90 +7200,46 @@ namespace Core.ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }
 
-        internal static Dictionary<int, List<long>> GetFileIdsToEpgIdsMap(int groupId, Dictionary<long, string> epgToChannelMap)
+        internal static List<int> GetFileIdsByEpgChannelId(int groupId, string epgChannelId)
         {
-            Dictionary<int, List<long>> fileIdsToEpgMap = new Dictionary<int, List<long>>();
-            HashSet<long> epgIdsToGetFromDb = new HashSet<long>();
+            List<int> channelFileIds = null;
             try
             {
-                foreach (KeyValuePair<long, string> epgAndChannel in epgToChannelMap)
+                string key = string.Format("Channel_{0}_FileIds", epgChannelId);
+                if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
                 {
-                    List<int> channelFileIds = null;
-                    string key = string.Format("Channel_{0}_FileIds", epgAndChannel.Value);
-                    if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
+                    lock (lck)
                     {
-                        lock (lck)
+                        if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
                         {
-                            if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
-                            {
-                                log.DebugFormat("Getting Epg {0} file ids from DB", epgAndChannel.Key);
-                                if (!epgIdsToGetFromDb.Contains(epgAndChannel.Key))
+                            HashSet<int> fileIds = new HashSet<int>();
+                            log.DebugFormat("Getting file ids from DB for epgChannelId {0}", epgChannelId);
+                            DataTable dt = ConditionalAccessDAL.GetFileIdsByEpgChannelId(groupId, epgChannelId);
+                            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                            {                                
+                                foreach (DataRow dr in dt.Rows)
                                 {
-                                    epgIdsToGetFromDb.Add(epgAndChannel.Key);
-                                }
+                                    int fileId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id", 0);
+                                    if (fileId > 0 && !fileIds.Contains(fileId))
+                                    {
+                                        fileIds.Add(fileId);
+                                    }
+                                }                                                                
                             }
-                        }
-                    }
-                    else if (channelFileIds == null)
-                    {
-                        log.ErrorFormat("Channel {0} FileIds list is null", epgAndChannel.Value);
-                    }
-                    else
-                    {
-                        foreach (int fileId in channelFileIds)
-                        {
-                            if (fileIdsToEpgMap.ContainsKey(fileId))
-                            {
-                                fileIdsToEpgMap[fileId].Add(epgAndChannel.Key);
-                            }
-                            else
-                            {
-                                fileIdsToEpgMap.Add(fileId, new List<long>() { epgAndChannel.Key });
-                            }
+
+                            channelFileIds = fileIds.ToList();
+                            TvinciCache.WSCache.Instance.Add(key, channelFileIds, 600);
                         }
                     }
                 }
-
-                if (epgIdsToGetFromDb.Count > 0)
-                {
-                    Dictionary<long, List<int>> epgsToFileIdsMap = ConditionalAccessDAL.GetEpgsToFileIdsMap(groupId, epgIdsToGetFromDb.ToList());
-                    if (epgsToFileIdsMap != null)
-                    {
-                        foreach (KeyValuePair<long, List<int>> epgFileIdDetails in epgsToFileIdsMap)
-                        {
-                            long epgId = epgFileIdDetails.Key;
-                            List<int> epgFileIds = epgFileIdDetails.Value;
-                            foreach (int fileId in epgFileIds)
-                            {
-                                if (fileIdsToEpgMap.ContainsKey(fileId))
-                                {
-                                    fileIdsToEpgMap[fileId].Add(epgId);
-                                }
-                                else
-                                {
-                                    fileIdsToEpgMap.Add(fileId, new List<long>() { epgId });
-                                }
-                            }
-
-                            string key = string.Format("Channel_{0}_FileIds", epgToChannelMap[epgId]);
-                            List<int> channelFileIds = null;
-                            if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
-                            {
-                                TvinciCache.WSCache.Instance.Add(key, epgFileIds, 10);
-                            }
-                        }
-                    }
-                }
-
-                log.DebugFormat("current fileIds returned from GetFileIdsToEpgIdsMap are: {0}", string.Join(",", fileIdsToEpgMap.Keys));
             }
 
             catch (Exception ex)
             {
-                log.Error("GetFileIdsToEpgIdsMap - " + string.Format("Error in GetFileIdsToEpgIdsMap: groupID = {0}, epgIds: {1], ex.Message: {2}, ex.StackTrace: {3}", groupId, string.Join(",", epgToChannelMap.Keys), ex.Message, ex.StackTrace), ex);
+                log.Error(string.Format("Error in GetFileIdsToEpgIdsMap: groupID = {0}, epgChannelId: {1]", groupId, epgChannelId), ex);
             }
 
-            return fileIdsToEpgMap;
+            return channelFileIds;
         }
 
         public static bool UpdateDomainSeriesRecordingsUserToMaster(int groupId, int domainId, string userId, string masterUserId)
