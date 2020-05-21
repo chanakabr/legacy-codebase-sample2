@@ -41,5 +41,10 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
             this.MustBeOverwriteInTcm = mustBeOverwriteInTcm;
             this.description = description;
         }
+
+        internal BaseValue<T> Clone()
+        {
+            return new BaseValue<T>(this.Key, this.DefaultValue, this.MustBeOverwriteInTcm, this.description);
+        }
     }
 }
