@@ -6095,32 +6095,37 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@needToDeletenamesInOtherLanguages", namesInOtherLanguages != null && namesInOtherLanguages.Count == 0 ? 1 : 0);
                 sp.AddKeyValueListParameter<long, string>("@namesInOtherLanguages", namesInOtherLanguages, "idKey", "value");
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
-                sp.AddParameter("@needToDeleteCategoriesChannels", channels != null && channels.Count == 0 ? 1 : 0);
                 sp.AddDataTableParameter("@categoriesChannels", categoriesChannelsValues);
                 sp.AddParameter("@updaterId", userId);
                 sp.AddParameter("@isActive", isActive);
 
-                if (timeSlot != null && timeSlot.StartDateInSeconds.HasValue)
+                if (timeSlot != null)
                 {
-                    if (timeSlot.StartDateInSeconds.Value > 0)
+                    if (timeSlot.StartDateInSeconds.HasValue)
                     {
-                        sp.AddParameter("@startDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.StartDateInSeconds.Value));
-                    }
-                    else
-                    {
-                        sp.AddParameter("@startDate", DBNull.Value);
+                        if (timeSlot.StartDateInSeconds.Value > 0)
+                        {
+                            sp.AddParameter("@startDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.StartDateInSeconds.Value));
+                        }
+                        else
+                        {
+                            sp.AddParameter("@startDate", DBNull.Value);
+                        }
                     }
                 }
 
-                if (timeSlot != null && timeSlot.EndDateInSeconds.HasValue)
+                if (timeSlot != null)
                 {
-                    if (timeSlot.EndDateInSeconds.Value > 0)
+                    if (timeSlot.EndDateInSeconds.HasValue)
                     {
-                        sp.AddParameter("@endDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.EndDateInSeconds.Value));
-                    }
-                    else
-                    {
-                        sp.AddParameter("@endDate", DBNull.Value);
+                        if (timeSlot.EndDateInSeconds.Value > 0)
+                        {
+                            sp.AddParameter("@endDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.EndDateInSeconds.Value));
+                        }
+                        else
+                        {
+                            sp.AddParameter("@endDate", DBNull.Value);
+                        }
                     }
                 }
 

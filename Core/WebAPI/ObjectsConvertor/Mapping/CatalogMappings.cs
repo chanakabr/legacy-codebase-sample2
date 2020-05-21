@@ -1159,7 +1159,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
               .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds)));
+              .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds, src.NullableProperties)));
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1213,8 +1213,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaUnifiedChannelInfo, UnifiedChannelInfo>()
                 .IncludeBase<KalturaUnifiedChannel, UnifiedChannel>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds)));
-
+                .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds, src.NullableProperties)));
 
             cfg.CreateMap<UnifiedChannelInfo, KalturaUnifiedChannelInfo>()
                 .IncludeBase<UnifiedChannel, KalturaUnifiedChannel>()
@@ -1231,19 +1230,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
-                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds));
-
-            cfg.CreateMap<KalturaCategoryTree, ApiLogic.Catalog.CategoryTree>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.GetDefaultLanugageValue()))
-                .ForMember(dest => dest.NamesInOtherLanguages, opt => opt.MapFrom(src => src.Name.GetNoneDefaultLanugageContainer()))
-                .ForMember(dest => dest.Children, opt => opt.MapFrom(src => src.Children))
-                .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
-                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds)));
-
+                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds));            
 
             cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
@@ -2974,12 +2961,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static TimeSlot ConvertToTimeSlot(long? startDateInSeconds, long? endDateInSeconds)
+        private static TimeSlot ConvertToTimeSlot(long? startDateInSeconds, long? endDateInSeconds, HashSet<string> nullableProperties)
         {
-            if(startDateInSeconds.HasValue || endDateInSeconds.HasValue)
+            if(nullableProperties?.Count > 0)
+            {
+                if(nullableProperties.Contains("startdateinseconds"))
+                {
+                    startDateInSeconds = 0;
+                }
+
+                if (nullableProperties.Contains("enddateinseconds"))
+                {
+                    endDateInSeconds = 0;
+                }
+            }
+            if (startDateInSeconds.HasValue || endDateInSeconds.HasValue)
             {
                 return new TimeSlot() { StartDateInSeconds = startDateInSeconds, EndDateInSeconds = endDateInSeconds};
             }
+
             return null;
         }
     }

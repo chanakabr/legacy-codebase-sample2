@@ -95,7 +95,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "startDateInSeconds")]
         [JsonProperty("startDateInSeconds")]
         [XmlElement(ElementName = "startDateInSeconds", IsNullable = true)]
-        [SchemeProperty(MinInteger = 0)]
+        [SchemeProperty(IsNullable = true)]
         public long? StartDateInSeconds { get; set; }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "endDateInSeconds")]
         [JsonProperty("endDateInSeconds")]
         [XmlElement(ElementName = "endDateInSeconds", IsNullable = true)]
-        [SchemeProperty(MinInteger = 0)]
+        [SchemeProperty(IsNullable = true)]
         public long? EndDateInSeconds { get; set; }
 
         internal override ICrudHandler<CategoryItem, long> Handler
@@ -137,6 +137,19 @@ namespace WebAPI.Models.Catalog
                     throw new BadRequestException(BadRequestException.KEY_CANNOT_BE_EMPTY_OR_NULL, "dynamicData");
                 }
             }
+
+            if (StartDateInSeconds.HasValue && EndDateInSeconds.HasValue && StartDateInSeconds >= EndDateInSeconds)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDateInSeconds", "endDateInSeconds");
+            }
+
+            if(this.UnifiedChannels?.Count > 0)
+            {
+                foreach (var unifiedChannels in this.UnifiedChannels)
+                {
+                    unifiedChannels.Validate();
+                }
+            }
         }
 
         internal override void ValidateForUpdate()
@@ -153,6 +166,11 @@ namespace WebAPI.Models.Catalog
                 {
                     throw new BadRequestException(BadRequestException.KEY_CANNOT_BE_EMPTY_OR_NULL, "dynamicData");
                 }
+            }
+
+            if (StartDateInSeconds.HasValue && EndDateInSeconds.HasValue && StartDateInSeconds >= EndDateInSeconds)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDateInSeconds", "endDateInSeconds");
             }
         }
 
