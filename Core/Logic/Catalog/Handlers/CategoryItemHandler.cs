@@ -437,11 +437,11 @@ namespace Core.Catalog.Handlers
                 {
                     if (filter.OrderBy.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.ASC)
                     {
-                        response.Objects = pager.PageSize > 0 ? response.Objects.OrderBy(x => x.UpdateDate).Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList() : result.Objects;
+                        response.Objects = pager.PageSize > 0 ? response.Objects.OrderBy(x => x.UpdateDate).Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList() : response.Objects;
                     }
                     else
                     {
-                        response.Objects = pager.PageSize > 0 ? response.Objects.OrderByDescending(x => x.UpdateDate).Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList() : result.Objects;
+                        response.Objects = pager.PageSize > 0 ? response.Objects.OrderByDescending(x => x.UpdateDate).Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList() : response.Objects;
                     }
                 }
 
