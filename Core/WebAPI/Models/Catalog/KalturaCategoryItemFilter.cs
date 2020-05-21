@@ -124,7 +124,9 @@ namespace WebAPI.Models.Catalog
         NAME_DESC,
         CREATE_DATE_ASC,
         CREATE_DATE_DESC,
-        NONE
+        NONE,
+        UPDATE_DATE_ASC,
+        UPDATE_DATE_DESC
     }
 
     public partial class KalturaCategoryItemAncestorsFilter : KalturaCategoryItemFilter

@@ -410,9 +410,18 @@ namespace Core.Catalog.Handlers
             };
 
             var categories = new HashSet<long>(categoriesIds);
-
-            var result = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Category,
-                                                            categories, pager.PageIndex, pager.PageSize, filter.OrderBy);
+            ObjectVirtualAssetFilter result;
+            // if order by update date need. Get all categories            
+            if (filter.IsOrderByUpdateDate)
+            {
+                result = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Category,
+                                                           categories, 0, 0, filter.OrderBy);                
+            }
+            else
+            {
+                result = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Category,
+                                                           categories, pager.PageIndex, pager.PageSize, filter.OrderBy);
+            }
 
             if (result.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
             {
@@ -423,6 +432,19 @@ namespace Core.Catalog.Handlers
             if (result.ObjectIds?.Count > 0)
             {
                 response.Objects = result.ObjectIds.Select(x => CategoriesManager.GetCategoryItem(contextData.GroupId, x)).ToList();
+
+                if (filter.IsOrderByUpdateDate)
+                {
+                    if (filter.OrderBy.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.ASC)
+                    {
+                        response.Objects = pager.PageSize > 0 ? response.Objects.OrderBy(x => x.UpdateDate).Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList() : result.Objects;
+                    }
+                    else
+                    {
+                        response.Objects = pager.PageSize > 0 ? response.Objects.OrderByDescending(x => x.UpdateDate).Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList() : result.Objects;
+                    }
+                }
+
                 response.TotalItems = result.TotalItems;
             }
 
@@ -587,7 +609,7 @@ namespace Core.Catalog.Handlers
             //check external channel exist
             foreach (var channelId in externalChannels)
             {
-                var ec = ExternalChannelManager.GetChannelById(groupId, (int)channelId,true, userId);
+                var ec = ExternalChannelManager.GetChannelById(groupId, (int)channelId, true, userId);
 
                 if (ec != null && ec.IsOkStatusCode() && ec.Object != null)
                 {

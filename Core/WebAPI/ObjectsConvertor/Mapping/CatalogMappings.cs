@@ -1239,14 +1239,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaCategoryItemSearchFilter, ApiLogic.Catalog.CategoryItemSearchFilter>()
               .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
               .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
-              .ForMember(dest => dest.RootOnly, opt => opt.MapFrom(src => src.RootOnly));
+              .ForMember(dest => dest.RootOnly, opt => opt.MapFrom(src => src.RootOnly))
+              .ForMember(dest => dest.IsOrderByUpdateDate, opt => opt.MapFrom(src => SetOrderByUpdate(src.OrderBy)));
+
 
             cfg.CreateMap<KalturaCategoryItemAncestorsFilter, ApiLogic.Catalog.CategoryItemAncestorsFilter>()
               .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             #endregion CategoryItem
-        }
+        }        
 
         private static int? ConvertToNullableInt(bool? value)
         {
@@ -2956,6 +2958,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
+        }
+
+        private static bool SetOrderByUpdate(KalturaCategoryItemOrderBy orderBy)
+        {
+            return (orderBy == KalturaCategoryItemOrderBy.UPDATE_DATE_ASC || orderBy == KalturaCategoryItemOrderBy.UPDATE_DATE_DESC);
         }
     }
 }

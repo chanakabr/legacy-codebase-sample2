@@ -8,7 +8,7 @@ namespace ApiLogic.Catalog
 {
     public class CategoryItemFilter : ICrudFilter
     {
-        public ApiObjects.SearchObjects.OrderObj OrderBy { get; set; }
+        public ApiObjects.SearchObjects.OrderObj OrderBy { get; set; }        
     }
 
     public class CategoryItemByIdInFilter : CategoryItemFilter
@@ -21,6 +21,8 @@ namespace ApiLogic.Catalog
         public string Ksql { get; set; }
 
         public bool RootOnly { get; set; }
+
+        public bool IsOrderByUpdateDate { get; set; }
     }
 
     public class CategoryItemAncestorsFilter : CategoryItemFilter
