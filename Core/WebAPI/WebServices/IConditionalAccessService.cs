@@ -257,7 +257,7 @@ namespace WebAPI.WebServices
         [OperationContract]
         BillingResponse PU_GetSubscriptionPopupPaymentMethodURL(string sWSUserName, string sWSPassword, string sSiteGUID, double dPrice, string sCurrencyCode3, string sSubscriptionCode, string sCouponCode, string sPaymentMethod, string sExtraParameters, string sCountryCd2, string sLanguageCode3, string sDeviceName);
         [OperationContract]
-        RecordingResponse QueryRecords(string sWSUserName, string sWSPassword, string userID, long[] epgIDs);
+        Recording QueryRecords(string sWSUserName, string sWSPassword, string userID, long epgId);
         [OperationContract]
         Status ReconcileEntitlements(string sWSUserName, string sWSPassword, string userId);
         [OperationContract]

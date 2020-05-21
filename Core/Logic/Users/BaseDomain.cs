@@ -2248,7 +2248,7 @@ namespace Core.Users
                 }
                 else
                 {
-                    DomainResponseStatus domainResponseStatus = deviceDomains[0].RemoveDeviceFromDomain(udid, true);
+                    DomainResponseStatus domainResponseStatus = deviceDomains[0].RemoveDeviceFromDomain(udid, true, deviceId);
                     response = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                     if (response.Code != (int)eResponseStatus.OK)
                     {

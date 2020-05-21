@@ -344,8 +344,13 @@ namespace Core.Catalog.CatalogManagement
         private static GenericListResponse<BulkUploadResult> ParseBulkUploadData(BulkUpload bulkUpload, GenericResponse<BulkUpload> bulkUploadResponse)
         {
             var objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(bulkUpload.GroupId, bulkUpload.Id, bulkUploadResponse.Object.FileURL, bulkUploadResponse.Object.ObjectData);
+
             if (objectsListResponse.IsOkStatusCode())
             {
+                if (objectsListResponse.Objects.Any(x=> x.Errors?.Length > 0))
+                {
+                    bulkUploadResponse.Object.AddError(eResponseStatus.Error, "Errors found during deserialization, review errors on result items.");
+                }
                 return objectsListResponse;
             }
             else

@@ -1931,6 +1931,26 @@ namespace WebAPI.Models.ConditionalAccess
             return ret;
         }
     }
+    public partial class KalturaExternalRecordingResponseProfileFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
     public partial class KalturaExternalSeriesRecording
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -16703,11 +16723,6 @@ namespace WebAPI.Models.API
             {
                 ret.Add("accessKeyId", "\"accessKeyId\": " + "\"" + EscapeJson(AccessKeyId) + "\"");
             }
-            ret.Add("brokerPort", "\"brokerPort\": " + BrokerPort);
-            if(CertificatePath != null)
-            {
-                ret.Add("certificatePath", "\"certificatePath\": " + "\"" + EscapeJson(CertificatePath) + "\"");
-            }
             if(ClientId != null)
             {
                 ret.Add("clientId", "\"clientId\": " + "\"" + EscapeJson(ClientId) + "\"");
@@ -16719,18 +16734,6 @@ namespace WebAPI.Models.API
             if(IotEndPoint != null)
             {
                 ret.Add("iotEndPoint", "\"iotEndPoint\": " + "\"" + EscapeJson(IotEndPoint) + "\"");
-            }
-            if(IotPolicyName != null)
-            {
-                ret.Add("iotPolicyName", "\"iotPolicyName\": " + "\"" + EscapeJson(IotPolicyName) + "\"");
-            }
-            if(PfxPassword != null)
-            {
-                ret.Add("pfxPassword", "\"pfxPassword\": " + "\"" + EscapeJson(PfxPassword) + "\"");
-            }
-            if(PfxPath != null)
-            {
-                ret.Add("pfxPath", "\"pfxPath\": " + "\"" + EscapeJson(PfxPath) + "\"");
             }
             if(Region != null)
             {
@@ -16758,11 +16761,6 @@ namespace WebAPI.Models.API
             {
                 ret.Add("accessKeyId", "<accessKeyId>" + EscapeXml(AccessKeyId) + "</accessKeyId>");
             }
-            ret.Add("brokerPort", "<brokerPort>" + BrokerPort + "</brokerPort>");
-            if(CertificatePath != null)
-            {
-                ret.Add("certificatePath", "<certificatePath>" + EscapeXml(CertificatePath) + "</certificatePath>");
-            }
             if(ClientId != null)
             {
                 ret.Add("clientId", "<clientId>" + EscapeXml(ClientId) + "</clientId>");
@@ -16774,18 +16772,6 @@ namespace WebAPI.Models.API
             if(IotEndPoint != null)
             {
                 ret.Add("iotEndPoint", "<iotEndPoint>" + EscapeXml(IotEndPoint) + "</iotEndPoint>");
-            }
-            if(IotPolicyName != null)
-            {
-                ret.Add("iotPolicyName", "<iotPolicyName>" + EscapeXml(IotPolicyName) + "</iotPolicyName>");
-            }
-            if(PfxPassword != null)
-            {
-                ret.Add("pfxPassword", "<pfxPassword>" + EscapeXml(PfxPassword) + "</pfxPassword>");
-            }
-            if(PfxPath != null)
-            {
-                ret.Add("pfxPath", "<pfxPath>" + EscapeXml(PfxPath) + "</pfxPath>");
             }
             if(Region != null)
             {

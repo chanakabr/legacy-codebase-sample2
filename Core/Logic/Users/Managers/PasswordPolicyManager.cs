@@ -292,8 +292,9 @@ namespace ApiLogic.Users.Managers
                                 {
                                     invalidPasswordComplexities.Add(expression);
 
-                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()}",
-                                        $"Your password needs to be more complex. It requires: {passwordPolicy.Complexities[i].Description}. Please enter a new password in accordance with these requirements");
+                                    var description = passwordPolicy.Complexities[i].Description;
+
+                                    AddPasswordComplexityError(response, description);
                                 }
                             }
                         }
@@ -625,6 +626,19 @@ namespace ApiLogic.Users.Managers
             }
 
             return result;
+        }
+
+        private static void AddPasswordComplexityError(Status response, string complexityDescription)
+        {
+            if (response.Args == null)
+            {
+                response.Args = new List<ApiObjects.KeyValuePair>();
+            }
+
+            // Add args as Args.Add(..) (not as AddArg(..)) to allow multiple InvalidPasswordComplexity errors.
+            response.Args.Add(new ApiObjects.KeyValuePair(
+                eResponseStatus.InvalidPasswordComplexity.ToString(),
+                $"Your password needs to be more complex. It requires: {complexityDescription}. Please enter a new password in accordance with these requirements"));
         }
     }
 }
