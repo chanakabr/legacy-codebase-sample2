@@ -3286,8 +3286,17 @@ namespace Core.Catalog
                         }
                         break;
                     case eObjectType.Channel:
-                        // Set invalidation for the entire group
+                        // Set invalidation for the entire group, used for GetChannelsContainingMedia
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
+
+                        // only needed for none OPC accounts since OPC accounts already implement immediate index update + invalidation and not via update index 
+                        if (!doesGroupUsesTemplates)
+                        {
+                            foreach (var id in ids)
+                            {
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, (int)id));
+                            }
+                        }
                         break;
                     case eObjectType.EPG:
                         // invalidate epg's for OPC and NON-OPC accounts

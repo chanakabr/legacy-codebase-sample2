@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Base;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -103,6 +105,16 @@ namespace WebAPI.Models.ConditionalAccess
             }
 
             return list;
+        }
+
+        internal virtual KalturaRecordingListResponse SearchRecordings(ContextData contextData, KalturaFilterPager pager)
+        {
+            this.Validate();
+
+            var response = ClientsManager.ConditionalAccessClient().SearchRecordings(contextData.GroupId, contextData.UserId.Value.ToString(), contextData.DomainId.Value,
+                this.ConvertStatusIn(), this.Ksql, this.GetExternalRecordingIds(), pager.getPageIndex(), pager.PageSize, this.OrderBy, null);
+
+            return response;
         }
     }
 }
