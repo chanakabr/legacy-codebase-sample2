@@ -14,7 +14,7 @@ using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
 
-namespace Core.Catalog.Handlers
+namespace Core.Catalog.Handlers 
 {
     public class CategoryItemHandler : ICrudHandler<CategoryItem, long>
     {
