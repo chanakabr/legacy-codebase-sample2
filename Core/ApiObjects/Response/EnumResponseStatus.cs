@@ -298,7 +298,9 @@ namespace ApiObjects.Response
         ChildCategoryNotExist = 4092,
         ChildCategoryAlreadyBelongsToAnotherCategory = 4093,
         ChildCategoryCannotBeTheCategoryItself = 4094,
-
+        FileExceededMaxSize = 4095,
+        FileExtensionNotSupported = 4096,
+        FileMimeDifferentThanExpected = 4097,
         #endregion
 
         #region Api 5000 - 5999

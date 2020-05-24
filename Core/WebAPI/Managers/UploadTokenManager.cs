@@ -6,6 +6,10 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Upload;
 using ApiLogic;
+using System.Collections.Generic;
+using ApiObjects.Response;
+using System;
+using System.Linq;
 
 namespace WebAPI.Managers
 {
@@ -36,7 +40,7 @@ namespace WebAPI.Managers
             // save in CB
             UploadToken cbUploadToken = new UploadToken(groupId);
             string uploadTokenCbKey = string.Format(UploadTokenKeyFormat, cbUploadToken.UploadTokenId);
-            if (!cbManager.Add(uploadTokenCbKey, cbUploadToken, (uint) UploadTokenExpirySeconds, true))
+            if (!cbManager.Add(uploadTokenCbKey, cbUploadToken, (uint)UploadTokenExpirySeconds, true))
             {
                 log.Error("AddUploadToken: Failed to store upload token");
                 throw new InternalServerErrorException();
@@ -84,7 +88,9 @@ namespace WebAPI.Managers
             }
 
             cbUploadToken.FileSize = fileInfo.Length;
-            
+
+            ValidateFile(fileInfo, path);
+
             var saveFileResponse = FileHandler.Instance.SaveFile(id, fileInfo, "KalturaUploadToken");
             if (saveFileResponse == null)
             {
@@ -118,13 +124,55 @@ namespace WebAPI.Managers
 
             // save in CB
             string uploadTokenCbKey = string.Format(UploadTokenKeyFormat, cbUploadToken.UploadTokenId);
-            if (!cbManager.Set(uploadTokenCbKey, cbUploadToken, (uint) UploadTokenExpirySeconds, true))
+            if (!cbManager.Set(uploadTokenCbKey, cbUploadToken, (uint)UploadTokenExpirySeconds, true))
             {
                 log.Error("UploadUploadToken: Failed to store upload token");
                 throw new InternalServerErrorException();
             }
 
             return new KalturaUploadToken(cbUploadToken);
+        }
+
+        private static void ValidateFile(FileInfo file, string filePath)
+        {
+            try
+            {
+                var m = 1024 * 1024;//Byte  to Mb
+
+                var _maxFileSize = 15; //Max upload file size : 15MB
+                var _fileExtensions = new List<string> { "jpeg", "jpg", "png", "tif", "gif", "xls", "xlsx", "csv", "xslm" }
+                .Select(x => x.Replace(".", string.Empty)).ToList();//Supported file types
+
+                var fileArray = File.ReadAllBytes(filePath);
+                var fileMime = MimeType.GetMimeType(fileArray, file.Name);
+                var matchingExtension = MimeType.GetMimeByExtention(file.Extension);
+
+                if (file.Length > _maxFileSize * m)//check size//in bytes
+                {
+                    log.Debug($"Failed file byte file validation, file size: {file.Length * m} mb");
+                    throw new ClientException((int)eResponseStatus.FileExceededMaxSize, "File Exceeded Max Size");
+                }
+                else if (!_fileExtensions.Contains(file.Extension.Replace(".", string.Empty)))
+                {
+                    log.Debug($"Failed file extension validation, file extension: {file.Extension}");
+                    throw new ClientException((int)eResponseStatus.FileExtensionNotSupported, "File Extension Not Supported");
+                }
+                else if (string.IsNullOrEmpty(fileMime) || matchingExtension.ToLower() != fileMime.ToLower())
+                {
+                    log.Debug($"Failed file mime/content-type validation, expected: {matchingExtension}, actual: {fileMime}");
+                    throw new ClientException((int)eResponseStatus.FileMimeDifferentThanExpected, "File Mime Different Than Expected");
+                }
+            }
+            catch (FileNotFoundException ex)
+            {
+                log.Error($"File not found: {ex}");
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while validating File: {file} ex: {ex}");
+                throw ex;
+            }
         }
     }
 }
