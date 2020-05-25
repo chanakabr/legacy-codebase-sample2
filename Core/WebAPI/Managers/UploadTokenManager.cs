@@ -147,7 +147,7 @@ namespace WebAPI.Managers
 
                 if (file.Length > _maxFileSize * m)//check size in bytes
                 {
-                    log.Debug($"Failed file byte file validation, file size: {file.Length * m} mb");
+                    log.Debug($"Failed file size validation, file size: {file.Length * m} mb");
                     throw new ClientException((int)eResponseStatus.FileExceededMaxSize, "File Exceeded Max Size");
                 }
                 else if (!_fileExtensions.Contains(file.Extension.Replace(".", string.Empty)))
