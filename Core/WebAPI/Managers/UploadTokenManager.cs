@@ -17,6 +17,10 @@ namespace WebAPI.Managers
     {
         private const string CB_SECTION_NAME = "tokens";
         private const string UPLOAD_TOKEN_KEY_FORMAT = "upload_token_{0}";
+        private const int m = 1024 * 1024;//Byte  to Mb
+        private const int _maxFileSize = 15; //Max upload file size : 15MB
+        private static List<string> _fileExtensions = new List<string> { "jpeg", "jpg", "png", "tif", "gif", "xls", "xlsx", "csv", "xslm" }
+                .Select(x => x.Replace(".", string.Empty)).ToList();//Supported file types
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -137,12 +141,6 @@ namespace WebAPI.Managers
         {
             try
             {
-                var m = 1024 * 1024;//Byte  to Mb
-
-                var _maxFileSize = 15; //Max upload file size : 15MB
-                var _fileExtensions = new List<string> { "jpeg", "jpg", "png", "tif", "gif", "xls", "xlsx", "csv", "xslm" }
-                .Select(x => x.Replace(".", string.Empty)).ToList();//Supported file types
-
                 var fileArray = File.ReadAllBytes(filePath);
                 var fileMime = MimeType.GetMimeType(fileArray, file.Name);
                 var matchingExtension = MimeType.GetMimeByExtention(file.Extension);
