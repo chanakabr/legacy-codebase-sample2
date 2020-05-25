@@ -147,7 +147,7 @@ namespace WebAPI.Managers
                 var fileMime = MimeType.GetMimeType(fileArray, file.Name);
                 var matchingExtension = MimeType.GetMimeByExtention(file.Extension);
 
-                if (file.Length > _maxFileSize * m)//check size//in bytes
+                if (file.Length > _maxFileSize * m)//check size in bytes
                 {
                     log.Debug($"Failed file byte file validation, file size: {file.Length * m} mb");
                     throw new ClientException((int)eResponseStatus.FileExceededMaxSize, "File Exceeded Max Size");
