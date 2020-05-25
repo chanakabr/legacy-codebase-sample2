@@ -153,10 +153,10 @@ namespace ConfigurationManager.Types
         {
             CouchbaseBucketConfig res = new CouchbaseBucketConfig()
             {
-                BucketName = copyFrom.BucketName,
-                OperationLifespan = copyFrom.OperationLifespan,
-                Password = copyFrom.Password,
-                UseSsl = copyFrom.UseSsl,
+                BucketName = copyFrom.BucketName.Clone(),
+                OperationLifespan = copyFrom.OperationLifespan.Clone(),
+                Password = copyFrom.Password.Clone(),
+                UseSsl = copyFrom.UseSsl.Clone(),
                 PoolConfiguration = CouchbasePoolConfiguration.Copy(copyFrom.PoolConfiguration)
             };
 
@@ -205,11 +205,11 @@ namespace ConfigurationManager.Types
         {
             CouchbasePoolConfiguration res = new CouchbasePoolConfiguration()
             {
-                MaxSize = copyFrom.MaxSize,
-                MinSize = copyFrom.MinSize,
-                Name = copyFrom.Name,
-                path = copyFrom.path,
-                SendTimeout = copyFrom.SendTimeout
+                MaxSize = copyFrom.MaxSize.Clone(),
+                MinSize = copyFrom.MinSize.Clone(),
+                Name = copyFrom.Name.Clone(),
+                path = copyFrom.path.ToArray(),
+                SendTimeout = copyFrom.SendTimeout.Clone()
             };
 
             return res;
