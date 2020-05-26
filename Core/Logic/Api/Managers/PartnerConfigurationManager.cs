@@ -201,18 +201,9 @@ namespace ApiLogic.Api.Managers
                                                && defaultRegion.id != catalogGroupCache.DefaultRegion);
                 }
 
-                List<int> rollingDeviceRemovalFamilyIds;
-                if (partnerConfigToUpdate?.RollingDeviceRemovalData == null)
+                if (partnerConfigToUpdate?.RollingDeviceRemovalData?.RollingDeviceRemovalFamilyIds?.Count > 0)
                 {
-                    rollingDeviceRemovalFamilyIds = new List<int>();
-                }
-                else
-                {
-                    rollingDeviceRemovalFamilyIds = partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds;
-                }
-
-                if (rollingDeviceRemovalFamilyIds.Count > 0)
-                {
+                    var rollingDeviceRemovalFamilyIds = partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds;
 
                     partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds =
                         rollingDeviceRemovalFamilyIds.Distinct().ToList();
