@@ -23,7 +23,7 @@ namespace Core.Catalog
         {
             "media_type_id",
             "name"
-            // ,"crid"
+             ,"crid"
         };
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

@@ -123,7 +123,7 @@ namespace ApiLogic.Api.Managers
             try
             {
                 bool shouldInvalidateRegions = false;
-                
+
                 // check for MainLanguage valid
                 if (partnerConfigToUpdate.MainLanguage.HasValue)
                 {
@@ -201,9 +201,9 @@ namespace ApiLogic.Api.Managers
                                                && defaultRegion.id != catalogGroupCache.DefaultRegion);
                 }
 
-                List<int> rollingDeviceRemovalFamilyIds = partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds;
-                if (rollingDeviceRemovalFamilyIds.Count > 0)
+                if (partnerConfigToUpdate?.RollingDeviceRemovalData?.RollingDeviceRemovalFamilyIds?.Count > 0)
                 {
+                    var rollingDeviceRemovalFamilyIds = partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds;
 
                     partnerConfigToUpdate.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds =
                         rollingDeviceRemovalFamilyIds.Distinct().ToList();
@@ -211,7 +211,7 @@ namespace ApiLogic.Api.Managers
                     // validate deviceFamilyIds
                     var deviceFamilyList = Core.Api.Module.GetDeviceFamilyList(groupId);
                     List<DeviceFamily> deviceFamilies = deviceFamilyList.DeviceFamilies;
-                    if (deviceFamilyList.Status.Code != (int) eResponseStatus.OK || deviceFamilies.Count == 0)
+                    if (deviceFamilyList.Status.Code != (int)eResponseStatus.OK || deviceFamilies.Count == 0)
                     {
                         response.Message = "No DeviceFamilies";
                         return response;
@@ -222,7 +222,7 @@ namespace ApiLogic.Api.Managers
 
                     if (notDeviceFamilies.Count > 0)
                     {
-                        response.Set((int) eResponseStatus.NonExistingDeviceFamilyIds,
+                        response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds,
                             $"The ids: {string.Join(", ", notDeviceFamilies)} are non-existing DeviceFamilyIds");
                         return response;
                     }
@@ -708,10 +708,10 @@ namespace ApiLogic.Api.Managers
                             }
                         }
 
-                        
 
 
-                       
+
+
                     }
                 }
             }
@@ -736,7 +736,7 @@ namespace ApiLogic.Api.Managers
             string rollingDeviceRemovalPolicyIds =
                 ODBCWrapper.Utils.GetSafeStr(dataRow, "ROLLING_DEVICE_REMOVAL_FAMILY_IDS");
 
-            
+
             if (!rollingDeviceRemovalPolicyIds.IsNullOrEmptyOrWhiteSpace())
             {
                 //gets the family ids
@@ -750,7 +750,7 @@ namespace ApiLogic.Api.Managers
 
                     //gets policy
                     rollingDeviceRemovalData.RollingDeviceRemovalPolicy =
-                        (RollingDevicePolicy) ODBCWrapper.Utils.GetNullableInt(dataRow, "ROLLING_DEVICE_REMOVAL_POLICY")
+                        (RollingDevicePolicy)ODBCWrapper.Utils.GetNullableInt(dataRow, "ROLLING_DEVICE_REMOVAL_POLICY")
                             .Value;
                 }
             }

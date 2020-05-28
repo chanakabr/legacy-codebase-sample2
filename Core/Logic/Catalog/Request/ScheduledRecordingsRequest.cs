@@ -162,47 +162,26 @@ namespace Core.Catalog.Request
             return response;
         }
 
-        private static void HandleScheduledRecordingsSearchResults(UnifiedSearchResponse response, SeriesRecording[] series, Dictionary<long, string> epgIdToSingleRecordingIdMap,
-                                                                    string seriesIdMetaOrTag, string seasonNumberMetaOrTag)
+        private static void HandleScheduledRecordingsSearchResults(UnifiedSearchResponse response, 
+            SeriesRecording[] series, Dictionary<long, string> epgIdToSingleRecordingIdMap,
+                                                                    string seriesIdMetaOrTag, 
+                                                                    string seasonNumberMetaOrTag)
         {
-            if (response != null && response.status != null && response.status.Code == (int)eResponseStatus.OK && response.searchResults != null)
-            {
-                List<RecordingSearchResult> scheduledSearchResults = new List<RecordingSearchResult>();
-                foreach (ExtendedSearchResult extendedResult in response.searchResults.Select(sr => (ExtendedSearchResult)sr).ToList())
-                {
-                    RecordingSearchResult scheduledRecording = new RecordingSearchResult(extendedResult);
-                    long epgId;
-                    if (long.TryParse(extendedResult.AssetId, out epgId) && epgId > 0)
-                    {
-                        if (epgIdToSingleRecordingIdMap.ContainsKey(epgId))
-                        {
-                            scheduledRecording.RecordingType = RecordingType.Single;
-                            scheduledRecording.AssetId = epgIdToSingleRecordingIdMap[epgId];
-                        }
-                        else
-                        {
-                            long epgChannelId = ConditionalAccess.Utils.GetLongParamFromExtendedSearchResult(extendedResult, "epg_channel_id");
-                            long seasonNumber = ConditionalAccess.Utils.GetLongParamFromExtendedSearchResult(extendedResult, seasonNumberMetaOrTag);
-                            string seriesId = ConditionalAccess.Utils.GetStringParamFromExtendedSearchResult(extendedResult, seriesIdMetaOrTag);
-                            if (epgChannelId > 0 && seasonNumber > 0 && !string.IsNullOrEmpty(seriesId))
-                            {
-                                SeriesRecording seriesRecording = null;
-                                seriesRecording = series.Where(x => x.EpgChannelId == epgChannelId && x.SeriesId == seriesId
-                                                               && (x.SeasonNumber == seasonNumber || (x.SeasonNumber == 0 && !x.ExcludedSeasons.Contains((int)seasonNumber)))).FirstOrDefault();
-                                if (seriesRecording != null && seriesRecording.Id > 0)
-                                {
-                                    scheduledRecording.RecordingType = seriesRecording.Type;
-                                    scheduledRecording.AssetId = seriesRecording.Id.ToString();
-                                }
-                            }
-                        }
-                    }
-                    scheduledSearchResults.Add(scheduledRecording);
-                }
 
-                response.searchResults = scheduledSearchResults.Select(x => (UnifiedSearchResult)x).ToList();
-            }
+            var isResValid = response != null && response.status != null && response.status.Code == (int)eResponseStatus.OK;
+            if (!isResValid && !response.aggregationResults.Any())
+                return;
+
+            var allData = response.aggregationResults[0].results.SelectMany(x => x.topHits)
+                   .OfType<ExtendedSearchResult>()
+                   .Select(x => new RecordingSearchResult(x)).
+                   OfType<UnifiedSearchResult>();
+
+            response.searchResults = allData.ToList();
+
+
         }
+
 
         private RecordingResponse GetCurrentRecordings(string wsUserName, string wsPassword)
         {
@@ -309,11 +288,20 @@ namespace Core.Catalog.Request
             {
                 ExtendedSearchRequest searchRequest = new ExtendedSearchRequest(m_nPageSize, m_nPageIndex, m_nGroupID, m_sSignature, m_sSignString, orderBy,
                                                                         new List<int>() { 0 }, ksql.ToString(), string.Empty)
-                                                                        {
-                                                                            excludedCrids = cridsToExclude,
-                                                                            ExtraReturnFields = new List<string> { "epg_channel_id", seriesIdMetaOrTag, seasonNumberMetaOrTag }
-                                                                        };
+                {
+                    excludedCrids = cridsToExclude,
+                    ExtraReturnFields = new List<string> { "epg_channel_id", seriesIdMetaOrTag, seasonNumberMetaOrTag },
+                    searchGroupBy = new SearchAggregationGroupBy()
+                    {
+                        groupBy = new List<string>() { "crid" },
+                        distinctGroup = "crid",
+                        topHitsCount = 1
+                    }
+                };
+                
+
                 BaseResponse baseResponse = searchRequest.GetResponse(searchRequest);
+
                 response = baseResponse as UnifiedSearchResponse;
             }
 
