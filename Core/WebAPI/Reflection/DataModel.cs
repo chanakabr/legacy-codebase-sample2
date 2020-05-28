@@ -1199,12 +1199,18 @@ namespace WebAPI.Reflection
                             return "childrenIds";
                         case "DynamicData":
                             return "dynamicData";
+                        case "EndDateInSeconds":
+                            return "endDateInSeconds";
                         case "Id":
                             return "id";
+                        case "IsActive":
+                            return "isActive";
                         case "Name":
                             return "name";
                         case "ParentId":
                             return "parentId";
+                        case "StartDateInSeconds":
+                            return "startDateInSeconds";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                         case "UpdateDate":
@@ -1245,12 +1251,18 @@ namespace WebAPI.Reflection
                             return "children";
                         case "DynamicData":
                             return "dynamicData";
+                        case "EndDateInSeconds":
+                            return "endDateInSeconds";
                         case "Id":
                             return "id";
                         case "Images":
                             return "images";
+                        case "IsActive":
+                            return "isActive";
                         case "Name":
                             return "name";
+                        case "StartDateInSeconds":
+                            return "startDateInSeconds";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                     }
@@ -6731,8 +6743,12 @@ namespace WebAPI.Reflection
                 case "KalturaUnifiedChannelInfo":
                     switch(property.Name)
                     {
+                        case "EndDateInSeconds":
+                            return "endDateInSeconds";
                         case "Name":
                             return "name";
+                        case "StartDateInSeconds":
+                            return "startDateInSeconds";
                     }
                     break;
                     

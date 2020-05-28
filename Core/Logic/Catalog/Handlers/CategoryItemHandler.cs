@@ -7,6 +7,7 @@ using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Api;
 using Core.Catalog.CatalogManagement;
+using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -65,6 +66,11 @@ namespace Core.Catalog.Handlers
                         response.SetStatus(eResponseStatus.ChannelDoesNotExist, "Channel does not exist");
                         return response;
                     }
+                }
+
+                if (!objectToAdd.IsActive.HasValue)
+                {
+                    objectToAdd.IsActive = true;
                 }
 
                 if (!CategoriesManager.Add(contextData.GroupId, contextData.UserId.Value, objectToAdd))
@@ -137,8 +143,6 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                List<KeyValuePair<long, int>> channels = null;
-
                 if (objectToUpdate.UnifiedChannels == null)
                 {
                     if (currentCategory.UnifiedChannels != null)
@@ -148,8 +152,6 @@ namespace Core.Catalog.Handlers
                 }
                 else
                 {
-                    channels = new List<KeyValuePair<long, int>>();
-
                     if (objectToUpdate.UnifiedChannels?.Count > 0)
                     {
                         if (!IsUnifiedChannelsValid(contextData.GroupId, contextData.UserId.HasValue ? contextData.UserId.Value : 0, objectToUpdate.UnifiedChannels))
@@ -158,7 +160,7 @@ namespace Core.Catalog.Handlers
                             return response;
                         }
 
-                        channels = objectToUpdate.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
+                        objectToUpdate.UnifiedChannels = HandleUnifiedChannelsTimeSlotToUpdate(objectToUpdate.UnifiedChannels, currentCategory.UnifiedChannels);
                     }
                 }
 
@@ -166,6 +168,8 @@ namespace Core.Catalog.Handlers
                 {
                     objectToUpdate.DynamicData = currentCategory.DynamicData;
                 }
+
+                objectToUpdate.TimeSlot = HandleTimeSlotToUpdate(objectToUpdate.TimeSlot, currentCategory.TimeSlot);
 
                 //set NamesInOtherLanguages
                 List<KeyValuePair<long, string>> languageCodeToName = null;
@@ -190,7 +194,8 @@ namespace Core.Catalog.Handlers
                     }
                 }
 
-                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name, languageCodeToName, channels, objectToUpdate.DynamicData))
+                if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name,
+                    languageCodeToName, objectToUpdate.UnifiedChannels, objectToUpdate.DynamicData, objectToUpdate.IsActive, objectToUpdate.TimeSlot))
                 {
                     log.Error($"Error while updateCategory. contextData: {contextData.ToString()}.");
                     return response;
@@ -405,7 +410,7 @@ namespace Core.Catalog.Handlers
             {
                 Filter = filter.Ksql,
                 UserId = contextData.UserId.Value,
-                IsAllowedToViewInactiveAssets = RolesPermissionsManager.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.Value.ToString(), true),
+                IsAllowedToViewInactiveAssets = true,
                 NoSegmentsFilter = true
             };
 
@@ -467,13 +472,36 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                root.Name = name;
+                CategoryItem copiedRoot = (CategoryItem)root.Clone();
+                copiedRoot.Name = name;
 
                 Dictionary<long, long> newTreeMap = new Dictionary<long, long>();
 
-                DuplicateChildren(groupId, userId, root, newTreeMap);
+                DuplicateChildren(groupId, userId, copiedRoot, newTreeMap);
 
-                response = GetCategoryTree(groupId, userId, newTreeMap[id]);
+                // in case the duplicate category have parent, it should bw updated with his new child :)
+                if (root.ParentId.HasValue && root.ParentId.Value > 0)
+                {
+                    // Get parent
+                    CategoryItem parent = CategoriesManager.GetCategoryItem(groupId, root.ParentId.Value);
+
+                    if (parent == null)
+                    {
+                        response.SetStatus(eResponseStatus.CategoryNotExist, "Parent Category does not exist");
+                        return response;
+                    }
+
+                    // update parent with new child
+                    parent.ChildrenIds.Add(newTreeMap[id]);
+                    if (!CatalogDAL.UpdateCategoryOrderNum(groupId, userId, root.ParentId.Value, parent.ChildrenIds, null))
+                    {
+                        log.Error($"Error while re-order child categories. groupId: {groupId}. after duplicate categoryId: {id}");
+                        response.SetStatus(eResponseStatus.Error);
+                        return response;
+                    }
+                }
+
+                response = GetCategoryTree(groupId, newTreeMap[id]);
             }
             catch (Exception ex)
             {
@@ -516,14 +544,14 @@ namespace Core.Catalog.Handlers
             }
         }
 
-        public GenericResponse<CategoryTree> GetCategoryTree(int groupId, long userId, long id)
+        public GenericResponse<CategoryTree> GetCategoryTree(int groupId, long id, bool onlyActive = false)
         {
             GenericResponse<CategoryTree> response = new GenericResponse<CategoryTree>();
 
             CategoryTree categoryTree = null;
 
             // Get the current category
-            var categoryItem = CategoriesManager.GetCategoryItem(groupId, id);
+            var categoryItem = CategoriesManager.GetCategoryItem(groupId, id, onlyActive);
             if (categoryItem == null)
             {
                 response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
@@ -539,8 +567,14 @@ namespace Core.Catalog.Handlers
 
             if (categoryItem?.ChildrenIds?.Count > 0)
             {
-                List<CategoryItem> childern = categoryItem.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
-                categoryTree.Children = FindTreeChildren(groupId, childern);
+                List<CategoryItem> childern = categoryItem.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x, onlyActive)).ToList();
+
+                childern.RemoveAll(item => item == null);
+
+                if (childern.Any(i => i != null))
+                {
+                    categoryTree.Children = FindTreeChildren(groupId, childern, onlyActive);
+                }
             }
 
             response.Object = categoryTree;
@@ -549,15 +583,21 @@ namespace Core.Catalog.Handlers
             return response;
         }
 
-        private List<CategoryTree> FindTreeChildren(int groupId, List<CategoryItem> children)
+        private List<CategoryTree> FindTreeChildren(int groupId, List<CategoryItem> children, bool onlyActive)
         {
             List<CategoryTree> response = new List<CategoryTree>();
             CategoryTree ct;
+            children.RemoveAll(item => item == null);
+
             foreach (var c in children)
             {
                 ct = BuildCategoryTree(groupId, c);
-                var ch = c.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x)).ToList();
-                ct.Children = FindTreeChildren(groupId, ch);
+                var ch = c.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x, onlyActive)).ToList();
+                ch.RemoveAll(item => item == null);
+                if (ch.Any(i => i != null))
+                {
+                    ct.Children = FindTreeChildren(groupId, ch, onlyActive);
+                }
                 response.Add(ct);
             }
 
@@ -712,6 +752,58 @@ namespace Core.Catalog.Handlers
             LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(id));
 
             return true;
+        }
+
+        private TimeSlot HandleTimeSlotToUpdate(TimeSlot timeSlotToUpdate, TimeSlot currentTimeSlot)
+        {            
+            if (timeSlotToUpdate == null)
+            {
+                timeSlotToUpdate = currentTimeSlot;
+            }
+            else
+            {
+                if (currentTimeSlot != null)
+                {
+                    if (!timeSlotToUpdate.StartDateInSeconds.HasValue && currentTimeSlot.StartDateInSeconds.HasValue)
+                    {
+                        timeSlotToUpdate.StartDateInSeconds = currentTimeSlot.StartDateInSeconds;
+                    }
+
+                    if (!timeSlotToUpdate.EndDateInSeconds.HasValue && currentTimeSlot.EndDateInSeconds.HasValue)
+                    {
+                        timeSlotToUpdate.EndDateInSeconds = currentTimeSlot.EndDateInSeconds;
+                    }
+                }
+            }
+
+            return timeSlotToUpdate;
+        }
+
+        private List<UnifiedChannel> HandleUnifiedChannelsTimeSlotToUpdate(List<UnifiedChannel> unifiedChannelsToUpdate, List<UnifiedChannel> currentUnifiedChannels)
+        {
+            if (unifiedChannelsToUpdate != null && currentUnifiedChannels != null && currentUnifiedChannels.Count > 0)
+            {
+                UnifiedChannelInfo channelInfoToUpdate = null;
+                UnifiedChannelInfo currentUnifiedChannelInfo = null;
+                foreach (var unifiedChannelToUpdate in unifiedChannelsToUpdate)
+                {
+                    channelInfoToUpdate = unifiedChannelToUpdate as UnifiedChannelInfo;
+                    if (channelInfoToUpdate != null)
+                    {
+                        var channel = currentUnifiedChannels.Where(x => x.Id == channelInfoToUpdate.Id && x.Type == channelInfoToUpdate.Type).First();
+                        if (channel != null)
+                        {
+                            currentUnifiedChannelInfo = channel as UnifiedChannelInfo;
+                            if (currentUnifiedChannelInfo != null)
+                            {
+                                channelInfoToUpdate.TimeSlot = HandleTimeSlotToUpdate(channelInfoToUpdate.TimeSlot, currentUnifiedChannelInfo.TimeSlot);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return unifiedChannelsToUpdate;
         }
     }
 }
