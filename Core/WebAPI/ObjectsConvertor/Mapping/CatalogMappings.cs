@@ -1249,13 +1249,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .IncludeBase<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
-<<<<<<< HEAD
-            #endregion CategoryItem
-        }        
-=======
             #endregion CategoryItem            
         }
->>>>>>> master
 
         private static int? ConvertToNullableInt(bool? value)
         {
