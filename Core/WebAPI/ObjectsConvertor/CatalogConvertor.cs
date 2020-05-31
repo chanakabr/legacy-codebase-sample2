@@ -373,6 +373,14 @@ namespace WebAPI.ObjectsConvertor
                     result.m_eOrderBy = OrderBy.NONE;
                     result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
+                case KalturaCategoryItemOrderBy.UPDATE_DATE_DESC:
+                    result.m_eOrderBy = OrderBy.CREATE_DATE;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                    break;
+                case KalturaCategoryItemOrderBy.UPDATE_DATE_ASC:
+                    result.m_eOrderBy = OrderBy.CREATE_DATE;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
+                    break;
             }
             return result;
         }

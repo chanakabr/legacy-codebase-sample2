@@ -5582,9 +5582,13 @@ namespace DAL
 
             sp.AddParameter("@rollingDeviceRemovalPolicy",rollingDeviceRemovalPolicy);
 
-            sp.AddParameter("@rollingDeviceRemovalFamilyIds",
-                    string.Join(",", partnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds));
-                return sp.ExecuteReturnValue<int>() > 0;
+            if (partnerConfig != null && partnerConfig.RollingDeviceRemovalData != null)
+            {
+                sp.AddParameter("@rollingDeviceRemovalFamilyIds", 
+                    string.Join(",",partnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds));
+            }
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public static DataSet GetGeneralPartnerConfig(int groupId)

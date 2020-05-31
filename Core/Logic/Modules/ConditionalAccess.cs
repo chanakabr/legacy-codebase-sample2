@@ -2498,14 +2498,14 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static ApiObjects.TimeShiftedTv.RecordingResponse QueryRecords(int groupID, string userID, long[] epgIDs)
+        public static ApiObjects.TimeShiftedTv.Recording QueryRecords(int groupID, string userID, long epgId)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
                 long domainID = 0;
-                return t.QueryRecords(userID, epgIDs.ToList(), ref domainID, ApiObjects.RecordingType.Single, true);
+                return t.QueryRecords(userID, epgId, ref domainID, ApiObjects.RecordingType.Single, true);
             }
             else
             {
@@ -3064,6 +3064,11 @@ namespace Core.ConditionalAccess
                 }
                
                 response.ItemsPrices = t.GetItemsPrices(mediaFiles, userId, couponCode != null ? couponCode : string.Empty, onlyLowest, languageCode, udid, ip, currencyCode, blockEntitlement);
+                //foreach (MediaFileItemPricesContainer mf in response.ItemsPrices)
+                //{
+                //    t.InesrtGetItemsPricesResToCache(mf.m_nMediaFileID, userId, mf);
+                //}
+
                 if (response.ItemsPrices != null)
                     response.Status = new Status((int)eResponseStatus.OK, "OK");
                 else

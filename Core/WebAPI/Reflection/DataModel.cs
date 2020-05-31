@@ -1199,12 +1199,18 @@ namespace WebAPI.Reflection
                             return "childrenIds";
                         case "DynamicData":
                             return "dynamicData";
+                        case "EndDateInSeconds":
+                            return "endDateInSeconds";
                         case "Id":
                             return "id";
+                        case "IsActive":
+                            return "isActive";
                         case "Name":
                             return "name";
                         case "ParentId":
                             return "parentId";
+                        case "StartDateInSeconds":
+                            return "startDateInSeconds";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                         case "UpdateDate":
@@ -1245,12 +1251,18 @@ namespace WebAPI.Reflection
                             return "children";
                         case "DynamicData":
                             return "dynamicData";
+                        case "EndDateInSeconds":
+                            return "endDateInSeconds";
                         case "Id":
                             return "id";
                         case "Images":
                             return "images";
+                        case "IsActive":
+                            return "isActive";
                         case "Name":
                             return "name";
+                        case "StartDateInSeconds":
+                            return "startDateInSeconds";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                     }
@@ -1439,6 +1451,8 @@ namespace WebAPI.Reflection
                     {
                         case "IdEqual":
                             return "idEqual";
+                        case "IdIn":
+                            return "idIn";
                         case "MediaIdEqual":
                             return "mediaIdEqual";
                         case "NameEqual":
@@ -2574,6 +2588,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaExternalChannelProfileByIdInFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaExternalChannelProfileListResponse":
                     switch(property.Name)
                     {
@@ -3187,6 +3209,8 @@ namespace WebAPI.Reflection
                             return "idIn";
                         case "ImageObjectIdEqual":
                             return "imageObjectIdEqual";
+                        case "ImageObjectIdIn":
+                            return "imageObjectIdIn";
                         case "ImageObjectTypeEqual":
                             return "imageObjectTypeEqual";
                         case "IsDefaultEqual":
@@ -3397,22 +3421,12 @@ namespace WebAPI.Reflection
                     {
                         case "AccessKeyId":
                             return "accessKeyId";
-                        case "BrokerPort":
-                            return "brokerPort";
-                        case "CertificatePath":
-                            return "certificatePath";
                         case "ClientId":
                             return "clientId";
                         case "IdentityPoolId":
                             return "identityPoolId";
                         case "IotEndPoint":
                             return "iotEndPoint";
-                        case "IotPolicyName":
-                            return "iotPolicyName";
-                        case "PfxPassword":
-                            return "pfxPassword";
-                        case "PfxPath":
-                            return "pfxPath";
                         case "Region":
                             return "region";
                         case "SecretAccessKey":
@@ -6729,8 +6743,12 @@ namespace WebAPI.Reflection
                 case "KalturaUnifiedChannelInfo":
                     switch(property.Name)
                     {
+                        case "EndDateInSeconds":
+                            return "endDateInSeconds";
                         case "Name":
                             return "name";
+                        case "StartDateInSeconds":
+                            return "startDateInSeconds";
                     }
                     break;
                     
@@ -8151,7 +8169,7 @@ namespace WebAPI.Reflection
                                 return ExternalChannelProfileController.ListOldStandard();
                             }
                             RolesManager.ValidateActionPermitted("externalChannelProfile", "list", false);
-                            return ExternalChannelProfileController.List();
+                            return ExternalChannelProfileController.List((KalturaExternalChannelProfileFilter) methodParams[0]);
                             
                         case "listoldstandard":
                             RolesManager.ValidateActionPermitted("externalChannelProfile", "listOldStandard", false);
@@ -13917,6 +13935,13 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaExternalChannelProfileFilter),
+                            });
                             return ret;
                             
                         case "listoldstandard":

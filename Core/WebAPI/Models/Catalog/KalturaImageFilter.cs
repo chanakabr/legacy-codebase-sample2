@@ -44,6 +44,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "isDefaultEqual", IsNullable = true)]
         public bool? IsDefaultEqual { get; set; }
 
+        /// <summary>
+        /// Comma separated imageObject ids list	
+        /// </summary>
+        [DataMember(Name = "imageObjectIdIn")]
+        [JsonProperty("imageObjectIdIn")]
+        [XmlElement(ElementName = "imageObjectIdIn")]
+        public string ImageObjectIdIn { get; set; }
+
         public override KalturaImageOrderBy GetDefaultOrderByValue()
         {
             return KalturaImageOrderBy.NONE;
@@ -72,23 +80,64 @@ namespace WebAPI.Models.Catalog
             return new List<long>(list);
         }
 
+        public List<long> GetImageObjectIdIn()
+        {
+            HashSet<long> list = new HashSet<long>();
+            if (!string.IsNullOrEmpty(ImageObjectIdIn))
+            {
+                string[] stringValues = ImageObjectIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    long value;
+                    if (long.TryParse(stringValue, out value) && !list.Contains(value))
+                    {
+                        list.Add(value);
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaImageFilter.imageObjectIdIn");
+                    }
+                }
+            }
+
+            return new List<long>(list);
+        }
+
         internal void Validate()
         {
-            if (!string.IsNullOrEmpty(IdIn) && ImageObjectIdEqual.HasValue && ImageObjectIdEqual != 0 && ImageObjectTypeEqual.HasValue)
+            if (!string.IsNullOrEmpty(IdIn))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaImageFilter.idIn", "KalturaImageFilter.imageObjectIdEqual");
+                if (ImageObjectIdEqual.HasValue && ImageObjectIdEqual != 0 && ImageObjectTypeEqual.HasValue)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaImageFilter.idIn", "KalturaImageFilter.imageObjectIdEqual");
+                }
+                else if (!string.IsNullOrEmpty(ImageObjectIdIn) && ImageObjectTypeEqual.HasValue)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaImageFilter.imageObjectIdIn", "KalturaImageFilter.imageObjectIdEqual");
+                }
             }
+
             if (ImageObjectIdEqual.HasValue && ImageObjectIdEqual != 0 && !ImageObjectTypeEqual.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaImageFilter.imageObjectTypeEqual");
             }
-            if (ImageObjectTypeEqual.HasValue && (!ImageObjectIdEqual.HasValue || ImageObjectIdEqual == 0))
+
+            if (ImageObjectTypeEqual.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaImageFilter.imageObjectIdEqual");
+                if ((!ImageObjectIdEqual.HasValue || ImageObjectIdEqual == 0) && string.IsNullOrEmpty(ImageObjectIdIn))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, $"{"KalturaImageFilter.imageObjectIdEqual, KalturaImageFilter.imageObjectIdIn"}");
+                }
             }
-            if (!ImageObjectIdEqual.HasValue && !ImageObjectTypeEqual.HasValue && string.IsNullOrEmpty(IdIn))
+
+            if (!ImageObjectIdEqual.HasValue && !ImageObjectTypeEqual.HasValue && string.IsNullOrEmpty(IdIn) && string.IsNullOrEmpty(ImageObjectIdIn))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaImageFilter.imageObjectIdEqual", "KalturaImageFilter.idIn");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, $"{"KalturaImageFilter.imageObjectIdEqual, KalturaImageFilter.idIn, KalturaImageFilter.imageObjectIdIn"}");
+            }
+
+            if (!string.IsNullOrEmpty(ImageObjectIdIn) && !ImageObjectTypeEqual.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaImageFilter.imageObjectIdIn");
             }
         }
     }

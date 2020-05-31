@@ -68,5 +68,32 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "images", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaImage> Images { get; set; }
+
+        /// <summary>
+        /// Category active status
+        /// </summary>
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
+        //[SchemeProperty(RequiresPermission = (int)RequestType.READ, ReadOnly = true)] //TODO: anat
+        public bool? IsActive { get; set; }
+
+        /// <summary>
+        /// Start date in seconds
+        /// </summary>
+        [DataMember(Name = "startDateInSeconds")]
+        [JsonProperty("startDateInSeconds")]
+        [XmlElement(ElementName = "startDateInSeconds", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
+        public long? StartDateInSeconds { get; set; }
+
+        /// <summary>
+        /// End date in seconds
+        /// </summary>
+        [DataMember(Name = "endDateInSeconds")]
+        [JsonProperty("endDateInSeconds")]
+        [XmlElement(ElementName = "endDateInSeconds", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
+        public long? EndDateInSeconds { get; set; }
     }
 }

@@ -11,6 +11,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -111,7 +112,8 @@ namespace Core.Catalog.CatalogManagement
                         Id = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID"),
                         ParentId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "PARENT_CATEGORY_ID"),
                         Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "CATEGORY_NAME"),
-                        UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[0].Rows[0], "UPDATE_DATE")
+                        UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[0].Rows[0], "UPDATE_DATE"),
+                        IsActive = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "IS_ACTIVE")                      
                     };
 
                     bool hasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA");
@@ -120,17 +122,41 @@ namespace Core.Catalog.CatalogManagement
                         categoryItem.DynamicData = CatalogDAL.GetCategoryDynamicData(id);
                     }
 
+                    DateTime? startDate = ODBCWrapper.Utils.ExtractNullableDateTime(ds.Tables[0].Rows[0], "START_DATE");
+                    DateTime? endDate = ODBCWrapper.Utils.ExtractNullableDateTime(ds.Tables[0].Rows[0], "END_DATE");
+                    if(startDate.HasValue || endDate.HasValue)
+                    {
+                        categoryItem.TimeSlot = new TimeSlot()
+                        {
+                            StartDateInSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate),
+                            EndDateInSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate)
+                        };                    
+                    }
+                    
                     if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                     {
                         categoryItem.UnifiedChannels = new List<UnifiedChannel>();
 
+                        UnifiedChannelInfo unifiedChannelInfo = null;
                         foreach (DataRow dr in ds.Tables[1].Rows)
                         {
-                            categoryItem.UnifiedChannels.Add(new UnifiedChannel()
-                            {
+                            unifiedChannelInfo = new UnifiedChannelInfo() {
                                 Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_ID"),
                                 Type = (UnifiedChannelType)ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_TYPE")
-                            });
+                            };
+
+                            startDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "START_DATE");
+                            endDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "END_DATE");
+                            if (startDate.HasValue || endDate.HasValue)
+                            {
+                                unifiedChannelInfo.TimeSlot = new TimeSlot()
+                                {
+                                    StartDateInSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate),
+                                    EndDateInSeconds = DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate)
+                                };
+                            }
+
+                            categoryItem.UnifiedChannels.Add(unifiedChannelInfo);
 
                             //TODO anat: check if channel exist 
                         }
@@ -240,7 +266,7 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        internal static CategoryItem GetCategoryItem(int groupId, long id)
+        internal static CategoryItem GetCategoryItem(int groupId, long id, bool onlyActive = false)
         {
             CategoryItem result = null;
 
@@ -248,17 +274,24 @@ namespace Core.Catalog.CatalogManagement
             {
                 string key = LayeredCacheKeys.GetCategoryItemKey(groupId, id);
                 string invalidationKey = LayeredCacheKeys.GetCategoryIdInvalidationKey(id);
-                if (!LayeredCache.Instance.Get<CategoryItem>(key,
-                                                            ref result,
+                bool cacheResult = LayeredCache.Instance.Get<CategoryItem>(key,
+                                                        ref result,
                                                         BuildCategoryItem,
                                                         new Dictionary<string, object>() { { "groupId", groupId }, { "id", id } },
                                                         groupId,
                                                         LayeredCacheConfigNames.GET_CATEGORY_ITEM,
-                                                        new List<string>() { invalidationKey }))
+                                                        new List<string>() { invalidationKey });
+                if (!cacheResult)
                 {
                     log.Error($"Failed getting GetCategoryItem from LayeredCache, groupId: {groupId}, key: {key}");
+                    return result;
                 }
-
+                
+                if (result != null && onlyActive && !result.IsValid())
+                {
+                    return null;
+                }
+                
             }
             catch (Exception ex)
             {
@@ -405,13 +438,6 @@ namespace Core.Catalog.CatalogManagement
             bool result = false;
             try
             {
-                List<KeyValuePair<long, int>> channels = null;
-
-                if (objectToAdd.UnifiedChannels?.Count > 0)
-                {
-                    channels = objectToAdd.UnifiedChannels.Select(x => new KeyValuePair<long, int>(x.Id, (int)x.Type)).ToList();
-                }
-
                 //set NamesInOtherLanguages
                 var status = HandleNamesInOtherLanguages(groupId, objectToAdd.NamesInOtherLanguages, out List<KeyValuePair<long, string>> languageCodeToName);
 
@@ -421,7 +447,8 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, channels, objectToAdd.DynamicData);
+                long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, objectToAdd.UnifiedChannels, objectToAdd.DynamicData,
+                    objectToAdd.IsActive, objectToAdd.TimeSlot);
 
                 if (id == 0)
                 {

@@ -40,6 +40,11 @@ namespace WebAPI.Controllers
                     //search using IDs
                     response = ClientsManager.CatalogClient().GetImagesByIds(groupId, filter.GetIdIn(), filter.IsDefaultEqual);
                 }
+                else if (!string.IsNullOrEmpty(filter.ImageObjectIdIn))
+                {
+                    //search using object ID and type
+                    response = ClientsManager.CatalogClient().GetImagesByObjects(groupId, filter.GetImageObjectIdIn(), filter.ImageObjectTypeEqual.Value, filter.IsDefaultEqual);
+                }
                 else
                 {
                     //search using object ID and type

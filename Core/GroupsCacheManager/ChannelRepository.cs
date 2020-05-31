@@ -302,7 +302,7 @@ namespace GroupsCacheManager
             return channel;
         }
 
-        public static List<Channel> GetChannels(List<int> channelIds, Group group)
+        public static List<Channel> GetChannels(List<int> channelIds, Group group, bool isAlsoInActive = false)
         {
             #region - select channel by channelId, and the parent_group_id
 
@@ -310,7 +310,7 @@ namespace GroupsCacheManager
 
             log.Debug("Getting channels for subscription");
 
-            DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(channelIds);
+            DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(channelIds, isAlsoInActive);
             DataTable channelsData = dataSet.Tables[0];
             DataTable mediaTypesTable = null;
 
@@ -326,7 +326,7 @@ namespace GroupsCacheManager
 
                 foreach (DataRow rowData in channelsData.Rows)
                 {
-                    Channel channel = CreateChannelByDataRow(group, mediaTypesTable, rowData);
+                    Channel channel = CreateChannelByDataRow(group, mediaTypesTable, rowData, isAlsoInActive);
 
                     if (channel != null)
                     {
