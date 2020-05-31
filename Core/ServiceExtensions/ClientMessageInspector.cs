@@ -52,6 +52,13 @@ namespace ServiceExtensions
                     {
                         var requestId = KLogger.LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
                         var ks = KLogger.LogContextData[Constants.KS]?.ToString();
+
+                        // backward compatibility for phoenix on windows
+                        if (string.IsNullOrEmpty(ks) && HttpContext.Current != null && HttpContext.Current.Items[KLogMonitor.Constants.KS] != null)
+                        {
+                            ks = HttpContext.Current.Items[KLogMonitor.Constants.KS].ToString();
+                        }
+
                         if (!string.IsNullOrEmpty(requestId))
                             request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, requestId));
                         else
