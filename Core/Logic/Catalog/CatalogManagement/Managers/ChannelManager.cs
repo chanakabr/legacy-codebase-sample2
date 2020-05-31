@@ -4,6 +4,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Core.Api.Managers;
+using Core.Catalog.Handlers;
 using Core.Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
@@ -1292,6 +1293,13 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+
+                    // remove channel from categories
+                    var removeStatus = CategoryItemHandler.RemoveChannelFromCategories(groupId, channelId, UnifiedChannelType.Internal, userId);
+                    if (removeStatus != null && !removeStatus.IsOkStatusCode())
+                    {
+                        log.Error($"Failed to remove channel {channelId} from categories fr group {groupId}");
                     }
                 }
                 else

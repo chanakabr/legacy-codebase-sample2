@@ -483,7 +483,7 @@ namespace Tvinci.Core.DAL
                 result = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "play_cycle_key");
             }
             return result;
-        }
+        }        
 
         public static void Insert_NewWatcherMediaAction(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID,
                                                         int nGroupID, int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID)
@@ -6304,5 +6304,20 @@ namespace Tvinci.Core.DAL
             }
             return ccTable;
         }
+
+        public static DataTable GetCategoriesIdsByChannelId(int groupId, int channelId, UnifiedChannelType channelType)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@channelId", channelId }, { "@channelType", (int)channelType } };
+                return UtilsDal.Execute("Get_CategoriesIdsByChannel", parameters);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while GetCategoriesIdsByChannelId from DB, groupId = {groupId}", ex);
+            }
+
+            return null;
+        }       
     }
 }

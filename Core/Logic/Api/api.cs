@@ -9,7 +9,6 @@ using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.Catalog;
 using ApiObjects.CDNAdapter;
-using ApiObjects.EventBus;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using ApiObjects.Roles;
@@ -24,6 +23,7 @@ using Core.Api.Managers;
 using Core.Api.Modules;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
+using Core.Catalog.Handlers;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification;
@@ -7702,6 +7702,14 @@ namespace Core.Api
                 }
 
                 QueueUtils.UpdateCache(groupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+
+                // remove channel from categories
+                var removeStatus = CategoryItemHandler.RemoveChannelFromCategories(groupId, externalChannelId, UnifiedChannelType.External, userId);
+                if (removeStatus != null && !removeStatus.IsOkStatusCode())
+                {
+                    log.Error($"Failed to remove externalChannelId {externalChannelId} from categories fr group {groupId}");
+                }
+
             }
             catch (Exception ex)
             {

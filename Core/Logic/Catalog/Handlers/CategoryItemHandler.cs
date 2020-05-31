@@ -1,6 +1,5 @@
 ﻿using ApiLogic.Base;
 using ApiLogic.Catalog;
-using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
@@ -11,11 +10,12 @@ using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
 
-namespace Core.Catalog.Handlers 
+namespace Core.Catalog.Handlers
 {
     public class CategoryItemHandler : ICrudHandler<CategoryItem, long>
     {
@@ -420,7 +420,7 @@ namespace Core.Catalog.Handlers
             if (filter.IsOrderByUpdateDate)
             {
                 result = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Category,
-                                                           categories, 0, 0, filter.OrderBy);                
+                                                           categories, 0, 0, filter.OrderBy);
             }
             else
             {
@@ -755,7 +755,7 @@ namespace Core.Catalog.Handlers
         }
 
         private TimeSlot HandleTimeSlotToUpdate(TimeSlot timeSlotToUpdate, TimeSlot currentTimeSlot)
-        {            
+        {
             if (timeSlotToUpdate == null)
             {
                 timeSlotToUpdate = currentTimeSlot;
@@ -804,6 +804,62 @@ namespace Core.Catalog.Handlers
             }
 
             return unifiedChannelsToUpdate;
+        }
+
+        internal static Status RemoveChannelFromCategories(int groupId, int channelId, UnifiedChannelType unifiedChannelType, long userId)
+        {
+            Status status = new Status();
+            DataTable categories = CatalogDAL.GetCategoriesIdsByChannelId(groupId, channelId, unifiedChannelType);
+
+            if (categories == null)
+            {
+                log.Error($"failed to get GetCategoriesIdsByChannelId for groupId: {groupId} when calling RemoveChannelFromCategories");
+                status.Set(eResponseStatus.Error);
+                return status;
+            }
+            if (categories.Rows.Count > 0)
+            {
+                List<long> categoriesIds = categories.Rows.OfType<DataRow>().Select(dr => dr.Field<long>("CATEGORY_ID")).ToList();
+
+                foreach (var categoryId in categoriesIds)
+                {
+                    //Check if category exist
+                    var category = CategoriesManager.GetCategoryItem(groupId, categoryId);
+                    if (category == null)
+                    {
+                        status.Set(eResponseStatus.CategoryNotExist, $"Category does not exist {categoryId} ");
+                        return status;
+                    }
+
+                    if (category.UnifiedChannels != null && category.UnifiedChannels.Count > 0)
+                    {
+                        category.UnifiedChannels.Remove((category.UnifiedChannels.Where(x => x.Id == channelId && x.Type == unifiedChannelType).First()));
+
+                        var languageCodeToName = new List<KeyValuePair<long, string>>();
+                        if (category.NamesInOtherLanguages?.Count > 0)
+                        {
+                            status = CategoriesManager.HandleNamesInOtherLanguages(groupId, category.NamesInOtherLanguages, out languageCodeToName);
+                            if (!status.IsOkStatusCode())
+                            {
+                                return status;
+                            }
+                        }
+
+                        if (!CatalogDAL.UpdateCategory(groupId, userId, categoryId, category.Name, languageCodeToName, category.UnifiedChannels, category.DynamicData,
+                                            category.IsActive, category.TimeSlot))
+                        {
+                            log.Error($"Error while updateCategory at RemoveChannelFromCategories . categoryId: {categoryId}.");
+                            return status;
+                        }
+
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(categoryId));
+
+                        status.Set(eResponseStatus.OK);
+                    }
+                }
+            }
+
+            return status;
         }
     }
 }
