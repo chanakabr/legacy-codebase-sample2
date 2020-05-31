@@ -17,11 +17,6 @@ namespace WebAPI.Managers
     {
         private const string CB_SECTION_NAME = "tokens";
         private const string UPLOAD_TOKEN_KEY_FORMAT = "upload_token_{0}";
-        private const int m = 1024 * 1024;//Byte  to Mb
-        private const int _maxFileSize = 15; //Max upload file size : 15MB
-        private static List<string> _fileExtensions = new List<string> { "jpeg", "jpg", "png", "tif", "gif", "xls", "xlsx", "csv", "xslm" }
-                .Select(x => x.Replace(".", string.Empty)).ToList();//Supported file types
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
@@ -93,9 +88,7 @@ namespace WebAPI.Managers
 
             cbUploadToken.FileSize = fileInfo.Length;
 
-            ValidateFile(fileInfo, path);
-
-            var saveFileResponse = FileHandler.Instance.SaveFile(id, fileInfo, "KalturaUploadToken");
+            var saveFileResponse = FileHandler.Instance.SaveFile(id, fileInfo, "KalturaUploadToken", path);
             if (saveFileResponse == null)
             {
                 log.Error("UploadUploadToken: Failed to get saveFileResponse");
@@ -135,42 +128,6 @@ namespace WebAPI.Managers
             }
 
             return new KalturaUploadToken(cbUploadToken);
-        }
-
-        private static void ValidateFile(FileInfo file, string filePath)
-        {
-            try
-            {
-                var fileArray = File.ReadAllBytes(filePath);
-                var fileMime = MimeType.GetMimeType(fileArray, file.Name);
-                var matchingExtension = MimeType.GetMimeByExtention(file.Extension);
-
-                if (file.Length > _maxFileSize * m)//check size in bytes
-                {
-                    log.Debug($"Failed file size validation, file size: {file.Length * m} mb");
-                    throw new ClientException((int)eResponseStatus.FileExceededMaxSize, "File Exceeded Max Size");
-                }
-                else if (!_fileExtensions.Contains(file.Extension.Replace(".", string.Empty)))
-                {
-                    log.Debug($"Failed file extension validation, file extension: {file.Extension}");
-                    throw new ClientException((int)eResponseStatus.FileExtensionNotSupported, "File Extension Not Supported");
-                }
-                else if (string.IsNullOrEmpty(fileMime) || matchingExtension.ToLower() != fileMime.ToLower())
-                {
-                    log.Debug($"Failed file mime/content-type validation, expected: {matchingExtension}, actual: {fileMime}");
-                    throw new ClientException((int)eResponseStatus.FileMimeDifferentThanExpected, "File Mime Different Than Expected");
-                }
-            }
-            catch (FileNotFoundException ex)
-            {
-                log.Error($"File not found: {ex}");
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Error while validating File: {file} ex: {ex}");
-                throw ex;
-            }
         }
     }
 }

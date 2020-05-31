@@ -166,7 +166,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // save the bulkUpload file to server (cut it from iis) and set fileURL
                 var fileInfo = new FileInfo(filePath);
-                var saveFileResponse = FileHandler.Instance.SaveFile(response.Object.Id, fileInfo, "KalturaBulkUpload");
+                var saveFileResponse = FileHandler.Instance.SaveFile(response.Object.Id, fileInfo, "KalturaBulkUpload", filePath);
                 if (!saveFileResponse.HasObject())
                 {
                     log.ErrorFormat("Error while saving BulkUpload File to file server. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
