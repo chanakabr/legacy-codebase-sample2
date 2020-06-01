@@ -187,7 +187,7 @@ namespace IngestHandler
         private CRUDOperations<EpgProgramBulkUploadObject> HandleIngestForChannel(List<EpgProgramBulkUploadObject> currentPrograms, List<EpgProgramBulkUploadObject> programsToIngestOfChannel, out bool isValid)
         {
             isValid = true;
-            var overlapsInIngestSource = GetOverlappingPrograms(programsToIngestOfChannel, programsToIngestOfChannel);
+            var overlapsInIngestSource = GetOverlappingPrograms(programsToIngestOfChannel);
             ValidateSourceInputOverlaps(overlapsInIngestSource);
 
             var crudOperationsForChannel = CalculateCRUDOperations(currentPrograms, programsToIngestOfChannel);
@@ -325,7 +325,7 @@ namespace IngestHandler
         {
             var isValid = true;
             var exsitingNewEpg = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.RemainingItems).ToList();
-            var overlaps = GetOverlappingPrograms(crudOperations.ItemsToAdd, exsitingNewEpg);
+            var overlaps = GetOverlappingPrograms(exsitingNewEpg);
 
             foreach (var overlappingProgs in overlaps)
             {
@@ -843,6 +843,14 @@ namespace IngestHandler
             return _AutoFillEpgsCB;
         }
 
+
+
+        private List<Tuple<EpgProgramBulkUploadObject, EpgProgramBulkUploadObject>> GetOverlappingPrograms(List<EpgProgramBulkUploadObject> listOfPrograms)
+        {
+            return GetOverlappingPrograms(listOfPrograms, listOfPrograms);
+        }
+
+
         /// <summary>
         /// Get list of overlapping programs between tow lists
         /// </summary>
@@ -866,6 +874,8 @@ namespace IngestHandler
 
             return overlappingPairs;
         }
+
+
         private static bool IsOverlappingPrograms(EpgProgramBulkUploadObject prog, EpgProgramBulkUploadObject otherProg)
         {
             // if prog starts befor other ends AND other start before the prog ends
