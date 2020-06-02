@@ -10070,8 +10070,12 @@ namespace Core.ConditionalAccess
                     if (isInCancellationWindow || isForce)
                     {
                         userPurchaseRow = userPurchasesTable.Rows[0];
+                        long purchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
+                        DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
+                        long billingTransactionId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "BILLING_TRANSACTION_ID");
                         purchasingSiteGuid = ODBCWrapper.Utils.ExtractString(userPurchaseRow, "SITE_USER_GUID");
                         int nNumOfUses = ODBCWrapper.Utils.ExtractInteger(userPurchaseRow, "NUM_OF_USES");
+                        DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
 
                         // If user already consumed service - cannot be cancelled without force
                         if (nNumOfUses > 0 && !isForce)
@@ -10088,10 +10092,6 @@ namespace Core.ConditionalAccess
                             {
                                 case eTransactionType.PPV:
                                     {
-                                        long ppvPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
-                                        DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
-                                        DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
-                                        long billingTransactionId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "BILLING_TRANSACTION_ID");
                                         string ppvCode = ODBCWrapper.Utils.ExtractString(userPurchaseRow, "assetCode");
 
                                         PpvPurchase ppvPurchase = new PpvPurchase(this.m_nGroupID)
@@ -10099,8 +10099,8 @@ namespace Core.ConditionalAccess
                                             siteGuid = purchasingSiteGuid,
                                             houseHoldId = domain.m_nDomainID,
                                             contentId = assetID,
-                                            purchaseId = ppvPurchaseId,
-                                            Id = ppvPurchaseId,
+                                            purchaseId = purchaseId,
+                                            Id = purchaseId,
                                             startDate = createDate,
                                             endDate = endDate,
                                             entitlementDate = createDate,
@@ -10120,11 +10120,10 @@ namespace Core.ConditionalAccess
                                             return result;
                                         }
 
-                                        long subscriptionPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
-                                        if (subscriptionPurchaseId > 0)
+                                        if (purchaseId > 0)
                                         {
                                             Dictionary<long, long> purchaseIdToScheduledSubscriptionId = Utils.GetPurchaseIdToScheduledSubscriptionIdMap(m_nGroupID, domainId,
-                                                                                                         new List<long>() { subscriptionPurchaseId }, SubscriptionSetModifyType.Downgrade);
+                                                                                                         new List<long>() { purchaseId }, SubscriptionSetModifyType.Downgrade);
                                             if (purchaseIdToScheduledSubscriptionId != null && purchaseIdToScheduledSubscriptionId.Count > 0)
                                             {
                                                 result = new ApiObjects.Response.Status((int)eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending,
@@ -10135,17 +10134,14 @@ namespace Core.ConditionalAccess
                                             bool cancelAddOns = CancelAddOnByCancelBaseSubscription(assetID, domainId);
 
                                             int maxNumberOfViews = ODBCWrapper.Utils.ExtractInteger(userPurchaseRow, "MAX_NUM_OF_USES");
-                                            DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
-                                            DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
-                                            long billingTransactionId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "BILLING_TRANSACTION_ID");
 
                                             SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(this.m_nGroupID)
                                             {
                                                 siteGuid = purchasingSiteGuid,
                                                 productId = assetID.ToString(),
                                                 houseHoldId = domain.m_nDomainID,
-                                                Id = subscriptionPurchaseId,
-                                                purchaseId = subscriptionPurchaseId,
+                                                Id = purchaseId,
+                                                purchaseId = purchaseId,
                                                 maxNumberOfViews = maxNumberOfViews,
                                                 endDate = endDate,
                                                 startDate = createDate,
@@ -10169,8 +10165,15 @@ namespace Core.ConditionalAccess
                                         {
                                             siteGuid = purchasingSiteGuid,
                                             productId = assetID.ToString(),
-                                            houseHoldId = domainId
+                                            houseHoldId = domainId,
+                                            Id = purchaseId,
+                                            startDate = createDate,
+                                            billingTransactionId = billingTransactionId,
+                                            billingGuid = billingGuid,
+                                            purchaseId = purchaseId,
+                                            endDate = endDate
                                         };
+
                                         dalResult = collectionPurchase.Delete();
 
                                         break;
