@@ -29,7 +29,8 @@ namespace TVPApi.ODBCWrapper
         {
             int m_nCachedSec = ApplicationConfiguration.Current.TVPApiConfiguration.OdbcCacheSeconds.Value;
 
-            if (m_nCachedSec == 0)
+            // BEO-8161: support 0 value in odbc cache seconds
+            if (m_nCachedSec < 0)
                 m_nCachedSec = 60;
 
             return m_nCachedSec;
