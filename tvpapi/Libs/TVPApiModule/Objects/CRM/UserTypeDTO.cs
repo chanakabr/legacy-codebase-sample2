@@ -7,8 +7,10 @@ namespace TVPApiModule.Objects.CRM
     public class UserTypeDTO
     {
         public string Description;
+        public string DescriptionField { get { return Description; } set { Description = value; } }
 
         public bool IsDefault;
+        public bool IsDefaultField { get { return IsDefault; } set { IsDefault = value; } }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? ID;
 

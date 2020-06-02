@@ -242,12 +242,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
                ;
 
-            cfg.CreateMap<KalturaSubscriptionEntitlement, Entitlement>()
-              .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.paymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
-              .ForMember(dest => dest.paymentMethodId, opt => opt.MapFrom(src => src.PaymentMethodId))
-              .ForMember(dest => dest.type, opt => opt.MapFrom(src => eTransactionType.Subscription))
+            cfg.CreateMap<CollectionPurchase, KalturaEntitlementCancellation>()
+             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.collection))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
+              .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.productId))
+              .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
+              .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
               ;
+
+            cfg.CreateMap<KalturaSubscriptionEntitlement, Entitlement>()
+                  .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.Id))
+                  .ForMember(dest => dest.paymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
+                  .ForMember(dest => dest.paymentMethodId, opt => opt.MapFrom(src => src.PaymentMethodId))
+                  .ForMember(dest => dest.type, opt => opt.MapFrom(src => eTransactionType.Subscription))
+                  ;
 
             cfg.CreateMap<Entitlement, KalturaEntitlement>().ConstructUsing(ConvertToKalturaEntitlement);
 
