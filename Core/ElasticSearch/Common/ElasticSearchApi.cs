@@ -574,6 +574,90 @@ namespace ElasticSearch.Common
             return indices;
         }
 
+
+        public List<ESIndex> ListIndicesByAlias(string aliasQueryPattern = "*")
+        {
+            // cannot hold dots '.' because its part of the filter_path argument sent to elasticsearch
+            if (aliasQueryPattern.Contains('.')) { throw new ArgumentException("value cannot hold '.' charecters", "aliasQueryPattern"); }
+
+
+            //e.g: http://elasticsearch.service.consul:9200/_aliases?pretty&filter_path=*.aliases.*DELETION_CANDIDATE*
+            var url = $"{baseUrl}/_aliases?filter_path=*.aliases.{aliasQueryPattern}*";
+            var status = 0;
+            log.Debug($"Elasticsearch ListIndicesByAlias > request GET:[{url}]");
+            var ret = SendGetHttpReq(url, ref status);
+            #region example response
+            // Example Response (depending on the pathQuery for example pathQuery=metadata.indices.198_epg_*.aliases)
+            //{
+            //"1483_20200531124220" : {
+            //    "aliases" : {
+            //        "1483" : { },
+            //     "deletion_candiadte" : { }
+            //      }
+            //  },
+            //"203_recording_20200531124211" : {
+            //    "aliases" : {
+            //        "203_recording" : { }
+            //    }
+            //},
+            //"1483_channel_20200531124410" : {
+            //    "aliases" : {
+            //        "1483_channel" : { }
+            //    }
+            //},
+            //"203_epg_20200531124149" : {
+            //    "aliases" : {
+            //        "203_epg" : { }
+            //    }
+            //},
+            //"1483_metadata_20200531124428" : {
+            //    "aliases" : {
+            //        "1483_metadata" : { }
+            //    }
+            //},
+            //"utils_20191017083135" : {
+            //    "aliases" : {
+            //        "utils" : { }
+            //    }
+            //},
+            //"1483_epg_20200531124323" : {
+            //    "aliases" : {
+            //        "1483_epg" : { }
+            //    }
+            //},
+            //"203_20200531124132" : {
+            //    "aliases" : {
+            //        "203" : { }
+            //    }
+            //},
+            //"1483_recording_20200531124429" : {
+            //    "aliases" : {
+            //        "1483_recording" : { }
+            //    }
+            //}
+            //}
+            #endregion
+
+            log.Debug($"Elasticsearch ListIndicesByAlias > response:[{ret}]");
+            if (status != 200)
+            {
+                log.Error($"Error getting ListIndicesByAlias, status:[{status}], msg:[{ret}]");
+                throw new Exception($"Error getting ListIndicesByAlias, status:[{status}]");
+            }
+
+            var indicesByAlias = JObject.Parse(ret);
+            var indices = indicesByAlias.Properties().Select(index => new ESIndex
+            {
+                Name = index.Name,
+                Aliases = index.Value.SelectToken("aliases").
+            ToObject<IDictionary<string, object>>()
+            .Select(x => x.Key)
+            }).ToList();
+
+            return indices;
+        }
+
+
         public bool AddAlias(string index, string alias)
         {
             bool result = false;

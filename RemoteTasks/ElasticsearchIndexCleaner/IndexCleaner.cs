@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ESUtils = ElasticSearch.Common.Utils;
 
 namespace ElasticsearchIndexCleaner
 {
@@ -21,22 +22,22 @@ namespace ElasticsearchIndexCleaner
             foreach (var groupId in groupIds)
             {
                 _Logger.Info($"Starting ElasticsearchIndexCleaner for group:[{groupId}], oldIndicesToSaveCount:[{oldIndicesToSaveCount}]");
-                var indices = esClient.ListIndices($"{groupId}_epg_*");
-                var indicesWithoutAliases = indices.Where(i => !i.Aliases.Any()).Select(i => i.Name).ToList();
-
+                var deleteCandidateIndices = esClient.ListIndicesByAlias(ESUtils.DELETE_CANDIDATE_ALIAS)
+                    .Select(x => x.Name).ToList();
+                    
                 if (oldIndicesToSaveCount < 0)
                 {
                     _Logger.Error($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] should be greater to or equal to 0");
                     return false;
                 }
-                if (oldIndicesToSaveCount >= indicesWithoutAliases.Count)
+                if (oldIndicesToSaveCount >= deleteCandidateIndices.Count)
                 {
-                    _Logger.Info($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] is greater or equal to the amount of exsisting backups, existing without deletion. indicesToDelete.Count:[{indicesWithoutAliases.Count}]");
+                    _Logger.Info($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] is greater or equal to the amount of exsisting backups, existing without deletion. indicesToDelete.Count:[{deleteCandidateIndices.Count}]");
                     return true;
                 }
 
                 var indicesByDate = new Dictionary<DateTime, List<string>>();
-                foreach (var item in indicesWithoutAliases)
+                foreach (var item in deleteCandidateIndices)
                 {
                     // There migth be some old indices that are not in the new naming convention we need to be fault tolerent
                     var dateResult = GetDateTimeFromIndexName(item);

@@ -760,7 +760,6 @@ namespace IngestHandler
                 result &= BuildNewIndex(destination);
             }
 
-
             return result;
         }
 

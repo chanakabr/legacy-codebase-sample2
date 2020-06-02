@@ -7,9 +7,9 @@ using ApiObjects.Response;
 
 namespace ApiLogic.Catalog.BulkUpload.Validators
 {
-    public static  class ProgramValidor
+    public static class ProgramValidator
     {
-        internal static bool Validate(this EpgProgramBulkUploadObject program,BulkUploadResult epg)
+        internal static bool Validate(this EpgProgramBulkUploadObject program, BulkUploadResult epg)
         {
             bool result = true;
             if (!ValidateMetadataLang(program))
@@ -32,8 +32,6 @@ namespace ApiLogic.Catalog.BulkUpload.Validators
                 "Language value on title must not be empty.");
                 result = false;
             }
-
-
             return result;
         }
 
@@ -55,7 +53,5 @@ namespace ApiLogic.Catalog.BulkUpload.Validators
             return program.ParsedProgramObject.tags != null && program.ParsedProgramObject.tags.SelectMany(x => x.TagValues)
                 .All(x => !string.IsNullOrEmpty(x.lang));
         }
-
-        
     }
 }
