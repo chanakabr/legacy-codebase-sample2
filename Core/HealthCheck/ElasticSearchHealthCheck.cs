@@ -13,9 +13,9 @@ namespace HealthCheck
     {
         private readonly HttpClient httpClient = null;
 
-        public ElasticSearchHealthCheck()
+        public ElasticSearchHealthCheck(IHttpClientFactory factory)
         {
-            httpClient = new HttpClient();
+            httpClient = factory.CreateClient("ElasticSearchHealthCheck");
         }
 
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
