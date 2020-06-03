@@ -325,7 +325,8 @@ namespace IngestHandler
         {
             var isValid = true;
             var exsitingNewEpg = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.RemainingItems).ToList();
-            var overlaps = GetOverlappingPrograms(exsitingNewEpg);
+            var allNew = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).ToList();
+            var overlaps = GetOverlappingPrograms(allNew,exsitingNewEpg);
 
             foreach (var overlappingProgs in overlaps)
             {
