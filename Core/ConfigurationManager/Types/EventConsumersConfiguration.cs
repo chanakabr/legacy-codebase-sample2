@@ -13,13 +13,13 @@ namespace ConfigurationManager
 
         public override string[] TcmPath => new string[] { TcmKey };
 
+        // fix GEN-840
+        private static readonly ConsumerDefinition defaultWindowsConsumerSettings = new ConsumerDefinition() { DllLocation = "bin\\WebAPI.dll", Type = "WebAPI.RestNotificationEventConsumer" };
+        private static readonly ConsumerDefinition defaultLinuxConsumerSettings = new ConsumerDefinition() { DllLocation = "WebAPI.dll", Type = "WebAPI.RestNotificationEventConsumer" };
 
-        private static readonly List<ConsumerDefinition> defaultConsumerSettings = new List<ConsumerDefinition>() {new ConsumerDefinition(){
-            DllLocation = "bin\\WebAPI.dll",
-            Type = "WebAPI.RestNotificationEventConsumer"}
-        };
-
-        public BaseValue<List<ConsumerDefinition>> ConsumerSettings = new BaseValue<List<ConsumerDefinition>>(TcmObjectKeys.ConsumerSettings, defaultConsumerSettings);
+        // fix GEN-840
+        public BaseValue<List<ConsumerDefinition>> ConsumerSettings = new BaseValue<List<ConsumerDefinition>>(TcmObjectKeys.ConsumerSettings, 
+                                                                        new List<ConsumerDefinition>() { defaultWindowsConsumerSettings, defaultLinuxConsumerSettings });
 
 
     }
