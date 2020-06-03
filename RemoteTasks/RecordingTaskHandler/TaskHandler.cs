@@ -113,40 +113,29 @@ namespace RecordingTaskHandler
                         break;
                     }
                     case eRecordingTask.DistributeRecording:
-                    {                        
-                        bool shouldDistributeRecordingSynchronously = ApplicationConfiguration.Current.ShouldDistributeRecordingSynchronously.Value;
-
-                        if (shouldDistributeRecordingSynchronously)
+                    {
+                        // Get epg series details (seriesId, seassonNumber and isFIsEpgFirstTimeAirDate
+                        Tuple<string, int, bool> epgSeriesDetails = Core.ConditionalAccess.Module.GetEpgSeriesDetails(request.GroupID, request.ProgramId);
+                        if (epgSeriesDetails != null && !string.IsNullOrEmpty(epgSeriesDetails.Item1) && epgSeriesDetails.Item2 > -1)
                         {
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                            long maxDomainSeriesId = request.MaxDomainSeriesId.HasValue ? request.MaxDomainSeriesId.Value : 0;
+                            HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, epgSeriesDetails.Item1, epgSeriesDetails.Item2, epgSeriesDetails.Item3, ref maxDomainSeriesId);
+                            if (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
                             {
-                                success = Core.ConditionalAccess.Module.DistributeRecording(request.GroupID, request.ProgramId, request.RecordingId, request.EpgStartDate);
+                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                                {
+                                    Core.ConditionalAccess.Module.DistributeRecordingWithDomainIds(request.GroupID, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
+                                }
                             }
+
+                            success = true;
                         }
                         else
                         {
-                            // Get epg series details (seriesId, seassonNumber and isFIsEpgFirstTimeAirDate
-                            Tuple<string, int, bool> epgSeriesDetails = Core.ConditionalAccess.Module.GetEpgSeriesDetails(request.GroupID, request.ProgramId);
-                            if (epgSeriesDetails != null && !string.IsNullOrEmpty(epgSeriesDetails.Item1) && epgSeriesDetails.Item2 > -1)
-                            {
-                                long maxDomainSeriesId = request.MaxDomainSeriesId.HasValue ? request.MaxDomainSeriesId.Value : 0;
-                                HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, epgSeriesDetails.Item1, epgSeriesDetails.Item2, epgSeriesDetails.Item3, ref maxDomainSeriesId);
-                                if (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
-                                {                                    
-                                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                                    {
-                                        Core.ConditionalAccess.Module.DistributeRecordingWithDomainIds(request.GroupID, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
-                                    }                                    
-                                }
-
-                                success = true;
-                            }
-                            else
-                            {
-                                success = false;
-                            }
+                            success = false;
                         }
-                        
+
+
                         break;
                     }
                     case eRecordingTask.CheckRecordingDuplicateCrids:

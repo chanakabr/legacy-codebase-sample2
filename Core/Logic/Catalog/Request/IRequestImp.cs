@@ -37,7 +37,6 @@ namespace Core.Catalog.Request
         [ServiceKnownType(typeof(EPGProgramsByScidsRequest))]
         [ServiceKnownType(typeof(EPGProgramsByProgramsIdentefierRequest))]
         [ServiceKnownType(typeof(EPGSearchContentRequest))]
-        [ServiceKnownType(typeof(ChannelViewsRequest))]        
         [ServiceKnownType(typeof(EpgProgramDetailsRequest))]
         [ServiceKnownType(typeof(MediaRelatedExternalRequest))]
         [ServiceKnownType(typeof(MediaSearchExternalRequest))]

@@ -27,7 +27,6 @@ namespace Tvinci.Core.DAL
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
         private static readonly int CB_EPG_DOCUMENT_EXPIRY_DAYS = ApplicationConfiguration.Current.EPGDocumentExpiry.Value;
-        private static readonly int CB_PLAYCYCLE_DOC_EXPIRY_MIN = ApplicationConfiguration.Current.PlayCycleDocumentExpiryMinutes.Value;
 
         private static readonly string NAME_FIELD = "NAME";
         private static readonly string ASSET_TYPE_FIELD = "ASSET_TYPE";
@@ -164,8 +163,6 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PersonalLastWatched(int nGroupID, string sSiteGuid)
         {
-            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
-
             DataTable dt = null;
 
             int nSiteGuid = 0;
@@ -178,16 +175,6 @@ namespace Tvinci.Core.DAL
             {
                 //Complete details from db
                 dt = Get_MediaUpdateDate(nMediaIDs);
-            }
-            else if (bGetDBData)
-            {
-                ODBCWrapper.StoredProcedure spPersonalLastWatched = new ODBCWrapper.StoredProcedure("Get_PersonalLastWatched");
-                spPersonalLastWatched.SetConnectionKey("MAIN_CONNECTION_STRING");
-                spPersonalLastWatched.AddParameter("@GroupID", nGroupID);
-                spPersonalLastWatched.AddParameter("@SiteGuid", sSiteGuid);
-                DataSet ds = spPersonalLastWatched.ExecuteDataSet();
-                if (ds != null)
-                    dt = ds.Tables[0];
             }
 
             return dt;
@@ -257,7 +244,6 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PersonalRecommended(int nGroupID, string sSiteGuid, int Top, List<int> lSubGroupTree)
         {
-            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
@@ -279,15 +265,7 @@ namespace Tvinci.Core.DAL
 
                 ds = spPersonalRecommended.ExecuteDataSet();
             }
-            else if (bGetDBData)
-            {
-                ODBCWrapper.StoredProcedure spPersonalRecommended = new ODBCWrapper.StoredProcedure("Get_PersonalRecommended");
-                spPersonalRecommended.SetConnectionKey("MAIN_CONNECTION_STRING");
-                spPersonalRecommended.AddParameter("@GroupID", nGroupID);
-                spPersonalRecommended.AddParameter("@SiteGuid", sSiteGuid);
-                spPersonalRecommended.AddParameter("@Top", Top);
-                ds = spPersonalRecommended.ExecuteDataSet();
-            }
+
             if (ds != null)
                 return ds.Tables[0];
             return null;
@@ -318,8 +296,6 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate, int nDeviceId)
         {
-
-            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
@@ -346,19 +322,6 @@ namespace Tvinci.Core.DAL
                 spPWWAWProtocol.AddParameter("@CountryID", nCountryID);
                 spPWWAWProtocol.AddParameter("@EndDateField", sEndDate);
                 spPWWAWProtocol.AddParameter("@DeviceID", nDeviceId);
-                ds = spPWWAWProtocol.ExecuteDataSet();
-            }
-            else if (bGetDBData)
-            {
-                ODBCWrapper.StoredProcedure spPWWAWProtocol = new ODBCWrapper.StoredProcedure("Get_PWWAWProtocol");
-                spPWWAWProtocol.SetConnectionKey("MAIN_CONNECTION_STRING");
-                spPWWAWProtocol.AddParameter("@MediaID", nMediaID);
-                spPWWAWProtocol.AddParameter("@GroupID", nGroupID);
-                spPWWAWProtocol.AddParameter("@Language", nLanguage);
-                spPWWAWProtocol.AddParameter("@CountryID", nCountryID);
-                spPWWAWProtocol.AddParameter("@EndDateField", sEndDate);
-                spPWWAWProtocol.AddParameter("@DeviceID", nDeviceId);
-                spPWWAWProtocol.AddParameter("@SiteGuid", sSiteGuid);
                 ds = spPWWAWProtocol.ExecuteDataSet();
             }
 
@@ -1086,7 +1049,6 @@ namespace Tvinci.Core.DAL
         public static DataTable Get_IPWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate,
                                                       int nDeviceId, int nOperatorID)
         {
-            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             int nNumOfUsers = 30;
@@ -1121,22 +1083,7 @@ namespace Tvinci.Core.DAL
                     ds = sp.ExecuteDataSet();
                 }
             }
-            else if (bGetDBData)
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_IPWWAWProtocol");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@MediaID", nMediaID);
-                sp.AddParameter("@GroupID", nGroupID);
-                sp.AddParameter("@Language", nLanguage);
-                sp.AddParameter("@CountryID", nCountryID);
-                sp.AddParameter("@EndDateField", sEndDate);
-                sp.AddParameter("@DeviceID", nDeviceId);
-                sp.AddParameter("@SiteGuid", sSiteGuid);
-                sp.AddParameter("@OperatorID", nOperatorID);
 
-                ds = sp.ExecuteDataSet();
-
-            }
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;

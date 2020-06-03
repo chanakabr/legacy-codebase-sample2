@@ -49,7 +49,6 @@ namespace WebAPI.WebServices
         [ServiceKnownType(typeof(EpgRequest))]
         [ServiceKnownType(typeof(AssetStatsRequest))]
         [ServiceKnownType(typeof(ChannelObjRequest))]
-        [ServiceKnownType(typeof(CrowdsourceRequest))]
         [ServiceKnownType(typeof(MediaFilesRequest))]
         [ServiceKnownType(typeof(CategoryRequest))]
         [ServiceKnownType(typeof(NPVRRetrieveRequest))]

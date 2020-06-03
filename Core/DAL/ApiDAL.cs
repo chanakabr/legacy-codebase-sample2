@@ -581,8 +581,6 @@ namespace DAL
 
         public static MediaMarkObject Get_MediaMark(int nMediaID, string userID, int nGroupID)
         {
-            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
-            
             MediaMarkObject ret = new MediaMarkObject();
             ret.nGroupID = nGroupID;
             ret.nMediaID = nMediaID;
@@ -617,10 +615,6 @@ namespace DAL
                         ret.eStatus = MediaMarkObject.MediaMarkObjectStatus.NA;
                     }
                 }
-            }
-            else if (bGetDBData)
-            {
-                Get_MediaMark_DB(nMediaID, userID, nGroupID, ret);
             }
 
             return ret;
