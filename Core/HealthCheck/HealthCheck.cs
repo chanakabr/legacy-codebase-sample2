@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using KLogMonitor;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -16,10 +18,13 @@ namespace HealthCheck
 {
     public static class HealthCheck
     {
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static void AddHealthCheckService(this IServiceCollection services, List<HealthCheckDefinition> definitions)
         {
             var healthCheckBuilder = services.AddHealthChecks();
-
+            services.AddHttpClient();
+            
             foreach (var definition in definitions)
             {
                 switch (definition.Type)
@@ -37,7 +42,21 @@ namespace HealthCheck
                         healthCheckBuilder = healthCheckBuilder.AddCheck<RabbitHealthCheck>("rabbitmq");
                         break;
                     case HealthCheckType.ThirdParty:
-                        healthCheckBuilder = healthCheckBuilder.AddTypeActivatedCheck<ThirdPartyHealthCheck>(definition.Args[0].ToString(), definition.Args);
+                        if (definition.Args.Length > 1 && definition.Args[0] != null && definition.Args[1] != null)
+                        {
+                            var thirdPartyName = definition.Args[0].ToString();
+                            services.AddHttpClient(thirdPartyName, c =>
+                            {
+                                c.BaseAddress = new Uri(definition.Args[1].ToString());
+                            });
+                            healthCheckBuilder = healthCheckBuilder.AddTypeActivatedCheck<ThirdPartyHealthCheck>(thirdPartyName, definition.Args);
+                        }
+                        else
+                        {
+                            _Logger.Error("$Error when initializing third party health check: invalid arguments were defined. " +
+                                "It should have name and URL as string arguments.");
+                        }
+
                         break;
                     default:
                         break;
