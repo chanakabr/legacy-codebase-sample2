@@ -284,19 +284,11 @@ namespace IngestValidationHandler
                 var dateAlias = newIndex.Name.Remove(newIndex.Name.Length - (_BulkUploadObject.Id.ToString().Length + 1));
                 var globalAlias = _EpgBL.GetProgramIndexAlias();
 
-                _Logger.Debug($"Adding alias:[{dateAlias}, {globalAlias}] To:[{newIndex}].");
-
-                var isSetDateAliasSuccess = _ElasticSearchClient.AddAlias(newIndex.Name, dateAlias);
-                if (!isSetDateAliasSuccess) { throw new Exception($"Failed to add dateAlias:[{dateAlias}] newIndex.Name:[{newIndex.Name}]"); }
-
-                var isSetGlobalAliasSuccess = _ElasticSearchClient.AddAlias(newIndex.Name, globalAlias);
-                if (!isSetGlobalAliasSuccess) { throw new Exception($"Failed to add globalAlias:[{globalAlias}] newIndex.Name:[{newIndex.Name}]"); }
-
-
                 // Should only be one but we will loop anyway ...
                 var previousIndices = _ElasticSearchClient.GetAliases(dateAlias);
                 if (previousIndices.Any())
                 {
+                    //todo handle on error we might have empty aliases
                     _Logger.Debug($"Removing alias:[{dateAlias}, {globalAlias}] from:[{string.Join(",", previousIndices)}].");
                     foreach (var oldIndex in previousIndices)
                     {
@@ -304,12 +296,22 @@ namespace IngestValidationHandler
                         if (!isGlobalAliasRemoveSuccess) { throw new Exception($"Failed to remove globalAlias:[{globalAlias}] oldIndex:[{oldIndex}]"); }
                         var isDateAliasRemoveSuccess = _ElasticSearchClient.RemoveAlias(oldIndex, dateAlias);
                         if (!isDateAliasRemoveSuccess) { throw new Exception($"Failed to remove dateAlias:[{dateAlias}] oldIndex:[{oldIndex}]"); }
-                        
+
                         //tagging index to be deleted
-                        _ElasticSearchClient.AddAlias(oldIndex, ESUtils.DELETE_CANDIDATE_ALIAS);
+                        var isAddedDeleteCandidate=_ElasticSearchClient.AddAlias(oldIndex, ESUtils.DELETE_CANDIDATE_ALIAS);
+                        if (!isAddedDeleteCandidate) { throw new Exception($"Failed to add  {ESUtils.DELETE_CANDIDATE_ALIAS} alias {oldIndex}"); }
+
                     }
 
                 }
+
+                _Logger.Debug($"Adding alias:[{dateAlias}, {globalAlias}] To:[{newIndex}].");
+
+                var isSetDateAliasSuccess = _ElasticSearchClient.AddAlias(newIndex.Name, dateAlias);
+                if (!isSetDateAliasSuccess) { throw new Exception($"Failed to add dateAlias:[{dateAlias}] newIndex.Name:[{newIndex.Name}]"); }
+
+                var isSetGlobalAliasSuccess = _ElasticSearchClient.AddAlias(newIndex.Name, globalAlias);
+                if (!isSetGlobalAliasSuccess) { throw new Exception($"Failed to add globalAlias:[{globalAlias}] newIndex.Name:[{newIndex.Name}]"); }
 
             }
         }
