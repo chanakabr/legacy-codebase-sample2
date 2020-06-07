@@ -1533,6 +1533,23 @@ namespace Core.Users
             return response;
         }
 
+        public static ApiObjects.Response.Status RenewPasswordWithToken(int groupId, string token, string newPassword)
+        {
+            var response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            BaseUsers t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                var renewPasswordResponse = t.RenewPasswordWithToken(token, newPassword);
+                if (renewPasswordResponse != null && renewPasswordResponse.Object != null)
+                {
+                    // convert response status
+                    response = Utils.ConvertResponseStatusToResponseObject(renewPasswordResponse.Object.m_RespStatus, renewPasswordResponse.Status);
+                }
+            }
+            return response;
+        }
+
         public static ApiObjects.Response.Status ReplacePassword(int nGroupID, string userName, string oldPassword, string newPassword)
         {
             var response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

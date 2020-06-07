@@ -193,6 +193,36 @@ namespace WebAPI.Clients
 
             return true;
         }
+        
+        public bool RenewPasswordWithToken(int groupId, string token, string password)
+        {
+            ApiObjects.Response.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Users.Module.RenewPasswordWithToken(groupId, token, password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while RenewPasswordWithToken. token: {0}, exception: {2}", token, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException(StatusCode.Error);
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response);
+            }
+
+            return true;
+        }
 
         public bool ChangeUserPassword(int groupId, string userName, string oldPassword, string newPassword)
         {
