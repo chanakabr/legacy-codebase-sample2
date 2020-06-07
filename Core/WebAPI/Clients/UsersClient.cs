@@ -194,9 +194,9 @@ namespace WebAPI.Clients
             return true;
         }
         
-        public bool RenewPasswordWithToken(int groupId, string token, string password)
+        public KalturaOTTUser RenewPasswordWithToken(int groupId, string token, string password)
         {
-            ApiObjects.Response.Status response = null;
+            GenericResponse<UserResponseObject> response = null;
 
             try
             {
@@ -216,12 +216,13 @@ namespace WebAPI.Clients
                 throw new ClientException(StatusCode.Error);
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (!response.IsOkStatusCode())
             {
-                throw new ClientException(response);
+                throw new ClientException(response.Status);
             }
 
-            return true;
+            KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(response.Object.m_user);
+            return user;
         }
 
         public bool ChangeUserPassword(int groupId, string userName, string oldPassword, string newPassword)

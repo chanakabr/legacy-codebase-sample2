@@ -1533,19 +1533,14 @@ namespace Core.Users
             return response;
         }
 
-        public static ApiObjects.Response.Status RenewPasswordWithToken(int groupId, string token, string newPassword)
+        public static GenericResponse<UserResponseObject> RenewPasswordWithToken(int groupId, string token, string newPassword)
         {
-            var response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            var response = new GenericResponse<UserResponseObject>();
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                var renewPasswordResponse = t.RenewPasswordWithToken(token, newPassword);
-                if (renewPasswordResponse != null && renewPasswordResponse.Object != null)
-                {
-                    // convert response status
-                    response = Utils.ConvertResponseStatusToResponseObject(renewPasswordResponse.Object.m_RespStatus, renewPasswordResponse.Status);
-                }
+                return t.RenewPasswordWithToken(token, newPassword);
             }
             return response;
         }

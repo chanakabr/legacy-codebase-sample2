@@ -368,10 +368,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                if (ClientsManager.UsersClient().RenewPasswordWithToken(partnerId, token, password))
-                {
-                    AuthorizationManager.RevokeSessions(partnerId, response.Id);
-                }
+                response = ClientsManager.UsersClient().RenewPasswordWithToken(partnerId, token, password);
+                AuthorizationManager.RevokeSessions(partnerId, response.Id);
             }
             catch (ClientException ex)
             {
