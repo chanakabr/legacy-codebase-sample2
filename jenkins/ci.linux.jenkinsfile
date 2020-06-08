@@ -93,7 +93,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
                 "aws ecr create-repository --image-scanning-configuration scanOnPush=true --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}"
     )
 
-    if (BRANCH_NAME =~ /\d+\d+\d+_/){
+    if (BRANCH_NAME =~ /\d+\d+\d+.*_/ || BRANCH_NAME =~ /\d+\d+\d+.*-/){
         def is_exist = sh(script: "aws ecr get-lifecycle-policy --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}", returnStatus: true)
         if (is_exist != "0"){
             configFileProvider([configFile(fileId: '5ea8a9af-3adb-48ae-9929-3d93de8ff641', targetLocation: 'ECR-create-lifecycle.sh')]) {}
