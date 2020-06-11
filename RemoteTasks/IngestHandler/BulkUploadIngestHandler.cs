@@ -92,7 +92,7 @@ namespace IngestHandler
 
                 _MinStartDate = programsToIngest.Min(p => p.StartDate);
                 _MaxEndDate = programsToIngest.Max(p => p.EndDate);
-                var currentPrograms = GetCurrentProgramsByDate(_MinStartDate, _MaxEndDate);
+                var currentPrograms = GetCurrentProgramsByDate(_MinStartDate, _MaxEndDate, serviceEvent.GroupId);
 
                 var programsToIngestPerChannel = programsToIngest.GroupBy(p => p.ChannelId).ToDictionary(k => k.Key, v => v.ToList());
                 var currentProgramsByChannel = currentPrograms.GroupBy(p => p.ChannelId).ToDictionary(k => k.Key, v => v.ToList());
@@ -117,6 +117,7 @@ namespace IngestHandler
                         .Concat(overallCrudOperations.AffectedItems)
                         .ToList();
 
+                //upload images except affected items ,they already uploaded.
                 await UploadEpgImages(finalEpgSchedule);
 
                 var isCloneSuccess = CloneExistingIndex();
@@ -580,7 +581,7 @@ namespace IngestHandler
             return res;
         }
 
-        private List<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(DateTime minStartDate, DateTime maxEndDate)
+        private List<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(DateTime minStartDate, DateTime maxEndDate, int groupId)
         {
             _Logger.Debug($"GetCurrentProgramsByDate > minStartDate:[{minStartDate}], maxEndDate:[{maxEndDate}]");
             var result = new List<EpgProgramBulkUploadObject>();
@@ -627,7 +628,7 @@ namespace IngestHandler
             var searchResult = _ElasticSearchClient.Search(index, EpgElasticUpdater.DEFAULT_INDEX_MAPPING_TYPE, ref searchQuery);
 
 
-            List<string> documentIds = new List<string>();
+            
 
             // get the programs - epg ids from elasticsearch, information from EPG DAL
             if (!string.IsNullOrEmpty(searchResult))
@@ -646,9 +647,19 @@ namespace IngestHandler
                     epgItem.EpgId = ESUtils.ExtractValueFromToken<ulong>(hitFields, "epg_id");
                     epgItem.IsAutoFill = ESUtils.ExtractValueFromToken<bool>(hitFields, "is_auto_fill");
                     epgItem.ChannelId = ESUtils.ExtractValueFromToken<int>(hitFields, "epg_channel_id");
+                    epgItem.EpgCbObjects = new List<EpgCB>();
+
 
                     result.Add(epgItem);
                 }
+            }
+            var epgBL = new TvinciEpgBL(groupId);
+            var documentIds = epgBL.GetEpgsCBKeys(groupId, result.Select(x => (long)x.EpgId), _Languages.Values, false);
+            List<EpgCB> epgCbList = EpgDal.GetEpgCBList(documentIds);
+            //fill all cb objects 
+            foreach (var epg in result)
+            {
+                epg.EpgCbObjects.AddRange(epgCbList.Where(x => x.EpgID == epg.EpgId));
             }
 
             return result;
