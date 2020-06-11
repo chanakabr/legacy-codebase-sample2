@@ -427,6 +427,11 @@ namespace Core.Catalog.CatalogManagement
                             updateChildCategories = true;
                         }
                     }
+
+                    if (oldChildCategoriesIds.Count < newChildCategoriesIds.Count)
+                    {
+                        updateChildCategories = true;
+                    }
                 }
             }
 

@@ -533,7 +533,9 @@ namespace Core.Catalog.Handlers
                 ChildrenIds = children,
                 DynamicData = parent.DynamicData,
                 Name = parent.Name,
-                UnifiedChannels = parent.UnifiedChannels
+                UnifiedChannels = parent.UnifiedChannels,
+                IsActive = parent.IsActive,
+                TimeSlot = parent.TimeSlot
             };
 
             if (CategoriesManager.Add(groupId, userId, newICategory))
