@@ -266,7 +266,7 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        internal static CategoryItem GetCategoryItem(int groupId, long id, bool onlyActive = false)
+        internal static CategoryItem GetCategoryItem(int groupId, long id, bool filter = false, bool onlyActive = false)
         {
             CategoryItem result = null;
 
@@ -287,9 +287,13 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
                 
-                if (result != null && onlyActive && !result.IsValid())
+                if (result != null)
                 {
-                    return null;
+                    if (onlyActive && !result.IsActive.Value)
+                        return null;
+
+                    if (filter && result.TimeSlot != null && !result.TimeSlot.IsValid())
+                        return null;
                 }
                 
             }
