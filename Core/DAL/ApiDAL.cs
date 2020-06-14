@@ -3717,6 +3717,7 @@ namespace DAL
                     spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecoveryGracePeriod", settings.RecoveryGracePeriod.Value); //seconds
                 }
 
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@EnablePrivateCopy", settings.IsPrivateCopyEnabled);
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
 
