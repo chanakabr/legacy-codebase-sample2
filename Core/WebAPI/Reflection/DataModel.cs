@@ -7567,7 +7567,7 @@ namespace WebAPI.Reflection
                             
                         case "get":
                             RolesManager.ValidateActionPermitted("categoryTree", "get", false);
-                            return CategoryTreeController.Get((long) methodParams[0]);
+                            return CategoryTreeController.Get((long) methodParams[0], (bool) methodParams[1]);
                             
                     }
                     break;
@@ -12689,6 +12689,10 @@ namespace WebAPI.Reflection
                             ret.Add("categoryItemId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                            });
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(bool),
                             });
                             return ret;
                             

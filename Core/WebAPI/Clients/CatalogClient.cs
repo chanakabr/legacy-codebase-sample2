@@ -4163,9 +4163,9 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaCategoryTree GetCategoryTree(int groupId, long categoryItemId, bool isAllowedToViewInactiveAssets)
+        internal KalturaCategoryTree GetCategoryTree(int groupId, long categoryItemId, bool filter, bool isAllowedToViewInactiveAssets)
         {
-            Func<GenericResponse<CategoryTree>> treeFunc = () => CategoryItemHandler.Instance.GetCategoryTree(groupId, categoryItemId, isAllowedToViewInactiveAssets);
+            Func<GenericResponse<CategoryTree>> treeFunc = () => CategoryItemHandler.Instance.GetCategoryTree(groupId, categoryItemId, filter, !isAllowedToViewInactiveAssets);
 
             KalturaCategoryTree response =
                 ClientUtils.GetResponseFromWS<KalturaCategoryTree, CategoryTree>(treeFunc);
