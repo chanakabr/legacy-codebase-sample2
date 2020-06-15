@@ -432,7 +432,8 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.DomainsClient().GetHouseholdDevices(groupId, household, filter.ConvertDeviceFamilyIdIn(), filter.ExternalIdEqual, filter.MacAddressEqual);
+                response = ClientsManager.DomainsClient().GetHouseholdDevices(groupId, household, filter.ConvertDeviceFamilyIdIn()
+                    , filter.ExternalIdEqual, filter.MacAddressEqual);
             }
             catch (ClientException ex)
             {
