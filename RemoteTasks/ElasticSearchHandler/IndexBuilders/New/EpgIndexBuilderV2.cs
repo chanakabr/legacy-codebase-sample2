@@ -20,14 +20,14 @@ namespace ElasticSearchHandler.IndexBuilders
 {
     public class EpgIndexBuilderV2 : AbstractIndexBuilder
     {
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
 
         #region Data Members
 
-        protected int sizeOfBulk;
+        private long epgCbBulkSize = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.EpgPageSize.Value;
+        protected int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
         protected bool shouldAddRouting = true;
         protected Dictionary<long, List<int>> linearChannelsRegionsMapping;
 
@@ -77,8 +77,11 @@ namespace ElasticSearchHandler.IndexBuilders
                 this.EndDate = DateTime.UtcNow.Date.AddDays(7);
             }
 
-            sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
-            sizeOfBulk = sizeOfBulk == 0 ? 50 : sizeOfBulk;
+            // Default size of ES bulk request size
+            sizeOfBulk = sizeOfBulk == 0 ? 1000 : sizeOfBulk;
+            // Default size of epg cb bulk size
+            epgCbBulkSize = epgCbBulkSize == 0 ? 1000 : epgCbBulkSize;
+
             var newIndexName = GetNewIndexName();
 
             try
@@ -318,13 +321,11 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling PopulateEpgIndex", groupId);
                         return;
-                    }
-
-                    // TODO - Lior get all epgs differently when and if we decide to use different object then today                    
+                    }          
                 }
 
                 // Get EPG objects from CB
-                programs = GetEpgPrograms(groupId, date);
+                programs = GetEpgPrograms(groupId, date, epgCbBulkSize);
 
                 AddEPGsToIndex(index, type, programs, group, doesGroupUsesTemplates, catalogGroupCache);
             }
@@ -346,134 +347,155 @@ namespace ElasticSearchHandler.IndexBuilders
                 return;
             }
 
-            List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
-
-            // GetLinear Channel Values 
-            var programsList = new List<EpgCB>();
-
-            foreach (Dictionary<string, EpgCB> programsValues in programs.Values)
+            // save current value to restore at the end
+            int currentDefaultConnectionLimit = System.Net.ServicePointManager.DefaultConnectionLimit;
+            try
             {
-                programsList.AddRange(programsValues.Values);
-            }
+                int numOfBulkRequests = 0;
+                Dictionary<int, List<ESBulkRequestObj<ulong>>> bulkRequests = 
+                    new Dictionary<int, List<ESBulkRequestObj<ulong>>>() { { numOfBulkRequests, new List<ESBulkRequestObj<ulong>>() } };
 
-            ElasticSearchTaskUtils.GetLinearChannelValues(programsList, groupId);
+                // GetLinear Channel Values 
+                var programsList = new List<EpgCB>();
 
-            // used only to support linear media id search on elastic search
-            List<string> epgChannelIds = programsList.Select(item => item.ChannelID.ToString()).ToList<string>();
-            Dictionary<string, LinearChannelSettings> linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
-
-            // Run on all programs
-            foreach (ulong epgID in programs.Keys)
-            {
-                foreach (string languageCode in programs[epgID].Keys)
+                foreach (Dictionary<string, EpgCB> programsValues in programs.Values)
                 {
-                    string suffix = null;
+                    programsList.AddRange(programsValues.Values);
+                }
 
-                    LanguageObj language = null;
+                ElasticSearchTaskUtils.GetLinearChannelValues(programsList, groupId);
 
-                    if (!string.IsNullOrEmpty(languageCode))
+                // used only to support linear media id search on elastic search
+                List<string> epgChannelIds = programsList.Select(item => item.ChannelID.ToString()).ToList<string>();
+                Dictionary<string, LinearChannelSettings> linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
+
+                // Run on all programs
+                foreach (ulong epgID in programs.Keys)
+                {
+                    foreach (string languageCode in programs[epgID].Keys)
                     {
-                        if (doesGroupUsesTemplates)
+                        string suffix = null;
+
+                        LanguageObj language = null;
+
+                        if (!string.IsNullOrEmpty(languageCode))
                         {
-                            language = catalogGroupCache.LanguageMapByCode.ContainsKey(languageCode) ? catalogGroupCache.LanguageMapByCode[languageCode] : null;
+                            if (doesGroupUsesTemplates)
+                            {
+                                language = catalogGroupCache.LanguageMapByCode.ContainsKey(languageCode) ? catalogGroupCache.LanguageMapByCode[languageCode] : null;
+                            }
+                            else
+                            {
+                                language = group.GetLanguage(languageCode);
+                            }
+
+                            // Validate language
+                            if (language == null)
+                            {
+                                log.ErrorFormat("AddEPGsToIndex: Epg {0} has invalid language code {1}", epgID, languageCode);
+                                continue;
+                            }
+
+                            if (!language.IsDefault)
+                            {
+                                suffix = language.Code;
+                            }
                         }
                         else
                         {
-                            language = group.GetLanguage(languageCode);
+                            language = doesGroupUsesTemplates ? catalogGroupCache.DefaultLanguage : group.GetGroupDefaultLanguage();
                         }
 
-                        // Validate language
-                        if (language == null)
-                        {
-                            log.ErrorFormat("AddEPGsToIndex: Epg {0} has invalid language code {1}", epgID, languageCode);
-                            continue;
-                        }
+                        EpgCB epg = programs[epgID][languageCode];
 
-                        if (!language.IsDefault)
+                        if (epg != null)
                         {
-                            suffix = language.Code;
+                            epg.PadMetas(MetasToPad);
+
+                            // used only to currently support linear media id search on elastic search
+                            if (linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
+                            {
+                                epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].LinearMediaId;
+                            }
+
+                            if (epg.LinearMediaId > 0 && linearChannelsRegionsMapping != null && linearChannelsRegionsMapping.ContainsKey(epg.LinearMediaId))
+                            {
+                                epg.regions = linearChannelsRegionsMapping[epg.LinearMediaId];
+                            }
+
+                            // Serialize EPG object to string
+                            string serializedEpg = SerializeEPGObject(epg, suffix, doesGroupUsesTemplates);
+                            string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
+                            ulong documentId = GetDocumentId(epg);
+
+                            string ttl = string.Empty;
+                            bool shouldSetTTL = ShouldSetTTL();
+
+                            if (shouldSetTTL)
+                            {
+                                double totalMinutes = GetTTLMinutes(epg);
+                                ttl = string.Format("{0}m", totalMinutes);
+                            }
+
+                            // If we exceeded the size of a single bulk reuquest then create another list
+                            if (bulkRequests[numOfBulkRequests].Count >= sizeOfBulk)
+                            {
+                                numOfBulkRequests++;
+                                bulkRequests.Add(numOfBulkRequests, new List<ESBulkRequestObj<ulong>>());
+                            }
+
+                            ESBulkRequestObj<ulong> bulkRequest = 
+                                new ESBulkRequestObj<ulong>(documentId, index, epgType, serializedEpg, eOperation.index, epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"), ttl);
+                            bulkRequests[numOfBulkRequests].Add(bulkRequest);
                         }
                     }
-                    else
+                }
+
+                System.Net.ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
+                System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<ulong>>> failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<ulong>>>();
+                // Send request to elastic search in a different thread
+                System.Threading.Tasks.Parallel.ForEach(bulkRequests, (bulkRequest, state) =>
+                {
+                    List<ESBulkRequestObj<ulong>> invalidResults;
+                    bool bulkResult = api.CreateBulkRequests(bulkRequest.Value, out invalidResults);
+
+                    // Log invalid results
+                    if (!bulkResult && invalidResults != null && invalidResults.Count > 0)
                     {
-                        language = doesGroupUsesTemplates ? catalogGroupCache.DefaultLanguage : group.GetGroupDefaultLanguage();
+                        log.Warn($"Bulk request when indexing epg for partner {groupId} has invalid results. Will retry soon.");
+
+                        // add entire failed retry requests to failedBulkRequests, will try again not in parallel (maybe ES is loaded)
+                        failedBulkRequests.Add(invalidResults);
                     }
+                });
 
-                    EpgCB epg = programs[epgID][languageCode];
-
-                    if (epg != null)
+                // retry on all failed bulk requests (this time not in parallel)
+                if (failedBulkRequests.Count > 0)
+                {
+                    foreach (List<ESBulkRequestObj<ulong>> bulkRequest in failedBulkRequests)
                     {
-                        epg.PadMetas(MetasToPad);
+                        List<ESBulkRequestObj<ulong>> invalidResults;
+                        bool bulkResult = api.CreateBulkRequests(bulkRequest, out invalidResults);
 
-                        // used only to currently support linear media id search on elastic search
-                        if (linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
-                        {
-                            epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].LinearMediaId;
-                        }
-
-                        if (epg.LinearMediaId > 0 && linearChannelsRegionsMapping != null && linearChannelsRegionsMapping.ContainsKey(epg.LinearMediaId))
-                        {
-                            epg.regions = linearChannelsRegionsMapping[epg.LinearMediaId];
-                        }
-
-                        // Serialize EPG object to string
-                        string serializedEpg = SerializeEPGObject(epg, suffix, doesGroupUsesTemplates);
-                        string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
-
-                        string ttl = string.Empty;
-                        bool shouldSetTTL = ShouldSetTTL();
-
-                        if (shouldSetTTL)
-                        {
-                            double totalMinutes = GetTTLMinutes(epg);
-                            ttl = string.Format("{0}m", totalMinutes);
-                        }
-
-                        bulkRequests.Add(new ESBulkRequestObj<ulong>()
-                        {
-                            docID = GetDocumentId(epg),
-                            document = serializedEpg,
-                            index = index,
-                            Operation = eOperation.index,
-                            routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
-                            type = epgType,
-                            ttl = ttl
-                        });
-                    }
-
-                    // If we exceeded maximum size of bulk 
-                    if (bulkRequests.Count >= sizeOfBulk)
-                    {
-                        // create bulk request now and clear list
-                        var invalidResults = api.CreateBulkRequest(bulkRequests);
-
-                        if (invalidResults != null && invalidResults.Count > 0)
+                        // Log invalid results
+                        if (!bulkResult && invalidResults != null && invalidResults.Count > 0)
                         {
                             foreach (var item in invalidResults)
                             {
-                                log.ErrorFormat("Error - Could not add EPG to ES index. GroupID={0};Type={1};EPG_ID={2};error={3};",
-                                    groupId, IndexManager.EPG_INDEX_TYPE, item.Key, item.Value);
+                                log.ErrorFormat("Error - Could not add EPG to ES index, additional retry will not be attempted. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                    groupId, IndexManager.EPG_INDEX_TYPE, item.docID, item.error);
                             }
                         }
-
-                        bulkRequests.Clear();
                     }
                 }
             }
-
-            // If we have anything left that is less than the size of the bulk
-            if (bulkRequests.Count > 0)
+            catch (Exception ex)
             {
-                var invalidResults = api.CreateBulkRequest(bulkRequests);
-
-                if (invalidResults != null && invalidResults.Count > 0)
-                {
-                    foreach (var item in invalidResults)
-                    {
-                        log.ErrorFormat("Error - Could not add EPG to ES index. GroupID={0};Type={1};EPG_ID={2};error={3};",
-                            groupId, IndexManager.EPG_INDEX_TYPE, item.Key, item.Value);
-                    }
-                }
+                log.Error("Failed during AddEPGsToIndex", ex);
+            }
+            finally
+            {
+                System.Net.ServicePointManager.DefaultConnectionLimit = currentDefaultConnectionLimit;
             }
         }
 

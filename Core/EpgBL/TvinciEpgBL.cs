@@ -502,21 +502,21 @@ namespace EpgBL
             return oRes;
         }
 
-        public List<EpgCB> GetGroupEpgs(int nPageSize, int nStartIndex, DateTime? dfromDate, DateTime? dToDate, bool falseStaleState = false)
+        public List<EpgCB> GetGroupEpgs(int nPageSize, int nStartIndex, DateTime? dfromDate, DateTime? dToDate, bool falseStaleState = false, long bulkSize = 0)
         {
             List<EpgCB> lRes = null;
 
             if (dfromDate.HasValue && dToDate.HasValue)
             {
-                lRes = m_oEpgCouchbase.GetGroupProgramsByStartDate(nPageSize, nStartIndex, dfromDate.Value, dToDate.Value, falseStaleState);
+                lRes = m_oEpgCouchbase.GetGroupProgramsByStartDate(nPageSize, nStartIndex, dfromDate.Value, dToDate.Value, falseStaleState, bulkSize);
             }
             else if (dfromDate.HasValue)
             {
-                lRes = m_oEpgCouchbase.GetGroupProgramsByStartDate(nPageSize, nStartIndex, dfromDate.Value, falseStaleState);
+                lRes = m_oEpgCouchbase.GetGroupProgramsByStartDate(nPageSize, nStartIndex, dfromDate.Value, falseStaleState, bulkSize);
             }
             else
             {
-                lRes = m_oEpgCouchbase.GetGroupPrograms(nPageSize, nStartIndex, falseStaleState);
+                lRes = m_oEpgCouchbase.GetGroupPrograms(nPageSize, nStartIndex, falseStaleState, bulkSize);
             }
 
 

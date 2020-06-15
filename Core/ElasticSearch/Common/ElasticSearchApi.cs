@@ -913,9 +913,31 @@ namespace ElasticSearch.Common
         /// <returns></returns>
         public List<KeyValuePair<string, string>> CreateBulkRequest<T>(List<ESBulkRequestObj<T>> bulkRequests)
         {
+            List<ESBulkRequestObj<T>> invalidRecords;
+            CreateBulkRequests(bulkRequests, out invalidRecords);
+
+            List<KeyValuePair<string, string>> result = null;
+
+            if (invalidRecords != null)
+            {
+                result = invalidRecords.Select(item => new KeyValuePair<string, string>(item.docID.ToString(), item.error)).ToList();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates and sends an ElasticSearch bulk request bulk request. Returns whether the request succeeded or not, outs the invalid requests
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="bulkRequests"></param>
+        /// <returns></returns>
+        public bool CreateBulkRequests<T>(List<ESBulkRequestObj<T>> bulkRequests, out List<ESBulkRequestObj<T>> invalidRecords)
+        {
+            bool success = true;
             log.Debug("Start Elastic Search Bulk requests");
             StringBuilder requestString = new StringBuilder();
-            List<KeyValuePair<string, string>> invalidRecords = new List<KeyValuePair<string, string>>();
+            invalidRecords = new List<ESBulkRequestObj<T>>();
 
             // Serialize/Build elastic search request body
             if (bulkRequests != null)
@@ -960,6 +982,8 @@ namespace ElasticSearch.Common
 
             string response = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, bodyRequest, true);
 
+            // docId_documentType
+            string keyFormat = "{0}_{1}";
             // Find out if there are errors
             try
             {
@@ -975,21 +999,29 @@ namespace ElasticSearch.Common
                         // If there are errors, report it
                         if (errors != null && Convert.ToBoolean(errors))
                         {
-                            var items = json["items"];
+                            success = false;
+                            var failedBulkRequests = bulkRequests.ToDictionary(item => GetDocumentUniqueKey(item.index, item.type, item.docID), item => item);
 
-                            var type = typeof(T);
+                            var items = json["items"];
 
                             foreach (var item in items)
                             {
                                 if (item.First != null && item.First.First != null)
                                 {
                                     var itemError = item.First.First["error"];
-                                    var id = item.First.First["_id"];
+                                    var id = item.First.First["_id"].ToString();
+                                    var type = item.First.First["_type"].ToString();
+                                    var index = item.First.First["_index"].ToString();
+
+                                    string key = GetDocumentUniqueKey(index, type, id);
 
                                     if (itemError != null)
                                     {
-                                        invalidRecords.Add(new KeyValuePair<string, string>(id.ToString(), itemError.ToString()));
-                                        log.ErrorFormat("Failed indexing percolator for channel {0} because of error {1}", id, itemError.ToString());
+                                        var failedRequest = failedBulkRequests[key];
+                                        failedRequest.error = itemError.ToString();
+
+                                        invalidRecords.Add(failedRequest);
+                                        log.ErrorFormat("Failed indexing percolator for channel {0} because of error {1}", key, itemError.ToString());
                                     }
                                 }
                             }
@@ -999,12 +1031,18 @@ namespace ElasticSearch.Common
             }
             catch (Exception ex)
             {
+                success = false;
                 log.ErrorFormat("Failed parsing Elastic Search bulk request, error = {0}", ex);
+                invalidRecords.AddRange(bulkRequests);
             }
 
-            return invalidRecords;
+            return success;
         }
 
+        private string GetDocumentUniqueKey<T>(string index, string type, T documentId)
+        {
+            return $"{index}_{type}_{documentId}";
+        }
         /// <summary>
         /// Creates and sends an ElasticSearch bulk request bulk request. Returns the requests that failed and their errors.
         /// </summary>
