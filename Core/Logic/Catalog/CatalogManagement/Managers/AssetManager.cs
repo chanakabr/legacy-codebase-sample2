@@ -1630,10 +1630,10 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> CreateGroupMediaMapFromDataSet(int groupId, DataSet ds, CatalogGroupCache catalogGroupCache)
+        private static System.Collections.Concurrent.ConcurrentDictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> CreateGroupMediaMapFromDataSet(int groupId, DataSet ds, CatalogGroupCache catalogGroupCache)
         {
             // <assetId, <languageId, media>>
-            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
+            System.Collections.Concurrent.ConcurrentDictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupAssetsMap = new System.Collections.Concurrent.ConcurrentDictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
 
             try
             {
@@ -1706,7 +1706,7 @@ namespace Core.Catalog.CatalogManagement
                     linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
                 }
 
-                foreach (DataRow basicDataRow in ds.Tables[0].Rows)
+                System.Threading.Tasks.Parallel.ForEach(ds.Tables[0].AsEnumerable(), (basicDataRow, state) =>
                 {
                     int id = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "ID", 0);
 
@@ -1809,7 +1809,7 @@ namespace Core.Catalog.CatalogManagement
                                     }
                                 }
 
-                                groupAssetsMap.Add((int)mediaAsset.Id, assets);
+                                groupAssetsMap.TryAdd((int)mediaAsset.Id, assets);
                             }
                         }
                     }
@@ -1817,7 +1817,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         log.ErrorFormat("Error when creating group media map from data set - for media id {0} ; group {1} ; error = {2}", id, groupId, ex);
                     }
-                }
+                });
 
             }
             catch (Exception ex)
@@ -3487,10 +3487,10 @@ namespace Core.Catalog.CatalogManagement
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        public static Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupMediaAssets(int groupId, long nextId, long pageSize)
+        public static System.Collections.Concurrent.ConcurrentDictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> GetGroupMediaAssets(int groupId, long nextId, long pageSize)
         {
             // <assetId, <languageId, media>>
-            Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMediaAssetsMap = new Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
+            System.Collections.Concurrent.ConcurrentDictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMediaAssetsMap = new System.Collections.Concurrent.ConcurrentDictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>>();
             try
             {
                 CatalogGroupCache catalogGroupCache;

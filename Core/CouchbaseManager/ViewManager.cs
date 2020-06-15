@@ -15,6 +15,7 @@ namespace CouchbaseManager
     public class ViewManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private readonly long bulkSize;
 
         #region Data Members
 
@@ -187,10 +188,11 @@ namespace CouchbaseManager
 
         #region Ctor
 
-        public ViewManager(string designDoc, string viewName)
+        public ViewManager(string designDoc, string viewName, long bulkSize = 0)
         {
             this.designDoc = designDoc;
             this.viewName = viewName;
+            this.bulkSize = bulkSize;
         }
 
         #endregion
@@ -409,9 +411,16 @@ namespace CouchbaseManager
                         IDictionary<string, IOperationResult<T>> getResults = null;
 
                         cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", idsAndKeys.Keys.ToList()));
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
+                        if (this.bulkSize > 0 && idsAndKeys.Count > this.bulkSize)
                         {
-                            getResults = bucket.Get<T>(idsAndKeys.Keys.ToList(), TimeSpan.FromMilliseconds(CouchbaseManager.SEND_TIMEOUT_DEFAULT_MILLISECONDS));
+                            getResults = GetIdsAndKeysByBulk<T>(idsAndKeys.Keys.ToList(), bucket, (int)bulkSize);
+                        }
+                        else
+                        {
+                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
+                            {
+                                getResults = bucket.Get<T>(idsAndKeys.Keys.ToList(), TimeSpan.FromMilliseconds(CouchbaseManager.SEND_TIMEOUT_DEFAULT_MILLISECONDS));
+                            }
                         }
 
                         // Run on all Get results
@@ -480,6 +489,50 @@ namespace CouchbaseManager
             }
 
             return result;
+        }
+
+        private IDictionary<string, IOperationResult<T>> GetIdsAndKeysByBulk<T>(List<string> keys, IBucket bucket, int bulkSize)
+        {
+            Dictionary<string, IOperationResult<T>> results = new Dictionary<string, IOperationResult<T>>();
+            List<List<string>> keysBulks = new List<List<string>>();
+            int bulkIndex = 0;
+            int rangeToTake = 0;
+            int keysCount = keys.Count;
+            while (keysCount > bulkIndex)
+            {
+                rangeToTake = keysCount > bulkSize + bulkIndex ? bulkSize : keysCount - bulkIndex;
+                keysBulks.Add(keys.GetRange(bulkIndex, rangeToTake));
+                bulkIndex += rangeToTake;
+            }
+
+            System.Collections.Concurrent.ConcurrentDictionary<string, IOperationResult<T>> tempResults = new System.Collections.Concurrent.ConcurrentDictionary<string, IOperationResult<T>>();
+            System.Threading.Tasks.Parallel.ForEach(keysBulks, (currentKeys, state) =>
+            {
+                string cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", currentKeys));
+                IDictionary<string, IOperationResult<T>> getResults = null;
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
+                {
+                    getResults = bucket.Get<T>(currentKeys, TimeSpan.FromMilliseconds(CouchbaseManager.SEND_TIMEOUT_DEFAULT_MILLISECONDS));
+                }
+
+                if (getResults != null && getResults.Count > 0)
+                {
+                    foreach (KeyValuePair<string, IOperationResult<T>> res in getResults)
+                    {
+                        if (!tempResults.TryAdd(res.Key, res.Value))
+                        {
+                            log.WarnFormat("Failed to add key {0} in GetIdsAndKeysByBulk", res.Key);
+                        }
+                    }
+                }
+            });
+
+            if (tempResults != null && tempResults.Count > 0)
+            {
+                results = tempResults.ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            return results;
         }
 
         public int QueryReduce(IBucket bucket)
