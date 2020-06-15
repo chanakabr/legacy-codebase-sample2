@@ -35,6 +35,14 @@ namespace WebAPI.Models.Domains
         [XmlArray(ElementName = "externalIdEqual", IsNullable = true)]
         public string ExternalIdEqual { get; set; }
 
+        /// <summary>
+        /// Mac Address
+        /// </summary>
+        [DataMember(Name = "macAddressEqual")]
+        [JsonProperty(PropertyName = "macAddressEqual")]
+        [XmlArray(ElementName = "macAddressEqual", IsNullable = true)]
+        public string MacAddressEqual { get; set; }
+
         public override KalturaHouseholdDeviceOrderBy GetDefaultOrderByValue()
         {
             return KalturaHouseholdDeviceOrderBy.NONE;

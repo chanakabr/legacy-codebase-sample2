@@ -117,15 +117,15 @@ namespace WebAPI.Controllers
             {
                 if (HouseholdUtils.IsUserMaster())
                 {
-                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId);
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId, device.MacAddress);
                 }
                 else if (device.HouseholdId != 0)
                 {
-                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId);
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId, device.MacAddress);
                 }
                 else
                 {
-                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device.Udid, device.Name, device.getBrandId(), device.ExternalId);
+                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device.Udid, device.Name, device.getBrandId(), device.ExternalId, device.MacAddress);
                 }
             }
             catch (ClientException ex)
@@ -309,7 +309,7 @@ namespace WebAPI.Controllers
                 var allowNullExternalId = device.NullableProperties != null && device.NullableProperties.Contains("externalid");
 
                 // call client
-                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.ExternalId, allowNullExternalId);
+                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.MacAddress, device.ExternalId, allowNullExternalId);
             }
             catch (ClientException ex)
             {
@@ -344,7 +344,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid, string.Empty);
+                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid, string.Empty, string.Empty);
             }
             catch (ClientException ex)
             {
@@ -432,7 +432,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.DomainsClient().GetHouseholdDevices(groupId, household, filter.ConvertDeviceFamilyIdIn(), filter.ExternalIdEqual);
+                response = ClientsManager.DomainsClient().GetHouseholdDevices(groupId, household, filter.ConvertDeviceFamilyIdIn(), filter.ExternalIdEqual, filter.MacAddressEqual);
             }
             catch (ClientException ex)
             {

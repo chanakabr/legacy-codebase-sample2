@@ -28179,6 +28179,16 @@ namespace WebAPI.Models.Domains
             MaxLength = 255,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute MacAddressSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 6,
+            IsNullable = true,
+            MaxLength = 255,
+            MinLength = -1,
+        };
         public KalturaHouseholdDevice(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -28286,6 +28296,18 @@ namespace WebAPI.Models.Domains
                     }
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
                 }
+                if (parameters.ContainsKey("macAddress__null") && parameters["macAddress__null"] != null)
+                {
+                    AddNullableProperty("macAddress");
+                }
+                if (parameters.ContainsKey("macAddress") && parameters["macAddress"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        MacAddressSchemaProperty.Validate("macAddress", parameters["macAddress"]);
+                    }
+                    MacAddress = (String) Convert.ChangeType(parameters["macAddress"], typeof(String));
+                }
             }
         }
     }
@@ -28353,6 +28375,10 @@ namespace WebAPI.Models.Domains
                 if (parameters.ContainsKey("externalIdEqual") && parameters["externalIdEqual"] != null)
                 {
                     ExternalIdEqual = (String) Convert.ChangeType(parameters["externalIdEqual"], typeof(String));
+                }
+                if (parameters.ContainsKey("macAddressEqual") && parameters["macAddressEqual"] != null)
+                {
+                    MacAddressEqual = (String) Convert.ChangeType(parameters["macAddressEqual"], typeof(String));
                 }
             }
         }

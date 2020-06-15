@@ -28049,6 +28049,10 @@ namespace WebAPI.Models.Domains
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
             }
             ret.Add("householdId", "\"householdId\": " + HouseholdId);
+            if(MacAddress != null)
+            {
+                ret.Add("macAddress", "\"macAddress\": " + "\"" + EscapeJson(MacAddress) + "\"");
+            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -28108,6 +28112,10 @@ namespace WebAPI.Models.Domains
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
             }
             ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
+            if(MacAddress != null)
+            {
+                ret.Add("macAddress", "<macAddress>" + EscapeXml(MacAddress) + "</macAddress>");
+            }
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
@@ -28208,6 +28216,10 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("householdIdEqual", "\"householdIdEqual\": " + HouseholdIdEqual);
             }
+            if(MacAddressEqual != null)
+            {
+                ret.Add("macAddressEqual", "\"macAddressEqual\": " + "\"" + EscapeJson(MacAddressEqual) + "\"");
+            }
             return ret;
         }
         
@@ -28229,6 +28241,10 @@ namespace WebAPI.Models.Domains
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdDeviceFilter", "HouseholdIdEqual", requestType.Value)))
             {
                 ret.Add("householdIdEqual", "<householdIdEqual>" + HouseholdIdEqual + "</householdIdEqual>");
+            }
+            if(MacAddressEqual != null)
+            {
+                ret.Add("macAddressEqual", "<macAddressEqual>" + EscapeXml(MacAddressEqual) + "</macAddressEqual>");
             }
             return ret;
         }

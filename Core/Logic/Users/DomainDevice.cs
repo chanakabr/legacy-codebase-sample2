@@ -31,6 +31,8 @@ namespace Core.Users
 
         public string ExternalId { get; set; }
 
+        public string MacAddress { get; set; }
+
         public long DeviceFamilyId
         {
             get;

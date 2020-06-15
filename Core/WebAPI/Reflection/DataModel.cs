@@ -2965,6 +2965,8 @@ namespace WebAPI.Reflection
                             return "externalId";
                         case "HouseholdId":
                             return "householdId";
+                        case "MacAddress":
+                            return "macAddress";
                         case "Name":
                             return "name";
                         case "State":
@@ -2997,6 +2999,8 @@ namespace WebAPI.Reflection
                             return "externalIdEqual";
                         case "HouseholdIdEqual":
                             return "householdIdEqual";
+                        case "MacAddressEqual":
+                            return "macAddressEqual";
                     }
                     break;
                     
