@@ -1533,6 +1533,18 @@ namespace Core.Users
             return response;
         }
 
+        public static GenericResponse<UserResponseObject> RenewPasswordWithToken(int groupId, string token, string newPassword)
+        {
+            var response = new GenericResponse<UserResponseObject>();
+            BaseUsers t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                return t.RenewPasswordWithToken(token, newPassword);
+            }
+            return response;
+        }
+
         public static ApiObjects.Response.Status ReplacePassword(int nGroupID, string userName, string oldPassword, string newPassword)
         {
             var response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

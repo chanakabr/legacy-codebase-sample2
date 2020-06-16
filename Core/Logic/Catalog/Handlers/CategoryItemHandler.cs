@@ -533,7 +533,9 @@ namespace Core.Catalog.Handlers
                 ChildrenIds = children,
                 DynamicData = parent.DynamicData,
                 Name = parent.Name,
-                UnifiedChannels = parent.UnifiedChannels
+                UnifiedChannels = parent.UnifiedChannels,
+                IsActive = parent.IsActive,
+                TimeSlot = parent.TimeSlot
             };
 
             if (CategoriesManager.Add(groupId, userId, newICategory))
@@ -544,14 +546,14 @@ namespace Core.Catalog.Handlers
             }
         }
 
-        public GenericResponse<CategoryTree> GetCategoryTree(int groupId, long id, bool onlyActive = false)
+        public GenericResponse<CategoryTree> GetCategoryTree(int groupId, long id, bool filter = false, bool onlyActive = false)
         {
             GenericResponse<CategoryTree> response = new GenericResponse<CategoryTree>();
 
             CategoryTree categoryTree = null;
 
             // Get the current category
-            var categoryItem = CategoriesManager.GetCategoryItem(groupId, id, onlyActive);
+            var categoryItem = CategoriesManager.GetCategoryItem(groupId, id, filter, onlyActive);
             if (categoryItem == null)
             {
                 response.SetStatus(eResponseStatus.CategoryNotExist, "Category does not exist");
@@ -567,13 +569,13 @@ namespace Core.Catalog.Handlers
 
             if (categoryItem?.ChildrenIds?.Count > 0)
             {
-                List<CategoryItem> childern = categoryItem.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x, onlyActive)).ToList();
+                List<CategoryItem> childern = categoryItem.ChildrenIds.Select(x => CategoriesManager.GetCategoryItem(groupId, x, filter, onlyActive)).ToList();
 
                 childern.RemoveAll(item => item == null);
 
                 if (childern.Any(i => i != null))
                 {
-                    categoryTree.Children = FindTreeChildren(groupId, childern, onlyActive);
+                    categoryTree.Children = FindTreeChildren(groupId, childern, filter, onlyActive);
                 }
             }
 
@@ -583,7 +585,7 @@ namespace Core.Catalog.Handlers
             return response;
         }
 
-        private List<CategoryTree> FindTreeChildren(int groupId, List<CategoryItem> children, bool onlyActive)
+        private List<CategoryTree> FindTreeChildren(int groupId, List<CategoryItem> children, bool filter, bool onlyActive)
         {
             List<CategoryTree> response = new List<CategoryTree>();
             CategoryTree ct;
@@ -596,7 +598,7 @@ namespace Core.Catalog.Handlers
                 ch.RemoveAll(item => item == null);
                 if (ch.Any(i => i != null))
                 {
-                    ct.Children = FindTreeChildren(groupId, ch, onlyActive);
+                    ct.Children = FindTreeChildren(groupId, ch, filter, onlyActive);
                 }
                 response.Add(ct);
             }

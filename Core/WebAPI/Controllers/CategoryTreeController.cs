@@ -43,12 +43,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrive category tree.      
         /// </summary>        
-        /// <param name="categoryItemId">Category item identifier</param>        
+        /// <param name="categoryItemId">Category item identifier</param>
+        /// <param name="filter">filter categories dates</param>
         [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.CategoryNotExist)]
-        static public KalturaCategoryTree Get(long categoryItemId)
+        static public KalturaCategoryTree Get(long categoryItemId, bool filter)
         {
             KalturaCategoryTree response = null;
 
@@ -59,7 +61,7 @@ namespace WebAPI.Controllers
             {
                 bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId, true);
 
-                response = ClientsManager.CatalogClient().GetCategoryTree(groupId, categoryItemId, !isAllowedToViewInactiveAssets);
+                response = ClientsManager.CatalogClient().GetCategoryTree(groupId, categoryItemId, filter, isAllowedToViewInactiveAssets);
             }
             catch (ClientException ex)
             {

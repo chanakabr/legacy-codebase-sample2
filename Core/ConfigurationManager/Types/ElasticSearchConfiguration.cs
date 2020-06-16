@@ -13,7 +13,6 @@ namespace ConfigurationManager
         public BaseValue<int> MaxResults = new BaseValue<int>("max_results", 100000);
         public BaseValue<int> MaxStatSortResults = new BaseValue<int>("max_stat_sort_results",0);
         public BaseValue<int> StatSortBulkSize = new BaseValue<int>("stat_sort_bulk_size", 5000);
-        public BaseValue<int> MediaPageSize = new BaseValue<int>("media_page_size", 10000);
 
 
 

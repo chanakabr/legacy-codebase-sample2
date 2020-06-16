@@ -35,6 +35,10 @@ namespace Core.Catalog.CatalogManagement
         private const string PERCOLATOR = ".percolator";
 
         private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
+        // Basic TCM configurations for indexing - number of shards/replicas, max results
+        private static readonly int NUM_OF_SHARDS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
+        private static readonly int NUM_OF_REPLICAS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
+        private static readonly int MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
         protected const string ES_VERSION = "2";
 
         public const string EPG_INDEX_TYPE = "epg";
@@ -1205,12 +1209,9 @@ namespace Core.Catalog.CatalogManagement
 
         public static HashSet<string> CreateNewEpgIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, string newIndexName, bool isRecording = false)
         {
-            int maxResults = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
-            maxResults = maxResults == 0 ? 100000 : maxResults;
-
             var esClient = new ElasticSearchApi();
             GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);
-            var isIndexCreated = esClient.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers, maxResults);
+            var isIndexCreated = esClient.BuildIndex(newIndexName, NUM_OF_SHARDS, NUM_OF_REPLICAS, analyzers, filters, tokenizers, MAX_RESULTS);
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
 
             AddMappingsToEpgIndex(groupId, newIndexName, languages, defaultLanguage, isRecording, out var metasToPad, group, catalogGroupCache);

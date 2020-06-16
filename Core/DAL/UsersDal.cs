@@ -2458,5 +2458,43 @@ namespace DAL
             string key = GetUserLoginInfoKey(groupId, userId);
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, userLoginInfo);
         }
+
+        public static bool RevokePasswordToken(int userId)
+        {
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users");
+            updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CP_TOKEN", "=", DBNull.Value);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CP_TOKEN_LAST_DATE", "=", DateTime.UtcNow.AddDays(-15));
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", userId);
+            bool res = updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+
+            return res;
+        }
+
+        public static int GetUserIdByToken(int groupId, string token)
+        {
+            int nRet = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+            selectQuery += "select id from users where status=1 and is_active=1 and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CP_TOKEN", "=", token);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
+            selectQuery += "and CP_TOKEN_LAST_DATE>getdate()";
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return nRet;
+        }
     }
 }

@@ -18,6 +18,8 @@ namespace ElasticSearch.Common
 
         public string ttl { get; set; }
 
+        public string error { get; internal set; }
+
         public ESBulkRequestObj()
         {
             Operation = eOperation.index;
@@ -27,6 +29,28 @@ namespace ElasticSearch.Common
             document = string.Empty;
             routing = string.Empty;
             ttl = string.Empty;
+        }
+
+        public ESBulkRequestObj(T docId, string index, string type, string document)
+        {
+            this.docID = docId;
+            this.index = index;
+            this.type = type;
+            this.document = document;
+            Operation = eOperation.index;
+            routing = string.Empty;
+            ttl = string.Empty;
+        }
+
+        public ESBulkRequestObj(T docId, string index, string type, string document, eOperation operation, string routing, string ttl)
+        {
+            this.docID = docId;
+            this.index = index;
+            this.type = type;
+            this.document = document;
+            this.Operation = operation;
+            this.routing = routing;
+            this.ttl = ttl;
         }
 
     }
