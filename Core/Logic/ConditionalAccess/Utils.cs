@@ -6517,9 +6517,9 @@ namespace Core.ConditionalAccess
                     return false;
                 }
 
-                seriesIdName = SERIES_ID;
-                seasonNumberName = SEASON_NUMBER;
-                episodeNumberName = EPISODE_NUMBER;
+                seriesIdName = $"tags.{SERIES_ID}";
+                seasonNumberName = $"metas.{SEASON_NUMBER}";
+                episodeNumberName = $"metas.{EPISODE_NUMBER}";
                 return true;
             }
 
@@ -6692,12 +6692,14 @@ namespace Core.ConditionalAccess
                 int seasonNumber = 0;
                 foreach (var field in potentialRecording.ExtraFields)
                 {
-                    if (field.key.ToLower() == seriesIdName.ToLower())
+                    string key = field.key.ToLower();
+
+                    if (key == seriesIdName.ToLower())
                     {
                         seriesId = field.value;
                     }
 
-                    if (field.key.ToLower() == seasonNumberName.ToLower())
+                    if (key == seasonNumberName.ToLower())
                     {
                         int.TryParse(field.value, out seasonNumber);
                     }
