@@ -25,17 +25,25 @@ RUN dotnet publish -c Release "./IngestValidationHandler/IngestValidationHandler
 # https://github.com/dotnet/corefx/issues/29147
 # Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
 FROM mcr.microsoft.com/dotnet/core/runtime:3.1
-WORKDIR /
+ARG USER_ID=1200
+ARG GROUP_ID=1200
+WORKDIR /opt
 
 ENV RUN_TASK=no-task-selected
 ENV CONCURRENT_CONSUMERS=1
 ENV API_LOG_DIR=/var/log/remote-tasks/
 
-COPY --from=builder /src/published .
+COPY --chown=${USER_ID}:${GROUP_ID} --from=builder /src/published .
 ###### deploy root CA ######
 COPY consul-root-certificate.crt /usr/local/share/ca-certificates/consul-root-certificate.crt
 RUN update-ca-certificates
 ###### deploy root CA ######
+
+RUN groupadd -g ${GROUP_ID} ott-users && \
+    useradd -g ${GROUP_ID} -u ${USER_ID} kaltura -s /sbin/nologin && \
+    mkdir -p ${API_LOG_DIR} && chown -R ${USER_ID}:${GROUP_ID} ${API_LOG_DIR}
+USER kaltura
+
 ENTRYPOINT [ "sh", "-c", "dotnet ./${RUN_TASK}/${RUN_TASK}.dll" ]
 
 ARG VERSION
