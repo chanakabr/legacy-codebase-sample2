@@ -319,13 +319,24 @@ namespace Phoenix.Rest.Middleware
 
             foreach (var uploadedFile in request.Form.Files)
             {
-                var filePath = $@"{_FileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
-                using (Stream tempFile = File.Create(filePath))
+
+                if (ApplicationConfiguration.Current.RequestParserConfiguration.ShouldSaveAsFile.Value)
                 {
-                    await uploadedFile.CopyToAsync(tempFile);
+                    var filePath = $@"{_FileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
+                    using (Stream tempFile = File.Create(filePath))
+                    {
+                        await uploadedFile.CopyToAsync(tempFile);
+                    }
+                    uploadedFiles.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
+                }
+                else
+                {                    
+                    
+                    uploadedFiles.Add(uploadedFile.Name,
+                        new KalturaOTTFile(uploadedFile.OpenReadStream(), uploadedFile.FileName));
+                    
                 }
 
-                uploadedFiles.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
             }
 
             return uploadedFiles;

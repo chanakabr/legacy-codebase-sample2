@@ -6,6 +6,9 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Upload;
 using ApiLogic;
+using ApiLogic.Catalog;
+using WebAPI.Models.General;
+using WebAPI.ObjectsConvertor;
 
 namespace WebAPI.Managers
 {
@@ -70,22 +73,19 @@ namespace WebAPI.Managers
             return cbUploadToken;
         }
 
-        internal static KalturaUploadToken UploadUploadToken(string id, string path, int groupId)
+        internal static KalturaUploadToken UploadUploadToken(string id, KalturaOTTFile fileData, int groupId)
         {
-            log.DebugFormat("UploadUploadToken function params -> Id: {0}, Path: {1}, GroupId: {2}", id, path, groupId);
+            log.DebugFormat("UploadUploadToken function params -> Id: {0}, filename: {1}, GroupId: {2}", id, fileData.name, groupId);
 
-            UploadToken cbUploadToken = GetUploadToken(id, groupId);
+            UploadToken cbUploadToken = GetUploadToken(id, groupId);                     
+            OTTBasicFile file= fileData.ConvertToOttFileType();
 
-            FileInfo fileInfo = new FileInfo(path);
-            if (fileInfo == null)
+            if (file is OTTFile)
             {
-                log.Error("UploadUploadToken: Failed to create file info, Path: " + path);
-                throw new InternalServerErrorException();
+                cbUploadToken.FileSize = new FileInfo(fileData.path).Length;
             }
-
-            cbUploadToken.FileSize = fileInfo.Length;
-            
-            var saveFileResponse = FileHandler.Instance.SaveFile(id, fileInfo, "KalturaUploadToken");
+                                  
+            var saveFileResponse = file.SaveFile(id, "KalturaUploadToken");
             if (saveFileResponse == null)
             {
                 log.Error("UploadUploadToken: Failed to get saveFileResponse");

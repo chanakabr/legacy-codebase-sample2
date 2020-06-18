@@ -817,7 +817,7 @@ namespace IngestHandler
                 var groupManager = new GroupManager();
                 groupManager.RemoveGroup(_EventData.GroupId);
                 var group = groupManager.GetGroup(_EventData.GroupId);
-                _ = IndexManager.CreateNewEpgIndex(_EventData.GroupId, catalogGroupCache, group, _Languages.Values, _DefaultLanguage, newIndexName);
+                IndexManager.CreateNewEpgIndex(_EventData.GroupId, catalogGroupCache, group, _Languages.Values, _DefaultLanguage, newIndexName);
             }
             catch (Exception e)
             {

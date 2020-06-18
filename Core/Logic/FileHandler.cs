@@ -1,6 +1,7 @@
 ﻿
 using Amazon.S3;
 using Amazon.S3.Transfer;
+using ApiLogic.Catalog;
 using ApiObjects.Response;
 using ConfigurationManager;
 using ConfigurationManager.Types;
@@ -17,7 +18,8 @@ namespace ApiLogic
         protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected abstract void Initialize();
-        protected abstract GenericResponse<string> Save(string fileName, FileInfo fileInfo, string subDir);
+        protected abstract GenericResponse<string> Save(string fileName, OTTFile fileInfo, string subDir);
+        protected abstract GenericResponse<string> Save(string fileName, OTTStreamFile file, string subDir);
         protected abstract GenericResponse<string> GetSubDir(string id, string typeName);
         protected abstract GenericResponse<string> GetSubDir(long id, string typeName);
         protected abstract string GetUrl(string subDir, string fileName);
@@ -69,16 +71,18 @@ namespace ApiLogic
             return Delete(fileUrl);
         }
 
-        public GenericResponse<string> SaveFile(string id, FileInfo fileInfo, string objectTypeName)
+
+        public GenericResponse<string> SaveFile(long id, OTTFile file, string objectTypeName)
         {
             GenericResponse<string> saveFileResponse = new GenericResponse<string>();
+            var fileInfo = new FileInfo(file.Path);
             var validationResponse = Validate(objectTypeName, fileInfo);
             if (validationResponse.HasObject())
             {
                 saveFileResponse = GetSubDir(id, validationResponse.Object);
                 if (saveFileResponse.HasObject())
                 {
-                    saveFileResponse = Save(GetFileName(id.ToString(), fileInfo.Extension), fileInfo, saveFileResponse.Object);
+                    saveFileResponse = Save(GetFileName(id.ToString(), fileInfo.Extension), file, saveFileResponse.Object);
                 }
             }
             else
@@ -89,16 +93,59 @@ namespace ApiLogic
             return saveFileResponse;
         }
 
-        public GenericResponse<string> SaveFile(long id, FileInfo fileInfo, string objectTypeName)
+        public GenericResponse<string> SaveFile(string id, OTTFile file, string objectTypeName)
         {
             GenericResponse<string> saveFileResponse = new GenericResponse<string>();
+            var fileInfo = new FileInfo(file.Path);
             var validationResponse = Validate(objectTypeName, fileInfo);
             if (validationResponse.HasObject())
             {
                 saveFileResponse = GetSubDir(id, validationResponse.Object);
                 if (saveFileResponse.HasObject())
                 {
-                    saveFileResponse = Save(GetFileName(id.ToString(), fileInfo.Extension), fileInfo, saveFileResponse.Object);
+                    saveFileResponse = Save(GetFileName(id.ToString(), fileInfo.Extension), file, saveFileResponse.Object);
+                }
+            }
+            else
+            {
+                saveFileResponse.SetStatus(validationResponse.Status);
+            }
+
+            return saveFileResponse;
+        }
+
+        public GenericResponse<string> SaveFile(string id, OTTStreamFile file, string objectTypeName)
+        {
+            GenericResponse<string> saveFileResponse = new GenericResponse<string>();
+            
+            var validationResponse  = GetFileObjectTypeName(objectTypeName);            
+            if (validationResponse.HasObject())
+            {
+                saveFileResponse = GetSubDir(id, validationResponse.Object);
+                if (saveFileResponse.HasObject())
+                {
+                    saveFileResponse = Save(GetFileName(id.ToString(), new FileInfo(file.Name).Extension), file, saveFileResponse.Object);
+                }
+            }
+            else
+            {
+                saveFileResponse.SetStatus(validationResponse.Status);
+            }
+
+            return saveFileResponse;
+        }
+
+        public GenericResponse<string> SaveFile(long id, OTTStreamFile file, string objectTypeName)
+        {
+            GenericResponse<string> saveFileResponse = new GenericResponse<string>();
+
+            var validationResponse = GetFileObjectTypeName(objectTypeName);
+            if (validationResponse.HasObject())
+            {
+                saveFileResponse = GetSubDir(id, validationResponse.Object);
+                if (saveFileResponse.HasObject())
+                {
+                    saveFileResponse = Save(GetFileName(id.ToString(), new FileInfo(file.Name).Extension), file, saveFileResponse.Object);
                 }
             }
             else
@@ -160,10 +207,7 @@ namespace ApiLogic
         public int NumberOfRetries { get; private set; }
         public string Region { get; private set; }
         public string BucketName { get; private set; }
-        public string Path { get; private set; }
-
-        
-        
+        public string Path { get; private set; }       
 
         protected override void Initialize()
         {
@@ -173,8 +217,9 @@ namespace ApiLogic
             Path = ApplicationConfiguration.Current.FileUpload.S3.Path.Value;
         }
 
-        protected override GenericResponse<string> Save(string fileName, FileInfo fileInfo, string subDir)
+        protected override GenericResponse<string> Save(string fileName, OTTFile file, string subDir)
         {
+            var fileInfo = new FileInfo(file.Path);
             GenericResponse<string> saveResponse = new GenericResponse<string>();
             for (int i = 0; i < NumberOfRetries; i++)
             {
@@ -274,6 +319,48 @@ namespace ApiLogic
         {
             return string.Format("{0}_{1}", subDir, fileName);
         }
+
+        protected override GenericResponse<string> Save(string fileName, OTTStreamFile file, string subDir)
+        {
+            GenericResponse<string> saveResponse = new GenericResponse<string>();
+            for (int i = 0; i < NumberOfRetries; i++)
+            {
+                using (var client = new AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(Region)))
+                {
+                    try
+                    {
+                        var filePath = GetRelativeFilePath(subDir, fileName);
+                        using (var fileTransferUtility = new TransferUtility(client))
+                        {
+                            using (var f=file.GetFileStream())
+                            {
+                                var fileTransferUtilityRequest = new TransferUtilityUploadRequest
+                                {
+                                    BucketName = BucketName,
+                                    InputStream = f,
+                                    Key = filePath
+                                };
+                                fileTransferUtility.Upload(fileTransferUtilityRequest);
+
+                                saveResponse.Object = GetUrl(subDir, fileName);
+                                saveResponse.SetStatus(eResponseStatus.OK);
+                                return saveResponse;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(string.Format("An Exception was occurred in Save file to S3, attempt: {0}/{1}. fileName:{2}, , subDir:{3}.",
+                                                i + 1, NumberOfRetries, fileName, subDir), ex);
+                        saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Error while save file:{0} to S3", fileName));
+                        return saveResponse;
+                    }
+                }
+            }
+
+            saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Could not save file:{0} to S3", fileName));
+            return saveResponse;
+        }
     }
 
     public class FileSystemHandler : FileHandler
@@ -287,8 +374,9 @@ namespace ApiLogic
             PublicUrl = ApplicationConfiguration.Current.FileUpload.FileSystem.PublicUrl.Value;
         }
 
-        protected override GenericResponse<string> Save(string fileName, FileInfo fileInfo, string subDir)
+        protected override GenericResponse<string> Save(string fileName, OTTFile file, string subDir)
         {
+            var fileInfo = new FileInfo(file.Path);
             GenericResponse<string> saveResponse = new GenericResponse<string>();
             var destDir = Path.Combine(Destination, subDir);
             CreateSubDir(destDir);
@@ -382,6 +470,40 @@ namespace ApiLogic
         protected override string GetUrl(string subDir, string fileName)
         {
             return string.Format("{0}{1}/{2}", PublicUrl, subDir.Replace("\\", "/"), fileName);
+        }
+
+        protected override GenericResponse<string> Save(string fileName, OTTStreamFile file, string subDir)
+        {
+            GenericResponse<string> saveResponse = new GenericResponse<string>();
+            var destDir = Path.Combine(Destination, subDir);
+            CreateSubDir(destDir);
+
+            var destPath = Path.Combine(destDir, fileName);
+
+            if (File.Exists(destPath))
+            {
+                saveResponse.SetStatus(eResponseStatus.FileAlreadyExists, string.Format("file:{0} already exists.", file.Name));
+                return saveResponse;
+            }
+
+            try
+            {                
+                using (Stream tempFile = File.Create(destPath))
+                {
+                    file.GetFileStream().CopyTo(tempFile);                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("An Exception was occurred in Save file to FileSystem. fileName:{0}, subDir:{1}.",
+                                        fileName, subDir), ex);
+                saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Error while save file:{0} to FileSystem", fileName));
+                return saveResponse;
+            }
+
+            saveResponse.Object = GetUrl(subDir, fileName);
+            saveResponse.SetStatus(eResponseStatus.OK);
+            return saveResponse;
         }
     }
 }

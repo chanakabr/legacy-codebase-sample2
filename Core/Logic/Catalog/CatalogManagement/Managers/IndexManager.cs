@@ -856,6 +856,7 @@ namespace Core.Catalog.CatalogManagement
 
                         // Temporarily - assume success
                         bool temporaryResult = true;
+                        var createdAliases = new HashSet<string>();
 
                         // Create dictionary by languages
                         foreach (LanguageObj language in languages)
@@ -864,7 +865,7 @@ namespace Core.Catalog.CatalogManagement
                             List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg =>
                                 epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
 
-                            var alias = string.Format("{0}_epg", groupId);
+                            var alias = EpgIndexGroupAlias(groupId);
                             var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
                             if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                             {
@@ -876,7 +877,16 @@ namespace Core.Catalog.CatalogManagement
                                     // in that case we need to use the specific date alias for each epg item to update
                                     if (isIngestV2)
                                     {
-                                        alias = IndexManager.GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date);
+                                        alias = GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date);
+                                        //in case alias already created ,no need to check in ES
+                                        if (!createdAliases.Contains(alias))
+                                        {
+                                            var aliases = 
+                                                new string[] { GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date),
+                                                        EpgIndexGroupAlias(groupId)};
+                                            CreateIndex(alias, groupId, group,catalogGroupCache, languages, aliases);
+                                            createdAliases.Add(alias);
+                                        }
                                     }
 
                                     string suffix = null;
@@ -975,6 +985,30 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+       
+
+        /// <summary>
+        /// will create a new index in case not exists
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="groupId"></param>
+        private static void CreateIndex(string index, int groupId, Group group, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages, string[] aliases)
+        {
+            
+            ElasticSearchApi esApi = new ElasticSearchApi();
+            if (!esApi.IndexExists(index))
+            {
+                                        
+                CreateNewEpgIndex(groupId, catalogGroupCache, group, languages, languages.First(x => x.IsDefault), index);
+
+                var esClient = new ElasticSearchApi();
+                foreach (var indexAlias in aliases)
+                {
+                    esClient.AddAlias(index, indexAlias);
+                }
+            }
         }
 
         public static bool DeleteProgram(int groupId, List<long> epgIds, IEnumerable<string> epgChannelIds)
@@ -1209,13 +1243,18 @@ namespace Core.Catalog.CatalogManagement
 
         public static HashSet<string> CreateNewEpgIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, string newIndexName, bool isRecording = false)
         {
+
+            CreateEmptyIndex(newIndexName, languages);
+            AddMappingsToEpgIndex(groupId, newIndexName, languages, defaultLanguage, isRecording, out var metasToPad, group, catalogGroupCache);
+            return metasToPad;
+        }
+
+        private static void CreateEmptyIndex(string newIndexName,IEnumerable<LanguageObj> languages)
+        {            
             var esClient = new ElasticSearchApi();
             GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);
             var isIndexCreated = esClient.BuildIndex(newIndexName, NUM_OF_SHARDS, NUM_OF_REPLICAS, analyzers, filters, tokenizers, MAX_RESULTS);
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
-
-            AddMappingsToEpgIndex(groupId, newIndexName, languages, defaultLanguage, isRecording, out var metasToPad, group, catalogGroupCache);
-            return metasToPad;
         }
 
         public static string GetIndexType(bool isRecording, ApiObjects.LanguageObj language = null)
@@ -1667,6 +1706,11 @@ namespace Core.Catalog.CatalogManagement
         {
             string dateString = dateOfProgramsToIngest.Date.ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
             return $"{groupId}_epg_v2_{dateString}";
+        }
+
+        public static string EpgIndexGroupAlias(int groupId)
+        {
+            return string.Format("{0}_epg", groupId);
         }
     }
 }

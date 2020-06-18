@@ -1398,7 +1398,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (fileData == null || string.IsNullOrEmpty(fileData.path))
+                if (fileData == null || (fileData.File == null && string.IsNullOrEmpty(fileData.path)))
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "fileData");
                 }
@@ -1418,7 +1418,8 @@ namespace WebAPI.Controllers
 
                 var assetType = bulkUploadAssetData.GetBulkUploadObjectType();
 
-                bulkUpload = ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, fileData.name, userId, fileData.path, assetType, bulkUploadJobData, bulkUploadAssetData);
+                bulkUpload =
+                    ClientsManager.CatalogClient().AddAssetBulkUpload(groupId, userId,assetType, bulkUploadJobData, bulkUploadAssetData,fileData);
             }
             catch (ClientException ex)
             {

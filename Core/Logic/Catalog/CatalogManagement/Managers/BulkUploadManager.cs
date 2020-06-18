@@ -1,4 +1,5 @@
 ﻿using ApiLogic;
+using ApiLogic.Catalog;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.EventBus;
@@ -140,13 +141,19 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<BulkUpload> AddBulkUpload(int groupId, string fileName, long userId, string filePath, string objectTypeName, BulkUploadJobAction action, BulkUploadJobData jobData, BulkUploadObjectData objectData)
-        {
+        public static GenericResponse<BulkUpload> AddBulkUpload(int groupId,  
+            long userId,  
+            string objectTypeName, 
+            BulkUploadJobAction action, 
+            BulkUploadJobData jobData, 
+            BulkUploadObjectData objectData,
+            OTTBasicFile fileData)
+        {                
             var response = new GenericResponse<BulkUpload>();
             try
             {
                 // create and save the new BulkUpload in DB (with no results)
-                var dt = CatalogDAL.AddBulkUpload(groupId, userId, action, fileName);
+                var dt = CatalogDAL.AddBulkUpload(groupId, userId, action, fileData.Name);
                 response.Object = CreateBulkUploadFromDataTable(dt, groupId);
                 if (response.Object == null)
                 {
@@ -164,9 +171,10 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                // save the bulkUpload file to server (cut it from iis) and set fileURL
-                var fileInfo = new FileInfo(filePath);
-                var saveFileResponse = FileHandler.Instance.SaveFile(response.Object.Id, fileInfo, "KalturaBulkUpload");
+                GenericResponse<string> saveFileResponse;
+                // save the bulkUpload file to server (cut it from iis) and set fileURL                                
+                saveFileResponse = fileData.SaveFile(response.Object.Id,"KalturaBulkUpload");
+
                 if (!saveFileResponse.HasObject())
                 {
                     log.ErrorFormat("Error while saving BulkUpload File to file server. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
@@ -212,7 +220,7 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Debug($"An Exception was occurred in AddBulkUpload. details:{ex.ToString()}.");
-                log.Error($"An Exception was occurred in AddBulkUpload. groupId:{groupId}, filePath:{filePath}, userId:{userId}, action:{action}, objectType:{objectTypeName}.", ex);
+                log.Error($"An Exception was occurred in AddBulkUpload. groupId:{groupId}, filename:{fileData.Name}, userId:{userId}, action:{action}, objectType:{objectTypeName}.", ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
