@@ -16,7 +16,7 @@ namespace ConfigurationManager
         public BaseValue<string> KsSecretsPrimary = new BaseValue<string>("ks_secrets_primary", "528d222c-f124-4448-93ad-68ca2e4d706e");
         public BaseValue<string> KsSecretsSecondary = new BaseValue<string>("ks_secrets_secondary", string.Empty);
         //this is added due to task https://kaltura.atlassian.net/browse/GEN-848
-        public BaseValue<bool> ShouldSaveAsFile = new BaseValue<bool>("Should_save_as_file",false,
+        public BaseValue<bool> ShouldSaveAsFile = new BaseValue<bool>("should_save_as_file",false,
             description:"By default bulk uploaded files will passed as memeory stream and wont be saved until needed." +
             "In case value will be set to True,the uploaded data will be saved to file.");
 
