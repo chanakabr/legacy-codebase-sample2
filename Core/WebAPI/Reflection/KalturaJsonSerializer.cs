@@ -28216,10 +28216,6 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("householdIdEqual", "\"householdIdEqual\": " + HouseholdIdEqual);
             }
-            if(MacAddressEqual != null)
-            {
-                ret.Add("macAddressEqual", "\"macAddressEqual\": " + "\"" + EscapeJson(MacAddressEqual) + "\"");
-            }
             return ret;
         }
         
@@ -28241,10 +28237,6 @@ namespace WebAPI.Models.Domains
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdDeviceFilter", "HouseholdIdEqual", requestType.Value)))
             {
                 ret.Add("householdIdEqual", "<householdIdEqual>" + HouseholdIdEqual + "</householdIdEqual>");
-            }
-            if(MacAddressEqual != null)
-            {
-                ret.Add("macAddressEqual", "<macAddressEqual>" + EscapeXml(MacAddressEqual) + "</macAddressEqual>");
             }
             return ret;
         }

@@ -192,7 +192,7 @@ namespace WebAPI.Utils
 
             var udids = new List<string>();
 
-            var devices = ClientsManager.DomainsClient().GetHouseholdDevices(groupID, domain, null, string.Empty, string.Empty);
+            var devices = ClientsManager.DomainsClient().GetHouseholdDevices(groupID, domain, null, string.Empty);
 
             if (devices != null)
                 udids = devices.Objects.Select(d => d.Udid).ToList();

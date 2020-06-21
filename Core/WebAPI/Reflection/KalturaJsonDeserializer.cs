@@ -28376,10 +28376,6 @@ namespace WebAPI.Models.Domains
                 {
                     ExternalIdEqual = (String) Convert.ChangeType(parameters["externalIdEqual"], typeof(String));
                 }
-                if (parameters.ContainsKey("macAddressEqual") && parameters["macAddressEqual"] != null)
-                {
-                    MacAddressEqual = (String) Convert.ChangeType(parameters["macAddressEqual"], typeof(String));
-                }
             }
         }
     }

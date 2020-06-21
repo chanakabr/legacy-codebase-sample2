@@ -2999,8 +2999,6 @@ namespace WebAPI.Reflection
                             return "externalIdEqual";
                         case "HouseholdIdEqual":
                             return "householdIdEqual";
-                        case "MacAddressEqual":
-                            return "macAddressEqual";
                     }
                     break;
                     

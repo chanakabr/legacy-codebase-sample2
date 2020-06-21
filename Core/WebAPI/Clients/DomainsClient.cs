@@ -1142,7 +1142,7 @@ namespace WebAPI.Clients
             return response.Values.ToList();
         }
 
-        internal KalturaHouseholdDeviceListResponse GetHouseholdDevices(int groupId, KalturaHousehold household, List<long> deviceFamilyIds, string externalId, string macAddress)
+        internal KalturaHouseholdDeviceListResponse GetHouseholdDevices(int groupId, KalturaHousehold household, List<long> deviceFamilyIds, string externalId)
         {
             if (household == null)
             {
@@ -1156,7 +1156,6 @@ namespace WebAPI.Clients
             var response = new KalturaHouseholdDeviceListResponse() { TotalCount = 0, Objects = new List<KalturaHouseholdDevice>() };
 
             bool checkExternal = !string.IsNullOrEmpty(externalId);
-            var filterByMacAddress = !string.IsNullOrEmpty(macAddress);
 
             foreach (KalturaDeviceFamily family in household.DeviceFamilies)
             {
@@ -1167,13 +1166,6 @@ namespace WebAPI.Clients
                     {
                         KalturaHouseholdDevice householdDevice = (KalturaHouseholdDevice)device;
                         householdDevice.DeviceFamilyId = family.Id;
-
-                        if (filterByMacAddress && householdDevice.MacAddress == macAddress)
-                        {
-                            response.Objects.Add(householdDevice);
-                            response.TotalCount = 1;
-                            return response;
-                        }
 
                         if (checkExternal)
                         {
