@@ -248,7 +248,8 @@ namespace Core.Catalog.CatalogManagement
                 TypeId = typeId,
                 Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1,
-                CatalogEndDate = catalogEndDate.HasValue ? catalogEndDate : new DateTime(2099, 1, 1)
+                CatalogEndDate = catalogEndDate.HasValue ? catalogEndDate : new DateTime(2099, 1, 1),
+                Opl = ODBCWrapper.Utils.GetSafeStr(dr, "opl")
             };
 
             if (shouldAddBaseUrl)
@@ -559,7 +560,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AlternativeCdnAdapaterProfileId, assetFileToAdd.AssetId,
                                                         assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.EndDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
                                                         assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, startDate,
-                                                        assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive, assetFileToAdd.CatalogEndDate);
+                                                        assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive, assetFileToAdd.CatalogEndDate, assetFileToAdd.Opl);
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)

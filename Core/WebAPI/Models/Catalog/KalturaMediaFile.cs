@@ -289,6 +289,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "CatalogEndDate")]
         public long? CatalogEndDate { get; set; }
 
+        /// <summary>
+        /// OPL
+        /// </summary>
+        [DataMember(Name = "opl")]
+        [JsonProperty(PropertyName = "opl")]
+        [XmlElement(ElementName = "opl")]
+        public string Opl { get; set; }
+
         #endregion
     }
 

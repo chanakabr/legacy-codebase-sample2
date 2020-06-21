@@ -5084,7 +5084,7 @@ namespace Tvinci.Core.DAL
         public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId,
             long billingType, double? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage,
             string language, int? orderNum, DateTime? startDate, string url, long? streamingSuplierId, int? type, string altExternalId,
-            bool? isActive, DateTime? catalogEndDate)
+            bool? isActive, DateTime? catalogEndDate, string opl = "")
         {
             StoredProcedure sp = new StoredProcedure("InsertMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5111,6 +5111,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@fileSize", fileSize ?? 0);
             sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);
             sp.AddParameter("@catalogEndDate", catalogEndDate);
+            sp.AddParameter("@opl", opl);
 
             return sp.ExecuteDataSet();
         }

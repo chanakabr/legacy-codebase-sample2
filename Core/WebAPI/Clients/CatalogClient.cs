@@ -3499,7 +3499,7 @@ namespace WebAPI.Clients
         internal KalturaMediaFile AddMediaFile(int groupId, KalturaMediaFile assetFile, long userId)
         {
             Func<AssetFile, GenericResponse<AssetFile>> insertMediaFileFunc = (AssetFile assetFileToAdd) =>
-                Core.Catalog.CatalogManagement.FileManager.InsertMediaFile(groupId, userId, assetFileToAdd);
+                FileManager.InsertMediaFile(groupId, userId, assetFileToAdd);
 
             KalturaMediaFile result =
                 ClientUtils.GetResponseFromWS<KalturaMediaFile, AssetFile>(assetFile, insertMediaFileFunc);
@@ -3531,7 +3531,7 @@ namespace WebAPI.Clients
             KalturaMediaFileListResponse result = new KalturaMediaFileListResponse() { TotalCount = 0 };
 
             Func<GenericListResponse<AssetFile>> getMediaFilesFunc = () =>
-               Core.Catalog.CatalogManagement.FileManager.GetMediaFiles(groupId, id, assetId);
+               FileManager.GetMediaFiles(groupId, id, assetId);
 
             KalturaGenericListResponse<KalturaMediaFile> response =
                 ClientUtils.GetResponseListFromWS<KalturaMediaFile, AssetFile>(getMediaFilesFunc);

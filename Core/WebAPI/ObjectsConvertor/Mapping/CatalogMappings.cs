@@ -939,6 +939,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                  .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CatalogEndDate)))
+                 .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
                  ;
 
             //File
@@ -965,7 +966,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.CatalogEndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.CatalogEndDate)))
-                .ForMember(dest => dest.PpvModule, opt => opt.MapFrom(src => GetPPVModule(src.PPVModules)));
+                .ForMember(dest => dest.PpvModule, opt => opt.MapFrom(src => GetPPVModule(src.PPVModules)))
+                .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
+                ;
 
             #endregion
 

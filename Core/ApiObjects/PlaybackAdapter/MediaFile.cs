@@ -43,5 +43,7 @@ namespace ApiObjects.PlaybackAdapter
         public bool? Status { get; set; }
 
         public long? CatalogEndDate { get; set; }
+
+        public string Opl { get; set; }
     }
 }
