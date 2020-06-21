@@ -13,8 +13,6 @@ namespace Core.Users
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static string InvalidationKey = $"invalidationKey_domain_{0}_device_{1}_V1";
-
         public int DomainId { get; set; }
 
         public int DeviceId { get; set; }
@@ -149,9 +147,9 @@ namespace Core.Users
         public void InvalidateDomainDevice()
         {
             List<string> invalidationKeys = new List<string>()
-                {
-                    string.Format(InvalidationKey, DomainId, DeviceId)
-                };
+            {
+                LayeredCacheKeys.GetDomainDeviceInvalidationKey(DomainId, DeviceId.ToString())
+            };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }

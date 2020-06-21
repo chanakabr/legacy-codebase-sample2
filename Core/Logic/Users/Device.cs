@@ -581,9 +581,9 @@ namespace Core.Users
         public void InvalidateDomainDevice()
         {
             List<string> invalidationKeys = new List<string>()
-                {
-                    string.Format(DomainDevice.InvalidationKey, m_domainID, m_id)
-                };
+            {
+                LayeredCacheKeys.GetDomainDeviceInvalidationKey(m_domainID, m_id)
+            };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }
