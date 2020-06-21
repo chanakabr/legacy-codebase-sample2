@@ -12692,6 +12692,8 @@ namespace WebAPI.Reflection
                             });
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = false,
                                 Type = typeof(bool),
                             });
                             return ret;
