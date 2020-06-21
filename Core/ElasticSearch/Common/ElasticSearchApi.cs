@@ -44,48 +44,6 @@ namespace ElasticSearch.Common
 
         #region Index creation
 
-        public bool CloneIndexWithoutData(string source, string dest)
-        {
-            bool result = false;
-            try
-            {
-                var nStatus = 0;
-
-                // Get source index settings
-                var urlGetSettings = string.Format("{0}/{1}/_settings", baseUrl, source);
-                var settingsResponse = SendGetHttpReq(urlGetSettings, ref nStatus);
-                var settingsJobject = JObject.Parse(settingsResponse).First.First["settings"];
-
-                // Get source index mappings
-                var urlGetMappings = string.Format("{0}/{1}/_mapping", baseUrl, source);
-                var mappingResponse = SendGetHttpReq(urlGetMappings, ref nStatus);
-                var mappingsJobject = JObject.Parse(mappingResponse).First.First["mappings"];
-
-
-                var clonedIndexMappings = new JObject();
-                clonedIndexMappings["settings"] = settingsJobject;
-                clonedIndexMappings["mappings"] = mappingsJobject;
-
-                // Create Dest index with source settings
-                var urlSetSettings = string.Format("{0}/{1}", baseUrl, dest);
-                var createIndexResponse = SendPutHttpRequest(urlSetSettings, clonedIndexMappings.ToString());
-                log.Debug($"CloneIndexWithoutData> createIndexResponse:[{createIndexResponse}]");
-
-                var createIndexResponseJson = JObject.Parse(createIndexResponse);
-                result = createIndexResponseJson["acknowledged"].Value<bool>();
-                if (!result)
-                {
-                    log.ErrorFormat("error when cloning index src {0} to desc {1} ", source, dest);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("error when cloning index src {0} to desc {1}, ex {2}", source, dest, ex);
-            }
-
-            return result;
-        }
-
         public bool BuildIndex(string index, int shards, int replicas,
             List<string> analyzers, List<string> filters, List<string> tokenizers = null, int maxResultWindow = 0)
         {
@@ -562,7 +520,13 @@ namespace ElasticSearch.Common
                 throw new Exception($"Error getting ListIndices, status:[{status}]");
             }
 
+            if (string.IsNullOrWhiteSpace(ret) || ret == "{}")
+            {
+                return new List<ESIndex>();
+            }
+
             var clustureStats = JObject.Parse(ret);
+
             var indices = clustureStats.SelectToken("metadata.indices")
                 .Children<JProperty>()
                 .Select(p => new ESIndex

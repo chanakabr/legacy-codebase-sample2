@@ -3,9 +3,11 @@ using ApiLogic.Catalog;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.EventBus;
+using ApiObjects.Ingest;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using ElasticSearch.Common;
 using EventBus.RabbitMQ;
 using KLogMonitor;
 using QueueWrapper;
@@ -17,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using ESUtils = ElasticSearch.Common.Utils;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -520,6 +523,8 @@ namespace Core.Catalog.CatalogManagement
                 response.Object.Status = newStatus;
 
                 UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
+
+
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -694,6 +699,22 @@ namespace Core.Catalog.CatalogManagement
                     {
                         var locker = new DistributedLock();
                         locker.Unlock(ingestJobData.LockKeys);
+                    }
+                }
+
+
+                //in case of status that indicates a failure mark the index with purge alias
+                var errorStatuses = new HashSet<BulkUploadJobStatus>() { BulkUploadJobStatus.Failed, BulkUploadJobStatus.Fatal };
+                
+                //the latest status
+                var newStatus = bulkUpload.Status;
+                if (errorStatuses.Contains(newStatus))
+                {
+                    var esClient = new ElasticSearchApi();
+                    var allindicesOfCurrentBulk = esClient.ListIndices(IngestConsts.GetEpgV2SearchIndex(bulkUpload.GroupId, bulkUpload.Id));
+                    foreach (var index in allindicesOfCurrentBulk)
+                    {
+                        esClient.AddAlias(index.Name, IngestConsts.PURGE_INDEX_ALIAS);
                     }
                 }
             }

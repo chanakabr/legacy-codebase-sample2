@@ -120,10 +120,10 @@ namespace IngestHandler
                 //upload images except affected items ,they already uploaded.
                 await UploadEpgImages(finalEpgSchedule);
 
-                var isCloneSuccess = CloneExistingIndex();
-                if (!isCloneSuccess)
+                var isCreateSuccess = CreateIndexAndCopyData();
+                if (!isCreateSuccess)
                 {
-                    _Logger.Error($"Failed cloning Index, bulkId:[{_BulkUploadObject.Id}], groupId:[{_BulkUploadObject.GroupId}]");
+                    _Logger.Error($"Failed Creating Index, bulkId:[{_BulkUploadObject.Id}], groupId:[{_BulkUploadObject.GroupId}]");
                     UpdateBulkUploadObjectStatusAndResults(BulkUploadJobStatus.Failed);
                     return;
                 }
@@ -757,42 +757,29 @@ namespace IngestHandler
         /// <param name="groupId"></param>
         /// <param name="bulkUploadId"></param>
         /// <param name="dateOfIngest"></param>
-        private bool CloneExistingIndex()
+        private bool CreateIndexAndCopyData()
         {
-            var result = true;
-            string source = IndexManager.GetIngestCurrentProgramsAliasName(_EventData.GroupId, _EventData.DateOfProgramsToIngest);
+            var result = false;
             string destination = IndexManager.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
-
-            if (_ElasticSearchClient.IndexExists(source))
+            if (BuildNewIndex(destination))
             {
-                result &= CloneAndReindexData(source, destination);
-            }
-            else
-            {
-                result &= BuildNewIndex(destination);
+                result = true;
+                string source = IndexManager.GetIngestCurrentProgramsAliasName(_EventData.GroupId, _EventData.DateOfProgramsToIngest);
+                if (_ElasticSearchClient.IndexExists(source))
+                {
+                    if (_ElasticSearchClient.Reindex(source, destination))
+                    {
+                        _Logger.Debug($"Clone and Reindex {source} to {destination} success");
+                    }
+                    else
+                    {
+                        result = false;
+                        _Logger.ErrorFormat($"Reindex {source} to {destination} failure");
+                    }
+                }
             }
 
             return result;
-        }
-
-        private bool CloneAndReindexData(string source, string destination)
-        {
-
-            var isCloneSuccess = _ElasticSearchClient.CloneIndexWithoutData(source, destination);
-            var isReindexSuccess = false;
-            if (isCloneSuccess)
-            {
-                isReindexSuccess = _ElasticSearchClient.Reindex(source, destination);
-                if (!isReindexSuccess) { _Logger.ErrorFormat($"Reindex {source} to {destination} failure"); }
-            }
-            else
-            {
-                _Logger.ErrorFormat($"Reindex {source} to {destination} failure");
-            }
-
-            _Logger.Debug($"Clone and Reindex {source} to {destination} success");
-
-            return isCloneSuccess && isReindexSuccess;
         }
 
         private IngestProfile GetIngestProfile()
