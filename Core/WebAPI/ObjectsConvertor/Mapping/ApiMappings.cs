@@ -1407,7 +1407,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParams))
                 .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => ConvertPlaybackSourceFileExtention(src)))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
-                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));
+                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized))
+                .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.OutputProtecationLevel))
+                ;
 
             cfg.CreateMap<KalturaPlaybackSource, ApiObjects.PlaybackAdapter.PlaybackSource>()
              .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.Format))
@@ -1417,7 +1419,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParams))
                 .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.FileExtention))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
-                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));
+                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized))
+                .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.Opl))
+                ;
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaPluginData>();
 
