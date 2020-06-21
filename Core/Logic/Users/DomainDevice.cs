@@ -13,6 +13,8 @@ namespace Core.Users
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        public static string InvalidationKey = $"invalidationKey_domain_{0}_device_{1}_V1";
+
         public int DomainId { get; set; }
 
         public int DeviceId { get; set; }
@@ -73,10 +75,10 @@ namespace Core.Users
         }
 
 
-        
 
 
-       
+
+
 
         protected override bool DoUpdate()
         {
@@ -85,24 +87,24 @@ namespace Core.Users
             switch (ActivataionStatus)
             {
                 case DeviceState.Pending:
-                {
-                    result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 3, 3);
-                    break;
-                }
+                    {
+                        result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 3, 3);
+                        break;
+                    }
                 case DeviceState.Activated:
-                {
-                    result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 1, 1);
-                    break;
-                }
+                    {
+                        result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 1, 1);
+                        break;
+                    }
                 case DeviceState.UnActivated:
-                {
-                    result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 0, 1);
-                    break;
-                }
+                    {
+                        result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 0, 1);
+                        break;
+                    }
                 default:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
 
             try
@@ -148,7 +150,7 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
                 {
-                    String.Format("invalidationKey_domain_{0}_device_{1}", this.DomainId, this.DeviceId)
+                    string.Format(InvalidationKey, DomainId, DeviceId)
                 };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
