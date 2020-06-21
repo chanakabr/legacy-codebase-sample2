@@ -694,6 +694,11 @@ namespace Core.Catalog.CatalogManagement
                     assetFileToUpdate.AltExternalId = currentAssetFile.AltExternalId;
                 }
 
+                if (string.IsNullOrEmpty(assetFileToUpdate.Opl))
+                {
+                    assetFileToUpdate.Opl = currentAssetFile.Opl;
+                }
+
                 // validate CdnAdapaterProfileId (0 or null for setting group default adapter) \ AlternativeCdnAdapaterProfileId     
                 Status validateCdnReponse = ValidateCdnAdapterProfileIds(groupId, assetFileToUpdate.CdnAdapaterProfileId, assetFileToUpdate.AlternativeCdnAdapaterProfileId);
                 if (validateCdnReponse.Code != (int)eResponseStatus.OK)
@@ -719,7 +724,8 @@ namespace Core.Catalog.CatalogManagement
                                                     assetFileToUpdate.Duration, assetFileToUpdate.EndDate, assetFileToUpdate.ExternalId, assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize,
                                                     assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum,
                                                     assetFileToUpdate.StartDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId,
-                                                    assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive, assetFileToUpdate.CatalogEndDate);
+                                                    assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive, assetFileToUpdate.CatalogEndDate,
+                                                    assetFileToUpdate.Opl);
 
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
