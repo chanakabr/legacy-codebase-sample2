@@ -12501,6 +12501,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("language", "\"language\": " + "\"" + EscapeJson(Language) + "\"");
             }
+            if(Opl != null)
+            {
+                ret.Add("opl", "\"opl\": " + "\"" + EscapeJson(Opl) + "\"");
+            }
             if(OrderNum.HasValue)
             {
                 ret.Add("orderNum", "\"orderNum\": " + OrderNum);
@@ -12638,6 +12642,10 @@ namespace WebAPI.Models.Catalog
             if(Language != null)
             {
                 ret.Add("language", "<language>" + EscapeXml(Language) + "</language>");
+            }
+            if(Opl != null)
+            {
+                ret.Add("opl", "<opl>" + EscapeXml(Opl) + "</opl>");
             }
             if(OrderNum.HasValue)
             {
