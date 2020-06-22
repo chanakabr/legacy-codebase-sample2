@@ -446,7 +446,7 @@ namespace Tvinci.Core.DAL
                 result = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "play_cycle_key");
             }
             return result;
-        }        
+        }
 
         public static void Insert_NewWatcherMediaAction(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID,
                                                         int nGroupID, int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID)
@@ -5111,7 +5111,10 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@fileSize", fileSize ?? 0);
             sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);
             sp.AddParameter("@catalogEndDate", catalogEndDate);
-            sp.AddParameter("@opl", opl);
+            if (!string.IsNullOrEmpty(opl))
+            {
+                sp.AddParameter("@opl", opl);
+            }
 
             return sp.ExecuteDataSet();
         }
@@ -6267,6 +6270,6 @@ namespace Tvinci.Core.DAL
             }
 
             return null;
-        }       
+        }
     }
 }
