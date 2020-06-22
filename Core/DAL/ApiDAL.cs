@@ -4183,6 +4183,7 @@ namespace DAL
                         Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                         DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
                         MediaId = mediaId,
+                        Opl = ODBCWrapper.Utils.GetSafeStr(dr, "OPL")
                     };
 
                     if (ODBCWrapper.Utils.GetNullableInt(dr, "streamer_type").HasValue)
