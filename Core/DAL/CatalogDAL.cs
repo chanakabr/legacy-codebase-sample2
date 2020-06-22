@@ -5169,7 +5169,10 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@fileSize", fileSize);
             sp.AddParameter("@IsActive", isActive);
             sp.AddParameter("@catalogEndDate", catalogEndDate);
-            sp.AddParameter("@opl", opl);
+            if (!string.IsNullOrEmpty(opl))
+            {
+                sp.AddParameter("@opl", opl);
+            }
 
             return sp.ExecuteDataSet();
         }
