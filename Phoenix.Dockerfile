@@ -36,7 +36,7 @@ COPY consul-root-certificate.crt /usr/local/share/ca-certificates/consul-root-ce
 RUN update-ca-certificates
 ###### deploy root CA ######
 
-RUN groupadd -g ${GROUP_ID} ott-users && \
+RUN addgroup -g ${GROUP_ID} ott-users && \
     useradd -g ${GROUP_ID} -u ${USER_ID} kaltura -s /sbin/nologin && \
     mkdir -p ${API_LOG_DIR} && chown -R ${USER_ID}:${GROUP_ID} ${API_LOG_DIR}
 USER kaltura
