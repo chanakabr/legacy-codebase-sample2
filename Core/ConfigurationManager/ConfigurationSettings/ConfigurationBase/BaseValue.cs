@@ -34,6 +34,11 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
             }
         }
 
+        public T GetDefaultValue()
+        {
+            return DefaultValue;
+        }
+
         public BaseValue(string key, T defaultValue, bool mustBeOverwriteInTcm = false, string description = null)
         {
             this.Key = key;
