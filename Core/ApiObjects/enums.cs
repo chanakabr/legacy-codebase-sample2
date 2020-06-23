@@ -999,7 +999,9 @@ namespace ApiObjects
         PURCHASE_SERVICE = 5,
         LOGIN = 6,
         DELETE_ALL_APP_TOKENS = 7,
-        VIEW_INACTIVE_ASSETS = 8
+        VIEW_INACTIVE_ASSETS = 8,
+        PLAYBACK_EPG = 9,
+        PLAYBACK_RECORDING = 10
     }
 
     public enum PermissionItems
