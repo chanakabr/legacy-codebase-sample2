@@ -30,6 +30,8 @@ namespace IngestHandler.Common
         private readonly IDictionary<string, LanguageObj> _Languages;
         private readonly ESSerializerV2 _Serializer;
         private readonly LanguageObj _DefaultLanguage;
+        private int bulkSize = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+        private int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
 
         public EpgElasticUpdater(int groupId, long bulkUploadId, DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages)
         {
@@ -40,6 +42,9 @@ namespace IngestHandler.Common
             _Languages = languages;
             _Serializer = new ESSerializerV2();
             _DefaultLanguage = languages.Values.First(l => l.IsDefault);
+
+            // prevent from size of bulk to be more than the default value of 500 (currently as of 23.06.20)
+            bulkSize = bulkSize == 0 ? sizeOfBulkDefaultValue : bulkSize > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : bulkSize;
         }
 
         public void Update(IList<EpgProgramBulkUploadObject> calculatedPrograms, IList<EpgProgramBulkUploadObject> programsToDelete)
@@ -55,7 +60,6 @@ namespace IngestHandler.Common
 
         private void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, bool isOpc, HashSet<string> metasToPad)
         {
-            var bulkSize = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
             var bulkRequests = new List<ESBulkRequestObj<string>>();
             var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
             foreach (var program in programTranslationsToIndex)

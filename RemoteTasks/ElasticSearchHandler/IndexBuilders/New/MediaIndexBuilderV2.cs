@@ -29,6 +29,7 @@ namespace ElasticSearchHandler.IndexBuilders
         int numOfShards = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
         int numOfReplicas = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
         int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+        int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
         int maxResults = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
         long mediaPageSize = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.MediaPageSize.Value;
 
@@ -55,8 +56,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #region Build new index and specify number of nodes/shards
 
-            // Default size of ES bulk request size
-            sizeOfBulk = sizeOfBulk == 0 ? 1000 : sizeOfBulk;
+            // prevent from size of bulk to be more than the default value of 500 (currently as of 23.06.20)
+            sizeOfBulk = sizeOfBulk == 0 ? sizeOfBulkDefaultValue : sizeOfBulk > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : sizeOfBulk;
             // Default size of epg cb bulk size
             mediaPageSize = mediaPageSize == 0 ? 1000 : mediaPageSize;
 

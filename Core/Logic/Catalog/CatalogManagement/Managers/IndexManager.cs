@@ -38,7 +38,10 @@ namespace Core.Catalog.CatalogManagement
         // Basic TCM configurations for indexing - number of shards/replicas, max results
         private static readonly int NUM_OF_SHARDS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
         private static readonly int NUM_OF_REPLICAS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
-        private static readonly int MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
+        private static readonly int MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;       
+        private static readonly int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
+        private static int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+
         protected const string ES_VERSION = "2";
 
         public const string EPG_INDEX_TYPE = "epg";
@@ -754,6 +757,8 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
+                // prevent from size of bulk to be more than the default value of 500 (currently as of 23.06.20)
+                sizeOfBulk = sizeOfBulk == 0 ? sizeOfBulkDefaultValue : sizeOfBulk > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : sizeOfBulk;
                 ESSerializerV2 esSerializer = new ESSerializerV2();
                 ElasticSearchApi esApi = new ElasticSearchApi();
 
@@ -921,7 +926,6 @@ namespace Core.Catalog.CatalogManagement
                                         ttl = ttl
                                     });
 
-                                    int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
                                     if (bulkRequests.Count > sizeOfBulk)
                                     {
                                         // send request to ES API

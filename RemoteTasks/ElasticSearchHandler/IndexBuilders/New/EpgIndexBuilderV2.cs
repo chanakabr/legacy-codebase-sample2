@@ -28,6 +28,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         private long epgCbBulkSize = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.EpgPageSize.Value;
         protected int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+        protected int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
         protected bool shouldAddRouting = true;
         protected Dictionary<long, List<int>> linearChannelsRegionsMapping;
 
@@ -77,8 +78,8 @@ namespace ElasticSearchHandler.IndexBuilders
                 this.EndDate = DateTime.UtcNow.Date.AddDays(7);
             }
 
-            // Default size of ES bulk request size
-            sizeOfBulk = sizeOfBulk == 0 ? 1000 : sizeOfBulk;
+            // prevent from size of bulk to be more than the default value of 500 (currently as of 23.06.20)
+            sizeOfBulk = sizeOfBulk == 0 ? sizeOfBulkDefaultValue : sizeOfBulk > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : sizeOfBulk;
             // Default size of epg cb bulk size
             epgCbBulkSize = epgCbBulkSize == 0 ? 1000 : epgCbBulkSize;
 
