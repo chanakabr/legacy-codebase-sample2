@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.CategoryNotExist)]
-        static public KalturaCategoryTree Get(long categoryItemId, bool filter)
+        static public KalturaCategoryTree Get(long categoryItemId, bool filter = false)
         {
             KalturaCategoryTree response = null;
 
