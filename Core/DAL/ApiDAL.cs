@@ -4157,13 +4157,14 @@ namespace DAL
             return dt;
         }
 
-        public static List<MediaFile> GetMediaFiles(long mediaId)
+        public static List<MediaFile> GetMediaFiles(int groupId, long mediaId)
         {
             List<MediaFile> files = null;
             DataTable dt = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFiles");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@mediaId", mediaId);
+            sp.AddParameter("@groupId", groupId);
             dt = sp.Execute();
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)

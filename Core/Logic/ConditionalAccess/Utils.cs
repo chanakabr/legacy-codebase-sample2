@@ -8195,7 +8195,7 @@ namespace Core.ConditionalAccess
 
                         if (mediaId.HasValue && groupId.HasValue && assetType.HasValue)
                         {
-                            mediaFiles = ApiDAL.GetMediaFiles(mediaId.Value);
+                            mediaFiles = ApiDAL.GetMediaFiles(groupId.Value, mediaId.Value);
                             if (mediaFiles != null)
                             {
                                 foreach (MediaFile mediaFile in mediaFiles)
