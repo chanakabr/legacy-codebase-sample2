@@ -6517,7 +6517,7 @@ namespace Core.ConditionalAccess
                     return false;
                 }
 
-                seriesIdName = $"tags.{SERIES_ID}";
+                seriesIdName = $"metas.{SERIES_ID}";
                 seasonNumberName = $"metas.{SEASON_NUMBER}";
                 episodeNumberName = $"metas.{EPISODE_NUMBER}";
                 return true;
