@@ -116,6 +116,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.ActivatedOn)))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
             ;
 
             //CouponWallet, KalturaHouseholdCoupon
