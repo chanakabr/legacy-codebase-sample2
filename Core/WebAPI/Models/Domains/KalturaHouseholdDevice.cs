@@ -119,7 +119,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "macAddress")]
         [JsonProperty("macAddress")]
         [XmlElement(ElementName = "macAddress", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, IsNullable = true, MaxLength = 255)]
+        [SchemeProperty(IsNullable = true, MaxLength = 255)]
         public string MacAddress { get; set; }
 
         internal int getBrandId()
