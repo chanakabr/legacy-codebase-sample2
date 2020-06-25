@@ -81,6 +81,32 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
+        /// <summary>
+        /// Category active status
+        /// </summary>
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
+        public bool? IsActive { get; set; }
+
+        /// <summary>
+        /// Start date in seconds
+        /// </summary>
+        [DataMember(Name = "startDateInSeconds")]
+        [JsonProperty("startDateInSeconds")]
+        [XmlElement(ElementName = "startDateInSeconds", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public long? StartDateInSeconds { get; set; }
+
+        /// <summary>
+        /// End date in seconds
+        /// </summary>
+        [DataMember(Name = "endDateInSeconds")]
+        [JsonProperty("endDateInSeconds")]
+        [XmlElement(ElementName = "endDateInSeconds", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public long? EndDateInSeconds { get; set; }
+
         internal override ICrudHandler<CategoryItem, long> Handler
         {
             get
@@ -111,6 +137,19 @@ namespace WebAPI.Models.Catalog
                     throw new BadRequestException(BadRequestException.KEY_CANNOT_BE_EMPTY_OR_NULL, "dynamicData");
                 }
             }
+
+            if (StartDateInSeconds.HasValue && EndDateInSeconds.HasValue && StartDateInSeconds >= EndDateInSeconds)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDateInSeconds", "endDateInSeconds");
+            }
+
+            if(this.UnifiedChannels?.Count > 0)
+            {
+                foreach (var unifiedChannels in this.UnifiedChannels)
+                {
+                    unifiedChannels.Validate();
+                }
+            }
         }
 
         internal override void ValidateForUpdate()
@@ -127,6 +166,11 @@ namespace WebAPI.Models.Catalog
                 {
                     throw new BadRequestException(BadRequestException.KEY_CANNOT_BE_EMPTY_OR_NULL, "dynamicData");
                 }
+            }
+
+            if (StartDateInSeconds.HasValue && EndDateInSeconds.HasValue && StartDateInSeconds >= EndDateInSeconds)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDateInSeconds", "endDateInSeconds");
             }
         }
 

@@ -27,7 +27,6 @@ namespace Tvinci.Core.DAL
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
         private static readonly int CB_EPG_DOCUMENT_EXPIRY_DAYS = ApplicationConfiguration.Current.EPGDocumentExpiry.Value;
-        private static readonly int CB_PLAYCYCLE_DOC_EXPIRY_MIN = ApplicationConfiguration.Current.PlayCycleDocumentExpiryMinutes.Value;
 
         private static readonly string NAME_FIELD = "NAME";
         private static readonly string ASSET_TYPE_FIELD = "ASSET_TYPE";
@@ -42,7 +41,7 @@ namespace Tvinci.Core.DAL
         /// 5
         /// </summary>
         private const int RETRY_LIMIT = 5;
-        
+
         private static readonly Random _rand = new Random();
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
@@ -164,8 +163,6 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PersonalLastWatched(int nGroupID, string sSiteGuid)
         {
-            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
-
             DataTable dt = null;
 
             int nSiteGuid = 0;
@@ -178,16 +175,6 @@ namespace Tvinci.Core.DAL
             {
                 //Complete details from db
                 dt = Get_MediaUpdateDate(nMediaIDs);
-            }
-            else if (bGetDBData)
-            {
-                ODBCWrapper.StoredProcedure spPersonalLastWatched = new ODBCWrapper.StoredProcedure("Get_PersonalLastWatched");
-                spPersonalLastWatched.SetConnectionKey("MAIN_CONNECTION_STRING");
-                spPersonalLastWatched.AddParameter("@GroupID", nGroupID);
-                spPersonalLastWatched.AddParameter("@SiteGuid", sSiteGuid);
-                DataSet ds = spPersonalLastWatched.ExecuteDataSet();
-                if (ds != null)
-                    dt = ds.Tables[0];
             }
 
             return dt;
@@ -257,7 +244,6 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PersonalRecommended(int nGroupID, string sSiteGuid, int Top, List<int> lSubGroupTree)
         {
-            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
@@ -279,15 +265,7 @@ namespace Tvinci.Core.DAL
 
                 ds = spPersonalRecommended.ExecuteDataSet();
             }
-            else if (bGetDBData)
-            {
-                ODBCWrapper.StoredProcedure spPersonalRecommended = new ODBCWrapper.StoredProcedure("Get_PersonalRecommended");
-                spPersonalRecommended.SetConnectionKey("MAIN_CONNECTION_STRING");
-                spPersonalRecommended.AddParameter("@GroupID", nGroupID);
-                spPersonalRecommended.AddParameter("@SiteGuid", sSiteGuid);
-                spPersonalRecommended.AddParameter("@Top", Top);
-                ds = spPersonalRecommended.ExecuteDataSet();
-            }
+
             if (ds != null)
                 return ds.Tables[0];
             return null;
@@ -318,8 +296,6 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate, int nDeviceId)
         {
-
-            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
@@ -346,19 +322,6 @@ namespace Tvinci.Core.DAL
                 spPWWAWProtocol.AddParameter("@CountryID", nCountryID);
                 spPWWAWProtocol.AddParameter("@EndDateField", sEndDate);
                 spPWWAWProtocol.AddParameter("@DeviceID", nDeviceId);
-                ds = spPWWAWProtocol.ExecuteDataSet();
-            }
-            else if (bGetDBData)
-            {
-                ODBCWrapper.StoredProcedure spPWWAWProtocol = new ODBCWrapper.StoredProcedure("Get_PWWAWProtocol");
-                spPWWAWProtocol.SetConnectionKey("MAIN_CONNECTION_STRING");
-                spPWWAWProtocol.AddParameter("@MediaID", nMediaID);
-                spPWWAWProtocol.AddParameter("@GroupID", nGroupID);
-                spPWWAWProtocol.AddParameter("@Language", nLanguage);
-                spPWWAWProtocol.AddParameter("@CountryID", nCountryID);
-                spPWWAWProtocol.AddParameter("@EndDateField", sEndDate);
-                spPWWAWProtocol.AddParameter("@DeviceID", nDeviceId);
-                spPWWAWProtocol.AddParameter("@SiteGuid", sSiteGuid);
                 ds = spPWWAWProtocol.ExecuteDataSet();
             }
 
@@ -483,7 +446,7 @@ namespace Tvinci.Core.DAL
                 result = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "play_cycle_key");
             }
             return result;
-        }
+        }        
 
         public static void Insert_NewWatcherMediaAction(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID,
                                                         int nGroupID, int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID)
@@ -1086,7 +1049,6 @@ namespace Tvinci.Core.DAL
         public static DataTable Get_IPWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate,
                                                       int nDeviceId, int nOperatorID)
         {
-            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             int nNumOfUsers = 30;
@@ -1121,22 +1083,7 @@ namespace Tvinci.Core.DAL
                     ds = sp.ExecuteDataSet();
                 }
             }
-            else if (bGetDBData)
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_IPWWAWProtocol");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@MediaID", nMediaID);
-                sp.AddParameter("@GroupID", nGroupID);
-                sp.AddParameter("@Language", nLanguage);
-                sp.AddParameter("@CountryID", nCountryID);
-                sp.AddParameter("@EndDateField", sEndDate);
-                sp.AddParameter("@DeviceID", nDeviceId);
-                sp.AddParameter("@SiteGuid", sSiteGuid);
-                sp.AddParameter("@OperatorID", nOperatorID);
 
-                ds = sp.ExecuteDataSet();
-
-            }
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
@@ -4523,18 +4470,16 @@ namespace Tvinci.Core.DAL
         {
             return string.Format("domain_devices_mapping_{0}", domainId);
         }
-        
-        
+
+
 
         public static bool SaveDomainDevices(Dictionary<string, int> domainDevices, long domainId)
         {
             var key = GetDomainDevicesKey(domainId);
             List<DomainDevice> domainDevicesList = new List<DomainDevice>(domainDevices.Select(x => new DomainDevice() { UDID = x.Key, DeviceFamilyId = x.Value }));
-           
+
             return UtilsDal.SaveObjectInCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, domainDevicesList, true);
         }
-
-        
 
         public static Dictionary<string, int> GetDomainDevices(long domainId)
         {
@@ -6011,7 +5956,7 @@ namespace Tvinci.Core.DAL
         {
             try
             {
-                var parameters = new Dictionary<string, object>() { { "@groupId", groupId } };
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@onlyActive", 0 } };
                 return UtilsDal.Execute("Get_CategoriesIds", parameters);
             }
             catch (Exception ex)
@@ -6026,7 +5971,7 @@ namespace Tvinci.Core.DAL
         {
             try
             {
-                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@id", id } };
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@id", id }, { "@onlyActive", 0 } };
                 return UtilsDal.ExecuteDataSet("Get_Category", parameters);
             }
             catch (Exception ex)
@@ -6037,12 +5982,14 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels,
-            Dictionary<string, string> dynamicData)
+        public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
+             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot)
         {
             try
             {
-                var sp = new StoredProcedure("Insert_Categories");
+                DataTable categoriesChannelsValues = SetCategoriesChannelsTable(channels);
+
+                var sp = new StoredProcedure("Insert_CategoriesWithChannel");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", name);
@@ -6050,8 +5997,18 @@ namespace Tvinci.Core.DAL
                 sp.AddKeyValueListParameter<long, string>("@namesInOtherLanguages", namesInOtherLanguages, "idKey", "value");
                 sp.AddParameter("@hasMetadata", dynamicData == null || dynamicData.Count == 0 ? 0 : 1);
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
-                sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "key", "value");
+                sp.AddDataTableParameter("@categoriesChannels", categoriesChannelsValues);
                 sp.AddParameter("@updaterId", userId.HasValue ? userId.Value : 0);
+                sp.AddParameter("@isActive", isActive.HasValue ? (isActive.Value ? 1 : 0) : 1);
+                if (timeSlot != null && timeSlot.StartDateInSeconds.HasValue && timeSlot.StartDateInSeconds.Value > 0)
+                {
+                    sp.AddParameter("@startDate", Utils.UtcUnixTimestampSecondsToDateTime((timeSlot.StartDateInSeconds.Value)));
+                }
+
+                if (timeSlot != null && timeSlot.EndDateInSeconds.HasValue && timeSlot.EndDateInSeconds.Value > 0)
+                {
+                    sp.AddParameter("@endDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.EndDateInSeconds.Value));
+                }
 
                 var id = sp.ExecuteReturnValue<long>();
                 if (dynamicData?.Count > 0 && id > 0)
@@ -6060,7 +6017,6 @@ namespace Tvinci.Core.DAL
                 }
 
                 return id;
-
             }
             catch (Exception ex)
             {
@@ -6069,11 +6025,14 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages, List<KeyValuePair<long, int>> channels, Dictionary<string, string> dynamicData)
+        public static bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
+            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot)
         {
             try
             {
-                var sp = new StoredProcedure("Update_Categories");
+                DataTable categoriesChannelsValues = SetCategoriesChannelsTable(channels);
+
+                var sp = new StoredProcedure("Update_CategoriesWithChannel");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@id", id);
                 sp.AddParameter("@groupId", groupId);
@@ -6083,9 +6042,39 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@needToDeletenamesInOtherLanguages", namesInOtherLanguages != null && namesInOtherLanguages.Count == 0 ? 1 : 0);
                 sp.AddKeyValueListParameter<long, string>("@namesInOtherLanguages", namesInOtherLanguages, "idKey", "value");
                 sp.AddParameter("@categoriesChannelsExist", channels == null || channels.Count == 0 ? 0 : 1);
-                sp.AddParameter("@needToDeleteCategoriesChannels", channels != null && channels.Count == 0 ? 1 : 0);
-                sp.AddOrderKeyValueListParameter<long, int>("@categoriesChannels", channels, "idKey", "value");
+                sp.AddDataTableParameter("@categoriesChannels", categoriesChannelsValues);
                 sp.AddParameter("@updaterId", userId);
+                sp.AddParameter("@isActive", isActive);
+
+                if (timeSlot != null)
+                {
+                    if (timeSlot.StartDateInSeconds.HasValue)
+                    {
+                        if (timeSlot.StartDateInSeconds.Value > 0)
+                        {
+                            sp.AddParameter("@startDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.StartDateInSeconds.Value));
+                        }
+                        else
+                        {
+                            sp.AddParameter("@startDate", DBNull.Value);
+                        }
+                    }
+                }
+
+                if (timeSlot != null)
+                {
+                    if (timeSlot.EndDateInSeconds.HasValue)
+                    {
+                        if (timeSlot.EndDateInSeconds.Value > 0)
+                        {
+                            sp.AddParameter("@endDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.EndDateInSeconds.Value));
+                        }
+                        else
+                        {
+                            sp.AddParameter("@endDate", DBNull.Value);
+                        }
+                    }
+                }
 
                 var result = sp.ExecuteReturnValue<int>() > 0;
                 if (result && dynamicData != null)
@@ -6203,5 +6192,79 @@ namespace Tvinci.Core.DAL
 
             return externalChannels;
         }
+
+        public static DataTable GetImagesByObject(int groupId, List<long> imageObjectIds, eAssetImageType imageObjectType)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPicsByAssetIds");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter<long>("@AssetIds", imageObjectIds, "Id");
+            sp.AddParameter("@assetImageType", (int)imageObjectType);
+
+            return sp.Execute();
+        }
+
+        private static DataTable SetCategoriesChannelsTable(List<UnifiedChannel> channels)
+        {
+            DataTable ccTable = new DataTable("categoriesChannelsValues");
+
+            ccTable.Columns.Add("CHANNEL_ID", typeof(long));
+            ccTable.Columns.Add("CHANNEL_TYPE", typeof(int));
+            ccTable.Columns.Add("START_DATE", typeof(DateTime));
+            ccTable.Columns.Add("END_DATE", typeof(DateTime));
+            ccTable.Columns.Add(new DataColumn()
+            {
+                ColumnName = "ORDERED",
+                DataType = System.Type.GetType("System.Int32"),
+                AutoIncrement = true,
+                AutoIncrementSeed = 1,
+                AutoIncrementStep = 1
+            });
+
+            if (channels != null)
+            {
+                DataRow dr = null;
+                UnifiedChannelInfo unifiedChannelInfo = null;
+                foreach (var channel in channels)
+                {
+                    dr = ccTable.NewRow();
+                    dr["CHANNEL_ID"] = channel.Id;
+                    dr["CHANNEL_TYPE"] = (int)channel.Type;
+                    dr["START_DATE"] = DBNull.Value;
+                    dr["END_DATE"] = DBNull.Value;
+                    unifiedChannelInfo = channel as UnifiedChannelInfo;
+                    if (unifiedChannelInfo != null && unifiedChannelInfo.TimeSlot != null && unifiedChannelInfo.TimeSlot.HasTimeSlot())
+                    {
+                        if (unifiedChannelInfo.TimeSlot.StartDateInSeconds.HasValue && unifiedChannelInfo.TimeSlot.StartDateInSeconds.Value > 0)
+                        {
+                            dr["START_DATE"] = Utils.UtcUnixTimestampSecondsToDateTime(unifiedChannelInfo.TimeSlot.StartDateInSeconds.Value);
+                        }
+
+                        if (unifiedChannelInfo.TimeSlot.EndDateInSeconds.HasValue && unifiedChannelInfo.TimeSlot.EndDateInSeconds.Value > 0)
+                        {
+                            dr["END_DATE"] = Utils.UtcUnixTimestampSecondsToDateTime(unifiedChannelInfo.TimeSlot.EndDateInSeconds.Value);
+                        }
+                    }
+
+                    ccTable.Rows.Add(dr);
+                }
+            }
+            return ccTable;
+        }
+
+        public static DataTable GetCategoriesIdsByChannelId(int groupId, int channelId, UnifiedChannelType channelType)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@channelId", channelId }, { "@channelType", (int)channelType } };
+                return UtilsDal.Execute("Get_CategoriesIdsByChannel", parameters);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while GetCategoriesIdsByChannelId from DB, groupId = {groupId}", ex);
+            }
+
+            return null;
+        }       
     }
 }

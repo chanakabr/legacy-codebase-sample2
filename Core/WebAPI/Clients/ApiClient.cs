@@ -55,7 +55,7 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while trying to get languages. group id: {0}, exception: {1}", groupId, ex);
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
-        }
+        }        
 
         internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
         {
@@ -4527,6 +4527,21 @@ namespace WebAPI.Clients
                 ClientUtils.GetResponseListFromWS<KalturaPlaybackPartnerConfig, PlaybackPartnerConfig>(getPartnerConfigListFunc);
 
             result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+            return result;
+        }
+
+        internal KalturaExternalChannelProfileListResponse GetExternalChannels(int groupId, long userId, List<long> list)
+        {
+            var result = new KalturaExternalChannelProfileListResponse();
+
+            Func<GenericListResponse<ExternalChannel>> getListFunc = () =>
+                Core.Api.Module.ListExternalChannels(groupId, userId, list);
+
+            KalturaGenericListResponse<KalturaExternalChannelProfile> response =
+                ClientUtils.GetResponseListFromWS<KalturaExternalChannelProfile, ExternalChannel>(getListFunc);
+
+            result.Objects = new List<KalturaExternalChannelProfile>(response.Objects);
             result.TotalCount = response.TotalCount;
             return result;
         }

@@ -79,7 +79,7 @@ namespace ElasticSearchHandler.Updaters
 
             if (sizeOfBulk == 0)
             {
-                sizeOfBulk = 50;
+                sizeOfBulk = 500;
             }
 
         }

@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                uploadToken = UploadTokenManager.UploadUploadToken(uploadTokenId, fileData.path, groupId);
+                uploadToken = UploadTokenManager.UploadUploadToken(uploadTokenId, fileData, groupId);
             }
             catch (ClientException ex)
             {

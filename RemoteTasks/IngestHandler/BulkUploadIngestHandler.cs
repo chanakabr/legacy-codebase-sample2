@@ -92,7 +92,7 @@ namespace IngestHandler
 
                 _MinStartDate = programsToIngest.Min(p => p.StartDate);
                 _MaxEndDate = programsToIngest.Max(p => p.EndDate);
-                var currentPrograms = GetCurrentProgramsByDate(_MinStartDate, _MaxEndDate);
+                var currentPrograms = GetCurrentProgramsByDate(_MinStartDate, _MaxEndDate, serviceEvent.GroupId);
 
                 var programsToIngestPerChannel = programsToIngest.GroupBy(p => p.ChannelId).ToDictionary(k => k.Key, v => v.ToList());
                 var currentProgramsByChannel = currentPrograms.GroupBy(p => p.ChannelId).ToDictionary(k => k.Key, v => v.ToList());
@@ -117,12 +117,13 @@ namespace IngestHandler
                         .Concat(overallCrudOperations.AffectedItems)
                         .ToList();
 
+                //upload images except affected items ,they already uploaded.
                 await UploadEpgImages(finalEpgSchedule);
 
-                var isCloneSuccess = CloneExistingIndex();
-                if (!isCloneSuccess)
+                var isCreateSuccess = CreateIndexAndCopyData();
+                if (!isCreateSuccess)
                 {
-                    _Logger.Error($"Failed cloning Index, bulkId:[{_BulkUploadObject.Id}], groupId:[{_BulkUploadObject.GroupId}]");
+                    _Logger.Error($"Failed Creating Index, bulkId:[{_BulkUploadObject.Id}], groupId:[{_BulkUploadObject.GroupId}]");
                     UpdateBulkUploadObjectStatusAndResults(BulkUploadJobStatus.Failed);
                     return;
                 }
@@ -187,7 +188,7 @@ namespace IngestHandler
         private CRUDOperations<EpgProgramBulkUploadObject> HandleIngestForChannel(List<EpgProgramBulkUploadObject> currentPrograms, List<EpgProgramBulkUploadObject> programsToIngestOfChannel, out bool isValid)
         {
             isValid = true;
-            var overlapsInIngestSource = GetOverlappingPrograms(programsToIngestOfChannel, programsToIngestOfChannel);
+            var overlapsInIngestSource = GetOverlappingPrograms(programsToIngestOfChannel);
             ValidateSourceInputOverlaps(overlapsInIngestSource);
 
             var crudOperationsForChannel = CalculateCRUDOperations(currentPrograms, programsToIngestOfChannel);
@@ -325,7 +326,8 @@ namespace IngestHandler
         {
             var isValid = true;
             var exsitingNewEpg = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.RemainingItems).ToList();
-            var overlaps = GetOverlappingPrograms(crudOperations.ItemsToAdd, exsitingNewEpg);
+            var allNew = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).ToList();
+            var overlaps = GetOverlappingPrograms(allNew,exsitingNewEpg);
 
             foreach (var overlappingProgs in overlaps)
             {
@@ -579,7 +581,7 @@ namespace IngestHandler
             return res;
         }
 
-        private List<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(DateTime minStartDate, DateTime maxEndDate)
+        private List<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(DateTime minStartDate, DateTime maxEndDate, int groupId)
         {
             _Logger.Debug($"GetCurrentProgramsByDate > minStartDate:[{minStartDate}], maxEndDate:[{maxEndDate}]");
             var result = new List<EpgProgramBulkUploadObject>();
@@ -626,7 +628,7 @@ namespace IngestHandler
             var searchResult = _ElasticSearchClient.Search(index, EpgElasticUpdater.DEFAULT_INDEX_MAPPING_TYPE, ref searchQuery);
 
 
-            List<string> documentIds = new List<string>();
+            
 
             // get the programs - epg ids from elasticsearch, information from EPG DAL
             if (!string.IsNullOrEmpty(searchResult))
@@ -645,9 +647,19 @@ namespace IngestHandler
                     epgItem.EpgId = ESUtils.ExtractValueFromToken<ulong>(hitFields, "epg_id");
                     epgItem.IsAutoFill = ESUtils.ExtractValueFromToken<bool>(hitFields, "is_auto_fill");
                     epgItem.ChannelId = ESUtils.ExtractValueFromToken<int>(hitFields, "epg_channel_id");
+                    epgItem.EpgCbObjects = new List<EpgCB>();
+
 
                     result.Add(epgItem);
                 }
+            }
+            var epgBL = new TvinciEpgBL(groupId);
+            var documentIds = epgBL.GetEpgsCBKeys(groupId, result.Select(x => (long)x.EpgId), _Languages.Values, false);
+            List<EpgCB> epgCbList = EpgDal.GetEpgCBList(documentIds);
+            //fill all cb objects 
+            foreach (var epg in result)
+            {
+                epg.EpgCbObjects.AddRange(epgCbList.Where(x => x.EpgID == epg.EpgId));
             }
 
             return result;
@@ -745,43 +757,29 @@ namespace IngestHandler
         /// <param name="groupId"></param>
         /// <param name="bulkUploadId"></param>
         /// <param name="dateOfIngest"></param>
-        private bool CloneExistingIndex()
+        private bool CreateIndexAndCopyData()
         {
-            var result = true;
-            string source = IndexManager.GetIngestCurrentProgramsAliasName(_EventData.GroupId, _EventData.DateOfProgramsToIngest);
+            var result = false;
             string destination = IndexManager.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
-
-            if (_ElasticSearchClient.IndexExists(source))
+            if (BuildNewIndex(destination))
             {
-                result &= CloneAndReindexData(source, destination);
+                result = true;
+                string source = IndexManager.GetIngestCurrentProgramsAliasName(_EventData.GroupId, _EventData.DateOfProgramsToIngest);
+                if (_ElasticSearchClient.IndexExists(source))
+                {
+                    if (_ElasticSearchClient.Reindex(source, destination))
+                    {
+                        _Logger.Debug($"Clone and Reindex {source} to {destination} success");
+                    }
+                    else
+                    {
+                        result = false;
+                        _Logger.ErrorFormat($"Reindex {source} to {destination} failure");
+                    }
+                }
             }
-            else
-            {
-                result &= BuildNewIndex(destination);
-            }
-
 
             return result;
-        }
-
-        private bool CloneAndReindexData(string source, string destination)
-        {
-
-            var isCloneSuccess = _ElasticSearchClient.CloneIndexWithoutData(source, destination);
-            var isReindexSuccess = false;
-            if (isCloneSuccess)
-            {
-                isReindexSuccess = _ElasticSearchClient.Reindex(source, destination);
-                if (!isReindexSuccess) { _Logger.ErrorFormat($"Reindex {source} to {destination} failure"); }
-            }
-            else
-            {
-                _Logger.ErrorFormat($"Reindex {source} to {destination} failure");
-            }
-
-            _Logger.Debug($"Clone and Reindex {source} to {destination} success");
-
-            return isCloneSuccess && isReindexSuccess;
         }
 
         private IngestProfile GetIngestProfile()
@@ -806,7 +804,7 @@ namespace IngestHandler
                 var groupManager = new GroupManager();
                 groupManager.RemoveGroup(_EventData.GroupId);
                 var group = groupManager.GetGroup(_EventData.GroupId);
-                _ = IndexManager.CreateNewEpgIndex(_EventData.GroupId, catalogGroupCache, group, _Languages.Values, _DefaultLanguage, newIndexName);
+                IndexManager.CreateNewEpgIndex(_EventData.GroupId, catalogGroupCache, group, _Languages.Values, _DefaultLanguage, newIndexName);
             }
             catch (Exception e)
             {
@@ -844,6 +842,14 @@ namespace IngestHandler
             return _AutoFillEpgsCB;
         }
 
+
+
+        private List<Tuple<EpgProgramBulkUploadObject, EpgProgramBulkUploadObject>> GetOverlappingPrograms(List<EpgProgramBulkUploadObject> listOfPrograms)
+        {
+            return GetOverlappingPrograms(listOfPrograms, listOfPrograms);
+        }
+
+
         /// <summary>
         /// Get list of overlapping programs between tow lists
         /// </summary>
@@ -867,6 +873,8 @@ namespace IngestHandler
 
             return overlappingPairs;
         }
+
+
         private static bool IsOverlappingPrograms(EpgProgramBulkUploadObject prog, EpgProgramBulkUploadObject otherProg)
         {
             // if prog starts befor other ends AND other start before the prog ends

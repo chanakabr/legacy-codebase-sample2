@@ -24,7 +24,7 @@ namespace ODBCWrapper
         public static Int32 GetCachedSec()
         {
             var cacheSec = ApplicationConfiguration.Current.DatabaseConfiguration.ODBCCacheSeconds.Value;
-            if (cacheSec > 0)
+            if (cacheSec >= 0)
             {
                 return cacheSec;
             }

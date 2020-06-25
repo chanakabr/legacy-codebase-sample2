@@ -1,10 +1,13 @@
 ﻿using ApiLogic;
+using ApiLogic.Catalog;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.EventBus;
+using ApiObjects.Ingest;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using ElasticSearch.Common;
 using EventBus.RabbitMQ;
 using KLogMonitor;
 using QueueWrapper;
@@ -16,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using ESUtils = ElasticSearch.Common.Utils;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -140,13 +144,19 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<BulkUpload> AddBulkUpload(int groupId, string fileName, long userId, string filePath, string objectTypeName, BulkUploadJobAction action, BulkUploadJobData jobData, BulkUploadObjectData objectData)
-        {
+        public static GenericResponse<BulkUpload> AddBulkUpload(int groupId,  
+            long userId,  
+            string objectTypeName, 
+            BulkUploadJobAction action, 
+            BulkUploadJobData jobData, 
+            BulkUploadObjectData objectData,
+            OTTBasicFile fileData)
+        {                
             var response = new GenericResponse<BulkUpload>();
             try
             {
                 // create and save the new BulkUpload in DB (with no results)
-                var dt = CatalogDAL.AddBulkUpload(groupId, userId, action, fileName);
+                var dt = CatalogDAL.AddBulkUpload(groupId, userId, action, fileData.Name);
                 response.Object = CreateBulkUploadFromDataTable(dt, groupId);
                 if (response.Object == null)
                 {
@@ -164,9 +174,10 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                // save the bulkUpload file to server (cut it from iis) and set fileURL
-                var fileInfo = new FileInfo(filePath);
-                var saveFileResponse = FileHandler.Instance.SaveFile(response.Object.Id, fileInfo, "KalturaBulkUpload", filePath);
+                GenericResponse<string> saveFileResponse;
+                // save the bulkUpload file to server (cut it from iis) and set fileURL                                
+                saveFileResponse = fileData.SaveFile(response.Object.Id,"KalturaBulkUpload");
+
                 if (!saveFileResponse.HasObject())
                 {
                     log.ErrorFormat("Error while saving BulkUpload File to file server. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
@@ -212,7 +223,7 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Debug($"An Exception was occurred in AddBulkUpload. details:{ex.ToString()}.");
-                log.Error($"An Exception was occurred in AddBulkUpload. groupId:{groupId}, filePath:{filePath}, userId:{userId}, action:{action}, objectType:{objectTypeName}.", ex);
+                log.Error($"An Exception was occurred in AddBulkUpload. groupId:{groupId}, filename:{fileData.Name}, userId:{userId}, action:{action}, objectType:{objectTypeName}.", ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
@@ -512,6 +523,8 @@ namespace Core.Catalog.CatalogManagement
                 response.Object.Status = newStatus;
 
                 UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
+
+
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -686,6 +699,22 @@ namespace Core.Catalog.CatalogManagement
                     {
                         var locker = new DistributedLock();
                         locker.Unlock(ingestJobData.LockKeys);
+                    }
+                }
+
+
+                //in case of status that indicates a failure mark the index with purge alias
+                var errorStatuses = new HashSet<BulkUploadJobStatus>() { BulkUploadJobStatus.Failed, BulkUploadJobStatus.Fatal };
+                
+                //the latest status
+                var newStatus = bulkUpload.Status;
+                if (errorStatuses.Contains(newStatus))
+                {
+                    var esClient = new ElasticSearchApi();
+                    var allindicesOfCurrentBulk = esClient.ListIndices(IngestConsts.GetEpgV2SearchIndex(bulkUpload.GroupId, bulkUpload.Id));
+                    foreach (var index in allindicesOfCurrentBulk)
+                    {
+                        esClient.AddAlias(index.Name, IngestConsts.PURGE_INDEX_ALIAS);
                     }
                 }
             }

@@ -897,11 +897,11 @@ namespace ElasticsearchTasksCommon
             return dMediaTrans;
         }
 
-        public static Dictionary<int, Dictionary<int, Media>> GetGroupMediasTotalForOPCAccount(int groupId, int nMediaID, long nextId, long pageSize)
+        public static System.Collections.Concurrent.ConcurrentDictionary<int, Dictionary<int, Media>> GetGroupMediasTotalForOPCAccount(int groupId, int nMediaID, long nextId, long pageSize)
         {
             //dictionary contains medias such that first key is media_id, which returns a dictionary with a key language_id and value Media object.
             //E.g. dMedias[123][2] --> will return media 123 of the hebrew language
-            Dictionary<int, Dictionary<int, Media>> dMediaTrans = new Dictionary<int, Dictionary<int, Media>>();
+            System.Collections.Concurrent.ConcurrentDictionary<int, Dictionary<int, Media>> dMediaTrans = new System.Collections.Concurrent.ConcurrentDictionary<int, Dictionary<int, Media>>();
 
             //temporary media dictionary
             Dictionary<int, Media> medias = new Dictionary<int, Media>();

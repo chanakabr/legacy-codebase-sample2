@@ -438,7 +438,7 @@ namespace Core.Billing
             Int32 nImplID = 0;
 
             string key = string.Format("{0}_GetBaseCreditCardImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 1);
-            bool bRes = BillingCache.GetItem<Int32>(key, out nImplID);
+            bool bRes = TvinciCache.WSCache.Instance.TryGet<Int32>(key, out nImplID);
             if (!bRes)
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -458,7 +458,7 @@ namespace Core.Billing
                             nImplID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IMPLEMENTATION_ID"].ToString());
                             if (nImplID > 0)
                             {
-                                BillingCache.AddItem(key, nImplID);
+                                TvinciCache.WSCache.Instance.Add(key, nImplID);
                             }
                         }
                     }
@@ -510,7 +510,7 @@ namespace Core.Billing
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetDummyCreditCardImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 1);
-            bool bRes = BillingCache.GetItem<Int32>(key, out nImplID);
+            bool bRes = TvinciCache.WSCache.Instance.TryGet<Int32>(key, out nImplID);
             if (!bRes)
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -530,7 +530,7 @@ namespace Core.Billing
                             nImplID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IMPLEMENTATION_ID"].ToString());
                             if (nImplID > 0)
                             {
-                                BillingCache.AddItem(key, nImplID);
+                                TvinciCache.WSCache.Instance.Add(key, nImplID);
                             }
                         }
                     }
@@ -559,7 +559,7 @@ namespace Core.Billing
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBaseDirectDebitImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 7);
-            bool bRes = BillingCache.GetItem<Int32>(key, out nImplID);
+            bool bRes = TvinciCache.WSCache.Instance.TryGet<Int32>(key, out nImplID);
             if (!bRes)
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -579,7 +579,7 @@ namespace Core.Billing
                             nImplID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IMPLEMENTATION_ID"].ToString());
                             if (nImplID > 0)
                             {
-                                BillingCache.AddItem(key, nImplID);
+                                TvinciCache.WSCache.Instance.Add(key, nImplID);
                             }
                         }
                     }
@@ -617,7 +617,7 @@ namespace Core.Billing
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBaseInAppPurchaseImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 9);
-            bool bRes = BillingCache.GetItem<Int32>(key, out nImplID);
+            bool bRes = TvinciCache.WSCache.Instance.TryGet<Int32>(key, out nImplID);
             if (!bRes)
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -637,7 +637,7 @@ namespace Core.Billing
                             nImplID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IMPLEMENTATION_ID"].ToString());
                             if (nImplID > 0)
                             {
-                                BillingCache.AddItem(key, nImplID);
+                                TvinciCache.WSCache.Instance.Add(key, nImplID);
                             }
                         }
                     }
@@ -693,7 +693,7 @@ namespace Core.Billing
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBaseCellularCreditCardImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 10);
-            bool bRes = BillingCache.GetItem<Int32>(key, out nImplID);
+            bool bRes = TvinciCache.WSCache.Instance.TryGet<Int32>(key, out nImplID);
             if (!bRes)
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -713,7 +713,7 @@ namespace Core.Billing
                             nImplID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IMPLEMENTATION_ID"].ToString());
                             if (nImplID > 0)
                             {
-                                BillingCache.AddItem(key, nImplID);
+                                TvinciCache.WSCache.Instance.Add(key, nImplID);
                             }
                         }
                     }
@@ -736,7 +736,7 @@ namespace Core.Billing
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBaseCellularDirectDebitImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 10);
-            bool bRes = BillingCache.GetItem<Int32>(key, out nImplID);
+            bool bRes = TvinciCache.WSCache.Instance.TryGet<Int32>(key, out nImplID);
             if (!bRes)
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -756,7 +756,7 @@ namespace Core.Billing
                             nImplID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IMPLEMENTATION_ID"].ToString());
                             if (nImplID > 0)
                             {
-                                BillingCache.AddItem(key, nImplID);
+                                TvinciCache.WSCache.Instance.Add(key, nImplID);
                             }
                         }
                     }
@@ -1442,7 +1442,7 @@ namespace Core.Billing
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBasePopupImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 3);
-            bool bRes = BillingCache.GetItem<Int32>(key, out nImplID);
+            bool bRes = TvinciCache.WSCache.Instance.TryGet<Int32>(key, out nImplID);
             if (!bRes)
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1459,7 +1459,7 @@ namespace Core.Billing
                         nImplID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IMPLEMENTATION_ID"].ToString());
                         if (nImplID > 0)
                         {
-                            BillingCache.AddItem(key, nImplID);
+                            TvinciCache.WSCache.Instance.Add(key, nImplID);
                         }
                     }
                 }
@@ -1534,13 +1534,13 @@ namespace Core.Billing
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBaseSMSImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 2);
-            bool bRes = BillingCache.GetItem<Int32>(key, out nImplID);
+            bool bRes = TvinciCache.WSCache.Instance.TryGet<Int32>(key, out nImplID);
             if (!bRes)
             {
                 nImplID = DAL.BillingDAL.GetModuleImplementationID(nGroupID, 2);
                 if (nImplID > 0)
                 {
-                    BillingCache.AddItem(key, nImplID);
+                    TvinciCache.WSCache.Instance.Add(key, nImplID);
                 }
             }
 
@@ -2172,7 +2172,8 @@ namespace Core.Billing
             {
                 // get from cache 
                 string key = string.Format("DateEmailFormat_{0}", groupId);
-                bool bRes = BillingCache.GetItem<string>(key, out dateEmailFormat);
+                bool bRes = TvinciCache.WSCache.Instance.TryGet<string>(key, out dateEmailFormat);
+                
                 if (!bRes)
                 {
                     dateEmailFormat = DAL.BillingDAL.getEmailDateFormat(groupId);
@@ -2182,13 +2183,9 @@ namespace Core.Billing
                     }
                     else
                     {
-                        double minuteOffset = ApplicationConfiguration.Current.BillingCacheTTL.Value;
-                        if (minuteOffset == 0)
-                        {
-                            minuteOffset = 60;// default value
-                        }
-
-                        bRes = BillingCache.AddItem(key, dateEmailFormat, minuteOffset);
+                        // It was TCM previously, but nobody ever defined it other than the default, which was one hour. So no need for this key anymore.
+                        double minuteOffset = 60;
+                        bRes = TvinciCache.WSCache.Instance.Add(key, dateEmailFormat, minuteOffset);
                     }
                 }
             }

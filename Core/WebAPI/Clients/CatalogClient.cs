@@ -4051,12 +4051,12 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string fileName, long userId, string filePath, string objectTypeName, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData)
+        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, long userId,  string objectTypeName, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData, KalturaOTTFile fileData)
         {
-            var bulkUploadJobData = AutoMapper.Mapper.Map<BulkUploadJobData>(jobData);
-            var bulkUploadObjectData = AutoMapper.Mapper.Map<BulkUploadObjectData>(objectData);
-
-            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, fileName, userId, filePath, objectTypeName, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData);
+            var bulkUploadJobData = Mapper.Map<BulkUploadJobData>(jobData);
+            var bulkUploadObjectData = Mapper.Map<BulkUploadObjectData>(objectData);
+            OTTBasicFile file= fileData.ConvertToOttFileType();            
+            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, userId ,objectTypeName, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData, file);
             KalturaBulkUpload result = ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(addBulkUploadFunc);
             return result;
         }
@@ -4163,14 +4163,49 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaCategoryTree GetCategoryTree(int groupId, long userId, long categoryItemId)
+        internal KalturaCategoryTree GetCategoryTree(int groupId, long categoryItemId, bool filter, bool isAllowedToViewInactiveAssets)
         {
-            Func<GenericResponse<CategoryTree>> treeFunc = () => CategoryItemHandler.Instance.GetCategoryTree(groupId, userId, categoryItemId);
+            Func<GenericResponse<CategoryTree>> treeFunc = () => CategoryItemHandler.Instance.GetCategoryTree(groupId, categoryItemId, filter, !isAllowedToViewInactiveAssets);
 
             KalturaCategoryTree response =
                 ClientUtils.GetResponseFromWS<KalturaCategoryTree, CategoryTree>(treeFunc);
 
             return response;
+        }
+
+        internal KalturaImageListResponse GetImagesByObjects(int groupId, List<long> imageObjectIds, KalturaImageObjectType imageObjectType, bool? isDefault = null)
+        {
+            KalturaImageListResponse result = new KalturaImageListResponse() { TotalCount = 0 };
+
+            Func<GenericListResponse<Image>> getImagesByObjectFunc = () =>
+               Core.Catalog.CatalogManagement.ImageManager.GetImagesByObjects(groupId, imageObjectIds, CatalogMappings.ConvertImageObjectType(imageObjectType), isDefault);
+
+            KalturaGenericListResponse<KalturaImage> response =
+                ClientUtils.GetResponseListFromWS<KalturaImage, Image>(getImagesByObjectFunc);
+
+            result.Images = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaChannelListResponse SearchChannels(int groupId, List<int> channelsIds, bool isAllowedToViewInactiveAssets, long userId)
+        {
+            KalturaChannelListResponse result = new KalturaChannelListResponse();
+
+            Func<GenericListResponse<GroupsCacheManager.Channel>> getFunc = () =>
+             ChannelManager.GetChannelsListResponseByChannelIds(groupId, channelsIds, isAllowedToViewInactiveAssets, null);
+
+            KalturaGenericListResponse<KalturaChannel> response =
+                ClientUtils.GetResponseListFromWS<KalturaChannel, GroupsCacheManager.Channel>(getFunc);
+
+            result.Channels = response.Objects;
+            if (result.Channels?.Count > 0)
+            {
+                result.TotalCount = result.Channels.Count;
+            }
+
+            return result;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.EventBus;
+using ApiObjects.Ingest;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
@@ -276,7 +277,7 @@ namespace IngestValidationHandler
         private void SwitchAliases()
         {
             // Get list of all indices of current bulk upload
-            var allindicesOfCurrentBulk = _ElasticSearchClient.ListIndices($"{_BulkUploadObject.GroupId}_epg_v2_*_{_BulkUploadObject.Id}");
+            var allindicesOfCurrentBulk = _ElasticSearchClient.ListIndices(IngestConsts.GetEpgV2SearchIndex(_BulkUploadObject.GroupId, _BulkUploadObject.Id));
 
             foreach (var newIndex in allindicesOfCurrentBulk)
             {
@@ -288,6 +289,7 @@ namespace IngestValidationHandler
                 var previousIndices = _ElasticSearchClient.GetAliases(dateAlias);
                 if (previousIndices.Any())
                 {
+                    //todo handle on error we might have empty aliases
                     _Logger.Debug($"Removing alias:[{dateAlias}, {globalAlias}] from:[{string.Join(",", previousIndices)}].");
                     foreach (var oldIndex in previousIndices)
                     {
@@ -295,8 +297,11 @@ namespace IngestValidationHandler
                         if (!isGlobalAliasRemoveSuccess) { throw new Exception($"Failed to remove globalAlias:[{globalAlias}] oldIndex:[{oldIndex}]"); }
                         var isDateAliasRemoveSuccess = _ElasticSearchClient.RemoveAlias(oldIndex, dateAlias);
                         if (!isDateAliasRemoveSuccess) { throw new Exception($"Failed to remove dateAlias:[{dateAlias}] oldIndex:[{oldIndex}]"); }
-                    }
 
+                        //tagging index to be deleted
+                        var isAddedDeleteCandidate=_ElasticSearchClient.AddAlias(oldIndex, IngestConsts.LAST_BACKUP_ALIAS);
+                        if (!isAddedDeleteCandidate) { throw new Exception($"Failed to add  {IngestConsts.LAST_BACKUP_ALIAS} alias {oldIndex}"); }
+                    }
                 }
 
                 _Logger.Debug($"Adding alias:[{dateAlias}, {globalAlias}] To:[{newIndex}].");

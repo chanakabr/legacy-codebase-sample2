@@ -34,12 +34,22 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
             }
         }
 
+        public T GetDefaultValue()
+        {
+            return DefaultValue;
+        }
+
         public BaseValue(string key, T defaultValue, bool mustBeOverwriteInTcm = false, string description = null)
         {
             this.Key = key;
             this.DefaultValue = defaultValue;
             this.MustBeOverwriteInTcm = mustBeOverwriteInTcm;
             this.description = description;
+        }
+
+        internal BaseValue<T> Clone()
+        {
+            return new BaseValue<T>(this.Key, this.DefaultValue, this.MustBeOverwriteInTcm, this.description);
         }
     }
 }

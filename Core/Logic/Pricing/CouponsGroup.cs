@@ -25,6 +25,7 @@ namespace Core.Pricing
             m_sGroupName = string.Empty;
             m_nFinancialEntityID = 0;
             maxDomainUses = 0;
+            m_sGroupCode = string.Empty;
         }
 
         public CouponsStatus GetCouponStatusCode(Int32 nUseCount)

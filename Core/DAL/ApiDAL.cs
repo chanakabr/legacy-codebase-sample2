@@ -581,8 +581,6 @@ namespace DAL
 
         public static MediaMarkObject Get_MediaMark(int nMediaID, string userID, int nGroupID)
         {
-            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
-            
             MediaMarkObject ret = new MediaMarkObject();
             ret.nGroupID = nGroupID;
             ret.nMediaID = nMediaID;
@@ -617,10 +615,6 @@ namespace DAL
                         ret.eStatus = MediaMarkObject.MediaMarkObjectStatus.NA;
                     }
                 }
-            }
-            else if (bGetDBData)
-            {
-                Get_MediaMark_DB(nMediaID, userID, nGroupID, ret);
             }
 
             return ret;
@@ -3723,6 +3717,7 @@ namespace DAL
                     spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecoveryGracePeriod", settings.RecoveryGracePeriod.Value); //seconds
                 }
 
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@EnablePrivateCopy", settings.IsPrivateCopyEnabled);
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
 
@@ -5582,9 +5577,13 @@ namespace DAL
 
             sp.AddParameter("@rollingDeviceRemovalPolicy",rollingDeviceRemovalPolicy);
 
-            sp.AddParameter("@rollingDeviceRemovalFamilyIds",
-                    string.Join(",", partnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds));
-                return sp.ExecuteReturnValue<int>() > 0;
+            if (partnerConfig != null && partnerConfig.RollingDeviceRemovalData != null)
+            {
+                sp.AddParameter("@rollingDeviceRemovalFamilyIds", 
+                    string.Join(",",partnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds));
+            }
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public static DataSet GetGeneralPartnerConfig(int groupId)

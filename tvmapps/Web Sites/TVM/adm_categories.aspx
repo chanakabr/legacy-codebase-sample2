@@ -98,19 +98,6 @@
 										</table>
 									</td>
 								</tr>
-								<tr>
-								    <td>
-										<div>
-											<table>
-												<tr>
-									                <td>
-									                    <% GetCahannelsIFrame(); %>
-									                </td>
-												</tr>
-											</table>
-										</div>
-									 </td>  
-								</tr>
 								<!-- content -->
 								<!--tr>
 									<td class="formInputs">

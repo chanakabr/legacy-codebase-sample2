@@ -13,6 +13,13 @@ namespace ApiLogic.Catalog
         public List<UnifiedChannelInfo> UnifiedChannels { get; set; }
         public Dictionary<string, string> DynamicData { get; set; }
         public List<Image> Images { get; set; }
+        public bool? IsActive { get; set; }
+        public TimeSlot TimeSlot { get; set; }
+
+        public CategoryTree()
+        {
+            this.TimeSlot = new TimeSlot();
+        }
 
         public CategoryTree(CategoryItem categoryItem)
         {
@@ -20,6 +27,8 @@ namespace ApiLogic.Catalog
             this.Name = categoryItem.Name;
             this.NamesInOtherLanguages = categoryItem.NamesInOtherLanguages;
             this.DynamicData = categoryItem.DynamicData;
+            this.IsActive= categoryItem.IsActive;
+            this.TimeSlot= categoryItem.TimeSlot;
         }
     }
 }

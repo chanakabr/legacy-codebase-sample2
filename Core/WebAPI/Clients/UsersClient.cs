@@ -193,6 +193,37 @@ namespace WebAPI.Clients
 
             return true;
         }
+        
+        public KalturaOTTUser RenewPasswordWithToken(int groupId, string token, string password)
+        {
+            GenericResponse<UserResponseObject> response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Users.Module.RenewPasswordWithToken(groupId, token, password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while RenewPasswordWithToken. token: {0}, exception: {2}", token, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException(StatusCode.Error);
+            }
+
+            if (!response.IsOkStatusCode())
+            {
+                throw new ClientException(response.Status);
+            }
+
+            KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(response.Object.m_user);
+            return user;
+        }
 
         public bool ChangeUserPassword(int groupId, string userName, string oldPassword, string newPassword)
         {
