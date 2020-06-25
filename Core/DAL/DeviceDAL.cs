@@ -274,7 +274,10 @@ namespace DAL
             sp.AddParameter("@Pin", sPin);
             sp.AddParameter("@CreateDate", DateTime.UtcNow);
             sp.AddParameter("@ExternalID", externalId);
-            sp.AddParameter("@MacAddress", macAddress);
+            if (!string.IsNullOrEmpty(macAddress))
+            {
+                sp.AddParameter("@MacAddress", macAddress);
+            }
 
             return sp.ExecuteReturnValue<int>();
         }
