@@ -3,7 +3,7 @@
 # set -o xtrace
 
 startScanPath=$1
-allProjFiles=$(grep --include=\*.csproj -rnwl -E "(netcoreapp[0-9]+\.[0-9]+)|netstandard[0-9]+\.[0-9]+" ${startScanPath})
+allProjFiles=$(find . -name *.csproj | xargs grep -rnwl -E "(netcoreapp[0-9]+\.[0-9]+)|netstandard[0-9]+\.[0-9]+")
 tag=$(git describe --tags --always --dirty --long)
 
 echo "VERSION_TAG: $VERSION_TAG"
@@ -13,27 +13,20 @@ commiter=$(git config user.name)
 echo "tag: $tag"
 echo "commit count: $commitCount"
 #If no tag has been added only the sha1 will be returned
-if [[ $tag == *.* ]]
-then
-	IFS='.' read -ra TAG <<< "$tag"
-	IFS='-' read -ra COMMITS <<< "${TAG[1]}"
 
-	#This will be the version in the format <major>.<minor>.<build number>.<revision>
-	major=${TAG[0]}
-	minor=${COMMITS[0]}
-	build=${COMMITS[1]}
-	revision=${commitCount}
-	version="${major}"."${minor}"."${build}"."${revision}$2"
-	description="$(date +'%Y-%m-%d %H:%M:%S') \| Hostname:$(hostname) \| Published by:${commiter} \| Tag:${tag}"
-	echo "Identified Version: $version"
-	echo "Identified Description: $description"
-	echo 
+#This will be the version in the format <major>.<minor>.<build number>.<revision>
+major=$(echo $tag | cut -f1 -d'.')
+minor=$(echo $tag | cut -f2 -d'.' | cut -f1 -d'-')
+build=$(echo $tag | cut -f2 -d'-' )
+revision=${commitCount}
+version="${major}"."${minor}"."${build}"."${revision}$2"
+description="$(date +'%Y-%m-%d %H:%M:%S') \| Hostname:$(hostname) \| Published by:${commiter} \| Tag:${tag}"
+echo "Identified Version: $version"
+echo "Identified Description: $description"
+echo 
 
-
-	for projFilePath in $allProjFiles; do
-		echo "Patching project: $projFilePath"
-		sed -i "s|\(<Version>\)[^<]*\(<\/Version>\)|\1$version\2|gi" $projFilePath
-		sed -i "s|\(<AssemblyTitle>\)[^<]*\(<\/AssemblyTitle>\)|\1$description\2|gi" $projFilePath
-	done
-
-fi
+for projFilePath in $allProjFiles; do
+	echo "Patching project: $projFilePath"
+	sed -i "s|\(<Version>\)[^<]*\(<\/Version>\)|\1$version\2|gi" $projFilePath
+	sed -i "s|\(<AssemblyTitle>\)[^<]*\(<\/AssemblyTitle>\)|\1$description\2|gi" $projFilePath
+done
