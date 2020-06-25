@@ -205,59 +205,17 @@ namespace TVinciShared
 
         public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID)
         {
-            return GetNewMainMenu(nMenuID, bAdmin, ref nSelID, "");
+            return GetNewMainMenu(nMenuID, bAdmin, ref nSelID);
         }
 
         public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, string sPageURL)
         {
-            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, 0, sPageURL) + "</root>";
-
-            StringBuilder sTemp = new StringBuilder();
-
-            sTemp.Append("<script type=\"text/javascript\" src=\"js/SWFObj.js\"></script><script  type=\"text/javascript\">");
-            sTemp.Append("function menuXML()");
-            sTemp.Append("{");
-            sTemp.Append("return '").Append(sXML).Append("';");
-            sTemp.Append("}");
-            sTemp.Append("function changeMenuHeight(newHeight) ");
-            sTemp.Append("{");
-            sTemp.Append("e = document.getElementById(\"menu_holder\");");
-            sTemp.Append("if(newHeight<200)newHeight=200;");
-            sTemp.Append("e.style.height = newHeight + 'px';");
-            sTemp.Append("}");
-            sTemp.Append("var flashObj = new SWFObj");
-            sTemp.Append("(");
-            sTemp.Append("'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',");
-            sTemp.Append("'width', '100%',");
-            sTemp.Append("'height', '100%',");
-            sTemp.Append("'src', 'flash/amin_tree_menu',");
-            sTemp.Append("'quality', 'high',");
-            sTemp.Append("'pluginspage', 'http://www.macromedia.com/go/getflashplayer',");
-            sTemp.Append("'align', 'left',");
-            sTemp.Append("'scale', 'showall',");
-            sTemp.Append("'devicefont', 'false',");
-            sTemp.Append("'id', 'amin_tree_menu',");
-            sTemp.Append("'bgcolor', '#ffffff',");
-            sTemp.Append("'wmode', 'transparent',");
-            sTemp.Append("'name', 'amin_tree_menu',");
-            sTemp.Append("'menu', 'true',");
-            sTemp.Append("'allowFullScreen', 'true',");
-            sTemp.Append("'allowScriptAccess','sameDomain',");
-            sTemp.Append("'movie', 'flash/amin_tree_menu',");
-            sTemp.Append("'salign', '',");
-            sTemp.Append("'flashVars', 'data_request_function=menuXML'");
-            sTemp.Append("); //end AC code");
-            sTemp.Append("</script>");
-            sTemp.Append("<tr><td><div class=\"left_menu\" id=\"menu_holder\" name=\"menu_holder\"></div></td><tr>");
-            sTemp.Append("<script  type=\"text/javascript\">");
-            sTemp.Append("flashObj.write('menu_holder');");
-            sTemp.Append("</script>");
-            return sTemp.ToString();
+            return GetNewMainMenu(nMenuID, bAdmin, ref nSelID, 0, sPageURL);
         }
 
-        public static string GetNewMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, string sPageURL)
+        public static string GetNewMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, int nParentID = 0, string sPageURL = "")
         {
-            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, 0, sPageURL) + "</root>";
+            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, nParentID, sPageURL) + "</root>";
 
             XmlDocument xmld = new XmlDocument();
             xmld.LoadXml(sXML);
@@ -279,8 +237,7 @@ namespace TVinciShared
 
         public static string GetMainMenu(ref Int32 nMenuID, bool bAdmin, ref Int32 nSelID, Int32 nParentID)
         {
-            return GetMainMenu(ref nMenuID, bAdmin, ref nSelID, nParentID, "");
-
+            return GetNewMainMenu(nMenuID, bAdmin, ref nSelID, nParentID);
         }
 
         public static bool IsLayoutManagerVisible(int groupID)
