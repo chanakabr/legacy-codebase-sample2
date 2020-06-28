@@ -92,7 +92,8 @@ namespace Core.Users
                 return ret;
             }
 
-            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, macAddress, externalId, allowNullExternalId, allowNullMacAddress);
+            var _deviceName = !string.IsNullOrEmpty(sDeviceName) ? sDeviceName : device.m_deviceName;
+            bool isSetSucceeded = device.SetDeviceInfo(_deviceName, macAddress, externalId, allowNullExternalId, allowNullMacAddress);
 
             // in case set device Succeeded
             // domain should be remove from the cache 
