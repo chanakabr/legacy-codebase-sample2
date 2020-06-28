@@ -307,9 +307,10 @@ namespace WebAPI.Controllers
                 }
 
                 var allowNullExternalId = device.NullableProperties != null && device.NullableProperties.Contains("externalid");
+                var allowNullMacAddress = device.NullableProperties != null && device.NullableProperties.Contains("macaddress");
 
                 // call client
-                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.MacAddress, device.ExternalId, allowNullExternalId);
+                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.MacAddress, device.ExternalId, allowNullExternalId, allowNullMacAddress);
             }
             catch (ClientException ex)
             {

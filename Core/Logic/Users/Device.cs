@@ -249,7 +249,8 @@ namespace Core.Users
             return DeviceDal.Get_DeviceFamilyIDAndName(deviceBrand, ref familyID);
         }
 
-        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = "", bool allowNullExternalId = false)
+        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = ""
+            , bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             int retVal = 0;
 
@@ -291,7 +292,7 @@ namespace Core.Users
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("external_Id", "=", externalId);
                     }
 
-                    if (!string.IsNullOrEmpty(macAddress))
+                    if (!string.IsNullOrEmpty(macAddress) || allowNullMacAddress)
                     {
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("mac_address", "=", macAddress);
                     }
@@ -329,6 +330,7 @@ namespace Core.Users
             if (retVal > 0)
             {
                 this.ExternalId = externalId;
+                this.MacAddress = macAddress;
             }
 
             return retVal;
@@ -412,14 +414,15 @@ namespace Core.Users
             return sNewPIN;
         }
 
-        public bool SetDeviceInfo(string sDeviceName, string macAddress, string externalId, bool allowNullExternalId = false)
+        public bool SetDeviceInfo(string sDeviceName, string macAddress, string externalId, 
+            bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             bool res = false;
             m_deviceName = sDeviceName;
 
             if (m_state >= DeviceState.Pending)
             {
-                int nDeviceID = Save(-1, 1, null, macAddress, externalId, allowNullExternalId); // Returns device ID, 0 otherwise
+                int nDeviceID = Save(-1, 1, null, macAddress, externalId, allowNullExternalId, allowNullMacAddress); // Returns device ID, 0 otherwise
                 if (nDeviceID != 0)
                 {
                     res = true;

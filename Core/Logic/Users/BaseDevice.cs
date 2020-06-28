@@ -21,7 +21,7 @@ namespace Core.Users
         {
             return SetDevice(nGroupID, sDeviceUDID, sDeviceName, "", externalId, allowNullExternalId);
         }
-        public abstract DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string macAddress, string externalId, bool allowNullExternalId);
+        public abstract DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string macAddress, string externalId, bool allowNullExternalId, bool allowNullMacAddress = false);
         public abstract DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID);
     }
 }
