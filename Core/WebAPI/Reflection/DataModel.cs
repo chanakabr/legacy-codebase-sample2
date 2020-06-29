@@ -9165,7 +9165,7 @@ namespace WebAPI.Reflection
                             
                         case "logout":
                             RolesManager.ValidateActionPermitted("ottUser", "logout", false);
-                            return OttUserController.Logout((List<KalturaKeyValue>) methodParams[0]);
+                            return OttUserController.Logout((SerializableDictionary<string, KalturaStringValue>) methodParams[0]);
                             
                         case "refreshsession":
                             RolesManager.ValidateActionPermitted("ottUser", "refreshSession", true);
@@ -15905,9 +15905,9 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsOptional = true,
                                 DefaultValue = null,
-                                IsList = true,
-                                GenericType = typeof(KalturaKeyValue),
-                                Type = typeof(List<KalturaKeyValue>),
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
                             });
                             return ret;
                             

@@ -269,7 +269,7 @@ namespace Core.Users
         }
 
         public static UserResponseObject SignOut(int nGroupID, string sSiteGUID, string sessionID, string sIP, string deviceID
-            , bool bPreventDoubleLogins, List<KeyValuePair> keyValuePairs = null)
+            , bool bPreventDoubleLogins, List<KeyValuePair> keyValueList = null)
         {
             try
             {
@@ -283,9 +283,9 @@ namespace Core.Users
                     return null;
                 }
 
-                if (keyValuePairs == null)
+                if (keyValueList == null)
                 {
-                    keyValuePairs = new List<ApiObjects.KeyValuePair>();
+                    keyValueList = new List<KeyValuePair>();
                 }
 
                 if (Utils.IsGroupIDContainedInConfig(nGroupID))
@@ -304,7 +304,7 @@ namespace Core.Users
                     // get group ID + user type
                     Utils.GetBaseImpl(ref kUser, nGroupID);
                     if (kUser != null)
-                        return FlowManager.SignOut(kUser, nSiteGuid, nGroupID, sessionID, sIP, deviceID, keyValuePairs);
+                        return FlowManager.SignOut(kUser, nSiteGuid, nGroupID, sessionID, sIP, deviceID, keyValueList);
                 }
             }
             catch (Exception ex)

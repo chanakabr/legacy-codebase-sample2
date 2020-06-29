@@ -760,7 +760,7 @@ namespace WebAPI.Controllers
         [Action("logout")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public bool Logout(List<KalturaKeyValue> adapterData = null)
+        static public bool Logout(SerializableDictionary<string, KalturaStringValue> adapterData = null)
         {
             bool response = false;
 

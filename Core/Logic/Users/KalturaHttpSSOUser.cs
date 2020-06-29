@@ -495,7 +495,8 @@ namespace Core.Users
                 {
                     UserId = siteGuid,
                     HouseholdId = domainId,
-                    DeviceUdid = deviceUdid
+                    DeviceUdid = deviceUdid,
+                    //TODO -MATAN, Add: keyValueList
                 };
 
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, preSignOutModel.UserId);
