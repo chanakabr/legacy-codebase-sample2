@@ -792,7 +792,7 @@ namespace Core.Catalog.Handlers
                     channelInfoToUpdate = unifiedChannelToUpdate as UnifiedChannelInfo;
                     if (channelInfoToUpdate != null)
                     {
-                        var channel = currentUnifiedChannels.Where(x => x.Id == channelInfoToUpdate.Id && x.Type == channelInfoToUpdate.Type).First();
+                        var channel = currentUnifiedChannels.Where(x => x.Id == channelInfoToUpdate.Id && x.Type == channelInfoToUpdate.Type).FirstOrDefault();
                         if (channel != null)
                         {
                             currentUnifiedChannelInfo = channel as UnifiedChannelInfo;
