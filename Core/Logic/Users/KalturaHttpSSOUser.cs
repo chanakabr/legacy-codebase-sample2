@@ -541,7 +541,8 @@ namespace Core.Users
                     UserId = siteGuid,
                     DeviceUdid = deviceUdid,
                     HouseholdId = domainId,
-                    AuthenticatedUser = new SSOAdapaterUser() { HouseholdID = domainId, Id = siteGuid }
+                    AuthenticatedUser = new SSOAdapaterUser() { HouseholdID = domainId, Id = siteGuid },
+                    //AdapterData = keyValueList?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray()
                 };
 
 

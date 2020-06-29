@@ -809,16 +809,17 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool SignOut(int groupId, int userId, string ip, string deviceId)
+        public bool SignOut(int groupId, int userId, string ip, string deviceId, List<KalturaKeyValue> adapterData)
         {
             UserResponseObject response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
+                var keyValuePairs = Mapper.Map<List<KeyValuePair>>(adapterData);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Users.Module.SignOut(groupId, userId.ToString(), string.Empty, ip, deviceId, group.ShouldSupportSingleLogin);
+                    response = Core.Users.Module.SignOut(groupId, userId.ToString(), string.Empty, ip, deviceId, group.ShouldSupportSingleLogin, keyValuePairs);
                 }
             }
             catch (Exception ex)
