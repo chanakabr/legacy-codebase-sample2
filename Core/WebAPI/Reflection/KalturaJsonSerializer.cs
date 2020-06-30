@@ -27613,6 +27613,7 @@ namespace WebAPI.Models.Domains
                     ret.Add("concurrent_limit", "\"concurrent_limit\": " + ConcurrentLimit);
                 }
             }
+            ret.Add("createDate", "\"createDate\": " + CreateDate);
             if(!omitObsolete && DefaultUsers != null)
             {
                 propertyValue = "[" + String.Join(", ", DefaultUsers.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -27729,6 +27730,7 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("state", "\"state\": " + "\"" + Enum.GetName(typeof(KalturaHouseholdState), State) + "\"");
             }
+            ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             if(!omitObsolete && Users != null)
             {
                 propertyValue = "[" + String.Join(", ", Users.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -27759,6 +27761,7 @@ namespace WebAPI.Models.Domains
                 ret.Add("concurrent_limit", "<concurrent_limit>" + ConcurrentLimit + "</concurrent_limit>");
                 }
             }
+            ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             if(!omitObsolete && DefaultUsers != null)
             {
                 propertyValue = DefaultUsers.Count > 0 ? "<item>" + String.Join("</item><item>", DefaultUsers.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -27875,6 +27878,7 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("state", "<state>" + "" + Enum.GetName(typeof(KalturaHouseholdState), State) + "" + "</state>");
             }
+            ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             if(!omitObsolete && Users != null)
             {
                 propertyValue = Users.Count > 0 ? "<item>" + String.Join("</item><item>", Users.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -28263,6 +28267,34 @@ namespace WebAPI.Models.Domains
             return ret;
         }
     }
+    public partial class KalturaHouseholdFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ExternalIdEqual != null)
+            {
+                ret.Add("externalIdEqual", "\"externalIdEqual\": " + "\"" + EscapeJson(ExternalIdEqual) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ExternalIdEqual != null)
+            {
+                ret.Add("externalIdEqual", "<externalIdEqual>" + EscapeXml(ExternalIdEqual) + "</externalIdEqual>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaHouseholdLimitations
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -28472,6 +28504,26 @@ namespace WebAPI.Models.Domains
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaHouseholdListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
             return ret;
         }
     }

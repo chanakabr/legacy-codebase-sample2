@@ -15,6 +15,7 @@ using WebAPI.Models.Users;
 using WebAPI.Utils;
 using ApiObjects.Response;
 using WebAPI.Models.General;
+using ApiObjects.Base;
 
 namespace WebAPI.Clients
 {
@@ -124,6 +125,7 @@ namespace WebAPI.Clients
                     }
                     else
                     {
+                        // TODO SHIR - SET DATES
                         response = Core.Domains.Module.AddDomainWithCoGuid(groupId, domainName, domainDescription, int.Parse(masterUserId), externalId, regionId);
                     }
                 }
@@ -1320,6 +1322,24 @@ namespace WebAPI.Clients
 
             KalturaGenericListResponse<KalturaHouseholdLimitations> response =
                 ClientUtils.GetResponseListFromWS<KalturaHouseholdLimitations, LimitationsManager>(getLimitationsManagerFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaHouseholdListResponse GetDomains(ContextData contextData, KalturaHouseholdFilter kalturaHouseholdFilter)
+        {
+            var result = new KalturaHouseholdListResponse();
+
+            var filter = Mapper.Map<DomainFilter>(kalturaHouseholdFilter);
+
+            Func<GenericListResponse<Domain>> getDomainsFunc = () =>
+                Core.Domains.Module.GetDomains(contextData, filter);
+
+            KalturaGenericListResponse<KalturaHousehold> response =
+                ClientUtils.GetResponseListFromWS<KalturaHousehold, Domain>(getDomainsFunc);
 
             result.Objects = response.Objects;
             result.TotalCount = response.TotalCount;

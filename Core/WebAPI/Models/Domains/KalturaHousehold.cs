@@ -202,7 +202,6 @@ namespace WebAPI.Models.Domains
         [Obsolete]
         public List<KalturaDeviceFamily> DeviceFamilies { get; set; }
 
-
         /// <summary>
         /// suspended roleId 
         /// </summary>
@@ -212,9 +211,32 @@ namespace WebAPI.Models.Domains
         [SchemeProperty(ReadOnly = true)]
         public int? RoleId { get; set; }
 
+        /// <summary>
+        /// create date
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// update date
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
         internal long getId()
         {
             return Id.HasValue ? (long)Id : 0;
         }
+    }
+
+    public partial class KalturaHouseholdListResponse : KalturaListResponse<KalturaHousehold>
+    {
+        public KalturaHouseholdListResponse() : base() { }
     }
 }

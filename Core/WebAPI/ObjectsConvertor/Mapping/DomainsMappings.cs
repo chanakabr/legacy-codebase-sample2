@@ -84,7 +84,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_UsersIDs))
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit))
                 .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies))
-                .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.roleId));
+                .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.roleId))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)));
 
             //string (pin) to KalturaDevicePin
             cfg.CreateMap<string, KalturaDevicePin>()
@@ -266,6 +268,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                  .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
                  .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                  ;
+
+            cfg.CreateMap<KalturaHouseholdFilter, DomainFilter>()
+               .ForMember(dest => dest.ExternalIdEqual, opt => opt.MapFrom(src => src.ExternalIdEqual));
         }
 
         private static KalturaHouseholdState ConvertDomainStatus(DomainStatus type)

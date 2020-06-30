@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Text;
 using ApiLogic.Users.Services;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using ApiObjects.Base;
 
 namespace Core.Users
 {
@@ -2402,6 +2403,29 @@ namespace Core.Users
                 {
                     response.Add(ODBCWrapper.Utils.GetIntSafeVal(row, "ID"));
                 }
+            }
+
+            return response;
+        }
+
+        public GenericListResponse<Domain> GetDomains(ContextData contextData, DomainFilter filter)
+        {
+            var response = new GenericListResponse<Domain>();
+
+            try
+            {
+                int domainId = DAL.DomainDal.GetDomainIDByCoGuid(filter.ExternalIdEqual, contextData.GroupId);
+                if (domainId > 0)
+                {
+                    response.Objects.Add(GetDomainInfo(domainId, contextData.GroupId));
+                }
+
+                response.SetStatus(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus(eResponseStatus.Error);
+                log.Error($"An Exception was occurred in GetDomains. filter: {filter}, contextData:{contextData}", ex);
             }
 
             return response;

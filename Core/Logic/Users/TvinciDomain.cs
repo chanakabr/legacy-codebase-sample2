@@ -285,8 +285,5 @@ namespace Core.Users
 
             return homeNetwork;
         }
-
-
-
     }
 }

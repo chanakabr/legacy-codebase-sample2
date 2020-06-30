@@ -975,77 +975,29 @@ namespace DAL
             return nameExists;
         }
 
-        public static bool GetDomainSettings(int nDomainID, int nGroupID, ref string sName, ref string sDescription, ref int nDeviceLimitationModule,
-            ref int nDeviceLimit, ref int nUserLimit, ref int nConcurrentLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag,
-            ref int nDeviceMinPeriodId, ref int nUserMinPeriodId, ref DateTime dDeviceFrequencyLastAction, ref DateTime dUserFrequencyLastAction,
-            ref string sCoGuid, ref int nDomainRestriction, ref DomainSuspentionStatus eDomainSuspendStat, ref int regionId, ref int roleId)
+        public static DataRow GetDomainSettings(int domainId, int groupId)
         {
-            int nGroupConcurrentMaxLimit = 0;
-
-
-            return GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
-                ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDomainID, ref nGroupConcurrentMaxLimit, ref eDomainSuspendStat, ref regionId, ref roleId);
-        }
-
-
-        public static bool GetDomainSettings(int nDomainID, int nGroupID, ref string sName, ref string sDescription, ref int nDeviceLimitationModule,
-            ref int nDeviceLimit, ref int nUserLimit, ref int nConcurrentLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag,
-            ref int nDeviceMinPeriodId, ref int nUserMinPeriodId, ref DateTime dDeviceFrequencyLastAction, ref DateTime dUserFrequencyLastAction,
-            ref string sCoGuid, ref int nDomainRestriction, ref int nGroupConcurrentLimit, ref DomainSuspentionStatus suspendStatus, ref int regionId, ref int roleId)
-        {
-
-            bool res = false;
-
+            // TODO SHIR - UPDATE sp_GetDomainSettings TO RETURN DATES
             ODBCWrapper.StoredProcedure spGetDomainSettings = new ODBCWrapper.StoredProcedure(SP_GET_DOMAIN_SETTINGS);
             spGetDomainSettings.SetConnectionKey("USERS_CONNECTION_STRING");
-            spGetDomainSettings.AddParameter("@domainID", nDomainID);
-            spGetDomainSettings.AddNullableParameter<long?>("@groupID", nGroupID);
+            spGetDomainSettings.AddParameter("@domainID", domainId);
+            spGetDomainSettings.AddNullableParameter<long?>("@groupID", groupId);
             DataSet ds = spGetDomainSettings.ExecuteDataSet();
 
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0 || ds.Tables[0].DefaultView.Count == 0)
             {
-                return false;
+                return null;
             }
 
-            int nCount = ds.Tables[0].DefaultView.Count;
-            if (nCount > 0)
+            int count = ds.Tables[0].DefaultView.Count;
+            if (count > 0)
             {
                 DataRow dr = ds.Tables[0].DefaultView[0].Row;
+                return dr;
 
-                if (dr == null)
-                {
-                    return false;
-                }
-
-                sName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                sDescription = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
-                nDeviceLimitationModule = ODBCWrapper.Utils.GetIntSafeVal(dr, "MODULE_ID");
-                nDeviceLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "MAX_LIMIT");
-                nUserLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "USER_MAX_LIMIT");
-                nConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "CONCURRENT_MAX_LIMIT");
-                nStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
-                nIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE");
-                nFrequencyFlag = ODBCWrapper.Utils.GetIntSafeVal(dr, "FREQUENCY_FLAG");
-                nDeviceMinPeriodId = ODBCWrapper.Utils.GetIntSafeVal(dr, "freq_period_id");
-                nUserMinPeriodId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_freq_period_id");
-                sCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "COGUID");
-                dDeviceFrequencyLastAction = ODBCWrapper.Utils.GetDateSafeVal(dr, "FREQUENCY_LAST_ACTION");
-                dUserFrequencyLastAction = ODBCWrapper.Utils.GetDateSafeVal(dr, "USER_FREQUENCY_LAST_ACTION");
-                nDomainRestriction = ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
-                nGroupConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_CONCURRENT_MAX_LIMIT");
-                int suspendStatInt = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_SUSPENDED");
-                if (Enum.IsDefined(typeof(DomainSuspentionStatus), suspendStatInt))
-                {
-                    suspendStatus = (DomainSuspentionStatus)suspendStatInt;
-                }
-
-                regionId = ODBCWrapper.Utils.GetIntSafeVal(dr, "REGION_ID");
-                roleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ROLE_ID");
-
-                res = true;
             }
-            return res;
+            
+            return null;
         }
 
         private static int GetGroupUserMinPeriodId(int nGroupID)

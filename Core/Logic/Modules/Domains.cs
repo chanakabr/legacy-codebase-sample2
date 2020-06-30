@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Web;
 using ApiObjects.MediaMarks;
+using ApiObjects.Base;
 
 namespace Core.Domains
 {
@@ -1028,6 +1029,19 @@ namespace Core.Domains
             if (t != null)
             {
                 response = t.GetDLMList(groupId);
+            }
+
+            return response;
+        }
+
+        public static GenericListResponse<Domain> GetDomains(ContextData contextData, DomainFilter filter)
+        {
+            var response = new GenericListResponse<Domain>();
+            Core.Users.BaseDomain t = null;
+            Utils.GetBaseImpl(ref t, contextData.GroupId);
+            if (t != null)
+            {
+                response = t.GetDomains(contextData, filter);
             }
 
             return response;

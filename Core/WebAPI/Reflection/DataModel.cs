@@ -2883,6 +2883,8 @@ namespace WebAPI.Reflection
                     {
                         case "ConcurrentLimit":
                             return "concurrentLimit";
+                        case "CreateDate":
+                            return "createDate";
                         case "DefaultUsers":
                             return "defaultUsers";
                         case "Description":
@@ -2917,6 +2919,8 @@ namespace WebAPI.Reflection
                             return "roleId";
                         case "State":
                             return "state";
+                        case "UpdateDate":
+                            return "updateDate";
                         case "Users":
                             return "users";
                         case "UsersLimit":
@@ -3005,6 +3009,14 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaHouseholdFilter":
+                    switch(property.Name)
+                    {
+                        case "ExternalIdEqual":
+                            return "externalIdEqual";
                     }
                     break;
                     
@@ -8360,6 +8372,10 @@ namespace WebAPI.Reflection
                         case "getoldstandard":
                             RolesManager.ValidateActionPermitted("household", "getOldStandard", false);
                             return HouseholdController.GetOldStandard((List<KalturaHouseholdWithHolder>) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("household", "list", false);
+                            return HouseholdController.List((KalturaHouseholdFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "purge":
                             RolesManager.ValidateActionPermitted("household", "purge", false);
@@ -14306,6 +14322,21 @@ namespace WebAPI.Reflection
                                 IsList = true,
                                 GenericType = typeof(KalturaHouseholdWithHolder),
                                 Type = typeof(List<KalturaHouseholdWithHolder>),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             
