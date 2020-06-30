@@ -2727,22 +2727,6 @@ namespace Core.ConditionalAccess
             return null;            
         }
 
-
-        public static bool DistributeRecording(int groupID, long epgId, long Id, DateTime epgStartDate)
-        {
-            BaseConditionalAccess t = null;
-            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
-            if (t != null)
-            {
-                return t.DistributeRecording(epgId, Id, epgStartDate);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-
         public static bool CompleteDomainSeriesRecordings(int groupID, long domainId)
         {
             BaseConditionalAccess t = null;
