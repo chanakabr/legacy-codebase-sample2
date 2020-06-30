@@ -13632,7 +13632,7 @@ namespace Core.ConditionalAccess
                 {
                     HashSet<long> failedDomainIds;
                     recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate,
-                                                                    recording.Crid,new List<long>() { domainID }, out failedDomainIds);
+                                                                    recording.Crid, new List<long>() { domainID }, out failedDomainIds);
 
                     bool canRecord = recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
                                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus);
@@ -13644,15 +13644,23 @@ namespace Core.ConditionalAccess
                         if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
                         {
                             // handle delete to overage quota
-                            ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDomainAutoDelete(m_nGroupID, domainID, recordingDuration);
-                            if (bRes != null && bRes.Code == (int)eResponseStatus.OK)
+                            var deleted = QuotaManager.Instance.HandleDomainAutoDelete(m_nGroupID, domainID, recordingDuration);
+                            if (deleted?.Count > 0)
                             {
+                                if (Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value)
+                                {
+                                    foreach (var item in deleted)
+                                    {
+                                        var res = RecordingsManager.Instance.DeleteRecording(m_nGroupID, item, true, false, new List<long>() { domainID });
+                                    }
+                                }
+
                                 UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
                             }
                             else
                             {
                                 log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                                recording.Status = bRes != null ? bRes : new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
                             }
                         }
                         else
@@ -13776,7 +13784,7 @@ namespace Core.ConditionalAccess
                     bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value;
                     if (isPrivateCopy)
                     {
-                        recording.Status = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording, isPrivateCopy, false, new List<long>() { domainId });
+                        recording.Status = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording, true, false, new List<long>() { domainId });
                         if (recording.Status.Code != (int)eResponseStatus.OK)
                         {
                             recording.Id = domainRecordingId;
@@ -15043,10 +15051,13 @@ namespace Core.ConditionalAccess
                 int totalRecordingsDeleted = 0;
                 // dictionary of <groupId, <adapterId, isPrivateCopy>>
                 var groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
+                var groupIdToPrivateMap = new System.Collections.Concurrent.ConcurrentDictionary<int, bool>();
+
                 System.Collections.Concurrent.ConcurrentDictionary<long, long> recordingsThatFailedDeletion = new System.Collections.Concurrent.ConcurrentDictionary<long, long>();
 
                 // get first batch
                 Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
+                var domains = new List<long>();
 
                 while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
                 {
@@ -15077,10 +15088,12 @@ namespace Core.ConditionalAccess
                                 {
                                     log.DebugFormat("Successfully added groupId :{0} with adapterId: {1} to groupIdToAdapterIdMap", pair.Key, adapterId);
                                 }
+
+                                groupIdToPrivateMap.TryAdd(pair.Key, Utils.GetTimeShiftedTvPartnerSettings(pair.Key).IsPrivateCopyEnabled.Value);
                             }
 
                             // Try to delete the current recording
-                            ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, false, false, new List<long>() { 0 }, groupIdToAdapterIdMap[pair.Key]);
+                            ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, groupIdToPrivateMap[pair.Key], false, domains, groupIdToAdapterIdMap[pair.Key]);
 
                             if (deleteStatus.Code != (int)eResponseStatus.OK)
                             {
@@ -16573,7 +16586,6 @@ namespace Core.ConditionalAccess
                 Recording sharedRecording = null;
                 Object locker = new object();
 
-
                 bool accountQuotaOverage = false;
                 TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
                 if (accountSettings != null && accountSettings.QuotaOveragePolicy == QuotaOveragePolicy.FIFOAutoDelete)
@@ -16621,8 +16633,9 @@ namespace Core.ConditionalAccess
 
                         if (domainRecordedCrids == null || domainRecordedCrids.Count == 0 || !domainRecordedCrids.Contains(epg.CRID))
                         {
+                            bool add = true;
                             var recording = QueryRecords(userId.ToString(), epgId, ref domainId, recordingType, true, true, epg);
-                            if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK && VerifyCanRecord(epgId, recordingType, epg))
+                            if (recording.Status.Code != (int)eResponseStatus.OK && VerifyCanRecord(epgId, recordingType, epg))
                             {
                                 /*check if it setting for quota_overage if so set action to delete oldest recordings 
                                     else return exceedeQuota */
@@ -16631,14 +16644,12 @@ namespace Core.ConditionalAccess
                                     quotaOverage = true;
                                 }
 
-                                if (quotaOverage)
-                                {
-                                    domains.Add(new Tuple<long, long, bool, long, RecordingType>(domainId, userId, quotaOverage, domainSeriesRecordingId, recordingType));
-                                }
+                                add = quotaOverage;
                             }
-                            else
+
+                            if (add)
                             {
-                                if (sharedRecording == null)
+                                if (recording != null && sharedRecording == null)
                                 {
                                     lock (locker)
                                     {
@@ -16651,13 +16662,21 @@ namespace Core.ConditionalAccess
 
                                 domains.Add(new Tuple<long, long, bool, long, RecordingType>(domainId, userId, quotaOverage, domainSeriesRecordingId, recordingType));
                             }
+
                         }
-                    }
+                    }    
                 });
+
+                if (sharedRecording == null)
+                {
+                    return result;
+                }
 
                 HashSet<long> failedDomainIds;
                 sharedRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, sharedRecording.ChannelId, sharedRecording.EpgStartDate, sharedRecording.EpgEndDate, sharedRecording.Crid,
                                                                 domains.Select(x => x.Item1).ToList(), out failedDomainIds);
+
+                Dictionary<long, List<Recording>> deletedMap = new Dictionary<long, List<Recording>>();
 
                 if (sharedRecording != null && sharedRecording.Status != null && sharedRecording.Status.Code == (int)eResponseStatus.OK
                      && sharedRecording.Id > 0 && Utils.IsValidRecordingStatus(sharedRecording.RecordingStatus))
@@ -16673,9 +16692,10 @@ namespace Core.ConditionalAccess
                         if (domainSeriesData.Item3) // if QuotaOverage then call delete recorded as needed                               
                         {
                             // handle delete to overage quota
-                            ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDomainAutoDelete(m_nGroupID, domainSeriesData.Item1, recordingDuration);
-                            if (bRes != null && bRes.Code == (int)eResponseStatus.OK)
+                            var deleted = QuotaManager.Instance.HandleDomainAutoDelete(m_nGroupID, domainSeriesData.Item1, recordingDuration);
+                            if (deleted?.Count > 0)
                             {
+                                deletedMap.Add(domainSeriesData.Item1, deleted);
                                 UpdateOrInsertDomainRecording(domainSeriesData.Item2.ToString(), epgId, domainSeriesData.Item4, ref tmp, domainSeriesData.Item1, recordingDuration, domainSeriesData.Item5);
                             }
                         }
@@ -16684,6 +16704,42 @@ namespace Core.ConditionalAccess
                             UpdateOrInsertDomainRecording(domainSeriesData.Item2.ToString(), epgId, domainSeriesData.Item4, ref tmp, domainSeriesData.Item1, recordingDuration, domainSeriesData.Item5);
                         }
                     });
+
+                    if (deletedMap.Count > 0)
+                    {
+                        Dictionary<long, List<long>> privateMap = new Dictionary<long, List<long>>();
+                        Dictionary<long, Recording> recordingMap = new Dictionary<long, Recording>();
+
+                        foreach (var item in deletedMap)
+                        {
+                            foreach (var recording in item.Value)
+                            {
+                                long recordingId = recording.Id;
+
+                                if (!recordingMap.ContainsKey(recordingId))
+                                {
+                                    recordingMap.Add(recordingId, recording);
+                                }
+
+                                if (!privateMap.ContainsKey(recordingId))
+                                {
+                                    privateMap.Add(recordingId, new List<long>());
+                                }
+
+                                privateMap[recordingId].Add(item.Key);
+                            }
+                        }
+
+                        foreach (var item in privateMap)
+                        {
+                            var res = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recordingMap[item.Key], true, false, item.Value);
+                            if (!res.IsOkStatusCode())
+                            {
+                                log.Error($"error DeleteRecording for quotaOverage, id:{item.Key}, domainsCount:{item.Value.Count}");
+                            }
+                        }
+                    }
+
                 }
             }
             catch (Exception ex)
