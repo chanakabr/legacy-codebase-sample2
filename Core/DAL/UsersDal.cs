@@ -1357,8 +1357,8 @@ namespace DAL
         }
 
 
-        public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, 
-                                         string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity, 
+        public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted,
+                                         string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity,
                                          int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
                                          DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount, bool updateUserPassword)
         {
@@ -1393,7 +1393,7 @@ namespace DAL
                 {
                     updateQuery += Parameter.NEW_PARAM("COGUID", "=", sCoGuid);
                 }
-                
+
                 if (nCountryID >= 0)
                 {
                     updateQuery += Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
@@ -1403,7 +1403,7 @@ namespace DAL
                 {
                     updateQuery += Parameter.NEW_PARAM("STATE_ID", "=", nStateID);
                 }
-                
+
                 if (resetFailCount)
                 {
                     updateQuery += Parameter.NEW_PARAM("FAIL_COUNT", "=", 0);
@@ -1430,7 +1430,30 @@ namespace DAL
 
             return false;
         }
-        
+
+        public static bool Update_LoginPIN(string siteGuid, string pinCode, int groupID, string secret, int? pinUsages, long? pinDuration)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Update_LoginPIN");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@siteGuid", siteGuid);
+                sp.AddParameter("@pinCode", pinCode);
+                sp.AddParameter("@expired_date", pinDuration.HasValue ? DateTime.UtcNow.AddSeconds(pinDuration.Value) : DateTime.UtcNow);
+                sp.AddParameter("@secret", secret != null ? secret : string.Empty);
+                sp.AddParameter("@usages", pinUsages);
+                sp.AddParameter("@duration", pinDuration);
+
+                int rows = sp.ExecuteReturnValue<int>();
+                return rows > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private static void HandleException(Exception ex)
         {
             //throw new NotImplementedException();
@@ -1764,7 +1787,8 @@ namespace DAL
             return rows;
         }
 
-        public static DataTable Insert_LoginPIN(string siteGuid, string pinCode, int groupID, DateTime expired_date, string secret)
+        public static DataTable Insert_LoginPIN(string siteGuid, string pinCode, int groupID, DateTime expired_date,
+            string secret, int? pinUsages, long? pinDuration)
         {
             try
             {
@@ -1775,6 +1799,9 @@ namespace DAL
                 sp.AddParameter("@pinCode", pinCode);
                 sp.AddParameter("@expired_date", expired_date);
                 sp.AddParameter("@secret", secret != null ? secret : string.Empty);
+                sp.AddParameter("@usages", pinUsages);
+                sp.AddParameter("@duration", pinDuration);
+
                 DataSet ds = sp.ExecuteDataSetWithListParam();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
@@ -2219,8 +2246,8 @@ namespace DAL
             int sqlCommandTimeoutSec = SQL_COMMAND_TIMEOUT_SEC;
             if (ApplicationConfiguration.Current.DatabaseConfiguration.DbCommandExecuteTimeoutSec.Value > 0)
             {
-                sqlCommandTimeoutSec =  ApplicationConfiguration.Current.DatabaseConfiguration.DbCommandExecuteTimeoutSec.Value;
-            }           
+                sqlCommandTimeoutSec = ApplicationConfiguration.Current.DatabaseConfiguration.DbCommandExecuteTimeoutSec.Value;
+            }
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Purge");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -2343,7 +2370,7 @@ namespace DAL
             return updatedAdapater;
 
         }
-        
+
         public static List<long> GetUserIdsByRoleIds(int groupId, HashSet<long> roleIds)
         {
             List<long> userIds = null;

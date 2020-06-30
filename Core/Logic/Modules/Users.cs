@@ -1302,7 +1302,7 @@ namespace Core.Users
             }
         }
 
-        public static PinCodeResponse GenerateLoginPIN(int nGroupID, string siteGuid, string secret)
+        public static PinCodeResponse GenerateLoginPIN(int nGroupID, string siteGuid, string secret, int? pinUsages, long? pinDuration)
         {
             // add siteguid to logs/monitor
             AddItemToContext(Constants.USER_ID, siteGuid);
@@ -1311,7 +1311,7 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.GenerateLoginPIN(siteGuid, nGroupID, secret);
+                return t.GenerateLoginPIN(siteGuid, nGroupID, secret, pinUsages, pinDuration);
             }
             else
             {
@@ -1394,7 +1394,7 @@ namespace Core.Users
             return response;
         }
 
-        public static PinCodeResponse SetLoginPIN(int nGroupID, string siteGuid, string PIN, string secret)
+        public static PinCodeResponse SetLoginPIN(int nGroupID, string siteGuid, string PIN, string secret, int? pinUsages, long? pinDuration)
         {
             // add siteguid to logs/monitor
             AddItemToContext(Constants.USER_ID, siteGuid);
@@ -1403,7 +1403,7 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.SetLoginPIN(siteGuid, PIN, nGroupID, secret);
+                return t.SetLoginPIN(siteGuid, PIN, nGroupID, secret, pinUsages, pinDuration);
             }
             else
             {

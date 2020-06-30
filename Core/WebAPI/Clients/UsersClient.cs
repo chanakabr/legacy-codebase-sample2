@@ -285,17 +285,16 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public KalturaUserLoginPin GenerateLoginPin(int groupId, string userId, string secret)
+        public KalturaUserLoginPin GenerateLoginPin(int groupId, string userId, string secret, int? pinUsages, long? pinDuration)
         {
             KalturaUserLoginPin pinCode = null;
-
 
             PinCodeResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Users.Module.GenerateLoginPIN(groupId, userId, secret);
+                    response = Core.Users.Module.GenerateLoginPIN(groupId, userId, secret, pinUsages, pinDuration);
                 }
             }
             catch (Exception ex)
@@ -383,7 +382,7 @@ namespace WebAPI.Clients
             return user;
         }
 
-        public KalturaUserLoginPin SetLoginPin(int groupId, string userId, string pin, string secret)
+        public KalturaUserLoginPin SetLoginPin(int groupId, string userId, string pin, string secret, int? pinUsages, long? pinDuration)
         {
             KalturaUserLoginPin pinCode = null;
             PinCodeResponse response = null;
@@ -392,7 +391,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Users.Module.SetLoginPIN(groupId, userId, pin, secret);
+                    response = Core.Users.Module.SetLoginPIN(groupId, userId, pin, secret, pinUsages, pinDuration);
                 }
             }
             catch (Exception ex)
