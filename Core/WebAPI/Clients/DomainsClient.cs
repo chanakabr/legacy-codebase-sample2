@@ -125,7 +125,6 @@ namespace WebAPI.Clients
                     }
                     else
                     {
-                        // TODO SHIR - SET DATES
                         response = Core.Domains.Module.AddDomainWithCoGuid(groupId, domainName, domainDescription, int.Parse(masterUserId), externalId, regionId);
                     }
                 }

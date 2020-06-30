@@ -660,37 +660,8 @@ namespace DAL
             return bInserRes;
         }
 
-        public static bool GetDomainDbObject(int groupID, DateTime dateTime, ref string name, ref string description, int domainID, ref int isActive, ref int status, ref string coGuid, ref int regionId)
+        public static DataRow GetDomainDbObject(int groupID, int domainID)
         {
-            bool res = false;
-            try
-            {
-                DataTable dt = GetDomainDbObject(groupID, domainID);
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    DataRow dr = dt.Rows[0];
-                    name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                    description = ODBCWrapper.Utils.GetSafeStr(dr, "description");
-                    domainID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
-                    isActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
-                    status = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
-                    coGuid = ODBCWrapper.Utils.GetSafeStr(dr, "CoGuid");
-                    regionId = ODBCWrapper.Utils.GetIntSafeVal(dr, "Region_ID");
-                    res = true;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return res;
-        }
-
-        public static DataTable GetDomainDbObject(int groupID, int domainID)
-        {
-            DataTable dt = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DomainDataByID");
@@ -698,14 +669,19 @@ namespace DAL
                 sp.AddParameter("@GroupId", groupID);
                 sp.AddParameter("@Id", domainID);
 
-                dt = sp.Execute();
+                var dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    DataRow dr = dt.Rows[0];
+                    return dr;
+                }
             }
             catch (Exception ex)
             {
                 HandleException(ex);
             }
 
-            return dt;
+            return null;
         }
 
         public static bool GetDomainDbObject(int nGroupID, DateTime dDateTime, ref string sName, ref string sDbDescription,
@@ -902,7 +878,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateDomain(string sName, string sDescription, int nDomainID, int nGroupID, int nDomainRestriciton = 0, int nRegion = -1, string coGuid = null)
+        public static bool UpdateDomain(string sName, string sDescription, int nDomainID, int nGroupID, DateTime updateDate, int nDomainRestriciton = 0, int nRegion = -1, string coGuid = null)
         {
             bool res = false;
 
@@ -915,6 +891,7 @@ namespace DAL
             spUpdateDomain.AddParameter("@description", sDescription);
             spUpdateDomain.AddParameter("@restriction", nDomainRestriciton);
             spUpdateDomain.AddParameter("@CoGuid", coGuid);
+            spUpdateDomain.AddParameter("@updateDate", updateDate);
 
             if (nRegion != -1)
             {
@@ -977,7 +954,6 @@ namespace DAL
 
         public static DataRow GetDomainSettings(int domainId, int groupId)
         {
-            // TODO SHIR - UPDATE sp_GetDomainSettings TO RETURN DATES
             ODBCWrapper.StoredProcedure spGetDomainSettings = new ODBCWrapper.StoredProcedure(SP_GET_DOMAIN_SETTINGS);
             spGetDomainSettings.SetConnectionKey("USERS_CONNECTION_STRING");
             spGetDomainSettings.AddParameter("@domainID", domainId);

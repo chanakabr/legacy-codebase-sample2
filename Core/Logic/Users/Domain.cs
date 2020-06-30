@@ -2858,18 +2858,14 @@ namespace Core.Users
 
         protected override bool DoInsert()
         {
-            // TODO SHIR - SET DATES
             bool success = false;
-
             DateTime dDateTime = DateTime.UtcNow;
-
-            long npvrQuotaInSecs = 0;
 
             // try to get the DomainLimitID
             int nDomainID = -1;
-            int nDomainLimitID = DomainDal.Get_DomainLimitID(this.m_nGroupID);
+            this.m_nLimit = DomainDal.Get_DomainLimitID(this.m_nGroupID); // the id for GROUPS_DEVICE_LIMITATION_MODULES table 
             bool bInserRes =
-                DomainDal.InsertNewDomain(this.m_sName, this.m_sDescription, this.m_nGroupID, dDateTime, nDomainLimitID, ref nDomainID, m_nRegion, this.m_sCoGuid);
+                DomainDal.InsertNewDomain(this.m_sName, this.m_sDescription, this.m_nGroupID, dDateTime, this.m_nLimit, ref nDomainID, m_nRegion, this.m_sCoGuid);
 
             if (!bInserRes)
             {
@@ -2877,26 +2873,24 @@ namespace Core.Users
                 return success;
             }
 
-            int nIsActive = 0;
-            int nStatus = 0;
-            int regionId = 0;
+            var dr = DomainDal.GetDomainDbObject(this.m_nGroupID, nDomainID);
+            if (dr != null)
+            {
+                this.m_sName = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                this.m_sDescription = ODBCWrapper.Utils.GetSafeStr(dr, "description");
+                this.m_nDomainID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                this.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                this.m_nStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
+                this.m_sCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "CoGuid");
+                this.m_nRegion = ODBCWrapper.Utils.GetIntSafeVal(dr, "Region_ID");
+            }
 
-            Domain domainDbObj = this;
-
-            bool resDbObj =
-                DomainDal.GetDomainDbObject(this.m_nGroupID, dDateTime, ref this.m_sName, ref this.m_sDescription,
-                nDomainID, ref nIsActive, ref nStatus, ref this.m_sCoGuid, ref regionId);
-
-            m_nDomainID = nDomainID;
-            m_nIsActive = nIsActive;
-            m_nStatus = nStatus;
-            m_nRegion = regionId;
-
-            m_nLimit = nDomainLimitID; // the id for GROUPS_DEVICE_LIMITATION_MODULES table 
+            this.CreateDate = dDateTime;
+            this.UpdateDate = dDateTime;
 
             // try to get from chace - DomainLimitID by nDomainLimitID
-
-            npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, nDomainLimitID, m_nGroupID, Utils.FICTIVE_DATE);
+            long npvrQuotaInSecs = 0;
+            npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, this.m_nLimit, m_nGroupID, Utils.FICTIVE_DATE);
 
             m_DomainStatus = DomainStatus.OK;
 
@@ -2951,15 +2945,17 @@ namespace Core.Users
         protected override bool DoUpdate()
         {
             bool result = true;
+            var updateDate = DateTime.UtcNow;
 
             if (shouldUpdateInfo)
             {
-                bool updateInfoResult = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, (int)m_DomainRestriction, m_nRegion, m_sCoGuid);
+                bool updateInfoResult = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, updateDate, (int)m_DomainRestriction, m_nRegion, m_sCoGuid);
 
                 if (!updateInfoResult)
                 {
                     m_DomainStatus = DomainStatus.Error;
                 }
+                this.UpdateDate = updateDate;
 
                 result &= updateInfoResult;
             }

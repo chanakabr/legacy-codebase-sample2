@@ -2267,11 +2267,10 @@ namespace Core.Users
         public virtual ApiObjects.Response.Status ShouldPurgeDomain(int domainId, out bool shouldPurge)
         {
             shouldPurge = false;
-            DataTable dt = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            var dr = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
+            if (dr != null)
             {
                 //check if domain exist and belong to partner
-                DataRow dr = dt.Rows[0];
                 int domianStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
                 int purge = ODBCWrapper.Utils.GetIntSafeVal(dr, "PURGE");
 
@@ -2302,11 +2301,10 @@ namespace Core.Users
 
         public virtual ApiObjects.Response.Status PurgeDomain(int domainId)
         {
-            DataTable dt = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            var dr = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
+            if (dr != null)
             {
                 //check if domain exist and belong to partner
-                DataRow dr = dt.Rows[0];
                 int domianStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
                 int purge = ODBCWrapper.Utils.GetIntSafeVal(dr, "PURGE");
 

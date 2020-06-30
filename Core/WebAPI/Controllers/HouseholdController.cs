@@ -203,7 +203,6 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                // TODO SHIR - SET DATES
                 response = ClientsManager.DomainsClient().AddDomain(groupId, household.Name, household.Description, userId, household.RegionId, household.ExternalId);
             }
             catch (ClientException ex)
@@ -404,7 +403,6 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                // TODO SHIR - SET DATES
                 household = ClientsManager.DomainsClient().ResetFrequency(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), frequencyType);
             }
             catch (ClientException ex)
@@ -437,7 +435,6 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                // TODO SHIR - SET DATES
                 household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, household.Name, household.Description, household.RegionId, household.ExternalId);
             }
             catch (ClientException ex)
@@ -723,8 +720,7 @@ namespace WebAPI.Controllers
 
             return true;
         }
-
-        // TODO SHIR - add permissions 
+ 
         /// <summary>
         /// Get recently watched media for user, ordered by recently watched first.    
         /// </summary>
