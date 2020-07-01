@@ -463,7 +463,9 @@ namespace WebAPI.Managers.Models
             {
                 DomainId = domainId,
                 UserId = userId,
-                Udid = udid
+                Udid = udid,
+                Language = Utils.Utils.GetLanguageFromRequest(),
+                Format = Utils.Utils.GetFormatFromRequest()
             };
 
             return contextData;

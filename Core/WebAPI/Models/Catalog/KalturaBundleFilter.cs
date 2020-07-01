@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+using ApiObjects.Base;
+using WebAPI.ClientManagers.Client;
 
 namespace WebAPI.Models.Catalog
 {
@@ -27,7 +30,6 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "typeIn", IsNullable = true)]
         public string TypeIn { get; set; }            
        
-
         /// <summary>
         /// bundleType - possible values: Subscription or Collection
         /// </summary>
@@ -39,6 +41,19 @@ namespace WebAPI.Models.Catalog
         internal List<int> getTypeIn()
         {
             return this.GetItemsIn<List<int>, int>(TypeIn, "KalturaBundleFilter.typeIn");
+        }
+
+        internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        {
+            var userId = contextData.UserId.ToString();
+            int domainId = (int)(contextData.DomainId ?? 0);
+            bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
+
+            var response = ClientsManager.CatalogClient().GetBundleAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language,
+               pager.getPageIndex(), pager.PageSize, this.IdEqual, this.OrderBy, this.getTypeIn(), this.BundleTypeEqual,
+               isAllowedToViewInactiveAssets, this.DynamicOrderBy);
+            
+            return response;
         }
     }
 }

@@ -1,7 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Base;
+using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
@@ -33,5 +37,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "freeText", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string FreeText { get; set; }
+
+        internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        {
+            string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
+            int domainId = (int)(contextData.DomainId ?? 0);
+            var response = ClientsManager.CatalogClient().GetExternalChannelAssets(contextData.GroupId, this.IdEqual.ToString(), contextData.UserId.ToString(), domainId, contextData.Udid,
+                contextData.Language, pager.getPageIndex(), pager.PageSize, this.OrderBy, deviceType, this.UtcOffsetEqual.ToString(), this.FreeText, this.DynamicOrderBy);
+            return response;
+        }
     }
 }

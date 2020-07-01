@@ -1,9 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Base;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
@@ -53,6 +56,46 @@ namespace WebAPI.Models.Catalog
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaRelatedFilter.IdEqual");
             }
+        }
+
+        //Return list of media assets that are related to a provided asset ID (of type VOD). 
+        //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
+        //Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging
+        internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        {
+            KalturaAssetListResponse response = null;
+            int domainId = (int)(contextData.DomainId ?? 0);
+            if (this.ExcludeWatched)
+            {
+                if (pager.getPageIndex() > 0)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
+                }
+
+                if (!contextData.UserId.HasValue || contextData.UserId.Value == 0)
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
+                }
+                int userId = (int)contextData.UserId.Value;
+
+                var groupbys = this.getGroupByValue();
+                if (groupbys != null && groupbys.Count > 0)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
+                }
+
+                response = ClientsManager.CatalogClient().GetRelatedMediaExcludeWatched(contextData.GroupId, userId, domainId, contextData.Udid,
+                    contextData.Language, pager.getPageIndex(), pager.PageSize, this.getMediaId(), this.Ksql, this.getTypeIn(),
+                    this.OrderBy, this.DynamicOrderBy);
+            }
+            else
+            {
+                response = ClientsManager.CatalogClient().GetRelatedMedia(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid,
+                    contextData.Language, pager.getPageIndex(), pager.PageSize, this.getMediaId(), this.Ksql, this.getTypeIn(),
+                    this.OrderBy, this.DynamicOrderBy, this.getGroupByValue(), responseProfile);
+            }
+
+            return response;
         }
     }
 }

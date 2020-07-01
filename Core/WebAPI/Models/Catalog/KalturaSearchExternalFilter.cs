@@ -5,6 +5,9 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+using ApiObjects.Base;
+using WebAPI.ClientManagers.Client;
 
 namespace WebAPI.Models.Catalog
 {
@@ -81,6 +84,31 @@ namespace WebAPI.Models.Catalog
         internal List<string> convertQueryToList()
         {
             return this.GetItemsIn<List<string>, string>(Query, "KalturaSearchExternalFilter.query");
+        }
+
+        // Search for assets via external service (e.g. external recommendation engine). 
+        //Search can return multi asset types. Support on-demand, per asset enrichment. Maximum number of returned assets – 100, using paging
+        internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        {
+            KalturaAssetListResponse response = null;
+            if (pager == null)
+                pager = new KalturaFilterPager() { PageIndex = 0, PageSize = 5 };
+
+            List<int> typeIn = this.getTypeIn();
+            int domainId = (int)(contextData.DomainId ?? 0);
+
+            if (typeIn.Contains(0))
+            {
+                response = ClientsManager.CatalogClient().GetEPGByExternalIds(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid, contextData.Language, pager.getPageIndex(),
+                                                                               pager.PageSize, this.convertQueryToList(), this.OrderBy);
+            }
+            else
+            {
+                response = ClientsManager.CatalogClient().GetSearchMediaExternal(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid, contextData.Language, 
+                    pager.getPageIndex(), pager.PageSize, this.Query, this.getTypeIn(), this.UtcOffsetEqual);
+            }
+
+            return response;
         }
     }
 }
