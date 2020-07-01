@@ -1302,7 +1302,7 @@ namespace Core.Users
             }
         }
 
-        public static PinCodeResponse GenerateLoginPIN(int nGroupID, string siteGuid, string secret, int? pinUsages, long? pinDuration)
+        public static PinCodeResponse GenerateLoginPIN(int nGroupID, string siteGuid, string secret, int? pinUsages = null, long? pinDuration = null)
         {
             // add siteguid to logs/monitor
             AddItemToContext(Constants.USER_ID, siteGuid);
@@ -1394,7 +1394,7 @@ namespace Core.Users
             return response;
         }
 
-        public static PinCodeResponse SetLoginPIN(int nGroupID, string siteGuid, string PIN, string secret, int? pinUsages, long? pinDuration)
+        public static PinCodeResponse SetLoginPIN(int nGroupID, string siteGuid, string PIN, string secret, int? pinUsages = null, long? pinDuration = null)
         {
             // add siteguid to logs/monitor
             AddItemToContext(Constants.USER_ID, siteGuid);

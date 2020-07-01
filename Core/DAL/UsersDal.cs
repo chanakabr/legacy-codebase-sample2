@@ -1440,8 +1440,8 @@ namespace DAL
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@siteGuid", siteGuid);
                 sp.AddParameter("@pinCode", pinCode);
-                sp.AddParameter("@expired_date", pinDuration.HasValue ? DateTime.UtcNow.AddSeconds(pinDuration.Value) : DateTime.UtcNow);
-                sp.AddParameter("@secret", secret != null ? secret : string.Empty);
+                sp.AddParameter("@expired_date", DateTime.UtcNow);
+                sp.AddParameter("@secret", secret ?? string.Empty);
                 sp.AddParameter("@usages", pinUsages);
                 sp.AddParameter("@duration", pinDuration);
 
