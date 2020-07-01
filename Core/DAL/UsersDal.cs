@@ -1431,7 +1431,7 @@ namespace DAL
             return false;
         }
 
-        public static bool Update_LoginPIN(string siteGuid, string pinCode, int groupID, string secret, int? pinUsages, long? pinDuration)
+        public static void Update_LoginPIN(string siteGuid, string pinCode, int groupID, string secret, int? pinUsages, long? pinDuration)
         {
             try
             {
@@ -1445,12 +1445,11 @@ namespace DAL
                 sp.AddParameter("@usages", pinUsages);
                 sp.AddParameter("@duration", pinDuration);
 
-                int rows = sp.ExecuteReturnValue<int>();
-                return rows > 0;
+                sp.ExecuteNonQuery();
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                log.Error($"Failed to execute sp: 'Update_LoginPIN' error: {ex}");
             }
         }
 
@@ -1800,9 +1799,8 @@ namespace DAL
                 sp.AddParameter("@expired_date", expired_date);
                 sp.AddParameter("@secret", secret != null ? secret : string.Empty);
                 sp.AddParameter("@usages", pinUsages);
-                sp.AddParameter("@duration", (uint)pinDuration);
-
-                DataSet ds = sp.ExecuteDataSetWithListParam();
+                sp.AddParameter("@duration", pinDuration);
+                DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     return ds.Tables[0];

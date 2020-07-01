@@ -86,6 +86,24 @@ namespace WebAPI.Clients
             return user;
         }
 
+        internal void ValidatePinEnhancements(int? pinUsages, long? pinDuration)
+        {
+            if (pinUsages.HasValue)
+            {
+                if (pinUsages.Value < 1)
+                {
+                    throw new ClientException((int)eResponseStatus.InvalidParameters, "pinUsages must have a positive value");
+                }
+            }
+            if (pinDuration.HasValue)
+            {
+                if (pinDuration.Value < 1)
+                {
+                    throw new ClientException((int)eResponseStatus.InvalidParameters, "pinDuration must have a positive value");
+                }
+            }
+        }
+
         internal KalturaOTTUser Login(int partnerId, string userName, string password,
             string udid, SerializableDictionary<string, KalturaStringValue> extraParams, NameValueCollection nameValueCollection, bool shouldSupportSingleLogin)
         {
@@ -193,7 +211,7 @@ namespace WebAPI.Clients
 
             return true;
         }
-        
+
         public KalturaOTTUser RenewPasswordWithToken(int groupId, string token, string password)
         {
             GenericResponse<UserResponseObject> response = null;

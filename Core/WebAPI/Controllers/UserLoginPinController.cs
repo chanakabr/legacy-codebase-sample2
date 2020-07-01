@@ -18,22 +18,23 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="secret">Additional security parameter for optional enhanced security</param>
         /// <param name="pinUsages">Optional number of pin usages</param>
-        /// <param name="pinDuration">Optional duration in seconds of the pin</param>
-        /// <remarks>Possible status codes: User doesn't exist = 2000, User suspended = 2001
+        /// <param name="pinDuration">Optional duration in minutes of the pin</param>
+        /// <remarks>Possible status codes: User doesn't exist = 2000, User suspended = 2001, InvalidParameters = 7010
         /// </remarks>
         [Action("add")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.InvalidParameters)]
         static public KalturaUserLoginPin Add(string secret = null, int? pinUsages = null, long? pinDuration = null)
         {
             KalturaUserLoginPin response = null;
-
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
+                ClientsManager.UsersClient().ValidatePinEnhancements(pinUsages, pinDuration);
                 // call client
                 response = ClientsManager.UsersClient().GenerateLoginPin(groupId, KS.GetFromRequest().UserId, secret, pinUsages, pinDuration);
             }
@@ -52,7 +53,7 @@ namespace WebAPI.Controllers
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <param name="pinUsages">Optional number of pin usages</param>
         /// <param name="pinDuration">Optional duration in seconds of the pin</param>
-        /// <remarks>Possible status codes: MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011
+        /// <remarks>Possible status codes: MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011, InvalidParameters = 7010
         /// </remarks>
         [Action("update")]
         [ApiAuthorize]
@@ -62,6 +63,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.LoginViaPinNotAllowed)]
         [Throws(eResponseStatus.PinNotInTheRightLength)]
         [Throws(eResponseStatus.PinAlreadyExists)]
+        [Throws(eResponseStatus.InvalidParameters)]
         static public KalturaUserLoginPin Update(string pinCode, string secret = null, int? pinUsages = null, long? pinDuration = null)
         {
             KalturaUserLoginPin res = null;
@@ -74,6 +76,7 @@ namespace WebAPI.Controllers
 
             try
             {
+                ClientsManager.UsersClient().ValidatePinEnhancements(pinUsages, pinDuration);
                 // call client
                 res = ClientsManager.UsersClient().SetLoginPin(groupId, KS.GetFromRequest().UserId, pinCode, secret, pinUsages, pinDuration);
             }
