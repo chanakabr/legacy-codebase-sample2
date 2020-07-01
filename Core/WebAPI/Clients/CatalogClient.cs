@@ -3621,23 +3621,7 @@ namespace WebAPI.Clients
 
             if (response.Objects != null && response.Objects.Count > 0)
             {
-                result.Channels = new List<KalturaChannel>();
-                // convert channels
-                foreach (GroupsCacheManager.Channel channel in response.Objects)
-                {
-                    if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL)
-                    {
-                        result.Channels.Add(Mapper.Map<KalturaDynamicChannel>(channel));
-                    }
-                    else if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual)
-                    {
-                        result.Channels.Add(Mapper.Map<KalturaManualChannel>(channel));
-                    }
-                    else
-                    {
-                        result.TotalCount--;
-                    }
-                }
+                ConvertChannelsByType(response.Objects, ref result);
             }
 
             return result;
@@ -4192,20 +4176,65 @@ namespace WebAPI.Clients
         internal KalturaChannelListResponse SearchChannels(int groupId, List<int> channelsIds, bool isAllowedToViewInactiveAssets, long userId)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
+            GenericListResponse<GroupsCacheManager.Channel> response = null;
 
-            Func<GenericListResponse<GroupsCacheManager.Channel>> getFunc = () =>
-             ChannelManager.GetChannelsListResponseByChannelIds(groupId, channelsIds, isAllowedToViewInactiveAssets, null);
-
-            KalturaGenericListResponse<KalturaChannel> response =
-                ClientUtils.GetResponseListFromWS<KalturaChannel, GroupsCacheManager.Channel>(getFunc);
-
-            result.Channels = response.Objects;
-            if (result.Channels?.Count > 0)
+            try
             {
-                result.TotalCount = result.Channels.Count;
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ChannelManager.GetChannelsListResponseByChannelIds(groupId, channelsIds, isAllowedToViewInactiveAssets, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling SearchChannels. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
             }
 
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException(StatusCode.Error);
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status);
+            }
+
+            if (response.TotalItems > 0)
+            {
+                result.TotalCount = response.TotalItems;
+            }
+
+            if (response.Objects != null && response.Objects.Count > 0)
+            {
+                ConvertChannelsByType(response.Objects, ref result);
+            }
+            
             return result;
+        }
+
+        private void ConvertChannelsByType(List<GroupsCacheManager.Channel> objects, ref KalturaChannelListResponse result)
+        {
+            result.Channels = new List<KalturaChannel>();
+            // convert channels
+            foreach (GroupsCacheManager.Channel channel in objects)
+            {
+                if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL)
+                {
+                    result.Channels.Add(Mapper.Map<KalturaDynamicChannel>(channel));
+                }
+                else if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual)
+                {
+                    result.Channels.Add(Mapper.Map<KalturaManualChannel>(channel));
+                }
+                else
+                {
+                    result.TotalCount--;
+                }
+            }
         }
     }
 }
