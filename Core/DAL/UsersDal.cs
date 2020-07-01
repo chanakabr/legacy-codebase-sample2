@@ -1800,7 +1800,7 @@ namespace DAL
                 sp.AddParameter("@expired_date", expired_date);
                 sp.AddParameter("@secret", secret != null ? secret : string.Empty);
                 sp.AddParameter("@usages", pinUsages);
-                sp.AddParameter("@duration", pinDuration);
+                sp.AddParameter("@duration", (uint)pinDuration);
 
                 DataSet ds = sp.ExecuteDataSetWithListParam();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)

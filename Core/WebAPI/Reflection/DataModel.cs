@@ -10658,7 +10658,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             RolesManager.ValidateActionPermitted("userLoginPin", "add", false);
-                            return UserLoginPinController.Add((string) methodParams[0]);
+                            return UserLoginPinController.Add((string) methodParams[0], (Nullable<int>) methodParams[1], (Nullable<long>) methodParams[2]);
                             
                         case "delete":
                             RolesManager.ValidateActionPermitted("userLoginPin", "delete", false);
@@ -10670,7 +10670,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("userLoginPin", "update", false);
-                            return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1]);
+                            return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1], (Nullable<int>) methodParams[2], (Nullable<long>) methodParams[3]);
                             
                     }
                     break;
@@ -18988,6 +18988,20 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
+                            ret.Add("pinUsages", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            ret.Add("pinDuration", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int64),
+                            });
                             return ret;
                             
                         case "delete":
@@ -19024,6 +19038,20 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
+                            });
+                            ret.Add("pinUsages", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            ret.Add("pinDuration", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int64),
                             });
                             return ret;
                             
