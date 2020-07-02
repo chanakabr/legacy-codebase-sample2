@@ -90,16 +90,16 @@ namespace WebAPI.Clients
         {
             if (pinUsages.HasValue)
             {
-                if (pinUsages.Value < 1)
+                if (pinUsages.Value < 1 && pinUsages.Value != -1)
                 {
-                    throw new ClientException((int)eResponseStatus.InvalidParameters, "pinUsages must have a positive value");
+                    throw new ClientException((int)eResponseStatus.InvalidParameters, "Invalid Parameter value: [pinUsages]");
                 }
             }
-            if (pinDuration.HasValue)
+            if (pinDuration.HasValue && pinUsages.Value != -1)
             {
                 if (pinDuration.Value < 1)
                 {
-                    throw new ClientException((int)eResponseStatus.InvalidParameters, "pinDuration must have a positive value");
+                    throw new ClientException((int)eResponseStatus.InvalidParameters, "Invalid Parameter value: [pinDuration]");
                 }
             }
         }

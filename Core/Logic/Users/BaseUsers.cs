@@ -1308,30 +1308,7 @@ namespace Core.Users
                     // the pin code must be unique (among all other active pin codes) - if not return error
                     if (UsersDal.PinCodeExsits(groupID, pinCode, DateTime.UtcNow))
                     {
-                        //update an existing pin
-                        if (pinUsages.HasValue || pinDuration.HasValue)
-                        {
-                            UsersDal.Update_LoginPIN(siteGuid, pinCode, groupID, secret, pinUsages, pinDuration);
-
-                            var dr = UsersDal.GetUserByPIN(groupID, pinCode, secret, out bool security, out bool _loginViaPin, out DateTime expiredPin);
-
-                            if (dr != null)
-                            {
-                                response.expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr["expired_date"]);
-                                response.pinCode = ODBCWrapper.Utils.GetSafeStr(dr["pinCode"]);
-                                response.siteGuid = ODBCWrapper.Utils.GetSafeStr(dr["user_id"]);
-
-                                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "login pin code was updated for user");
-                            }
-                            else
-                            {
-                                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed to update pin code for user");
-                            }
-                        }
-                        else
-                        {
-                            response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinAlreadyExists, "Pin code already exists - try new pin code");
-                        }
+                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinAlreadyExists, "Pin code already exists - try new pin code");
                     }
                     // insert new PIN to user with expired date 
                     else
