@@ -800,6 +800,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsPredefined, opt => opt.MapFrom(src => src.IsProtected))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetFeaturesAsHashSet()))
+              .AfterMap((src, dest) => dest.Features = src.Features != null ? dest.Features : null)
               .ForMember(dest => dest.ParentId, opt => opt.ResolveUsing(src => StringUtils.TryConvertTo<long>(src.ParentId)))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
