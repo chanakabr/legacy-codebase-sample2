@@ -1570,9 +1570,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetInfoListResponse GetChannelAssets(int groupId, string siteGuid, int domainId, string udid, string language,
-            int pageIndex, int? pageSize,
-            List<KalturaCatalogWith> with,
-            int channelId, KalturaOrder? orderBy, string filterQuery, bool excludeWatched)
+            int pageIndex, int? pageSize, List<KalturaCatalogWith> with, int channelId, KalturaOrder? orderBy, string filterQuery, bool excludeWatched)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -2651,7 +2649,7 @@ namespace WebAPI.Clients
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
                                                             KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
-                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false)
+                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, List<string> groupByValues = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2695,6 +2693,16 @@ namespace WebAPI.Clients
                 m_bIgnoreDeviceRuleID = false,
                 isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
             };
+
+            if (groupByValues != null && groupByValues.Count > 0)
+            {
+                request.searchGroupBy = new SearchAggregationGroupBy()
+                {
+                    groupBy = groupByValues,
+                    distinctGroup = groupByValues[0], // mabye will send string.empty - and Backend will fill it if nessecery
+                    topHitsCount = 1
+                };
+            }
 
             // build failover cache key
             StringBuilder key = new StringBuilder();

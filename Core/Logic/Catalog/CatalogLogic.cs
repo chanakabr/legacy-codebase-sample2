@@ -8634,6 +8634,13 @@ namespace Core.Catalog
 
             #endregion
 
+            #region Group By
+
+            Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
+
+            #endregion
+
+
             return definitions;
         }
 

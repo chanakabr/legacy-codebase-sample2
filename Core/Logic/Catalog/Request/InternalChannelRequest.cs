@@ -21,10 +21,15 @@ namespace Core.Catalog.Request
 
         [DataMember]
         public ApiObjects.SearchObjects.OrderObj order;
+        
         [DataMember]
         public bool m_bIgnoreDeviceRuleID;
+        
         [DataMember]
         public bool isAllowedToViewInactiveAssets;
+
+        [DataMember]
+        public SearchAggregationGroupBy searchGroupBy;
 
         #endregion
 
