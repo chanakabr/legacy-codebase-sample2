@@ -11333,10 +11333,6 @@ namespace WebAPI.Models.Catalog
 
             ret.Add("excludeWatched", "\"excludeWatched\": " + ExcludeWatched.ToString().ToLower());
             ret.Add("idEqual", "\"idEqual\": " + IdEqual);
-            if(KSql != null)
-            {
-                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(KSql) + "\"");
-            }
             if(!ret.ContainsKey("orderBy"))
             {
                 ret.Add("orderBy", "\"orderBy\": " + "\"" + Enum.GetName(typeof(KalturaAssetOrderBy), OrderBy) + "\"");
@@ -11352,10 +11348,6 @@ namespace WebAPI.Models.Catalog
 
             ret.Add("excludeWatched", "<excludeWatched>" + ExcludeWatched.ToString().ToLower() + "</excludeWatched>");
             ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
-            if(KSql != null)
-            {
-                ret.Add("kSql", "<kSql>" + EscapeXml(KSql) + "</kSql>");
-            }
             if(!ret.ContainsKey("orderBy"))
             {
                 ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaAssetOrderBy), OrderBy) + "" + "</orderBy>");

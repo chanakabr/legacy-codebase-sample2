@@ -1401,8 +1401,6 @@ namespace WebAPI.Reflection
                             return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
-                        case "KSql":
-                            return "kSql";
                         case "OrderBy":
                             return "orderBy";
                     }
