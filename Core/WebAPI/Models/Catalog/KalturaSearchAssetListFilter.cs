@@ -21,7 +21,7 @@ namespace WebAPI.Models.Catalog
         public bool ExcludeWatched { get; set; }
 
         //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
-        internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             if (!this.ExcludeWatched)
             {

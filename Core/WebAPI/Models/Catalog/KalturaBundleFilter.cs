@@ -43,7 +43,7 @@ namespace WebAPI.Models.Catalog
             return this.GetItemsIn<List<int>, int>(TypeIn, "KalturaBundleFilter.typeIn");
         }
 
-        internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             var userId = contextData.UserId.ToString();
             int domainId = (int)(contextData.DomainId ?? 0);

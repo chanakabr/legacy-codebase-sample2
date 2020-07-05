@@ -58,7 +58,7 @@ namespace WebAPI.Models.Catalog
         }
 
         // Returns assets that belong to a channel
-        internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             KalturaAssetListResponse response = null;
 

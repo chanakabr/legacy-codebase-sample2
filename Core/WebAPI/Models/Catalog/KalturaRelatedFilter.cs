@@ -61,7 +61,7 @@ namespace WebAPI.Models.Catalog
         //Return list of media assets that are related to a provided asset ID (of type VOD). 
         //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
         //Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging
-        internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             KalturaAssetListResponse response = null;
             int domainId = (int)(contextData.DomainId ?? 0);

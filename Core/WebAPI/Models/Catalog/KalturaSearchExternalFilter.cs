@@ -88,7 +88,7 @@ namespace WebAPI.Models.Catalog
 
         // Search for assets via external service (e.g. external recommendation engine). 
         //Search can return multi asset types. Support on-demand, per asset enrichment. Maximum number of returned assets – 100, using paging
-        internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             KalturaAssetListResponse response = null;
             if (pager == null)

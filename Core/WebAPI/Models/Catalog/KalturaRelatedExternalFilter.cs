@@ -55,7 +55,7 @@ namespace WebAPI.Models.Catalog
         //Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. 
         //Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). 
         //Maximum number of returned assets – 20, using paging  
-        internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             int domainId = (int)(contextData.DomainId ?? 0);
             var response = ClientsManager.CatalogClient().GetRelatedMediaExternal(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid,

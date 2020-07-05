@@ -38,7 +38,7 @@ namespace WebAPI.Models.Catalog
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string FreeText { get; set; }
 
-        internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
             int domainId = (int)(contextData.DomainId ?? 0);
