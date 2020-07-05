@@ -1748,11 +1748,6 @@ namespace Core.ConditionalAccess
             // calculate payment number
             renewDetails.PaymentNumber++;
 
-            // Check if this is a renew via INAPP PURCHASE
-            PaymentDetails pd = null;
-            ApiObjects.Response.Status statusVerifications = Billing.Module.GetPaymentGatewayVerificationStatus(groupId, renewDetails.BillingGuid, ref pd);
-            bool ignoreUnifiedBillingCycle = statusVerifications.Code != (int)eResponseStatus.OK || pd == null || pd.PaymentGatewayId == 0;
-
             if (!SetCustomDataForRenewDetails(groupId, renewDetails, out bool isDummy, out XmlNode theRequest))
             {
                 return response;
@@ -1780,6 +1775,16 @@ namespace Core.ConditionalAccess
                 };
 
                 return response;
+            }
+
+            bool ignoreUnifiedBillingCycle = false;
+
+            // Check if this is a renew via INAPP PURCHASE
+            if (!string.IsNullOrEmpty(renewDetails.BillingGuid))
+            {
+                PaymentDetails pd = null;
+                ApiObjects.Response.Status statusVerifications = Billing.Module.GetPaymentGatewayVerificationStatus(groupId, renewDetails.BillingGuid, ref pd);
+                ignoreUnifiedBillingCycle = statusVerifications.Code != (int)eResponseStatus.OK || pd == null || pd.PaymentGatewayId == 0;
             }
 
             if (subscription.Type == SubscriptionType.AddOn && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
