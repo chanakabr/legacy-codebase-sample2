@@ -354,7 +354,7 @@ namespace EpgBL
             try
             {
                 var partialLangObjects = languages.Select(landCode => new LanguageObj { Code = landCode });
-                var docIDs = GetEpgCBKeys(m_nGroupID, (long)nProgramID, partialLangObjects, isAddAction);
+                var docIDs = GetEpgsCBKeys(m_nGroupID,new[] { (long)nProgramID }, partialLangObjects, isAddAction);
                 var defaultLangDocId = GetEpgCBKey(m_nGroupID, (long)nProgramID, null, isAddAction);
                 docIDs.Add(defaultLangDocId);
                 var lResCB = m_oEpgCouchbase.GetProgram(docIDs);
@@ -502,21 +502,21 @@ namespace EpgBL
             return oRes;
         }
 
-        public List<EpgCB> GetGroupEpgs(int nPageSize, int nStartIndex, DateTime? dfromDate, DateTime? dToDate, bool falseStaleState = false)
+        public List<EpgCB> GetGroupEpgs(int nPageSize, int nStartIndex, DateTime? dfromDate, DateTime? dToDate, bool falseStaleState = false, long bulkSize = 0)
         {
             List<EpgCB> lRes = null;
 
             if (dfromDate.HasValue && dToDate.HasValue)
             {
-                lRes = m_oEpgCouchbase.GetGroupProgramsByStartDate(nPageSize, nStartIndex, dfromDate.Value, dToDate.Value, falseStaleState);
+                lRes = m_oEpgCouchbase.GetGroupProgramsByStartDate(nPageSize, nStartIndex, dfromDate.Value, dToDate.Value, falseStaleState, bulkSize);
             }
             else if (dfromDate.HasValue)
             {
-                lRes = m_oEpgCouchbase.GetGroupProgramsByStartDate(nPageSize, nStartIndex, dfromDate.Value, falseStaleState);
+                lRes = m_oEpgCouchbase.GetGroupProgramsByStartDate(nPageSize, nStartIndex, dfromDate.Value, falseStaleState, bulkSize);
             }
             else
             {
-                lRes = m_oEpgCouchbase.GetGroupPrograms(nPageSize, nStartIndex, falseStaleState);
+                lRes = m_oEpgCouchbase.GetGroupPrograms(nPageSize, nStartIndex, falseStaleState, bulkSize);
             }
 
 
@@ -1005,7 +1005,7 @@ namespace EpgBL
             return lRes;
         }
 
-        public override List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate)
+        public override List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs = null)
         {
             List<EPGChannelProgrammeObject> result = new List<EPGChannelProgrammeObject>();
 
@@ -1034,6 +1034,14 @@ namespace EpgBL
                 query.ReturnFields.Clear();
                 query.AddReturnField("document_id");
                 query.AddReturnField("epg_id");
+
+                if (esOrderObjs != null)
+                {
+                    foreach (ESOrderObj item in esOrderObjs)
+                    {
+                        query.ESSort.Add(item);
+                    }
+                }
 
                 // get the epg document ids from elasticsearch
                 var searchQuery = query.ToString();
@@ -1135,7 +1143,7 @@ namespace EpgBL
             return $"{m_nGroupID}_epg";
         }
 
-        public List<string> GetEpgCBDocumentIdsByEpgIdFromElasticsearch(int groupId, long epgId, IEnumerable<LanguageObj> langCodes)
+        public List<string> GetEpgCBDocumentIdsByEpgIdFromElasticsearch(int groupId, IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes)
         {
             langCodes = langCodes ?? Enumerable.Empty<LanguageObj>();
             var epgBl = new TvinciEpgBL(groupId);
@@ -1153,7 +1161,7 @@ namespace EpgBL
             query.AddReturnField("document_id");
 
             var composite = new FilterCompositeType(CutWith.AND);
-            var terms = new ESTerms("epg_id", epgId);
+            var terms = new ESTerms("epg_id", epgIds.ToArray());
             composite.AddChild(terms);
 
             filter.FilterSettings = composite;
@@ -1167,7 +1175,7 @@ namespace EpgBL
 
             var searchResult = esClient.Search(alias, indexType, ref searchQuery);
 
-            if (string.IsNullOrEmpty(searchResult)) { throw new Exception($"GetEpgCBDocumentIdByEpgIdFromElasticsearch > Got empty results from elasticsearch epgId:[{epgId}], groupId:[{groupId}], langCodes:[{string.Join(",", langCodes)}]"); }
+            if (string.IsNullOrEmpty(searchResult)) { throw new Exception($"GetEpgCBDocumentIdByEpgIdFromElasticsearch > Got empty results from elasticsearch epgIds:[{string.Join(",",epgIds)}], groupId:[{groupId}], langCodes:[{string.Join(",", langCodes)}]"); }
 
             var json = JObject.Parse(searchResult);
 
@@ -1178,19 +1186,7 @@ namespace EpgBL
 
 
 
-        //public static List<string> GetEpgCBKeys(int groupId, IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes)
-        //{
-        //    var result = new List<string>();
-        //    foreach (var epgId in epgIds)
-        //    {
-        //        var docKeys = GetEpgCBKeys(groupId, epgId, langCodes);
-        //        result.AddRange(docKeys);
-        //    }
-
-        //    return result;
-        //}
-
-        public List<string> GetEpgCBKeys(int groupId, long epgId, IEnumerable<LanguageObj> langCodes, bool isAddAction)
+        public List<string> GetEpgsCBKeys(int groupId, IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes, bool isAddAction)
         {
             var result = new List<string>();
             var isNewEpgIngestEnabled = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
@@ -1202,20 +1198,25 @@ namespace EpgBL
                     // using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it
                     // so there is no way for us to now what is the document id.
                     // elastisearch holds the current document in CB so we go there to take it
-                    result = GetEpgCBDocumentIdsByEpgIdFromElasticsearch(groupId, epgId, langCodes);
+                    result = GetEpgCBDocumentIdsByEpgIdFromElasticsearch(groupId, epgIds, langCodes);
                 }
                 else
                 {
                     if (langCodes == null)
                     {
-                        result = new List<string> { $"{epgId}" };
+                        result = epgIds.Select(x=>x.ToString()).ToList();
                     }
                     else
                     {
-                        var keys = langCodes.Select(langCode => langCode.IsDefault ?
+                        foreach (var epgId in epgIds)
+                        {
+                            var keys = langCodes.Select(langCode => langCode.IsDefault ?
                             $"{epgId}" :
                             $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
-                        result = keys.ToList();
+
+                            result.AddRange(keys.ToList());
+                        }
+                        
                     }
                 }
             }
@@ -1223,12 +1224,17 @@ namespace EpgBL
             {
                 if (langCodes == null)
                 {
-                    result = new List<string> { epgId.ToString() };
+                    result = epgIds.Select(x => x.ToString()).ToList();
                 }
                 else
                 {
-                    var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
-                    result = keys.ToList();
+                    foreach (var epgId in epgIds)
+                    {
+                        var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
+
+                        result.AddRange(keys.ToList());
+                    }
+               
                 }
             }
 
@@ -1239,7 +1245,7 @@ namespace EpgBL
         {
 
             var langs = string.IsNullOrEmpty(langCode) ? null : new[] {new LanguageObj { Code = langCode } };
-            var keys = GetEpgCBKeys(groupId, epgId, langs, isAddAction);
+            var keys = GetEpgsCBKeys(groupId, new[] { epgId }, langs, isAddAction);
             return keys.FirstOrDefault();
         }
 

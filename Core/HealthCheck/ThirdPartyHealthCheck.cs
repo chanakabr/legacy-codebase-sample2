@@ -13,28 +13,38 @@ namespace HealthCheck
         private string name;
         private string healthCheckUrl;
 
-        private readonly HttpClient httpClient = new HttpClient();
+        private readonly HttpClient httpClient = null;
 
-        public ThirdPartyHealthCheck(string name, string healthCheckUrl)
+        public ThirdPartyHealthCheck(IHttpClientFactory factory, string name, string healthCheckUrl)
         {
+            httpClient = factory.CreateClient(name);
+
             this.name = name;
             this.healthCheckUrl = healthCheckUrl;
         }
 
-        public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             bool isHealthy = false;
-            var response = Task.Run(() => httpClient.GetAsync(healthCheckUrl)).ConfigureAwait(false).GetAwaiter().GetResult();
-            int statusCode = (int)response.StatusCode;
-            isHealthy = statusCode >= 200 && statusCode < 300;
+
+            try
+            {
+                var response = await httpClient.GetAsync(healthCheckUrl);
+
+                isHealthy = response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                isHealthy = false;
+            }
 
             if (isHealthy)
             {
-                return Task.FromResult(HealthCheckResult.Healthy($"{name} is healthy"));
+                return await Task.FromResult(HealthCheckResult.Healthy($"{name} is healthy"));
             }
             else
             {
-                return Task.FromResult(HealthCheckResult.Unhealthy($"{name} is unhealthy"));
+                return await Task.FromResult(HealthCheckResult.Unhealthy($"{name} is unhealthy"));
             }
         }
     }

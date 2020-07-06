@@ -969,7 +969,10 @@ namespace DAL
             spInsert.AddParameter("@mailTemplate", mailTemplate);
             spInsert.AddParameter("@mailSubject", mailSubject);
             spInsert.AddParameter("@includeSMS", includeSMS);
-            spInsert.AddParameter("@includeIOT", includeIot);
+            if (includeIot)
+            {
+                spInsert.AddParameter("@includeIOT", includeIot);
+            }
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
@@ -1000,7 +1003,11 @@ namespace DAL
             spInsert.AddParameter("@includeMail", includeMail);
             spInsert.AddParameter("@mailTemplate", mailTemplate);
             spInsert.AddParameter("@mailSubject", mailSubject);
-            spInsert.AddParameter("@includeIot", includeIot);
+            
+            if (includeIot)
+            {
+                spInsert.AddParameter("@includeIot", includeIot);
+            }
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)

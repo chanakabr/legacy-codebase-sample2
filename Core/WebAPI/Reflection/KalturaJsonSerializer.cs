@@ -1931,6 +1931,26 @@ namespace WebAPI.Models.ConditionalAccess
             return ret;
         }
     }
+    public partial class KalturaExternalRecordingResponseProfileFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
     public partial class KalturaExternalSeriesRecording
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -10798,13 +10818,25 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
                 ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
             }
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "\"endDateInSeconds\": " + EndDateInSeconds);
+            }
             ret.Add("id", "\"id\": " + Id);
+            if(IsActive.HasValue)
+            {
+                ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
+            }
             propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
             if(propertyValue != null)
             {
                 ret.Add("name", propertyValue);
             }
             ret.Add("parentId", "\"parentId\": " + ParentId);
+            if(StartDateInSeconds.HasValue)
+            {
+                ret.Add("startDateInSeconds", "\"startDateInSeconds\": " + StartDateInSeconds);
+            }
             if(UnifiedChannels != null)
             {
                 propertyValue = "[" + String.Join(", ", UnifiedChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -10829,9 +10861,21 @@ namespace WebAPI.Models.Catalog
                 propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
             }
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "<endDateInSeconds>" + EndDateInSeconds + "</endDateInSeconds>");
+            }
             ret.Add("id", "<id>" + Id + "</id>");
+            if(IsActive.HasValue)
+            {
+                ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
+            }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
             ret.Add("parentId", "<parentId>" + ParentId + "</parentId>");
+            if(StartDateInSeconds.HasValue)
+            {
+                ret.Add("startDateInSeconds", "<startDateInSeconds>" + StartDateInSeconds + "</startDateInSeconds>");
+            }
             if(UnifiedChannels != null)
             {
                 propertyValue = UnifiedChannels.Count > 0 ? "<item>" + String.Join("</item><item>", UnifiedChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -10979,16 +11023,28 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
                 ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
             }
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "\"endDateInSeconds\": " + EndDateInSeconds);
+            }
             ret.Add("id", "\"id\": " + Id);
             if(Images != null)
             {
                 propertyValue = "[" + String.Join(", ", Images.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("images", "\"images\": " + propertyValue);
             }
+            if(IsActive.HasValue)
+            {
+                ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
+            }
             propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
             if(propertyValue != null)
             {
                 ret.Add("name", propertyValue);
+            }
+            if(StartDateInSeconds.HasValue)
+            {
+                ret.Add("startDateInSeconds", "\"startDateInSeconds\": " + StartDateInSeconds);
             }
             if(UnifiedChannels != null)
             {
@@ -11014,13 +11070,25 @@ namespace WebAPI.Models.Catalog
                 propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
             }
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "<endDateInSeconds>" + EndDateInSeconds + "</endDateInSeconds>");
+            }
             ret.Add("id", "<id>" + Id + "</id>");
             if(Images != null)
             {
                 propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
             }
+            if(IsActive.HasValue)
+            {
+                ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
+            }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
+            if(StartDateInSeconds.HasValue)
+            {
+                ret.Add("startDateInSeconds", "<startDateInSeconds>" + StartDateInSeconds + "</startDateInSeconds>");
+            }
             if(UnifiedChannels != null)
             {
                 propertyValue = UnifiedChannels.Count > 0 ? "<item>" + String.Join("</item><item>", UnifiedChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -11381,6 +11449,10 @@ namespace WebAPI.Models.Catalog
             var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             ret.Add("idEqual", "\"idEqual\": " + IdEqual);
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
             if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaChannelsFilter", "MediaIdEqual", requestType.Value)))
             {
                 ret.Add("mediaIdEqual", "\"mediaIdEqual\": " + MediaIdEqual);
@@ -11404,6 +11476,10 @@ namespace WebAPI.Models.Catalog
             var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
             if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaChannelsFilter", "MediaIdEqual", requestType.Value)))
             {
                 ret.Add("mediaIdEqual", "<mediaIdEqual>" + MediaIdEqual + "</mediaIdEqual>");
@@ -11753,6 +11829,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("imageObjectIdEqual", "\"imageObjectIdEqual\": " + ImageObjectIdEqual);
             }
+            if(ImageObjectIdIn != null)
+            {
+                ret.Add("imageObjectIdIn", "\"imageObjectIdIn\": " + "\"" + EscapeJson(ImageObjectIdIn) + "\"");
+            }
             if(ImageObjectTypeEqual.HasValue)
             {
                 ret.Add("imageObjectTypeEqual", "\"imageObjectTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaImageObjectType), ImageObjectTypeEqual) + "\"");
@@ -11777,6 +11857,10 @@ namespace WebAPI.Models.Catalog
             if(ImageObjectIdEqual.HasValue)
             {
                 ret.Add("imageObjectIdEqual", "<imageObjectIdEqual>" + ImageObjectIdEqual + "</imageObjectIdEqual>");
+            }
+            if(ImageObjectIdIn != null)
+            {
+                ret.Add("imageObjectIdIn", "<imageObjectIdIn>" + EscapeXml(ImageObjectIdIn) + "</imageObjectIdIn>");
             }
             if(ImageObjectTypeEqual.HasValue)
             {
@@ -13973,9 +14057,17 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "\"endDateInSeconds\": " + EndDateInSeconds);
+            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(StartDateInSeconds.HasValue)
+            {
+                ret.Add("startDateInSeconds", "\"startDateInSeconds\": " + StartDateInSeconds);
             }
             return ret;
         }
@@ -13986,9 +14078,17 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(EndDateInSeconds.HasValue)
+            {
+                ret.Add("endDateInSeconds", "<endDateInSeconds>" + EndDateInSeconds + "</endDateInSeconds>");
+            }
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(StartDateInSeconds.HasValue)
+            {
+                ret.Add("startDateInSeconds", "<startDateInSeconds>" + StartDateInSeconds + "</startDateInSeconds>");
             }
             return ret;
         }
@@ -16017,6 +16117,54 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaExternalChannelProfileByIdInFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaExternalChannelProfileFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
     public partial class KalturaExternalChannelProfileListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -16639,11 +16787,6 @@ namespace WebAPI.Models.API
             {
                 ret.Add("accessKeyId", "\"accessKeyId\": " + "\"" + EscapeJson(AccessKeyId) + "\"");
             }
-            ret.Add("brokerPort", "\"brokerPort\": " + BrokerPort);
-            if(CertificatePath != null)
-            {
-                ret.Add("certificatePath", "\"certificatePath\": " + "\"" + EscapeJson(CertificatePath) + "\"");
-            }
             if(ClientId != null)
             {
                 ret.Add("clientId", "\"clientId\": " + "\"" + EscapeJson(ClientId) + "\"");
@@ -16655,18 +16798,6 @@ namespace WebAPI.Models.API
             if(IotEndPoint != null)
             {
                 ret.Add("iotEndPoint", "\"iotEndPoint\": " + "\"" + EscapeJson(IotEndPoint) + "\"");
-            }
-            if(IotPolicyName != null)
-            {
-                ret.Add("iotPolicyName", "\"iotPolicyName\": " + "\"" + EscapeJson(IotPolicyName) + "\"");
-            }
-            if(PfxPassword != null)
-            {
-                ret.Add("pfxPassword", "\"pfxPassword\": " + "\"" + EscapeJson(PfxPassword) + "\"");
-            }
-            if(PfxPath != null)
-            {
-                ret.Add("pfxPath", "\"pfxPath\": " + "\"" + EscapeJson(PfxPath) + "\"");
             }
             if(Region != null)
             {
@@ -16694,11 +16825,6 @@ namespace WebAPI.Models.API
             {
                 ret.Add("accessKeyId", "<accessKeyId>" + EscapeXml(AccessKeyId) + "</accessKeyId>");
             }
-            ret.Add("brokerPort", "<brokerPort>" + BrokerPort + "</brokerPort>");
-            if(CertificatePath != null)
-            {
-                ret.Add("certificatePath", "<certificatePath>" + EscapeXml(CertificatePath) + "</certificatePath>");
-            }
             if(ClientId != null)
             {
                 ret.Add("clientId", "<clientId>" + EscapeXml(ClientId) + "</clientId>");
@@ -16710,18 +16836,6 @@ namespace WebAPI.Models.API
             if(IotEndPoint != null)
             {
                 ret.Add("iotEndPoint", "<iotEndPoint>" + EscapeXml(IotEndPoint) + "</iotEndPoint>");
-            }
-            if(IotPolicyName != null)
-            {
-                ret.Add("iotPolicyName", "<iotPolicyName>" + EscapeXml(IotPolicyName) + "</iotPolicyName>");
-            }
-            if(PfxPassword != null)
-            {
-                ret.Add("pfxPassword", "<pfxPassword>" + EscapeXml(PfxPassword) + "</pfxPassword>");
-            }
-            if(PfxPath != null)
-            {
-                ret.Add("pfxPath", "<pfxPath>" + EscapeXml(PfxPath) + "</pfxPath>");
             }
             if(Region != null)
             {
@@ -25087,6 +25201,52 @@ namespace WebAPI.Models.Users
             return ret;
         }
     }
+    public partial class KalturaSSOAdapterProfileInvoke
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AdapterData != null)
+            {
+                propertyValue = "{" + String.Join(", ", AdapterData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("adapterData", "\"adapterData\": " + propertyValue);
+            }
+            if(Code != null)
+            {
+                ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
+            }
+            if(Message != null)
+            {
+                ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AdapterData != null)
+            {
+                propertyValue = AdapterData.Count > 0 ? "<item>" + String.Join("</item><item>", AdapterData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("adapterData", "<adapterData>" + propertyValue + "</adapterData>");
+            }
+            if(Code != null)
+            {
+                ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
+            }
+            if(Message != null)
+            {
+                ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaSSOAdapterProfileListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -27889,6 +28049,10 @@ namespace WebAPI.Models.Domains
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
             }
             ret.Add("householdId", "\"householdId\": " + HouseholdId);
+            if(MacAddress != null)
+            {
+                ret.Add("macAddress", "\"macAddress\": " + "\"" + EscapeJson(MacAddress) + "\"");
+            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -27948,6 +28112,10 @@ namespace WebAPI.Models.Domains
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
             }
             ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
+            if(MacAddress != null)
+            {
+                ret.Add("macAddress", "<macAddress>" + EscapeXml(MacAddress) + "</macAddress>");
+            }
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");

@@ -3,6 +3,7 @@ using System.Web;
 using System.Text;
 using KLogMonitor;
 using System.Reflection;
+using System.Xml;
 
 namespace TVinciShared
 {
@@ -204,65 +205,39 @@ namespace TVinciShared
 
         public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID)
         {
-            return GetMainMenu(nMenuID, bAdmin, ref nSelID, "");
+            return GetNewMainMenu(nMenuID, bAdmin, ref nSelID);
         }
 
         public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, string sPageURL)
         {
-            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, 0, sPageURL) + "</root>";
+            return GetNewMainMenu(nMenuID, bAdmin, ref nSelID, 0, sPageURL);
+        }
 
-            StringBuilder sTemp = new StringBuilder();
+        public static string GetNewMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, int nParentID = 0, string sPageURL = "")
+        {
+            string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, nParentID, sPageURL) + "</root>";
 
-            sTemp.Append("<script type=\"text/javascript\" src=\"js/SWFObj.js\"></script><script  type=\"text/javascript\">");
-            sTemp.Append("function menuXML()");
-            sTemp.Append("{");
-            sTemp.Append("return '").Append(sXML).Append("';");
-            sTemp.Append("}");
-            sTemp.Append("function changeMenuHeight(newHeight) ");
-            sTemp.Append("{");
-            sTemp.Append("e = document.getElementById(\"menu_holder\");");
-            sTemp.Append("if(newHeight<200)newHeight=200;");
-            //sTemp += "if (newHeight < 600) {";
-            //sTemp += "e.style.height = '600px';";
-            //sTemp += "}";
-            //sTemp += "else {";
-            sTemp.Append("e.style.height = newHeight + 'px';");
-            //sTemp += "}";
-            sTemp.Append("}");
-            sTemp.Append("var flashObj = new SWFObj");
-            sTemp.Append("(");
-            sTemp.Append("'codebase', 'http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0',");
-            sTemp.Append("'width', '100%',");
-            sTemp.Append("'height', '100%',");
-            sTemp.Append("'src', 'flash/amin_tree_menu',");
-            sTemp.Append("'quality', 'high',");
-            sTemp.Append("'pluginspage', 'http://www.macromedia.com/go/getflashplayer',");
-            sTemp.Append("'align', 'left',");
-            sTemp.Append("'scale', 'showall',");
-            sTemp.Append("'devicefont', 'false',");
-            sTemp.Append("'id', 'amin_tree_menu',");
-            sTemp.Append("'bgcolor', '#ffffff',");
-            sTemp.Append("'wmode', 'transparent',");
-            sTemp.Append("'name', 'amin_tree_menu',");
-            sTemp.Append("'menu', 'true',");
-            sTemp.Append("'allowFullScreen', 'true',");
-            sTemp.Append("'allowScriptAccess','sameDomain',");
-            sTemp.Append("'movie', 'flash/amin_tree_menu',");
-            sTemp.Append("'salign', '',");
-            sTemp.Append("'flashVars', 'data_request_function=menuXML'");
-            sTemp.Append("); //end AC code");
-            sTemp.Append("</script>");
-            sTemp.Append("<tr><td><div class=\"left_menu\" id=\"menu_holder\" name=\"menu_holder\"></div></td><tr>");
-            sTemp.Append("<script  type=\"text/javascript\">");
-            sTemp.Append("flashObj.write('menu_holder');");
-            sTemp.Append("</script>");
-            return sTemp.ToString();
+            XmlDocument xmld = new XmlDocument();
+            xmld.LoadXml(sXML);
+
+            StringBuilder mainStr = new StringBuilder();
+            mainStr.Append("<tr><td><div id=\"menu\"><ul>");
+
+            foreach (XmlElement item in xmld.ChildNodes[0].ChildNodes)
+            {
+                AppendItemToMenu(item, mainStr);
+            }
+
+            mainStr.Append("</div></ul></td></tr>");
+
+            var a = mainStr.ToString();
+
+            return a;
         }
 
         public static string GetMainMenu(ref Int32 nMenuID, bool bAdmin, ref Int32 nSelID, Int32 nParentID)
         {
-            return GetMainMenu(ref nMenuID, bAdmin, ref nSelID, nParentID, "");
-
+            return GetNewMainMenu(nMenuID, bAdmin, ref nSelID, nParentID);
         }
 
         public static bool IsLayoutManagerVisible(int groupID)
@@ -341,7 +316,10 @@ namespace TVinciShared
                             sXML.Append(selectQuery.Table("query").DefaultView[i].Row["menu_text"].ToString());
                         string sUrl = selectQuery.Table("query").DefaultView[i].Row["menu_href"].ToString();
                         if (sUrl != "")
+                        {                            
+                            sUrl = sUrl.Replace("&", "&amp;");
                             sUrl = "[navigateURL::" + sUrl + "]";
+                        }
                         sXML.Append("\" selected=\"").Append(sSelected).Append("\" actions=\"").Append(sUrl).Append("\" >");
                         sXML.Append(GetMainMenu(ref nMenuID, bAdmin, ref nSelID, nAMID, sPageURL));
                         sXML.Append("</node>");
@@ -515,5 +493,87 @@ namespace TVinciShared
             }
         }
 
+        private static void AppendItemToMenu(XmlElement menuItem, StringBuilder mainStr)
+        {
+            SetMenuItemVariable(menuItem, out string name, out string path, out bool isActive, out bool isParentSelected);
+
+            if (menuItem.HasChildNodes)
+            {
+                StringBuilder newNestedLi = new StringBuilder();
+                if (isParentSelected)
+                {
+                    newNestedLi.Append("<li><span class ='caret caret-down' OnClick=\"javascript:expand(this)\"' ></span>");
+                }
+                else
+                {
+                    newNestedLi.Append("<li><span class ='caret' OnClick=\"javascript:expand(this)\"' ></span>");
+                }
+
+                newNestedLi.Append($"<span OnClick=\"javascript:expand(this)\">{name}</span>");
+
+                StringBuilder nestedUl = new StringBuilder();
+                if (isActive || isParentSelected)
+                {
+                    nestedUl.Append("<ul class='nested active'>");
+                }
+                else
+                {
+                    nestedUl.Append("<ul class='nested'>");
+                }
+
+                foreach (XmlElement child in menuItem.ChildNodes)
+                {
+                    AppendItemToMenu(child, nestedUl);
+                }
+                nestedUl.Append("</ul>");
+                newNestedLi.Append(nestedUl).Append("</li>");
+                mainStr.Append(newNestedLi);
+            }
+            else
+            {
+                string newLi = string.Empty;
+                if (isActive)
+                {
+                    mainStr.Remove(mainStr.ToString().Length - 2, 2);
+                    mainStr.Append(" active'>");
+                    newLi = $"<li class='no-children selected' OnClick=\"javascript:window.location.href='{path}'\">{name }</li>";
+                }
+                else
+                {
+                    newLi = $"<li class='no-children' OnClick=\"javascript:window.location.href='{path}'\">{name }</li>";
+                }
+
+                mainStr.Append(newLi);
+            }
+        }
+
+        private static void SetMenuItemVariable(XmlElement item, out string name, out string path, out bool isActive, out bool isParentSelected)
+        {
+            name = string.Empty;
+            path = string.Empty;
+            isActive = false;
+            isParentSelected = false;
+
+            if (item.Attributes["label"] != null)
+            {
+                name = item.Attributes["label"].Value;
+            }
+
+            if (item.Attributes["actions"] != null && !string.IsNullOrEmpty(item.Attributes["actions"].Value))
+            {
+                path = item.Attributes["actions"].Value;
+                path = path.Remove(path.Length - 1, 1).Replace("[navigateURL::", "").Replace("&amp;", "&");
+            }
+
+            if (item.Attributes["selected"] != null)
+            {
+                isActive = Convert.ToBoolean(item.Attributes["selected"].Value);
+            }
+
+            if (item.InnerXml.Contains("selected=\"true\""))
+            {
+                isParentSelected = true;
+            }
+        }
     }
 }

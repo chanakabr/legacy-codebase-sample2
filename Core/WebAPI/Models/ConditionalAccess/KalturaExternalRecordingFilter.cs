@@ -1,9 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Base;
+using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using TVinciShared;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -30,6 +34,18 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 MetaData = new SerializableDictionary<string, KalturaStringValue>();
             }
+        }
+
+        internal override KalturaRecordingListResponse SearchRecordings(ContextData contextData, KalturaFilterPager pager)
+        {
+            this.Validate();
+
+            var metaDataFilter = this.MetaData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
+
+            var response = ClientsManager.ConditionalAccessClient().SearchRecordings(contextData.GroupId, contextData.UserId.Value.ToString(), contextData.DomainId.Value,
+                this.ConvertStatusIn(), this.Ksql, this.GetExternalRecordingIds(), pager.getPageIndex(), pager.PageSize, this.OrderBy, metaDataFilter);
+
+            return response;
         }
     }
 }

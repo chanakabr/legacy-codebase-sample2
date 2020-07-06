@@ -73,7 +73,6 @@ namespace WS_Catalog
         [ServiceKnownType(typeof(BuzzMeterRequest))]
         [ServiceKnownType(typeof(BaseCrowdsourceItem))]
         [ServiceKnownType(typeof(ChannelObjRequest))]
-        [ServiceKnownType(typeof(CrowdsourceRequest))]
         [ServiceKnownType(typeof(BundlesContainingMediaRequest))]
         [ServiceKnownType(typeof(MediaFilesRequest))]
         [ServiceKnownType(typeof(MediaFilesResponse))]

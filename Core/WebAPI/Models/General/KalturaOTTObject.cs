@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
@@ -301,8 +302,18 @@ namespace WebAPI.Models.General
             name = fileName;
         }
 
+        public KalturaOTTFile(Stream fileStream, string fileName)
+        {
+            File = fileStream;            
+            name = fileName;
+            path = string.Empty;
+        }
+
+        public Stream File { get; set; }
         public string path { get; set; }
         public string name { get; set; }
+        
+
     }
 
     public partial class KalturaOTTObjectSupportNullable : KalturaOTTObject

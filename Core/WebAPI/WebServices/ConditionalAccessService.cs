@@ -2764,13 +2764,13 @@ namespace WebAPI.WebServices
         }
 
         [WebMethod]
-        public RecordingResponse QueryRecords(string sWSUserName, string sWSPassword, string userID, long[] epgIDs)
+        public Recording QueryRecords(string sWSUserName, string sWSPassword, string userID, long epgId)
         {
 
             Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.QueryRecords(nGroupID, userID, epgIDs);
+                return Core.ConditionalAccess.Module.QueryRecords(nGroupID, userID, epgId);
             }
             else
             {
@@ -3147,27 +3147,6 @@ namespace WebAPI.WebServices
                 }
                 return false;
             }
-        }
-
-        [WebMethod]
-        public ApiObjects.KeyValuePair GetSeriesIdAndSeasonNumberByEpgId(string sWSUserName, string sWSPassword, long epgId)
-        {
-
-            ApiObjects.KeyValuePair result = new ApiObjects.KeyValuePair();
-            Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
-            if (nGroupID != 0)
-            {
-                result = Core.ConditionalAccess.Module.GetSeriesIdAndSeasonNumberByEpgId(nGroupID, epgId);
-            }
-            else
-            {
-                if (nGroupID == 0)
-                {
-                    HttpContext.Current.Response.StatusCode = 404;
-                }
-            }
-
-            return result;
         }
 
         [WebMethod]

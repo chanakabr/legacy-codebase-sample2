@@ -73,6 +73,17 @@ namespace Tvinci.Core.DAL
             return retVal;
         }
 
+
+        public static DataTable GetEpgPicsBaseUrls(int groupId, List<int> picIds)
+        {
+            StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_EPG_Pics_Base_URL");
+            storedProcedure.SetConnectionKey("CONNECTION_STRING");
+            storedProcedure.AddIDListParameter<int>("@PicIDs", picIds, "Id");
+            storedProcedure.AddParameter("@GroupId", groupId);
+            return storedProcedure.Execute();
+        }
+        
+
         public static List<int> GetEpgProgramsByChannelIds(int groupID, List<int> epgChannelIDs, DateTime fromUTCDay, DateTime toUTCDay)
         {
             List<int> epgIds = new List<int>();

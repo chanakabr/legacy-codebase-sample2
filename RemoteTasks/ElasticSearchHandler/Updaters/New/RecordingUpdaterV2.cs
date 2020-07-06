@@ -138,6 +138,11 @@ namespace ElasticSearchHandler.Updaters
             return esSerializer.SerializeRecordingObject(epg, recordingId, suffix, doesGroupUsesTemplates);
         }
 
+        protected override bool ShouldSetTTL()
+        {
+            return false;
+        }
+
         #endregion
     }
 }

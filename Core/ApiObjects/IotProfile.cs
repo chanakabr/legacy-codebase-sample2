@@ -13,18 +13,13 @@ namespace ApiObjects
 
     public class IotProfileAws : ICrudHandeledObject
     {
-        public string IotEndPoint { get; set; }
-        public string PfxPath { get; set; }
-        public string PfxPassword { get; set; }
-        public string CertificatePath { get; set; }
-        public int BrokerPort { get; set; }
         public string AccessKeyId { get; set; }
         public string SecretAccessKey { get; set; }
-        public string IotPolicyName { get; set; }//Suffix {groupId}_IotPolicyName
         public string UserPoolId { get; set; }
         public string ClientId { get; set; }
         public string IdentityPoolId { get; set; }
         public string Region { get; set; }
         public long UpdateDate { get; set; }
+        public string IotEndPoint { get; set; }
     }
 }

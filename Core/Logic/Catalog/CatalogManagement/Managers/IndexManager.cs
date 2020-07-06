@@ -35,6 +35,13 @@ namespace Core.Catalog.CatalogManagement
         private const string PERCOLATOR = ".percolator";
 
         private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
+        // Basic TCM configurations for indexing - number of shards/replicas, max results
+        private static readonly int NUM_OF_SHARDS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
+        private static readonly int NUM_OF_REPLICAS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
+        private static readonly int MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;       
+        private static readonly int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
+        private static int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+
         protected const string ES_VERSION = "2";
 
         public const string EPG_INDEX_TYPE = "epg";
@@ -750,6 +757,8 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
+                // prevent from size of bulk to be more than the default value of 500 (currently as of 23.06.20)
+                sizeOfBulk = sizeOfBulk == 0 ? sizeOfBulkDefaultValue : sizeOfBulk > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : sizeOfBulk;
                 ESSerializerV2 esSerializer = new ESSerializerV2();
                 ElasticSearchApi esApi = new ElasticSearchApi();
 
@@ -852,6 +861,7 @@ namespace Core.Catalog.CatalogManagement
 
                         // Temporarily - assume success
                         bool temporaryResult = true;
+                        var createdAliases = new HashSet<string>();
 
                         // Create dictionary by languages
                         foreach (LanguageObj language in languages)
@@ -860,7 +870,7 @@ namespace Core.Catalog.CatalogManagement
                             List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg =>
                                 epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
 
-                            var alias = string.Format("{0}_epg", groupId);
+                            var alias = EpgIndexGroupAlias(groupId);
                             var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
                             if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                             {
@@ -872,7 +882,16 @@ namespace Core.Catalog.CatalogManagement
                                     // in that case we need to use the specific date alias for each epg item to update
                                     if (isIngestV2)
                                     {
-                                        alias = IndexManager.GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date);
+                                        alias = GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date);
+                                        //in case alias already created ,no need to check in ES
+                                        if (!createdAliases.Contains(alias))
+                                        {
+                                            var aliases = 
+                                                new string[] { GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date),
+                                                        EpgIndexGroupAlias(groupId)};
+                                            CreateIndex(alias, groupId, group,catalogGroupCache, languages, aliases);
+                                            createdAliases.Add(alias);
+                                        }
                                     }
 
                                     string suffix = null;
@@ -907,7 +926,6 @@ namespace Core.Catalog.CatalogManagement
                                         ttl = ttl
                                     });
 
-                                    int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
                                     if (bulkRequests.Count > sizeOfBulk)
                                     {
                                         // send request to ES API
@@ -971,6 +989,30 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+       
+
+        /// <summary>
+        /// will create a new index in case not exists
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="groupId"></param>
+        private static void CreateIndex(string index, int groupId, Group group, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages, string[] aliases)
+        {
+            
+            ElasticSearchApi esApi = new ElasticSearchApi();
+            if (!esApi.IndexExists(index))
+            {
+                                        
+                CreateNewEpgIndex(groupId, catalogGroupCache, group, languages, languages.First(x => x.IsDefault), index);
+
+                var esClient = new ElasticSearchApi();
+                foreach (var indexAlias in aliases)
+                {
+                    esClient.AddAlias(index, indexAlias);
+                }
+            }
         }
 
         public static bool DeleteProgram(int groupId, List<long> epgIds, IEnumerable<string> epgChannelIds)
@@ -1205,16 +1247,18 @@ namespace Core.Catalog.CatalogManagement
 
         public static HashSet<string> CreateNewEpgIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, string newIndexName, bool isRecording = false)
         {
-            int maxResults = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
-            maxResults = maxResults == 0 ? 100000 : maxResults;
 
-            var esClient = new ElasticSearchApi();
-            GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);
-            var isIndexCreated = esClient.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers, maxResults);
-            if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
-
+            CreateEmptyIndex(newIndexName, languages);
             AddMappingsToEpgIndex(groupId, newIndexName, languages, defaultLanguage, isRecording, out var metasToPad, group, catalogGroupCache);
             return metasToPad;
+        }
+
+        private static void CreateEmptyIndex(string newIndexName,IEnumerable<LanguageObj> languages)
+        {            
+            var esClient = new ElasticSearchApi();
+            GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);
+            var isIndexCreated = esClient.BuildIndex(newIndexName, NUM_OF_SHARDS, NUM_OF_REPLICAS, analyzers, filters, tokenizers, MAX_RESULTS);
+            if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
         }
 
         public static string GetIndexType(bool isRecording, ApiObjects.LanguageObj language = null)
@@ -1666,6 +1710,11 @@ namespace Core.Catalog.CatalogManagement
         {
             string dateString = dateOfProgramsToIngest.Date.ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
             return $"{groupId}_epg_v2_{dateString}";
+        }
+
+        public static string EpgIndexGroupAlias(int groupId)
+        {
+            return string.Format("{0}_epg", groupId);
         }
     }
 }

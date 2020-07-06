@@ -171,8 +171,6 @@ namespace WebAPI.WebServices
         [OperationContract]
         Recording GetRecordingStatus(string sWSUserName, string sWSPassword, long recordingId);
         [OperationContract]
-        ApiObjects.KeyValuePair GetSeriesIdAndSeasonNumberByEpgId(string sWSUserName, string sWSPassword, long epgId);
-        [OperationContract]
         SubscriptionsPricesContainer[] GetSubscriptionsPrices(string sWSUserName, string sWSPassword, string[] sSubscriptions, string sUserGUID, string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP);
         [OperationContract]
         SubscriptionsPricesContainer[] GetSubscriptionsPricesByIP(string sWSUserName, string sWSPassword, string[] sSubscriptions, string sUserGUID, string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP);
@@ -259,7 +257,7 @@ namespace WebAPI.WebServices
         [OperationContract]
         BillingResponse PU_GetSubscriptionPopupPaymentMethodURL(string sWSUserName, string sWSPassword, string sSiteGUID, double dPrice, string sCurrencyCode3, string sSubscriptionCode, string sCouponCode, string sPaymentMethod, string sExtraParameters, string sCountryCd2, string sLanguageCode3, string sDeviceName);
         [OperationContract]
-        RecordingResponse QueryRecords(string sWSUserName, string sWSPassword, string userID, long[] epgIDs);
+        Recording QueryRecords(string sWSUserName, string sWSPassword, string userID, long epgId);
         [OperationContract]
         Status ReconcileEntitlements(string sWSUserName, string sWSPassword, string userId);
         [OperationContract]

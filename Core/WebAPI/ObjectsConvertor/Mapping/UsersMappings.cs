@@ -11,6 +11,7 @@ using ApiObjects.SSOAdapter;
 using System.Linq;
 using AutoMapper.Configuration;
 using TVinciShared;
+using ApiLogic.Users;
 
 namespace ObjectsConvertor.Mapping
 {
@@ -280,6 +281,23 @@ namespace ObjectsConvertor.Mapping
 
             cfg.CreateMap<PasswordPolicyFilter, KalturaPasswordPolicyFilter>()
             .ForMember(dest => dest.UserRoleIdIn, opt => opt.MapFrom(src => string.Join(",", src.RoleIdsIn)));
+
+            cfg.CreateMap<KalturaSSOAdapterProfileInvoke, SSOAdapterProfileInvoke>()
+            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.AdapterData, false)))
+            .AfterMap((src, dest) => dest.AdapterData = src.AdapterData != null ? dest.AdapterData : null)
+            .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+            .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+            ;
+
+            cfg.CreateMap<SSOAdapterProfileInvoke, KalturaSSOAdapterProfileInvoke>()
+            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => src.AdapterData != null ? src.AdapterData.ToDictionary(k => k.Key, v => v.Value) : null))
+            .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+            .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+            ;
+
+            cfg.CreateMap<KalturaKeyValue, ApiObjects.KeyValuePair>()
+                .ForMember(dest => dest.key, opt => opt.MapFrom(src => src.key))
+                .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.value));
         }
 
         private static List<SSOAdapterParam> ConvertSsoAdapterSettings(KalturaSSOAdapterProfile src)

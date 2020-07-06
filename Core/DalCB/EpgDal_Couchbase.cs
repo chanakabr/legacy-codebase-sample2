@@ -395,7 +395,7 @@ namespace DalCB
         }
 
         //returns all programs with group id from view (does not take start_date into consideration)
-        public List<EpgCB> GetGroupPrograms(int nPageSize, int nStartIndex, bool falseStaleState = false)
+        public List<EpgCB> GetGroupPrograms(int nPageSize, int nStartIndex, bool falseStaleState = false, long bulkSize = 0)
         {
             List<EpgCB> lRes = new List<EpgCB>();
             var startKey = new List<object>() { m_nGroupID, null }.ToArray();
@@ -403,7 +403,7 @@ namespace DalCB
 
             try
             {
-                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs", bulkSize)
                 {
                     startKey = startKey,
                     endKey = endKey,
@@ -435,7 +435,7 @@ namespace DalCB
 
         //(dStartDate <= start_date < sEndMaxValue) 
         //returns all programs with group id, that have a start date that's greater than or equal to dStartDate
-        public List<EpgCB> GetGroupProgramsByStartDate(int nPageSize, int nStartIndex, DateTime dStartDate, bool falseStaleState = false)
+        public List<EpgCB> GetGroupProgramsByStartDate(int nPageSize, int nStartIndex, DateTime dStartDate, bool falseStaleState = false, long bulkSize = 0)
         {
             List<EpgCB> lRes = new List<EpgCB>();
             List<object> startKey = new List<object>() { m_nGroupID, dStartDate.ToString("yyyyMMddHHmmss") };
@@ -443,7 +443,7 @@ namespace DalCB
 
             try
             {
-                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs", bulkSize)
                 {
                     startKey = startKey,
                     endKey = endKey,
@@ -479,7 +479,7 @@ namespace DalCB
 
         //(dFromDate <= start_date < dToDate)
         //returns all programs with group id, that have a start date that's greater than or equal to dFromDate and smaller than dToDate
-        public List<EpgCB> GetGroupProgramsByStartDate(int nPageSize, int nStartIndex, DateTime dFromDate, DateTime dToDate, bool falseStaleState = false)
+        public List<EpgCB> GetGroupProgramsByStartDate(int nPageSize, int nStartIndex, DateTime dFromDate, DateTime dToDate, bool falseStaleState = false, long bulkSize = 0)
         {
             List<EpgCB> lRes = new List<EpgCB>();
             List<object> startKey = new List<object>() { m_nGroupID, dFromDate.ToString("yyyyMMddHHmmss") };
@@ -487,7 +487,7 @@ namespace DalCB
 
             try
             {
-                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs", bulkSize)
                 {
                     startKey = startKey,
                     endKey = endKey,

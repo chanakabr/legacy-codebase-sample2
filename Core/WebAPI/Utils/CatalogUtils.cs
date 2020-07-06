@@ -307,7 +307,7 @@ namespace WebAPI.Utils
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out mediaIdsResponse, true, key))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (mediaIdsResponse.searchResults != null && mediaIdsResponse.searchResults.Count > 0)
@@ -338,7 +338,7 @@ namespace WebAPI.Utils
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out mediaIdsResponse, true, key))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
             if (mediaIdsResponse.status != null && mediaIdsResponse.status.Code != (int)StatusCode.OK)
             {
@@ -360,10 +360,10 @@ namespace WebAPI.Utils
                 || mediaIdsResponse == null || mediaIdsResponse.Status.Code != (int)StatusCode.OK)
             {
                 if (mediaIdsResponse == null)
-                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                    throw new ClientException(StatusCode.Error);
 
                 // general error
-                throw new ClientException((int)mediaIdsResponse.Status.Code, mediaIdsResponse.Status.Message);
+                throw new ClientException(mediaIdsResponse.Status);
             }
 
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
@@ -411,10 +411,10 @@ namespace WebAPI.Utils
                 || mediaIdsResponse == null || mediaIdsResponse.Status.Code != (int)StatusCode.OK)
             {
                 if (mediaIdsResponse == null)
-                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                    throw new ClientException(StatusCode.Error);
 
                 // general error
-                throw new ClientException((int)mediaIdsResponse.Status.Code, mediaIdsResponse.Status.Message);
+                throw new ClientException(mediaIdsResponse.Status);
             }
 
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
@@ -455,7 +455,7 @@ namespace WebAPI.Utils
         //    if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out mediaIdsResponse, true, key))
         //    {
         //        // general error
-        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+        //        throw new ClientException(StatusCode.Error);
         //    }
 
         //    if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
@@ -609,13 +609,13 @@ namespace WebAPI.Utils
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, failoverCacheKey))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (searchResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+                throw new ClientException(searchResponse.status);
             }
 
             return searchResponse;
@@ -681,13 +681,13 @@ namespace WebAPI.Utils
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out channelResponse, true, failoverCacheKey))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
 
             if (channelResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(channelResponse.status.Code, channelResponse.status.Message);
+                throw new ClientException(channelResponse.status);
             }
 
             return channelResponse;
@@ -727,12 +727,12 @@ namespace WebAPI.Utils
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, failoverCacheKey))
             {
                 // general error
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException(StatusCode.Error);
             }
             if (searchResponse.status != null && searchResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+                throw new ClientException(searchResponse.status);
             }
 
             return searchResponse;

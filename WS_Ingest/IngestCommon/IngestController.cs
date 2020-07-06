@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Catalog;
+using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
@@ -23,6 +24,9 @@ namespace Ingest
         private const string BAD_REQUEST = "Bad request";
         private const string UNKNOWN_INGEST_TYPE = "Unknown ingest type";
         private const string INVALID_CREDENTIALS = "Invalid credentials";
+        private const string INGEST_V2_ERROR_MSG = "Please Use AddFromBulkUpload instead,using this route with IngestV2 is deprecated.";
+        private const string ERROR_STATUS = "ERROR";
+        private const string ERROR_DEPRECATED = "DEPRECATED";
 
         // TODO need to delete this mmethod and use Core.Catalog.Controller.IngestController insted (delete this class)
         public static IngestResponse IngestData(IngestRequest request, eIngestType ingestType)
@@ -40,7 +44,7 @@ namespace Ingest
                 // request is null
                 return new IngestResponse()
                 {
-                    Status = "ERROR",
+                    Status = ERROR_STATUS,
                     Description = "Error while deserializing request",
                     IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = BAD_REQUEST }
                 };
@@ -53,7 +57,7 @@ namespace Ingest
                 // no username or password
                 return new IngestResponse()
                 {
-                    Status = "ERROR",
+                    Status = ERROR_STATUS,
                     Description = "No username or password",
                     IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = "No username or password" }
                 };
@@ -102,9 +106,15 @@ namespace Ingest
                                 var isNewIngestEnabled = Core.GroupManagers.GroupSettingsManager.DoesGroupUseNewEpgIngest(groupID);
                                 if (isNewIngestEnabled)
                                 {
-                                    var bulk = IngestEpgUsingBulkUpoad(groupID, request);
-                                    ingestResponse.Status = $"Ingest redirected to Add from bulk upload with id:[{bulk.Id}]";
-                                    return ingestResponse;
+                                    // invalid credentials
+                                    var msg = "Please Use AddFromBulkUpload instead,using this route with IngestV2 is deprecated.";
+                                    log.Error(string.Format(msg));
+                                    return new IngestResponse()
+                                    {
+                                        Status = ERROR_STATUS,
+                                        Description = ERROR_DEPRECATED,
+                                        IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = INGEST_V2_ERROR_MSG }
+                                    };
                                 }
 
 
@@ -128,7 +138,7 @@ namespace Ingest
                         default:
                             return new IngestResponse()
                             {
-                                Status = "ERROR",
+                                Status = ERROR_STATUS,
                                 Description = UNKNOWN_INGEST_TYPE,
                                 IngestStatus = new Status() { Code = (int)eResponseStatus.UnknownIngestType, Message = UNKNOWN_INGEST_TYPE }
 
@@ -141,7 +151,7 @@ namespace Ingest
                     log.Error(string.Format("INVALID_CREDENTIALS - user:{0}, pass:{1}", request.UserName, request.Password));
                     return new IngestResponse()
                     {
-                        Status = "ERROR",
+                        Status = ERROR_STATUS,
                         Description = "INVALID_CREDENTIALS",
                         IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = INVALID_CREDENTIALS }
                     };
@@ -152,7 +162,7 @@ namespace Ingest
                 log.Error(string.Format("For input {0}", request.Data), ex);
                 return new IngestResponse()
                 {
-                    Status = "ERROR",
+                    Status = ERROR_STATUS,
                     IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() }
                 };
             }
@@ -160,27 +170,7 @@ namespace Ingest
             return ingestResponse;
         }
 
-        private static BulkUpload IngestEpgUsingBulkUpoad(int groupID, IngestRequest request)
-        {
-            var tempDirPath = ApplicationConfiguration.Current.RequestParserConfiguration.TempUploadFolder.Value;
-            var tempFileName = "Upload_From_WS_ingest.xml";
-            var tempFilePath = Path.Combine(tempDirPath, tempFileName);
-            Path.GetTempPath();
-            if (!Directory.Exists(tempDirPath))
-            {
-                Directory.CreateDirectory(tempDirPath);
-            }
-
-            File.WriteAllText(tempFilePath, request.Data);
-
-            var jobData = new BulkUploadIngestJobData { IngestProfileId = null };
-            var objectData = new BulkUploadEpgAssetData { GroupId = groupID };
-
-            var response = BulkUploadManager.AddBulkUpload(groupID, tempFileName, 0, tempFilePath, "KalturaProgramAsset", BulkUploadJobAction.Upsert, jobData, objectData);
-            if (!response.IsOkStatusCode()) { throw new Exception($"Error while trying to redirected ws ingest into bulk upload"); }
-
-            return response.Object;
-        }
+        
 
         private static string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
         {
@@ -210,7 +200,7 @@ namespace Ingest
             if (string.IsNullOrEmpty(response))
             {
                 log.Warn("For input " + data + " response is empty");
-                return new IngestResponse() { Status = "ERROR" };
+                return new IngestResponse() { Status = ERROR_STATUS };
             }
 
             if (ingestResponse == null)
@@ -243,7 +233,7 @@ namespace Ingest
             catch (Exception ex)
             {
                 log.Error("For input " + data + " response is " + response, ex);
-                return new IngestResponse() { Status = "ERROR" };
+                return new IngestResponse() { Status = ERROR_STATUS };
             }
 
             return ingestResponse;

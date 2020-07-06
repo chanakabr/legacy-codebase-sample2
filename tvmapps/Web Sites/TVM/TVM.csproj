@@ -542,6 +542,9 @@
     <Content Include="AjaxSubRenewable.aspx" />
     <Content Include="AjaxToken.aspx" />
     <Content Include="AjaxTokenApprove.aspx" />
+    <Content Include="Images\folder.svg" />
+    <Content Include="Images\minus.svg" />
+    <Content Include="Images\plus.svg" />
     <Content Include="log4net.config" />
     <None Include="Old_App_WebReferences\apiWS\api.disco" />
     <None Include="Old_App_WebReferences\Billing\module.disco" />

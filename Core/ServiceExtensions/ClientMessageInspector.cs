@@ -3,11 +3,21 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
 using System.Web;
 using KLogMonitor;
+using System.Reflection;
+using System.ServiceModel.Configuration;
+using System.ServiceModel.Description;
+using System.ServiceModel.Dispatcher;
 
 namespace ServiceExtensions
 {
     public class ClientMessageInspector : IClientMessageInspector
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private ServiceEndpoint _Endpoint;
+        public ClientMessageInspector(ServiceEndpoint endpoint)
+        {
+            _Endpoint = endpoint;
+        }
         public void AfterReceiveReply(ref Message reply, object correlationState)
         {
             // Implement this method to inspect/modify messages after a message
@@ -38,13 +48,29 @@ namespace ServiceExtensions
                 }
                 else
                 {
-                    if (HttpContext.Current != null)
+                    if (KLogger.LogContextData != null)
                     {
-                        if (HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
-                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString()));
+                        var requestId = KLogger.LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
+                        var ks = KLogger.LogContextData[Constants.KS]?.ToString();
 
-                        if (HttpContext.Current.Items[KLogMonitor.Constants.KS] != null)
-                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.KS, string.Empty, HttpContext.Current.Items[KLogMonitor.Constants.KS].ToString()));
+                        // backward compatibility for phoenix on windows
+                        if (string.IsNullOrEmpty(ks) && HttpContext.Current != null && HttpContext.Current.Items[KLogMonitor.Constants.KS] != null)
+                        {
+                            ks = HttpContext.Current.Items[KLogMonitor.Constants.KS].ToString();
+                        }
+
+                        if (!string.IsNullOrEmpty(requestId))
+                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, requestId));
+                        else
+                            log.Warn($"could not find request Id to send to WCF service: [{_Endpoint.Address.Uri}]");
+
+                        if (!string.IsNullOrEmpty(ks))
+                            request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.KS, string.Empty, ks));
+                        else
+                            log.Warn($"could not find Ks to send to WCF service: [{_Endpoint.Address.Uri}]");
+                    }
+                    else{
+                        log.Warn($"Could not find LogContext, no requestId or ks sent to WC service [{_Endpoint.Address.Uri}]");
                     }
                 }
             }

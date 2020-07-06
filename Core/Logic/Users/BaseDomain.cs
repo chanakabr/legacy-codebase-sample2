@@ -329,7 +329,7 @@ namespace Core.Users
             return oDomainResponseObject;
         }
 
-        public virtual DeviceResponse AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId, string externalId)
+        public virtual DeviceResponse AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId, string externalId, string macAddress)
         {
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -339,7 +339,6 @@ namespace Core.Users
                 return response;
 
             var device_Id = Device.GetDeviceIDByExternalId(groupId, externalId);
-
 
             //device with same external Id already exists
             if (!string.IsNullOrEmpty(device_Id))
@@ -369,6 +368,11 @@ namespace Core.Users
                 if (!string.IsNullOrEmpty(externalId))
                 {
                     device.ExternalId = externalId;
+                }
+
+                if (!string.IsNullOrEmpty(macAddress))
+                {
+                    device.MacAddress = macAddress;
                 }
 
                 // add device to domain
@@ -1918,7 +1922,8 @@ namespace Core.Users
             return response;
         }
 
-        public virtual DeviceResponse SubmitAddDeviceToDomain(int groupID, int domainID, string userID, string deviceUdid, string deviceName, int brandID, string externalId)
+        public virtual DeviceResponse SubmitAddDeviceToDomain(int groupID, int domainID, string userID, string deviceUdid, string deviceName, 
+            int brandID, string externalId, string macAddress)
         {
             DeviceResponse response = new DeviceResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -1948,6 +1953,11 @@ namespace Core.Users
             if (!string.IsNullOrEmpty(externalId))
             {
                 device.ExternalId = externalId;
+            }
+
+            if (!string.IsNullOrEmpty(macAddress))
+            {
+                device.MacAddress = macAddress;
             }
 
             DomainResponseStatus domainResponseStatus;
@@ -2225,7 +2235,7 @@ namespace Core.Users
             {
                 log.ErrorFormat("Failed to delete pin for device after successful login. udid = {0}, pin = {1}", udid, pin);
             }
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid,groupId);
+            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid, groupId);
             return response;
         }
 
@@ -2248,7 +2258,7 @@ namespace Core.Users
                 }
                 else
                 {
-                    DomainResponseStatus domainResponseStatus = deviceDomains[0].RemoveDeviceFromDomain(udid, true);
+                    DomainResponseStatus domainResponseStatus = deviceDomains[0].RemoveDeviceFromDomain(udid, true, deviceId);
                     response = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                     if (response.Code != (int)eResponseStatus.OK)
                     {

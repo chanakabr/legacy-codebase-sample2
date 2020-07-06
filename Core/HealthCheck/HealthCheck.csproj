@@ -11,12 +11,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.HealthChecks" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.4" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
-    <ProjectReference Include="..\ElasticSearch\ElasticSearch.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
     <ProjectReference Include="..\RabbitQueueWrapper\RabbitQueueWrapper.csproj" />

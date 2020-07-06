@@ -16,27 +16,42 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns all External channels for partner 
         /// </summary>
-        /// <remarks>       
-        /// </remarks>
+        /// <param name="filter">External channel profile filter</param>
+        /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaExternalChannelProfileListResponse List()
+        static public KalturaExternalChannelProfileListResponse List(KalturaExternalChannelProfileFilter filter = null)
         {
-            List<KalturaExternalChannelProfile> list = null;
+            KalturaExternalChannelProfileListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
             try
             {
-                // call client
-                list = ClientsManager.ApiClient().GetExternalChannels(groupId, userId);
+                if (filter == null)
+                {
+                    filter = new KalturaExternalChannelProfileFilter();
+                }
+
+                filter.Validate();
+
+                if (filter is KalturaExternalChannelProfileByIdInFilter)
+                {
+                    KalturaExternalChannelProfileByIdInFilter idInFilter = filter as KalturaExternalChannelProfileByIdInFilter;
+                    response = ClientsManager.ApiClient().GetExternalChannels(groupId, userId, idInFilter.GetIdIn());
+                }
+                else
+                {
+                    var list = ClientsManager.ApiClient().GetExternalChannels(groupId, userId);
+                    response = new KalturaExternalChannelProfileListResponse() { Objects = list, TotalCount = list.Count };
+                }
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaExternalChannelProfileListResponse() { Objects = list, TotalCount = list.Count };
+            return response;
         }
 
         /// <summary>

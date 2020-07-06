@@ -1,7 +1,7 @@
-﻿FROM mcr.microsoft.com/dotnet/core/sdk:3.1 as builder
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine as builder
 WORKDIR /src
 
-RUN apt-get install git
+RUN apk add --no-cache git
 
 COPY [".git", ".git"]
 COPY ["Core", "Core"]
@@ -9,35 +9,46 @@ COPY ["phoenix", "phoenix"]
 
 #version patch
 WORKDIR /src/Core
-RUN bash DllVersioning.Core.sh .
-RUN bash get-version-tag.sh > version
+RUN sh DllVersioning.Core.sh . && \
+    sh get-version-tag.sh > version
+
 
 WORKDIR /src/phoenix
-RUN bash /src/Core/DllVersioning.Core.sh .
-RUN dotnet publish -c Release "./Phoenix.Rest/Phoenix.Rest.csproj" -o /src/published/phoenix-rest
+RUN sh /src/Core/DllVersioning.Core.sh . && \
+    dotnet publish -c Release "./Phoenix.Rest/Phoenix.Rest.csproj" -o /src/published/phoenix-rest
 
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
 # Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
-WORKDIR /opt
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
 
+
+ARG USER_ID=1200
+ARG GROUP_ID=1200
 ARG API_LOG_DIR=/var/log/phoenix/
+
 ENV API_LOG_DIR ${API_LOG_DIR}
 ENV API_STD_OUT_LOG_LEVEL "Off"
+## Do NOT Remove This
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+##
+ENV PORT 8080
 
-COPY --from=builder /src/published/phoenix-rest /opt/phoenix-rest
+WORKDIR /opt
+
+COPY --chown=${USER_ID}:${GROUP_ID} --from=builder /src/published/phoenix-rest /opt/phoenix-rest
 WORKDIR /opt/phoenix-rest
 
-ENV ARGS "--urls http://0.0.0.0:80"
+###### deploy root CA + add user######
+COPY consul-root-certificate.crt /usr/local/share/ca-certificates/consul-root-certificate.crt
+RUN update-ca-certificates && \
+    addgroup -g ${GROUP_ID} -S ott-users && \
+    adduser -D -S -s /sbin/nologin -G ott-users kaltura -u ${USER_ID} && \
+    mkdir -p ${API_LOG_DIR} && chown -R ${USER_ID}:${GROUP_ID} ${API_LOG_DIR} && \
+    apk add --no-cache icu-libs
 
-EXPOSE 80
-EXPOSE 443
-
-ENTRYPOINT [ "sh", "-c", "dotnet Phoenix.Rest.dll ${ARGS}" ]
+USER kaltura
+###### deploy root CA ######
 
 
-
-
-
-
+ENTRYPOINT [ "sh", "-c", "dotnet Phoenix.Rest.dll --urls http://0.0.0.0:${PORT}" ]

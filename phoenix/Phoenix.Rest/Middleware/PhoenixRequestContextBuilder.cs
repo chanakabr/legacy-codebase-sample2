@@ -73,9 +73,8 @@ namespace Phoenix.Rest.Middleware
         private void SetCommonRequestContextItems(HttpContext context, PhoenixRequestContext _PhoenixContext, IDictionary<string, object> parsedActionParams, string service, string action)
         {
             RequestContext.SetContext(parsedActionParams, service, action);
-
-            _PhoenixContext.UserIpAdress = context.Items[RequestContextUtils.USER_IP]?.ToString();
             _PhoenixContext.Format = context.Items[RequestContextUtils.REQUEST_FORMAT]?.ToString();
+            _PhoenixContext.UserIpAdress = context.Items[RequestContextUtils.USER_IP]?.ToString();
             _PhoenixContext.Currency = context.Items[RequestContextUtils.REQUEST_GLOBAL_CURRENCY]?.ToString();
             _PhoenixContext.Language = context.Items[RequestContextUtils.REQUEST_GLOBAL_LANGUAGE]?.ToString();
 
@@ -135,15 +134,29 @@ namespace Phoenix.Rest.Middleware
 
         private async Task<IDictionary<string, object>> GetActionParams(string httpMethod, HttpRequest request, PhoenixRequestContext context)
         {
-            var parsedActionParams = GetActionParamsFromQueryString(request);
+            IDictionary<string, object> parsedActionParams;
             if (httpMethod == HttpMethods.Post)
             {
-                var bodyParsedActionParams = await GetActionParamsFromPostBody(request, context);
-                bodyParsedActionParams.ToList().ForEach(bodyParam => parsedActionParams[bodyParam.Key]= bodyParam.Value);
+                parsedActionParams = await GetActionParamsFromPostBody(request, context);
             }
-            else if (httpMethod == HttpMethods.Get && context.RouteData.UrlParams != null)
+            // previous code would have done it for all none POST request so keeping the same behavior
+            else
             {
-                parsedActionParams = context.RouteData.UrlParams;
+                parsedActionParams = GetActionParamsFromQueryString(request);
+                if (httpMethod == HttpMethods.Get && context.RouteData.UrlParams != null && context.RouteData.UrlParams.Count > 0)
+                {
+                    if (parsedActionParams != null && parsedActionParams.Count > 0)
+                    {
+                        foreach (KeyValuePair<string, object> item in context.RouteData.UrlParams)
+                        {
+                            parsedActionParams[item.Key] = context.RouteData.UrlParams[item.Key];
+                        }
+                    }
+                    else
+                    {
+                        parsedActionParams = context.RouteData.UrlParams;
+                    }
+                }
             }
 
             return new Dictionary<string, object>(parsedActionParams, StringComparer.OrdinalIgnoreCase);
@@ -247,7 +260,6 @@ namespace Phoenix.Rest.Middleware
 
         private async Task<IDictionary<string, object>> GetActionParamsFromPostBody(HttpRequest request, PhoenixRequestContext context)
         {
-
             if (request.HasFormContentType)
             {
                 return await ParseFormDataBody(request, context);
@@ -261,8 +273,6 @@ namespace Phoenix.Rest.Middleware
                 // TODO: Arthur, handle error
                 throw new Exception("Unsupported content type");
             }
-
-
         }
 
         private IDictionary<string, object> GetActionParamsFromQueryString(HttpRequest request)
@@ -309,13 +319,24 @@ namespace Phoenix.Rest.Middleware
 
             foreach (var uploadedFile in request.Form.Files)
             {
-                var filePath = $@"{_FileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
-                using (Stream tempFile = File.Create(filePath))
+
+                if (ApplicationConfiguration.Current.RequestParserConfiguration.ShouldSaveAsFile.Value)
                 {
-                    await uploadedFile.CopyToAsync(tempFile);
+                    var filePath = $@"{_FileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
+                    using (Stream tempFile = File.Create(filePath))
+                    {
+                        await uploadedFile.CopyToAsync(tempFile);
+                    }
+                    uploadedFiles.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
+                }
+                else
+                {                    
+                    
+                    uploadedFiles.Add(uploadedFile.Name,
+                        new KalturaOTTFile(uploadedFile.OpenReadStream(), uploadedFile.FileName));
+                    
                 }
 
-                uploadedFiles.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
             }
 
             return uploadedFiles;
@@ -323,7 +344,6 @@ namespace Phoenix.Rest.Middleware
 
         private async Task<IDictionary<string, object>> ParseJsonBody(HttpRequest request, PhoenixRequestContext context)
         {
-
             using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
             using (var jsonReader = new JsonTextReader(streamReader))
             {
@@ -335,7 +355,7 @@ namespace Phoenix.Rest.Middleware
 
         private Dictionary<string, object> GetNestedDictionary(Dictionary<string, object> tokens)
         {
-            var result = new Dictionary<string, object>();
+            var result = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
             // group the params by prefix
             foreach (var kv in tokens)

@@ -10,7 +10,7 @@ namespace WebAPI.Models.General
     /// Base class that have CRUD actions 
     /// </summary>
     [Serializable]
-    public abstract partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT> : KalturaOTTObject
+    public abstract partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT> : KalturaOTTObjectSupportNullable
         where IdentifierT : IConvertible
     {
         //TODO SHIR - SET ALL AS VIRTUAL

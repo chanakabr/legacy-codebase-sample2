@@ -6,6 +6,13 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Upload;
 using ApiLogic;
+using System.Collections.Generic;
+using ApiObjects.Response;
+using System;
+using System.Linq;
+using WebAPI.ObjectsConvertor;
+using ApiLogic.Catalog;
+using WebAPI.Models.General;
 
 namespace WebAPI.Managers
 {
@@ -13,7 +20,6 @@ namespace WebAPI.Managers
     {
         private const string CB_SECTION_NAME = "tokens";
         private const string UPLOAD_TOKEN_KEY_FORMAT = "upload_token_{0}";
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
@@ -36,7 +42,7 @@ namespace WebAPI.Managers
             // save in CB
             UploadToken cbUploadToken = new UploadToken(groupId);
             string uploadTokenCbKey = string.Format(UploadTokenKeyFormat, cbUploadToken.UploadTokenId);
-            if (!cbManager.Add(uploadTokenCbKey, cbUploadToken, (uint) UploadTokenExpirySeconds, true))
+            if (!cbManager.Add(uploadTokenCbKey, cbUploadToken, (uint)UploadTokenExpirySeconds, true))
             {
                 log.Error("AddUploadToken: Failed to store upload token");
                 throw new InternalServerErrorException();
@@ -70,22 +76,24 @@ namespace WebAPI.Managers
             return cbUploadToken;
         }
 
-        internal static KalturaUploadToken UploadUploadToken(string id, string path, int groupId)
+        internal static KalturaUploadToken UploadUploadToken(string id, KalturaOTTFile fileData, int groupId)
         {
-            log.DebugFormat("UploadUploadToken function params -> Id: {0}, Path: {1}, GroupId: {2}", id, path, groupId);
+            log.DebugFormat("UploadUploadToken function params -> Id: {0}, filename: {1}, GroupId: {2}", id, fileData.name, groupId);
 
             UploadToken cbUploadToken = GetUploadToken(id, groupId);
+            OTTBasicFile file = fileData.ConvertToOttFileType();
 
-            FileInfo fileInfo = new FileInfo(path);
-            if (fileInfo == null)
+            OTTFile _file = null;
+
+            if (file is OTTFile)
             {
-                log.Error("UploadUploadToken: Failed to create file info, Path: " + path);
-                throw new InternalServerErrorException();
+                _file = file as OTTFile;
+                cbUploadToken.FileSize = new FileInfo(fileData.path).Length;
             }
 
-            cbUploadToken.FileSize = fileInfo.Length;
-            
-            var saveFileResponse = FileHandler.Instance.SaveFile(id, fileInfo, "KalturaUploadToken");
+            long.TryParse(id, out long _id);
+            var saveFileResponse = FileHandler.Instance.SaveFile(_id, _file, "KalturaUploadToken");
+                                  
             if (saveFileResponse == null)
             {
                 log.Error("UploadUploadToken: Failed to get saveFileResponse");
@@ -94,7 +102,7 @@ namespace WebAPI.Managers
 
             if (!saveFileResponse.HasObject())
             {
-                throw new ClientException(saveFileResponse.Status.Code, saveFileResponse.Status.Message);
+                throw new ClientException(saveFileResponse.Status);
             }
 
             log.DebugFormat("UploadUploadToken save file response -> Object: {0}", saveFileResponse.Object);
@@ -118,7 +126,7 @@ namespace WebAPI.Managers
 
             // save in CB
             string uploadTokenCbKey = string.Format(UploadTokenKeyFormat, cbUploadToken.UploadTokenId);
-            if (!cbManager.Set(uploadTokenCbKey, cbUploadToken, (uint) UploadTokenExpirySeconds, true))
+            if (!cbManager.Set(uploadTokenCbKey, cbUploadToken, (uint)UploadTokenExpirySeconds, true))
             {
                 log.Error("UploadUploadToken: Failed to store upload token");
                 throw new InternalServerErrorException();

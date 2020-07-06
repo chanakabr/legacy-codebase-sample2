@@ -50,36 +50,23 @@ namespace ConfigurationManager
         public BaseValue<int> PwlalPMaxResultsSize = new BaseValue<int>("PWLALP_MAX_RESULTS_SIZE", 8);
         public BaseValue<int> PreviewModuleNumOfCancelOrRefundAttempts = new BaseValue<int>("PreviewModuleNumOfCancelOrRefundAttempts", 4, false, "Number of attempts when Adyen Direct Debit sends a cancel or refund request to the payment port client"); 
         public BaseValue<int> EPGDocumentExpiry = new BaseValue<int>("epg_doc_expiry", 7);
-        public BaseValue<int> DomainCacheDocTimeout = new BaseValue<int>("DomainCacheDocTimeout", 1440);
-        public BaseValue<int> PlayCycleDocumentExpiryMinutes = new BaseValue<int>("playCycle_doc_expiry_min", 60, false, "TTL for CouchBase documents of play cycle data in minutes.");
         public BaseValue<int> UserInterestsTTLDays = new BaseValue<int>("ttl_user_interest_days", 30);
         public BaseValue<int> PersonalizedFeedTTLDays = new BaseValue<int>("PersonalizedFeedTTLDays", 365);
         public BaseValue<int> RecordingsMaxDegreeOfParallelism = new BaseValue<int>("recordings_max_degree_of_parallelism", 5);
         public BaseValue<int> QueueFailLimit = new BaseValue<int>("queue_fail_limit", 3, false, "Retry limit for RabbitMQ actions like enqueue.");
         public BaseValue<int> PendingThresholdDays = new BaseValue<int>("pending_threshold_days", 180);
-        public BaseValue<int> CrowdSourcerFeedNumberOfItems = new BaseValue<int>("crowdsourcer.FEED_NUM_OF_ITEMS", 0);
         public BaseValue<int> UserSegmentTTL = new BaseValue<int>("user_segment_ttl_hours", 36, false, "How long do we keep information about the users' segments");
         public BaseValue<int> EPGDeleteBulkSize = new BaseValue<int>("epg_delete_bulk_size", 10);
         public BaseValue<int> MediaMarksListLength = new BaseValue<int>("media_marks_list_limit", 300);
         public BaseValue<int> MediaMarksTTL = new BaseValue<int>("media_marks_ttl_days", 90);
         public BaseValue<int> LogReloadInterval = new BaseValue<int>("log_reload_interval", 0, false, "Interval of reloading the KLogger configuration from Couchbase, in milliseconds. If set to a positive value, log reload mechanism will be initiated on this application.");
-
-        public BaseValue<double> CrowdSourceTimeSpan = new BaseValue<double>("CrowdSourceTimeSpan", 30);
-        public BaseValue<double> BillingCacheTTL = new BaseValue<double>("BillingCacheTTL", 60);
         public BaseValue<double> SocialCacheDocTimeout = new BaseValue<double>("socialCacheDocTimeout", 1440);
-
         public BaseValue<long> ReconciliationFrequencySeconds = new BaseValue<long>("reconciliation_frequency_seconds", 7200);
         public BaseValue<ulong> EpgInitialId = new BaseValue<ulong>("epg_initial_id", 100000000);
-
-        public BaseValue<bool> ShouldDistributeRecordingSynchronously = new BaseValue<bool>("ShouldDistributeRecordingSynchronously", true);
-        public BaseValue<bool> ShouldRecoverSubscriptionRenewalToMessageBus = new BaseValue<bool>("should_recover_subscription_renewal_to_message_bus", false);
-        public BaseValue<bool> ShouldGetMediaFileDetailsDirectly = new BaseValue<bool>("ShouldGetMediaFileDetailsDirectly", false, false, "description");
-        public BaseValue<bool> ShouldGetCatalogDataFromDB = new BaseValue<bool>("get_catalog_data_from_db", false, false, "Just in case media mark information is not in Couchbase, we might want to continue to DB. Should be false or empty.");
         public BaseValue<bool> DownloadPicWithQueue = new BaseValue<bool>("downloadPicWithQueue", false);
         public BaseValue<bool> CheckImageUrl = new BaseValue<bool>("CheckImageUrl", true);
         public BaseValue<bool> AllowUnknownCountry = new BaseValue<bool>("allow_unknown_country", false);
         public BaseValue<bool> ShouldSubscriptionOverlapConsiderDLM = new BaseValue<bool>("should_subscription_overlap_consider_dlm", false);
-        public BaseValue<bool> ShouldAddInvalidationKeysToHeader = new BaseValue<bool>("add_invalidation_keys_to_header", false);
         public BaseValue<bool> TVMSkipLoginIPCheck = new BaseValue<bool>("SKIP_LOGIN_IP_CHECK", false, false, "TVM key, whether IP check during login should be skipped or not.");
         public BaseValue<bool> EnableHttpLogin = new BaseValue<bool>("EnableHttpLogin", true);
         public BaseValue<List<HealthCheckDefinition>> HealthCheckConfiguration = 
@@ -101,7 +88,6 @@ namespace ConfigurationManager
         public RequestParserConfiguration RequestParserConfiguration = new RequestParserConfiguration();
         public OTTUserControllerConfiguration OTTUserControllerConfiguration = new OTTUserControllerConfiguration();
         public EPGIngestV2Configuration EPGIngestV2Configuration = new EPGIngestV2Configuration();
-        public UsersCacheConfiguration UsersCacheConfiguration = new UsersCacheConfiguration();
         public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
         public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();
         public HttpClientConfiguration HttpClientConfiguration = new HttpClientConfiguration();
@@ -143,6 +129,7 @@ namespace ConfigurationManager
         public MailerHttpClientConfiguration MailerHttpClientConfiguration = new MailerHttpClientConfiguration();
         public IotHttpClientConfiguration IotHttpClientConfiguration = new IotHttpClientConfiguration();
         public UdidUsageConfiguration UdidUsageConfiguration = new UdidUsageConfiguration();
+        public IotAdapterConfiguration IotAdapterConfiguration = new IotAdapterConfiguration();
 
         public T GetValueByKey<T>(string key)
         {

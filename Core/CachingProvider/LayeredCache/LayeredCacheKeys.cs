@@ -533,7 +533,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainKey(int domainId)
         {
-            return string.Format("domain_V1_{0}", domainId);
+            return string.Format("domain_V2_{0}", domainId);
         }
 
         public static string GetDlmKey(int dlmId)
@@ -560,6 +560,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("business_module_rule_id_{0}", id);
         }
+
+        public static string GetAllRuleActionTypesKey(int groupId)
+        {
+            return string.Format("all_business_module_rules_action_type_groupId_{0}", groupId);
+        }
+
         public static string GetAssetStatsSortKey(string assetId, string orderBy)
         {
             return string.Format("asset_stats_sort_{0}_{1}", assetId, orderBy);
@@ -1217,6 +1223,11 @@ namespace CachingProvider.LayeredCache
         public static string GetPlaybackPartnerConfigInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_{0}", GetPlaybackPartnerConfigKey(groupId));
+        }
+
+        public static string GetDomainDeviceInvalidationKey(int domainId, string deviceId)
+        {
+            return $"invalidationKey_domain_{domainId}_device_{deviceId}";
         }
 
         #endregion

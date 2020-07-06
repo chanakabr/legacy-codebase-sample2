@@ -311,27 +311,9 @@ namespace Core.Users
             return userID;
         }
 
-        protected Int32 GetUserIDByToken(string sToken)
+        protected int GetUserIDByToken(string sToken)
         {
-            Int32 nRet = 0;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-            selectQuery += "select id from users where status=1 and is_active=1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CP_TOKEN", "=", sToken);
-            selectQuery += " and ";
-            selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
-            selectQuery += " and CP_TOKEN_LAST_DATE>getdate()";
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                {
-                    nRet = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            return nRet;
+            return DAL.UsersDal.GetUserIdByToken(m_nGroupID, sToken);
         }
 
         protected int GetUserIDByActivationToken(string sToken)
@@ -1146,10 +1128,10 @@ namespace Core.Users
                 return response;
             }
             
-            var validationResponse = PasswordPolicyManager.Instance.ValidatePassword(sPass, nGroupID, long.Parse(userResponseObject.m_user.m_sSiteGUID), userResponseObject.m_user.m_oBasicData.RoleIds);
-            if (!validationResponse.IsOkStatusCode())
+            var validationStatus = PasswordPolicyManager.Instance.ValidatePassword(sPass, nGroupID, long.Parse(userResponseObject.m_user.m_sSiteGUID), userResponseObject.m_user.m_oBasicData.RoleIds);
+            if (!validationStatus.IsOkStatusCode())
             {
-                response.SetStatus(validationResponse);
+                response.SetStatus(validationStatus);
                 response.Object.m_RespStatus = ResponseStatus.PasswordPolicyViolation;
                 return response;
             }
@@ -1208,7 +1190,46 @@ namespace Core.Users
                 return response;
             }
 
-            var validationResponse = PasswordPolicyManager.Instance.ValidatePassword(sPass, nGroupID, userId, user.m_oBasicData.RoleIds);
+            return UpdatePassword(user, userId, sPass);
+        }
+
+        public override GenericResponse<UserResponseObject> RenewPasswordWithToken(string token, string password)
+        {
+            var response = new GenericResponse<UserResponseObject>() { Object = new UserResponseObject() };
+            int userId = GetUserIDByToken(token);
+
+            if (userId == 0)
+            {
+                response.Object.m_RespStatus = ResponseStatus.UserDoesNotExist;
+                response.Object.m_user = null;
+                return response;
+            }
+
+            var user = new User();
+            user.Initialize(userId, m_nGroupID);
+
+            if (string.IsNullOrEmpty(user.m_oBasicData.m_sPassword))
+            {
+                response.Object.m_RespStatus = ResponseStatus.UserDoesNotExist;
+                response.Object.m_user = null;
+                return response;
+            }
+
+            response = UpdatePassword(user, userId, password);
+
+            if (response.IsOkStatusCode())
+            {
+                DAL.UsersDal.RevokePasswordToken(userId);
+            }
+
+            return response;
+        }
+
+        private GenericResponse<UserResponseObject> UpdatePassword(User user, long userId, string password)
+        {
+            var response = new GenericResponse<UserResponseObject>() { Object = new UserResponseObject() };
+
+            var validationResponse = PasswordPolicyManager.Instance.ValidatePassword(password, m_nGroupID, userId, user.m_oBasicData.RoleIds);
             if (!validationResponse.IsOkStatusCode())
             {
                 response.SetStatus(validationResponse);
@@ -1216,7 +1237,7 @@ namespace Core.Users
                 return response;
             }
 
-            if (!user.m_oBasicData.SetPassword(sPass, nGroupID))
+            if (!user.m_oBasicData.SetPassword(password, m_nGroupID))
             {
                 response.Object.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
                 response.Object.m_user = null;
@@ -1227,6 +1248,7 @@ namespace Core.Users
             response.Object.m_user = user;
             response.Object.m_RespStatus = ResponseStatus.OK;
             response.SetStatus(eResponseStatus.OK);
+
             return response;
         }
 

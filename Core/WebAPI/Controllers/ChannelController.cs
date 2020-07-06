@@ -386,6 +386,10 @@ namespace WebAPI.Controllers
                     response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.NameEqual, null, pager.getPageIndex(), 
                         pager.getPageSize(), filter.OrderBy, isAllowedToViewInactiveAssets, userId);
                 }
+                else if (!string.IsNullOrEmpty(filter.IdIn))
+                {
+                    response = ClientsManager.CatalogClient().SearchChannels(groupId, filter.GetIdIn(), isAllowedToViewInactiveAssets, userId);
+                }
                 else
                 {
                     //search using ChannelLike

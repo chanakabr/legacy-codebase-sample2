@@ -31,6 +31,8 @@ namespace Core.Users
 
         public string ExternalId { get; set; }
 
+        public string MacAddress { get; set; }
+
         public long DeviceFamilyId
         {
             get;
@@ -71,10 +73,10 @@ namespace Core.Users
         }
 
 
-        
 
 
-       
+
+
 
         protected override bool DoUpdate()
         {
@@ -83,24 +85,24 @@ namespace Core.Users
             switch (ActivataionStatus)
             {
                 case DeviceState.Pending:
-                {
-                    result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 3, 3);
-                    break;
-                }
+                    {
+                        result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 3, 3);
+                        break;
+                    }
                 case DeviceState.Activated:
-                {
-                    result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 1, 1);
-                    break;
-                }
+                    {
+                        result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 1, 1);
+                        break;
+                    }
                 case DeviceState.UnActivated:
-                {
-                    result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 0, 1);
-                    break;
-                }
+                    {
+                        result = DomainDal.UpdateDomainsDevicesStatus((int)Id, 0, 1);
+                        break;
+                    }
                 default:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
 
             try
@@ -145,9 +147,9 @@ namespace Core.Users
         public void InvalidateDomainDevice()
         {
             List<string> invalidationKeys = new List<string>()
-                {
-                    String.Format("invalidationKey_domain_{0}_device_{1}", this.DomainId, this.DeviceId)
-                };
+            {
+                LayeredCacheKeys.GetDomainDeviceInvalidationKey(DomainId, DeviceId.ToString())
+            };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }

@@ -68,6 +68,23 @@ namespace EpgIngest
             }
         }
 
+        public static Dictionary<int,string> GetEpgPicsBaseUrls(int groupId, List<int> epgPicIds)
+        {
+            var data = EpgDal.GetEpgPicsBaseUrls(groupId, epgPicIds);
+
+            var baseUrls = new Dictionary<int, string>();
+            if (data != null &&  data.Rows.Count > 0 &&
+                data.Rows != null)
+            {
+                foreach (DataRow row in data.Rows)
+                {
+                    string base_url  = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL");
+                    var id  = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                    baseUrls.Add(id,base_url);
+                }
+            }
+            return baseUrls;
+        }
         public static bool ParseEPGStrToDate(string dateStr, ref DateTime theDate)
         {
             if (string.IsNullOrEmpty(dateStr) || dateStr.Length < 14)

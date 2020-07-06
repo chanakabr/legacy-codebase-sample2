@@ -2498,14 +2498,14 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static ApiObjects.TimeShiftedTv.RecordingResponse QueryRecords(int groupID, string userID, long[] epgIDs)
+        public static ApiObjects.TimeShiftedTv.Recording QueryRecords(int groupID, string userID, long epgId)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
                 long domainID = 0;
-                return t.QueryRecords(userID, epgIDs.ToList(), ref domainID, ApiObjects.RecordingType.Single, true);
+                return t.QueryRecords(userID, epgId, ref domainID, ApiObjects.RecordingType.Single, true);
             }
             else
             {
@@ -2722,11 +2722,9 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 return t.RecordSeasonOrSeries(userID, epgID, recordingType);
-            }
-            else
-            {
-                return null;
-            }
+            }           
+            
+            return null;            
         }
 
 
@@ -2824,14 +2822,14 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static ApiObjects.KeyValuePair GetSeriesIdAndSeasonNumberByEpgId(int groupID, long epgId)
+        public static Tuple<string, int, bool> GetEpgSeriesDetails(int groupID, long epgId)
         {
             BaseConditionalAccess t = null;
-            ApiObjects.KeyValuePair result = new ApiObjects.KeyValuePair();
+            Tuple<string, int, bool> result = new Tuple<string, int, bool>(string.Empty, -1, false);
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                result = t.GetSeriesIdAndSeasonNumberByEpgId(epgId);
+                result = t.GetEpgSeriesDetails(epgId);
             }
 
             return result;
@@ -3066,6 +3064,11 @@ namespace Core.ConditionalAccess
                 }
                
                 response.ItemsPrices = t.GetItemsPrices(mediaFiles, userId, couponCode != null ? couponCode : string.Empty, onlyLowest, languageCode, udid, ip, currencyCode, blockEntitlement);
+                //foreach (MediaFileItemPricesContainer mf in response.ItemsPrices)
+                //{
+                //    t.InesrtGetItemsPricesResToCache(mf.m_nMediaFileID, userId, mf);
+                //}
+
                 if (response.ItemsPrices != null)
                     response.Status = new Status((int)eResponseStatus.OK, "OK");
                 else
@@ -3290,12 +3293,9 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static bool UnifiedRenewalReminder(int groupId, string siteGuid, long householdId, long processId, long endDate)
+        public static bool UnifiedRenewalReminder(int groupId, long householdId, long processId, long endDate)
         {
             bool response = false;
-
-            // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             // get partner implementation and group ID
             ConditionalAccess.BaseConditionalAccess t = null;
@@ -3305,7 +3305,7 @@ namespace Core.ConditionalAccess
             {
                 try
                 {
-                    response = t.UnifiedRenewalReminder(siteGuid, householdId, processId, endDate);
+                    response = t.UnifiedRenewalReminder(householdId, processId, endDate);
                 }
                 catch (Exception ex)
                 {

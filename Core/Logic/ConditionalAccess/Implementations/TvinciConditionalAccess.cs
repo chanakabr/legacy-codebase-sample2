@@ -433,7 +433,7 @@ namespace Core.ConditionalAccess
             if (!endDate.HasValue)
             {
                 if (bIsPPVUsageModuleExists)
-                    endDate = Utils.GetEndDateTime(startDate.Value, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
+                    endDate = Utils.GetEndDateTime(startDate.Value, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle, true, true);
             }
 
             int maxNumOfViews = bIsPPVUsageModuleExists ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0;
@@ -786,7 +786,9 @@ namespace Core.ConditionalAccess
                 }
 
                 if (isPPVUsageModuleExists)
-                    endDate = Utils.GetEndDateTime(startDate, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
+                {
+                    endDate = Utils.GetEndDateTime(startDate, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle, true, true);
+                }
 
                 if (response != null)
                 {

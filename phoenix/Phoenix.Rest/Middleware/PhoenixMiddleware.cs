@@ -20,8 +20,6 @@ using ConfigurationManager;
 
 namespace Phoenix.Rest.Middleware
 {
-
-
     public static class PhoenixMiddleware
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -49,6 +47,7 @@ namespace Phoenix.Rest.Middleware
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
 
+            app.UseRequestResponseLogger();
             app.UseHealthCheck("/api_v3/service/system/action/health");
             app.UseCoreConcurrencyLimiter();
             app.UseApiExceptionHandler();

@@ -265,16 +265,18 @@ namespace ApiLogic.Users.Managers
                 if (passwordPolicyResponse.HasObjects())
                 {
                     int? historyCount = null;
-                    HashSet<string> passwordsHistory = null;
+                    HashSet<string> passwordsHistory = UsersDal.GetPasswordsHistory(userId);
+                    var invalidPasswordComplexities = new HashSet<string>();
+                    var isPasswordReused = false;
 
                     foreach (var passwordPolicy in passwordPolicyResponse.Objects)
                     {
-                        if (passwordPolicy.HistoryCount.HasValue && passwordPolicy.HistoryCount.Value > 0)
+                        if (!isPasswordReused && passwordPolicy.HistoryCount.HasValue && passwordPolicy.HistoryCount.Value > 0)
                         {
                             historyCount = passwordPolicy.HistoryCount;
-                            passwordsHistory = UsersDal.GetPasswordsHistory(userId);
                             if (passwordsHistory != null && passwordsHistory.Contains(password))
                             {
+                                isPasswordReused = true;
                                 response.AddArg(eResponseStatus.PasswordCannotBeReused, 
                                     $"The password shall be different from the last {passwordPolicy.HistoryCount} " +
                                     $"passwords used by the user");
@@ -285,10 +287,14 @@ namespace ApiLogic.Users.Managers
                         {
                             for (int i = 0; i < passwordPolicy.Complexities.Count; i++)
                             {
-                                if (!Regex.IsMatch(password, passwordPolicy.Complexities[i].Expression))
+                                var expression = passwordPolicy.Complexities[i].Expression;
+                                if (!invalidPasswordComplexities.Contains(expression) && !Regex.IsMatch(password, expression))
                                 {
-                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()} {passwordPolicy.Id}_{i + 1}",
-                                        $"Your password needs to be more complex. It requires: {passwordPolicy.Complexities[i].Description}. Please enter a new password in accordance with these requirements");
+                                    invalidPasswordComplexities.Add(expression);
+
+                                    var description = passwordPolicy.Complexities[i].Description;
+
+                                    AddPasswordComplexityError(response, description);
                                 }
                             }
                         }
@@ -296,7 +302,8 @@ namespace ApiLogic.Users.Managers
 
                     if (response.Args != null && response.Args.Count > 0)
                     {
-                        response.Set(eResponseStatus.PasswordPolicyViolation);
+                        var args = response.Args;
+                        response.Set(eResponseStatus.PasswordPolicyViolation, eResponseStatus.PasswordPolicyViolation.ToString(), args);
                     }
                     else
                     {
@@ -619,6 +626,19 @@ namespace ApiLogic.Users.Managers
             }
 
             return result;
+        }
+
+        private static void AddPasswordComplexityError(Status response, string complexityDescription)
+        {
+            if (response.Args == null)
+            {
+                response.Args = new List<ApiObjects.KeyValuePair>();
+            }
+
+            // Add args as Args.Add(..) (not as AddArg(..)) to allow multiple InvalidPasswordComplexity errors.
+            response.Args.Add(new ApiObjects.KeyValuePair(
+                eResponseStatus.InvalidPasswordComplexity.ToString(),
+                $"Your password needs to be more complex. It requires: {complexityDescription}. Please enter a new password in accordance with these requirements"));
         }
     }
 }

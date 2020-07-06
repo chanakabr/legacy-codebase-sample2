@@ -1,4 +1,5 @@
-﻿using ElasticSearch.Common;
+﻿using ApiObjects.Ingest;
+using ElasticSearch.Common;
 using KLogMonitor;
 using Polly;
 using Polly.Retry;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ESUtils = ElasticSearch.Common.Utils;
 
 namespace ElasticsearchIndexCleaner
 {
@@ -14,29 +16,39 @@ namespace ElasticsearchIndexCleaner
 
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public bool Clean(IEnumerable<int> groupIds, int oldIndicesToSaveCount)
+        public bool Clean(IEnumerable<int> groupIds, int lastIndexBackupCount)
         {
             var esClient = new ElasticSearchApi();
+            var purgeIndices = esClient.ListIndicesByAlias(IngestConsts.PURGE_INDEX_ALIAS)
+                   .Select(x => x.Name).ToList();
+
+            if (purgeIndices.Any())
+            {
+                _Logger.Info($"Found [{purgeIndices.Count}] purge indexes to delete, removing now");
+                esClient.DeleteIndices(purgeIndices);
+            }
+
+            var lastIndexBackupCandidates = esClient.ListIndicesByAlias(IngestConsts.LAST_BACKUP_ALIAS)
+                    .Select(x => x.Name).ToList();
 
             foreach (var groupId in groupIds)
             {
-                _Logger.Info($"Starting ElasticsearchIndexCleaner for group:[{groupId}], oldIndicesToSaveCount:[{oldIndicesToSaveCount}]");
-                var indices = esClient.ListIndices($"{groupId}_epg_*");
-                var indicesWithoutAliases = indices.Where(i => !i.Aliases.Any()).Select(i => i.Name).ToList();
-
-                if (oldIndicesToSaveCount < 0)
+                _Logger.Info($"Starting ElasticsearchIndexCleaner for group:[{groupId}], lastIndexBackupCount:[{lastIndexBackupCount}]");
+                
+                    
+                if (lastIndexBackupCount < 0)
                 {
-                    _Logger.Error($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] should be greater to or equal to 0");
+                    _Logger.Error($"ElasticsearchIndexCleaner lastIndexBackupCount:[{lastIndexBackupCount}] should be greater to or equal to 0");
                     return false;
                 }
-                if (oldIndicesToSaveCount >= indicesWithoutAliases.Count)
+                if (lastIndexBackupCount >= lastIndexBackupCandidates.Count)
                 {
-                    _Logger.Info($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] is greater or equal to the amount of exsisting backups, existing without deletion. indicesToDelete.Count:[{indicesWithoutAliases.Count}]");
+                    _Logger.Info($"ElasticsearchIndexCleaner lastIndexBackupCount:[{lastIndexBackupCount}] is greater or equal to the amount of exsisting backups, existing without deletion. indicesToDelete.Count:[{lastIndexBackupCandidates.Count}]");
                     return true;
                 }
 
                 var indicesByDate = new Dictionary<DateTime, List<string>>();
-                foreach (var item in indicesWithoutAliases)
+                foreach (var item in lastIndexBackupCandidates)
                 {
                     // There migth be some old indices that are not in the new naming convention we need to be fault tolerent
                     var dateResult = GetDateTimeFromIndexName(item);
@@ -54,11 +66,11 @@ namespace ElasticsearchIndexCleaner
                 var indicesToDelete = new List<string>();
                 foreach (var item in indicesByDate)
                 {
-                    if (item.Value.Count > oldIndicesToSaveCount)
+                    if (item.Value.Count > lastIndexBackupCount)
                     {
                         var counter = item.Value.ToDictionary(key => int.Parse(key.Split('_').Last()), value => value);
                         var sorted = new SortedDictionary<int, string>(counter, Comparer<int>.Default);
-                        indicesToDelete.AddRange(sorted.Take(sorted.Count - oldIndicesToSaveCount).Select(x => x.Value));
+                        indicesToDelete.AddRange(sorted.Take(sorted.Count - lastIndexBackupCount).Select(x => x.Value));
                     }
                 }
 

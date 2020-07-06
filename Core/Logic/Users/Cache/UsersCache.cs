@@ -46,16 +46,6 @@ namespace Core.Users
 
         private static UsersCache instance = null;
 
-        private static double GetDocTTLSettings()
-        {
-            double nResult = ApplicationConfiguration.Current.UsersCacheConfiguration.TTLSeconds.Value;
-            if (nResult == 0)
-            {
-                nResult = 1440.0;
-            }
-
-            return nResult;
-        }
 
         private UsersCache()
         {

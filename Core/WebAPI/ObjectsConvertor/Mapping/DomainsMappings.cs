@@ -28,7 +28,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID))
                 .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.LicenseData) ?
                     new KalturaCustomDrmPlaybackPluginData(null) { Data = src.LicenseData, Scheme = KalturaDrmSchemeName.CUSTOM_DRM } : null))
-                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId));
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
+                ;
 
             cfg.CreateMap<Device, KalturaDevice>()
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.m_deviceUDID))
@@ -114,6 +116,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.ActivatedOn)))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
             ;
 
             //CouponWallet, KalturaHouseholdCoupon
@@ -244,16 +247,11 @@ namespace WebAPI.Mapping.ObjectsConvertor
                  ;
             cfg.CreateMap<KalturaIotProfileAws, IotProfileAws>()
                  .ForMember(dest => dest.AccessKeyId, opt => opt.MapFrom(src => src.AccessKeyId))
-                 .ForMember(dest => dest.BrokerPort, opt => opt.MapFrom(src => src.BrokerPort))
-                 .ForMember(dest => dest.CertificatePath, opt => opt.MapFrom(src => src.CertificatePath))
+                 .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))
                  .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId))
                  .ForMember(dest => dest.IdentityPoolId, opt => opt.MapFrom(src => src.IdentityPoolId))
                  .ForMember(dest => dest.IotEndPoint, opt => opt.MapFrom(src => src.IotEndPoint))
-                 .ForMember(dest => dest.IotPolicyName, opt => opt.MapFrom(src => src.IotPolicyName))
-                 .ForMember(dest => dest.PfxPassword, opt => opt.MapFrom(src => src.PfxPassword))
-                 .ForMember(dest => dest.PfxPath, opt => opt.MapFrom(src => src.PfxPath))
                  .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
-                 .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))
                  .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                  ;
 
@@ -264,16 +262,11 @@ namespace WebAPI.Mapping.ObjectsConvertor
 
             cfg.CreateMap<IotProfileAws, KalturaIotProfileAws>()
                  .ForMember(dest => dest.AccessKeyId, opt => opt.MapFrom(src => src.AccessKeyId))
-                 .ForMember(dest => dest.BrokerPort, opt => opt.MapFrom(src => src.BrokerPort))
-                 .ForMember(dest => dest.CertificatePath, opt => opt.MapFrom(src => src.CertificatePath))
+                 .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))
                  .ForMember(dest => dest.ClientId, opt => opt.MapFrom(src => src.ClientId))
                  .ForMember(dest => dest.IdentityPoolId, opt => opt.MapFrom(src => src.IdentityPoolId))
                  .ForMember(dest => dest.IotEndPoint, opt => opt.MapFrom(src => src.IotEndPoint))
-                 .ForMember(dest => dest.IotPolicyName, opt => opt.MapFrom(src => src.IotPolicyName))
-                 .ForMember(dest => dest.PfxPassword, opt => opt.MapFrom(src => src.PfxPassword))
-                 .ForMember(dest => dest.PfxPath, opt => opt.MapFrom(src => src.PfxPath))
                  .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
-                 .ForMember(dest => dest.SecretAccessKey, opt => opt.MapFrom(src => src.SecretAccessKey))
                  .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                  ;
         }

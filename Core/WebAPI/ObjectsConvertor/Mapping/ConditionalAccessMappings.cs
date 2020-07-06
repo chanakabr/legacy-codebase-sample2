@@ -242,12 +242,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
                ;
 
-            cfg.CreateMap<KalturaSubscriptionEntitlement, Entitlement>()
-              .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.paymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
-              .ForMember(dest => dest.paymentMethodId, opt => opt.MapFrom(src => src.PaymentMethodId))
-              .ForMember(dest => dest.type, opt => opt.MapFrom(src => eTransactionType.Subscription))
+            cfg.CreateMap<CollectionPurchase, KalturaEntitlementCancellation>()
+             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.collection))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
+              .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.productId))
+              .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
+              .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
               ;
+
+            cfg.CreateMap<KalturaSubscriptionEntitlement, Entitlement>()
+                  .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.Id))
+                  .ForMember(dest => dest.paymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
+                  .ForMember(dest => dest.paymentMethodId, opt => opt.MapFrom(src => src.PaymentMethodId))
+                  .ForMember(dest => dest.type, opt => opt.MapFrom(src => eTransactionType.Subscription))
+                  ;
 
             cfg.CreateMap<Entitlement, KalturaEntitlement>().ConstructUsing(ConvertToKalturaEntitlement);
 
@@ -789,6 +797,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaRecordingType.SERIES:
                     result = RecordingType.Series;
                     break;
+                case KalturaRecordingType.OriginalBroadcast:
+                    result = RecordingType.OriginalBroadcast;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
             }
@@ -809,34 +820,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case RecordingType.Series:
                     result = KalturaRecordingType.SERIES;
                     break;
+                case RecordingType.OriginalBroadcast:
+                    result = KalturaRecordingType.OriginalBroadcast;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
             }
             return result;
         }
 
-        public static KalturaRecordingType? ConvertNullableRecordingType(RecordingType? recordingType)
-        {
-            KalturaRecordingType? result = null;
-            if (recordingType.HasValue)
-            {
-                switch (recordingType)
-                {
-                    case RecordingType.Single:
-                        result = KalturaRecordingType.SINGLE;
-                        break;
-                    case RecordingType.Season:
-                        result = KalturaRecordingType.SEASON;
-                        break;
-                    case RecordingType.Series:
-                        result = KalturaRecordingType.SERIES;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
-                }
-            }
-            return result;
-        }
 
         public static ApiObjects.SearchObjects.OrderObj ConvertOrderToOrderObj(KalturaRecordingOrderBy order)
         {

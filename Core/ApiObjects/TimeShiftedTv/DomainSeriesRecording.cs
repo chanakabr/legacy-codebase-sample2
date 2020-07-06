@@ -8,6 +8,8 @@ namespace ApiObjects.TimeShiftedTv
 {
     public class DomainSeriesRecording
     {
+        public RecordingType Type { get; set; }
+
         public long Id { get; set; }
 
         public string SeriesId { get; set; }
