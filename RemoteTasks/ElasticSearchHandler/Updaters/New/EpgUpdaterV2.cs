@@ -79,7 +79,7 @@ namespace ElasticSearchHandler.Updaters
 
             if (sizeOfBulk == 0)
             {
-                sizeOfBulk = 50;
+                sizeOfBulk = 500;
             }
 
         }
@@ -279,7 +279,14 @@ namespace ElasticSearchHandler.Updaters
                                     }
 
                                     string serializedEpg = SerializeEPG(epg, suffix, doesGroupUsesTemplates);
-                                    string ttl = string.Format("{0}m", Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes));
+                                    string ttl = string.Empty;
+                                    bool shouldSetTTL = ShouldSetTTL();
+
+                                    if (shouldSetTTL)
+                                    {
+                                        double totalMinutes = GetTTLMinutes(epg);
+                                        ttl = string.Format("{0}m", totalMinutes);
+                                    }
 
                                     bulkRequests.Add(new ESBulkRequestObj<ulong>()
                                     {
@@ -364,6 +371,16 @@ namespace ElasticSearchHandler.Updaters
         protected virtual string GetDocumentType()
         {
             return EPG;
+        }
+
+        protected virtual bool ShouldSetTTL()
+        {
+            return true;
+        }
+
+        protected virtual double GetTTLMinutes(EpgCB epg)
+        {
+            return Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes);
         }
 
         protected virtual ulong GetDocumentId(int epgId)

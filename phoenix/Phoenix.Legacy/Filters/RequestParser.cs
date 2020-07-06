@@ -104,12 +104,20 @@ namespace WebAPI.Filters
 
                     foreach (var uploadedFile in parser.Files)
                     {
-                        var filePath = $@"{fileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
-                        using (Stream tempFile = File.Create(filePath))
+                        if (ApplicationConfiguration.Current.RequestParserConfiguration.ShouldSaveAsFile.Value)
                         {
-                            uploadedFile.Data.CopyTo(tempFile);
+                            var filePath = $@"{fileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
+                            using (Stream tempFile = File.Create(filePath))
+                            {
+                                uploadedFile.Data.CopyTo(tempFile);
+                            }
+
+                            ret.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
                         }
-                        ret.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
+                        else
+                        {                            
+                            ret.Add(uploadedFile.Name, new KalturaOTTFile(uploadedFile.Data, uploadedFile.FileName));                            
+                        }
                     }
 
                 }

@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Base;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -12,6 +13,11 @@ namespace ApiLogic.Catalog
         public List<LanguageContainer> NamesInOtherLanguages { get; set; }
         public long? ParentId { get; set; }
         public List<long> ChildrenIds { get; set; }
+
+        [JsonProperty(PropertyName = "UnifiedChannels",
+                    TypeNameHandling = TypeNameHandling.Auto,
+                    ItemTypeNameHandling = TypeNameHandling.Auto,
+                    ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<UnifiedChannel> UnifiedChannels { get; set; }
         public Dictionary<string, string> DynamicData { get; set; }
         public DateTime? UpdateDate { get; set; }

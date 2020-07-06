@@ -6517,9 +6517,9 @@ namespace Core.ConditionalAccess
                     return false;
                 }
 
-                seriesIdName = SERIES_ID;
-                seasonNumberName = SEASON_NUMBER;
-                episodeNumberName = EPISODE_NUMBER;
+                seriesIdName = $"metas.{SERIES_ID}";
+                seasonNumberName = $"metas.{SEASON_NUMBER}";
+                episodeNumberName = $"metas.{EPISODE_NUMBER}";
                 return true;
             }
 
@@ -6692,12 +6692,14 @@ namespace Core.ConditionalAccess
                 int seasonNumber = 0;
                 foreach (var field in potentialRecording.ExtraFields)
                 {
-                    if (field.key.ToLower() == seriesIdName.ToLower())
+                    string key = field.key.ToLower();
+
+                    if (key == seriesIdName.ToLower())
                     {
                         seriesId = field.value;
                     }
 
-                    if (field.key.ToLower() == seasonNumberName.ToLower())
+                    if (key == seasonNumberName.ToLower())
                     {
                         int.TryParse(field.value, out seasonNumber);
                     }
@@ -9220,8 +9222,8 @@ namespace Core.ConditionalAccess
                 // check if coupon related to subscription the type is coupon gift card or coupon                        
                 long couponGroupId = Utils.GetSubscriptiopnPurchaseCoupon(ref couponCode, purchaseId, groupId); // return only if valid .
 
-                if (couponGroupId > 0 && ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode.Equals(couponGroupId.ToString())) ||
-                                          (allCoupons != null && allCoupons.Count(x => x.m_sGroupCode.Equals(couponGroupId.ToString())) > 0)))
+                if (couponGroupId > 0 && ((subscription.m_oCouponsGroup != null && !string.IsNullOrEmpty(subscription.m_oCouponsGroup.m_sGroupCode) && subscription.m_oCouponsGroup.m_sGroupCode.Equals(couponGroupId.ToString())) ||
+                                          (allCoupons != null && allCoupons.Count(x => !string.IsNullOrEmpty(x.m_sGroupCode) && x.m_sGroupCode.Equals(couponGroupId.ToString())) > 0)))
                 {
                     return couponGroupId;
                 }

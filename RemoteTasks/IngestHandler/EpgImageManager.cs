@@ -104,22 +104,25 @@ namespace IngestHandler
 
         private static void InsertNewPicturesToDB(int groupID, IEnumerable<GenericResponse<EpgPicture>> picsToInsert)
         {
+            var epgPictures = new Dictionary<int, EpgPicture>();
             foreach (var picResult in picsToInsert)
             {
                 var pic = picResult.Object;
                 int nPicID = ImporterImpl.DownloadEPGPic(pic.Url, pic.PicName, groupID, 0, pic.ChannelId, pic.RatioId, pic.ImageTypeId);
                 pic.PicID = nPicID;
-
-                // TODO: arhtur: this is crappy implementation of getting the just generated \ inserted image url back from the table....
-                // need to avoid doing another sql query for every image for every program for every translation OMG...
-                // but right now to be as compatiable as possible with ws_ingest and to solve a production issue we have to :\
-                var baseURl = ODBCWrapper.Utils.GetTableSingleVal("epg_pics", "BASE_URL", nPicID);
-                if (baseURl != null && baseURl != DBNull.Value)
-                {
-                    pic.Url = baseURl.ToString();
-                    pic.BaseUrl = pic.Url;
-                }
+                epgPictures[nPicID]=pic;
             }
+
+
+            var EpgUrlPerId
+                = EpgIngest.Utils.GetEpgPicsBaseUrls(groupID, epgPictures.Keys.ToList());
+
+            foreach (var epgPerID in EpgUrlPerId)
+            {
+                epgPictures[epgPerID.Key].Url = epgPerID.Value;
+                epgPictures[epgPerID.Key].BaseUrl = epgPerID.Value;
+            }
+            
         }
 
         private static void GetExistingPictures(int groupID, IEnumerable<GenericResponse<EpgPicture>> validPicturesToUpload)

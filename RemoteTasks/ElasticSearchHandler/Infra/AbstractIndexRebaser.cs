@@ -23,6 +23,7 @@ namespace ElasticSearchHandler
         protected IElasticSearchUpdater updater;
         protected int maxResults;
         protected int sizeOfBulk;
+        protected int sizeOfBulkDefaultValue;
 
         /// <summary>
         ///  Minimum time span to consider that there was a real change
@@ -49,13 +50,11 @@ namespace ElasticSearchHandler
             updater = null;
 
             sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+            sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
             maxResults = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
 
-            // Default for size of bulk should be 1000, if not stated otherwise in TCM
-            if (sizeOfBulk == 0)
-            {
-                sizeOfBulk = 1000;
-            }
+            // prevent from size of bulk to be more than the default value of 500 (currently as of 23.06.20)
+            sizeOfBulk = sizeOfBulk == 0 ? sizeOfBulkDefaultValue : sizeOfBulk > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : sizeOfBulk;
 
             // Default size of max results should be 100,000
             if (maxResults == 0)

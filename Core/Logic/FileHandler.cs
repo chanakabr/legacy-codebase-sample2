@@ -1,13 +1,16 @@
 ﻿
 using Amazon.S3;
 using Amazon.S3.Transfer;
+using ApiLogic.Catalog;
 using ApiObjects.Response;
 using ConfigurationManager;
 using ConfigurationManager.Types;
 using KLogMonitor;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace ApiLogic
@@ -17,11 +20,13 @@ namespace ApiLogic
         protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected abstract void Initialize();
-        protected abstract GenericResponse<string> Save(string fileName, FileInfo fileInfo, string subDir);
+        protected abstract GenericResponse<string> Save(string fileName, OTTFile fileInfo, string subDir);
+        protected abstract GenericResponse<string> Save(string fileName, OTTStreamFile file, string subDir);
         protected abstract GenericResponse<string> GetSubDir(string id, string typeName);
         protected abstract GenericResponse<string> GetSubDir(long id, string typeName);
         protected abstract string GetUrl(string subDir, string fileName);
         protected abstract Status Delete(string fileURL);
+        protected virtual Status ValidateFileContent(FileInfo file, string filePath) { return Status.Ok; }
 
         public bool ShouldDeleteSourceFile { get; protected set; }
         private const string KALTURA = "Kaltura";
@@ -52,7 +57,7 @@ namespace ApiLogic
 
         private static FileHandler GetFileHandlerImpl()
         {
-            
+
             switch (ApplicationConfiguration.Current.FileUpload.Type.Value)
             {
                 case eFileUploadType.FileSystem:
@@ -69,16 +74,25 @@ namespace ApiLogic
             return Delete(fileUrl);
         }
 
-        public GenericResponse<string> SaveFile(string id, FileInfo fileInfo, string objectTypeName)
+        public GenericResponse<string> SaveFile(long id, OTTFile file, string objectTypeName)
         {
-            GenericResponse<string> saveFileResponse = new GenericResponse<string>();
+            var saveFileResponse = new GenericResponse<string>();
+            if (file == null)
+            {
+                log.Error($"OTTFile is null and can't be used");
+                saveFileResponse.SetStatus(eResponseStatus.Error);
+                return saveFileResponse;
+            }
+
+            var fileInfo = new FileInfo(file.Path);
             var validationResponse = Validate(objectTypeName, fileInfo);
+
             if (validationResponse.HasObject())
             {
                 saveFileResponse = GetSubDir(id, validationResponse.Object);
                 if (saveFileResponse.HasObject())
                 {
-                    saveFileResponse = Save(GetFileName(id.ToString(), fileInfo.Extension), fileInfo, saveFileResponse.Object);
+                    saveFileResponse = Save(GetFileName(id.ToString(), fileInfo.Extension), file, saveFileResponse.Object);
                 }
             }
             else
@@ -89,16 +103,60 @@ namespace ApiLogic
             return saveFileResponse;
         }
 
-        public GenericResponse<string> SaveFile(long id, FileInfo fileInfo, string objectTypeName)
+        public GenericResponse<string> SaveFile(string id, OTTFile file, string objectTypeName)
         {
             GenericResponse<string> saveFileResponse = new GenericResponse<string>();
+            var fileInfo = new FileInfo(file.Path);
             var validationResponse = Validate(objectTypeName, fileInfo);
+
             if (validationResponse.HasObject())
             {
                 saveFileResponse = GetSubDir(id, validationResponse.Object);
                 if (saveFileResponse.HasObject())
                 {
-                    saveFileResponse = Save(GetFileName(id.ToString(), fileInfo.Extension), fileInfo, saveFileResponse.Object);
+                    saveFileResponse = Save(GetFileName(id.ToString(), fileInfo.Extension), file, saveFileResponse.Object);
+                }
+            }
+            else
+            {
+                saveFileResponse.SetStatus(validationResponse.Status);
+            }
+
+            return saveFileResponse;
+        }
+
+        public GenericResponse<string> SaveFile(string id, OTTStreamFile file, string objectTypeName)
+        {
+            GenericResponse<string> saveFileResponse = new GenericResponse<string>();
+
+            var validationResponse = GetFileObjectTypeName(objectTypeName);
+            if (validationResponse.HasObject())
+            {
+                saveFileResponse = GetSubDir(id, validationResponse.Object);
+                if (saveFileResponse.HasObject())
+                {
+                    saveFileResponse = Save(GetFileName(id.ToString(), new FileInfo(file.Name).Extension), file, saveFileResponse.Object);
+                }
+            }
+            else
+            {
+                saveFileResponse.SetStatus(validationResponse.Status);
+            }
+
+            return saveFileResponse;
+        }
+
+        public GenericResponse<string> SaveFile(long id, OTTStreamFile file, string objectTypeName)
+        {
+            GenericResponse<string> saveFileResponse = new GenericResponse<string>();
+
+            var validationResponse = GetFileObjectTypeName(objectTypeName);
+            if (validationResponse.HasObject())
+            {
+                saveFileResponse = GetSubDir(id, validationResponse.Object);
+                if (saveFileResponse.HasObject())
+                {
+                    saveFileResponse = Save(GetFileName(id.ToString(), new FileInfo(file.Name).Extension), file, saveFileResponse.Object);
                 }
             }
             else
@@ -114,7 +172,7 @@ namespace ApiLogic
             return (id + fileExtension);
         }
 
-        private GenericResponse<string> Validate(string objectTypeName, FileInfo fileInfo = null)
+        private GenericResponse<string> Validate(string objectTypeName, FileInfo fileInfo = null, string filePath = "")
         {
             var validationStatus = new GenericResponse<string>();
             if (fileInfo != null && !fileInfo.Exists)
@@ -124,6 +182,12 @@ namespace ApiLogic
             }
 
             validationStatus = GetFileObjectTypeName(objectTypeName);
+
+            if (validationStatus.IsOkStatusCode())
+            {
+                validationStatus.SetStatus(ValidateFileContent(fileInfo, filePath));
+            }
+
             return validationStatus;
         }
 
@@ -162,8 +226,10 @@ namespace ApiLogic
         public string BucketName { get; private set; }
         public string Path { get; private set; }
 
-        
-        
+        private const int m = 1024 * 1024;//Byte to Mb
+        private const int _maxFileSize = 15; //Max upload file size : 15MB
+        private static List<string> _fileExtensions = new List<string> { "jpeg", "jpg", "png", "tif", "gif", "xls", "xlsx", "csv", "xslm" }
+                .Select(x => x.Replace(".", string.Empty)).ToList();//Supported file types
 
         protected override void Initialize()
         {
@@ -173,8 +239,9 @@ namespace ApiLogic
             Path = ApplicationConfiguration.Current.FileUpload.S3.Path.Value;
         }
 
-        protected override GenericResponse<string> Save(string fileName, FileInfo fileInfo, string subDir)
+        protected override GenericResponse<string> Save(string fileName, OTTFile file, string subDir)
         {
+            var fileInfo = new FileInfo(file.Path);
             GenericResponse<string> saveResponse = new GenericResponse<string>();
             for (int i = 0; i < NumberOfRetries; i++)
             {
@@ -274,6 +341,85 @@ namespace ApiLogic
         {
             return string.Format("{0}_{1}", subDir, fileName);
         }
+
+        protected override Status ValidateFileContent(FileInfo file, string filePath)
+        {
+            var status = Status.Ok;
+            try
+            {
+                if (file.Length > _maxFileSize * m)//check size in bytes
+                {
+                    log.Debug($"Failed file size validation, file size: {file.Length * m} mb");
+                    status.Set(eResponseStatus.FileExceededMaxSize, "File Exceeded Max Size");
+                    return status;
+                }
+                var fileArray = File.ReadAllBytes(filePath);
+                var fileMime = MimeTypeManager.GetMimeType(fileArray, file.Name);
+                var matchingExtension = MimeTypeManager.GetMimeByExtention(file.Extension);
+
+                if (!_fileExtensions.Contains(file.Extension.Replace(".", string.Empty)))
+                {
+                    log.Debug($"Failed file extension validation, file extension: {file.Extension}");
+                    status.Set(eResponseStatus.FileExtensionNotSupported, "File Extension Not Supported");
+                    return status;
+                }
+                else if (string.IsNullOrEmpty(fileMime) || string.IsNullOrEmpty(matchingExtension) || matchingExtension.ToLower() != fileMime.ToLower())
+                {
+                    log.Debug($"Failed file mime/content-type validation, expected: {matchingExtension}, actual: {fileMime}");
+                    status.Set(eResponseStatus.FileMimeDifferentThanExpected, "File Mime Different Than Expected");
+                    return status;
+                }
+                return status;
+            }
+            catch (FileNotFoundException ex)
+            {
+                log.Error($"File not found: {ex}");
+                status.Set(eResponseStatus.FileDoesNotExists, "File Does Not Exists");
+                return status;
+            }
+        }
+
+        protected override GenericResponse<string> Save(string fileName, OTTStreamFile file, string subDir)
+        {
+            GenericResponse<string> saveResponse = new GenericResponse<string>();
+            for (int i = 0; i < NumberOfRetries; i++)
+            {
+                using (var client = new AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(Region)))
+                {
+                    try
+                    {
+                        var filePath = GetRelativeFilePath(subDir, fileName);
+                        using (var fileTransferUtility = new TransferUtility(client))
+                        {
+                            using (var f = file.GetFileStream())
+                            {
+                                var fileTransferUtilityRequest = new TransferUtilityUploadRequest
+                                {
+                                    BucketName = BucketName,
+                                    InputStream = f,
+                                    Key = filePath
+                                };
+                                fileTransferUtility.Upload(fileTransferUtilityRequest);
+
+                                saveResponse.Object = GetUrl(subDir, fileName);
+                                saveResponse.SetStatus(eResponseStatus.OK);
+                                return saveResponse;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(string.Format("An Exception was occurred in Save file to S3, attempt: {0}/{1}. fileName:{2}, , subDir:{3}.",
+                                                i + 1, NumberOfRetries, fileName, subDir), ex);
+                        saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Error while save file:{0} to S3", fileName));
+                        return saveResponse;
+                    }
+                }
+            }
+
+            saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Could not save file:{0} to S3", fileName));
+            return saveResponse;
+        }
     }
 
     public class FileSystemHandler : FileHandler
@@ -287,8 +433,9 @@ namespace ApiLogic
             PublicUrl = ApplicationConfiguration.Current.FileUpload.FileSystem.PublicUrl.Value;
         }
 
-        protected override GenericResponse<string> Save(string fileName, FileInfo fileInfo, string subDir)
+        protected override GenericResponse<string> Save(string fileName, OTTFile file, string subDir)
         {
+            var fileInfo = new FileInfo(file.Path);
             GenericResponse<string> saveResponse = new GenericResponse<string>();
             var destDir = Path.Combine(Destination, subDir);
             CreateSubDir(destDir);
@@ -382,6 +529,40 @@ namespace ApiLogic
         protected override string GetUrl(string subDir, string fileName)
         {
             return string.Format("{0}{1}/{2}", PublicUrl, subDir.Replace("\\", "/"), fileName);
+        }
+
+        protected override GenericResponse<string> Save(string fileName, OTTStreamFile file, string subDir)
+        {
+            GenericResponse<string> saveResponse = new GenericResponse<string>();
+            var destDir = Path.Combine(Destination, subDir);
+            CreateSubDir(destDir);
+
+            var destPath = Path.Combine(destDir, fileName);
+
+            if (File.Exists(destPath))
+            {
+                saveResponse.SetStatus(eResponseStatus.FileAlreadyExists, string.Format("file:{0} already exists.", file.Name));
+                return saveResponse;
+            }
+
+            try
+            {
+                using (Stream tempFile = File.Create(destPath))
+                {
+                    file.GetFileStream().CopyTo(tempFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("An Exception was occurred in Save file to FileSystem. fileName:{0}, subDir:{1}.",
+                                        fileName, subDir), ex);
+                saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Error while save file:{0} to FileSystem", fileName));
+                return saveResponse;
+            }
+
+            saveResponse.Object = GetUrl(subDir, fileName);
+            saveResponse.SetStatus(eResponseStatus.OK);
+            return saveResponse;
         }
     }
 }

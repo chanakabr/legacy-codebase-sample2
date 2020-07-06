@@ -18,7 +18,7 @@ namespace ElasticSearch.Common
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
         public static readonly string ES_DATEONLY_FORMAT = "yyyyMMdd";
         public static readonly string ES_PERCOLATOR_TYPE = ".percolator";
-        public static readonly string DELETE_CANDIDATE_ALIAS = "DELETION_CANDIDATE";
+       
 
 
         public static string GetTcmValue(string sKey)

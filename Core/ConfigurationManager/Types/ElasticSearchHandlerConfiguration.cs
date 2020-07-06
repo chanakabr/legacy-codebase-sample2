@@ -6,7 +6,7 @@ namespace ConfigurationManager
 {
     public class ElasticSearchHandlerConfiguration : BaseConfig<ElasticSearchHandlerConfiguration>
     {
-        public BaseValue<int> BulkSize = new BaseValue<int>("bulk_size", 1000, false, "Number of documents to be updated in same ElasticSearch bulk when rebuilding the index. " +
+        public BaseValue<int> BulkSize = new BaseValue<int>("bulk_size", 500, false, "Number of documents to be updated in same ElasticSearch bulk when rebuilding the index. " +
                 "This value can be several hundreds, depending on typical document size and machine capabilities");
         public BaseValue<int> NumberOfShards = new BaseValue<int>("shards", 4);
         public BaseValue<int> NumberOfReplicas = new BaseValue<int>("replicas", 1);
