@@ -5110,8 +5110,9 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal static void SetRecordingStatus(Dictionary<long, Recording> dic)
+        internal static void SetRecordingStatus(Dictionary<long, Recording> dic, int groupId)
         {
+            int recordingLifetime = -1;
             foreach (var recording in dic.Values)
             {
                 if (recording.RecordingStatus == TstvRecordingStatus.OK
@@ -5120,6 +5121,20 @@ namespace Core.ConditionalAccess
                     || recording.RecordingStatus == TstvRecordingStatus.Scheduled)
                 {
                     recording.RecordingStatus = SetRecordingStatus(recording.EpgStartDate, recording.EpgEndDate);
+                    
+                    if (recording.RecordingStatus == TstvRecordingStatus.Recorded && (!recording.ViewableUntilDate.HasValue || recording.ViewableUntilDate.Value == 0))
+                    {
+                        if (recordingLifetime == -1)
+                        {
+                            TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
+                            recordingLifetime = accountSettings.RecordingLifetimePeriod.HasValue ? accountSettings.RecordingLifetimePeriod.Value : 0;
+                        }
+                        
+                        if (recordingLifetime > 0)
+                        {
+                            recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(recording.EpgEndDate.AddDays(recordingLifetime));
+                        }
+                    }
                 }
             }
         }
@@ -5515,7 +5530,7 @@ namespace Core.ConditionalAccess
                                         LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId) }, true)
                     && domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
-                    SetRecordingStatus(domainRecordingIdToRecordingMap);
+                    SetRecordingStatus(domainRecordingIdToRecordingMap, groupId);
 
                     Dictionary<long, Recording> recordingsToCopy = new Dictionary<long, Recording>();
                     if (shouldFilterViewableRecordingsOnly)
@@ -5562,7 +5577,7 @@ namespace Core.ConditionalAccess
                                         LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId) }, true)
                     && domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
-                    SetRecordingStatus(domainRecordingIdToRecordingMap);
+                    SetRecordingStatus(domainRecordingIdToRecordingMap, groupId);
 
                     Dictionary<long, Recording> recordingsToCopy = new Dictionary<long, Recording>();
                     if (shouldFilterViewableRecordingsOnly)
@@ -7812,7 +7827,7 @@ namespace Core.ConditionalAccess
                             if (usedQuota > npvrObject.Quota * 60)
                             {
                                 // call the handel to delete all recordings
-                                status = QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota * 60), DomainRecordingStatus.DeletePending);
+                                QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota * 60), DomainRecordingStatus.DeletePending);
                             }
                             else if (usedQuota > 0 && usedQuota < npvrObject.Quota * 60) // recover recording from auto-delete by grace period recovery
                             {

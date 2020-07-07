@@ -3032,25 +3032,6 @@ namespace WebAPI.WebServices
         }
 
         [WebMethod]
-        public bool DistributeRecording(string sWSUserName, string sWSPassword, long epgId, long Id, DateTime epgStartDate)
-        {
-
-            Int32 nGroupID = Core.ConditionalAccess.Utils.GetGroupID(sWSUserName, sWSPassword);
-            if (nGroupID != 0)
-            {
-                return Core.ConditionalAccess.Module.DistributeRecording(nGroupID, epgId, Id, epgStartDate);
-            }
-            else
-            {
-                if (nGroupID == 0)
-                {
-                    HttpContext.Current.Response.StatusCode = 404;
-                }
-                return false;
-            }
-        }
-
-        [WebMethod]
         public bool CompleteDomainSeriesRecordings(string sWSUserName, string sWSPassword, long domainId)
         {
 
