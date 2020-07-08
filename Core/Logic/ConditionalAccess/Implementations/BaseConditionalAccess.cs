@@ -17015,23 +17015,25 @@ namespace Core.ConditionalAccess
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            Domain domain;
-            ApiObjects.Response.Status status = Utils.ValidateDomain(m_nGroupID, domainId, out domain);
-            if (status == null)
-            {
-                log.ErrorFormat("Failed to validate domain = {0}", domainId);
-                return result;
-            }
-            if (status.Code != (int)eResponseStatus.OK)
-            {
-                log.ErrorFormat("Failed to validate domain = {0}, code = {1}, message = {2}", domainId, status.Code, status.Message);
-                return status;
-            }
-
             switch (actionType)
             {
                 case UserTaskType.Delete:
                     {
+                        Domain domain;
+                        ApiObjects.Response.Status status = Utils.ValidateDomain(m_nGroupID, domainId, out domain);
+                        
+                        if (status == null)
+                        {
+                            log.ErrorFormat("Failed to validate domain = {0}", domainId);
+                            return result;
+                        }
+                        
+                        if (status.Code != (int)eResponseStatus.OK)
+                        {
+                            log.ErrorFormat("Failed to validate domain = {0}, code = {1}, message = {2}", domainId, status.Code, status.Message);
+                            return status;
+                        }
+
                         if (domain != null && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
                         {
                             if (Utils.UpdateDomainSeriesRecordingsUserToMaster(m_nGroupID, domainId, userId, domain.m_masterGUIDs[0].ToString()) &&
@@ -17042,8 +17044,64 @@ namespace Core.ConditionalAccess
                         {
                             log.ErrorFormat("domain without master user. DomainId = {0}", domainId);
                         }
+
+                        break;
                     }
-                    break;
+                case UserTaskType.DeleteDomain:
+                    {
+                        try
+                        {
+                            bool res = false;
+                            var recordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId,
+                                new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded, TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled }, true);
+
+                            if (recordings?.Count > 0)
+                            {
+                                bool isPrivate = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value;
+
+                                if (isPrivate)
+                                {
+                                    foreach (var recording in recordings.Values)
+                                    {
+                                        var deleteStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording, isPrivate, false, new List<long>() { domainId });
+                                        log.Debug($"DeleteDomainRecording - Adapter: recording:{recording.Id}, status:{deleteStatus.ToString()}");
+                                    }
+                                }
+
+                                res = RecordingsDAL.DeleteDomainRecording(recordings.Keys.ToList(), DomainRecordingStatus.DeletedBySystem);
+                                log.Debug($"DeleteDomainRecording - DB: count:{recordings.Count} result:{res}");
+                            }
+
+                            List<DomainSeriesRecording> series = null;
+                            // get household followed series / seasons - if not following anything - nothing to do
+                            DataSet serieDs = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
+                            if (serieDs != null)
+                            {
+                                series = Utils.GetDomainSeriesRecordingFromDataSet(serieDs);
+
+                                if (series?.Count > 0)
+                                {
+                                    foreach (var item in series)
+                                    {
+                                        res = RecordingsDAL.CancelSeriesRecording(item.Id);
+                                        log.Debug($"DeleteDomainRecording series - {item.Id}, result:{res}");
+                                    }
+                                }
+                            }
+
+                            res = RecordingsDAL.DeleteDomainQuota(domainId);
+
+                            result = ApiObjects.Response.Status.Ok;
+                            
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                        break;
+                    }
+
             }
 
             return result;
