@@ -55,26 +55,23 @@ namespace ElasticSearch.Utilities
                     {
                         ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
 
-                        if (esApi.IndexExists(statisticsIndex))
+                        bool currentSuccess = esApi.InsertRecord(statisticsIndex, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid, viewJson);
+
+                        if (!currentSuccess)
                         {
-                            bool currentSuccess = esApi.InsertRecord(statisticsIndex, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid, viewJson);
-
-                            if (!currentSuccess)
-                            {
-                                result = false;
-                                log.Debug("InsertMediaViewToES " + string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}",
-                                    statisticsIndex, ElasticSearch.Common.Utils.ES_STATS_TYPE, action));
-                            }
-
-                            // 
-                            // Increment views field - it is not used and causes performance issues in production. 
-                            // Until it will be used properly in ordering, it shouldn't happen
-                            //
-                            //if (increaseViewCount)
-                            //{
-                            //    esApi.IncrementField(regularIndex, "media", mediaID.ToString(), "views");
-                            //}
+                            result = false;
+                            log.Debug("InsertMediaViewToES " + string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}",
+                                statisticsIndex, ElasticSearch.Common.Utils.ES_STATS_TYPE, action));
                         }
+
+                        // 
+                        // Increment views field - it is not used and causes performance issues in production. 
+                        // Until it will be used properly in ordering, it shouldn't happen
+                        //
+                        //if (increaseViewCount)
+                        //{
+                        //    esApi.IncrementField(regularIndex, "media", mediaID.ToString(), "views");
+                        //}
                     }
                     catch (Exception ex)
                     {
