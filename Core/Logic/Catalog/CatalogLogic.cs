@@ -8665,6 +8665,10 @@ namespace Core.Catalog
                     {
                         newNode = new BooleanLeaf(key, searchValue.m_lValue[0], typeof(string), ComparisonOperator.Equals, shouldLowercase);
                     }
+                    else if (innerCutType == eCutType.Or)
+                    {
+                        newNode = new BooleanLeaf(key, searchValue.m_lValue, typeof(string), ComparisonOperator.In, shouldLowercase);
+                    }
                     else
                     {
                         // If there are several values, connect all the values with the inner cut type
