@@ -28175,6 +28175,16 @@ namespace WebAPI.Models.Domains
             MaxLength = 255,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute MacAddressSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = 255,
+            MinLength = -1,
+        };
         public KalturaHouseholdDevice(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -28281,6 +28291,18 @@ namespace WebAPI.Models.Domains
                         ExternalIdSchemaProperty.Validate("externalId", parameters["externalId"]);
                     }
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
+                }
+                if (parameters.ContainsKey("macAddress__null") && parameters["macAddress__null"] != null)
+                {
+                    AddNullableProperty("macAddress");
+                }
+                if (parameters.ContainsKey("macAddress") && parameters["macAddress"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        MacAddressSchemaProperty.Validate("macAddress", parameters["macAddress"]);
+                    }
+                    MacAddress = (String) Convert.ChangeType(parameters["macAddress"], typeof(String));
                 }
             }
         }

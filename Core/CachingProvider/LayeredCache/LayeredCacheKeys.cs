@@ -533,7 +533,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainKey(int domainId)
         {
-            return string.Format("domain_V1_{0}", domainId);
+            return string.Format("domain_V2_{0}", domainId);
         }
 
         public static string GetDlmKey(int dlmId)
@@ -1223,6 +1223,11 @@ namespace CachingProvider.LayeredCache
         public static string GetPlaybackPartnerConfigInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_{0}", GetPlaybackPartnerConfigKey(groupId));
+        }
+
+        public static string GetDomainDeviceInvalidationKey(int domainId, string deviceId)
+        {
+            return $"invalidationKey_domain_{domainId}_device_{deviceId}";
         }
 
         #endregion

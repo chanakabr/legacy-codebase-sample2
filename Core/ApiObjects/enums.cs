@@ -793,7 +793,8 @@ namespace ApiObjects
 
     public enum UserTaskType
     {
-        Delete = 0
+        Delete = 0,
+        DeleteDomain = 1
     }
 
     public enum MetaType

@@ -190,7 +190,7 @@ namespace WebAPI.Utils
                 }
             }
 
-            List<string> udids = new List<string>();
+            var udids = new List<string>();
 
             var devices = ClientsManager.DomainsClient().GetHouseholdDevices(groupID, domain, null, string.Empty);
 

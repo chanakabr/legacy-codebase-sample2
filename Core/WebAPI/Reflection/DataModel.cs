@@ -2963,6 +2963,8 @@ namespace WebAPI.Reflection
                             return "externalId";
                         case "HouseholdId":
                             return "householdId";
+                        case "MacAddress":
+                            return "macAddress";
                         case "Name":
                             return "name";
                         case "State":

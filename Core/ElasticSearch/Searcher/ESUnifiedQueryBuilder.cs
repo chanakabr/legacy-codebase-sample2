@@ -518,8 +518,8 @@ namespace ElasticSearch.Searcher
             };
         }
 
-        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm, 
-            bool ignoreDeviceRuleID, bool isActiveOnly = true)
+        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm,
+            bool ignoreDeviceRuleID, bool isActiveOnly = true, bool shouldMinimizeQuery = false)
         {
             // Eventual filter will be:
             //
@@ -573,7 +573,7 @@ namespace ElasticSearch.Searcher
                 Value = this.SearchDefinitions.groupId.ToString()
             };
 
-            if (isActiveOnly)
+            if (isActiveOnly && !shouldMinimizeQuery)
             {
                 ESTerm isActiveTerm = new ESTerm(true)
                 {
@@ -805,16 +805,19 @@ namespace ElasticSearch.Searcher
             {
                 #region User Types
 
-                ESTerms userTypeTerm = new ESTerms(true);
-                userTypeTerm.Key = "user_types";
-                userTypeTerm.Value.Add("0");
-
-                if (this.SearchDefinitions.userTypeID > 0)
+                if (!shouldMinimizeQuery)
                 {
-                    userTypeTerm.Value.Add(this.SearchDefinitions.userTypeID.ToString());
-                }
+                    ESTerms userTypeTerm = new ESTerms(true);
+                    userTypeTerm.Key = "user_types";
+                    userTypeTerm.Value.Add("0");
 
-                mediaFilter.AddChild(userTypeTerm);
+                    if (this.SearchDefinitions.userTypeID > 0)
+                    {
+                        userTypeTerm.Value.Add(this.SearchDefinitions.userTypeID.ToString());
+                    }
+
+                    mediaFilter.AddChild(userTypeTerm);
+                }
 
                 #endregion
 
@@ -856,12 +859,15 @@ namespace ElasticSearch.Searcher
                 groupWPComposite.AddChild(groupTerm);
                 groupWPComposite.AddChild(permittedWatchFilter);
 
-                mediaFilter.AddChild(groupWPComposite);
+                if (!shouldMinimizeQuery)
+                {
+                    mediaFilter.AddChild(groupWPComposite);
+                }
 
                 #endregion
 
                 #region Device types
-                if (!ignoreDeviceRuleID)
+                if (!ignoreDeviceRuleID && !shouldMinimizeQuery)
                 {
                     ESTerms deviceRulesTerms = new ESTerms(true)
                     {
@@ -2400,7 +2406,12 @@ namespace ElasticSearch.Searcher
 
                 channelsTerm.Value.AddRange(entitlementSearchDefinitions.epgChannelIds.Select(i => i.ToString()));
 
-                boolQuery.AddChild(channelsTerm, CutWith.OR);
+                var splittedTerms = channelsTerm.Split();
+
+                foreach (var terms in splittedTerms)
+                {
+                    boolQuery.AddChild(terms, CutWith.OR);
+                }
             }
 
             //
