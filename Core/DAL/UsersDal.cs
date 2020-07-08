@@ -1431,28 +1431,6 @@ namespace DAL
             return false;
         }
 
-        public static void Update_LoginPIN(string siteGuid, string pinCode, int groupID, string secret, int? pinUsages, long? pinDuration)
-        {
-            try
-            {
-                StoredProcedure sp = new StoredProcedure("Update_LoginPIN");
-                sp.SetConnectionKey("USERS_CONNECTION_STRING");
-                sp.AddParameter("@groupID", groupID);
-                sp.AddParameter("@siteGuid", siteGuid);
-                sp.AddParameter("@pinCode", pinCode);
-                sp.AddParameter("@expired_date", DateTime.UtcNow);
-                sp.AddParameter("@secret", secret ?? string.Empty);
-                sp.AddParameter("@usages", pinUsages);
-                sp.AddParameter("@duration", pinDuration);
-
-                sp.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Failed to execute sp: 'Update_LoginPIN' error: {ex}");
-            }
-        }
-
         private static void HandleException(Exception ex)
         {
             //throw new NotImplementedException();
