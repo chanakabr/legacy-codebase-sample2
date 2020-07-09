@@ -251,7 +251,7 @@ namespace WS_Billing
         {
             ODBCWrapper.DataSetInsertQuery insertQuery = new ODBCWrapper.DataSetInsertQuery("campaigns_uses");
             insertQuery.SetConnectionKey("ca_connection_string");
-            DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(maxLifeCycle));
+            DateTime d = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(maxLifeCycle));
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("campaign_id", "=", campaignID);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("site_guid", "=", int.Parse(siteGuid));
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("num_of_uses", "=", 0);
@@ -287,7 +287,7 @@ namespace WS_Billing
                 if (!string.IsNullOrEmpty(smaxusagemodulelifecycle) && int.TryParse(smaxusagemodulelifecycle, out maxUsageModuleLifecycle))
                 {
                     log.Debug("Max Usage - " + smaxusagemodulelifecycle);
-                    endDate = Utils.GetEndDateTime(DateTime.UtcNow, maxUsageModuleLifecycle);
+                    endDate = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, maxUsageModuleLifecycle);
                 }
                 else
                 {
@@ -476,14 +476,14 @@ namespace WS_Billing
                 Core.Pricing.PreviewModule pm = Utils.GetPreviewModuleByID(nGroupID, lPreviewModuleID);
                 if (pm != null && pm.m_tsFullLifeCycle > 0)
                 {
-                    res = Utils.GetEndDateTime(DateTime.UtcNow, pm.m_tsFullLifeCycle);
+                    res = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, pm.m_tsFullLifeCycle);
                     return res;
                 }
 
             }
             int nMaxUsageModuleLifeCycle = 0;
             if (!string.IsNullOrEmpty(sMaxUsageModuleLifeCycle) && Int32.TryParse(sMaxUsageModuleLifeCycle, out nMaxUsageModuleLifeCycle) && nMaxUsageModuleLifeCycle > 0)
-                res = Utils.GetEndDateTime(DateTime.UtcNow, nMaxUsageModuleLifeCycle);
+                res = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, nMaxUsageModuleLifeCycle);
 
             return res;
 

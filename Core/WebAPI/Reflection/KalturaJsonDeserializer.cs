@@ -698,6 +698,9 @@ namespace WebAPI.Reflection
                 case "KalturaDrmProfileListResponse":
                     return new KalturaDrmProfileListResponse(parameters);
                     
+                case "KalturaDuration":
+                    return new KalturaDuration(parameters);
+                    
                 case "KalturaDynamicChannel":
                     return new KalturaDynamicChannel(parameters);
                     
@@ -1286,6 +1289,9 @@ namespace WebAPI.Reflection
                 case "KalturaPaymentMethodProfileListResponse":
                     return new KalturaPaymentMethodProfileListResponse(parameters);
                     
+                case "KalturaPaymentPartnerConfig":
+                    return new KalturaPaymentPartnerConfig(parameters);
+                    
                 case "KalturaPermission":
                     return new KalturaPermission(parameters);
                     
@@ -1808,6 +1814,9 @@ namespace WebAPI.Reflection
                 case "KalturaSubscriptionTrigger":
                     return new KalturaSubscriptionTrigger(parameters);
                     
+                case "KalturaSuspendSettings":
+                    return new KalturaSuspendSettings(parameters);
+                    
                 case "KalturaTag":
                     return new KalturaTag(parameters);
                     
@@ -1888,6 +1897,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaTwitterTwit":
                     return new KalturaTwitterTwit(parameters);
+                    
+                case "KalturaUnifiedBillingCycle":
+                    return new KalturaUnifiedBillingCycle(parameters);
                     
                 case "KalturaUnifiedChannel":
                     return new KalturaUnifiedChannel(parameters);
@@ -7059,6 +7071,45 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("value") && parameters["value"] != null)
                 {
                     value = (Double) Convert.ChangeType(parameters["value"], typeof(Double));
+                }
+            }
+        }
+    }
+    public partial class KalturaDuration
+    {
+        private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDuration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        public KalturaDuration(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("unit") && parameters["unit"] != null)
+                {
+                    Unit = (KalturaDurationUnit) Enum.Parse(typeof(KalturaDurationUnit), parameters["unit"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaDurationUnit), Unit))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Unit, typeof(KalturaDurationUnit)));
+                    }
+                }
+                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ValueSchemaProperty.Validate("value", parameters["value"]);
+                    }
+                    Value = (Int32) Convert.ChangeType(parameters["value"], typeof(Int32));
                 }
             }
         }
@@ -26062,6 +26113,26 @@ namespace WebAPI.Models.Partner
             }
         }
     }
+    public partial class KalturaPaymentPartnerConfig
+    {
+        public KalturaPaymentPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("unifiedBillingCycles") && parameters["unifiedBillingCycles"] != null)
+                {
+                    if (parameters["unifiedBillingCycles"] is JArray)
+                    {
+                        UnifiedBillingCycles = buildList<KalturaUnifiedBillingCycle>(typeof(KalturaUnifiedBillingCycle), (JArray) parameters["unifiedBillingCycles"]);
+                    }
+                    else if (parameters["unifiedBillingCycles"] is IList)
+                    {
+                        UnifiedBillingCycles = buildList(typeof(KalturaUnifiedBillingCycle), parameters["unifiedBillingCycles"] as object[]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaPlaybackPartnerConfig
     {
         public KalturaPlaybackPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
@@ -26100,6 +26171,51 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("rollingDeviceRemovalFamilyIds") && parameters["rollingDeviceRemovalFamilyIds"] != null)
                 {
                     RollingDeviceRemovalFamilyIds = (String) Convert.ChangeType(parameters["rollingDeviceRemovalFamilyIds"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaUnifiedBillingCycle
+    {
+        private static RuntimeSchemePropertyAttribute PaymentGatewayIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUnifiedBillingCycle")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        public KalturaUnifiedBillingCycle(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("duration") && parameters["duration"] != null)
+                {
+                    if (parameters["duration"] is JObject)
+                    {
+                        Duration = (KalturaDuration) Deserializer.deserialize(typeof(KalturaDuration), ((JObject) parameters["duration"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["duration"] is IDictionary)
+                    {
+                        Duration = (KalturaDuration) Deserializer.deserialize(typeof(KalturaDuration), (Dictionary<string, object>) parameters["duration"]);
+                    }
+                }
+                if (parameters.ContainsKey("paymentGatewayId") && parameters["paymentGatewayId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        PaymentGatewayIdSchemaProperty.Validate("paymentGatewayId", parameters["paymentGatewayId"]);
+                    }
+                    PaymentGatewayId = (Int32) Convert.ChangeType(parameters["paymentGatewayId"], typeof(Int32));
                 }
             }
         }
@@ -28938,6 +29054,16 @@ namespace WebAPI.Models.Billing
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute SuspendSettingsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentGateway")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaHouseholdPaymentGateway(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -28967,6 +29093,21 @@ namespace WebAPI.Models.Billing
                     if (!Enum.IsDefined(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy))
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", selectedBy, typeof(KalturaHouseholdPaymentGatewaySelectedBy)));
+                    }
+                }
+                if (parameters.ContainsKey("suspendSettings") && parameters["suspendSettings"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SuspendSettingsSchemaProperty.Validate("suspendSettings", parameters["suspendSettings"]);
+                    }
+                    if (parameters["suspendSettings"] is JObject)
+                    {
+                        SuspendSettings = (KalturaSuspendSettings) Deserializer.deserialize(typeof(KalturaSuspendSettings), ((JObject) parameters["suspendSettings"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["suspendSettings"] is IDictionary)
+                    {
+                        SuspendSettings = (KalturaSuspendSettings) Deserializer.deserialize(typeof(KalturaSuspendSettings), (Dictionary<string, object>) parameters["suspendSettings"]);
                     }
                 }
             }
@@ -29504,6 +29645,23 @@ namespace WebAPI.Models.Billing
                     {
                         PaymentMethodProfiles = buildList(typeof(KalturaPaymentMethodProfile), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaSuspendSettings
+    {
+        public KalturaSuspendSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("revokeEntitlements") && parameters["revokeEntitlements"] != null)
+                {
+                    RevokeEntitlements = (Boolean) Convert.ChangeType(parameters["revokeEntitlements"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("stopRenew") && parameters["stopRenew"] != null)
+                {
+                    StopRenew = (Boolean) Convert.ChangeType(parameters["stopRenew"], typeof(Boolean));
                 }
             }
         }

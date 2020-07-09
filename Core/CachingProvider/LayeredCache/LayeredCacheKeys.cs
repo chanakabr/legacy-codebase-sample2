@@ -694,7 +694,12 @@ namespace CachingProvider.LayeredCache
         public static string GetPlaybackPartnerConfigKey(int groupId)
         {
             return string.Format("playback_partner_config_{0}", groupId);
-        }        
+        }
+
+        public static string GetPaymentPartnerConfigKey(int groupId)
+        {
+            return string.Format("payment_partner_config_{0}", groupId);
+        }
 
         #endregion
 
@@ -1223,6 +1228,11 @@ namespace CachingProvider.LayeredCache
         public static string GetPlaybackPartnerConfigInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_{0}", GetPlaybackPartnerConfigKey(groupId));
+        }
+
+        public static string GetPaymentPartnerConfigInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_{0}", GetPaymentPartnerConfigKey(groupId));
         }
 
         public static string GetDomainDeviceInvalidationKey(int domainId, string deviceId)

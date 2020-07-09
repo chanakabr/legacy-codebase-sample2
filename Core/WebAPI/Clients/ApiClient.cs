@@ -4547,5 +4547,20 @@ namespace WebAPI.Clients
             result.TotalCount = response.TotalCount;
             return result;
         }
+
+        internal KalturaPartnerConfigurationListResponse GetPaymentConfiguration(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<PaymentPartnerConfig>> getPartnerConfigListFunc = () =>
+                PartnerConfigurationManager.GetPaymentConfigList(groupId);
+
+            KalturaGenericListResponse<KalturaPaymentPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaPaymentPartnerConfig, PaymentPartnerConfig>(getPartnerConfigListFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+            return result;
+        }
     }
 }

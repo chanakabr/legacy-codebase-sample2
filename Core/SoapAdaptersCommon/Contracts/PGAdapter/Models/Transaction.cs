@@ -1,4 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
+using AdapaterCommon.Models;
 
 namespace PGAdapter.Models
 {
@@ -37,5 +39,8 @@ namespace PGAdapter.Models
 
         [DataMember]
         public bool AutoRenewing { get; set; }
+
+        [DataMember]
+        public List<KeyValue> AdapterData { get; set; }
     }
 }

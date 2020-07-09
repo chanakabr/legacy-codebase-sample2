@@ -2652,12 +2652,12 @@ namespace Core.ConditionalAccess
 
         protected internal bool GetMultiSubscriptionUsageModule(RenewDetails renewSubscriptionDetails, string userIp, ref int nRecPeriods, ref bool isMPPRecurringInfinitely, Subscription subscription, bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
         {
-            UnifiedBillingCycle unifiedBillingCycle = null;
-            return GetMultiSubscriptionUsageModule(renewSubscriptionDetails, userIp, ref nRecPeriods, ref isMPPRecurringInfinitely, subscription, ref unifiedBillingCycle, 0, ignoreUnifiedBillingCycle, isRenew);
+            SubscriptionCycle subscriptionCycle = null;
+            return GetMultiSubscriptionUsageModule(renewSubscriptionDetails, userIp, ref nRecPeriods, ref isMPPRecurringInfinitely, subscription, ref subscriptionCycle, 0, ignoreUnifiedBillingCycle, isRenew);
         }
 
         protected internal bool GetMultiSubscriptionUsageModule(RenewDetails renewDetails, string userIp, ref int recPeriods, ref bool isMPPRecurringInfinitely,
-                                                                Subscription subscription, ref UnifiedBillingCycle unifiedBillingCycle, int groupId = 0, bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
+                                                                Subscription subscription, ref SubscriptionCycle subscriptionCycle, int groupId = 0, bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
         {
             bool isSuccess = false;
             if (subscription == null) { return isSuccess; }
@@ -2708,7 +2708,6 @@ namespace Core.ConditionalAccess
                     renewDetails.Price = priceAfterDiscount.m_dPrice;
                     oCurrency = priceAfterDiscount.m_oCurrency;
                     renewDetails.Currency = priceAfterDiscount.m_oCurrency.m_sCurrencyCD3;
-
                 }
                 else
                 {
@@ -2746,12 +2745,16 @@ namespace Core.ConditionalAccess
                     if (groupId > 0 && renewDetails.DomainId > 0 && renewDetails.EndDate.HasValue && !renewDetails.IsUseCouponRemainder &&
                         (renewDetails.RecurringData.IsCouponGiftCard || recurringCouponFirstExceeded || isFirstTimePreviewModuleEnd))
                     {
-                        unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)renewDetails.DomainId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
-                        if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
+                        if (subscriptionCycle == null)
+                        {
+                            subscriptionCycle = Utils.GetSubscriptionCycle(renewDetails.GroupId, (int)renewDetails.DomainId, AppUsageModule.m_tsMaxUsageModuleLifeCycle);
+                        }
+
+                        if (subscriptionCycle.UnifiedBillingCycle != null && subscriptionCycle.UnifiedBillingCycle.endDate > DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
                         {
                             var finalPriceAndCouponRemainder =
                                 Utils.CalcPriceAndCouponRemainderByUnifiedBillingCycle(originalPrice, renewDetails.RecurringData.CouponCode, renewDetails.Price,
-                                                                                       ref unifiedBillingCycle, groupId, subscription, isFirstTimePreviewModuleEnd, (int)renewDetails.DomainId);
+                                                                                       ref subscriptionCycle, groupId, subscription, isFirstTimePreviewModuleEnd, (int)renewDetails.DomainId);
                             renewDetails.Price = finalPriceAndCouponRemainder.Item1;
                             renewDetails.RecurringData.CouponRemainder = finalPriceAndCouponRemainder.Item2;
                             isPartialPrice = true;
@@ -6336,19 +6339,19 @@ namespace Core.ConditionalAccess
                         string subscriptionCode = subscriptions[i];
                         PriceReason theReason = PriceReason.UnKnown;
 
-                        Subscription s = null;
                         double couponRemainder = 0;
-                        UnifiedBillingCycle unifiedBillingCycle = null;
+                        Subscription s = null;
+                        SubscriptionCycle subscriptionCycle = null;
                         Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, ref coupon, ref theReason, ref s, string.Empty, languageCode, udid, ip,
-                                                                      ref unifiedBillingCycle, out couponRemainder, currencyCode, false, blockEntitlement);
+                                                                      ref subscriptionCycle, out couponRemainder, currencyCode, false, blockEntitlement);
 
                         if (price != null)
                         {
                             SubscriptionsPricesContainer cont = new SubscriptionsPricesContainer();
                             long? endDate = null;
-                            if (unifiedBillingCycle != null && theReason != PriceReason.EntitledToPreviewModule && string.IsNullOrEmpty(coupon))
+                            if (subscriptionCycle != null && subscriptionCycle.UnifiedBillingCycle != null && theReason != PriceReason.EntitledToPreviewModule && string.IsNullOrEmpty(coupon))
                             {
-                                endDate = unifiedBillingCycle.endDate;
+                                endDate = subscriptionCycle.UnifiedBillingCycle.endDate;
                             }
                             cont.Initialize(subscriptionCode, price, theReason, endDate);
                             resp.Add(cont);
@@ -11520,12 +11523,10 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Purchase
         /// </summary>
-        public virtual TransactionResponse Purchase(string siteguid, long household, double price, string currency, int contentId, int productId,
-                                                 eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId,
-                                                int paymentMethodId, string adapterData)
+        public virtual TransactionResponse Purchase(ApiObjects.Base.ContextData contextData, double price, string currency, int contentId, int productId,
+                                                    eTransactionType transactionType, string coupon, int paymentGwId, int paymentMethodId, string adapterData)
         {
-            return PurchaseManager.Purchase(this, this.m_nGroupID, siteguid, household, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName,
-                paymentGwId, paymentMethodId, adapterData);
+            return PurchaseManager.Purchase(this, contextData, price, currency, contentId, productId, transactionType, coupon, paymentGwId, paymentMethodId, adapterData);
         }
 
         /// <summary>
@@ -17340,7 +17341,7 @@ namespace Core.ConditionalAccess
             return PlaybackManager.GetAdsContext(this, m_nGroupID, userId, udid, ip, assetId, assetType, fileIds, streamerType, mediaProtocol, context);
         }
 
-        internal ApiObjects.Response.Status SuspendPaymentGatewayEntitlements(long householdId, int paymentGatewayId)
+        internal ApiObjects.Response.Status SuspendPaymentGatewayEntitlements(long householdId, int paymentGatewayId, SuspendSettings suspendSettings)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
@@ -17374,14 +17375,23 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+                if (suspendSettings != null)
+                {
+                    householdPaymentGateway.SuspendSettings.RevokeEntitlements = suspendSettings.RevokeEntitlements;
+                    householdPaymentGateway.SuspendSettings.StopRenew = suspendSettings.StopRenew;
+                }
+
                 // set paymentgateway to suspend status 
-                if (!BillingDAL.UpdatePaymentGatewayHouseholdStatus(householdId, paymentGatewayId, PaymentGatewayStatus.Suspend))
+                if (!BillingDAL.UpdatePaymentGatewayHouseholdStatus(householdId, paymentGatewayId, PaymentGatewayStatus.Suspend, householdPaymentGateway.SuspendSettings))
                 {
                     log.ErrorFormat("Failed to suspend household payment gateway. householdId = {0}, paymentGatewayId = {1}", householdId, paymentGatewayId);
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to suspend household payment gateway");
                     return response;
                 }
-
+                
+                bool doInvalidate = false;
+                
+                // get entitelments 
                 DataTable dt = ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId);
 
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -17402,23 +17412,37 @@ namespace Core.ConditionalAccess
                     if (unifiedProcessIds.Count > 0)
                     {
                         // set suspend to payment_gateway_household + subscriptions_purchases
-                        if (!ConditionalAccessDAL.SetSubscriptionPurchaseStatusByUnifiedProccessIds(m_nGroupID, unifiedProcessIds, SubscriptionPurchaseStatus.Suspended, PaymentGatewayStatus.Suspend))
+                        if (!ConditionalAccessDAL.SetSubscriptionPurchaseStatusByUnifiedProccessIds(m_nGroupID, unifiedProcessIds, householdPaymentGateway.SuspendSettings.RevokeEntitlements))
                         {
                             log.ErrorFormat("Failed to suspend household entitlements. householdId = {0}, proccessId = {1}", householdId, string.Join(",", unifiedProcessIds));
                         }
                         else
                         {
-                            string invalidationKey = LayeredCacheKeys.GetSubscriptionSuspendInvalidationKey(householdId);
-                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                            {
-                                log.ErrorFormat("Failed to set invalidation key on SuspendPaymentGatewayEntitlements key = {0}", invalidationKey);
-                            }
+                            doInvalidate = true;
                         }
                     }
                 }
                 else
                 {
                     log.DebugFormat("Failed to suspend household entitlements for payment gateway: proccessId was not found in DB. groupId = {0}, paymentGatewayId = {1}, householdId = {2}", m_nGroupID, paymentGatewayId, householdId);
+                }
+
+                if (doInvalidate)
+                {
+                    string invalidationKey = LayeredCacheKeys.GetSubscriptionSuspendInvalidationKey(householdId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on SuspendPaymentGatewayEntitlements key = {0}", invalidationKey);
+                    }
+
+                    if (householdPaymentGateway.SuspendSettings.RevokeEntitlements)
+                    {
+                        invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey((int)householdId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on revoke key = {0}", invalidationKey);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -17430,7 +17454,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        internal ApiObjects.Response.Status ResumePaymentGatewayEntitlements(long householdId, int paymentGatewayId)
+        internal ApiObjects.Response.Status ResumePaymentGatewayEntitlements(long householdId, int paymentGatewayId, List<ApiObjects.KeyValuePair> adapterData)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
@@ -17464,10 +17488,13 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+                householdPaymentGateway.SuspendSettings.RevokeEntitlements = false;
+                householdPaymentGateway.SuspendSettings.StopRenew = false;
+
                 // get paymentgateway out of suspend status 
-                if (!BillingDAL.UpdatePaymentGatewayHouseholdStatus(householdId, paymentGatewayId, PaymentGatewayStatus.OK))
+                if (!BillingDAL.UpdatePaymentGatewayHouseholdStatus(householdId, paymentGatewayId, PaymentGatewayStatus.OK, householdPaymentGateway.SuspendSettings))
                 {
-                    log.ErrorFormat("Failed to resume household payment gateway. householdId = {0}, paymentGatewayId = {1}", householdId, paymentGatewayId);
+                    log.Error($"Failed to resume household payment gateway. householdId = {householdId}, paymentGatewayId = {paymentGatewayId}");
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to resume household payment gateway");
                     return response;
                 }
@@ -17486,6 +17513,7 @@ namespace Core.ConditionalAccess
 
                         if (proccessId > 0 && count > 0 && endDate < DateTime.UtcNow)
                         {
+                            ConditionalAccessDAL.SaveResumRenewUnifiedAdapterData(adapterData, proccessId);
                             if (!RenewManager.HandleRenewUnifiedSubscriptionPending(m_nGroupID, householdId, endDate, 0, proccessId))
                             {
                                 log.ErrorFormat("Failed to resume entitlements. householdId = {0}, proccessId = {1}", householdId, proccessId);
@@ -17495,7 +17523,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                HandleSingleSuspendPurchases((int)householdId, paymentGatewayId);
+                HandleSingleSuspendPurchases((int)householdId, paymentGatewayId, adapterData);
             }
             catch (Exception ex)
             {
@@ -17506,7 +17534,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private void HandleSingleSuspendPurchases(int householdId, int paymentGatewayId)
+        private void HandleSingleSuspendPurchases(int householdId, int paymentGatewayId, List<ApiObjects.KeyValuePair> adapterData)
         {
             var res = GetDomainEntitlements(householdId, eTransactionType.Subscription);
             if (res != null && res.entitelments?.Count > 0)
@@ -17529,19 +17557,18 @@ namespace Core.ConditionalAccess
                         ProductId = ODBCWrapper.Utils.ExtractInteger(subscriptionRenealDataRow, "SUBSCRIPTION_CODE"), // AKA subscription ID/CODE
                         PurchaseId = purchaseId,
                         BillingGuid = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "billing_Guid"),
-
                         UserId = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "site_user_guid"),
                         DomainId = householdId,
                         ShouldSwitchToMasterUser = false,
                         GroupId = m_nGroupID,
                         Currency = "n/a",
-
                         PaymentNumber = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRenealDataRow, "PAYMENT_NUMBER"),
                         NumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRenealDataRow, "number_of_payments"),
                         CustomData = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "CUSTOMDATA"),
                         EndDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionRenealDataRow, "END_DATE")
                     };
 
+                    ConditionalAccessDAL.SaveResumRenewAdapterData(adapterData, purchaseId);
                     RenewManager.HandleRenewSubscriptionPending(this, renewDetails, now, string.Empty);
                 }
             }

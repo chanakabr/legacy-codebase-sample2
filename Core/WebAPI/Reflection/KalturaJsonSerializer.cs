@@ -5325,6 +5325,30 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
+    public partial class KalturaDuration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("unit", "\"unit\": " + "\"" + Enum.GetName(typeof(KalturaDurationUnit), Unit) + "\"");
+            ret.Add("value", "\"value\": " + Value);
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("unit", "<unit>" + "" + Enum.GetName(typeof(KalturaDurationUnit), Unit) + "" + "</unit>");
+            ret.Add("value", "<value>" + Value + "</value>");
+            return ret;
+        }
+    }
     public partial class KalturaFilter<KalturaT>
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -26087,6 +26111,36 @@ namespace WebAPI.Models.Partner
             return ret;
         }
     }
+    public partial class KalturaPaymentPartnerConfig
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(UnifiedBillingCycles != null)
+            {
+                propertyValue = "[" + String.Join(", ", UnifiedBillingCycles.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("unifiedBillingCycles", "\"unifiedBillingCycles\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(UnifiedBillingCycles != null)
+            {
+                propertyValue = UnifiedBillingCycles.Count > 0 ? "<item>" + String.Join("</item><item>", UnifiedBillingCycles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("unifiedBillingCycles", "<unifiedBillingCycles>" + propertyValue + "</unifiedBillingCycles>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaPlaybackPartnerConfig
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -26149,6 +26203,52 @@ namespace WebAPI.Models.Partner
             if(RollingDeviceRemovalPolicy.HasValue)
             {
                 ret.Add("rollingDeviceRemovalPolicy", "<rollingDeviceRemovalPolicy>" + "" + Enum.GetName(typeof(KalturaRollingDevicePolicy), RollingDeviceRemovalPolicy) + "" + "</rollingDeviceRemovalPolicy>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaUnifiedBillingCycle
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Duration != null)
+            {
+                propertyValue = Duration.ToJson(currentVersion, omitObsolete);
+                ret.Add("duration", "\"duration\": " + propertyValue);
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(PaymentGatewayId.HasValue)
+            {
+                ret.Add("paymentGatewayId", "\"paymentGatewayId\": " + PaymentGatewayId);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Duration != null)
+            {
+                propertyValue = Duration.ToXml(currentVersion, omitObsolete);
+                ret.Add("duration", "<duration>" + propertyValue + "</duration>");
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(PaymentGatewayId.HasValue)
+            {
+                ret.Add("paymentGatewayId", "<paymentGatewayId>" + PaymentGatewayId + "</paymentGatewayId>");
             }
             return ret;
         }
@@ -28680,6 +28780,11 @@ namespace WebAPI.Models.Billing
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
             ret.Add("selectedBy", "\"selectedBy\": " + "\"" + Enum.GetName(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy) + "\"");
+            if(SuspendSettings != null)
+            {
+                propertyValue = SuspendSettings.ToJson(currentVersion, omitObsolete);
+                ret.Add("suspendSettings", "\"suspendSettings\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -28702,6 +28807,11 @@ namespace WebAPI.Models.Billing
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
             ret.Add("selectedBy", "<selectedBy>" + "" + Enum.GetName(typeof(KalturaHouseholdPaymentGatewaySelectedBy), selectedBy) + "" + "</selectedBy>");
+            if(SuspendSettings != null)
+            {
+                propertyValue = SuspendSettings.ToXml(currentVersion, omitObsolete);
+                ret.Add("suspendSettings", "<suspendSettings>" + propertyValue + "</suspendSettings>");
+            }
             return ret;
         }
     }
@@ -29438,6 +29548,30 @@ namespace WebAPI.Models.Billing
                 propertyValue = PaymentMethodProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", PaymentMethodProfiles.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaSuspendSettings
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("revokeEntitlements", "\"revokeEntitlements\": " + RevokeEntitlements.ToString().ToLower());
+            ret.Add("stopRenew", "\"stopRenew\": " + StopRenew.ToString().ToLower());
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("revokeEntitlements", "<revokeEntitlements>" + RevokeEntitlements.ToString().ToLower() + "</revokeEntitlements>");
+            ret.Add("stopRenew", "<stopRenew>" + StopRenew.ToString().ToLower() + "</stopRenew>");
             return ret;
         }
     }

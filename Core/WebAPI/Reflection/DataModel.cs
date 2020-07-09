@@ -2200,6 +2200,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDuration":
+                    switch(property.Name)
+                    {
+                        case "Unit":
+                            return "unit";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
                 case "KalturaDynamicChannel":
                     switch(property.Name)
                     {
@@ -3057,6 +3067,8 @@ namespace WebAPI.Reflection
                             return "isDefault";
                         case "Name":
                             return "name";
+                        case "SuspendSettings":
+                            return "suspendSettings";
                     }
                     break;
                     
@@ -4525,6 +4537,14 @@ namespace WebAPI.Reflection
                     {
                         case "PaymentMethodProfiles":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPaymentPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "UnifiedBillingCycles":
+                            return "unifiedBillingCycles";
                     }
                     break;
                     
@@ -6418,6 +6438,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSuspendSettings":
+                    switch(property.Name)
+                    {
+                        case "RevokeEntitlements":
+                            return "revokeEntitlements";
+                        case "StopRenew":
+                            return "stopRenew";
+                    }
+                    break;
+                    
                 case "KalturaTag":
                     switch(property.Name)
                     {
@@ -6731,6 +6761,18 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaUnifiedBillingCycle":
+                    switch(property.Name)
+                    {
+                        case "Duration":
+                            return "duration";
+                        case "Name":
+                            return "name";
+                        case "PaymentGatewayId":
+                            return "paymentGatewayId";
                     }
                     break;
                     
@@ -8530,7 +8572,7 @@ namespace WebAPI.Reflection
                             
                         case "resume":
                             RolesManager.ValidateActionPermitted("householdPaymentGateway", "resume", false);
-                            HouseholdPaymentGatewayController.Resume((int) methodParams[0]);
+                            HouseholdPaymentGatewayController.Resume((int) methodParams[0], (List<KalturaKeyValue>) methodParams[1]);
                             return null;
                             
                         case "setchargeid":
@@ -8539,7 +8581,7 @@ namespace WebAPI.Reflection
                             
                         case "suspend":
                             RolesManager.ValidateActionPermitted("householdPaymentGateway", "suspend", false);
-                            HouseholdPaymentGatewayController.Suspend((int) methodParams[0]);
+                            HouseholdPaymentGatewayController.Suspend((int) methodParams[0], (KalturaSuspendSettings) methodParams[1]);
                             return null;
                             
                         case "delete":
@@ -14677,6 +14719,14 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(int),
                             });
+                            ret.Add("adapterData", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaKeyValue),
+                                Type = typeof(List<KalturaKeyValue>),
+                            });
                             return ret;
                             
                         case "setchargeid":
@@ -14694,6 +14744,13 @@ namespace WebAPI.Reflection
                             ret.Add("paymentGatewayId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(int),
+                            });
+                            ret.Add("suspendSettings", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSuspendSettings),
                             });
                             return ret;
                             

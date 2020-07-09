@@ -235,8 +235,7 @@ namespace DAL
                         {
                             if (cbManager.Set<string>(key, serializeObject, expirationTTL))
                             {
-                                log.DebugFormat("successfully SaveObjectInCB. number of tries: {0}/{1}. key: {2}.",
-                                                    numOfTries, NUM_OF_INSERT_TRIES, key);
+                                log.Debug($"successfully SaveObjectInCB. key: {key}, number of tries: {numOfTries}/{NUM_OF_INSERT_TRIES}.");
                                 return true;
                             }
                         }
@@ -244,21 +243,19 @@ namespace DAL
                         {
                             if (cbManager.Set<T>(key, objectToSave, expirationTTL))
                             {
-                                log.DebugFormat("successfully SaveObjectInCB. number of tries: {0}/{1}. key: {2}.",
-                                                    numOfTries, NUM_OF_INSERT_TRIES, key);
+                                log.Debug($"successfully SaveObjectInCB. key: {key}, number of tries: {numOfTries}/{NUM_OF_INSERT_TRIES}.");
                                 return true;
                             }
                         }
 
                         numOfTries++;
-                        log.ErrorFormat("Error while SaveObjectInCBy. number of tries: {0}/{1}. key: {2}.",
-                                        numOfTries, NUM_OF_INSERT_TRIES, key);
+                        log.Error($"Error while SaveObjectInCBy. key: {key}, number of tries: {numOfTries}/{NUM_OF_INSERT_TRIES}.");
                         Thread.Sleep(r.Next(50));
                     }
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Error while trying to SaveObjectInCB. key: {0}, ex: {1}", key, ex);
+                    log.Error($"Error while trying to SaveObjectInCB. key: {key}, ex: {ex}.");
                 }
             }
 

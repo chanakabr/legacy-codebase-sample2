@@ -17,6 +17,7 @@ using Core.ConditionalAccess.Response;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.TimeShiftedTv;
 using ApiObjects.Pricing;
+using ApiObjects.Base;
 
 namespace WebAPI.WebServices
 {
@@ -2142,7 +2143,16 @@ namespace WebAPI.WebServices
 
             if (nGroupID != 0 && casImpl != null)
             {
-                response = casImpl.Purchase(siteguid, householdId, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName, paymentGatewayId, paymentMethodId, adapterData);
+                long.TryParse(siteguid, out long userId);
+                var contextData = new ContextData(nGroupID)
+                {
+                    UserId = userId,
+                    DomainId = householdId,
+                    UserIp = userIp,
+                    Udid = deviceName
+                };
+
+                response = casImpl.Purchase(contextData, price, currency, contentId, productId, transactionType, coupon, paymentGatewayId, paymentMethodId, adapterData);
                 if (response == null)
                 {
                     response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

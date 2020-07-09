@@ -1586,7 +1586,7 @@ namespace Core.Users
             if (dtLastActionDate == null || dtLastActionDate.Equals(Utils.FICTIVE_DATE) || dtLastActionDate.Equals(DateTime.MinValue) || nDeviceFrequencyLimit == 0)
                 m_oLimitationsManager.NextActionFreqDate = DateTime.MinValue;
             else
-                m_oLimitationsManager.NextActionFreqDate = Utils.GetEndDateTime(dtLastActionDate, nDeviceFrequencyLimit);
+                m_oLimitationsManager.NextActionFreqDate = Core.ConditionalAccess.Utils.GetEndDateTime(dtLastActionDate, nDeviceFrequencyLimit);
         }
 
         protected internal void DeviceFamiliesInitializer(int nDomainLimitationModuleID, int nGroupID)
@@ -1877,7 +1877,7 @@ namespace Core.Users
 
                     if (m_minPeriodId != 0)
                     {
-                        m_NextActionFreq = Utils.GetEndDateTime(dDeviceFrequencyLastAction, m_minPeriodId);
+                        m_NextActionFreq = Core.ConditionalAccess.Utils.GetEndDateTime(dDeviceFrequencyLastAction, m_minPeriodId);
                     }
 
                     long npvrQuotaInSecs = 0;
@@ -1885,7 +1885,7 @@ namespace Core.Users
 
                     if (m_minUserPeriodId != 0)
                     {
-                        m_NextUserActionFreq = Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
+                        m_NextUserActionFreq = Core.ConditionalAccess.Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
                     }
                 }
             }

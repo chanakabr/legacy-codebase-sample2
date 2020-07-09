@@ -7,6 +7,7 @@ namespace ApiObjects.Base
         public long? DomainId { get; set; }
         public long? UserId { get; set; }
         public string Udid { get; set; }
+        public string UserIp { get; set; }
         public string Language { get; set; }
         public string Format { get; set; }
         public bool ManagementData 
@@ -24,7 +25,7 @@ namespace ApiObjects.Base
 
         public override string ToString()
         {
-            return $"GroupId:{GroupId}, DomainId:{DomainId}, UserId:{UserId}, Udid:{Udid}, Language:{Language}, Format:{Format}.";
+            return $"GroupId:{GroupId}, DomainId:{DomainId}, UserId:{UserId}, Udid:{Udid}, UserIp:{UserIp}, Language:{Language}, Format:{Format}.";
         }
     }
 }

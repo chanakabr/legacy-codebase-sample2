@@ -22,6 +22,9 @@ using WebAPI.Models.Pricing;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 using TVinciShared;
+using ApiObjects.Base;
+using WebAPI.Models.General;
+using WebAPI.Models.Billing;
 
 namespace WebAPI.Clients
 {
@@ -356,8 +359,8 @@ namespace WebAPI.Clients
             return prices;
         }
 
-        internal KalturaTransaction Purchase(int groupId, string siteguid, long houshold, double price, string currency, int contentId,
-                                             int productId, KalturaTransactionType clientTransactionType, string coupon, string udid, int paymentGatewayId, int paymentMethodId, string adapterData)
+        internal KalturaTransaction Purchase(ContextData contextData, double price, string currency, int contentId, int productId, KalturaTransactionType clientTransactionType, string coupon, 
+                                            int paymentGatewayId, int paymentMethodId, string adapterData)
         {
             KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();
@@ -373,8 +376,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Core.ConditionalAccess.Module.Purchase(groupId, siteguid, houshold, price,
-                                                            currency, contentId, productId, transactionType, coupon, Utils.Utils.GetClientIP(), udid, paymentGatewayId, paymentMethodId, adapterData);
+                    wsResponse = Core.ConditionalAccess.Module.Purchase(contextData, price, currency, contentId, productId, transactionType, coupon, paymentGatewayId, paymentMethodId, adapterData);
                 }
             }
             catch (Exception ex)
@@ -2290,15 +2292,16 @@ namespace WebAPI.Clients
             return kalturaAdsContext;
         }
 
-        internal void SuspendPaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        internal void SuspendPaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId, KalturaSuspendSettings kalturaSuspendSettings)
         {
             Status response = null;
 
             try
             {
+                var suspendSettings = Mapper.Map<SuspendSettings>(kalturaSuspendSettings);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.SuspendPaymentGatewayEntitlements(groupId, householdId, paymentGatewayId);
+                    response = Core.ConditionalAccess.Module.SuspendPaymentGatewayEntitlements(groupId, householdId, paymentGatewayId, suspendSettings);
                 }
             }
             catch (Exception ex)
@@ -2319,15 +2322,16 @@ namespace WebAPI.Clients
             }
         }
 
-        internal void ResumePaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        internal void ResumePaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId, List<KalturaKeyValue> kalturaAdapterData)
         {
             Status response = null;
 
             try
             {
+                var adapterData = Mapper.Map<List<ApiObjects.KeyValuePair>>(kalturaAdapterData);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.ResumePaymentGatewayEntitlements(groupId, householdId, paymentGatewayId);
+                    response = Core.ConditionalAccess.Module.ResumePaymentGatewayEntitlements(groupId, householdId, paymentGatewayId, adapterData);
                 }
             }
             catch (Exception ex)
