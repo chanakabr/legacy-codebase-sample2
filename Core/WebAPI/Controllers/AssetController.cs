@@ -1212,6 +1212,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.BulkUploadDoesNotExist)]
         [Throws(eResponseStatus.BulkUploadResultIsMissing)]
         [Throws(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk)]
+        [Throws(eResponseStatus.FileExceededMaxSize)]
+        [Throws(eResponseStatus.FileExtensionNotSupported)]
+        [Throws(eResponseStatus.FileMimeDifferentThanExpected)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
 
