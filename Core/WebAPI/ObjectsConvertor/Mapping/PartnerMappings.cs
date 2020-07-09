@@ -61,7 +61,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableRegionFiltering, opt => opt.MapFrom(src => src.EnableRegionFiltering))
                 .ForMember(dest => dest.DefaultRegion, opt => opt.MapFrom(src => src.DefaultRegion))
                 .ForMember(dest => dest.RollingDeviceRemovalData, opt => opt.MapFrom(src => src.RollingDeviceRemovalData))
-                ;
+                .ForMember(dest => dest.FinishedPercentThreshold, opt => opt.MapFrom(src => src.FinishedPercentThreshold));
 
             // map KalturaGeneralPartnerConfig to GeneralPartnerConfig
             cfg.CreateMap<KalturaGeneralPartnerConfig, GeneralPartnerConfig>()
@@ -78,6 +78,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableRegionFiltering, opt => opt.MapFrom(src => src.EnableRegionFiltering))
                 .ForMember(dest => dest.DefaultRegion, opt => opt.MapFrom(src => src.DefaultRegion))
                 .ForMember(dest => dest.RollingDeviceRemovalData, opt => opt.MapFrom(src => src.RollingDeviceRemovalData))
+                .ForMember(dest => dest.FinishedPercentThreshold, opt => opt.MapFrom(src => src.FinishedPercentThreshold))
                 .AfterMap((src, dest) => dest.SecondaryLanguages = src.SecondaryLanguages == null ? null : dest.SecondaryLanguages)
                 .AfterMap((src, dest) => dest.SecondaryCurrencies = src.SecondaryCurrencies == null ? null : dest.SecondaryCurrencies)
                 ;

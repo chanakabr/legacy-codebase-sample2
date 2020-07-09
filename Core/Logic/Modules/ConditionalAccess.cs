@@ -2727,22 +2727,6 @@ namespace Core.ConditionalAccess
             return null;            
         }
 
-
-        public static bool DistributeRecording(int groupID, long epgId, long Id, DateTime epgStartDate)
-        {
-            BaseConditionalAccess t = null;
-            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
-            if (t != null)
-            {
-                return t.DistributeRecording(epgId, Id, epgStartDate);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-
         public static bool CompleteDomainSeriesRecordings(int groupID, long domainId)
         {
             BaseConditionalAccess t = null;
@@ -3293,12 +3277,9 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static bool UnifiedRenewalReminder(int groupId, string siteGuid, long householdId, long processId, long endDate)
+        public static bool UnifiedRenewalReminder(int groupId, long householdId, long processId, long endDate)
         {
             bool response = false;
-
-            // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
             // get partner implementation and group ID
             ConditionalAccess.BaseConditionalAccess t = null;
@@ -3308,7 +3289,7 @@ namespace Core.ConditionalAccess
             {
                 try
                 {
-                    response = t.UnifiedRenewalReminder(siteGuid, householdId, processId, endDate);
+                    response = t.UnifiedRenewalReminder(householdId, processId, endDate);
                 }
                 catch (Exception ex)
                 {

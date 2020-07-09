@@ -1235,7 +1235,6 @@ namespace Core.ConditionalAccess
                             }
                             break;
                         case eTransactionState.Pending:
-                        case eTransactionState.Failed:
                             {
                                 // get configuration value 
                                 int PendingThresholdDays = ApplicationConfiguration.Current.PendingThresholdDays.Value;
@@ -1247,7 +1246,7 @@ namespace Core.ConditionalAccess
 
                                 if (new DateTime(1970, 1, 1).AddMilliseconds(nextEndDate).AddDays(PendingThresholdDays) < DateTime.UtcNow)
                                 {
-                                    // renew subscription failed! pass 0 as failReasonCode since we don't get it on the transactionResponse
+                                    // renew subscription failed - stop renew attempts!
                                     foreach (RenewDetails renewUnifiedData in groupedRenewDetailsList)
                                     {
                                         Subscription subscription = subscriptionsMap[renewUnifiedData.ProductId];
@@ -1257,6 +1256,16 @@ namespace Core.ConditionalAccess
                                 else
                                 {
                                     pendingTransactions.Add(mappedRenewDetails.Key);
+                                }
+                            }
+                            break;
+                        case eTransactionState.Failed:
+                            {
+                                // renew subscription failed - stop renew attempts!
+                                foreach (RenewDetails renewUnifiedData in groupedRenewDetailsList)
+                                {
+                                    Subscription subscription = subscriptionsMap[renewUnifiedData.ProductId];
+                                    HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, renewUnifiedData, transactionResponse.FailReasonCode, null, string.Empty, nextEndDate);
                                 }
                             }
                             break;
@@ -1739,11 +1748,6 @@ namespace Core.ConditionalAccess
             // calculate payment number
             renewDetails.PaymentNumber++;
 
-            // Check if this is a renew via INAPP PURCHASE
-            PaymentDetails pd = null;
-            ApiObjects.Response.Status statusVerifications = Billing.Module.GetPaymentGatewayVerificationStatus(groupId, renewDetails.BillingGuid, ref pd);
-            bool ignoreUnifiedBillingCycle = statusVerifications.Code != (int)eResponseStatus.OK || pd == null || pd.PaymentGatewayId == 0;
-
             if (!SetCustomDataForRenewDetails(groupId, renewDetails, out bool isDummy, out XmlNode theRequest))
             {
                 return response;
@@ -1771,6 +1775,16 @@ namespace Core.ConditionalAccess
                 };
 
                 return response;
+            }
+
+            bool ignoreUnifiedBillingCycle = false;
+
+            // Check if this is a renew via INAPP PURCHASE
+            if (!string.IsNullOrEmpty(renewDetails.BillingGuid))
+            {
+                PaymentDetails pd = null;
+                ApiObjects.Response.Status statusVerifications = Billing.Module.GetPaymentGatewayVerificationStatus(groupId, renewDetails.BillingGuid, ref pd);
+                ignoreUnifiedBillingCycle = statusVerifications.Code != (int)eResponseStatus.OK || pd == null || pd.PaymentGatewayId == 0;
             }
 
             if (subscription.Type == SubscriptionType.AddOn && subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
@@ -2059,12 +2073,12 @@ namespace Core.ConditionalAccess
             return success;
         }
 
-        internal static bool UnifiedRenewalReminder(BaseConditionalAccess baseConditionalAccess, int groupId, string siteGuid, long householdId, long processId, long nextEndDate)
+        internal static bool UnifiedRenewalReminder(BaseConditionalAccess baseConditionalAccess, int groupId, long householdId, long processId, long nextEndDate)
         {
             bool success = false;
 
             // log request
-            string logString = string.Format("RenewalReminder request: userId {0}, processId {1}, endDateLong {2}", siteGuid, processId, nextEndDate);
+            string logString = string.Format("RenewalReminder request: processId {0}, endDateLong {1}", processId, nextEndDate);
 
             log.DebugFormat("Starting UnifiedRenewalReminder process. data: {0}", logString);
 
@@ -2076,29 +2090,22 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            if (!string.IsNullOrEmpty(siteGuid))
-            {
-                Domain domain;
-                User user;
-                var userValidStatus = Utils.ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
-
-                // validate household
-                if ((userValidStatus == null || userValidStatus.Code != (int)eResponseStatus.OK) &&
-                    householdId <= 0)
-                {
-                    // illegal household ID
-                    log.ErrorFormat("Error: Illegal household, data: {0}", logString);
-                    return true;
-                }
-            }
-            else if (householdId <= 0)
+            if (householdId <= 0)
             {
                 // illegal household ID
                 log.ErrorFormat("Error: Illegal household, data: {0}", logString);
                 return true;
             }
 
-            long userId = long.Parse(siteGuid);
+            Domain domain;
+            ApiObjects.Response.Status domainStatus = Utils.ValidateDomain(groupId, (int)householdId, out domain);
+            if (domain == null || domainStatus == null || domainStatus.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("UnifiedRenewalReminder ValidateDomain householdId = {0} status.Code = {1} ", householdId, domainStatus.Code);
+                return true;
+            }
+
+            long userId = domain.m_masterGUIDs[0];
 
             var unifiedPaymentResponse = GetUnifiedPaymentNextRenewal(baseConditionalAccess, groupId, householdId, processId, userId);
 

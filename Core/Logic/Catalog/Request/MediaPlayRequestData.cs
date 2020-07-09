@@ -125,6 +125,7 @@ namespace Core.Catalog.Request
                     currDevicePlayData = newDevicePlayData;
                 }
             }
+
             return currDevicePlayData;
         }
 

@@ -1925,7 +1925,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, 
+        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType kalturaAssetType, 
             KalturaPlaybackContextOptions contextDataParams, string sourceType = null, bool isPlaybackManifest = false)
         {
             KalturaPlaybackContext kalturaPlaybackContext = null;
@@ -1946,14 +1946,16 @@ namespace WebAPI.Clients
             }
 
             log.DebugFormat("ConditionalAccessClient.GetPlaybackContext parameters: groupId {0}, userId {1}, udid {2}, assetId {3}, assetType {4}.",
-                            groupId, userId, udid, assetId, assetType);
+                            groupId, userId, udid, assetId, kalturaAssetType);
 
+            var assetType = AutoMapper.Mapper.Map<eAssetTypes>(kalturaAssetType);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
+                    
                     response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, 
-                        ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext,
+                        assetType, contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext,
                         urlType, sourceType, isPlaybackManifest, WebAPI.Utils.Utils.ConvertSerializeableDictionary(contextDataParams.AdapterData, true));
                 }
             }
@@ -2009,18 +2011,20 @@ namespace WebAPI.Clients
             return kalturaPlaybackContext;
         }
 
-        internal string GetPlayManifest(int groupId, string userId, string assetId, KalturaAssetType assetType, long assetFileId, string udid, KalturaPlaybackContextType contextType, bool isTokenizedUrl)
+        internal string GetPlayManifest(int groupId, string userId, string assetId, KalturaAssetType kalturaAssetType, long assetFileId, string udid, KalturaPlaybackContextType contextType, bool isTokenizedUrl)
         {
             PlayManifestResponse response = null;
 
             log.DebugFormat("ConditionalAccessClient.GetPlayManifest parameters: groupId {0}, userId {1}, udid {2}, assetId {3}, assetType {4}, assetFileId {5}.",
-                                        groupId, userId, udid, assetId, assetType, assetFileId);
+                                        groupId, userId, udid, assetId, kalturaAssetType, assetFileId);
+
+            var assetType = AutoMapper.Mapper.Map<eAssetTypes>(kalturaAssetType);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetPlayManifest(groupId, userId, assetId, ApiMappings.ConvertAssetType(assetType),
+                    response = Core.ConditionalAccess.Module.GetPlayManifest(groupId, userId, assetId, assetType,
                         assetFileId, Utils.Utils.GetClientIP(), udid, ConditionalAccessMappings.ConvertPlayContextType(contextType), isTokenizedUrl);
                 }
             }
@@ -2237,7 +2241,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaAdsContext GetAdsContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        internal KalturaAdsContext GetAdsContext(int groupId, string userId, string udid, string assetId, KalturaAssetType kalturaAssetType, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaAdsContext kalturaAdsContext = new KalturaAdsContext();
             AdsControlResponse response = null;
@@ -2255,11 +2259,13 @@ namespace WebAPI.Clients
                 streamerType = type;
             }
 
+            var assetType = AutoMapper.Mapper.Map<eAssetTypes>(kalturaAssetType);
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetAdsContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext);
+                    response = Core.ConditionalAccess.Module.GetAdsContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, assetType, contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext);
                 }
             }
             catch (Exception ex)

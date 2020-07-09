@@ -182,6 +182,8 @@ namespace ElasticSearch.Searcher
 
     public class ESTerms : IESTerm
     {
+        public const int MAXIMUM_TERMS_SIZE = 1024;
+
         public eTermType eType
         {
             get;
@@ -290,6 +292,36 @@ namespace ElasticSearch.Searcher
 
             return sb.ToString();
 
+        }
+        internal List<ESTerms> Split()
+        {
+            List<ESTerms> result = new List<ESTerms>();
+
+            if (this.IsEmpty())
+            {
+                result.Add(this);
+            }
+            else if (this.Value.Count < MAXIMUM_TERMS_SIZE)
+            {
+                result.Add(this);
+            }
+            else
+            {
+                int index = 0;
+                while (index < this.Value.Count)
+                {
+                    var currentValue = this.Value.Skip(index).Take(MAXIMUM_TERMS_SIZE);
+                    ESTerms newTerms = new ESTerms(this.m_bIsNumeric)
+                    {
+                        Key = this.Key
+                    };
+                    newTerms.Value.AddRange(currentValue);
+                    result.Add(newTerms);
+                    index += MAXIMUM_TERMS_SIZE;
+                }
+            }
+
+            return result;
         }
     }
 

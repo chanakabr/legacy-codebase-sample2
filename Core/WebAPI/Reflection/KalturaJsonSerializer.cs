@@ -9519,6 +9519,26 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
+    public partial class KalturaAssetHistorySuppressFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
     public partial class KalturaAssetImagePerRatioFilter
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -10211,6 +10231,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("isInherited", "\"isInherited\": " + IsInherited.ToString().ToLower());
             }
+            if(IsLocationTag.HasValue)
+            {
+                ret.Add("isLocationTag", "\"isLocationTag\": " + IsLocationTag.ToString().ToLower());
+            }
             ret.Add("metaId", "\"metaId\": " + MetaId);
             if(ProtectFromIngest.HasValue)
             {
@@ -10239,6 +10263,10 @@ namespace WebAPI.Models.Catalog
             if(IsInherited.HasValue)
             {
                 ret.Add("isInherited", "<isInherited>" + IsInherited.ToString().ToLower() + "</isInherited>");
+            }
+            if(IsLocationTag.HasValue)
+            {
+                ret.Add("isLocationTag", "<isLocationTag>" + IsLocationTag.ToString().ToLower() + "</isLocationTag>");
             }
             ret.Add("metaId", "<metaId>" + MetaId + "</metaId>");
             if(ProtectFromIngest.HasValue)
@@ -11333,10 +11361,6 @@ namespace WebAPI.Models.Catalog
 
             ret.Add("excludeWatched", "\"excludeWatched\": " + ExcludeWatched.ToString().ToLower());
             ret.Add("idEqual", "\"idEqual\": " + IdEqual);
-            if(KSql != null)
-            {
-                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(KSql) + "\"");
-            }
             if(!ret.ContainsKey("orderBy"))
             {
                 ret.Add("orderBy", "\"orderBy\": " + "\"" + Enum.GetName(typeof(KalturaAssetOrderBy), OrderBy) + "\"");
@@ -11352,10 +11376,6 @@ namespace WebAPI.Models.Catalog
 
             ret.Add("excludeWatched", "<excludeWatched>" + ExcludeWatched.ToString().ToLower() + "</excludeWatched>");
             ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
-            if(KSql != null)
-            {
-                ret.Add("kSql", "<kSql>" + EscapeXml(KSql) + "</kSql>");
-            }
             if(!ret.ContainsKey("orderBy"))
             {
                 ret.Add("orderBy", "<orderBy>" + "" + Enum.GetName(typeof(KalturaAssetOrderBy), OrderBy) + "" + "</orderBy>");
@@ -25811,6 +25831,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("enableRegionFiltering", "\"enableRegionFiltering\": " + EnableRegionFiltering.ToString().ToLower());
             }
+            if(FinishedPercentThreshold.HasValue)
+            {
+                ret.Add("finishedPercentThreshold", "\"finishedPercentThreshold\": " + FinishedPercentThreshold);
+            }
             if(HouseholdLimitationModule.HasValue)
             {
                 ret.Add("householdLimitationModule", "\"householdLimitationModule\": " + HouseholdLimitationModule);
@@ -25872,6 +25896,10 @@ namespace WebAPI.Models.Partner
             if(EnableRegionFiltering.HasValue)
             {
                 ret.Add("enableRegionFiltering", "<enableRegionFiltering>" + EnableRegionFiltering.ToString().ToLower() + "</enableRegionFiltering>");
+            }
+            if(FinishedPercentThreshold.HasValue)
+            {
+                ret.Add("finishedPercentThreshold", "<finishedPercentThreshold>" + FinishedPercentThreshold + "</finishedPercentThreshold>");
             }
             if(HouseholdLimitationModule.HasValue)
             {
@@ -28049,6 +28077,10 @@ namespace WebAPI.Models.Domains
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
             }
             ret.Add("householdId", "\"householdId\": " + HouseholdId);
+            if(MacAddress != null)
+            {
+                ret.Add("macAddress", "\"macAddress\": " + "\"" + EscapeJson(MacAddress) + "\"");
+            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -28108,6 +28140,10 @@ namespace WebAPI.Models.Domains
                 ret.Add("externalId", "<externalId>" + EscapeXml(ExternalId) + "</externalId>");
             }
             ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
+            if(MacAddress != null)
+            {
+                ret.Add("macAddress", "<macAddress>" + EscapeXml(MacAddress) + "</macAddress>");
+            }
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");

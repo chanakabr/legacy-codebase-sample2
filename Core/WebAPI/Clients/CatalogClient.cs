@@ -1053,7 +1053,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetHistoryListResponse getAssetHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<string> assetIds, List<KalturaCatalogWith> withList = null)
+        public KalturaAssetHistoryListResponse getAssetHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, 
+            KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<string> assetIds, bool suppress, List<KalturaCatalogWith> withList = null)
         {
             KalturaAssetHistoryListResponse finalResults = new KalturaAssetHistoryListResponse();
             finalResults.Objects = new List<KalturaAssetHistory>();
@@ -1082,7 +1083,8 @@ namespace WebAPI.Clients
                 FilterStatus = CatalogMappings.ConvertKalturaWatchStatus(watchStatus),
                 NumOfDays = days,
                 OrderDir = ApiObjects.SearchObjects.OrderDir.DESC,
-                AssetIds = assetIds
+                AssetIds = assetIds,
+                Suppress = suppress
             };
 
             // fire history watched request
@@ -1103,31 +1105,19 @@ namespace WebAPI.Clients
             {
                 // combine asset info and watch history info
                 finalResults.TotalCount = watchHistoryResponse.m_nTotalItems;
-
-                foreach (var uwh in watchHistoryResponse.result)
-                {
-                    if (uwh != null)
-                    {
-                        KalturaAssetType assetType = KalturaAssetType.media;
-                        if (uwh.AssetType == eAssetTypes.NPVR)
-                        {
-                            assetType = KalturaAssetType.recording;
-                        }
-
-                        finalResults.Objects.Add(new KalturaAssetHistory()
-                        {
-                            AssetId = long.Parse(uwh.AssetId),
-                            Duration = uwh.Duration,
-                            IsFinishedWatching = uwh.IsFinishedWatching,
-                            LastWatched = uwh.LastWatch,
-                            Position = uwh.Location,
-                            AssetType = assetType
-                        });
-                    }
-                }
+                var assetHistories = Mapper.Map<List<KalturaAssetHistory>>(watchHistoryResponse.result.Where(x => x != null));
+                finalResults.Objects.AddRange(assetHistories);
             }
 
             return finalResults;
+        }
+
+        public KalturaAssetHistory GetNextEpisode(int groupId, string siteGuid, long assetId)
+        {
+            GenericResponse<UserWatchHistory> getNextEpisodeFunc() =>
+                CatalogLogic.GetNextEpisode(groupId, siteGuid, assetId);
+            KalturaAssetHistory result = ClientUtils.GetResponseFromWS<KalturaAssetHistory, UserWatchHistory>(getNextEpisodeFunc);
+            return result;
         }
 
         [Obsolete]
@@ -1222,7 +1212,7 @@ namespace WebAPI.Clients
                 m_nAssetIDs = assetIds,
                 m_dStartDate = startTime != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime(startTime) : DateTime.MinValue,
                 m_dEndDate = endTime != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime(endTime) : DateTime.MaxValue,
-                m_type = CatalogMappings.ConvertAssetType(assetType)
+                m_type = Mapper.Map<StatsType>(assetType)
             };
 
             AssetStatsResponse response = null;
@@ -1570,9 +1560,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetInfoListResponse GetChannelAssets(int groupId, string siteGuid, int domainId, string udid, string language,
-            int pageIndex, int? pageSize,
-            List<KalturaCatalogWith> with,
-            int channelId, KalturaOrder? orderBy, string filterQuery, bool excludeWatched)
+            int pageIndex, int? pageSize, List<KalturaCatalogWith> with, int channelId, KalturaOrder? orderBy, string filterQuery, bool excludeWatched)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -2651,7 +2639,7 @@ namespace WebAPI.Clients
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
                                                             KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
-                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false)
+                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, List<string> groupByValues = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2695,6 +2683,16 @@ namespace WebAPI.Clients
                 m_bIgnoreDeviceRuleID = false,
                 isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
             };
+
+            if (groupByValues != null && groupByValues.Count > 0)
+            {
+                request.searchGroupBy = new SearchAggregationGroupBy()
+                {
+                    groupBy = groupByValues,
+                    distinctGroup = groupByValues[0], // mabye will send string.empty - and Backend will fill it if nessecery
+                    topHitsCount = 1
+                };
+            }
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
@@ -2906,7 +2904,7 @@ namespace WebAPI.Clients
                 domainId = domainId,
                 m_dServerTime = getServerTime(),
                 assetId = id,
-                assetType = CatalogMappings.ConvertToAssetType(AssetType),
+                assetType = Mapper.Map<eAssetType>(AssetType),
                 orderObj = order,
             };
 
@@ -2966,7 +2964,7 @@ namespace WebAPI.Clients
                 domainId = domainId,
                 m_dServerTime = getServerTime(),
                 assetId = assetId,
-                assetType = CatalogMappings.ConvertToAssetType(assetType),
+                assetType = Mapper.Map<eAssetType>(assetType),
                 writer = writer,
                 header = header,
                 subHeader = subHeader,
@@ -3621,23 +3619,7 @@ namespace WebAPI.Clients
 
             if (response.Objects != null && response.Objects.Count > 0)
             {
-                result.Channels = new List<KalturaChannel>();
-                // convert channels
-                foreach (GroupsCacheManager.Channel channel in response.Objects)
-                {
-                    if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL)
-                    {
-                        result.Channels.Add(Mapper.Map<KalturaDynamicChannel>(channel));
-                    }
-                    else if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual)
-                    {
-                        result.Channels.Add(Mapper.Map<KalturaManualChannel>(channel));
-                    }
-                    else
-                    {
-                        result.TotalCount--;
-                    }
-                }
+                ConvertChannelsByType(response.Objects, ref result);
             }
 
             return result;
@@ -4192,20 +4174,65 @@ namespace WebAPI.Clients
         internal KalturaChannelListResponse SearchChannels(int groupId, List<int> channelsIds, bool isAllowedToViewInactiveAssets, long userId)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
+            GenericListResponse<GroupsCacheManager.Channel> response = null;
 
-            Func<GenericListResponse<GroupsCacheManager.Channel>> getFunc = () =>
-             ChannelManager.GetChannelsListResponseByChannelIds(groupId, channelsIds, isAllowedToViewInactiveAssets, null);
-
-            KalturaGenericListResponse<KalturaChannel> response =
-                ClientUtils.GetResponseListFromWS<KalturaChannel, GroupsCacheManager.Channel>(getFunc);
-
-            result.Channels = response.Objects;
-            if (result.Channels?.Count > 0)
+            try
             {
-                result.TotalCount = result.Channels.Count;
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ChannelManager.GetChannelsListResponseByChannelIds(groupId, channelsIds, isAllowedToViewInactiveAssets, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling SearchChannels. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
             }
 
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException(StatusCode.Error);
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status);
+            }
+
+            if (response.TotalItems > 0)
+            {
+                result.TotalCount = response.TotalItems;
+            }
+
+            if (response.Objects != null && response.Objects.Count > 0)
+            {
+                ConvertChannelsByType(response.Objects, ref result);
+            }
+            
             return result;
+        }
+
+        private void ConvertChannelsByType(List<GroupsCacheManager.Channel> objects, ref KalturaChannelListResponse result)
+        {
+            result.Channels = new List<KalturaChannel>();
+            // convert channels
+            foreach (GroupsCacheManager.Channel channel in objects)
+            {
+                if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL)
+                {
+                    result.Channels.Add(Mapper.Map<KalturaDynamicChannel>(channel));
+                }
+                else if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual)
+                {
+                    result.Channels.Add(Mapper.Map<KalturaManualChannel>(channel));
+                }
+                else
+                {
+                    result.TotalCount--;
+                }
+            }
         }
     }
 }

@@ -254,6 +254,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CHILD_CATEGORY_NOT_EXIST = new ClientExceptionType(eResponseStatus.ChildCategoryNotExist, "", "Child category does not exist");
         public static ClientExceptionType CHILD_CATEGORY_ALREADY_BELONGS_TO_ANOTHER = new ClientExceptionType(eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory, "", "Child Category already belongs to another category");
         public static ClientExceptionType CHILD_CATEGORY_CANNOT_BE_THE_CATEGORY_ITSELF = new ClientExceptionType(eResponseStatus.ChildCategoryCannotBeTheCategoryItself, "", "A child category cannot be the category itself");
+        public static ClientExceptionType INVALID_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.InvalidAssetStruct, "", "Invalid asset struct");
+        public static ClientExceptionType NO_NEXT_EPISODE = new ClientExceptionType(eResponseStatus.NoNextEpisode, "", "User have not started watching this TV series");
 
         #endregion
 

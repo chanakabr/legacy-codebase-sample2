@@ -318,7 +318,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetCatalogGroupCacheKey(int groupId)
         {
-            return string.Format("CatalogGroupCacheV4_groupId_{0}", groupId);
+            return string.Format("CatalogGroupCacheV5_groupId_{0}", groupId);
         }
 
         public static string GetGroupDeviceRulesKey(int groupId)
@@ -533,7 +533,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainKey(int domainId)
         {
-            return string.Format("domain_V1_{0}", domainId);
+            return string.Format("domain_V2_{0}", domainId);
         }
 
         public static string GetDlmKey(int dlmId)
@@ -653,7 +653,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetGeneralPartnerConfig(int groupId)
         {
-            return string.Format("general_partner_config_{0}", groupId);
+            return string.Format("general_partner_configV1_{0}", groupId);
         }
 
         public static string GetObjectVirtualAssetPartnerConfig(int groupId)
@@ -1223,6 +1223,11 @@ namespace CachingProvider.LayeredCache
         public static string GetPlaybackPartnerConfigInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_{0}", GetPlaybackPartnerConfigKey(groupId));
+        }
+
+        public static string GetDomainDeviceInvalidationKey(int domainId, string deviceId)
+        {
+            return $"invalidationKey_domain_{domainId}_device_{deviceId}";
         }
 
         #endregion

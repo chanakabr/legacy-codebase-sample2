@@ -3238,7 +3238,7 @@ namespace WebAPI.Clients
             MetaResponse response = null;
             try
             {
-                eAssetTypes wsAssetType = ApiMappings.ConvertAssetType(assetType);
+                eAssetTypes wsAssetType = AutoMapper.Mapper.Map<eAssetTypes>(assetType);
                 ApiObjects.MetaType wsMetaType = ApiMappings.ConvertMetaType(metaType);
                 MetaFieldName wsFieldNameEqual = ApiMappings.ConvertMetaFieldName(fieldNameEqual);
                 MetaFieldName wsFieldNameNotEqual = ApiMappings.ConvertMetaFieldName(fieldNameNotEqual);
@@ -3588,7 +3588,7 @@ namespace WebAPI.Clients
 
             Status response = null;
 
-            KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId, udid, string.Empty, 0, 0, watchStatus, days, assetTypes, assetIds);
+            KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId, udid, string.Empty, 0, 0, watchStatus, days, assetTypes, assetIds, false);
 
             if (historyResponse != null && historyResponse.Objects != null && historyResponse.Objects.Count > 0)
             {
@@ -3597,7 +3597,7 @@ namespace WebAPI.Clients
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         response = Core.Api.Module.CleanUserAssetHistory(groupId, userId,
-                            historyResponse.Objects.Select(a => new KeyValuePair<int, eAssetTypes>((int)a.AssetId, ApiMappings.ConvertAssetType(a.AssetType))).ToList());
+                            historyResponse.Objects.Select(a => new KeyValuePair<int, eAssetTypes>((int)a.AssetId, AutoMapper.Mapper.Map<eAssetTypes>(a.AssetType))).ToList());
                     }
                 }
                 catch (Exception ex)
@@ -3618,7 +3618,7 @@ namespace WebAPI.Clients
             }
         }
 
-        internal string GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, KalturaAssetType assetType, int fileId, string externalFileId,
+        internal string GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, KalturaAssetType kalturaAssetType, int fileId, string externalFileId,
             string udid, KalturaPlaybackContextType? context, string recordingId, out string code, out string message)
         {
             StringResponse drmAdapterResponse = null;
@@ -3633,10 +3633,11 @@ namespace WebAPI.Clients
                 {
                     contextType = ConditionalAccessMappings.ConvertPlayContextType(context.Value) == PlayContextType.Download ? PlayContextType.Download : PlayContextType.Playback;
                 }
+                var assetType = AutoMapper.Mapper.Map<eAssetTypes>(kalturaAssetType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    drmAdapterResponse = Core.Api.Module.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, ApiMappings.ConvertAssetType(assetType), fileId,
+                    drmAdapterResponse = Core.Api.Module.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, assetType, fileId,
                         externalFileId, Utils.Utils.GetClientIP(), udid, contextType, recordingId);
                 }
             }
@@ -4148,7 +4149,7 @@ namespace WebAPI.Clients
 
             ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = AutoMapper.Mapper.Map<ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>(contextDataParams);
             requestPlaybackContextOptions.AssetId = assetId;
-            requestPlaybackContextOptions.AssetType = ApiMappings.ConvertAssetType(assetType);
+            requestPlaybackContextOptions.AssetType = AutoMapper.Mapper.Map<eAssetTypes>(assetType);
 
             Func<ApiObjects.PlaybackAdapter.PlaybackContext, GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>> updateBusinessModuleRuleFunc = (ApiObjects.PlaybackAdapter.PlaybackContext getPlaybackContext) =>
              Core.Api.Module.GetPlaybackContext(adapterId, groupId, userId, udid, ip, getPlaybackContext, requestPlaybackContextOptions);
@@ -4459,7 +4460,8 @@ namespace WebAPI.Clients
         {
             ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = AutoMapper.Mapper.Map<ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>(contextDataParams);
             requestPlaybackContextOptions.AssetId = assetId;
-            requestPlaybackContextOptions.AssetType = ApiMappings.ConvertAssetType(assetType);
+            requestPlaybackContextOptions.AssetType = AutoMapper.Mapper.Map<eAssetTypes>(assetType);
+            ;
 
             Func<ApiObjects.PlaybackAdapter.PlaybackContext, GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>> updateBusinessModuleRuleFunc = (ApiObjects.PlaybackAdapter.PlaybackContext playbackContext) =>
              Core.Api.Module.GetPlaybackManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions, userId);
