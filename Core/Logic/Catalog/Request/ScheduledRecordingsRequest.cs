@@ -64,16 +64,16 @@ namespace Core.Catalog.Request
 
                 CheckSignature(baseRequest);
 
-                bool isSingle = scheduledRecordingAssetType == ApiObjects.ScheduledRecordingAssetType.SINGLE;                
+                bool isSingle = scheduledRecordingAssetType == ApiObjects.ScheduledRecordingAssetType.SINGLE;
                 SeriesRecording[] series = null;
                 string wsUserName, wsPassword;
                 GetWsCredentials(out wsUserName, out wsPassword);
-                
+
                 // should we get the followed series
                 if (!isSingle)
                 {
                     SeriesResponse seriesResponse = ConditionalAccess.Module.GetFollowSeries(request.m_nGroupID, m_sSiteGuid, domainId, new SeriesRecordingOrderObj());
-                    if (seriesResponse != null && seriesResponse.Status != null && 
+                    if (seriesResponse != null && seriesResponse.Status != null &&
                         (seriesResponse.Status.Code == (int)eResponseStatus.OK || seriesResponse.Status.Code == (int)eResponseStatus.SeriesRecordingNotFound))
                     {
                         if (channelIds != null && channelIds.Count > 0)
@@ -94,21 +94,21 @@ namespace Core.Catalog.Request
                 {
                     List<long> epgIdsToOrderAndPage = new List<long>();
                     List<string> excludedCrids = new List<string>();
-                    Dictionary<long, string> epgIdToSingleRecordingIdMap = new Dictionary<long,string>();
+                    Dictionary<long, string> epgIdToSingleRecordingIdMap = new Dictionary<long, string>();
                     if (domainRecordings.TotalItems > 0)
                     {
                         if (channelIds != null && channelIds.Count > 0)
                         {
                             domainRecordings.Recordings = domainRecordings.Recordings.Where(x => channelIds.Contains(x.ChannelId)).Select(x => x).ToList();
                         }
-                        
+
                         // get crids to exclude
                         if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SINGLE)
                         {
                             List<RecordingType> recordingTypesToExcludeCrids = new List<RecordingType>() { RecordingType.Season, RecordingType.Series };
                             excludedCrids = domainRecordings.Recordings.Where(x => recordingTypesToExcludeCrids.Contains(x.Type)).Select(x => x.Crid).ToList();
                         }
-                                                
+
                         // get SINGLE scheduled recordings assets
                         if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SERIES)
                         {
@@ -162,24 +162,49 @@ namespace Core.Catalog.Request
             return response;
         }
 
-        private static void HandleScheduledRecordingsSearchResults(UnifiedSearchResponse response, 
+        private static void HandleScheduledRecordingsSearchResults(UnifiedSearchResponse response,
             SeriesRecording[] series, Dictionary<long, string> epgIdToSingleRecordingIdMap,
-                                                                    string seriesIdMetaOrTag, 
+                                                                    string seriesIdMetaOrTag,
                                                                     string seasonNumberMetaOrTag)
         {
+            if (response != null && response.status != null && response.status.Code == (int)eResponseStatus.OK && response.searchResults != null)
+            {
+                List<RecordingSearchResult> scheduledSearchResults = new List<RecordingSearchResult>();
+                var _searchResults = response.aggregationResults[0].results?.SelectMany(x => x.topHits)?.Select(x => (ExtendedSearchResult)x).ToList();
+                foreach (ExtendedSearchResult extendedResult in _searchResults)
+                {
+                    RecordingSearchResult scheduledRecording = new RecordingSearchResult(extendedResult);
+                    long epgId;
+                    if (long.TryParse(extendedResult.AssetId, out epgId) && epgId > 0)
+                    {
+                        if (epgIdToSingleRecordingIdMap.ContainsKey(epgId))
+                        {
+                            scheduledRecording.RecordingType = RecordingType.Single;
+                            scheduledRecording.AssetId = epgIdToSingleRecordingIdMap[epgId];
+                        }
+                        else
+                        {
+                            long epgChannelId = ConditionalAccess.Utils.GetLongParamFromExtendedSearchResult(extendedResult, "epg_channel_id");
+                            long seasonNumber = ConditionalAccess.Utils.GetLongParamFromExtendedSearchResult(extendedResult, seasonNumberMetaOrTag);
+                            string seriesId = ConditionalAccess.Utils.GetStringParamFromExtendedSearchResult(extendedResult, seriesIdMetaOrTag);
+                            if (epgChannelId > 0 && seasonNumber > 0 && !string.IsNullOrEmpty(seriesId))
+                            {
+                                SeriesRecording seriesRecording = null;
+                                seriesRecording = series.Where(x => x.EpgChannelId == epgChannelId && x.SeriesId == seriesId
+                                                               && (x.SeasonNumber == seasonNumber || (x.SeasonNumber == 0 && !x.ExcludedSeasons.Contains((int)seasonNumber)))).FirstOrDefault();
+                                if (seriesRecording != null && seriesRecording.Id > 0)
+                                {
+                                    scheduledRecording.RecordingType = seriesRecording.Type;
+                                    scheduledRecording.AssetId = seriesRecording.Id.ToString();
+                                }
+                            }
+                        }
+                    }
+                    scheduledSearchResults.Add(scheduledRecording);
+                }
 
-            var isResValid = response != null && response.status != null && response.status.Code == (int)eResponseStatus.OK;
-            if (!isResValid && !response.aggregationResults.Any())
-                return;
-
-            var allData = response.aggregationResults[0].results.SelectMany(x => x.topHits)
-                   .OfType<ExtendedSearchResult>()
-                   .Select(x => new RecordingSearchResult(x)).
-                   OfType<UnifiedSearchResult>();
-
-            response.searchResults = allData.ToList();
-
-
+                response.searchResults = scheduledSearchResults.Select(x => (UnifiedSearchResult)x).ToList();
+            }
         }
 
 
@@ -298,7 +323,7 @@ namespace Core.Catalog.Request
                         topHitsCount = 1
                     }
                 };
-                
+
 
                 BaseResponse baseResponse = searchRequest.GetResponse(searchRequest);
 
