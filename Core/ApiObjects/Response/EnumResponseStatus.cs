@@ -301,6 +301,9 @@ namespace ApiObjects.Response
         FileExceededMaxSize = 4095,
         FileExtensionNotSupported = 4096,
         FileMimeDifferentThanExpected = 4097,
+        InvalidAssetStruct = 4098,
+        NoNextEpisode = 4099,
+        
         #endregion
 
         #region Api 5000 - 5999

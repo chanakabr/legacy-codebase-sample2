@@ -749,6 +749,8 @@ namespace WebAPI.Reflection
                             return "ingestReferencePath";
                         case "IsInherited":
                             return "isInherited";
+                        case "IsLocationTag":
+                            return "isLocationTag";
                         case "MetaId":
                             return "metaId";
                         case "ProtectFromIngest":
@@ -2777,6 +2779,8 @@ namespace WebAPI.Reflection
                             return "downgradePolicy";
                         case "EnableRegionFiltering":
                             return "enableRegionFiltering";
+                        case "FinishedPercentThreshold":
+                            return "finishedPercentThreshold";
                         case "HouseholdLimitationModule":
                             return "householdLimitationModule";
                         case "MailSettings":
@@ -7330,6 +7334,10 @@ namespace WebAPI.Reflection
                         case "cleanoldstandard":
                             RolesManager.ValidateActionPermitted("assetHistory", "cleanOldStandard", false);
                             return AssetHistoryController.CleanOldStandard((KalturaAssetsFilter) methodParams[0]);
+                            
+                        case "getnextepisode":
+                            RolesManager.ValidateActionPermitted("assetHistory", "getNextEpisode", false);
+                            return AssetHistoryController.GetNextEpisode((long) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
@@ -12197,6 +12205,19 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetsFilter),
+                            });
+                            return ret;
+                            
+                        case "getnextepisode":
+                            ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "assetHistory", "getNextEpisode") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
                             });
                             return ret;
                             

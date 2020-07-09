@@ -23,6 +23,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
+using ApiLogic.Catalog;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -350,7 +351,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //AssetBookmarks to KalturaAssetBookmarks
             cfg.CreateMap<AssetBookmarks, WebAPI.Models.Catalog.KalturaAssetBookmarks>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetID))
-                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.AssetType))
                 .ForMember(dest => dest.Bookmarks, opt => opt.MapFrom(src => src.Bookmarks));
 
             //Bookmark to KalturaAssetBookmark
@@ -370,7 +371,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //UnifiedSearchResuannounclt to KalturaSlimAsset
             cfg.CreateMap<UnifiedSearchResult, WebAPI.Models.Catalog.KalturaSlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.AssetType));
 
             // Country
             cfg.CreateMap<Core.Users.Country, WebAPI.Models.Users.KalturaCountry>()
@@ -691,7 +692,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<Comments, KalturaAssetComment>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nAssetID))
-                .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertToKalturaAssetType(src.AssetType)))
+                .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dCreateDate)))
                 .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.m_sHeader))
                 .ForMember(dest => dest.SubHeader, opt => opt.MapFrom(src => src.m_sSubHeader))
@@ -815,7 +816,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsInherited, opt => opt.MapFrom(src => src.IsInherited))
-                ;
+                .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag));
 
             // KalturaAssetStructMeta to AssetStructMeta
             cfg.CreateMap<KalturaAssetStructMeta, AssetStructMeta>()
@@ -827,7 +828,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                .ForMember(dest => dest.IsInherited, opt => opt.MapFrom(src => src.IsInherited))
-                ;
+               .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag));
 
             #endregion
 
@@ -1230,7 +1231,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
-                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds));            
+                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds));
 
             cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
@@ -1251,6 +1252,117 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             #endregion CategoryItem            
+
+            cfg.CreateMap<UserWatchHistory, KalturaAssetHistory>()
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => long.Parse(src.AssetId)))
+                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+                .ForMember(dest => dest.IsFinishedWatching, opt => opt.MapFrom(src => src.IsFinishedWatching))
+                .ForMember(dest => dest.LastWatched, opt => opt.MapFrom(src => src.LastWatch))
+                .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Location))
+                .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType));
+
+            cfg.CreateMap<eAssetTypes, KalturaAssetType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case eAssetTypes.EPG:
+                            return KalturaAssetType.epg;
+                        case eAssetTypes.NPVR:
+                            return KalturaAssetType.recording;
+                        case eAssetTypes.MEDIA:
+                            return KalturaAssetType.media;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown Asset Type: {type.ToString()}");
+                    }
+                });
+
+            cfg.CreateMap<KalturaAssetType, eAssetTypes>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case KalturaAssetType.media:
+                            return eAssetTypes.MEDIA;
+                        case KalturaAssetType.recording:
+                            return eAssetTypes.NPVR;
+                        case KalturaAssetType.epg:
+                            return eAssetTypes.EPG;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown Asset Type: {type.ToString()}");
+
+                    }
+                });
+
+            cfg.CreateMap<KalturaAssetType?, eAssetTypes>()
+                .ConvertUsing(assetType =>
+                {
+                    eAssetTypes response = eAssetTypes.UNKNOWN;
+                    if (assetType.HasValue)
+                    {
+                        switch (assetType)
+                        {
+                            case KalturaAssetType.epg:
+                                response = eAssetTypes.EPG;
+                                break;
+                            case KalturaAssetType.recording:
+                                response = eAssetTypes.NPVR;
+                                break;
+                            case KalturaAssetType.media:
+                                response = eAssetTypes.MEDIA;
+                                break;
+                            default:
+                                throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown Asset Type: {assetType.ToString()}");
+                        }
+                    }
+
+                    return response;
+                });
+
+            cfg.CreateMap<eAssetType, KalturaAssetType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case eAssetType.PROGRAM:
+                            return KalturaAssetType.epg;
+                        case eAssetType.MEDIA:
+                            return KalturaAssetType.media;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown Asset Type: {type.ToString()}");
+                    }
+                });
+
+            cfg.CreateMap<KalturaAssetType, eAssetType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case KalturaAssetType.media:
+                            return eAssetType.MEDIA;
+                        case KalturaAssetType.epg:
+                            return eAssetType.PROGRAM;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown Asset Type: {type.ToString()}");
+                    }
+                });
+
+            cfg.CreateMap<KalturaAssetType, StatsType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case KalturaAssetType.media:
+                            return StatsType.MEDIA;
+                        case KalturaAssetType.epg:
+                            return StatsType.EPG;
+                        case KalturaAssetType.recording:
+                            throw new ClientException((int)StatusCode.Error, "recording is not supported");
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown Asset Type: {type.ToString()}");
+                    }
+                });
+
         }
 
         private static int? ConvertToNullableInt(bool? value)
@@ -2273,67 +2385,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return searchAggregationGroupBy;
         }
 
-        //eAssetTypes to KalturaAssetType
-        public static KalturaAssetType ConvertAssetType(eAssetTypes assetType)
-        {
-            KalturaAssetType result;
-            switch (assetType)
-            {
-                case eAssetTypes.EPG:
-                    result = KalturaAssetType.epg;
-                    break;
-                case eAssetTypes.NPVR:
-                    result = KalturaAssetType.recording;
-                    break;
-                case eAssetTypes.MEDIA:
-                    result = KalturaAssetType.media;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
-            }
-
-            return result;
-        }
-
-        //eAssetType to KalturaAssetType
-        public static KalturaAssetType ConvertToKalturaAssetType(eAssetType assetType)
-        {
-            KalturaAssetType result;
-            switch (assetType)
-            {
-                case eAssetType.PROGRAM:
-                    result = KalturaAssetType.epg;
-                    break;
-                case eAssetType.MEDIA:
-                    result = KalturaAssetType.media;
-                    break;
-                case eAssetType.UNKNOWN:
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
-            }
-
-            return result;
-        }
-
-        //KalturaAssetType to eAssetType
-        public static eAssetType ConvertToAssetType(KalturaAssetType assetType)
-        {
-            eAssetType result;
-            switch (assetType)
-            {
-                case KalturaAssetType.epg:
-                    result = eAssetType.PROGRAM;
-                    break;
-                case KalturaAssetType.media:
-                    result = eAssetType.MEDIA;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
-            }
-
-            return result;
-        }
-
         // eUserType to KalturaPositionOwner 
         public static KalturaPositionOwner ConvertPositionOwner(eUserType userType)
         {
@@ -2623,7 +2674,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 IsFinishedWatching = catalogBookmark.IsFinishedWatching,
                 Position = catalogBookmark.Location,
                 PositionOwner = ConvertPositionOwner(catalogBookmark.UserType),
-                Type = ConvertAssetType(assetBookmark.AssetType),
+                Type = Mapper.Map<KalturaAssetType>(assetBookmark.AssetType),
                 UserId = catalogBookmark.User.m_sSiteGUID,
                 User = Mapper.Map<WebAPI.Models.Users.KalturaBaseOTTUser>(catalogBookmark.User)
             };
@@ -2661,27 +2712,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             }
             return bookmarks;
-        }
-
-        //KalturaAssetType to StatsType
-        public static StatsType ConvertAssetType(KalturaAssetType assetType)
-        {
-            StatsType result;
-            switch (assetType)
-            {
-                case KalturaAssetType.epg:
-                    result = StatsType.EPG;
-                    break;
-                case KalturaAssetType.media:
-                    result = StatsType.MEDIA;
-                    break;
-                case KalturaAssetType.recording:
-                    throw new ClientException((int)StatusCode.Error, "recording is not supported");
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
-            }
-
-            return result;
         }
 
         public static KalturaAssetOrderBy ConvertOrderObjToAssetOrder(OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDir)

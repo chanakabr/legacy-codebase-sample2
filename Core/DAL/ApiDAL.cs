@@ -1066,6 +1066,7 @@ namespace DAL
             return resultList;
         }
 
+        // CleanUserHistory - old method
         public static bool CleanUserHistory(string userId, List<int> lMediaIDs)
         {
             try
@@ -5572,7 +5573,6 @@ namespace DAL
                 sp.AddParameter("@defaultRegion", partnerConfig.DefaultRegion.Value);
             }
 
-
             var rollingDeviceRemovalPolicy = partnerConfig.RollingDeviceRemovalData?.RollingDeviceRemovalPolicy ?? RollingDevicePolicy.NONE;
 
             sp.AddParameter("@rollingDeviceRemovalPolicy",rollingDeviceRemovalPolicy);
@@ -5581,6 +5581,11 @@ namespace DAL
             {
                 sp.AddParameter("@rollingDeviceRemovalFamilyIds", 
                     string.Join(",",partnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds));
+            }
+
+            if (partnerConfig.FinishedPercentThreshold.HasValue)
+            {
+                sp.AddParameter("@finishedPercentThreshold", partnerConfig.FinishedPercentThreshold.Value);
             }
 
             return sp.ExecuteReturnValue<int>() > 0;

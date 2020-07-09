@@ -1,4 +1,5 @@
 ﻿using AdapterControllers;
+using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
@@ -2722,9 +2723,6 @@ namespace Core.Catalog
                 devicePlayData.DomainId = DomainDal.GetDomainIDBySiteGuid(groupId, devicePlayData.UserId, ref opID, ref isMaster, ref eSuspendStat);
             }
 
-            // take finished percent threshold
-            int finishedPercentThreshold = GetFinishedPercentThreshold(groupId, 86400);
-
             if (devicePlayData.DomainId > 0)
             {
                 if (!isReportingMode && devicePlayData.DeviceFamilyId == 0)
@@ -2754,41 +2752,39 @@ namespace Core.Catalog
                     }
                 }
 
-                UserMediaMark userMediaMark = null;
+                var assetType = eAssetTypes.MEDIA;
+                if (playType == ePlayType.EPG)
+                {
+                    assetType = eAssetTypes.EPG;
+                    mediaTypeId = (int)eAssetTypes.EPG;
+                }
+                else if (playType == ePlayType.NPVR)
+                {
+                    assetType = eAssetTypes.NPVR;
+                    mediaTypeId = (int)eAssetTypes.NPVR;
+                }
+
+                var userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, mediaTypeId, assetType);
+                if (isFirstPlay)
+                {
+                    CatalogManager.SetHistoryValues(groupId, userMediaMark);
+                }
+
                 switch (playType)
                 {
                     case ePlayType.MEDIA:
-                        userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, mediaTypeId);
-                        userMediaMark.AssetType = eAssetTypes.MEDIA;
-                        CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark, isFirstPlay, isLinearChannel);
+                        CatalogDAL.UpdateOrInsertUsersMediaMark(userMediaMark);
                         break;
                     case ePlayType.NPVR:
-                        userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, (int)eAssetTypes.NPVR);
-                        userMediaMark.AssetType = eAssetTypes.NPVR;
                         CatalogDAL.UpdateOrInsertUsersNpvrMark(userMediaMark, isFirstPlay);
                         break;
                     case ePlayType.EPG:
-                        userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, (int)eAssetTypes.EPG);
-                        userMediaMark.AssetType = eAssetTypes.EPG;
                         CatalogDAL.UpdateOrInsertUsersEpgMark(userMediaMark, isFirstPlay);
                         break;
                     default:
                         break;
                 }
             }
-        }
-
-        internal static int GetFinishedPercentThreshold(int groupId, int cacheSec)
-        {
-            int finishedPercentThreshold = 0;
-            object dbThresholdVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", groupId, cacheSec);
-            if (dbThresholdVal == null || dbThresholdVal == DBNull.Value || !int.TryParse(dbThresholdVal.ToString(), out finishedPercentThreshold))
-            {
-                finishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
-            }
-
-            log.DebugFormat("finishedPercentThreshold value is: {0}", finishedPercentThreshold);
-            return finishedPercentThreshold;
         }
 
         internal static int GetMediaActionID(string sAction)
@@ -5589,6 +5585,13 @@ namespace Core.Catalog
 
             if (domainMediaMark.devices != null)
             {
+                int finishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
+                var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfig(groupID);
+                if (generalPartnerConfig != null && generalPartnerConfig.FinishedPercentThreshold.HasValue)
+                {
+                    finishedPercentThreshold = generalPartnerConfig.FinishedPercentThreshold.Value;
+                }
+
                 foreach (UserMediaMark userMediaMark in domainMediaMark.devices)
                 {
                     eUserType userType;
@@ -5603,9 +5606,7 @@ namespace Core.Catalog
 
                     if (!bookmarks.Any(x => x.User.m_sSiteGUID == userMediaMark.UserID.ToString()))
                     {
-                        var finishedPercentThreshold = GetFinishedPercentThreshold(groupID, 3600);
-                        bool isFinished = userMediaMark.AssetAction.ToUpper() == MediaPlayActions.FINISH.ToString().ToUpper() ? true :
-                                          (((float)userMediaMark.Location / (float)userMediaMark.FileDuration) * 100 > finishedPercentThreshold) ? true : false;
+                        bool isFinished = userMediaMark.IsFinished(finishedPercentThreshold);
                         bookmarks.Add(new Bookmark(usersDictionary[userMediaMark.UserID.ToString()], userType, userMediaMark.Location, isFinished));
                     }
                 }
@@ -9125,69 +9126,18 @@ namespace Core.Catalog
 
         public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes,
             List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays,
-            ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
+            ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, bool suppress, out int totalItems)
         {
             log.DebugFormat("Start GetUserWatchHistory for user {0} in groupId {1}", siteGuid, groupId);
 
             List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
-            var mediaMarksManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
 
             totalItems = 0;
 
-            // build date filter
-            long minFilterdate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddDays(-numOfDays));
-            long maxFilterDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-
             try
             {
-                CouchbaseManager.ViewStaleState staleState = CouchbaseManager.ViewStaleState.Ok;
-
-                string staleStateConfiguration = ApplicationConfiguration.Current.CatalogLogicConfiguration.WatchHistoryStaleMode.Value;
-
-                if (!string.IsNullOrEmpty(staleStateConfiguration))
-                {
-                    // try to parse the TCM value - if successful, use it, if not, make sure we are with default value of OK
-                    if (!Enum.TryParse<CouchbaseManager.ViewStaleState>(staleStateConfiguration, true, out staleState))
-                    {
-                        staleState = CouchbaseManager.ViewStaleState.Ok;
-                    }
-                }
-
-                string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(siteGuid);
-                var allUserAssetMarks = mediaMarksManager.Get<UserMediaMarks>(documentKey);
-
-                if (allUserAssetMarks == null)
-                {
-                    allUserAssetMarks = new UserMediaMarks();
-                }
-
-                var dateFilteredResult = allUserAssetMarks.mediaMarks.Where(mark => mark.CreatedAt > minFilterdate && mark.CreatedAt < maxFilterDate);
-
-                List<WatchHistory> unFilteredresult = new List<WatchHistory>();
-                List<string> mediaMarkKeys = CatalogDAL.ConvertUserMediaMarksToKeys(siteGuid, dateFilteredResult);
-                var mediaMarkLogsDictionary = mediaMarksManager.GetValues<MediaMarkLog>(mediaMarkKeys, true, true);
-                var mediaMarkLogs = mediaMarkLogsDictionary.Values;
-
-                int userId = 0;
-                int.TryParse(siteGuid, out userId);
-
-                unFilteredresult = mediaMarkLogs.Select(mediaMarkLog =>
-                {
-                    int recordingId = 0;
-                    int.TryParse(mediaMarkLog.LastMark.NpvrID, out recordingId);
-
-                    return new WatchHistory()
-                    {
-                        AssetId = mediaMarkLog.LastMark.AssetID.ToString(),
-                        Duration = mediaMarkLog.LastMark.FileDuration,
-                        AssetTypeId = mediaMarkLog.LastMark.AssetTypeId,
-                        LastWatch = mediaMarkLog.LastMark.CreatedAtEpoch,
-                        Location = mediaMarkLog.LastMark.AssetAction.ToLower().Equals("finish") ? mediaMarkLog.LastMark.FileDuration : mediaMarkLog.LastMark.Location,
-                        RecordingId = recordingId,
-                        UserID = userId
-                    };
-                }
-                ).ToList();
+                var unFilteredresult = GetRawUserWatchHistory(groupId, siteGuid, assetTypes, assetIds, excludedAssetTypes, filterStatus, numOfDays);
+                Dictionary<string, WatchHistory> seriesMap = new Dictionary<string, WatchHistory>();
 
                 if (unFilteredresult != null && unFilteredresult.Count > 0)
                 {
@@ -9212,29 +9162,42 @@ namespace Core.Catalog
                             groupId = groupId,
                             permittedWatchRules = watchRules,
                             specificAssets = new Dictionary<eAssetTypes, List<string>>(),
-                            shouldUseEndDateForEpg = true,
-                            shouldUseStartDateForEpg = true,
-                            shouldUseFinalEndDate = true,
-                            shouldUseStartDateForMedia = true,
+                            //shouldUseEndDateForEpg = true,
+                            //shouldUseStartDateForEpg = true,
+                            //shouldUseFinalEndDate = true,
+                            //shouldUseStartDateForMedia = true,
                             shouldAddIsActiveTerm = true,
                             //shouldIgnoreDeviceRuleID = true
+                            extraReturnFields = new List<string>()
                         };
 
                         int elasticSearchPageSize = 0;
 
-                        List<string> listOfMedia = unFilteredresult.Where(
-                            x => x.AssetTypeId != (int)eAssetTypes.EPG && x.AssetTypeId != (int)eAssetTypes.NPVR && x.AssetTypeId != (int)eAssetTypes.UNKNOWN)
-                                .Select(x => x.AssetId.ToString()).ToList();
-
+                        List<string> listOfMedia = unFilteredresult.Where(x => x.AssetTypeId > 1).Select(x => x.AssetId.ToString()).ToList();
                         if (listOfMedia.Count > 0)
                         {
                             searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, listOfMedia);
                             searchDefinitions.shouldSearchMedia = true;
+                            searchDefinitions.shouldUseFinalEndDate = true;
+                            searchDefinitions.shouldUseStartDateForMedia = true;
                             elasticSearchPageSize += listOfMedia.Count;
+                            if (suppress && isOPC)
+                            {
+                                searchDefinitions.extraReturnFields.Add("metas.seriesid");
+                                searchDefinitions.extraReturnFields.Add("media_type_id");
+                            }
                         }
 
-                        // From the unfiltered list get only the recordings;
-                        //unFilteredresult = mediaMarksManager.GetValues<MediaMarkLog>(
+                        List<string> listOfEpg = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.EPG).Select(x => x.AssetId.ToString()).ToList();
+                        if (listOfEpg.Count > 0)
+                        {
+                            searchDefinitions.specificAssets.Add(eAssetTypes.EPG, listOfEpg);
+                            searchDefinitions.shouldSearchEpg = true;
+                            searchDefinitions.shouldUseSearchEndDate = true;
+                            searchDefinitions.shouldUseStartDateForEpg = false;
+                            searchDefinitions.shouldUseEndDateForEpg = false;
+                            elasticSearchPageSize += listOfEpg.Count;
+                        }
 
                         List<string> listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
                             .Select(x =>
@@ -9256,17 +9219,15 @@ namespace Core.Catalog
                             searchDefinitions.specificAssets.Add(eAssetTypes.NPVR, listofRecordings);
                             searchDefinitions.shouldSearchRecordings = true;
 
-                            if (searchDefinitions.extraReturnFields == null)
-                            {
-                                searchDefinitions.extraReturnFields = new List<string>();
-                            }
-
                             searchDefinitions.extraReturnFields.Add("epg_id");
 
                             elasticSearchPageSize += listofRecordings.Count;
                         }
 
                         searchDefinitions.pageSize = elasticSearchPageSize;
+
+                        searchDefinitions.shouldReturnExtendedSearchResult = searchDefinitions.extraReturnFields?.Count > 0;
+                            
 
                         if (elasticSearchPageSize > 0)
                         {
@@ -9275,7 +9236,9 @@ namespace Core.Catalog
                             var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
 
                             List<int> activeMediaIds = new List<int>();
+                            List<int> activeEpg = new List<int>();
                             List<string> activeRecordingIds = new List<string>();
+                            long episodeStructId = 0;
 
                             if (searchResults != null && searchResults.Count > 0)
                             {
@@ -9285,82 +9248,125 @@ namespace Core.Catalog
 
                                     if (searchResult.AssetType == eAssetTypes.MEDIA)
                                     {
-                                        activeMediaIds.Add(assetId);
-                                        unFilteredresult.First(x => int.Parse(x.AssetId) == assetId &&
-                                                                    x.AssetTypeId != (int)eAssetTypes.EPG &&
-                                                                    x.AssetTypeId != (int)eAssetTypes.NPVR &&
-                                                                    x.AssetTypeId != (int)eAssetTypes.UNKNOWN)
-                                                                    .UpdateDate = searchResult.m_dUpdateDate;
+                                        bool addToList = true;
+                                        var watched = unFilteredresult.First(x => int.Parse(x.AssetId) == assetId && x.AssetTypeId > 1);
+                                        watched.UpdateDate = searchResult.m_dUpdateDate;
+
+                                        if (suppress)
+                                        {
+                                            ExtendedSearchResult ecr = (ExtendedSearchResult)searchResult;
+                                            string seriesId = Api.api.GetStringParamFromExtendedSearchResult(ecr, "metas.seriesid");
+                                            
+                                            if (!string.IsNullOrEmpty(seriesId))
+                                            {
+                                                if (episodeStructId == 0)
+                                                {
+                                                    CatalogGroupCache catalogGroupCache;
+                                                    if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                                                    {
+                                                        long seriesStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x =>x.IsSeriesAssetStruct).Id;
+                                                        episodeStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId > 0 && x.ParentId == seriesStructId).Id;
+                                                    }
+                                                }
+
+                                                string mediaTypeIdValue = Api.api.GetStringParamFromExtendedSearchResult(ecr, "media_type_id");
+                                                long mediaTypeId;
+
+                                                if (long.TryParse(mediaTypeIdValue, out mediaTypeId) && mediaTypeId == episodeStructId)
+                                                {
+
+                                                    if (!seriesMap.ContainsKey(seriesId))
+                                                    {
+                                                        seriesMap.Add(seriesId, watched);
+                                                    }
+                                                    else
+                                                    {
+                                                        if (watched.LastWatch > seriesMap[seriesId].LastWatch)
+                                                        {
+                                                            activeMediaIds.Remove(int.Parse(seriesMap[seriesId].AssetId));
+                                                            seriesMap[seriesId] = watched;
+                                                        }
+                                                        else
+                                                        {
+                                                            addToList = false;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        if (addToList)
+                                        {
+                                            activeMediaIds.Add(assetId);
+                                        }
                                     }
-                                    else if (searchResult.AssetType == eAssetTypes.NPVR)
+
+                                    if (searchResult.AssetType == eAssetTypes.EPG)
+                                    {
+                                        activeEpg.Add(assetId);
+                                        unFilteredresult.First(x => int.Parse(x.AssetId) == assetId && x.AssetTypeId == (int)eAssetTypes.EPG).UpdateDate = searchResult.m_dUpdateDate;
+                                    }
+                                    
+                                    if (searchResult.AssetType == eAssetTypes.NPVR)
                                     {
                                         activeRecordingIds.Add(searchResult.AssetId);
-                                        var recordingResult = unFilteredresult.First(x => x.AssetId.ToString() == searchResult.AssetId &&
-                                                                    x.AssetTypeId == (int)eAssetTypes.NPVR);
-
+                                        var recordingResult = unFilteredresult.First(x => x.AssetId.ToString() == searchResult.AssetId &&x.AssetTypeId == (int)eAssetTypes.NPVR);
                                         recordingResult.UpdateDate = searchResult.m_dUpdateDate;
-                                        recordingResult.EpgId =
-                                            long.Parse((searchResult as RecordingSearchResult).EpgId);
+                                        recordingResult.EpgId = long.Parse((searchResult as RecordingSearchResult).EpgId);
                                     }
                                 }
                             }
 
                             //remove medias that are not active
-                            unFilteredresult.RemoveAll(x => x.AssetTypeId != (int)eAssetTypes.EPG &&
-                                x.AssetTypeId != (int)eAssetTypes.NPVR &&
-                                x.AssetTypeId != (int)eAssetTypes.UNKNOWN &&
-                                !activeMediaIds.Contains(int.Parse(x.AssetId)));
+                            unFilteredresult.RemoveAll(x => x.AssetTypeId > 1 && !activeMediaIds.Contains(int.Parse(x.AssetId)));
+
+                            #region Suppress series - get series
+                            /*
+                            if (suppress && seriesMap.Count > 0)
+                            {
+                                //Get series
+                                CatalogGroupCache catalogGroupCache;
+                                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                                {
+                                    long seriesStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.IsSeriesAssetStruct).Id;
+
+                                    StringBuilder ksql = new StringBuilder($"(and asset_type='{seriesStructId}' (or");
+
+                                    foreach (var seriesId in seriesMap.Keys)
+                                    {
+                                        ksql.Append($" seriesid='{seriesId}'");
+                                    }
+
+                                    ksql.Append($")");
+
+                                    var assets = Api.api.SearchAssetsExtended(groupId, ksql.ToString(), 0, 0, false, 0, true, string.Empty, string.Empty, string.Empty, userId,
+                                        groupId, true, false, new List<string>() { "tags.seriesId" });
+
+                                    if (assets != null && assets.searchResults?.Count > 0)
+                                    {
+                                        foreach (var item in assets.searchResults)
+                                        {
+                                            var esr = (ExtendedSearchResult)item;
+                                            string seriesId = Api.api.GetStringParamFromExtendedSearchResult(esr, "tags.seriesId");
+                                            if (seriesMap.ContainsKey(seriesId))
+                                            {
+                                                seriesMap[seriesId].AssetId = item.AssetId;
+                                                seriesMap[seriesId].UpdateDate = item.m_dUpdateDate;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            */
+                            #endregion
+
+                            unFilteredresult.RemoveAll(x => x.AssetTypeId == (int)eAssetTypes.EPG && !activeEpg.Contains(int.Parse(x.AssetId)));
 
                             //remove recordings that are not active
-                            unFilteredresult.RemoveAll(x =>
-                                x.AssetTypeId == (int)eAssetTypes.NPVR &&
-                                !activeRecordingIds.Contains(x.AssetId.ToString()));
+                            unFilteredresult.RemoveAll(x => x.AssetTypeId == (int)eAssetTypes.NPVR && !activeRecordingIds.Contains(x.AssetId.ToString()));
                         }
                     }
 
-                    // filter status 
-                    switch (filterStatus)
-                    {
-                        case eWatchStatus.Progress:
-                            // remove all finished
-                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) >= finishedPercent));
-                            unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
-                            break;
-
-                        case eWatchStatus.Done:
-
-                            // remove all in progress
-                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) < finishedPercent));
-                            unFilteredresult.ForEach(x => x.IsFinishedWatching = true);
-                            break;
-
-                        case eWatchStatus.All:
-
-                            foreach (var item in unFilteredresult)
-                            {
-                                if ((item.Duration != 0) && (((float)item.Location / (float)item.Duration * 100) >= finishedPercent))
-                                    item.IsFinishedWatching = true;
-                                else
-                                    item.IsFinishedWatching = false;
-                            }
-                            break;
-
-                        default:
-                            break;
-                    }
-
-                    // filter asset types
-                    if (assetTypes != null && assetTypes.Count > 0)
-                        unFilteredresult = unFilteredresult.Where(x => assetTypes.Contains(x.AssetTypeId)).ToList();
-
-                    // filter asset ids
-                    if (assetIds != null && assetIds.Count > 0)
-                        unFilteredresult = unFilteredresult.Where(x => assetIds.Contains(x.AssetId)).ToList();
-
-                    // filter excluded asset types
-                    if (excludedAssetTypes != null && excludedAssetTypes.Count > 0)
-                        unFilteredresult.RemoveAll(x => excludedAssetTypes.Contains(x.AssetTypeId));
-                    
                     // order list
                     switch (orderDir)
                     {
@@ -9392,11 +9398,263 @@ namespace Core.Catalog
             }
             catch (Exception ex)
             {
-                // ASK IRA. NO LOG IN THIS DAMN CLASS !!!
+                log.Debug($"An Exception was occurred in GetUserWatchHistory. groupId:{groupId}, siteGuid:{siteGuid}, filterStatus:{filterStatus}, numOfDays:{numOfDays}.", ex);
                 throw ex;
             }
 
             return usersWatchHistory;
+        }
+
+        private static List<WatchHistory> GetRawUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes,
+            List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays)
+        {
+            List<WatchHistory> unFilteredresult = new List<WatchHistory>();
+
+            try
+            {
+                var mediaMarksManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
+
+                string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(siteGuid);
+                var allUserAssetMarks = mediaMarksManager.Get<UserMediaMarks>(documentKey);
+
+                if (allUserAssetMarks == null || allUserAssetMarks.mediaMarks == null || allUserAssetMarks.mediaMarks.Count == 0)
+                {
+                    return unFilteredresult;
+                }            
+
+                // build date filter
+                long minFilterdate = numOfDays > 0 ? DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddDays(-numOfDays)) : 0;
+                var utcNow = DateUtils.GetUtcUnixTimestampNow();
+
+                var dateFilteredResult = allUserAssetMarks.mediaMarks.Where(mark => mark.CreatedAt > minFilterdate && (mark.ExpiredAt == 0 || mark.ExpiredAt > utcNow));
+
+                List<string> mediaMarkKeys = CatalogDAL.ConvertUserMediaMarksToKeys(siteGuid, dateFilteredResult);
+                var mediaMarkLogsDictionary = mediaMarksManager.GetValues<MediaMarkLog>(mediaMarkKeys, true, true);
+                var mediaMarkLogs = mediaMarkLogsDictionary.Values;
+
+                int finishedPercent = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
+                var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfig(groupId);
+                if (generalPartnerConfig != null && generalPartnerConfig.FinishedPercentThreshold.HasValue)
+                {
+                    finishedPercent = generalPartnerConfig.FinishedPercentThreshold.Value;
+                }
+
+                int userId = 0;
+                int.TryParse(siteGuid, out userId);
+
+                unFilteredresult = mediaMarkLogs.Select(mediaMarkLog => {
+                    int recordingId = 0;
+                    int.TryParse(mediaMarkLog.LastMark.NpvrID, out recordingId);
+
+                    return new WatchHistory()
+                    {
+                        AssetId = mediaMarkLog.LastMark.AssetID.ToString(),
+                        Duration = mediaMarkLog.LastMark.FileDuration,
+                        AssetTypeId = mediaMarkLog.LastMark.AssetTypeId,
+                        LastWatch = mediaMarkLog.LastMark.CreatedAtEpoch,
+                        Location = mediaMarkLog.LastMark.AssetAction.ToLower().Equals("finish") ? mediaMarkLog.LastMark.FileDuration : mediaMarkLog.LastMark.Location,
+                        RecordingId = recordingId,
+                        UserID = userId,
+                        IsFinishedWatching = mediaMarkLog.LastMark.IsFinished(finishedPercent)
+                    };
+                }).ToList();
+
+                // filter status 
+                switch (filterStatus)
+                {
+                    case eWatchStatus.Progress:
+                        // remove all finished
+                        unFilteredresult.RemoveAll(x => x.IsFinishedWatching);
+                        break;
+                    case eWatchStatus.Done:
+                        // remove all in progress
+                        unFilteredresult.RemoveAll(x => !x.IsFinishedWatching);
+                        break;
+                    case eWatchStatus.All:
+                    default:
+                        break;
+                }
+
+                // filter asset types
+                if (assetTypes != null && assetTypes.Count > 0)
+                    unFilteredresult = unFilteredresult.Where(x => assetTypes.Contains(x.AssetTypeId)).ToList();
+
+                // filter asset ids
+                if (assetIds != null && assetIds.Count > 0)
+                    unFilteredresult = unFilteredresult.Where(x => assetIds.Contains(x.AssetId)).ToList();
+
+                // filter excluded asset types
+                if (excludedAssetTypes != null && excludedAssetTypes.Count > 0)
+                    unFilteredresult.RemoveAll(x => excludedAssetTypes.Contains(x.AssetTypeId));
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return unFilteredresult;
+        }
+
+        public static GenericResponse<UserWatchHistory> GetNextEpisode(int groupId, string siteGuid, long assetId)
+        {
+            var response = new GenericResponse<UserWatchHistory>();
+            string seriesId = string.Empty;
+            var assetResponse = AssetManager.GetAsset(groupId, assetId, eAssetTypes.MEDIA, false);
+            if (!assetResponse.HasObject())
+            {
+                response.SetStatus(assetResponse.Status);
+                return response;
+            }
+
+            if (!(assetResponse.Object is MediaAsset))
+            {
+                response.SetStatus(eResponseStatus.InvalidAssetType, "asset is not media type");
+                return response;
+            }
+
+            var media = (MediaAsset)assetResponse.Object;
+            if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            {
+                if (!catalogGroupCache.AssetStructsMapById.ContainsKey(media.MediaType.m_nTypeID) || !catalogGroupCache.AssetStructsMapById[media.MediaType.m_nTypeID].IsSeriesAssetStruct)
+                {
+                    response.SetStatus(eResponseStatus.InvalidAssetStruct, "AssetStruct is not from Series type");
+                    return response;
+                }
+
+                var episodeStruct = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId == media.MediaType.m_nTypeID);
+                if (episodeStruct == null)
+                {
+                    response.SetStatus(eResponseStatus.InvalidAssetStruct, "Episode AssetStruct does not exist");
+                    return response;
+                }
+
+                if (!catalogGroupCache.TopicsMapById.ContainsKey(episodeStruct.ConnectingMetaId.Value))
+                {
+                    response.SetStatus(eResponseStatus.TopicNotFound, "Series Topic does not exist");
+                    return response;
+                }
+
+                var seriesTopic = catalogGroupCache.TopicsMapById[episodeStruct.ConnectingMetaId.Value];
+                var seriesMeta = media.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == seriesTopic.SystemName);
+                if (seriesMeta != null)
+                {
+                    seriesId = seriesMeta.m_sValue;
+                }
+            }
+
+            if (string.IsNullOrEmpty(seriesId))
+            {
+                response.SetStatus(eResponseStatus.MetaDoesNotExist, "SeriesId meta does not exist");
+                return response;
+            }
+
+            response.SetStatus(eResponseStatus.NoNextEpisode, "User have not started watching this TV series");
+
+            var usersWatchHistory = GetRawUserWatchHistory(groupId, siteGuid, new List<int>(), new List<string>(), new List<int>(), eWatchStatus.All, 0);
+
+            if (usersWatchHistory?.Count > 0)
+            {
+                string filter = $"metas.seriesid='{seriesId.ToLower()}'";
+                BooleanPhraseNode filterTree = null;
+                var status = BooleanPhraseNode.ParseSearchExpression(filter, ref filterTree);
+
+                Dictionary<eAssetTypes, List<string>> specificAssets = new Dictionary<eAssetTypes, List<string>>();
+                specificAssets.Add(eAssetTypes.MEDIA, usersWatchHistory.Select(x => x.AssetId).ToList());
+
+                UnifiedSearchDefinitions searchDefinitions = new UnifiedSearchDefinitions()
+                {
+                    groupId = groupId,
+                    permittedWatchRules = string.Empty,
+                    specificAssets = specificAssets,
+                    shouldSearchMedia = true,
+                    shouldUseFinalEndDate = true,
+                    shouldUseStartDateForMedia = true,
+                    shouldAddIsActiveTerm = true,
+                    filterPhrase = filterTree,
+                    extraReturnFields = new List<string>() { "metas.episodenumber", "metas.seasonnumber" },
+                    shouldReturnExtendedSearchResult = true
+                };
+
+                ((ApiObjects.SearchObjects.BooleanLeaf)filterTree).shouldLowercase = true;
+
+                ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
+                int esTotalItems = 0, to = 0;
+                var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+
+                if (searchResults != null && searchResults.Count > 0)
+                {
+                    HashSet<string> episodes = new HashSet<string>(searchResults.Select(x => x.AssetId).ToList());
+
+                    var latest = usersWatchHistory.Where(x => episodes.Contains(x.AssetId)).OrderByDescending(i => i.LastWatch).FirstOrDefault();
+                    
+                    response.SetStatus(eResponseStatus.OK);
+                    response.Object = ConvertToUserWatchHistory(latest);
+                    
+                    if (!latest.IsFinishedWatching)
+                    {    
+                        return response;
+                    }
+
+                    var sr = (ExtendedSearchResult)searchResults.First(x => x.AssetId == latest.AssetId);
+
+                    int episodeNumber = 0;
+                    int seasonNumber = 0;
+
+                    int.TryParse(Api.api.GetStringParamFromExtendedSearchResult(sr, "metas.episodenumber"), out episodeNumber);
+                    int.TryParse(Api.api.GetStringParamFromExtendedSearchResult(sr, "metas.seasonnumber"), out seasonNumber);
+
+                    long episodeStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.SystemName.ToLower() == "episode").Id;
+
+                    filter = $"(and asset_type='{episodeStructId}' seriesId='{seriesId.ToLower()}' (or (and seasonnumber='{seasonNumber}' episodenumber='{episodeNumber + 1}') (and seasonnumber='{seasonNumber + 1}' episodeNumber='1') ) )";
+
+                    var nextAsset = Core.Api.api.SearchAssetsExtended(groupId, filter, 0, 1, true, 0, true, "", "", "", 0, groupId, false, false, new List<string>() { "metas.episodenumber", "metas.seasonnumber" },
+                        new OrderObj()
+                        {
+                            m_eOrderBy = OrderBy.META,
+                            m_sOrderValue = "seasonnumber",
+                            m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
+                        });
+
+                    if (nextAsset != null && nextAsset.searchResults?.Count > 0)
+                    {
+                        var item = nextAsset.searchResults[0];
+                        //int assetId = int.Parse(searchResults[0].AssetId);
+                        if (episodes.Contains(item.AssetId))
+                        {
+                            response.Object = ConvertToUserWatchHistory(usersWatchHistory.First(x => x.AssetId == item.AssetId));
+                            return response;
+                        }
+
+                        response.Object = new UserWatchHistory
+                        {
+                            AssetId = item.AssetId,
+                            AssetTypeId = (int)eAssetTypes.MEDIA,
+                            m_dUpdateDate = searchResults[0].m_dUpdateDate,
+                            UserID = int.Parse(siteGuid),
+                        };
+                    }
+                }
+            }
+
+            return response;
+        }
+
+        private static UserWatchHistory ConvertToUserWatchHistory(WatchHistory watchHistory)
+        {
+            UserWatchHistory userWatchHistory = new UserWatchHistory()
+            {
+                AssetId = watchHistory.AssetId,
+                AssetType = eAssetTypes.MEDIA,
+                AssetTypeId = watchHistory.AssetTypeId,
+                Duration = watchHistory.Duration,
+                IsFinishedWatching = watchHistory.IsFinishedWatching,
+                LastWatch = watchHistory.LastWatch,
+                Location = watchHistory.Location,
+                m_dUpdateDate = watchHistory.UpdateDate,
+                UserID = watchHistory.UserID
+            };
+
+            return userWatchHistory;
         }
 
         public static void WriteNewWatcherMediaActionLog(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID, int nGroupID,

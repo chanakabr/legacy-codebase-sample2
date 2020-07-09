@@ -607,7 +607,7 @@ namespace ApiLogic.Api.Managers
 
         #region private methods
 
-        private static GeneralPartnerConfig GetGeneralPartnerConfig(int groupId)
+        internal static GeneralPartnerConfig GetGeneralPartnerConfig(int groupId)
         {
             GeneralPartnerConfig generalPartnerConfig = null;
 
@@ -657,8 +657,14 @@ namespace ApiLogic.Api.Managers
                                 MainCurrency = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "CURRENCY_ID"),
                                 PartnerName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "GROUP_NAME"),
                                 MainLanguage = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "LANGUAGE_ID"),
-                                RollingDeviceRemovalData = GetRollingDeviceRemovalData(dt.Rows[0])
+                                RollingDeviceRemovalData = GetRollingDeviceRemovalData(dt.Rows[0]),
+                                FinishedPercentThreshold = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "FINISHED_PERCENT_THRESHOLD"),
                             };
+
+                            if (!generalPartnerConfig.FinishedPercentThreshold.HasValue || generalPartnerConfig.FinishedPercentThreshold.Value == 0)
+                            {
+                                generalPartnerConfig.FinishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
+                            }
 
                             int? deleteMediaPolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DELETE_MEDIA_POLICY");
                             int? downgradePolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DOWNGRADE_POLICY");
@@ -707,11 +713,6 @@ namespace ApiLogic.Api.Managers
                                 generalPartnerConfig.SecondaryCurrencies.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
                             }
                         }
-
-
-
-
-
                     }
                 }
             }

@@ -1053,7 +1053,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetHistoryListResponse getAssetHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<string> assetIds, List<KalturaCatalogWith> withList = null)
+        public KalturaAssetHistoryListResponse getAssetHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, 
+            KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<string> assetIds, bool suppress, List<KalturaCatalogWith> withList = null)
         {
             KalturaAssetHistoryListResponse finalResults = new KalturaAssetHistoryListResponse();
             finalResults.Objects = new List<KalturaAssetHistory>();
@@ -1082,7 +1083,8 @@ namespace WebAPI.Clients
                 FilterStatus = CatalogMappings.ConvertKalturaWatchStatus(watchStatus),
                 NumOfDays = days,
                 OrderDir = ApiObjects.SearchObjects.OrderDir.DESC,
-                AssetIds = assetIds
+                AssetIds = assetIds,
+                Suppress = suppress
             };
 
             // fire history watched request
@@ -1103,31 +1105,19 @@ namespace WebAPI.Clients
             {
                 // combine asset info and watch history info
                 finalResults.TotalCount = watchHistoryResponse.m_nTotalItems;
-
-                foreach (var uwh in watchHistoryResponse.result)
-                {
-                    if (uwh != null)
-                    {
-                        KalturaAssetType assetType = KalturaAssetType.media;
-                        if (uwh.AssetType == eAssetTypes.NPVR)
-                        {
-                            assetType = KalturaAssetType.recording;
-                        }
-
-                        finalResults.Objects.Add(new KalturaAssetHistory()
-                        {
-                            AssetId = long.Parse(uwh.AssetId),
-                            Duration = uwh.Duration,
-                            IsFinishedWatching = uwh.IsFinishedWatching,
-                            LastWatched = uwh.LastWatch,
-                            Position = uwh.Location,
-                            AssetType = assetType
-                        });
-                    }
-                }
+                var assetHistories = Mapper.Map<List<KalturaAssetHistory>>(watchHistoryResponse.result.Where(x => x != null));
+                finalResults.Objects.AddRange(assetHistories);
             }
 
             return finalResults;
+        }
+
+        public KalturaAssetHistory GetNextEpisode(int groupId, string siteGuid, long assetId)
+        {
+            GenericResponse<UserWatchHistory> getNextEpisodeFunc() =>
+                CatalogLogic.GetNextEpisode(groupId, siteGuid, assetId);
+            KalturaAssetHistory result = ClientUtils.GetResponseFromWS<KalturaAssetHistory, UserWatchHistory>(getNextEpisodeFunc);
+            return result;
         }
 
         [Obsolete]
@@ -1222,7 +1212,7 @@ namespace WebAPI.Clients
                 m_nAssetIDs = assetIds,
                 m_dStartDate = startTime != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime(startTime) : DateTime.MinValue,
                 m_dEndDate = endTime != 0 ? DateUtils.UtcUnixTimestampSecondsToDateTime(endTime) : DateTime.MaxValue,
-                m_type = CatalogMappings.ConvertAssetType(assetType)
+                m_type = Mapper.Map<StatsType>(assetType)
             };
 
             AssetStatsResponse response = null;
@@ -2914,7 +2904,7 @@ namespace WebAPI.Clients
                 domainId = domainId,
                 m_dServerTime = getServerTime(),
                 assetId = id,
-                assetType = CatalogMappings.ConvertToAssetType(AssetType),
+                assetType = Mapper.Map<eAssetType>(AssetType),
                 orderObj = order,
             };
 
@@ -2974,7 +2964,7 @@ namespace WebAPI.Clients
                 domainId = domainId,
                 m_dServerTime = getServerTime(),
                 assetId = assetId,
-                assetType = CatalogMappings.ConvertToAssetType(assetType),
+                assetType = Mapper.Map<eAssetType>(assetType),
                 writer = writer,
                 header = header,
                 subHeader = subHeader,
