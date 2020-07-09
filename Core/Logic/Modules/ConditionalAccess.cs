@@ -16,6 +16,7 @@ using System.Web;
 using ApiObjects.TimeShiftedTv;
 using APILogic.ConditionalAccess.Response;
 using ApiObjects.SearchObjects;
+using ApiObjects.Base;
 
 namespace Core.ConditionalAccess
 {
@@ -1965,22 +1966,21 @@ namespace Core.ConditionalAccess
         ///transactionType : Package type. Possible values: PPV, Subscription, Collection (eTransactionType not include prepaid)
         ///coupon :	A valid coupon to apply for this purchase
 
-        public static TransactionResponse Purchase(int groupID, string siteguid, long householdId, double price, string currency, Int32 contentId, int productId, eTransactionType transactionType,
-                                                    string coupon, string userIp, string deviceName, int paymentGatewayId, int paymentMethodId, string adapterData)
+        public static TransactionResponse Purchase(ContextData contextData, double price, string currency, Int32 contentId, int productId, eTransactionType transactionType,
+                                                    string coupon, int paymentGatewayId, int paymentMethodId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse();
 
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = contextData.UserId.HasValue ? contextData.UserId.ToString(): "null";
 
             // get partner implementation and group ID
             BaseConditionalAccess casImpl = null;
-            Utils.GetBaseConditionalAccessImpl(ref casImpl, groupID);
+            Utils.GetBaseConditionalAccessImpl(ref casImpl, contextData.GroupId);
 
             if (casImpl != null)
             {
-                response = casImpl.Purchase(siteguid, householdId, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName, paymentGatewayId,
-                                            paymentMethodId, adapterData);
+                response = casImpl.Purchase(contextData, price, currency, contentId, productId, transactionType, coupon, paymentGatewayId, paymentMethodId, adapterData);
                 if (response == null)
                 {
                     response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -2727,22 +2727,6 @@ namespace Core.ConditionalAccess
             return null;            
         }
 
-
-        public static bool DistributeRecording(int groupID, long epgId, long Id, DateTime epgStartDate)
-        {
-            BaseConditionalAccess t = null;
-            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
-            if (t != null)
-            {
-                return t.DistributeRecording(epgId, Id, epgStartDate);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-
         public static bool CompleteDomainSeriesRecordings(int groupID, long domainId)
         {
             BaseConditionalAccess t = null;
@@ -3225,7 +3209,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static Status SuspendPaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        public static Status SuspendPaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId, SuspendSettings suspendSettings)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -3233,13 +3217,13 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);
             if (t != null)
             {
-                response = t.SuspendPaymentGatewayEntitlements(householdId, paymentGatewayId);
+                response = t.SuspendPaymentGatewayEntitlements(householdId, paymentGatewayId, suspendSettings);
             }
 
             return response;
         }
 
-        public static Status ResumePaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId)
+        public static Status ResumePaymentGatewayEntitlements(int groupId, long householdId, int paymentGatewayId, List<ApiObjects.KeyValuePair> adapterData)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -3247,7 +3231,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);
             if (t != null)
             {
-                response = t.ResumePaymentGatewayEntitlements(householdId, paymentGatewayId);
+                response = t.ResumePaymentGatewayEntitlements(householdId, paymentGatewayId, adapterData);
             }
 
             return response;

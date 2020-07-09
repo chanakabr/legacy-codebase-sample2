@@ -1343,6 +1343,29 @@ namespace DAL
             return result;
         }
 
+        public static bool DeleteDomainQuota(long domainId)
+        {
+            bool result = false;
+            try
+            {
+                CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+                string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+                if (string.IsNullOrEmpty(domainQuotaKey))
+                {
+                    log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+                    return result;
+                }
+
+                result = cbClient.Remove(domainQuotaKey);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteDomainQuota, domainId: {0}, ex: {1}", domainId, ex);
+            }
+
+            return result;
+        }
+
         public static bool RecoverDomainRecordings(List<long> domainRecordingIds, DomainRecordingStatus domainRecordingStatus)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateDomainRecordingsState");

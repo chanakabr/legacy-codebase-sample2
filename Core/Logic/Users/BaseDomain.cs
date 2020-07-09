@@ -1309,8 +1309,7 @@ namespace Core.Users
 
         protected bool IsSatisfiesFrequencyConstraint(DateTime dtLastDeactivationDate, int frequency)
         {
-            DateTime dt = Utils.GetEndDateTime(dtLastDeactivationDate, frequency);
-
+            DateTime dt = Core.ConditionalAccess.Utils.GetEndDateTime(dtLastDeactivationDate, frequency);
             return dt < DateTime.UtcNow;
         }
 

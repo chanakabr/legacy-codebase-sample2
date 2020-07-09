@@ -101,6 +101,7 @@ namespace Core.Billing
         #endregion
 
         #region Virtual Methods
+
         public virtual PaymentGatewaySettingsResponse GetPaymentGatewateSettings()
         {
             PaymentGatewaySettingsResponse response = new PaymentGatewaySettingsResponse();
@@ -232,11 +233,6 @@ namespace Core.Billing
                         }
                     }
 
-                    if (!AdaptersController.GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl).SendConfiguration(paymentGateway, groupID))
-                    {
-                        log.DebugFormat("SetPaymentGateway - SendConfigurationToAdapter failed : AdapterID = {0}", paymentGatewayId);
-                    }
-
                     paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, null);
                     if (paymentGateway == null || paymentGateway.ID <= 0)
                     {
@@ -247,6 +243,14 @@ namespace Core.Billing
                     {
                         response.PaymentGateway = paymentGateway;
                         response.Status = new Status((int)eResponseStatus.OK, "payment gateway set changes");
+                    }
+
+                    if (!string.IsNullOrEmpty(paymentGateway.AdapterUrl))
+                    {
+                        if (!AdaptersController.GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl).SendConfiguration(paymentGateway, groupID))
+                        {
+                            log.DebugFormat("SetPaymentGateway - SendConfigurationToAdapter failed : AdapterID = {0}", paymentGatewayId);
+                        }
                     }
                 }
                 else
@@ -270,17 +274,10 @@ namespace Core.Billing
             Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
-                if (paymentGatewayId == 0)
+                var paymentGatewayResponse = GetPaymentGatewayById(paymentGatewayId);
+                if (!paymentGatewayResponse.HasObject())
                 {
-                    response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
-                    return response;
-                }
-
-                //check paymentGateway exist
-                PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, null);
-                if (paymentGateway == null || paymentGateway.ID <= 0)
-                {
-                    response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response.Set(paymentGatewayResponse.Status);
                     return response;
                 }
 
@@ -307,23 +304,16 @@ namespace Core.Billing
             Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
-                if (paymentGatewayId == 0)
+                var paymentGatewayResponse = GetPaymentGatewayById(paymentGatewayId);
+                if (!paymentGatewayResponse.HasObject())
                 {
-                    response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response.Set(paymentGatewayResponse.Status);
                     return response;
                 }
 
                 if (settings == null || settings.Count == 0)
                 {
                     response = new Status((int)eResponseStatus.PaymentGatewayParamsRequired, NO_PARAMS_TO_DELETE);
-                    return response;
-                }
-
-                //check Payment Gateway exist
-                PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
-                if (paymentGateway == null || paymentGateway.ID <= 0)
-                {
-                    response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
 
@@ -465,8 +455,6 @@ namespace Core.Billing
 
                     if (dsAllPaymentGateways.Tables.Count > 0)
                     {
-                        DataTable dtPaymentGateways = dsAllPaymentGateways.Tables[0];
-
                         Dictionary<int, List<PaymentMethod>> pms = new Dictionary<int, List<PaymentMethod>>();
                         Dictionary<int, List<HouseholdPaymentMethod>> hpms = new Dictionary<int, List<HouseholdPaymentMethod>>();
 
@@ -476,22 +464,20 @@ namespace Core.Billing
 
                             foreach (DataRow dr in dtPaymentGatewaysPaymentMethods.Rows)
                             {
-                                PaymentMethod pm = new PaymentMethod();
-
-                                int pgid = ODBCWrapper.Utils.GetIntSafeVal(dr, "pg_id");
-
-                                pm.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                                pm.PaymentGatewayId = pgid;
-                                pm.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                                pm.AllowMultiInstance = ODBCWrapper.Utils.GetIntSafeVal(dr, "allow_multi_instance") == 1;
-
-                                if (!pms.ContainsKey(pgid))
+                                PaymentMethod pm = new PaymentMethod
                                 {
-                                    pms.Add(pgid, new List<PaymentMethod>());
+                                    ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
+                                    PaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(dr, "pg_id"),
+                                    Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                                    AllowMultiInstance = ODBCWrapper.Utils.GetIntSafeVal(dr, "allow_multi_instance") == 1
+                                };
+
+                                if (!pms.ContainsKey(pm.PaymentGatewayId))
+                                {
+                                    pms.Add(pm.PaymentGatewayId, new List<PaymentMethod>());
                                 }
 
-                                pms[pgid].Add(pm);
-
+                                pms[pm.PaymentGatewayId].Add(pm);
                             }
                         }
 
@@ -501,12 +487,13 @@ namespace Core.Billing
 
                             foreach (DataRow dr in dtHouseholdPaymentMethods.Rows)
                             {
-                                HouseholdPaymentMethod hpm = new HouseholdPaymentMethod();
-
-                                hpm.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                                hpm.Details = ODBCWrapper.Utils.GetSafeStr(dr, "PAYMENT_DETAILS");
-                                hpm.Selected = ODBCWrapper.Utils.GetIntSafeVal(dr, "SELECTED") == 1;
-                                hpm.ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "PAYMENT_METHOD_EXTERNAL_ID");
+                                HouseholdPaymentMethod hpm = new HouseholdPaymentMethod
+                                {
+                                    ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
+                                    Details = ODBCWrapper.Utils.GetSafeStr(dr, "PAYMENT_DETAILS"),
+                                    Selected = ODBCWrapper.Utils.GetIntSafeVal(dr, "SELECTED") == 1,
+                                    ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "PAYMENT_METHOD_EXTERNAL_ID")
+                                };
 
                                 int pmid = ODBCWrapper.Utils.GetIntSafeVal(dr, "PAYMENT_METHOD_ID");
 
@@ -519,23 +506,36 @@ namespace Core.Billing
                             }
                         }
 
+                        DataTable dtPaymentGateways = dsAllPaymentGateways.Tables[0];
+
                         if (dtPaymentGateways != null && dtPaymentGateways.Rows.Count > 0)
                         {
                             PaymentGatewaySelectedBy pgsby = null;
                             foreach (DataRow dr in dtPaymentGateways.Rows)
                             {
-                                pgsby = new PaymentGatewaySelectedBy();
-                                pgsby.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                                pgsby.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                                int household = ODBCWrapper.Utils.GetIntSafeVal(dr, "house_hold_id");
-                                pgsby.By = ApiObjects.eHouseholdPaymentGatewaySelectedBy.None;
+                                pgsby = new PaymentGatewaySelectedBy
+                                {
+                                    ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
+                                    Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                                    By = ApiObjects.eHouseholdPaymentGatewaySelectedBy.None,
+                                };
 
+                                var isSuspended = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_suspended") == 1;
+                                if (isSuspended)
+                                {
+                                    pgsby.SuspendSettings = new SuspendSettings()
+                                    {
+                                        RevokeEntitlements = ODBCWrapper.Utils.GetIntSafeVal(dr, "revoke_entitlements") == 1,
+                                        StopRenew = ODBCWrapper.Utils.GetIntSafeVal(dr, "stop_renew") == 1
+                                    };
+                                }
                                 if (ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default") == 1)
                                 {
                                     pgsby.IsDefault = true;
                                     pgsby.By = ApiObjects.eHouseholdPaymentGatewaySelectedBy.Account;
                                 }
-
+                                
+                                int household = ODBCWrapper.Utils.GetIntSafeVal(dr, "house_hold_id");
                                 if (household > 0)
                                 {
                                     pgsby.IsDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected") == 1;
@@ -550,10 +550,9 @@ namespace Core.Billing
 
                                     foreach (PaymentMethod pm in pmList)
                                     {
-                                        PaymentGatwayPaymentMethods pgpm = new PaymentGatwayPaymentMethods();
-                                        pgpm.PaymentMethod = pm;
-
+                                        PaymentGatwayPaymentMethods pgpm = new PaymentGatwayPaymentMethods() { PaymentMethod = pm };
                                         List<HouseholdPaymentMethod> hpList = hpms.Where(kvp => kvp.Key == pm.ID).SelectMany(kvp => kvp.Value).ToList();
+
                                         if (hpList != null && hpList.Count > 0)
                                         {
                                             pgpm.HouseHoldPaymentMethods = new List<HouseholdPaymentMethod>();
@@ -659,29 +658,23 @@ namespace Core.Billing
             response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
-                if (paymentGatewayId == 0)
+                var paymentGatewayResponse = GetPaymentGatewayById(paymentGatewayId);
+                if (!paymentGatewayResponse.HasObject())
                 {
-                    response.Status = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response.Status.Set(paymentGatewayResponse.Status);
                     return response;
                 }
+                
                 if (settings == null || settings.Count == 0)
                 {
                     response.Status = new Status((int)eResponseStatus.PaymentGatewayParamsRequired, NO_PARAMS_TO_INSERT);
                     return response;
                 }
 
-                //check Payment Gateway exist
-                PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
-                if (paymentGateway == null || paymentGateway.ID <= 0)
-                {
-                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
-                    return response;
-                }
-
                 bool isInsert = DAL.BillingDAL.InsertPaymentGatewaySettings(groupID, paymentGatewayId, settings);
                 if (isInsert)
                 {
-                    paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
+                    var paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
                     if (paymentGateway == null || paymentGateway.ID <= 0)
                     {
                         response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
@@ -712,12 +705,13 @@ namespace Core.Billing
             Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
-                if (paymentGatewayId == 0)
+                var paymentGatewayResponse = GetPaymentGatewayById(paymentGatewayId);
+                if (!paymentGatewayResponse.HasObject())
                 {
-                    response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response.Set(paymentGatewayResponse.Status);
                     return response;
                 }
-
+               
                 // check user
                 Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
 
@@ -726,13 +720,6 @@ namespace Core.Billing
                     return userStatus;
                 }
 
-                //check if paymentGatewayId exist
-                PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
-                if (paymentGateway == null)
-                {
-                    response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
-                    return response;
-                }
                 //check if householed reltaed to PaymentGateway
                 HouseholdPaymentGateway householdPaymentGateway = DAL.BillingDAL.GetHouseholdPaymentGateway(groupID, paymentGatewayId, householdId);
                 if (householdPaymentGateway == null)
@@ -831,7 +818,6 @@ namespace Core.Billing
                     else
                     {
                         response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
-
                     }
                 }
             }
@@ -892,7 +878,6 @@ namespace Core.Billing
         }
 
         #endregion
-
 
         public virtual TransactResult Transact(string siteGuid, long householdID, double price, string currency, string userIP, string customData,
             int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGatewayId, int paymentGatewayHHPaymentMethodId, string adapterData)
@@ -1040,7 +1025,6 @@ namespace Core.Billing
             return response;
         }
 
-
         public void SendMail(string siteGuid, double price, string currency, string customData, int productID, eTransactionType productType, int contentID, TransactResult response, int paymentGatewayId,
             bool successMail = true, bool failMail = true)
         {
@@ -1091,7 +1075,7 @@ namespace Core.Billing
         }
 
         public virtual TransactResult ProcessUnifiedRenewal(long householdId, double totalPrice, string currency, int paymentGatewayId,
-            int paymentMethodId, string userIp, ref List<RenewDetails> renewDetailsList, ref PaymentGateway paymentGateway)
+            int paymentMethodId, string userIp, ref List<RenewDetails> renewDetailsList, ref PaymentGateway paymentGateway, long processId)
         {
             TransactResult transactionResponse = new TransactResult();
 
@@ -1108,16 +1092,14 @@ namespace Core.Billing
                  *  external ( verification) payment Gateway and "normal"
                  *  incase of verification payment Gateway there is no need to look for the most update and relevant payment gateway
                  *  the renewal will use only the verification payment Gateway   */
-
-                paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
-
-                if (paymentGateway == null || paymentGateway.ID <= 0)
+                var paymentGatewayResponse = GetPaymentGatewayById(paymentGatewayId, 1);
+                if (!paymentGatewayResponse.HasObject())
                 {
-                    log.ErrorFormat("error while getting payment GW ID groupID: {0}, householdId: {1), paymentGatewayId : {2}", groupID, householdId, paymentGatewayId);
-                    transactionResponse.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    log.Error($"error while getting payment GW ID groupID: {groupID}, householdId: {householdId}, paymentGatewayId: {paymentGatewayId}.");
+                    transactionResponse.Status.Set(paymentGatewayResponse.Status);
                     return transactionResponse;
                 }
-
+                
                 // payment gateway is NOT Google/Apple/Roku - continue                
                 bool isSuspended = false;
                 if (!IsVerificationPaymentGateway(paymentGateway))
@@ -1145,7 +1127,7 @@ namespace Core.Billing
                 log.DebugFormat("paymentGatewayId: {0}, householdId: {1}, isPaymentGWHouseholdExist: {2}, chargeID: {3}",
                     paymentGatewayId, householdId, isPaymentGatewayHouseholdExist, !string.IsNullOrEmpty(chargeId) ? chargeId : string.Empty);
 
-                transactionResponse = SendUnifiedRenewalRequestToAdapter(chargeId, totalPrice, currency, householdId, paymentGateway, paymentMethodExternalId, paymentMethodId, userIp, ref renewDetailsList);
+                transactionResponse = SendUnifiedRenewalRequestToAdapter(chargeId, totalPrice, currency, householdId, paymentGateway, paymentMethodExternalId, paymentMethodId, userIp, ref renewDetailsList, processId);
 
                 if (isSuspended && transactionResponse != null && transactionResponse.Status != null && transactionResponse.Status.Code == (int)eResponseStatus.OK && transactionResponse.State == eTransactionState.OK)
                 {
@@ -1171,7 +1153,7 @@ namespace Core.Billing
         }
 
         private TransactResult SendUnifiedRenewalRequestToAdapter(string chargeId, double totalPrice, string currency, long householdId, PaymentGateway paymentGateway, string paymentMethodExternalId,
-            int paymentMethodId, string userIP, ref List<RenewDetails> renewDetailsList)
+            int paymentMethodId, string userIP, ref List<RenewDetails> renewDetailsList, long processId)
         {
             TransactResult response = new TransactResult();
 
@@ -1192,7 +1174,8 @@ namespace Core.Billing
                     paymentGateway = paymentGateway,
                     totalPrice = totalPrice,
                     userIP = userIP,
-                    renewRequests = new List<TransactionUnifiedRenewalDetails>()
+                    renewRequests = new List<TransactionUnifiedRenewalDetails>(),
+                    AdapterData = Core.ConditionalAccess.Utils.GetResumRenewUnifiedAdapterData(processId)
                 };
 
                 foreach (RenewDetails renewDetails in renewDetailsList)
@@ -1207,15 +1190,13 @@ namespace Core.Billing
                         siteGuid = renewDetails.UserId,
                         productCode = renewDetails.ProductId.ToString(),
                         ExternalTransactionId = renewDetails.ExternalTransactionId,
-                        GracePeriodMinutes = renewDetails.GracePeriodMinutes
+                        GracePeriodMinutes = renewDetails.GracePeriodMinutes,
                     });
                 }
 
                 // fire request            
 
-                var adapterResponse = AdaptersController
-                    .GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl)
-                    .UnifiedProcessRenewal(request);
+                var adapterResponse = AdaptersController.GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl).UnifiedProcessRenewal(request);
                 response = ValidateAdapterResponse(adapterResponse, logString);
                 if (response == null)
                 {
@@ -1733,9 +1714,7 @@ namespace Core.Billing
             return ossAdapterResponse;
         }
 
-
-        public virtual TransactResult ProcessRenewal(string siteguid, long householdId, double price, string currency, string customData, int productId, string productCode,
-                                                     int paymentNumber, int numberOfPayments, string billingGuid, int gracePeriodMinutes)
+        public virtual TransactResult ProcessRenewal(RenewDetails renewDetails, string productCode)
         {
             TransactResult transactionResponse = new TransactResult();
             PaymentGateway paymentGateway = null;
@@ -1749,13 +1728,13 @@ namespace Core.Billing
             try
             {
                 // get payment GW ID and external transaction ID
-                List<PaymentDetails> paymentDetails = GetPaymentDetails(new List<string>() { billingGuid });
-                PaymentDetails pd = paymentDetails?.FirstOrDefault(x => x.BillingGuid == billingGuid);
+                List<PaymentDetails> paymentDetails = GetPaymentDetails(new List<string>() { renewDetails.BillingGuid });
+                PaymentDetails pd = paymentDetails?.FirstOrDefault(x => x.BillingGuid == renewDetails.BillingGuid);
 
                 if (pd == null)
                 {
                     // error while trying to get payment GW ID and external transaction ID
-                    log.ErrorFormat("error while getting payment GW ID and external transaction ID. groupID: {0}, householdId: {1), billingGuid: {2}", groupID, householdId, billingGuid);
+                    log.ErrorFormat("error while getting payment GW ID and external transaction ID. groupID: {0}, householdId: {1), billingGuid: {2}", groupID, renewDetails.DomainId, renewDetails.BillingGuid);
                     transactionResponse.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return transactionResponse;
                 }
@@ -1773,7 +1752,7 @@ namespace Core.Billing
                 paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
                 if (paymentGateway == null || paymentGateway.ID <= 0)
                 {
-                    ossPaymentGateway = GetOSSAdapterPaymentGateway(groupID, householdId, string.Empty, out chargeId);
+                    ossPaymentGateway = GetOSSAdapterPaymentGateway(groupID, renewDetails.DomainId, string.Empty, out chargeId);
 
                     if (ossPaymentGateway == null || ossPaymentGateway.ID <= 0)
                     {
@@ -1794,14 +1773,14 @@ namespace Core.Billing
                 {
                     // get charge ID
                     bool isSuspended = false;
-                    chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, householdId, ref isPaymentGatewayHouseholdExist, ref isSuspended);
+                    chargeId = DAL.BillingDAL.GetPaymentGWChargeID(paymentGatewayId, renewDetails.DomainId, ref isPaymentGatewayHouseholdExist, ref isSuspended);
 
                     // Handle  Payment Method
                     //------------------------
                     if (paymentGateway.SupportPaymentMethod)
                     {
                         Status pghpmStatus = null;
-                        pghpmStatus = GetHouseholdPaymentGatewayPaymentMethod(householdId, paymentGatewayId, paymentMethodId, out pghpm);
+                        pghpmStatus = GetHouseholdPaymentGatewayPaymentMethod(renewDetails.DomainId, paymentGatewayId, paymentMethodId, out pghpm);
 
                         if (pghpmStatus.Code != (int)eResponseStatus.OK)
                         {
@@ -1815,19 +1794,21 @@ namespace Core.Billing
 
                 log.DebugFormat("paymentGatewayId: {0}, householdId: {1}, isPaymentGWHouseholdExist: {2}, chargeID: {3}",
                     paymentGatewayId,                                               //{0}
-                    householdId,                                                    //{1}
+                    renewDetails.DomainId,                                                    //{1}
                     isPaymentGatewayHouseholdExist,                                 //{2}    
                     !string.IsNullOrEmpty(chargeId) ? chargeId : string.Empty);    //{3}
 
-                transactionResponse = SendRenewalRequestToAdapter(chargeId, price, currency, productId, productCode, paymentNumber, numberOfPayments, siteguid,
-                    householdId, billingGuid, paymentGateway, customData, externalTransactionId, gracePeriodMinutes, paymentMethodExternalId, paymentMethodId);
+                transactionResponse = SendRenewalRequestToAdapter(renewDetails, chargeId, productCode, paymentGateway, externalTransactionId, paymentMethodExternalId, paymentMethodId);
+
+                //transactionResponse = SendRenewalRequestToAdapter(chargeId, renewDetails.Price, renewDetails.Currency, renewDetails.ProductId, productCode, renewDetails.PaymentNumber, renewDetails.NumOfPayments, renewDetails.UserId,
+                //    renewDetails.DomainId, renewDetails.BillingGuid, paymentGateway, renewDetails.CustomData, externalTransactionId, renewDetails.GracePeriodMinutes, paymentMethodExternalId, paymentMethodId);
 
 
                 // check if account trigger settings for send purchase mail is true 
                 bool renewMail = true;
                 bool failRenewMail = true;
                 DAL.BillingDAL.GetRenewMailTriggerAccountSettings(groupID, out renewMail, out failRenewMail);
-                SendMail(siteguid, price, currency, customData, productId, eTransactionType.Subscription, 0, transactionResponse, paymentGatewayId, renewMail, failRenewMail);
+                SendMail(renewDetails.UserId, renewDetails.Price, renewDetails.Currency, renewDetails.CustomData, renewDetails.ProductId, eTransactionType.Subscription, 0, transactionResponse, paymentGatewayId, renewMail, failRenewMail);
                 //log.DebugFormat("Account Renew mail settings renewMail = {0} failRenewMail = {1}, groupID = {2}", renewMail, failRenewMail, groupID);
             }
             catch (Exception ex)
@@ -1837,17 +1818,17 @@ namespace Core.Billing
                 log.ErrorFormat("Failed ex={0}, siteGUID={1}, price={2}, currency={3}, customData={4}, householdId={5}, productId={6}, billingGuid={7}," +
                     " productCode={8}, paymentNumber={9}, numberOfPayments={10}, gracePeriodMinutes={11}",
                     ex,                                                                       // {0}
-                    !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,                // {1}
-                    price,                                                                    // {2}
-                    !string.IsNullOrEmpty(currency) ? currency : string.Empty,                // {3}
-                    !string.IsNullOrEmpty(customData) ? customData : string.Empty,            // {4}
-                    householdId,                                                              // {5}
-                    productId,                                                                // {6}
-                    !string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,          // {7}
+                    !string.IsNullOrEmpty(renewDetails.UserId) ? renewDetails.UserId : string.Empty,                // {1}
+                    renewDetails.Price,                                                                    // {2}
+                    !string.IsNullOrEmpty(renewDetails.Currency) ? renewDetails.Currency : string.Empty,                // {3}
+                    !string.IsNullOrEmpty(renewDetails.CustomData) ? renewDetails.CustomData : string.Empty,            // {4}
+                    renewDetails.DomainId,                                                              // {5}
+                    renewDetails.ProductId,                                                                // {6}
+                    !string.IsNullOrEmpty(renewDetails.BillingGuid) ? renewDetails.BillingGuid : string.Empty,          // {7}
                     !string.IsNullOrEmpty(productCode) ? productCode : string.Empty,          // {8}
-                    paymentNumber,                                                            // {9}
-                    numberOfPayments,                                                         // {10}
-                    gracePeriodMinutes);                                                      // {11}
+                    renewDetails.PaymentNumber,                                                            // {9}
+                    renewDetails.NumOfPayments,                                                         // {10}
+                    renewDetails.GracePeriodMinutes);                                                      // {11}
             }
             return transactionResponse;
         }
@@ -1862,32 +1843,31 @@ namespace Core.Billing
             return isVerification;
         }
 
-        private TransactResult SendRenewalRequestToAdapter(string chargeId, double price, string currency, int productId, string productCode, int paymentNumber,
-                                                           int numberOfPayments, string siteguid, long householdId, string billingGuid, PaymentGateway paymentGateway,
-                                                           string customData, string externalTransactionId, int gracePeriodMinutes, string paymentMethodExternalId, int paymenMethodId)
+        private TransactResult SendRenewalRequestToAdapter(RenewDetails renewDetails, string chargeId, string productCode, PaymentGateway paymentGateway, 
+            string externalTransactionId, string paymentMethodExternalId, int paymenMethodId)
         {
             TransactResult response = new TransactResult();
 
             string logString = string.Format("chargeId: {0}, price: {1}, currency: {2}, productId: {3}, productCode: {4}, paymentNumber: {5}, numberOfPayments: {6}, siteguid: {7}, household: {8} " +
                 "billingGuid {9}, customData: {10}, externalTransactionId={11}, gracePeriodMinutes={12}",
                 chargeId != null ? chargeId : string.Empty,                             // {0}
-                price,                                                                  // {1}
-                currency != null ? currency : string.Empty,                             // {2}
-                productId,                                                              // {3}
+                renewDetails.Price,                                                                  // {1}
+                renewDetails.Currency ?? string.Empty,                             // {2}
+                renewDetails.ProductId,                                                              // {3}
                 productCode != null ? productCode : string.Empty,                       // {4}
-                paymentNumber,                                                          // {5}
-                numberOfPayments,                                                       // {6}
-                siteguid != null ? siteguid : string.Empty,                             // {7}
-                householdId,                                                            // {8}
-                billingGuid != null ? billingGuid : string.Empty,                       // {9}
-                customData != null ? customData : string.Empty,                         // {10}
-                externalTransactionId != null ? externalTransactionId : string.Empty,   // {11}
-                gracePeriodMinutes,
-                paymentMethodExternalId != null ? paymentMethodExternalId : string.Empty);                                                    // {12,13}
+                renewDetails.PaymentNumber,                                                          // {5}
+                renewDetails.NumOfPayments,                                                       // {6}
+                renewDetails.UserId ?? string.Empty,                             // {7}
+                renewDetails.DomainId,                                                            // {8}
+                renewDetails.BillingGuid ?? string.Empty,                       // {9}
+                renewDetails.CustomData ?? string.Empty,                         // {10}
+                externalTransactionId ?? string.Empty,   // {11}
+                renewDetails.GracePeriodMinutes,
+                paymentMethodExternalId ?? string.Empty);                                                    // {12,13}
 
             // validate user
             long userId = 0;
-            if (!long.TryParse(siteguid, out userId))
+            if (!long.TryParse(renewDetails.UserId, out userId))
             {
                 // User validation failed
                 log.ErrorFormat("User validation failed. data: {0}", logString);
@@ -1901,20 +1881,21 @@ namespace Core.Billing
                 TransactionUnifiedRenewal request = new TransactionUnifiedRenewal()
                 {
                     groupId = groupID,
-                    billingGuid = billingGuid,
+                    billingGuid = renewDetails.BillingGuid,
                     chargeId = chargeId,
                     paymentMethodExternalId = paymentMethodExternalId,
-                    currency = currency,
-                    customData = customData,
-                    householdID = householdId,
+                    currency = renewDetails.Currency,
+                    customData = renewDetails.CustomData,
+                    householdID = renewDetails.DomainId,
                     paymentGateway = paymentGateway,
-                    price = price,
-                    productId = productId,
+                    price = renewDetails.Price,
+                    productId = renewDetails.ProductId,
                     productType = eTransactionType.Subscription,
-                    siteGuid = siteguid,
+                    siteGuid = renewDetails.UserId,
                     productCode = productCode,
                     ExternalTransactionId = externalTransactionId,
-                    GracePeriodMinutes = gracePeriodMinutes
+                    GracePeriodMinutes = renewDetails.GracePeriodMinutes,
+                    AdapterData = Core.ConditionalAccess.Utils.GetResumRenewAdapterData(renewDetails.PurchaseId)
                 };
 
                 // fire request                       
@@ -1945,8 +1926,8 @@ namespace Core.Billing
                                 // renewal passed - create transaction
                                 log.Debug("process renewal passed - create transaction");
 
-                                int paymentGatewayTransactionId = CreateTransaction(ref response, adapterResponse, productId, eTransactionType.Subscription, billingGuid,
-                                    0, paymentGateway.ID, householdId, userId, customData, BILLING_TRANSACTION_SUCCESS_STATUS, paymentNumber, paymenMethodId);
+                                int paymentGatewayTransactionId = CreateTransaction(ref response, adapterResponse, renewDetails.ProductId, eTransactionType.Subscription, renewDetails.BillingGuid,
+                                    0, paymentGateway.ID, renewDetails.DomainId, userId, renewDetails.CustomData, BILLING_TRANSACTION_SUCCESS_STATUS, renewDetails.PaymentNumber, paymenMethodId);
 
                                 if (paymentGatewayTransactionId > 0 &&
                                     response != null &&
@@ -1985,7 +1966,7 @@ namespace Core.Billing
 
                                 // process renewal failed
                                 log.Error("process renewal failed");
-                                HandleAdapterTransactionFailed(ref response, adapterResponse, productId, eTransactionType.Subscription, billingGuid, 0, paymentGateway.ID, householdId, userId, customData, paymentNumber);
+                                HandleAdapterTransactionFailed(ref response, adapterResponse, renewDetails.ProductId, eTransactionType.Subscription, renewDetails.BillingGuid, 0, paymentGateway.ID, renewDetails.DomainId, userId, renewDetails.CustomData, renewDetails.PaymentNumber);
                                 break;
 
                             default:
@@ -3414,17 +3395,10 @@ namespace Core.Billing
 
             try
             {
-                if (paymentGatewayId <= 0)
+                var paymentGatewayResponse = GetPaymentGatewayById(paymentGatewayId, 1);
+                if (!paymentGatewayResponse.HasObject())
                 {
-                    response.Status = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
-                    return response;
-                }
-
-                //check payment gateway exist
-                PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
-                if (paymentGateway == null || paymentGateway.ID <= 0)
-                {
-                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response.Status.Set(paymentGatewayResponse.Status);
                     return response;
                 }
 
@@ -3474,22 +3448,15 @@ namespace Core.Billing
 
             try
             {
-                if (paymentGatewayId == 0)
+                var paymentGatewayResponse = GetPaymentGatewayById(paymentGatewayId);
+                if (!paymentGatewayResponse.HasObject())
                 {
-                    log.DebugFormat("RecordTransaction: payment gateway id = 0");
-                    response.Status = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
-                    return response;
-                }
-                // get pg 
-                PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
-
-                if (paymentGateway == null)
-                {
-                    log.DebugFormat("RecordTransaction: payment gateway not found. id = {0}", paymentGatewayId);
-                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    log.Debug($"RecordTransaction: payment gateway not found. id = {paymentGatewayId}");
+                    response.Status.Set(paymentGatewayResponse.Status);
                     return response;
                 }
 
+                var paymentGateway = paymentGatewayResponse.Object;
                 if (paymentGateway.SupportPaymentMethod)
                 {
                     if (!string.IsNullOrEmpty(paymentMethodExternalId))
@@ -3692,24 +3659,16 @@ namespace Core.Billing
                 Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
-            // validate parameters
-            if (paymentGatewayId <= 0)
+            var paymentGatewayResponse = GetPaymentGatewayById(paymentGatewayId);
+            if (!paymentGatewayResponse.HasObject())
             {
-                response.Status = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                response.Status.Set(paymentGatewayResponse.Status);
                 return response;
             }
-
+            
             if (string.IsNullOrEmpty(name))
             {
                 response.Status = new Status((int)eResponseStatus.PaymentMethodNameRequired, PAYMENT_METHOD_NAME_REQUIRED);
-                return response;
-            }
-
-            //check payment gateway exists
-            PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
-            if (paymentGateway == null || paymentGateway.ID <= 0)
-            {
-                response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                 return response;
             }
 
@@ -3806,17 +3765,17 @@ namespace Core.Billing
                 return response;
             }
 
-            if (paymentMethodId <= 0)
-            {
-                response = new Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
-                return response;
-            }
-
             //check payment gateway exists
             PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
             if (paymentGateway == null || paymentGateway.ID <= 0)
             {
                 response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                return response;
+            }
+
+            if (paymentMethodId <= 0)
+            {
+                response = new Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
                 return response;
             }
 
@@ -4506,7 +4465,6 @@ namespace Core.Billing
             return response;
         }
 
-
         public List<PaymentDetails> GetPaymentDetails(List<string> billingGuids)
         {
             List<PaymentDetails> response = new List<PaymentDetails>();
@@ -4593,6 +4551,13 @@ namespace Core.Billing
                 currentPaymentGatewayId = paymentDetails.PaymentGatewayId;
                 currentPaymentMethodId = paymentDetails.PaymentMethodId;
                 PaymentGateway currentPaymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, currentPaymentGatewayId);
+
+                if (currentPaymentGateway == null)
+                {
+                    response = new Status((int)eResponseStatus.PaymentGatewayNotExist, "PaymentGateway does not exist");
+                    return response;
+                }
+
                 if (currentPaymentGateway.ExternalVerification)
                 {
                     response = new Status((int)eResponseStatus.PaymentGatewayExternalVerification, "PaymentGateway is an External Verification");
@@ -4605,6 +4570,28 @@ namespace Core.Billing
                 }
             }
 
+            return response;
+        }
+
+        public GenericResponse<PaymentGateway> GetPaymentGatewayById(int paymentGatewayId, int? isActive = null)
+        {
+            var response = new GenericResponse<PaymentGateway>();
+
+            if (paymentGatewayId == 0)
+            {
+                response.SetStatus(eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                return response;
+            }
+
+            //check paymentGateway exist
+            response.Object = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, isActive);
+            if (response.Object == null || response.Object.ID <= 0)
+            {
+                response.SetStatus(eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                return response;
+            }
+
+            response.SetStatus(eResponseStatus.OK);
             return response;
         }
     }

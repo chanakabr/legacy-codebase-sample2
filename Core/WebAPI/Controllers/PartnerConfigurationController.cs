@@ -46,6 +46,10 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.ApiClient().GetPlaybackAdapterConfiguration(groupId);
                 }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.Payment)
+                {
+                    response = ClientsManager.ApiClient().GetPaymentConfiguration(groupId);
+                }
                 else
                 {
                     throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "filter.partnerConfigurationTypeEqual", filter.PartnerConfigurationTypeEqual);
@@ -79,6 +83,7 @@ namespace WebAPI.Controllers
 
             try
             {
+                configuration.ValidateForUpdate();
                 response = configuration.Update(groupId);
             }
             catch (ClientException ex)

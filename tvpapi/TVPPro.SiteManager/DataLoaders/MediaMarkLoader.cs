@@ -347,7 +347,6 @@ namespace TVPPro.SiteManager.DataLoaders
 
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
         {
-            // TODO SHIR - ASK LIOR WHAT THIS IS
             MediaMark result = new MediaMark();
             result.root.request.type = "media_mark";
             result.root.request.mark.action = Action;

@@ -149,15 +149,8 @@ namespace WebAPI.Controllers
         static public KalturaAssetListResponse List(KalturaAssetFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaAssetListResponse response = null;
-
-            KS ks = KS.GetFromRequest();
-            int groupId = ks.GroupId;
-            string userID = ks.UserId;
-            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-            string udid = KSUtils.ExtractKSPayload().UDID;
-            string language = Utils.Utils.GetLanguageFromRequest();
-            string format = Utils.Utils.GetFormatFromRequest();
             KalturaBaseResponseProfile responseProfile = Utils.Utils.GetResponseProfileFromRequest();
+            var contextData = KS.GetContextData();
 
             // parameters validation
             if (pager == null)
@@ -172,176 +165,9 @@ namespace WebAPI.Controllers
                 filter.Validate();
             }
 
-            bool managementData = !string.IsNullOrEmpty(format) && format == "30" ? true : false;
-
             try
             {
-                // external channel 
-                if (filter is KalturaChannelExternalFilter)
-                {
-                    KalturaChannelExternalFilter channelExternalFilter = (KalturaChannelExternalFilter)filter;
-                    string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
-                    response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, channelExternalFilter.IdEqual.ToString(), userID, domainId, udid,
-                        language, pager.getPageIndex(), pager.PageSize, filter.OrderBy, deviceType, channelExternalFilter.UtcOffsetEqual.ToString(), channelExternalFilter.FreeText, channelExternalFilter.DynamicOrderBy);
-                }
-                //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
-                else if (filter is KalturaSearchAssetFilter)
-                {
-                    KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
-
-                    if (filter is KalturaSearchAssetListFilter && ((KalturaSearchAssetListFilter)filter).ExcludeWatched)
-                    {
-                        if (pager.getPageIndex() > 0)
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
-                        }
-
-                        int userId = 0;
-                        if (!int.TryParse(userID, out userId))
-                        {
-                            throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
-                        }
-
-                        var groupbys = regularAssetFilter.getGroupByValue();
-                        if (groupbys != null && groupbys.Count > 0)
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
-                        }
-
-                        response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.Ksql,
-                            regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData,
-                            regularAssetFilter.DynamicOrderBy);
-                    }
-                    else
-                    {
-                        bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID, true);
-                        response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.Ksql,
-                            regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy,
-                            regularAssetFilter.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, regularAssetFilter.GroupByOrder);
-                    }
-                }
-
-                //Return list of media assets that are related to a provided asset ID (of type VOD). 
-                //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
-                //Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging
-                else if (filter is KalturaRelatedFilter)
-                {
-                    KalturaRelatedFilter relatedFilter = (KalturaRelatedFilter)filter;
-
-                    if (relatedFilter.ExcludeWatched)
-                    {
-                        if (pager.getPageIndex() > 0)
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
-                        }
-
-                        int userId = 0;
-                        if (!int.TryParse(userID, out userId))
-                        {
-                            throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
-                        }
-
-                        var groupbys = relatedFilter.getGroupByValue();
-                        if (groupbys != null && groupbys.Count > 0)
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "groupBy");
-                        }
-
-                        response = ClientsManager.CatalogClient().GetRelatedMediaExcludeWatched(groupId, userId, domainId, udid,
-                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.Ksql, relatedFilter.getTypeIn(),
-                            relatedFilter.OrderBy, relatedFilter.DynamicOrderBy);
-                    }
-                    else
-                    {
-                        response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid,
-                            language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.Ksql, relatedFilter.getTypeIn(),
-                            relatedFilter.OrderBy, relatedFilter.DynamicOrderBy, relatedFilter.getGroupByValue(), responseProfile);
-                    }
-                }
-                //Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. 
-                //Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). 
-                //Maximum number of returned assets – 20, using paging  
-                else if (filter is KalturaRelatedExternalFilter)
-                {
-                    KalturaRelatedExternalFilter relatedExternalFilter = (KalturaRelatedExternalFilter)filter;
-                    response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, domainId, udid,
-                        language, pager.getPageIndex(), pager.PageSize, relatedExternalFilter.IdEqual, relatedExternalFilter.getTypeIn(), relatedExternalFilter.UtcOffsetEqual,
-                        relatedExternalFilter.FreeText);
-                }
-                // Search for assets via external service (e.g. external recommendation engine). 
-                //Search can return multi asset types. Support on-demand, per asset enrichment. Maximum number of returned assets – 100, using paging
-                else if (filter is KalturaSearchExternalFilter)
-                {
-                    KalturaSearchExternalFilter searchExternalFilter = (KalturaSearchExternalFilter)filter;
-                    if (pager == null)
-                        pager = new KalturaFilterPager() { PageIndex = 0, PageSize = 5 };
-
-                    List<int> typeIn = searchExternalFilter.getTypeIn();
-                    if (typeIn.Contains(0))
-                    {
-                        response = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, domainId, udid, language, pager.getPageIndex(),
-                                                                                       pager.PageSize, searchExternalFilter.convertQueryToList(), searchExternalFilter.OrderBy);
-                    }
-                    else
-                    {
-                        response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize,
-                                                                                        searchExternalFilter.Query, searchExternalFilter.getTypeIn(), searchExternalFilter.UtcOffsetEqual);
-                    }
-                }
-                // Returns assets that belong to a channel
-                else if (filter is KalturaChannelFilter)
-                {
-                    KalturaChannelFilter channelFilter = (KalturaChannelFilter)filter;
-                    if (channelFilter.ExcludeWatched)
-                    {
-                        if (pager.getPageIndex() > 0)
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "excludeWatched", "pageIndex");
-                        }
-
-                        int userId = 0;
-                        if (!int.TryParse(userID, out userId))
-                        {
-                            throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
-                        }
-
-                        response = ClientsManager.CatalogClient().GetChannelAssetsExcludeWatched(groupId, userId, domainId, udid, language, pager.getPageIndex(),
-                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy);
-                    }
-                    else
-                    {
-                        bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID, true);
-                        response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy,
-                                                                channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets);
-                    }
-                }
-                else if (filter is KalturaBundleFilter)
-                {
-                    KalturaBundleFilter bundleFilter = (KalturaBundleFilter)filter;
-                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID, true);
-                    response = ClientsManager.CatalogClient().GetBundleAssets(groupId, userID, domainId, udid, language,
-                       pager.getPageIndex(), pager.PageSize, bundleFilter.IdEqual, bundleFilter.OrderBy, bundleFilter.getTypeIn(), bundleFilter.BundleTypeEqual,
-                       isAllowedToViewInactiveAssets, bundleFilter.DynamicOrderBy);
-                }
-                // returns assets that are scheduled to be recorded
-                else if (filter is KalturaScheduledRecordingProgramFilter)
-                {
-                    KalturaScheduledRecordingProgramFilter scheduledRecordingFilter = (KalturaScheduledRecordingProgramFilter)filter;
-                    response = ClientsManager.CatalogClient().GetScheduledRecordingAssets(groupId, userID, domainId, udid, language, scheduledRecordingFilter.ConvertChannelsIn(), pager.getPageIndex(),
-                        pager.getPageSize(), scheduledRecordingFilter.StartDateGreaterThanOrNull, scheduledRecordingFilter.EndDateLessThanOrNull, scheduledRecordingFilter.OrderBy, scheduledRecordingFilter.RecordingTypeEqual,
-                        scheduledRecordingFilter.DynamicOrderBy);
-                }
-                else if (filter is KalturaPersonalListSearchFilter)
-                {
-                    KalturaPersonalListSearchFilter pesrsonalListFilter = (KalturaPersonalListSearchFilter)filter;
-                    response = ClientsManager.CatalogClient().GetPersonalListAssets(groupId, userID, domainId, udid, language, pesrsonalListFilter.Ksql, pesrsonalListFilter.OrderBy, pesrsonalListFilter.DynamicOrderBy, pesrsonalListFilter.getGroupByValue(),
-                        pager.getPageIndex(), pager.getPageSize(), pesrsonalListFilter.GetPartnerListTypeIn(), responseProfile);
-                }
-                else
-                {
-                    throw new InternalServerErrorException();
-                }
-
+                response = filter.GetAssets(contextData, responseProfile, pager);
                 CatalogUtils.HandleResponseProfile(responseProfile, response.Objects);
             }
             catch (ClientException ex)
@@ -1386,6 +1212,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.BulkUploadDoesNotExist)]
         [Throws(eResponseStatus.BulkUploadResultIsMissing)]
         [Throws(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk)]
+        [Throws(eResponseStatus.FileExceededMaxSize)]
+        [Throws(eResponseStatus.FileExtensionNotSupported)]
+        [Throws(eResponseStatus.FileMimeDifferentThanExpected)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
 

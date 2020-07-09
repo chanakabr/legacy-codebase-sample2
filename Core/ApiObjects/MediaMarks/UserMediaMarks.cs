@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.MediaMarks
 {
@@ -31,9 +28,11 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("createdAt")]
         public long CreatedAt { get; set; }
 
+        [JsonProperty("ExpiredAt")]
+        public long ExpiredAt { get; set; }
+
         public AssetAndLocation()
         {
-
         }
     }
 }

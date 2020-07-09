@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 
@@ -120,7 +121,14 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "rollingDeviceData")]
         public KalturaRollingDeviceRemovalData RollingDeviceRemovalData { get; set; }
 
-
+        /// <summary>
+        /// Finished PercentThreshold
+        /// </summary>
+        [DataMember(Name = "finishedPercentThreshold")]
+        [JsonProperty("finishedPercentThreshold")]
+        [XmlElement(ElementName = "finishedPercentThreshold")]
+        [SchemeProperty(MinInteger = 90, MaxInteger = 99)]
+        public int? FinishedPercentThreshold { get; set; }
 
         internal List<int> GetSecondaryLanguagesIds()
         {
@@ -138,8 +146,6 @@ namespace WebAPI.Models.Partner
         }
 
         protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.General; } }
-
-
     }
 
     public enum KalturaDeleteMediaPolicy { Disable = 0, Delete = 1 }

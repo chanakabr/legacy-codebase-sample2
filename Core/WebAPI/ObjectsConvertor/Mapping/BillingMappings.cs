@@ -32,7 +32,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RenewStartMinutes, opt => opt.MapFrom(src => src.RenewalStartMinutes))
                 .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertPaymentGatewaySettings(src.Settings)))
                 .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
-                 .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.ExternalVerification));
+                .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.ExternalVerification));
 
             //KalturaPaymentGatewayProfile to PaymentGateway
             cfg.CreateMap<WebAPI.Models.Billing.KalturaPaymentGatewayProfile, PaymentGateway>()
@@ -52,6 +52,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertPaymentGatewaySettings(src.Settings)))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
                .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.ExternalVerification));
+
+            cfg.CreateMap<KalturaSuspendSettings, SuspendSettings>()
+              .ForMember(dest => dest.RevokeEntitlements, opt => opt.MapFrom(src => src.RevokeEntitlements))
+              .ForMember(dest => dest.StopRenew, opt => opt.MapFrom(src => src.StopRenew));
+
+            cfg.CreateMap<SuspendSettings, KalturaSuspendSettings>()
+              .ForMember(dest => dest.RevokeEntitlements, opt => opt.MapFrom(src => src.RevokeEntitlements))
+              .ForMember(dest => dest.StopRenew, opt => opt.MapFrom(src => src.StopRenew));
 
             cfg.CreateMap<PaymentGatewayBase, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
@@ -91,13 +99,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.TransactUrl, opt => opt.MapFrom(src => src.PaymentGateway.TransactUrl))
                 .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.PaymentGateway.ExternalVerification)); 
 
-            cfg.CreateMap<PaymentGatewaySelectedBy, WebAPI.Models.Billing.KalturaHouseholdPaymentGateway>()
+            cfg.CreateMap<PaymentGatewaySelectedBy, KalturaHouseholdPaymentGateway>()
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-             .ForMember(dest => dest.selectedBy, opt => opt.ResolveUsing(src => ConvertHouseholdPaymentGatewaySelectedBy(src.By)));
+             .ForMember(dest => dest.selectedBy, opt => opt.ResolveUsing(src => ConvertHouseholdPaymentGatewaySelectedBy(src.By)))
+             .ForMember(dest => dest.SuspendSettings, opt => opt.MapFrom(src => src.SuspendSettings));
 
-            cfg.CreateMap<PaymentGatewaySelectedBy, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
+            cfg.CreateMap<PaymentGatewaySelectedBy, KalturaPaymentGatewayBaseProfile>()
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
@@ -109,12 +118,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.AllowMultiInstance, opt => opt.MapFrom(src => src.AllowMultiInstance));
-
-            cfg.CreateMap<PaymentGatewaySelectedBy, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
-           .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-           .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-           .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-           .ForMember(dest => dest.PaymentMethods, opt => opt.MapFrom(src => src.PaymentMethods));
 
             cfg.CreateMap<PaymentGatwayPaymentMethods, WebAPI.Models.Billing.KalturaPaymentMethod>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PaymentMethod.ID))

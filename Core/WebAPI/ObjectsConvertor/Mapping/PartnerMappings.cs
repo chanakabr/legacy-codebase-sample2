@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
+using WebAPI.Models.General;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -61,7 +62,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableRegionFiltering, opt => opt.MapFrom(src => src.EnableRegionFiltering))
                 .ForMember(dest => dest.DefaultRegion, opt => opt.MapFrom(src => src.DefaultRegion))
                 .ForMember(dest => dest.RollingDeviceRemovalData, opt => opt.MapFrom(src => src.RollingDeviceRemovalData))
-                ;
+                .ForMember(dest => dest.FinishedPercentThreshold, opt => opt.MapFrom(src => src.FinishedPercentThreshold));
 
             // map KalturaGeneralPartnerConfig to GeneralPartnerConfig
             cfg.CreateMap<KalturaGeneralPartnerConfig, GeneralPartnerConfig>()
@@ -78,6 +79,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableRegionFiltering, opt => opt.MapFrom(src => src.EnableRegionFiltering))
                 .ForMember(dest => dest.DefaultRegion, opt => opt.MapFrom(src => src.DefaultRegion))
                 .ForMember(dest => dest.RollingDeviceRemovalData, opt => opt.MapFrom(src => src.RollingDeviceRemovalData))
+                .ForMember(dest => dest.FinishedPercentThreshold, opt => opt.MapFrom(src => src.FinishedPercentThreshold))
                 .AfterMap((src, dest) => dest.SecondaryLanguages = src.SecondaryLanguages == null ? null : dest.SecondaryLanguages)
                 .AfterMap((src, dest) => dest.SecondaryCurrencies = src.SecondaryCurrencies == null ? null : dest.SecondaryCurrencies)
                 ;
@@ -149,10 +151,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => src.Key))
                 .ForMember(dest => dest.Threshold, opt => opt.MapFrom(src => src.Value));
 
-            //cfg.CreateMap<IGrouping<eTransactionType, DbCustomProperty>, DTOCustomProperty>()
-            //.ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
-            //.ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value)));
-
             cfg.CreateMap<KalturaPlaybackPartnerConfig, PlaybackPartnerConfig>()
                .ForMember(dest => dest.DefaultAdapters, opt => opt.MapFrom(src => src.DefaultAdapters));
 
@@ -168,6 +166,70 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EpgAdapterId, opt => opt.MapFrom(src => src.EpgAdapterId))
                .ForMember(dest => dest.MediaAdapterId, opt => opt.MapFrom(src => src.MediaAdapterId))
                .ForMember(dest => dest.RecordingAdapterId, opt => opt.MapFrom(src => src.RecordingAdapterId));
+
+            cfg.CreateMap<KalturaPaymentPartnerConfig, PaymentPartnerConfig>()
+               .ForMember(dest => dest.UnifiedBillingCycles, opt => opt.MapFrom(src => src.UnifiedBillingCycles));
+
+            cfg.CreateMap<PaymentPartnerConfig, KalturaPaymentPartnerConfig>()
+               .ForMember(dest => dest.UnifiedBillingCycles, opt => opt.MapFrom(src => src.UnifiedBillingCycles));
+
+            cfg.CreateMap<KalturaUnifiedBillingCycle, UnifiedBillingCycleObject>()
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+               .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId));
+
+            cfg.CreateMap<UnifiedBillingCycleObject, KalturaUnifiedBillingCycle>()
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+               .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId));
+
+            cfg.CreateMap<KalturaDuration, Duration>()
+              .ForMember(dest => dest.Unit, opt => opt.MapFrom(src => src.Unit))
+              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
+
+            cfg.CreateMap<Duration, KalturaDuration>()
+              .ForMember(dest => dest.Unit, opt => opt.MapFrom(src => src.Unit))
+              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
+
+            cfg.CreateMap<KalturaDurationUnit, DurationUnit>()
+               .ConvertUsing(kalturaDurationUnit =>
+               {
+                   switch (kalturaDurationUnit)
+                   {
+                       case KalturaDurationUnit.Minutes:
+                           return DurationUnit.Minutes;
+                       case KalturaDurationUnit.Hours:
+                           return DurationUnit.Hours;
+                       case KalturaDurationUnit.Days:
+                           return DurationUnit.Days;
+                       case KalturaDurationUnit.Months:
+                           return DurationUnit.Months;
+                       case KalturaDurationUnit.Years:
+                           return DurationUnit.Years;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaDurationUnit value : {kalturaDurationUnit.ToString()}");
+                   }
+               });
+
+            cfg.CreateMap<DurationUnit, KalturaDurationUnit>()
+               .ConvertUsing(durationUnit =>
+               {
+                   switch (durationUnit)
+                   {
+                       case DurationUnit.Minutes:
+                           return KalturaDurationUnit.Minutes;
+                       case DurationUnit.Hours:
+                           return KalturaDurationUnit.Hours;
+                       case DurationUnit.Days:
+                           return KalturaDurationUnit.Days;
+                       case DurationUnit.Months:
+                           return KalturaDurationUnit.Months;
+                       case DurationUnit.Years:
+                           return KalturaDurationUnit.Years;
+                       default:
+                           throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown DurationUnit value : {durationUnit.ToString()}");
+                   }
+               });
         }
 
         private static KalturaRollingDevicePolicy ConvertRollingDevicePolicy(

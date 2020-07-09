@@ -12,12 +12,11 @@ namespace ApiObjects.Billing
         public PaymentGateway paymentGateway;
         public string chargeId;
         public string paymentMethodExternalId;
-
         public string userIP;
         public long householdId;
-
         public double totalPrice;
         public string currency;
         public List<TransactionUnifiedRenewalDetails> renewRequests { get; set; }
+        public List<KeyValuePair> AdapterData;
     }
 }
