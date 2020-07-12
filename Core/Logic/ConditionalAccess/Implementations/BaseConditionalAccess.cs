@@ -14559,21 +14559,24 @@ namespace Core.ConditionalAccess
                                                 bool isRecordingSuccess = false;
                                                 long recordingId = 0;
                                                 bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value;
-                                                if (!isPrivateCopy)
+                                                HashSet<long> failedDomainIds;
+                                                List<long> domainIds = new List<long>() { };
+                                                if (isPrivateCopy)
                                                 {
-                                                    // record
-                                                    HashSet<long> failedDomainIds;
-                                                    Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, channelId, startDate, endDate, epg.CRID, new List<long>(), out failedDomainIds);
-                                                    if (serieRecording == null || serieRecording.Status == null || serieRecording.Status.Code != (int)eResponseStatus.OK || serieRecording.Id == 0)
-                                                    {
-                                                        log.ErrorFormat("failed to record epg as series on IngestRecording, epgId = {0}", epg.EPG_ID);
-                                                    }
-                                                    else
-                                                    {
-                                                        recordingId = serieRecording.Id;
-                                                        isRecordingSuccess = true;
-                                                        log.DebugFormat("successfully recorded epg as series on IngestRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, serieRecording.Id);
-                                                    }
+                                                    domainIds.Add(0);
+                                                }
+
+                                                // global record
+                                                Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, channelId, startDate, endDate, epg.CRID, domainIds, out failedDomainIds);
+                                                if (serieRecording == null || serieRecording.Status == null || serieRecording.Status.Code != (int)eResponseStatus.OK || serieRecording.Id == 0)
+                                                {
+                                                    log.ErrorFormat("failed to record epg as series on IngestRecording, epgId = {0}", epg.EPG_ID);
+                                                }
+                                                else
+                                                {
+                                                    recordingId = serieRecording.Id;
+                                                    isRecordingSuccess = true;
+                                                    log.DebugFormat("successfully recorded epg as series on IngestRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, serieRecording.Id);
                                                 }
 
                                                 if (isPrivateCopy || isRecordingSuccess)
@@ -15359,6 +15362,15 @@ namespace Core.ConditionalAccess
                     log.DebugFormat("Failed fetching recording with ID: {0} on HandleDomainQuotaByRecording", task.RecordingId);
                     return true;
                 }
+
+                // spacil case of private - no need to go to adapter just free internal quota
+                if (task.Id == -1)
+                {
+                    //free qouta for all domains with Single
+                    HandleFailedRecording(recording);
+                    return true;
+                }
+
                 // check if expired recording is still valid
                 if (task.Id > 0 && recording.RecordingStatus != TstvRecordingStatus.Recorded)
                 {
@@ -15468,7 +15480,6 @@ namespace Core.ConditionalAccess
                     {
                         log.DebugFormat("recordingId: {0} has no domain recording that protect it", task.RecordingId);
                     }
-
                 }
 
                 // incase expiredRecording.Id = 0 it means we are handling a FAILED recording and no need to update the table recording_scheduled_tasks 
@@ -16573,6 +16584,15 @@ namespace Core.ConditionalAccess
                     return result;
                 }
 
+                List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
+                if (epgs == null || epgs.Count != 1)
+                {
+                    log.Error($"Failed Getting EPG from Catalog, groupId: {m_nGroupID}, EpgId: {epgId}");
+                    return result;
+                }
+
+                epg = epgs.FirstOrDefault();
+
                 DataTable followingDomains = RecordingsDAL.GetSeriesFollowingDomainsByIds(string.Join(",", domainSeriesIds));
                 long maxDomainSeriesId = domainSeriesIds.Max();
 
@@ -16609,63 +16629,68 @@ namespace Core.ConditionalAccess
                 {
                     contextData.Load();
                     var quotaOverage = false;
-
                     DataRow followingDomainRow = followingDomains.Rows[i];
                     long domainId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "DOMAIN_ID", 0);
                     long userId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "USER_ID", 0);
                     int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "SEASON_NUMBER", 0);
                     long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "ID", 0);
                     var recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "RECORD_TYPE", 0);
-
-                    if (domainId > 0 && userId > 0)
+                    try
                     {
-                        //
-                        // !!!!!!!!!!!!!!!!!!!!!!!
-                        // Sunny: WHAT WE DO IF WE DONT HAVE CRIDS FOR EPGS? SP RETURNS HASHSET WITH NULL. hashet(null).contains(null) = true, 
-                        // AND THE RECORDING DOES NOT DISTRBUTE IN THIS CASE
-                        // A SOLUTION IS REQUIRED FOR NO CRID ENVIRONMENTS
-                        // !!!!!!!!!!!!!!!!!!!!!!!
-                        //
-                        HashSet<string> domainRecordedCrids = null;
-                        if (!string.IsNullOrEmpty(epg.CRID))
+                        if (domainId > 0 && userId > 0)
                         {
-                            domainRecordedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId }, epg.CRID);
-                        }
-
-                        if (domainRecordedCrids == null || domainRecordedCrids.Count == 0 || !domainRecordedCrids.Contains(epg.CRID))
-                        {
-                            bool add = true;
-                            var recording = QueryRecords(userId.ToString(), epgId, ref domainId, recordingType, true, true, epg);
-                            if (recording.Status.Code != (int)eResponseStatus.OK && VerifyCanRecord(epgId, recordingType, epg))
+                            //
+                            // !!!!!!!!!!!!!!!!!!!!!!!
+                            // Sunny: WHAT WE DO IF WE DONT HAVE CRIDS FOR EPGS? SP RETURNS HASHSET WITH NULL. hashet(null).contains(null) = true, 
+                            // AND THE RECORDING DOES NOT DISTRBUTE IN THIS CASE
+                            // A SOLUTION IS REQUIRED FOR NO CRID ENVIRONMENTS
+                            // !!!!!!!!!!!!!!!!!!!!!!!
+                            //
+                            HashSet<string> domainRecordedCrids = null;
+                            if (!string.IsNullOrEmpty(epg.CRID))
                             {
-                                /*check if it setting for quota_overage if so set action to delete oldest recordings 
-                                    else return exceedeQuota */
-                                if (recording.Status.Code == (int)eResponseStatus.ExceededQuota && accountQuotaOverage)
-                                {
-                                    quotaOverage = true;
-                                }
-
-                                add = quotaOverage;
+                                domainRecordedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId }, epg.CRID);
                             }
 
-                            if (add)
+                            if (domainRecordedCrids == null || domainRecordedCrids.Count == 0 || !domainRecordedCrids.Contains(epg.CRID))
                             {
-                                if (recording != null && sharedRecording == null)
+                                bool add = true;
+                                var recording = QueryRecords(userId.ToString(), epgId, ref domainId, recordingType, true, true, epg);
+                                if (recording.Status.Code != (int)eResponseStatus.OK && VerifyCanRecord(epgId, recordingType, epg))
                                 {
-                                    lock (locker)
+                                    /*check if it setting for quota_overage if so set action to delete oldest recordings 
+                                        else return exceedeQuota */
+                                    if (recording.Status.Code == (int)eResponseStatus.ExceededQuota && accountQuotaOverage)
                                     {
-                                        if (sharedRecording == null)
+                                        quotaOverage = true;
+                                    }
+
+                                    add = quotaOverage;
+                                }
+
+                                if (add)
+                                {
+                                    if (recording != null && sharedRecording == null)
+                                    {
+                                        lock (locker)
                                         {
-                                            sharedRecording = recording;
+                                            if (sharedRecording == null)
+                                            {
+                                                sharedRecording = recording;
+                                            }
                                         }
                                     }
+
+                                    domains.Add(new Tuple<long, long, bool, long, RecordingType>(domainId, userId, quotaOverage, domainSeriesRecordingId, recordingType));
                                 }
 
-                                domains.Add(new Tuple<long, long, bool, long, RecordingType>(domainId, userId, quotaOverage, domainSeriesRecordingId, recordingType));
                             }
-
                         }
-                    }    
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error($"Failed parallel (query recording) inside DistributeRecordingForPrivateCopy, i:{i}, domainId: {domainId}, domainSeriesRecordingId: {domainSeriesRecordingId}, recordingType: {recordingType}", ex);
+                    }
                 });
 
                 if (sharedRecording == null)

@@ -260,6 +260,11 @@ namespace Core.Recordings
 
         public Status DeleteRecording(int groupId, Recording slimRecording, bool isPrivateCopy, bool deleteEpgEvent, List<long> domainIds, int adapterId = 0)
         {
+            // spacial cases for privateCopy: 
+            // domainIds.count == 0, in case of cleanUp - no need notify adapter just delete from db.
+            // domainIds.count == 1 and id == 0, on ingest delete - need to notify adapter for all domains with program
+            // other cases domainIds contains real domains - need to notify adapter for all domains in list
+
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
@@ -315,9 +320,9 @@ namespace Core.Recordings
                 }
 
                 // if last recording then update the DB
-                if (isLastRecording || (isPrivateCopy && !domainIds.Any()))
+                if (isLastRecording || (isPrivateCopy && (deleteEpgEvent || !domainIds.Any())))
                 {
-                    status = internalModifyRecording(groupId, slimRecording, slimRecording.EpgEndDate, isLastRecording || deleteEpgEvent);
+                    status = internalModifyRecording(groupId, slimRecording, slimRecording.EpgEndDate, isLastRecording || deleteEpgEvent, isPrivateCopy ? -1 : 0);
                 }
                 else
                 {
@@ -630,11 +635,11 @@ namespace Core.Recordings
             return status;
         }
 
-        private static void EnqueueRecordingModificationEvent(int groupId, Recording recording, int oldRecordingLength)
+        private static void EnqueueRecordingModificationEvent(int groupId, Recording recording, int oldRecordingLength, int taskId = 0)
         {
             GenericCeleryQueue queue = new GenericCeleryQueue();
             DateTime utcNow = DateTime.UtcNow;
-            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, recording.Id, 0) { ETA = utcNow };
+            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, taskId, recording.Id, 0) { ETA = utcNow };
             bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
             if (!queueExpiredRecordingResult)
             {
@@ -1065,10 +1070,6 @@ namespace Core.Recordings
                 // Update recording after updating the status
                 ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
 
-                // Update all domains that have this recording
-                EnqueueRecordingModificationEvent(groupId, currentRecording, oldRecordingLength: 0);
-
-
                 try
                 {
                     EnqueueRecordingModificationEvent(groupId, currentRecording, oldRecordingLength: 0);
@@ -1256,7 +1257,7 @@ namespace Core.Recordings
             }
         }
 
-        private static Status internalModifyRecording(int groupId, Recording recording, DateTime epgEndDate, bool sendModificationEvent)
+        private static Status internalModifyRecording(int groupId, Recording recording, DateTime epgEndDate, bool sendModificationEvent, int taskId)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -1266,7 +1267,7 @@ namespace Core.Recordings
             {
                 try
                 {
-                    EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength: 0);
+                    EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength: 0, taskId);
                 }
                 catch (Exception e)
                 {
