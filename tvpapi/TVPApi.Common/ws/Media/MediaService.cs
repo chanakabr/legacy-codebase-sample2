@@ -2522,11 +2522,7 @@ namespace TVPApiServices
                                 programObj.m_oProgram = obj as EPGChannelProgrammeObject;
 
                                 // convert to local object
-                                program = new Program()
-                                {
-                                    m_oProgram = obj,
-                                    AssetType = eAssetTypes.EPG
-                                };
+                                program = new Program(obj);
                                 ret.Add(program);
                             }
                             break;
@@ -2536,10 +2532,8 @@ namespace TVPApiServices
                             foreach (ProgramObj obj in (new EpgProgramDetailsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, pidsToInt).Execute() as List<BaseObject>))
                             {
                                 // convert to local object
-                                program = new Program()
+                                program = new Program(obj.m_oProgram)
                                 {
-                                    m_oProgram = obj.m_oProgram,
-                                    AssetType = eAssetTypes.EPG,
                                     AssetId = obj.AssetId,
                                     m_dUpdateDate = obj.m_dUpdateDate
                                 };
