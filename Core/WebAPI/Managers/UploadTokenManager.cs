@@ -82,14 +82,12 @@ namespace WebAPI.Managers
 
             UploadToken cbUploadToken = GetUploadToken(id, groupId);
             OTTBasicFile file = fileData.ConvertToOttFileType();       
-
-            long.TryParse(id, out long _id);
-            
+                        
             if (file is OTTFile)
             {
                 cbUploadToken.FileSize = new FileInfo(fileData.path).Length;
             }
-            var saveFileResponse = file.SaveFile(_id, "KalturaUploadToken");            
+            var saveFileResponse = file.SaveFile(id, "KalturaUploadToken");            
                                   
             if (saveFileResponse == null)
             {
