@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
@@ -59,7 +61,7 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, startDate, endDate);
+                            response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, pager.getPageIndex(), pager.getPageSize(), filter, startDate, endDate);
                             break;
                         }
                     case KalturaEntityReferenceBy.household:
@@ -67,12 +69,13 @@ namespace WebAPI.Controllers
                             bool isDeprecated = !DeprecatedAttribute.IsDeprecated("4.8.0.0", (Version)HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION]); // fix for userFullName and userId disapearing from response since 4.8.0.0
 
                             response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
-                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isDeprecated);
+                                groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.getPageIndex(), pager.getPageSize(), filter, isDeprecated);
                             break;
                         }
                     default:
                         break;
                 }
+
                 // call client
             }
             catch (ClientException ex)

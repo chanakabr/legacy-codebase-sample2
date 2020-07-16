@@ -255,6 +255,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                   .ForMember(dest => dest.paymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
                   .ForMember(dest => dest.paymentMethodId, opt => opt.MapFrom(src => src.PaymentMethodId))
                   .ForMember(dest => dest.type, opt => opt.MapFrom(src => eTransactionType.Subscription))
+                  .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampAbsSecondsToDateTime(src.EndDate)))
                   ;
 
             cfg.CreateMap<Entitlement, KalturaEntitlement>().ConstructUsing(ConvertToKalturaEntitlement);
@@ -617,6 +618,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.Date)));
         }
 
+        internal static eTransactionType? ConvertKalturaTransactionType(KalturaTransactionType? businessModuleTypeEqual)
+        {
+            if (!businessModuleTypeEqual.HasValue)
+            {
+                return null;
+            }
+            switch (businessModuleTypeEqual)
+            {
+                case KalturaTransactionType.collection:
+                    return eTransactionType.Collection;
+                case KalturaTransactionType.ppv:
+                    return eTransactionType.PPV;
+                case KalturaTransactionType.subscription:
+                    return eTransactionType.Subscription;
+                default:
+                    break;
+            }
+            throw new NotImplementedException();
+        }
+
         private static KalturaAdsPolicy? ConvertAdsPolicy(AdsPolicy? adsPolicy)
         {
             if (!adsPolicy.HasValue)
@@ -918,7 +939,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                 foreach (var item in metaData)
                 {
-                    res.Add(item.Key, new KalturaStringValue() {value = item.Value});
+                    res.Add(item.Key, new KalturaStringValue() { value = item.Value });
                 }
             }
 
@@ -1102,7 +1123,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaUrlType.PLAYMANIFEST:
                     result = UrlType.playmanifest;
-                    break;               
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown KalturaUrlType type");
                     break;

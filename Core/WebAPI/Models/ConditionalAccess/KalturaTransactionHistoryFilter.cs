@@ -28,11 +28,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "entityReferenceEqual")]
         [JsonProperty("entityReferenceEqual")]
         [XmlElement(ElementName = "entityReferenceEqual")]
-        public KalturaEntityReferenceBy EntityReferenceEqual
-        {
-            get;
-            set;
-        }
+        public KalturaEntityReferenceBy EntityReferenceEqual { get; set; }
 
         /// <summary>
         ///Filter transactions later than specific date
@@ -42,7 +38,7 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "startDateGreaterThanOrEqual", IsNullable = true)]
         public DateTime? StartDateGreaterThanOrEqual { get; set; }
 
-        
+
         /// <summary>
         ///Filter transactions earlier than specific date
         /// </summary>
@@ -50,5 +46,37 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("endDateLessThanOrEqual")]
         [XmlElement(ElementName = "endDateLessThanOrEqual", IsNullable = true)]
         public DateTime? EndDateLessThanOrEqual { get; set; }
+
+        /// <summary>
+        ///Filter transaction by entitlement id
+        /// </summary>
+        [DataMember(Name = "entitlementIdEqual")]
+        [JsonProperty("entitlementIdEqual")]
+        [XmlElement(ElementName = "entitlementIdEqual", IsNullable = true)]
+        public string EntitlementIdEqual { get; set; }
+
+        /// <summary>
+        ///Filter transaction by external Id
+        /// </summary>
+        [DataMember(Name = "externalIdEqual")]
+        [JsonProperty("externalIdEqual")]
+        [XmlElement(ElementName = "externalIdEqual", IsNullable = true)]
+        public string ExternalIdEqual { get; set; }
+
+        /// <summary>
+        ///Filter transaction by type
+        /// </summary>
+        [DataMember(Name = "transactionTypeEqual")]
+        [JsonProperty("transactionTypeEqual")]
+        [XmlElement(ElementName = "transactionTypeEqual", IsNullable = true)]
+        public KalturaTransactionType? TransactionTypeEqual { get; set; }
+
+        /// <summary>
+        ///Filter transaction by business module type
+        /// </summary>
+        [DataMember(Name = "businessModuleTypeEqual")]
+        [JsonProperty("businessModuleTypeEqual")]
+        [XmlElement(ElementName = "businessModuleTypeEqual", IsNullable = true)]
+        public KalturaTransactionType? BusinessModuleTypeEqual { get; set; }
     }
 }

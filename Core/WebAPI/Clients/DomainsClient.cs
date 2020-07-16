@@ -1143,7 +1143,8 @@ namespace WebAPI.Clients
             return response.Values.ToList();
         }
 
-        internal KalturaHouseholdDeviceListResponse GetHouseholdDevices(int groupId, KalturaHousehold household, List<long> deviceFamilyIds, string externalId)
+        internal KalturaHouseholdDeviceListResponse GetHouseholdDevices(int groupId, KalturaHousehold household, List<long> deviceFamilyIds,
+            string externalId, KalturaHouseholdDeviceOrderBy orderBy = default)
         {
             if (household == null)
             {
@@ -1154,7 +1155,7 @@ namespace WebAPI.Clients
                 household = ClientsManager.DomainsClient().GetDomainInfo(groupId, device.m_domainID);
             }
 
-            KalturaHouseholdDeviceListResponse response = new KalturaHouseholdDeviceListResponse() { TotalCount = 0, Objects = new List<KalturaHouseholdDevice>() };
+            var response = new KalturaHouseholdDeviceListResponse() { TotalCount = 0, Objects = new List<KalturaHouseholdDevice>() };
 
             bool checkExternal = !string.IsNullOrEmpty(externalId);
 
@@ -1185,6 +1186,23 @@ namespace WebAPI.Clients
                             response.TotalCount++;
                         }
                     }
+                }
+            }
+
+            if (orderBy != default && response.Objects?.Count > 1)
+            {
+                switch (orderBy)
+                {
+                    case KalturaHouseholdDeviceOrderBy.CREATED_DATE_ASC:
+                        response.Objects = response.Objects.OrderBy(device => device.ActivatedOn.HasValue)
+                            .ThenBy(device => device.ActivatedOn).ToList();
+                        break;
+                    case KalturaHouseholdDeviceOrderBy.CREATED_DATE_DESC:
+                        response.Objects = response.Objects.OrderByDescending(device => device.ActivatedOn.HasValue)
+                            .ThenBy(device => device.ActivatedOn).ToList();
+                        break;
+                    default:
+                        break;
                 }
             }
 

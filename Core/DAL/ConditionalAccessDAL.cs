@@ -223,7 +223,8 @@ namespace DAL
             return res;
         }
 
-        public static DataView GetUserBillingHistory(string[] arrGroupIDs, string sUserGUID, int nTopNum, DateTime dStartDate, DateTime dEndDate, int orderBy)
+        public static DataView GetUserBillingHistory(string[] arrGroupIDs, string sUserGUID, int nTopNum, DateTime dStartDate, DateTime dEndDate, int orderBy,
+            string entitlementId = null, string externalId = null, eTransactionType? businessModuleType = null, eTransactionType? transactionType = null)
         {
             DataView res = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -284,7 +285,8 @@ namespace DAL
 
         }
 
-        public static DataTable GetDomainBillingHistory(int groupID, int domainID, int topNum, DateTime startDate, DateTime endDate, int orderBy)
+        public static DataTable GetDomainBillingHistory(int groupID, int domainID, int topNum, DateTime startDate, DateTime endDate, int orderBy,
+            string entitlementId, string externalId, eTransactionType? businessModuleType, eTransactionType? transactionType)
         {
             DataTable dt = null;
             if (domainID > 0)
@@ -298,6 +300,24 @@ namespace DAL
                     spGet_DomainBillingHistory.AddParameter("@StartDate", startDate);
                     spGet_DomainBillingHistory.AddParameter("@EndDate", endDate);
                     spGet_DomainBillingHistory.AddParameter("@orderBy", orderBy);
+
+                    if (!string.IsNullOrEmpty(entitlementId))
+                    {
+                        spGet_DomainBillingHistory.AddParameter("@entitlementId", entitlementId);
+                    }
+                    if (!string.IsNullOrEmpty(externalId))
+                    {
+                        spGet_DomainBillingHistory.AddParameter("@externalId", externalId);
+                    }
+                    if (businessModuleType.HasValue)
+                    {
+                        spGet_DomainBillingHistory.AddParameter("@businessModuleType", (int)businessModuleType);
+                    }
+                    if (transactionType.HasValue)
+                    {
+                        spGet_DomainBillingHistory.AddParameter("@transactionType", (int)transactionType);
+                    }
+
                     dt = spGet_DomainBillingHistory.Execute();
                 }
                 catch (Exception ex)
@@ -849,7 +869,7 @@ namespace DAL
             return Get_GroupFailCount(lGroupID, string.Empty);
         }
 
-        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey, string siteGuid = null, 
+        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey, string siteGuid = null,
             int? subscriptionStatus = null, long billingTransactionId = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPRenewalData");
@@ -866,7 +886,7 @@ namespace DAL
             }
             if (billingTransactionId > 0)
             {
-                sp.AddParameter("@BillingTransactionId", billingTransactionId); 
+                sp.AddParameter("@BillingTransactionId", billingTransactionId);
             }
 
             sp.ExecuteNonQuery();
@@ -988,6 +1008,19 @@ namespace DAL
                 sp.AddParameter("@BillingTransactionID", nBillingTransID);
             sp.AddParameter("@SiteGUID", sSiteGuid);
             sp.AddParameter("@EndDate", endDate);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool Update_EntitlementEndDate(int groupId, int domainId, int subscriptionPurchaseID, DateTime endDate, int typeId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionEndDate");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@EntitlementID", subscriptionPurchaseID);
+            sp.AddParameter("@EndDate", endDate);
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@DomainId", domainId);
+            sp.AddParameter("@TypeId", typeId);
 
             return sp.ExecuteReturnValue<bool>();
         }
@@ -1146,7 +1179,7 @@ namespace DAL
             return res;
         }
 
-      
+
         public static Dictionary<int, int> Get_GroupMediaTypesIDs(int nGroupID)
         {
             return Get_GroupMediaTypesIDs(nGroupID, string.Empty);
@@ -1358,7 +1391,7 @@ namespace DAL
         }
 
         public static DataRow GetUnifiedProcessById(long processId)
-        {  
+        {
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUnifiedProcessById");
@@ -1566,7 +1599,7 @@ namespace DAL
 
         public static bool Get_BasicLinkData(long mediaFileID, ref string baseUrl, ref string streamingCode, ref int streamingCompanyID, ref string fileType, out int drmId)
         {
-            drmId = 0;            
+            drmId = 0;
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_BasicLinkData");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -1584,7 +1617,7 @@ namespace DAL
                     streamingCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["STREAMING_CODE"]);
                     streamingCompanyID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["STREAMING_SUPLIER_ID"]);
                     fileType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["DESCRIPTION"]);
-                    drmId= ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["DRM_ID"]);
+                    drmId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["DRM_ID"]);
                 }
             }
 
@@ -1972,8 +2005,8 @@ namespace DAL
         public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData,
             string country, string deviceName, int maxNumOfUses, int viewLifeCycle,
             bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate,
-            DateTime createAndUpdateDate, long householdId, string billingGuid, long processId, int purchaseStatus = 0, string coupon = null )
-        {           
+            DateTime createAndUpdateDate, long householdId, string billingGuid, long processId, int purchaseStatus = 0, string coupon = null)
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
 
@@ -2001,7 +2034,7 @@ namespace DAL
             sp.AddParameter("@PurchaseStatus", purchaseStatus);
             sp.AddParameter("@CouponCode", coupon);
             if (processId != 0)
-            {                
+            {
                 sp.AddParameter("@unifiedProcessId", processId);
             }
             return sp.ExecuteReturnValue<long>();
@@ -3317,9 +3350,9 @@ namespace DAL
                 return false;
             }
         }
-        
+
         public static DataTable GetSubscriptionPurchase(int groupId, long householdId)
-        {   
+        {
             ODBCWrapper.StoredProcedure sp = new StoredProcedure("Get_SubscriptionPurchase");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
@@ -3412,7 +3445,7 @@ namespace DAL
 
             return result;
         }
-        
+
         public static double GetCouponRemainder(long purchaseId)
         {
             string key = UtilsDal.GetPurchaseCouponRemainderKey(purchaseId);

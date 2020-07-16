@@ -366,6 +366,16 @@ namespace TVinciShared
             return UtcUnixTimestampSecondsToDateTime(unixTimeStamp.Value);
         }
 
+        public static DateTime UtcUnixTimestampAbsSecondsToDateTime(long? unixTimeStamp)
+        {
+            if (!unixTimeStamp.HasValue)
+            {
+                return DateTime.MinValue;
+            }
+
+            return UtcUnixTimestampSecondsToDateTime(unixTimeStamp.Value);
+        }
+
         /// <summary>
         /// convert string to dateTime in format dd/MM/yyyy HH:mm:ss
         /// </summary>

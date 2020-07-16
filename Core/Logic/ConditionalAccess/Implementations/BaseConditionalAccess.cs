@@ -1564,6 +1564,14 @@ namespace Core.ConditionalAccess
             return InAppRes.m_oBillingResponse;
         }
 
+        internal ApiObjects.Response.Status UpdateEntitlementEndDate(int groupId, long domainID, int entitlementType, Entitlement entitlement)
+        {
+            var status = new ApiObjects.Response.Status();
+            var updateEndDate = EntitlementManager.UpdateEntitlementEndDate(groupId, (int)domainID, entitlement.purchaseID, entitlement.endDate, entitlementType);
+            status.Set(updateEndDate.Status);
+            return status;
+        }
+
         /// <summary>
         /// In App Charge User For Subscription
         /// </summary>
@@ -7225,7 +7233,8 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get Domain Billing History
         /// </summary>
-        public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex, TransactionHistoryOrderBy orderBy)
+        public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex, TransactionHistoryOrderBy orderBy,
+            string entitlementId, string externalId, eTransactionType? businessModuleType, eTransactionType? transactionType)
         {
             DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
 
@@ -7245,7 +7254,8 @@ namespace Core.ConditionalAccess
                     return domainTransactionsHistoryResponse;
                 }
 
-                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate, (int)orderBy);
+                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate, (int)orderBy,
+                    entitlementId, externalId, businessModuleType, transactionType);
 
                 if (domainBillingHistory == null || domainBillingHistory.Rows == null || domainBillingHistory.Rows.Count == 0)
                 {
@@ -7253,7 +7263,7 @@ namespace Core.ConditionalAccess
                     domainTransactionsHistoryResponse.TransactionsCount = 0;
                     return domainTransactionsHistoryResponse;
                 }
-                List<DataRow> filteredRows = new List<DataRow>();
+                var filteredRows = new List<DataRow>();
 
                 if (pageIndex > 0)
                 {
@@ -7279,6 +7289,11 @@ namespace Core.ConditionalAccess
                         domainTransactionsHistoryResponse.TransactionsHistory.Add(transactionHistory);
                     }
                 }
+
+                //New filters - BEO-8380
+                //New filter? might alter the count per page
+                FilterTransactions(ref domainTransactionsHistoryResponse.TransactionsHistory, entitlementId, externalId, businessModuleType, transactionType);
+
                 domainTransactionsHistoryResponse.TransactionsCount = domainBillingHistory.Rows.Count;
                 domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
@@ -7350,7 +7365,8 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0, TransactionHistoryOrderBy orderBy = TransactionHistoryOrderBy.CreateDateDesc)
+        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0, TransactionHistoryOrderBy orderBy = TransactionHistoryOrderBy.CreateDateDesc,
+            string entitlementId = null, string externalId = null, eTransactionType? businessModuleType = null, eTransactionType? transactionType = null)
         {
             BillingTransactionsResponse theResp = new BillingTransactionsResponse();
             BillingTransactions response = new BillingTransactions();
@@ -7360,8 +7376,8 @@ namespace Core.ConditionalAccess
                 string[] arrGroupIDs = new string[] { m_nGroupID.ToString() };
 
                 int nTopNum = nStartIndex + nNumberOfItems;
-                DataView dvBillHistory = ConditionalAccessDAL.GetUserBillingHistory(arrGroupIDs, sUserGUID, nTopNum, dStartDate, dEndDate, (int)orderBy);
-
+                DataView dvBillHistory = ConditionalAccessDAL.GetUserBillingHistory(arrGroupIDs, sUserGUID, nTopNum, dStartDate, dEndDate, (int)orderBy/*,
+                    entitlementId, externalId, businessModuleType, transactionType*/);
 
                 if (dvBillHistory == null || dvBillHistory.Count == 0)
                 {
@@ -7391,6 +7407,9 @@ namespace Core.ConditionalAccess
                     } // for
                 }
 
+                //New filters - BEO-8380
+                FilterTransactions(ref theResp.m_Transactions, entitlementId, externalId, businessModuleType, transactionType);
+
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 response.transactions = theResp;
             }
@@ -7402,6 +7421,52 @@ namespace Core.ConditionalAccess
             }
 
             return response;
+        }
+
+        private void FilterTransactions(ref BillingTransactionContainer[] m_Transactions, string entitlementId = null, string externalId = null, eTransactionType? businessModuleType = null, eTransactionType? transactionType = null)
+        {
+            if (!string.IsNullOrEmpty(entitlementId))
+            {
+                m_Transactions = m_Transactions.Where(t => t.m_nPurchaseID.ToString() == entitlementId).ToArray();
+            }
+
+            if (!string.IsNullOrEmpty(externalId))
+            {
+                m_Transactions = m_Transactions.Where(t => t.ExternalTransactionId == externalId).ToArray();
+            }
+
+            if (businessModuleType.HasValue)
+            {
+                //??
+            }
+
+            if (transactionType.HasValue)
+            {
+                //??
+            }
+        }
+
+        private void FilterTransactions(ref List<TransactionHistoryContainer> transactionsHistory, string entitlementId, string externalId, eTransactionType? businessModuleType, eTransactionType? transactionType)
+        {
+            if (!string.IsNullOrEmpty(entitlementId))
+            {
+                transactionsHistory = transactionsHistory.Where(t => t.m_nPurchaseID.ToString() == entitlementId).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(externalId))
+            {
+                transactionsHistory = transactionsHistory.Where(t => t.ExternalTransactionId == externalId).ToList();
+            }
+
+            if (businessModuleType.HasValue)
+            {
+                //??
+            }
+
+            if (transactionType.HasValue)
+            {
+                //??
+            }
         }
 
         private TransactionHistoryContainer GetBillingTransactionContainerFromDataRow(DataRow dr, bool shouldGetExtendedParams)
@@ -7638,12 +7703,13 @@ namespace Core.ConditionalAccess
         /// Get User Billing History
         /// </summary>
         public virtual BillingTransactions GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems, TransactionHistoryOrderBy orderBy,
-                                                                 DateTime startDate, DateTime endDate)
+                                                                 DateTime startDate, DateTime endDate, string entitlementId, string externalId,
+                                                                 eTransactionType? businessModuleType, eTransactionType? transactionType)
         {
             BillingTransactions res = null;
             try
             {
-                res = GetUserBillingHistoryExt(sUserGUID, startDate, endDate, nStartIndex, nNumberOfItems, orderBy);
+                res = GetUserBillingHistoryExt(sUserGUID, startDate, endDate, nStartIndex, nNumberOfItems, orderBy, entitlementId, externalId, businessModuleType, transactionType);
             }
             catch (Exception ex)
             {
@@ -13632,7 +13698,7 @@ namespace Core.ConditionalAccess
                 {
                     HashSet<long> failedDomainIds;
                     recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate,
-                                                                    recording.Crid,new List<long>() { domainID }, out failedDomainIds);
+                                                                    recording.Crid, new List<long>() { domainID }, out failedDomainIds);
 
                     bool canRecord = recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
                                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus);
@@ -13691,7 +13757,7 @@ namespace Core.ConditionalAccess
                 if (QuotaManager.Instance.IncreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
                 {
                     recording.Type = recordingType;
-                    
+
                     if (RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, domainSeriesRecordingId))
                     {
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
@@ -13906,7 +13972,7 @@ namespace Core.ConditionalAccess
                     {
                         recording.Status.Set(IsFollowingResponse.Code, IsFollowingResponse.Message);
                         return recording;
-                    } 
+                    }
                 }
 
                 // validate epgs entitlement and add to response
@@ -13938,7 +14004,7 @@ namespace Core.ConditionalAccess
             return recording;
         }
 
-        private Recording  ValidateEntitlementForEpg(string userId, long domainId, EPGChannelProgrammeObject epg)
+        private Recording ValidateEntitlementForEpg(string userId, long domainId, EPGChannelProgrammeObject epg)
         {
             Recording response = new Recording() { EpgId = epg.EPG_ID };
             try
@@ -13960,7 +14026,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                response = Utils.CheckDomainExistingRecordingsByEpgs(m_nGroupID, domainId, epg);                
+                response = Utils.CheckDomainExistingRecordingsByEpgs(m_nGroupID, domainId, epg);
             }
             catch (Exception ex)
             {
@@ -15674,7 +15740,7 @@ namespace Core.ConditionalAccess
                 // get all the relevant (series + seasons + CRID not in the list of household recordings) existing recordings from ES
                 List<ExtendedSearchResult> relevantRecordingsForRecord = null;
 
-                relevantRecordingsForRecord = 
+                relevantRecordingsForRecord =
                     Utils.SearchSeriesRecordings(m_nGroupID,
                     excludedCrids.ToList(), series, SearchSeriesRecordingsTimeOptions.past);
 
@@ -15741,7 +15807,7 @@ namespace Core.ConditionalAccess
                             var canRecord = recording != null && recording.Status != null &&
                                             recording.Status.Code == (int)eResponseStatus.OK && recording.Id > 0;
 
-                            
+
                             if (canRecord)
                             {
                                 log.DebugFormat("successfully recorded episode for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, recording.Id);
@@ -15922,7 +15988,7 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error on HandleFirstFollowerRecording {0} ", seriesId), ex);                
+                log.Error(string.Format("Error on HandleFirstFollowerRecording {0} ", seriesId), ex);
             }
             finally
             {
@@ -15951,7 +16017,7 @@ namespace Core.ConditionalAccess
 
                 // check if already following as season or series - QueryRecords checks it only for single recordings
                 List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgID });
-                                
+
                 // no need to validate epg, it is already checked on QueryRecords
                 if (epgs == null || epgs.Count == 0)
                 {
@@ -16073,7 +16139,7 @@ namespace Core.ConditionalAccess
         private bool IsEpgFirstTimeAirDate(EPGChannelProgrammeObject epg)
         {
             EPGDictionary epgData = epg.EPG_Meta.FirstOrDefault(x => x.Key.ToLower() == IS_ORIGINAL_BROADCAST_KEY.ToLower());
-            return !string.IsNullOrEmpty(epgData.Value) && ( epgData.Value.ToLower() == IS_ORIGINAL_BROADCAST_VALUE.ToLower() || epgData.Value == "1");
+            return !string.IsNullOrEmpty(epgData.Value) && (epgData.Value.ToLower() == IS_ORIGINAL_BROADCAST_VALUE.ToLower() || epgData.Value == "1");
         }
 
         public SeriesRecording CancelOrDeleteSeriesRecord(string userId, long domainId, long domainSeriesRecordingId, long epgId, long seasonNumber, TstvRecordingStatus tstvRecordingStatus)
@@ -16529,7 +16595,7 @@ namespace Core.ConditionalAccess
                         }
 
                         if (domainRecordedCrids == null || domainRecordedCrids.Count == 0 || !domainRecordedCrids.Contains(epg.CRID))
-                        {                            
+                        {
                             if (VerifyCanRecord(epgId, recordingType))
                             {
                                 Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId, true);
@@ -17149,7 +17215,7 @@ namespace Core.ConditionalAccess
             //}
         }
 
-        public Entitlements UpdateEntitlement(long domainID, ConditionalAccess.Response.Entitlement entitlement)
+        public Entitlements UpdateEntitlement(long domainID, Entitlement entitlement)
         {
             return EntitlementManager.UpdateEntitlement(this, m_nGroupID, domainID, entitlement);
         }
@@ -17624,6 +17690,6 @@ namespace Core.ConditionalAccess
         internal ApiObjects.Response.Status ApplyCoupon(long domainId, string userId, long purchaseId, string couponCode)
         {
             return EntitlementManager.ApplyCoupon(this, this.m_nGroupID, domainId, userId, purchaseId, couponCode);
-        }        
+        }
     }
 }

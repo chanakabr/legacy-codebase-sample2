@@ -68,12 +68,12 @@ namespace Core.ConditionalAccess
             bool response = false;
 
             // add siteguid to logs/monitor
-           // HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = householdId != null ? householdId : "null";
+            // HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = householdId != null ? householdId : "null";
 
             // get partner implementation and group ID
             BaseConditionalAccess casImpl = null;
             Utils.GetBaseConditionalAccessImpl(ref casImpl, groupID);
-            
+
             if (casImpl != null)
             {
                 List<long> purchasesIds = new List<long>();
@@ -176,7 +176,7 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 string drmData = string.Empty;
-                return t.GetEPGLink(nEPGItemID.ToString(), startTime, nFormatType, sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, 
+                return t.GetEPGLink(nEPGItemID.ToString(), startTime, nFormatType, sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3,
                     sDeviceName, string.Empty, PlayContextType.Playback, out drmData);
             }
             else
@@ -408,13 +408,14 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int groupID, int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex, TransactionHistoryOrderBy orderBy)
+        public static DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int groupID, int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex, TransactionHistoryOrderBy orderBy,
+            string entitlementId = "", string externalId = "", eTransactionType? businessModuleType = null, eTransactionType? transactionType = null)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetDomainTransactionsHistory(domainID, dStartDate, dEndDate, pageSize, pageIndex, orderBy);
+                return t.GetDomainTransactionsHistory(domainID, dStartDate, dEndDate, pageSize, pageIndex, orderBy, entitlementId, externalId, businessModuleType, transactionType);
             }
             else
             {
@@ -440,7 +441,8 @@ namespace Core.ConditionalAccess
 
 
         public static BillingTransactions GetUserBillingHistory(int groupID, string sSiteGUID, Int32 nStartIndex, Int32 nNumberOfItems,
-                                                                TransactionHistoryOrderBy orderBy, DateTime startDate, DateTime endDate)
+                                                                TransactionHistoryOrderBy orderBy, DateTime startDate, DateTime endDate,
+                                                                string entitlementId = "", string externalId = "", eTransactionType? businessModuleType = null, eTransactionType? transactionType = null)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
@@ -449,7 +451,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetUserBillingHistory(sSiteGUID, nStartIndex, nNumberOfItems, orderBy, startDate, endDate);
+                return t.GetUserBillingHistory(sSiteGUID, nStartIndex, nNumberOfItems, orderBy, startDate, endDate, entitlementId, externalId, businessModuleType, transactionType);
             }
             else
             {
@@ -552,7 +554,7 @@ namespace Core.ConditionalAccess
                 Int32[] nMediaFileIDs = new Int32[nSize];
                 for (int j = 0; j < nSize; j++)
                     nMediaFileIDs[j] = nMediaFiles[j].m_nInt32;
-                return t.GetItemsPrices(nMediaFileIDs, sUserGUID, bOnlyLowest, sLanguageCode3,sDeviceName);
+                return t.GetItemsPrices(nMediaFileIDs, sUserGUID, bOnlyLowest, sLanguageCode3, sDeviceName);
             }
             else
             {
@@ -789,7 +791,7 @@ namespace Core.ConditionalAccess
             {
                 BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
                 bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, sUserGUID, RolePermissions.PLAYBACK_PPV);
- 
+
                 if (!permittedPpv)
                 {
                     blockEntitlement = BlockEntitlementType.BLOCK_PPV;
@@ -1622,7 +1624,21 @@ namespace Core.ConditionalAccess
             }
         }
 
-
+        public static Status UpdateEntitlementEndDate(int groupId, long domainID, int entitlementType, Entitlement entitlement)
+        {
+            var response = new Status();
+            BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                response = t.UpdateEntitlementEndDate(groupId, domainID, entitlementType, entitlement);
+            }
+            else
+            {
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
 
         public static string GetItemLeftViewLifeCycle(int groupID, string sMediaFileID, string sSiteGUID, bool bIsCoGuid,
             string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME)
@@ -1690,7 +1706,7 @@ namespace Core.ConditionalAccess
 
             return objResponse;
         }
-        
+
         public static BillingResponse InApp_ChargeUserForMediaFile(int groupID, string sSiteGUID, double dPrice, string sCurrencyCode3, string sProductCode, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string ReceiptData)
         {
@@ -1892,7 +1908,7 @@ namespace Core.ConditionalAccess
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
-            {                
+            {
                 return t.GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCd2, sLanguageCode3, sDeviceName, string.Empty);
             }
             else
@@ -1990,7 +2006,7 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static TransactionResponse ProcessReceipt(int groupID, string siteguid, long household, Int32 contentId, int productId, eTransactionType transactionType, 
+        public static TransactionResponse ProcessReceipt(int groupID, string siteguid, long household, Int32 contentId, int productId, eTransactionType transactionType,
                                                          string userIp, string deviceName, string purchaseToken, string paymentGatewayName, string adapterData)
         {
             TransactionResponse response = new TransactionResponse();
@@ -2004,7 +2020,7 @@ namespace Core.ConditionalAccess
 
             if (casImpl != null)
             {
-                response = casImpl.ProcessReceipt(siteguid, household, contentId, productId, transactionType, userIp, deviceName, purchaseToken, paymentGatewayName, 
+                response = casImpl.ProcessReceipt(siteguid, household, contentId, productId, transactionType, userIp, deviceName, purchaseToken, paymentGatewayName,
                                                   adapterData);
                 if (response == null)
                     response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -2020,7 +2036,7 @@ namespace Core.ConditionalAccess
             int productId, eTransactionType transactionType, string userIp, string deviceName, bool history)
         {
             Status status = null;
-            
+
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
 
@@ -2038,7 +2054,7 @@ namespace Core.ConditionalAccess
             }
             return status;
         }
-        
+
         public static ApiObjects.Response.Status UpdatePendingTransaction(int groupID, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus,
             string externalMessage, int failReason, string signature)
         {
@@ -2084,7 +2100,7 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static Entitlements GetUserEntitlements(int groupID, string sSiteGUID, eTransactionType type, bool isExpired, 
+        public static Entitlements GetUserEntitlements(int groupID, string sSiteGUID, eTransactionType type, bool isExpired,
             int pageSize, int pageIndex, ApiObjects.EntitlementOrderBy orderBy)
         {
             Entitlements response = new Entitlements();
@@ -2153,7 +2169,7 @@ namespace Core.ConditionalAccess
             }
             return response;
         }
-        
+
         public static AssetItemPriceResponse GetAssetPrices(int groupID,
             string siteGuid,
             string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP,
@@ -2642,7 +2658,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                var record = new Recording {Id = recordID, IsProtected = true};
+                var record = new Recording { Id = recordID, IsProtected = true };
                 return t.UpdateRecord(userID, recordID, record);
             }
             else
@@ -2722,9 +2738,9 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 return t.RecordSeasonOrSeries(userID, epgID, recordingType);
-            }           
-            
-            return null;            
+            }
+
+            return null;
         }
 
 
@@ -2919,7 +2935,7 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 MediaFileItemPricesContainer price;
-                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, 
+                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid,
                     out price, urlType, sourceType, isPlaybackManifest, adapterData);
             }
             else
@@ -3062,7 +3078,7 @@ namespace Core.ConditionalAccess
                 {
                     blockEntitlement = BlockEntitlementType.BLOCK_SUBSCRIPTION;
                 }
-               
+
                 response.ItemsPrices = t.GetItemsPrices(mediaFiles, userId, couponCode != null ? couponCode : string.Empty, onlyLowest, languageCode, udid, ip, currencyCode, blockEntitlement);
                 //foreach (MediaFileItemPricesContainer mf in response.ItemsPrices)
                 //{
@@ -3221,7 +3237,7 @@ namespace Core.ConditionalAccess
             {
                 response = t.GetAdsContext(userId, udid, ip, assetId, assetType, fileIds, streamerType, mediaProtocol, context);
             }
-           
+
             return response;
         }
 
@@ -3318,7 +3334,7 @@ namespace Core.ConditionalAccess
 
             return response;
         }
-        
+
         public static UnifiedPaymentRenewalResponse GetUnifiedPaymentNextRenewal(int groupId, long householdId, int unifiedPaymentId, long userId)
         {
             UnifiedPaymentRenewalResponse response = new UnifiedPaymentRenewalResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };

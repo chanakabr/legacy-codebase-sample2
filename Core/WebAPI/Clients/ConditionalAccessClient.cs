@@ -129,19 +129,28 @@ namespace WebAPI.Clients
             return entitlements;
         }
 
-        public Models.ConditionalAccess.KalturaBillingTransactionListResponse GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size,
+        public KalturaBillingTransactionListResponse GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size,
                                                                                     KalturaTransactionHistoryOrderBy orderBy, DateTime startDate, DateTime endDate)
         {
-            Models.ConditionalAccess.KalturaBillingTransactionListResponse transactions = null;
+            return GetUserTransactionHistory(groupId, userid, page_number, page_size, new KalturaTransactionHistoryFilter { OrderBy = orderBy }, startDate, endDate);
+        }
+
+        public KalturaBillingTransactionListResponse GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size,
+            KalturaTransactionHistoryFilter filter, DateTime startDate, DateTime endDate)
+        {
+            KalturaBillingTransactionListResponse transactions = null;
             BillingTransactions response = null;
 
-            TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(orderBy);
+            TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(filter.OrderBy);
+            var _businessModuleTypeEqual = ConditionalAccessMappings.ConvertKalturaTransactionType(filter.BusinessModuleTypeEqual);
+            var _transactionTypeEqual = ConditionalAccessMappings.ConvertKalturaTransactionType(filter.TransactionTypeEqual);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetUserBillingHistory(groupId, userid, page_number, page_size, wsOrderBy, startDate, endDate);
+                    response = Core.ConditionalAccess.Module.GetUserBillingHistory(groupId, userid, page_number, page_size, wsOrderBy, startDate,
+                        endDate, filter.EntitlementIdEqual, filter.ExternalIdEqual, _businessModuleTypeEqual, _transactionTypeEqual);
                 }
             }
             catch (Exception ex)
@@ -160,7 +169,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.resp);
             }
 
-            transactions = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaBillingTransactionListResponse>(response.transactions);
+            transactions = Mapper.Map<KalturaBillingTransactionListResponse>(response.transactions);
 
             return transactions;
         }
@@ -418,7 +427,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Core.ConditionalAccess.Module.ProcessReceipt(groupId, siteguid, household, contentId, productId, transactionType, Utils.Utils.GetClientIP(), 
+                    wsResponse = Core.ConditionalAccess.Module.ProcessReceipt(groupId, siteguid, household, contentId, productId, transactionType, Utils.Utils.GetClientIP(),
                                                                               udid, purchaseToken, paymentGatewayName, adapterData);
                 }
             }
@@ -607,24 +616,38 @@ namespace WebAPI.Clients
                         (groupId, user_id, household_id, content_id, product_id, transactionType, Utils.Utils.GetClientIP(), deviceName, history);
 
             ClientUtils.GetResponseStatusFromWS(grantEntitlementsFunc);
-            
+
             return true;
         }
 
         internal KalturaBillingTransactionListResponse GetDomainBillingHistory(int groupId, int domainId, DateTime startDate, DateTime endDate, int pageIndex, int pageSize, KalturaTransactionHistoryOrderBy orderBy, bool isObsolete = false)
+        {
+            return GetDomainBillingHistory(groupId, domainId, startDate, endDate, pageIndex, pageSize, new KalturaTransactionHistoryFilter { OrderBy = orderBy }, isObsolete);
+        }
+
+        internal KalturaBillingTransactionListResponse GetDomainBillingHistory(int groupId, int domainId, DateTime startDate, DateTime endDate, int pageIndex, int pageSize, KalturaTransactionHistoryFilter filter, bool isObsolete = false)
         {
             KalturaBillingTransactionListResponse clientResponse = new KalturaBillingTransactionListResponse();
             DomainTransactionsHistoryResponse wsResponse = null;
 
             // get group by ID
 
-            TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(orderBy);
+            TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(filter.OrderBy);
+            eTransactionType? wsBusinessModuleTypeEqual = null, wsTransactionTypeEqual = null;
+            if (filter.BusinessModuleTypeEqual.HasValue)
+            {
+                wsBusinessModuleTypeEqual = Mapper.Map<eTransactionType>(filter.BusinessModuleTypeEqual);
+            }
+            if (filter.TransactionTypeEqual.HasValue)
+            {
+                wsTransactionTypeEqual = Mapper.Map<eTransactionType>(filter.TransactionTypeEqual);
+            }
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    wsResponse = Core.ConditionalAccess.Module.GetDomainTransactionsHistory(groupId, domainId, startDate, endDate, pageSize, pageIndex, wsOrderBy);
+                    wsResponse = Core.ConditionalAccess.Module.GetDomainTransactionsHistory(groupId, domainId, startDate, endDate, pageSize, pageIndex, wsOrderBy, filter.EntitlementIdEqual, filter.ExternalIdEqual, wsBusinessModuleTypeEqual, wsTransactionTypeEqual);
                 }
             }
             catch (Exception ex)
@@ -1844,9 +1867,19 @@ namespace WebAPI.Clients
             KalturaEntitlement kalturaEntitlement = null;
             Entitlements response = null;
 
+            var entitlement = Mapper.Map<Entitlement>(kEntitlement);
+            
+            if (kEntitlement.EndDate.HasValue)
+            {
+                var status = Core.ConditionalAccess.Module.UpdateEntitlementEndDate(groupId, domainID, 
+                    GetEntitlementType(kEntitlement), entitlement);
+                if (!status.IsOkStatusCode())
+                {
+                    throw new ClientException(status);
+                }
+            }
 
             // get group 
-
 
             try
             {
@@ -1854,7 +1887,6 @@ namespace WebAPI.Clients
                 {
                     if (kEntitlement is KalturaSubscriptionEntitlement)
                     {
-                        Entitlement entitlement = Mapper.Map<Entitlement>(kEntitlement);
                         entitlement.purchaseID = id;
                         // fire request                        
                         response = Core.ConditionalAccess.Module.UpdateEntitlement(groupId, (int)domainID, entitlement);
@@ -1894,6 +1926,26 @@ namespace WebAPI.Clients
             return kalturaEntitlement;
         }
 
+        private int GetEntitlementType(KalturaEntitlement kEntitlement)
+        {
+            int entitlementType = -1;
+
+            if (kEntitlement is KalturaSubscriptionEntitlement)
+            {
+                entitlementType = 1;
+            }
+            else if (kEntitlement is KalturaPpvEntitlement)
+            {
+                entitlementType = 2;
+            }
+            else if (kEntitlement is KalturaCollectionEntitlement)
+            {
+                entitlementType = 3;
+            }
+            
+            return entitlementType;
+        }
+
         internal bool SwapEntitlements(int groupId, string userId, int currentProductId, int newProductId, bool history)
         {
             Status response = null;
@@ -1925,7 +1977,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, 
+        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType,
             KalturaPlaybackContextOptions contextDataParams, string sourceType = null, bool isPlaybackManifest = false)
         {
             KalturaPlaybackContext kalturaPlaybackContext = null;
@@ -1952,7 +2004,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, 
+                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId,
                         ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext,
                         urlType, sourceType, isPlaybackManifest, WebAPI.Utils.Utils.ConvertSerializeableDictionary(contextDataParams.AdapterData, true));
                 }
@@ -1969,14 +2021,14 @@ namespace WebAPI.Clients
                 throw new ClientException(StatusCode.Error);
             }
 
-            if (response.Status.Code != (int)eResponseStatus.OK && 
-                response.Status.Code != (int)eResponseStatus.ServiceNotAllowed && 
+            if (response.Status.Code != (int)eResponseStatus.OK &&
+                response.Status.Code != (int)eResponseStatus.ServiceNotAllowed &&
                 response.Status.Code != (int)eResponseStatus.NotEntitled &&
                 response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel &&
                 response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel &&
-                response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation && 
+                response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation &&
                 response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation &&
-                response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed && 
+                response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed &&
                 response.Status.Code != (int)eResponseStatus.NoFilesFound &&
                 response.Status.Code != (int)eResponseStatus.NetworkRuleBlock)
             {
@@ -2480,7 +2532,7 @@ namespace WebAPI.Clients
 
             return recording;
         }
-        
+
         internal void ApplyCoupon(int groupId, long domainId, string userId, long purchaseId, string couponCode)
         {
             Func<Status> applyCouponFunc = () => Core.ConditionalAccess.Module.ApplyCoupon(groupId, domainId, userId, purchaseId, couponCode);
