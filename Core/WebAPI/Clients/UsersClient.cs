@@ -88,19 +88,13 @@ namespace WebAPI.Clients
 
         internal void ValidatePinEnhancements(int? pinUsages, long? pinDuration)
         {
-            if (pinUsages.HasValue)
+            if (pinUsages.HasValue && pinUsages.Value < 0)
             {
-                if (pinUsages.Value < 1 && pinUsages.Value != -1)
-                {
-                    throw new ClientException((int)eResponseStatus.InvalidParameters, "Invalid Parameter value: [pinUsages]");
-                }
+                throw new ClientException((int)eResponseStatus.InvalidParameters, "Invalid Parameter value: [pinUsages]");
             }
-            if (pinDuration.HasValue && pinDuration.Value != -1)
+            if (pinDuration.HasValue && pinDuration.Value < 0)
             {
-                if (pinDuration.Value < 1 && pinUsages.Value != -1)
-                {
-                    throw new ClientException((int)eResponseStatus.InvalidParameters, "Invalid Parameter value: [pinDuration]");
-                }
+                throw new ClientException((int)eResponseStatus.InvalidParameters, "Invalid Parameter value: [pinDuration]");
             }
         }
 
