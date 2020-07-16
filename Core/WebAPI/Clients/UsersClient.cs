@@ -95,7 +95,7 @@ namespace WebAPI.Clients
                     throw new ClientException((int)eResponseStatus.InvalidParameters, "Invalid Parameter value: [pinUsages]");
                 }
             }
-            if (pinDuration.HasValue && pinUsages.Value != -1)
+            if (pinDuration.HasValue && pinDuration.Value != -1)
             {
                 if (pinDuration.Value < 1 && pinUsages.Value != -1)
                 {
