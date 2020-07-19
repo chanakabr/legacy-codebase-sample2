@@ -1235,8 +1235,10 @@ namespace Core.Users
                 if (isSecret)
                 {
                     int userId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_id");//, up.pinCode, up.
-                    DateTime expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
-                    if (DateTime.UtcNow >= expiredDate) // pincode is expired
+                    var dbUtcNow = ODBCWrapper.Utils.GetDateSafeVal(dr, "utc_Now");
+                    var expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
+
+                    if (expiredDate <= dbUtcNow) // pincode is expired
                     {
                         response.SetStatus(eResponseStatus.PinExpired, "Pin code expired at " + expiredDate.ToString());
                     }
