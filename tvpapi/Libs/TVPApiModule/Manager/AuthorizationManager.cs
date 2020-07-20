@@ -734,16 +734,35 @@ namespace TVPApiModule.Manager
             };
         }
 
-        public void DeleteAccessToken(string accessToken)
+        public void DeleteAccessToken(int groupId, string accessToken, bool chackRevokeConfig = false, bool isSignOut = false)
         {
             if (!string.IsNullOrEmpty(accessToken))
             {
                 string apiTokenId = APIToken.GetAPITokenId(accessToken);
 
-                // delete token
-                if (cbManager.Remove(apiTokenId))
-                    logger.DebugFormat("DeleteAccessToken: removed access token {0} on logout", accessToken);
+                GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
 
+                APIToken apiToken = cbManager.Get<APIToken>(apiTokenId, true);
+                
+                if (apiToken.IsAdmin && !isSignOut)
+                {
+                    return;
+                }
+
+                if (!groupConfig.AvoidRefreshRevocation)
+                {
+                    string refreshTokenId = RefreshToken.GetRefreshTokenId(apiToken.RefreshToken);
+                    
+                    if (!cbManager.Remove(refreshTokenId))
+                        logger.ErrorFormat("DeleteAccessToken: failed to remove refresh token {0}", refreshTokenId);
+                }
+
+                // delete token
+                if (!chackRevokeConfig || !groupConfig.AvoidRefreshRevocation)
+                {
+                    if (cbManager.Remove(apiTokenId))
+                        logger.DebugFormat("DeleteAccessToken: removed access token {0} on logout", accessToken);
+                }
             }
         }
 

@@ -202,6 +202,11 @@ namespace TVPApiServices
                         resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, sUdid);
                     else
                         resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDeviceToDomain(domainID, initObj.UDID);
+
+                    if (resDomain.m_oDomainResponseStatus == DomainResponseStatus.OK)
+                    {
+                        AuthorizationManager.Instance.DeleteAccessToken(groupID, initObj.Token, true);
+                    }
                 }
                 catch (Exception ex)
                 {

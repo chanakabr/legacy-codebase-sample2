@@ -41,6 +41,9 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("use_ks")]
         public bool UseKs { get; set; }
 
+        [JsonProperty("avoid_revocation")]
+        public bool AvoidRefreshRevocation { get; set; }
+
         [JsonIgnore]
         public override string Id
         {
