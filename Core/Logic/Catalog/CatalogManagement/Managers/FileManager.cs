@@ -694,11 +694,6 @@ namespace Core.Catalog.CatalogManagement
                     assetFileToUpdate.AltExternalId = currentAssetFile.AltExternalId;
                 }
 
-                if (string.IsNullOrEmpty(assetFileToUpdate.Opl))
-                {
-                    assetFileToUpdate.Opl = currentAssetFile.Opl;
-                }
-
                 // validate CdnAdapaterProfileId (0 or null for setting group default adapter) \ AlternativeCdnAdapaterProfileId     
                 Status validateCdnReponse = ValidateCdnAdapterProfileIds(groupId, assetFileToUpdate.CdnAdapaterProfileId, assetFileToUpdate.AlternativeCdnAdapaterProfileId);
                 if (validateCdnReponse.Code != (int)eResponseStatus.OK)
