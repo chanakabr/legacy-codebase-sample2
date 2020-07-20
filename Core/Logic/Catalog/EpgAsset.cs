@@ -33,6 +33,7 @@ namespace Core.Catalog
         public int PicId { get; set; }
         public string PicUrl { get; set; }
         public string FaceBookObjectId { get; set; }
+        public DateTime SearchEndDate { get; set; }
 
         public EpgAsset()
             : base()
@@ -70,6 +71,7 @@ namespace Core.Catalog
                     this.RelatedMediaId = defaultEpgCB.ExtraData != null ? defaultEpgCB.ExtraData.MediaID : 0;
                     this.FaceBookObjectId = defaultEpgCB.ExtraData != null ? defaultEpgCB.ExtraData.FBObjectID : string.Empty;
                     this.CoGuid = defaultEpgCB.EpgIdentifier;
+                    this.SearchEndDate = defaultEpgCB.SearchEndDate;
 
                     var linearChannelSettings = EpgManager.GetLinearChannelSettings(groupId, this.EpgChannelId);
                     if (linearChannelSettings != null)

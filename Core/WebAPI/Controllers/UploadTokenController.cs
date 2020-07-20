@@ -6,6 +6,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Utils;
 using WebAPI.Models.Upload;
 using WebAPI.Models.General;
+using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
@@ -40,6 +41,10 @@ namespace WebAPI.Controllers
         [Action("upload")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.FileExceededMaxSize)]
+        [Throws(eResponseStatus.FileExtensionNotSupported)]
+        [Throws(eResponseStatus.FileMimeDifferentThanExpected)]
+        [Throws(eResponseStatus.FileDoesNotExists)]
         static public KalturaUploadToken Upload(string uploadTokenId, KalturaOTTFile fileData)
         {
             KalturaUploadToken uploadToken = null;

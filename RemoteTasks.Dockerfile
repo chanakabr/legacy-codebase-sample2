@@ -1,7 +1,7 @@
-﻿FROM mcr.microsoft.com/dotnet/core/sdk:3.1 as builder
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine as builder
 WORKDIR /src
 
-RUN apt-get install git
+RUN apk add --no-cache git
 
 COPY [".git", ".git"]
 COPY ["Core", "Core"]
@@ -9,22 +9,21 @@ COPY ["RemoteTasks", "RemoteTasks"]
 
 #version patch
 WORKDIR /src/Core
-RUN bash DllVersioning.Core.sh .
-RUN bash get-version-tag.sh > version
+RUN sh DllVersioning.Core.sh . && \
+    sh get-version-tag.sh > version
 
 WORKDIR /src/RemoteTasks
-RUN bash /src/Core/DllVersioning.Core.sh .
-
-RUN dotnet publish -c Release "./HealthCheck/HealthCheck.csproj" -o /src/published/HealthCheck
-RUN dotnet publish -c Release "./IngestHandler/IngestHandler.csproj" -o /src/published/IngestHandler
-RUN dotnet publish -c Release "./IngestTransformationHandler/IngestTransformationHandler.csproj" -o /src/published/IngestTransformationHandler
-RUN dotnet publish -c Release "./IngestValidationHandler/IngestValidationHandler.csproj" -o /src/published/IngestValidationHandler
+RUN sh /src/Core/DllVersioning.Core.sh . && \
+    dotnet publish -c Release "./HealthCheck/HealthCheck.csproj" -o /src/published/HealthCheck && \
+    dotnet publish -c Release "./IngestHandler/IngestHandler.csproj" -o /src/published/IngestHandler && \
+    dotnet publish -c Release "./IngestTransformationHandler/IngestTransformationHandler.csproj" -o /src/published/IngestTransformationHandler && \
+    dotnet publish -c Release "./IngestValidationHandler/IngestValidationHandler.csproj" -o /src/published/IngestValidationHandler
 
 
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
 # Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
-FROM mcr.microsoft.com/dotnet/core/runtime:3.1
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
 ARG USER_ID=1200
 ARG GROUP_ID=1200
 WORKDIR /opt
@@ -34,15 +33,20 @@ ENV CONCURRENT_CONSUMERS=1
 ENV API_LOG_DIR=/var/log/remote-tasks/
 
 COPY --chown=${USER_ID}:${GROUP_ID} --from=builder /src/published .
-###### deploy root CA ######
-COPY consul-root-certificate.crt /usr/local/share/ca-certificates/consul-root-certificate.crt
-RUN update-ca-certificates
-###### deploy root CA ######
 
-RUN groupadd -g ${GROUP_ID} ott-users && \
-    useradd -g ${GROUP_ID} -u ${USER_ID} kaltura -s /sbin/nologin && \
-    mkdir -p ${API_LOG_DIR} && chown -R ${USER_ID}:${GROUP_ID} ${API_LOG_DIR}
+## Do NOT Remove This
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+##
+
+###### deploy root CA + add user######
+COPY consul-root-certificate.crt /usr/local/share/ca-certificates/consul-root-certificate.crt
+RUN update-ca-certificates && \
+    addgroup -g ${GROUP_ID} -S ott-users && \
+    adduser -D -S -s /sbin/nologin -G ott-users kaltura -u ${USER_ID} && \
+    mkdir -p ${API_LOG_DIR} && chown -R ${USER_ID}:${GROUP_ID} ${API_LOG_DIR} && \
+    apk add --no-cache icu-libs
 USER kaltura
+###### deploy root CA ######
 
 ENTRYPOINT [ "sh", "-c", "dotnet ./${RUN_TASK}/${RUN_TASK}.dll" ]
 

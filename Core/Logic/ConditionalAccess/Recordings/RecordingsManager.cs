@@ -260,21 +260,31 @@ namespace Core.Recordings
 
         public Status DeleteRecording(int groupId, Recording slimRecording, bool isPrivateCopy, bool deleteEpgEvent, List<long> domainIds, int adapterId = 0)
         {
+            // spacial cases for privateCopy: 
+            // domainIds.count == 0, in case of cleanUp - no need notify adapter just delete from db.
+            // domainIds.count == 1 and id == 0, on ingest delete - need to notify adapter for all domains with program
+            // other cases domainIds contains real domains - need to notify adapter for all domains in list
+
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
-                List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId, isPrivateCopy);
-                bool isLastRecording = recordingsWithTheSameExternalId.Count == 1;
+                bool isLastRecording = false;
+                if (!isPrivateCopy)
+                {
+                    List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId, isPrivateCopy);
+                    isLastRecording = recordingsWithTheSameExternalId.Count == 1;
+                }
+
                 // if last recording then update ES and CB
-                if (isLastRecording || deleteEpgEvent)
+                if (isLastRecording || deleteEpgEvent || (isPrivateCopy && !domainIds.Any()))
                 {
                     UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
                     UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, true);
                 }
 
                 // if last recording or is private recording -> go to the adapter
-                if (isLastRecording || isPrivateCopy)
+                if (isLastRecording || (isPrivateCopy && domainIds.Any()))
                 {
                     if (adapterId == 0)
                     {
@@ -310,9 +320,9 @@ namespace Core.Recordings
                 }
 
                 // if last recording then update the DB
-                if (isLastRecording || (isPrivateCopy && !domainIds.Any()))
+                if (isLastRecording || (isPrivateCopy && (deleteEpgEvent || !domainIds.Any())))
                 {
-                    status = internalModifyRecording(groupId, slimRecording, slimRecording.EpgEndDate);
+                    status = internalModifyRecording(groupId, slimRecording, slimRecording.EpgEndDate, isLastRecording || deleteEpgEvent, isPrivateCopy ? -1 : 0);
                 }
                 else
                 {
@@ -625,11 +635,11 @@ namespace Core.Recordings
             return status;
         }
 
-        private static void EnqueueRecordingModificationEvent(int groupId, Recording recording, int oldRecordingLength)
+        private static void EnqueueRecordingModificationEvent(int groupId, Recording recording, int oldRecordingLength, int taskId = 0)
         {
             GenericCeleryQueue queue = new GenericCeleryQueue();
             DateTime utcNow = DateTime.UtcNow;
-            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, recording.Id, 0) { ETA = utcNow };
+            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, taskId, recording.Id, 0) { ETA = utcNow };
             bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
             if (!queueExpiredRecordingResult)
             {
@@ -1060,10 +1070,6 @@ namespace Core.Recordings
                 // Update recording after updating the status
                 ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
 
-                // Update all domains that have this recording
-                EnqueueRecordingModificationEvent(groupId, currentRecording, oldRecordingLength: 0);
-
-
                 try
                 {
                     EnqueueRecordingModificationEvent(groupId, currentRecording, oldRecordingLength: 0);
@@ -1251,18 +1257,22 @@ namespace Core.Recordings
             }
         }
 
-        private static Status internalModifyRecording(int groupId, Recording recording, DateTime epgEndDate)
+        private static Status internalModifyRecording(int groupId, Recording recording, DateTime epgEndDate, bool sendModificationEvent, int taskId)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // Update all domains that have this recording
-            try
+
+            if (sendModificationEvent)
             {
-                EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength: 0);
-            }
-            catch (Exception e)
-            {
-                log.Error($"Failed to queue ExpiredRecording task for CancelOrDeleteRecording, recordingId: {recording.Id}, groupId: {groupId}", e);
+                try
+                {
+                    EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength: 0, taskId);
+                }
+                catch (Exception e)
+                {
+                    log.Error($"Failed to queue ExpiredRecording task for CancelOrDeleteRecording, recordingId: {recording.Id}, groupId: {groupId}", e);
+                }
             }
 
             try
@@ -1293,6 +1303,52 @@ namespace Core.Recordings
             {
                 log.Error(string.Format("Error on internalExpireRecording, recordingID: {0}", recording.Id), ex);
                 status = new Status((int)eResponseStatus.Error, "Exception on CancelRecording or DeleteRecording on DB");
+            }
+
+            return status;
+        }
+
+        private Status NotifyAdapterForDelete(int groupId, Recording slimRecording, List<long> domainIds, int adapterId = 0)
+        {
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
+            {
+                // if last recording or is private recording -> go to the adapter
+
+                if (adapterId == 0)
+                {
+                    adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+                }
+
+                RecordResult adapterResponse = null;
+                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+                string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, slimRecording.ChannelId);
+
+                try
+                {
+                    //  recording in status scheduled/recording is canceled, otherwise we delete
+                    if (slimRecording.EpgEndDate > DateTime.UtcNow)
+                    {
+                        adapterResponse = adapterController.CancelRecording(groupId, slimRecording.EpgId.ToString(), externalChannelId, slimRecording.ExternalRecordingId, adapterId, domainIds.First());
+                    }
+                    else
+                    {
+                        adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.EpgId.ToString(), externalChannelId, slimRecording.ExternalRecordingId, adapterId, domainIds);
+                    }
+                }
+                catch (KalturaException ex)
+                {
+                    status = new Status((int)eResponseStatus.Error, string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
+                    return status;
+                }
+                catch (Exception ex)
+                {
+                    status = new Status((int)eResponseStatus.Error, "Adapter controller exception: " + ex.Message);
+                    return status;
+                }
+
+                status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
             return status;

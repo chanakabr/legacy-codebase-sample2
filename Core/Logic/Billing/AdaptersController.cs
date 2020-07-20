@@ -81,7 +81,7 @@ namespace Core.Billing
 
         public static PGWServiceClient GetPGWServiceClient(string adapterUrl)
         {
-            var behvaiour = PGWServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
+            var behvaiour = PGWServiceClient.EndpointConfiguration.BasicHttpBinding;
             var adapterClient = new PGWServiceClient(behvaiour, adapterUrl);
             adapterClient.ConfigureServiceClient();
             return adapterClient;
@@ -204,10 +204,11 @@ namespace Core.Billing
             try
             {
                 //call Adapter Transact
+                var adapterData = request.AdapterData?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray();
                 adapterResponse = _PGWAdapterClient.ProcessRenewalAsync(this.paymentGatewayId, request.siteGuid, request.productId.ToString(), request.productCode, request.ExternalTransactionId,
                                                                request.GracePeriodMinutes, request.price, request.currency, request.chargeId, request.paymentMethodExternalId, unixTimestamp,
-                                                               Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
-                                                            ).ExecuteAndWait();
+                                                               Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))),
+                                                            adapterData).ExecuteAndWait();
 
                 // log response
                 LogAdapterResponse(adapterResponse, "Renewal");
@@ -229,7 +230,7 @@ namespace Core.Billing
                     //call Adapter Transact - after it is configured
                     adapterResponse = _PGWAdapterClient.ProcessRenewalAsync(this.paymentGatewayId, request.siteGuid, request.productId.ToString(), request.productCode, request.ExternalTransactionId,
                                                                 request.GracePeriodMinutes, request.price, request.currency, request.chargeId, request.paymentMethodExternalId, unixTimestamp,
-                                                                Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
+                                                                Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))), adapterData
                                                            ).ExecuteAndWait();
 
                     // log response
@@ -310,9 +311,9 @@ namespace Core.Billing
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in transact: error = {1}, charge id = {0}",                   
+                log.ErrorFormat("Error in transact: error = {1}, charge id = {0}",
                     chargeId,
-                    ex);  
+                    ex);
             }
 
             return adapterResponse;
@@ -450,34 +451,37 @@ namespace Core.Billing
         private static void LogAdapterResponse(APILogic.PaymentGWAdapter.TransactionResponse adapterResponse, string action)
         {
             string logMessage = string.Empty;
+            var actionStr = action ?? string.Empty;
 
             if (adapterResponse == null)
             {
-                logMessage = string.Format("Payment Gateway Adapter {0} Result is null", action != null ? action : string.Empty);
+                logMessage = $"Payment Gateway Adapter {actionStr} Result is null";
             }
             else if (adapterResponse.Status == null)
             {
-                logMessage = string.Format("Payment Gateway Adapter {0} Result's status is null", action != null ? action : string.Empty);
-            }
-            else if (adapterResponse.Transaction == null)
-            {
-                logMessage = string.Format("Payment Gateway Adapter {0} Result Status: Message = {1}, Code = {2}",
-                                 action != null ? action : string.Empty,                                                                                                                // {0}
-                                 adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,   // {1}
-                                 adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1);                                                         // {2}
+                logMessage = $"Payment Gateway Adapter {actionStr} Result's status is null";
             }
             else
             {
-                logMessage = string.Format("Payment Gateway Adapter {0} Result Status: Message = {1}, Code = {2} Transaction: FailReasonCode = {3}, PGMessage = {4}, PGPayload = {5}, PGStatus = {6}, PGTransactionID = {7}, StateCode = {8}",
-                    action != null ? action : string.Empty,                                                                                                                                              // {0}
-                    adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,                                 // {1}
-                    adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1,                                                                                        // {2}
-                    adapterResponse != null && adapterResponse.Transaction != null ? adapterResponse.Transaction.FailReasonCode : -1,                                                                    // {3}
-                    adapterResponse != null && adapterResponse.Transaction != null && adapterResponse.Transaction.PGMessage != null ? adapterResponse.Transaction.PGMessage : string.Empty,              // {4}
-                    adapterResponse != null && adapterResponse.Transaction != null && adapterResponse.Transaction.PGPayload != null ? adapterResponse.Transaction.PGPayload : string.Empty,              // {5}
-                    adapterResponse != null && adapterResponse.Transaction != null && adapterResponse.Transaction.PGStatus != null ? adapterResponse.Transaction.PGStatus : string.Empty,                // {6}
-                    adapterResponse != null && adapterResponse.Transaction != null && adapterResponse.Transaction.PGTransactionID != null ? adapterResponse.Transaction.PGTransactionID : string.Empty,  // {7}
-                    adapterResponse != null && adapterResponse.Transaction != null ? adapterResponse.Transaction.StateCode : 0);                                                                         // {8}
+                var message = adapterResponse.Status.Message ?? string.Empty;
+
+                if (adapterResponse.Transaction == null)
+                {
+                    logMessage = $"Payment Gateway Adapter {actionStr} Result Status: Message = {message}, Code = {adapterResponse.Status.Code}";
+                }
+                else
+                {
+                    var pGMessage = adapterResponse.Transaction.PGMessage ?? string.Empty;
+                    var pGPayload = adapterResponse.Transaction.PGPayload ?? string.Empty;
+                    var pGStatus = adapterResponse.Transaction.PGStatus ?? string.Empty;
+                    var pGTransactionID = adapterResponse.Transaction.PGTransactionID ?? string.Empty;
+                    var stateCode = adapterResponse.Transaction.StateCode;
+                    var adapterData = adapterResponse.Transaction.AdapterData != null ? string.Join("; ", adapterResponse.Transaction.AdapterData.Select(x => $"key:{x.Key}, value:{x.Value}")) : string.Empty;
+
+                    logMessage = $"Payment Gateway Adapter {actionStr} Result Status: Message = {message}, Code = {adapterResponse.Status.Code} Transaction: FailReasonCode = {adapterResponse.Transaction.FailReasonCode}, " +
+                                 $" PGMessage = {pGMessage}, PGPayload = {pGPayload}, PGStatus = {pGStatus}, PGTransactionID = {pGTransactionID}, StateCode = {stateCode}, AdapterData={adapterData}.";
+                }
+
             }
 
             log.Debug(logMessage);
@@ -803,9 +807,10 @@ namespace Core.Billing
             {
                 _PGWAdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
             }
-                       
+
             List<TransactionProductDetails> renewSubscription = new List<TransactionProductDetails>();
-            renewSubscription = request.renewRequests.Select(x => new TransactionProductDetails() {
+            renewSubscription = request.renewRequests.Select(x => new TransactionProductDetails()
+            {
                 gracePeriodMinutes = x.GracePeriodMinutes,
                 price = x.price,
                 productCode = x.productCode,
@@ -820,15 +825,16 @@ namespace Core.Billing
             //set signature           
 
             string signature = string.Concat(this.paymentGatewayId, request.householdId, request.totalPrice, request.currency, request.chargeId, unixTimestamp, request.paymentMethodExternalId);
-            
+
 
             try
             {
+                var adapterData = request.AdapterData?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray();
                 //call Adapter Transact
-                adapterResponse = _PGWAdapterClient.UnifiedProcessRenewalAsync(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId,
-                    request.currency, request.totalPrice, renewSubscription.ToArray(), unixTimestamp,
-                    Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                    ).ExecuteAndWait();                
+                adapterResponse = _PGWAdapterClient.UnifiedProcessRenewalAsync(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId, request.currency,
+                                                                               request.totalPrice, renewSubscription.ToArray(), unixTimestamp, Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret,
+                                                                               EncryptUtils.HashSHA1(signature))), adapterData)
+                                                   .ExecuteAndWait();
 
                 // log response
                 LogAdapterResponse(adapterResponse, "Renewal");
@@ -849,7 +855,7 @@ namespace Core.Billing
                     //call Adapter Transact - after it is configured
                     adapterResponse = _PGWAdapterClient.UnifiedProcessRenewalAsync(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId,
                         request.currency, request.totalPrice, renewSubscription.ToArray(), unixTimestamp,
-                        Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature))), adapterData
                         ).ExecuteAndWait();
 
                     // log response

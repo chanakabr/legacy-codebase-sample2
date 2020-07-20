@@ -215,6 +215,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("Failed UpsertProgram index for epg ExternalId: {0}, groupId: {1} after AddEpgAsset", epgAssetToAdd.EpgIdentifier, groupId);
                 }
 
+                SendActionEvent(groupId, newEpgId, eAction.On);
                 result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
             }
             catch (Exception ex)
@@ -344,7 +345,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", epgAssetToUpdate.Id, groupId);
                 }
 
-                SendActionEvent(groupId, new long[] { oldEpgAsset.Id }, eAction.Update);
+                SendActionEvent(groupId, oldEpgAsset.Id, eAction.Update);
 
                 // get updated epgAsset
                 result = AssetManager.GetAsset(groupId, epgAssetToUpdate.Id, eAssetTypes.EPG, true);
@@ -396,9 +397,9 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("Failed to DeleteEpgCB for epgId: {0}", epgId);
                 }
-
-                SendActionEvent(groupId, new long[] { epgId }, eAction.Delete);
             }
+
+            SendActionEvent(groupId, epgId, eAction.Delete);
 
             // Delete Index
             bool indexingResult = IndexManager.DeleteProgram(groupId, new List<long>() { epgId }, epgCbList.Select(x => x.ChannelID.ToString()));
@@ -410,17 +411,16 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        internal static void SendActionEvent(int groupId, long[] epgIds, eAction action)
+        internal static void SendActionEvent(int groupId, long epgId, eAction action)
         {
-            if (epgIds == null || epgIds.Count() == 0)
-                return;
-
-            var epgsString = epgIds.Count() > 1 ? string.Join(", ", epgIds) : epgIds.FirstOrDefault().ToString();
-            log.Debug($"calling ConditionalAccess.IngestRecording: action: [{action.ToString()}], epg: [{epgsString}]");
-            
+            log.DebugFormat("Calling IngestRecording for groupId: {0}, epgId: {1}, action: {2}", groupId, epgId, action);
+            KlogMonitorHelper.ContextData contextData = new KlogMonitorHelper.ContextData();
             Task.Factory.StartNew(() =>
             {
-                ConditionalAccess.Module.IngestRecording(groupId, epgIds, action);
+                contextData.Load();
+                Status IngestRecordingStatus = Core.ConditionalAccess.Module.IngestRecording(groupId, new long[1] { epgId }, action);
+                log.DebugFormat("IngestRecording result for groupId: {0}, epgId: {1}, action: {2} is: {3}",
+                                groupId, epgId, action, IngestRecordingStatus != null ? IngestRecordingStatus.Message : string.Empty);
             });
         }
 
@@ -1634,8 +1634,6 @@ namespace Core.Catalog.CatalogManagement
                 log.Error(string.Format("Exception at RemoveTopicsFromProgramEpgCB for epgId: {0}.", epgCB.EpgID), exc);
             }
         }
-
-
 
         internal static void UpdateProgramAssetPictures(int groupId, Image image)
         {

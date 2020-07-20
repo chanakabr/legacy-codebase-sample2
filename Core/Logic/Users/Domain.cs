@@ -678,7 +678,8 @@ namespace Core.Users
                             ActivatedOn = DateTime.UtcNow,
                             GroupId = m_nGroupID,
                             DeviceFamilyId = device.m_deviceFamilyID,
-                            ExternalId = device.ExternalId
+                            ExternalId = device.ExternalId,
+                            MacAddress = device.MacAddress
                         };
 
                         bool updated = domainDevice.Update();
@@ -688,7 +689,7 @@ namespace Core.Users
                             bRemove = true;
                             device.m_domainID = nDomainID;
                             device.m_state = DeviceState.Activated;
-                            int deviceID = device.Save(1, 1, tempDeviceID, device.ExternalId);
+                            int deviceID = device.Save(1, 1, tempDeviceID, device.MacAddress, device.ExternalId);
                             GetDeviceList();
 
                             return eRetVal;
@@ -721,7 +722,7 @@ namespace Core.Users
             {
                 // Get row id from devices table (not udid)
                 device.m_domainID = nDomainID;
-                int deviceID = device.Save(1, 1, null, device.ExternalId);
+                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId);
                 DomainDevice domainDevice = new DomainDevice()
                 {
                     Id = nDbDomainDeviceID,
@@ -734,7 +735,8 @@ namespace Core.Users
                     GroupId = m_nGroupID,
                     Name = deviceName,
                     DeviceFamilyId = device.m_deviceFamilyID,
-                    ExternalId = device.ExternalId
+                    ExternalId = device.ExternalId,
+                    MacAddress = device.MacAddress
                 };
 
                 bool domainDeviceInsertSuccess = domainDevice.Insert();
@@ -1584,7 +1586,7 @@ namespace Core.Users
             if (dtLastActionDate == null || dtLastActionDate.Equals(Utils.FICTIVE_DATE) || dtLastActionDate.Equals(DateTime.MinValue) || nDeviceFrequencyLimit == 0)
                 m_oLimitationsManager.NextActionFreqDate = DateTime.MinValue;
             else
-                m_oLimitationsManager.NextActionFreqDate = Utils.GetEndDateTime(dtLastActionDate, nDeviceFrequencyLimit);
+                m_oLimitationsManager.NextActionFreqDate = Core.ConditionalAccess.Utils.GetEndDateTime(dtLastActionDate, nDeviceFrequencyLimit);
         }
 
         protected internal void DeviceFamiliesInitializer(int nDomainLimitationModuleID, int nGroupID)
@@ -1875,7 +1877,7 @@ namespace Core.Users
 
                     if (m_minPeriodId != 0)
                     {
-                        m_NextActionFreq = Utils.GetEndDateTime(dDeviceFrequencyLastAction, m_minPeriodId);
+                        m_NextActionFreq = Core.ConditionalAccess.Utils.GetEndDateTime(dDeviceFrequencyLastAction, m_minPeriodId);
                     }
 
                     long npvrQuotaInSecs = 0;
@@ -1883,7 +1885,7 @@ namespace Core.Users
 
                     if (m_minUserPeriodId != 0)
                     {
-                        m_NextUserActionFreq = Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
+                        m_NextUserActionFreq = Core.ConditionalAccess.Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
                     }
                 }
             }
@@ -1909,6 +1911,7 @@ namespace Core.Users
                 DeviceState eState = DeviceState.UnKnown;
                 int nDeviceID = 0;
                 string externalId = string.Empty;
+                string macAddress = string.Empty;
 
                 Dictionary<string, int> domainDevices = new Dictionary<string, int>();
 
@@ -1925,6 +1928,7 @@ namespace Core.Users
                     dtActivationDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["last_activation_date"]);
                     nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["device_id"]);
                     externalId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "external_id");
+                    macAddress = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "mac_address");
 
                     Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, sDeviceName, m_nDomainID, nDeviceID, nDeviceFamilyID, string.Empty, sPin,
                         dtActivationDate, eState);
@@ -1932,6 +1936,11 @@ namespace Core.Users
                     if (!string.IsNullOrEmpty(externalId))
                     {
                         device.ExternalId = externalId;
+                    }
+
+                    if (!string.IsNullOrEmpty(macAddress))
+                    {
+                        device.MacAddress = macAddress;
                     }
 
                     if (AddDeviceToContainer(device))
@@ -2228,7 +2237,7 @@ namespace Core.Users
 
             // Get row id from devices table (not udid)
             device.m_domainID = this.m_nDomainID;
-            deviceID = device.Save(0, 3, null, device.ExternalId);
+            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId);
             bRemoveDomain = true;
 
             string sActivationToken = Guid.NewGuid().ToString();
@@ -3092,6 +3101,16 @@ namespace Core.Users
                     {
                         removeResponse = DomainResponseStatus.Error;
                         log.Error("Error - " + string.Format("Remove. NPVR Provider is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
+                    }
+                }
+                else
+                {
+                    var accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                    if (accountSettings != null && accountSettings.IsCdvrEnabled.HasValue && accountSettings.IsCdvrEnabled.Value)
+                    {
+                        var queue = new QueueWrapper.GenericCeleryQueue();
+                        ApiObjects.QueueObjects.UserTaskData message = new ApiObjects.QueueObjects.UserTaskData(m_nGroupID, UserTaskType.DeleteDomain, string.Empty, m_nDomainID);
+                        queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, m_nGroupID));
                     }
                 }
             }

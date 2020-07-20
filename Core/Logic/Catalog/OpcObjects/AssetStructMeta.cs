@@ -17,6 +17,7 @@ namespace Core.Catalog
         public long CreateDate { get; set; }
         public long UpdateDate { get; set; }        
         public bool? IsInherited { get; set; }
+        public bool? IsLocationTag { get; set; }
 
         public AssetStructMeta()
         {
@@ -26,7 +27,8 @@ namespace Core.Catalog
             this.ProtectFromIngest = null;
             this.DefaultIngestValue = string.Empty;
             this.CreateDate = 0;
-            this.UpdateDate = 0;         
+            this.UpdateDate = 0;
+            this.IsLocationTag = false;
         }
         
         public override string ToString()
@@ -38,7 +40,8 @@ namespace Core.Catalog
             sb.AppendFormat("DefaultIngestValue: {0}, ", DefaultIngestValue);
             sb.AppendFormat("CreateDate: {0} ", CreateDate);
             sb.AppendFormat("UpdateDate: {0} ", UpdateDate);            
-            sb.AppendFormat("IsInherited: {0} ", IsInherited);            
+            sb.AppendFormat("IsInherited: {0} ", IsInherited);
+            sb.AppendFormat("IsLocationTag: {0} ", IsLocationTag);
             return sb.ToString();
         }
     }   

@@ -128,7 +128,6 @@ namespace WebAPI.Models.Billing
         [XmlElement(ElementName = "externalVerification")]
         public bool ExternalVerification { get; set; }
 
-
         internal int getId()
         {
             return Id.HasValue ? (int)Id : 0;

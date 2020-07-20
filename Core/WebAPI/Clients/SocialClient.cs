@@ -638,7 +638,7 @@ namespace WebAPI.Clients
             
 
             eSocialPlatform wsPlatform = SocialMappings.ConvertSocialPlatform(socialPlatform);
-            eAssetType wsAssetType = SocialMappings.ConvertAssetType(assetType);
+            eAssetType wsAssetType = AutoMapper.Mapper.Map<eAssetType>(assetType);
             SocialFeedOrderBy wsOrderBy = SocialMappings.ConvertSocialFeedOrderBy(orderBy);
 
             try
@@ -698,7 +698,7 @@ namespace WebAPI.Clients
                 {
                     // change status to Status - first in social ws 
                     request.m_sSiteGuid = userId;
-                    request.m_eAssetType = SocialMappings.ConvertAssetType(assetType);
+                    request.m_eAssetType = AutoMapper.Mapper.Map<eAssetType>(assetType);
                     request.m_lAssetIDs = assets;
                     request.UserActions = new List<eUserAction>();
                     if (actionTypes != null && actionTypes.Count > 0)

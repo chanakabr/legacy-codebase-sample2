@@ -8,7 +8,9 @@ using ConfigurationManager.Types;
 using KLogMonitor;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace ApiLogic
@@ -24,6 +26,7 @@ namespace ApiLogic
         protected abstract GenericResponse<string> GetSubDir(long id, string typeName);
         protected abstract string GetUrl(string subDir, string fileName);
         protected abstract Status Delete(string fileURL);
+        protected virtual Status ValidateFileContent(FileInfo file, string filePath) { return Status.Ok; }
 
         public bool ShouldDeleteSourceFile { get; protected set; }
         private const string KALTURA = "Kaltura";
@@ -54,7 +57,7 @@ namespace ApiLogic
 
         private static FileHandler GetFileHandlerImpl()
         {
-            
+
             switch (ApplicationConfiguration.Current.FileUpload.Type.Value)
             {
                 case eFileUploadType.FileSystem:
@@ -71,12 +74,19 @@ namespace ApiLogic
             return Delete(fileUrl);
         }
 
-
         public GenericResponse<string> SaveFile(long id, OTTFile file, string objectTypeName)
         {
-            GenericResponse<string> saveFileResponse = new GenericResponse<string>();
+            var saveFileResponse = new GenericResponse<string>();
+            if (file == null)
+            {
+                log.Error($"OTTFile is null and can't be used");
+                saveFileResponse.SetStatus(eResponseStatus.Error);
+                return saveFileResponse;
+            }
+
             var fileInfo = new FileInfo(file.Path);
             var validationResponse = Validate(objectTypeName, fileInfo);
+
             if (validationResponse.HasObject())
             {
                 saveFileResponse = GetSubDir(id, validationResponse.Object);
@@ -98,6 +108,7 @@ namespace ApiLogic
             GenericResponse<string> saveFileResponse = new GenericResponse<string>();
             var fileInfo = new FileInfo(file.Path);
             var validationResponse = Validate(objectTypeName, fileInfo);
+
             if (validationResponse.HasObject())
             {
                 saveFileResponse = GetSubDir(id, validationResponse.Object);
@@ -117,8 +128,8 @@ namespace ApiLogic
         public GenericResponse<string> SaveFile(string id, OTTStreamFile file, string objectTypeName)
         {
             GenericResponse<string> saveFileResponse = new GenericResponse<string>();
-            
-            var validationResponse  = GetFileObjectTypeName(objectTypeName);            
+
+            var validationResponse = GetFileObjectTypeName(objectTypeName);
             if (validationResponse.HasObject())
             {
                 saveFileResponse = GetSubDir(id, validationResponse.Object);
@@ -171,6 +182,12 @@ namespace ApiLogic
             }
 
             validationStatus = GetFileObjectTypeName(objectTypeName);
+
+            if (validationStatus.IsOkStatusCode())
+            {
+                validationStatus.SetStatus(ValidateFileContent(fileInfo, fileInfo.FullName));
+            }
+
             return validationStatus;
         }
 
@@ -207,7 +224,12 @@ namespace ApiLogic
         public int NumberOfRetries { get; private set; }
         public string Region { get; private set; }
         public string BucketName { get; private set; }
-        public string Path { get; private set; }       
+        public string Path { get; private set; }
+
+        private const int m = 1024 * 1024;//Byte to Mb
+        private const int _maxFileSize = 15; //Max upload file size : 15MB
+        private static List<string> _fileExtensions = new List<string> { "jpeg", "jpg", "png", "tif", "gif", "xls", "xlsx", "csv", "xslm" }
+                .Select(x => x.Replace(".", string.Empty)).ToList();//Supported file types
 
         protected override void Initialize()
         {
@@ -320,6 +342,43 @@ namespace ApiLogic
             return string.Format("{0}_{1}", subDir, fileName);
         }
 
+        protected override Status ValidateFileContent(FileInfo file, string filePath)
+        {
+            var status = Status.Ok;
+            try
+            {
+                if (file.Length > _maxFileSize * m)//check size in bytes
+                {
+                    log.Debug($"Failed file size validation, file size: {file.Length * m} mb");
+                    status.Set(eResponseStatus.FileExceededMaxSize, "File Exceeded Max Size");
+                    return status;
+                }
+                var fileArray = File.ReadAllBytes(filePath);
+                var fileMime = MimeTypeManager.GetMimeType(fileArray, file.Name);
+                var matchingExtension = MimeTypeManager.GetMimeByExtention(file.Extension);
+
+                if (!_fileExtensions.Contains(file.Extension.Replace(".", string.Empty)))
+                {
+                    log.Debug($"Failed file extension validation, file extension: {file.Extension}");
+                    status.Set(eResponseStatus.FileExtensionNotSupported, "File Extension Not Supported");
+                    return status;
+                }
+                else if (string.IsNullOrEmpty(fileMime) || string.IsNullOrEmpty(matchingExtension) || matchingExtension.ToLower() != fileMime.ToLower())
+                {
+                    log.Debug($"Failed file mime/content-type validation, expected: {matchingExtension}, actual: {fileMime}");
+                    status.Set(eResponseStatus.FileMimeDifferentThanExpected, "File Mime Different Than Expected");
+                    return status;
+                }
+                return status;
+            }
+            catch (FileNotFoundException ex)
+            {
+                log.Error($"File not found: {ex}");
+                status.Set(eResponseStatus.FileDoesNotExists, "File Does Not Exists");
+                return status;
+            }
+        }
+
         protected override GenericResponse<string> Save(string fileName, OTTStreamFile file, string subDir)
         {
             GenericResponse<string> saveResponse = new GenericResponse<string>();
@@ -332,7 +391,7 @@ namespace ApiLogic
                         var filePath = GetRelativeFilePath(subDir, fileName);
                         using (var fileTransferUtility = new TransferUtility(client))
                         {
-                            using (var f=file.GetFileStream())
+                            using (var f = file.GetFileStream())
                             {
                                 var fileTransferUtilityRequest = new TransferUtilityUploadRequest
                                 {
@@ -487,10 +546,10 @@ namespace ApiLogic
             }
 
             try
-            {                
+            {
                 using (Stream tempFile = File.Create(destPath))
                 {
-                    file.GetFileStream().CopyTo(tempFile);                    
+                    file.GetFileStream().CopyTo(tempFile);
                 }
             }
             catch (Exception ex)

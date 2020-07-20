@@ -658,7 +658,7 @@ namespace Core.ConditionalAccess
         }
 
         // find in process defined to old payment and change it to new - also change in subscription purchases
-        internal static void HandleUnifiedBillingCycle(int groupId, long domainId, int paymentGatewayId, DateTime endDate, int purchaseID, long oldUnifiedProcessId)
+        internal static void HandleUnifiedBillingCycle(int groupId, long domainId, int paymentGatewayId, DateTime endDate, int purchaseID, long oldUnifiedProcessId, long cycle)
         {
             try
             {
@@ -666,7 +666,7 @@ namespace Core.ConditionalAccess
                 long processId = 0;
                 int state = 0;
                 ProcessUnifiedState processState = ProcessUnifiedState.Renew;
-                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGatewayId, endDate, domainId);
+                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGatewayId, endDate, domainId, cycle, null);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
@@ -684,7 +684,7 @@ namespace Core.ConditionalAccess
                         processState = (ProcessUnifiedState)state;
                     }
                     // create new process Id 
-                    processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, endDate, domainId, (int)processState);
+                    processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, endDate, domainId, cycle, (int)processState);
 
                     // insert new message to queue
 
@@ -1273,30 +1273,29 @@ namespace Core.ConditionalAccess
                                                         string countryCode, string languageCode, string udid)
         {
             string ip = string.Empty;
-            UnifiedBillingCycle unifiedBillingCycle = null;
+            SubscriptionCycle subscriptionCycle = null;
             double couponRemainder = 0;
 
             return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref subscription, countryCode, languageCode, udid, ip,
-                                             ref unifiedBillingCycle, out couponRemainder);
+                                             ref subscriptionCycle, out couponRemainder);
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription subscription,
                                                         string countryCode, string languageCode, string udid, string ip, string currencyCode = null, bool isSubscriptionSetModifySubscription = false)
         {
-            UnifiedBillingCycle unifiedBillingCycle = null;
+            SubscriptionCycle subscriptionCycle = null;
             double couponRemainder = 0;
-            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref subscription, countryCode, languageCode, udid, ip, ref unifiedBillingCycle,
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref subscription, countryCode, languageCode, udid, ip, ref subscriptionCycle,
                                             out couponRemainder, currencyCode, isSubscriptionSetModifySubscription);
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, ref string couponCode, ref PriceReason theReason, ref Subscription subscription,
-                                                        string countryCode, string languageCode, string udid, string ip, ref UnifiedBillingCycle unifiedBillingCycle,
+                                                        string countryCode, string languageCode, string udid, string ip, ref SubscriptionCycle subscriptionCycle,
                                                         out double couponRemainder, string currencyCode = null, bool isSubscriptionSetModifySubscription = false,
                                                         BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
             //create web service pricing insatance
             Price finalPrice = null;
-            unifiedBillingCycle = null;
             couponRemainder = 0;
 
             try
@@ -1385,19 +1384,7 @@ namespace Core.ConditionalAccess
                     if (!isSubscriptionSetModifySubscription && subscription.m_oPreviewModule != null &&
                         IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref finalPrice, ref theReason, domainId))
                     {
-                        long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
-                        if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
-                        {
-                            //chcek that subscription contain this group billing cycle and subscription is renew                                             
-                            if (subscription != null && subscription.m_bIsRecurring && !subscription.PreSaleDate.HasValue
-                                && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
-                                && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
-                            {
-                                //get key from CB household_renewBillingCyclepublic class Subscription : PPVModule
-                                unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainId, groupUnifiedBillingCycle.Value);
-                            }
-                        }
-
+                        subscriptionCycle = CalcSubscriptionCycle(groupId, subscription, domainId);
                         return finalPrice;
                     }
 
@@ -1414,7 +1401,7 @@ namespace Core.ConditionalAccess
                     if (finalPrice != null && originalPrice != null)
                     {
                         var finalPriceAndCouponRemainder =
-                            CalcPriceAndCouponRemainderByUnifiedBillingCycle(originalPrice.m_dPrice, couponCode, finalPrice.m_dPrice, ref unifiedBillingCycle,
+                            CalcPriceAndCouponRemainderByUnifiedBillingCycle(originalPrice.m_dPrice, couponCode, finalPrice.m_dPrice, ref subscriptionCycle,
                                                                              groupId, subscription, false, domainId);
                         finalPrice.m_dPrice = finalPriceAndCouponRemainder.Item1;
                         couponRemainder = finalPriceAndCouponRemainder.Item2;
@@ -1428,6 +1415,59 @@ namespace Core.ConditionalAccess
             }
 
             return finalPrice;
+        }
+        
+        private static SubscriptionCycle CalcSubscriptionCycle(int groupId, Subscription subscription, int domainId)
+        {
+            var subscriptionCycle = new SubscriptionCycle();
+            
+            //chcek that subscription contain this group billing cycle and subscription is renew                                             
+            if (subscription != null && subscription.m_bIsRecurring && !subscription.PreSaleDate.HasValue && 
+              subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/)
+            {
+                var maxUsageModuleLifeCycle = (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle;
+                subscriptionCycle = GetSubscriptionCycle(groupId, domainId, maxUsageModuleLifeCycle);
+            }
+
+            return subscriptionCycle;
+        }
+
+        public static SubscriptionCycle GetSubscriptionCycle(int groupId, int domainId, long maxUsageModuleLifeCycle)
+        {
+            var subscriptionCycle = new SubscriptionCycle();
+            subscriptionCycle.SubscriptionLifeCycle = new Duration(maxUsageModuleLifeCycle);
+
+            var paymentConfigurationResponse = PartnerConfigurationManager.GetPaymentConfig(groupId);
+            PaymentPartnerConfig paymentConfig = null;
+            if (paymentConfigurationResponse.HasObject() && paymentConfigurationResponse.Object.UnifiedBillingCycles != null)
+            {
+                paymentConfig = paymentConfigurationResponse.Object;
+                var unifiedBillingCycleObj = paymentConfig.UnifiedBillingCycles
+                     .FirstOrDefault(x => x.Duration.Value == subscriptionCycle.SubscriptionLifeCycle.Value && x.Duration.Unit == subscriptionCycle.SubscriptionLifeCycle.Unit);
+
+                if (unifiedBillingCycleObj != null)
+                {
+                    //get key from CB household_renewBillingCyclepublic class Subscription : PPVModule
+                    subscriptionCycle.HasCycle = true;
+                    subscriptionCycle.PaymentGatewayId = unifiedBillingCycleObj.PaymentGatewayId ?? 0;
+                }
+            }
+
+            if (!subscriptionCycle.HasCycle)
+            {
+                long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
+                if (groupUnifiedBillingCycle.HasValue && maxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
+                {
+                    subscriptionCycle.HasCycle = true;
+                }
+            }
+
+            if (subscriptionCycle.HasCycle)
+            {
+                subscriptionCycle.UnifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainId, maxUsageModuleLifeCycle);
+            }
+
+            return subscriptionCycle;
         }
 
         /// <summary>
@@ -1443,7 +1483,7 @@ namespace Core.ConditionalAccess
         /// <param name="domainId"></param>
         /// <returns>item1 = priceAfterUnified, item2 = couponRemainder</returns>
         internal static Tuple<double, double> CalcPriceAndCouponRemainderByUnifiedBillingCycle(double originalPrice, string couponCode, double finalPrice,
-            ref UnifiedBillingCycle unifiedBillingCycle, int groupId, Subscription subscription, bool isFirstTimePreviewModuleEnd, int domainId)
+            ref SubscriptionCycle subscriptionCycle, int groupId, Subscription subscription, bool isFirstTimePreviewModuleEnd, int domainId)
         {
             log.DebugFormat("CalcPriceAndCouponRemainderByUnifiedBillingCycle - {0}, original Price:{1}, price after discount and coupon:{2}.",
                             subscription != null ? subscription.ToString() : "Subscription:null", originalPrice, finalPrice);
@@ -1461,49 +1501,58 @@ namespace Core.ConditionalAccess
             }
 
             double priceAfterUnified = priceBeforeUnified;
-
-            long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
-            if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
+            if (subscriptionCycle == null || subscriptionCycle.UnifiedBillingCycle == null)
             {
-                if (unifiedBillingCycle == null)
+                subscriptionCycle = CalcSubscriptionCycle(groupId, subscription, domainId);
+            }
+
+            // check that end date between next end date and unified billing cycle end date are different
+            if (subscriptionCycle.HasCycle && subscriptionCycle.UnifiedBillingCycle != null && subscriptionCycle.UnifiedBillingCycle.endDate > DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
+            {
+                DateTime nextRenew = Utils.GetEndDateTime(subscriptionCycle.SubscriptionLifeCycle, DateTime.UtcNow);
+                int numOfUnitsByBillingCycle = 1;
+                int numOfUnitsForSubscription = 1;
+
+                bool dayCycle = subscriptionCycle.SubscriptionLifeCycle.Unit == DurationUnit.Days && subscriptionCycle.SubscriptionLifeCycle.Value <= 1;
+
+                if (dayCycle)
                 {
-                    //chcek that subscription contain this group billing cycle and subscription is renew                                             
-                    if (subscription != null && subscription.m_bIsRecurring
-                        && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
-                        && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
-                    {
-                        //get key from CB household_renewBillingCycle
-                        unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainId, groupUnifiedBillingCycle.Value);
-                    }
+                    numOfUnitsForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalHours);
+                    numOfUnitsByBillingCycle = (int)Math.Ceiling((DateUtils.UtcUnixTimestampMillisecondsToDateTime(subscriptionCycle.UnifiedBillingCycle.endDate) - DateTime.UtcNow).TotalHours);
+                }
+                else
+                {
+                    numOfUnitsForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
+                    numOfUnitsByBillingCycle = (int)Math.Ceiling((DateUtils.UtcUnixTimestampMillisecondsToDateTime(subscriptionCycle.UnifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
                 }
 
-                // check that end date between next end date and unified billing cycle end date are different
-                if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
+                priceAfterUnified = Math.Round(numOfUnitsByBillingCycle * (priceBeforeUnified / numOfUnitsForSubscription), 2);
+
+                // check if need to calc couponRemainder by PreviewModule
+                if (isFirstTimePreviewModuleEnd && subscription != null && subscription.m_oPreviewModule != null)
                 {
-                    DateTime nextRenew = Billing.Utils.GetEndDateTime(DateTime.UtcNow, (int)groupUnifiedBillingCycle.Value);
-                    int numOfDaysForSubscription = (int)Math.Ceiling((nextRenew - DateTime.UtcNow).TotalDays);
-                    int numOfDaysByBillingCycle = (int)Math.Ceiling((DateUtils.UtcUnixTimestampMillisecondsToDateTime(unifiedBillingCycle.endDate) - DateTime.UtcNow).TotalDays);
-
-                    priceAfterUnified = Math.Round(numOfDaysByBillingCycle * (priceBeforeUnified / numOfDaysForSubscription), 2);
-
-                    // check if need to calc couponRemainder by PreviewModule
-                    if (isFirstTimePreviewModuleEnd && subscription != null && subscription.m_oPreviewModule != null)
+                    var totalRemainUnits = numOfUnitsForSubscription - numOfUnitsByBillingCycle;
+                    if (totalRemainUnits > 0)
                     {
-                        var totalRemainDays = numOfDaysForSubscription - numOfDaysByBillingCycle;
-                        if (totalRemainDays > 0)
+                        var previewDuration = new Duration(subscription.m_oPreviewModule.m_tsFullLifeCycle);
+                        bool dayPreviewCycle = previewDuration.Unit == DurationUnit.Days && previewDuration.Value <= 1;
+                        int unitsWithPreviewModel = 24;
+                        if (!dayPreviewCycle)
                         {
-                            var daysWithPreviewModel = subscription.m_oPreviewModule.m_tsNonRenewPeriod / 60 / 24;
-                            couponRemainder = Math.Round((priceBeforeUnified - priceAfterUnified) / totalRemainDays * daysWithPreviewModel, 2);
+                            // days
+                            unitsWithPreviewModel = subscription.m_oPreviewModule.m_tsFullLifeCycle / 60 / 24;
                         }
-                    }
-                    else
-                    {
-                        couponRemainder = priceBeforeUnified - priceAfterUnified;
-                    }
 
-                    log.DebugFormat("CalcPriceAndCouponRemainderByUnifiedBillingCycle - [nextRenewDate:{0}, numOfDaysForSubscription:{1}], [unifiedBillingCycle.endDate:{2}, numOfDaysByBillingCycle:{3}]",
-                                    nextRenew.ToLongDateString(), numOfDaysForSubscription, unifiedBillingCycle.endDate, numOfDaysByBillingCycle);
+                        couponRemainder = Math.Round((priceBeforeUnified - priceAfterUnified) / totalRemainUnits * unitsWithPreviewModel, 2);
+                    }
                 }
+                else
+                {
+                    couponRemainder = priceBeforeUnified - priceAfterUnified;
+                }
+
+                //log.Debug($"CalcPriceAndCouponRemainderByUnifiedBillingCycle - [nextRenewDate:{nextRenew.ToLongDateString()}, numOfDaysForSubscription:{numOfDaysForSubscription}]," +
+                //          $"[unifiedBillingCycle.endDate:{subscriptionCycle.UnifiedBillingCycle.endDate}, numOfDaysByBillingCycle:{numOfDaysByBillingCycle}]");
             }
 
             if (fullCouponDiscount)
@@ -1511,7 +1560,7 @@ namespace Core.ConditionalAccess
                 priceAfterUnified = finalPrice; // set to 0 because full Coupon Discount
             }
 
-            log.DebugFormat("CalcPriceAndCouponRemainderByUnifiedBillingCycle - price after unified:{0}, coupon remainder:{1}", priceAfterUnified, couponRemainder);
+            log.Debug($"CalcPriceAndCouponRemainderByUnifiedBillingCycle - price after unified:{priceAfterUnified}, coupon remainder:{couponRemainder}");
             return new Tuple<double, double>(priceAfterUnified, couponRemainder);
         }
 
@@ -1685,7 +1734,7 @@ namespace Core.ConditionalAccess
         }
 
         internal static void GetMultiSubscriptionUsageModule(List<RenewDetails> rsDetails, string userIp, Dictionary<long, Subscription> subscriptions, BaseConditionalAccess cas,
-                                                             ref UnifiedBillingCycle unifiedBillingCycle, int householdId, int groupId, bool isRenew = true)
+                                                             ref SubscriptionCycle subscriptionCycle, int householdId, int groupId, bool isRenew = true)
         {
             try
             {
@@ -1701,8 +1750,7 @@ namespace Core.ConditionalAccess
                     var subscription = subscriptions[rsDetail.ProductId];
                     rsDetail.DomainId = householdId;
                     rsDetail.GroupId = groupId;
-
-                    if (!cas.GetMultiSubscriptionUsageModule(rsDetail, userIp, ref recPeriods, ref isMPPRecurringInfinitely, subscription, ref unifiedBillingCycle, groupId, true, isRenew))
+                    if (!cas.GetMultiSubscriptionUsageModule(rsDetail, userIp, ref recPeriods, ref isMPPRecurringInfinitely, subscription, ref subscriptionCycle, groupId, true, isRenew))
                     {
                         // "Error while trying to get Price plan
                         log.ErrorFormat("Error while trying to get Price plan to renew productId : {0}, purchaseId : {1}, householdId : {2}", rsDetail.ProductId, rsDetail.PurchaseId, householdId);
@@ -1744,13 +1792,13 @@ namespace Core.ConditionalAccess
             return unifiedBillingCycle;
         }
 
-        internal static long GetUnifiedProcessId(int groupId, int paymentGatewayId, DateTime endDate, long householdId, out bool isNew, ProcessUnifiedState processPurchasesState = ProcessUnifiedState.Renew)
+        internal static long GetUnifiedProcessId(int groupId, int paymentGatewayId, DateTime endDate, long householdId, long cycle, out bool isNew, ProcessUnifiedState processPurchasesState = ProcessUnifiedState.Renew)
         {
             long processId = 0;
             isNew = false;
             try
             {
-                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGatewayId, endDate, householdId, (int)processPurchasesState);
+                DataTable dt = ConditionalAccessDAL.GetUnifiedProcessId(groupId, paymentGatewayId, endDate, householdId, cycle, (int)processPurchasesState);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     processId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "id");
@@ -1759,7 +1807,7 @@ namespace Core.ConditionalAccess
                 if (processId == 0)
                 {
                     // insert new one to DB 
-                    processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, endDate, householdId, (int)processPurchasesState);
+                    processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, endDate, householdId, cycle, (int)processPurchasesState);
                     if (processId > 0)
                     {
                         isNew = true;
@@ -1977,53 +2025,43 @@ namespace Core.ConditionalAccess
             return GetMediaIDFromFileID(nMediaFileID, nGroupID);
         }
 
-        static public DateTime GetEndDateTime(DateTime dBase, Int32 nVal, bool bIsAddLifeCycle, bool includeMillisecond = false)
+        static public DateTime GetEndDateTime(DateTime dBase, long value, bool bIsAddLifeCycle = true, bool includeMillisecond = false)
+        {
+            var duration = new Duration(value);
+            return GetEndDateTime(duration, dBase, bIsAddLifeCycle, includeMillisecond);
+        }
+
+        static public DateTime GetEndDateTime(Duration duration, DateTime dBase, bool bIsAddLifeCycle = true, bool includeMillisecond = false)
         {
             int mulFactor = bIsAddLifeCycle ? 1 : -1;
 
             DateTime dRet = includeMillisecond ? dBase : dBase.AddTicks(-(dBase.Ticks % TimeSpan.TicksPerSecond));
 
-            if (nVal == 1111111)
-                dRet = dRet.AddMonths(mulFactor * 1);
-            else if (nVal == 2222222)
-                dRet = dRet.AddMonths(mulFactor * 2);
-            else if (nVal == 3333333)
-                dRet = dRet.AddMonths(mulFactor * 3);
-            else if (nVal == 4444444)
-                dRet = dRet.AddMonths(mulFactor * 4);
-            else if (nVal == 5555555)
-                dRet = dRet.AddMonths(mulFactor * 5);
-            else if (nVal == 6666666)
-                dRet = dRet.AddMonths(mulFactor * 6);
-            else if (nVal == 9999999)
-                dRet = dRet.AddMonths(mulFactor * 9);
-            else if (nVal == 11111111)
-                dRet = dRet.AddYears(mulFactor * 1);
-            else if (nVal == 22222222)
-                dRet = dRet.AddYears(mulFactor * 2);
-            else if (nVal == 33333333)
-                dRet = dRet.AddYears(mulFactor * 3);
-            else if (nVal == 44444444)
-                dRet = dRet.AddYears(mulFactor * 4);
-            else if (nVal == 55555555)
-                dRet = dRet.AddYears(mulFactor * 5);
-            else if (nVal == 100000000)
-                dRet = dRet.AddYears(mulFactor * 10);
-            else if (nVal == 999999999)
-                dRet = dRet.AddYears(mulFactor * 100);
-            else
-                dRet = dRet.AddMinutes(mulFactor * nVal);
+            switch (duration.Unit)
+            {
+                case DurationUnit.Minutes:
+                    dRet = dRet.AddMinutes(mulFactor * duration.Value);
+                    break;
+                case DurationUnit.Hours:
+                    dRet = dRet.AddHours(mulFactor * duration.Value);
+                    break;
+                case DurationUnit.Days:
+                    dRet = dRet.AddDays(mulFactor * duration.Value);
+                    break;
+                case DurationUnit.Months:
+                    dRet = dRet.AddMonths(mulFactor * (int)duration.Value);
+                    break;
+                case DurationUnit.Years:
+                    dRet = dRet.AddYears(mulFactor * (int)duration.Value);
+                    break;
+            }
+
             return dRet;
         }
 
         public static bool isMonthlyLifeCycle(long lifeCycle)
         {
             return (lifeCycle == 1111111 || lifeCycle == 2222222 || lifeCycle == 3333333 || lifeCycle == 4444444 || lifeCycle == 5555555 || lifeCycle == 6666666 || lifeCycle == 9999999);
-        }
-
-        public static DateTime GetEndDateTime(DateTime dBase, Int32 nVal)
-        {
-            return GetEndDateTime(dBase, nVal, true);
         }
 
         public static string GetLocaleStringForCache(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
@@ -5110,8 +5148,9 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal static void SetRecordingStatus(Dictionary<long, Recording> dic)
+        internal static void SetRecordingStatus(Dictionary<long, Recording> dic, int groupId)
         {
+            int recordingLifetime = -1;
             foreach (var recording in dic.Values)
             {
                 if (recording.RecordingStatus == TstvRecordingStatus.OK
@@ -5120,6 +5159,20 @@ namespace Core.ConditionalAccess
                     || recording.RecordingStatus == TstvRecordingStatus.Scheduled)
                 {
                     recording.RecordingStatus = SetRecordingStatus(recording.EpgStartDate, recording.EpgEndDate);
+                    
+                    if (recording.RecordingStatus == TstvRecordingStatus.Recorded && (!recording.ViewableUntilDate.HasValue || recording.ViewableUntilDate.Value == 0))
+                    {
+                        if (recordingLifetime == -1)
+                        {
+                            TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
+                            recordingLifetime = accountSettings.RecordingLifetimePeriod.HasValue ? accountSettings.RecordingLifetimePeriod.Value : 0;
+                        }
+                        
+                        if (recordingLifetime > 0)
+                        {
+                            recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(recording.EpgEndDate.AddDays(recordingLifetime));
+                        }
+                    }
                 }
             }
         }
@@ -5515,7 +5568,7 @@ namespace Core.ConditionalAccess
                                         LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId) }, true)
                     && domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
-                    SetRecordingStatus(domainRecordingIdToRecordingMap);
+                    SetRecordingStatus(domainRecordingIdToRecordingMap, groupId);
 
                     Dictionary<long, Recording> recordingsToCopy = new Dictionary<long, Recording>();
                     if (shouldFilterViewableRecordingsOnly)
@@ -5562,7 +5615,7 @@ namespace Core.ConditionalAccess
                                         LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId) }, true)
                     && domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
-                    SetRecordingStatus(domainRecordingIdToRecordingMap);
+                    SetRecordingStatus(domainRecordingIdToRecordingMap, groupId);
 
                     Dictionary<long, Recording> recordingsToCopy = new Dictionary<long, Recording>();
                     if (shouldFilterViewableRecordingsOnly)
@@ -6517,7 +6570,7 @@ namespace Core.ConditionalAccess
                     return false;
                 }
 
-                seriesIdName = $"tags.{SERIES_ID}";
+                seriesIdName = $"metas.{SERIES_ID}";
                 seasonNumberName = $"metas.{SEASON_NUMBER}";
                 episodeNumberName = $"metas.{EPISODE_NUMBER}";
                 return true;
@@ -7812,7 +7865,7 @@ namespace Core.ConditionalAccess
                             if (usedQuota > npvrObject.Quota * 60)
                             {
                                 // call the handel to delete all recordings
-                                status = QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota * 60), DomainRecordingStatus.DeletePending);
+                                QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota * 60), DomainRecordingStatus.DeletePending);
                             }
                             else if (usedQuota > 0 && usedQuota < npvrObject.Quota * 60) // recover recording from auto-delete by grace period recovery
                             {
@@ -8387,29 +8440,16 @@ namespace Core.ConditionalAccess
                 if (bIsEntitledToPreviewModule && sub.m_oPreviewModule != null && sub.m_oPreviewModule.m_tsFullLifeCycle > 0)
                 {
                     // calc end date according to preview module life cycle
-                    res = Utils.GetEndDateTime(res, sub.m_oPreviewModule.m_tsFullLifeCycle);
+                    var previewDuration = new Duration(sub.m_oPreviewModule.m_tsFullLifeCycle);
+                    res = Utils.GetEndDateTime(previewDuration, res);
                 }
                 else
                 {
-                    ///*
-                    // * get the key from DB / CB {domainId}_{usagemodule}  if exsits -- get this one as end date  else as it now (it's the first) 
-                    // * and need to insert key to DB / CB
-                    // */
-                    //// get household unified billing cycle doc from CB 
-                    //if (domainId > 0 && sub.m_MultiSubscriptionUsageModule != null && sub.m_MultiSubscriptionUsageModule.Count() > 0)
-                    //{
-                    //    UnifiedBillingCycle unifiedBillingCycle = UnifiedBillingCycleManager.Instance.GetDomainUnifiedBillingCycle(domainId, (long)sub.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle);
-                    //    if (unifiedBillingCycle != null && unifiedBillingCycle.endDate.HasValue)
-                    //    {
-                    //        res = ODBCWrapper.Utils.UnixTimestampToDateTime(unifiedBillingCycle.endDate.Value);
-                    //        return res;
-                    //    }
-                    //}
-
                     if (sub.m_oSubscriptionUsageModule != null)
                     {
                         // calc end date as before.
-                        res = Utils.GetEndDateTime(res, sub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                        var subDuration = new Duration(sub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                        res = Utils.GetEndDateTime(subDuration, res);
                     }
                 }
             }
@@ -9038,18 +9078,12 @@ namespace Core.ConditionalAccess
         {
             try
             {
-                long? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-                if (groupUnifiedBillingCycle.HasValue && (int)groupUnifiedBillingCycle.Value == maxUsageModuleLifeCycle)
+                if (endDate.HasValue)
                 {
-                    UnifiedBillingCycle unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)householdId, groupUnifiedBillingCycle.Value);
-                    if (unifiedBillingCycle != null)
+                    var subscriptionCycle = GetSubscriptionCycle(groupId, (int)householdId, maxUsageModuleLifeCycle);
+                    if (subscriptionCycle.HasCycle && subscriptionCycle.UnifiedBillingCycle != null && subscriptionCycle.UnifiedBillingCycle.endDate != endDate.Value)
                     {
-                        if (endDate.HasValue && unifiedBillingCycle.endDate != endDate.Value)
-                        {
-                            unifiedBillingCycle.endDate = endDate.Value;
-
-                            UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, unifiedBillingCycle.endDate);
-                        }
+                        UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, maxUsageModuleLifeCycle, subscriptionCycle.UnifiedBillingCycle.endDate);
                     }
                 }
             }
@@ -9084,22 +9118,21 @@ namespace Core.ConditionalAccess
         ///If needed create/ update doc in cb for unifiedBilling_household_{ household_id }_renewBillingCycle
         ///create: unified billing cycle for household (CB)
         ///update: the current one with payment gateway id or end date 
-        internal static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, ref UnifiedBillingCycle unifiedBillingCycle, int maxUsageModuleLifeCycle, DateTime endDate, bool useCoupon)
+        internal static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, ref SubscriptionCycle subscriptionCycle, int maxUsageModuleLifeCycle, DateTime endDate, bool useCoupon)
         {
             try
             {
-                long? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
-
-                if (groupUnifiedBillingCycle.HasValue && (int)groupUnifiedBillingCycle.Value == maxUsageModuleLifeCycle) // group define with billing cycle
+                var tvmDuration = subscriptionCycle.SubscriptionLifeCycle.GetTvmDuration();
+                if (subscriptionCycle.HasCycle && tvmDuration == maxUsageModuleLifeCycle) 
                 {
                     long nextEndDate = DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate);
-                    if (unifiedBillingCycle == null || (unifiedBillingCycle != null && !useCoupon && unifiedBillingCycle.endDate != nextEndDate))
+                    if (subscriptionCycle.UnifiedBillingCycle == null || (subscriptionCycle.UnifiedBillingCycle != null && !useCoupon && subscriptionCycle.UnifiedBillingCycle.endDate != nextEndDate))
                     {
                         // update unified billing by endDate or paymentGatewatId                  
-                        bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, groupUnifiedBillingCycle.Value, nextEndDate);
+                        bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, tvmDuration, nextEndDate);
                         if (setResult)
                         {
-                            unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, groupUnifiedBillingCycle.Value);
+                            subscriptionCycle.UnifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle((int)householdId, tvmDuration);
                         }
                     }
                 }
@@ -9230,6 +9263,16 @@ namespace Core.ConditionalAccess
             }
 
             return 0;
+        }
+
+        internal static List<ApiObjects.KeyValuePair> GetResumRenewAdapterData(long purchaseId)
+        {
+            return ConditionalAccessDAL.GetResumRenewAdapterData(purchaseId);
+        }
+
+        internal static List<ApiObjects.KeyValuePair> GetResumRenewUnifiedAdapterData(long processId)
+        {
+            return ConditionalAccessDAL.GetResumRenewUnifiedAdapterData(processId);
         }
     }
 }

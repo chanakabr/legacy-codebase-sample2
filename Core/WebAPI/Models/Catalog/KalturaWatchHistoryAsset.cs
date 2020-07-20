@@ -46,11 +46,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "assetType")]
         [XmlElement(ElementName = "assetType")]
         [SchemeProperty(ReadOnly = true)]
-        public KalturaAssetType AssetType
-        {
-            get;
-            set;
-        }
+        public KalturaAssetType AssetType { get; set; }
 
         /// <summary>
         /// Position in seconds of the relevant asset

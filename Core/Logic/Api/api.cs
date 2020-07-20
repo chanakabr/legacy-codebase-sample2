@@ -10529,6 +10529,7 @@ namespace Core.Api
             return status;
         }
 
+        //CleanUserAssetHistory - new method
         internal static Status CleanUserAssetHistory(int groupId, string userId, List<KeyValuePair<int, eAssetTypes>> assets)
         {
             Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -10546,6 +10547,9 @@ namespace Core.Api
                             break;
                         case eAssetTypes.MEDIA:
                             assetHistoryKeys.Add(DAL.UtilsDal.GetUserMediaMarkDocKey(userId, asset.Key));
+                            break;
+                        case eAssetTypes.EPG:
+                            assetHistoryKeys.Add(DAL.UtilsDal.GetUserEpgMarkDocKey(int.Parse(userId), asset.Key));
                             break;
                         default:
                             break;
@@ -11629,10 +11633,10 @@ namespace Core.Api
                     response.SetStatus(eResponseStatus.OK);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.SetStatus((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.ErrorFormat("Failed in GetPlaybackContext. groupId:{0}, userId:{1}", groupId, userId);
+                log.Error($"Failed in GetPlaybackContext. groupId:{groupId}, userId:{userId}", ex);
             }
             return response;
         }

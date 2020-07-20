@@ -373,7 +373,7 @@ namespace Core.ConditionalAccess
                     response.entitelments.Add(subscriptionEntitlement.Object);
 
                     //unified billing cycle updates
-                    Utils.HandleUnifiedBillingCycle(groupId, domainID, entitlement.paymentGatewayId, endDateFromDB, entitlement.purchaseID, subscriptionEntitlement.Object.UnifiedPaymentId);
+                    Utils.HandleUnifiedBillingCycle(groupId, domainID, entitlement.paymentGatewayId, endDateFromDB, entitlement.purchaseID, subscriptionEntitlement.Object.UnifiedPaymentId, 0);
                 }
                 response.status = changeStatus;
             }
@@ -644,19 +644,22 @@ namespace Core.ConditionalAccess
                 deviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow, "device_name"),
                 deviceName = string.Empty,
                 mediaFileID = 0,
-                IsSuspended = ODBCWrapper.Utils.GetIntSafeVal(dataRow["subscription_status"]) == (int)SubscriptionPurchaseStatus.Suspended,
                 UnifiedPaymentId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "unified_process_id")
             };
-            
+
+            DateTime now = DateTime.UtcNow;
             DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE");
-            
+
             // check whether subscription is in its grace period
             int gracePeriodMinutes = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
-            if (!isExpired && endDate < DateTime.UtcNow)
+            if (!isExpired && endDate < now)
             {
                 endDate = endDate.AddMinutes(gracePeriodMinutes);
                 entitlement.IsInGracePeriod = true;
             }
+
+            // check whether subscription is Suspended
+            entitlement.IsSuspended = ODBCWrapper.Utils.GetIntSafeVal(dataRow["subscription_status"]) == (int)SubscriptionPurchaseStatus.Suspended && endDate < now;
 
             string billingGuid = ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID");
             

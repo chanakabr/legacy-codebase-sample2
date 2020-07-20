@@ -15,18 +15,16 @@ namespace ApiObjects.Billing
         public int PendingRetries { get; set; }
         public int RenewalIntervalMinutes { get; set; }
         public int RenewalStartMinutes { get; set; }
-
         public string SharedSecret { get; set; }
+        public bool SkipSettings { get; set; }
+        public List<PaymentGatewaySettings> Settings { get; set; }
+        public List<PaymentMethod> PaymentMethods { get; set; }
+        public bool ExternalVerification { get; set; }
+
         [XmlIgnore]
         public int Status { get; set; }
         [XmlIgnore]
         public int Selected { get; set; }
-
-        public bool SkipSettings { get; set; }
-        public List<PaymentGatewaySettings> Settings { get; set; }
-        public List<PaymentMethod> PaymentMethods { get; set; }
-
-        public bool ExternalVerification { get; set; }
 
         public PaymentGateway()
         {
