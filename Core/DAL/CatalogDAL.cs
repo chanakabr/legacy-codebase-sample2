@@ -5142,7 +5142,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet UpdateMediaFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId, long billingType,
             long? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage, string language, int? orderNum, DateTime? startDate,
-            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate, string opl = "")
+            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate, string opl)
         {
             StoredProcedure sp = new StoredProcedure("UpdateMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5169,10 +5169,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@fileSize", fileSize);
             sp.AddParameter("@IsActive", isActive);
             sp.AddParameter("@catalogEndDate", catalogEndDate);
-            if (!string.IsNullOrEmpty(opl))
-            {
-                sp.AddParameter("@opl", opl);
-            }
+            sp.AddParameter("@opl", opl);
 
             return sp.ExecuteDataSet();
         }
