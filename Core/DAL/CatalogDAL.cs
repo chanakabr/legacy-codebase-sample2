@@ -2103,6 +2103,7 @@ namespace Tvinci.Core.DAL
 
         public static void UpdateOrInsertUsersNpvrMark(UserMediaMark userNpvrMark, bool isFirstPlay)
         {
+            log.Debug($"UpdateOrInsertUsersNpvrMark");
             string mmKey = UtilsDal.GetUserNpvrMarkDocKey(userNpvrMark.UserID, userNpvrMark.NpvrID.ToString());
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
