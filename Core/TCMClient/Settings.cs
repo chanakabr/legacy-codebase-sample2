@@ -87,7 +87,6 @@ namespace TCMClient
         private string m_AppID;
         private string m_AppSecret;
         private bool m_VerifySSL;
-        private string m_LocalPath;
 
         public static bool IsInitilized { get; set; }
 
@@ -106,13 +105,9 @@ namespace TCMClient
         /// Initializes settings with data from local / remote source according to config
         /// </summary>
         /// <param name="fromLocal">determines the source</param>
-        public void Init(bool? fromLocal = null)
+        public void Init()
         {
             TCMConfiguration config = (TCMConfiguration)ConfigurationManager.GetSection("TCMConfig");
-            if (fromLocal.HasValue)
-            {
-                config.FromLocal = fromLocal.Value;
-            }
             Init(config);
         }
 
@@ -123,18 +118,8 @@ namespace TCMClient
         public void Init(TCMConfiguration config)
         {
             config.OverrideEnvironmentVariable();
-            if (config.FromLocal)
-            {
-                m_LocalPath = config.LocalPath;
-
-                //Populate settings from local
-                PopulateSettings(true);
-            }
-            else
-            {
-                //Populate settings from remote
-                Init(config.URL, config.Application, config.Host, config.Environment, config.AppID, config.AppSecret, config.VerifySSL, config.LocalPath);
-            }
+            //Populate settings from remote
+            Init(config.URL, config.Application, config.Host, config.Environment, config.AppID, config.AppSecret, config.VerifySSL);
         }
 
         /// <summary>
@@ -148,7 +133,7 @@ namespace TCMClient
         /// <param name="appSecret">App Secret</param>
         /// <param name="localPath">Local Path</param>
         [Obsolete]
-        public void Init(string url, string application, string host, string environment, string appID, string appSecret, string localPath = null)
+        public void Init(string url, string application, string host, string environment, string appID, string appSecret)
         {
             m_URL = url;
             m_Application = application;
@@ -156,9 +141,8 @@ namespace TCMClient
             m_Environment = environment;
             m_AppID = appID;
             m_AppSecret = appSecret;
-            m_LocalPath = localPath;
 
-            PopulateSettings(false);
+            PopulateSettings();
         }
 
         /// <summary>
@@ -172,7 +156,7 @@ namespace TCMClient
         /// <param name="appSecret">App Secret</param>
         /// <param name="verifySSL">App Secret</param>
         /// <param name="localPath">Local Path</param>
-        public void Init(string url, string application, string host, string environment, string appID, string appSecret, bool verifySSL, string localPath = null)
+        public void Init(string url, string application, string host, string environment, string appID, string appSecret, bool verifySSL)
         {
             m_URL = url;
             m_Application = application;
@@ -181,9 +165,8 @@ namespace TCMClient
             m_AppID = appID;
             m_AppSecret = appSecret;
             m_VerifySSL = verifySSL;
-            m_LocalPath = localPath;
 
-            PopulateSettings(false);
+            PopulateSettings();
         }
 
         /// <summary>
@@ -297,13 +280,6 @@ namespace TCMClient
                     _Logger.Info($"TCM Response Status: ({response.StatusCode})");
 
                     settings = Task.Run(() => response.Content.ReadAsStringAsync()).ConfigureAwait(false).GetAwaiter().GetResult();
-
-                    string pathToLocalFile = getPathToLocalFile();
-
-                    using (StreamWriter sw = new StreamWriter(pathToLocalFile))
-                    {
-                        sw.Write(settings);
-                    }
                 }
                 );
             }
@@ -315,45 +291,7 @@ namespace TCMClient
             return settings;
         }
 
-        private string getSettingsFromLocal()
-        {
-            string settings = null;
-            string pathToLocalFile = getPathToLocalFile();
-            _Logger.Info($"Getting TCM from local file:[{pathToLocalFile}]");
-            if (File.Exists(pathToLocalFile))
-            {
-                using (StreamReader sr = new StreamReader(pathToLocalFile))
-                {
-                    settings = sr.ReadToEnd();
-                }
-            }
-
-            return settings;
-        }
-
-        private string getSettings(bool fromLocal)
-        {
-            string settings = null;
-
-            if (fromLocal)
-            {
-                settings = getSettingsFromLocal();
-            }
-            else
-            {
-                settings = getSettingsFromServer();
-
-                //if no data from server, try to take data from local file
-                if (string.IsNullOrEmpty(settings) || settings == "null")
-                {
-                    settings = getSettingsFromLocal();
-                }
-            }
-
-            return settings;
-        }
-
-        private void PopulateSettings(bool fromLocal)
+        private void PopulateSettings()
         {
             if (IsInitilized)
             {
@@ -362,7 +300,7 @@ namespace TCMClient
             }
 
             IsInitilized = true;
-            string settings = getSettings(fromLocal);
+            string settings = getSettingsFromServer();
 
             if (!string.IsNullOrEmpty(settings) && !settings.ToLower().Equals("null"))
             {
@@ -437,21 +375,6 @@ namespace TCMClient
             return retJObject;
         }
 
-        private string getPathToLocalFile()
-        {
-            string pathToLocalFile = null;
-
-            if (string.IsNullOrEmpty(m_LocalPath))
-            {
-                pathToLocalFile = AppDomain.CurrentDomain.BaseDirectory + "settings.json";
-            }
-            else
-            {
-                pathToLocalFile = m_LocalPath + "/settings.json";
-            }
-
-            return pathToLocalFile;
-        }
 
         #endregion
     }
