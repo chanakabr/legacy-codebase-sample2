@@ -297,13 +297,6 @@ namespace TCMClient
                     _Logger.Info($"TCM Response Status: ({response.StatusCode})");
 
                     settings = Task.Run(() => response.Content.ReadAsStringAsync()).ConfigureAwait(false).GetAwaiter().GetResult();
-
-                    string pathToLocalFile = getPathToLocalFile();
-
-                    using (StreamWriter sw = new StreamWriter(pathToLocalFile))
-                    {
-                        sw.Write(settings);
-                    }
                 }
                 );
             }
