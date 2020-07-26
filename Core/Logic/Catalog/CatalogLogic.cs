@@ -9124,7 +9124,7 @@ namespace Core.Catalog
             return status;
         }
 
-        public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes,
+        public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, int domainId, List<int> assetTypes,
             List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays,
             ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, bool suppress, out int totalItems)
         {
@@ -9199,45 +9199,18 @@ namespace Core.Catalog
                             elasticSearchPageSize += listOfEpg.Count;
                         }
 
-                        List<string> listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
-                            .Select(x =>
-                                {
-                                    // For each recording,
-                                    // map the recording to its domain recording id
-                                    searchDefinitions.recordingIdToSearchableRecordingMapping[x.RecordingId.ToString()] = new ApiObjects.TimeShiftedTv.SearchableRecording()
-                                    {
-                                        DomainRecordingId = x.AssetId,
-                                        EpgId = x.EpgId,
-                                        RecordingId = x.RecordingId,
-                                        RecordingType = null
-                                    };
-                                    return x.RecordingId.ToString();
-                                }).ToList();
-
-                        if (listofRecordings.Count > 0)
-                        {
-                            searchDefinitions.specificAssets.Add(eAssetTypes.NPVR, listofRecordings);
-                            searchDefinitions.shouldSearchRecordings = true;
-
-                            searchDefinitions.extraReturnFields.Add("epg_id");
-
-                            elasticSearchPageSize += listofRecordings.Count;
-                        }
-
                         searchDefinitions.pageSize = elasticSearchPageSize;
-
                         searchDefinitions.shouldReturnExtendedSearchResult = searchDefinitions.extraReturnFields?.Count > 0;
-                            
 
                         if (elasticSearchPageSize > 0)
                         {
+                            List<int> activeMediaIds = new List<int>();
+                            List<int> activeEpg = new List<int>();
+
                             ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
                             int esTotalItems = 0, to = 0;
                             var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
-
-                            List<int> activeMediaIds = new List<int>();
-                            List<int> activeEpg = new List<int>();
-                            List<string> activeRecordingIds = new List<string>();
+                            
                             long episodeStructId = 0;
 
                             if (searchResults != null && searchResults.Count > 0)
@@ -9256,7 +9229,7 @@ namespace Core.Catalog
                                         {
                                             ExtendedSearchResult ecr = (ExtendedSearchResult)searchResult;
                                             string seriesId = Api.api.GetStringParamFromExtendedSearchResult(ecr, "metas.seriesid");
-                                            
+
                                             if (!string.IsNullOrEmpty(seriesId))
                                             {
                                                 if (episodeStructId == 0)
@@ -9264,7 +9237,7 @@ namespace Core.Catalog
                                                     CatalogGroupCache catalogGroupCache;
                                                     if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                                                     {
-                                                        long seriesStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x =>x.IsSeriesAssetStruct).Id;
+                                                        long seriesStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.IsSeriesAssetStruct).Id;
                                                         episodeStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId > 0 && x.ParentId == seriesStructId).Id;
                                                     }
                                                 }
@@ -9306,7 +9279,8 @@ namespace Core.Catalog
                                         activeEpg.Add(assetId);
                                         unFilteredresult.First(x => int.Parse(x.AssetId) == assetId && x.AssetTypeId == (int)eAssetTypes.EPG).UpdateDate = searchResult.m_dUpdateDate;
                                     }
-                                    
+
+                                    /*
                                     if (searchResult.AssetType == eAssetTypes.NPVR)
                                     {
                                         activeRecordingIds.Add(searchResult.AssetId);
@@ -9314,57 +9288,40 @@ namespace Core.Catalog
                                         recordingResult.UpdateDate = searchResult.m_dUpdateDate;
                                         recordingResult.EpgId = long.Parse((searchResult as RecordingSearchResult).EpgId);
                                     }
+                                    */
                                 }
                             }
 
                             //remove medias that are not active
                             unFilteredresult.RemoveAll(x => x.AssetTypeId > 1 && !activeMediaIds.Contains(int.Parse(x.AssetId)));
 
-                            #region Suppress series - get series
-                            /*
-                            if (suppress && seriesMap.Count > 0)
+                            //remove programs that are not active
+                            unFilteredresult.RemoveAll(x => x.AssetTypeId == (int)eAssetTypes.EPG && !activeEpg.Contains(int.Parse(x.AssetId)));
+                        }
+
+                        var unFilteredRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR);
+
+                        if (unFilteredRecordings != null)
+                        {
+                            var recordings = Core.ConditionalAccess.Module.SearchDomainRecordings(groupId, siteGuid, domainId, new TstvRecordingStatus[] { TstvRecordingStatus.Recorded }, string.Empty,
+                                0, 0, new OrderObj() { m_eOrderBy = OrderBy.NONE, m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC } , true, null);
+
+                            if (recordings != null && recordings.Recordings?.Count > 0)
                             {
-                                //Get series
-                                CatalogGroupCache catalogGroupCache;
-                                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                                foreach (var item in unFilteredRecordings)
                                 {
-                                    long seriesStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.IsSeriesAssetStruct).Id;
-
-                                    StringBuilder ksql = new StringBuilder($"(and asset_type='{seriesStructId}' (or");
-
-                                    foreach (var seriesId in seriesMap.Keys)
+                                    var recording = recordings.Recordings.First(x => x.Id.ToString().Equals(item.AssetId));
+                                    if (recording != null)
                                     {
-                                        ksql.Append($" seriesid='{seriesId}'");
-                                    }
-
-                                    ksql.Append($")");
-
-                                    var assets = Api.api.SearchAssetsExtended(groupId, ksql.ToString(), 0, 0, false, 0, true, string.Empty, string.Empty, string.Empty, userId,
-                                        groupId, true, false, new List<string>() { "tags.seriesId" });
-
-                                    if (assets != null && assets.searchResults?.Count > 0)
-                                    {
-                                        foreach (var item in assets.searchResults)
-                                        {
-                                            var esr = (ExtendedSearchResult)item;
-                                            string seriesId = Api.api.GetStringParamFromExtendedSearchResult(esr, "tags.seriesId");
-                                            if (seriesMap.ContainsKey(seriesId))
-                                            {
-                                                seriesMap[seriesId].AssetId = item.AssetId;
-                                                seriesMap[seriesId].UpdateDate = item.m_dUpdateDate;
-                                            }
-                                        }
+                                        item.EpgId = recording.EpgId;
                                     }
                                 }
                             }
-                            */
-                            #endregion
-
-                            unFilteredresult.RemoveAll(x => x.AssetTypeId == (int)eAssetTypes.EPG && !activeEpg.Contains(int.Parse(x.AssetId)));
 
                             //remove recordings that are not active
-                            unFilteredresult.RemoveAll(x => x.AssetTypeId == (int)eAssetTypes.NPVR && !activeRecordingIds.Contains(x.AssetId.ToString()));
+                            unFilteredresult.RemoveAll(x => x.AssetTypeId == (int)eAssetTypes.NPVR && x.EpgId == 0);
                         }
+
                     }
 
                     // order list

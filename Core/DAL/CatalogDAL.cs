@@ -2103,6 +2103,7 @@ namespace Tvinci.Core.DAL
 
         public static void UpdateOrInsertUsersNpvrMark(UserMediaMark userNpvrMark, bool isFirstPlay)
         {
+            log.Debug($"UpdateOrInsertUsersNpvrMark");
             string mmKey = UtilsDal.GetUserNpvrMarkDocKey(userNpvrMark.UserID, userNpvrMark.NpvrID.ToString());
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -2119,14 +2120,7 @@ namespace Tvinci.Core.DAL
 
             if (isFirstPlay || shouldUpdateLocation)
             {
-                bool markSuccess = false;
-                limitRetries = RETRY_LIMIT;
-                markSuccess = false;
-
-                while (limitRetries >= 0 && !markSuccess)
-                {
-                    UpdateOrInsertUsersMediaMarkOrHit(mediaMarkManager, ref limitRetries, r, mmKey, ref markSuccess, userNpvrMark);
-                }
+                InsertMediaMarkToUserMediaMarks(userNpvrMark);
             }
         }
 
@@ -5922,7 +5916,7 @@ namespace Tvinci.Core.DAL
 
                 case (int)eAssetTypes.NPVR:
                     {
-                        assetType = "npvr";
+                        assetType = "n";
                         break;
                     }
                 case (int)eAssetTypes.MEDIA:

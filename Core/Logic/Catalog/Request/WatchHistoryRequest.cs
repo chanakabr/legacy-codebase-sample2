@@ -85,7 +85,7 @@ namespace Core.Catalog.Request
                     excludedAssetTypes.Add((int)eAssetTypes.EPG);
                 }
 
-                List<WatchHistory> res = CatalogLogic.GetUserWatchHistory(m_nGroupID, m_sSiteGuid, AssetTypes, AssetIds, excludedAssetTypes, FilterStatus, NumOfDays,
+                List<WatchHistory> res = CatalogLogic.GetUserWatchHistory(m_nGroupID, m_sSiteGuid, userDomainID, AssetTypes, AssetIds, excludedAssetTypes, FilterStatus, NumOfDays,
                                                                           OrderDir, m_nPageIndex, m_nPageSize, Suppress, out totalItems);
 
                 // convert to client response
