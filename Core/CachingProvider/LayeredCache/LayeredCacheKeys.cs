@@ -1190,6 +1190,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_{0}", GetUserRolesToPasswordPolicyKey(groupId));
         }
 
+        public static string GetDeviceModelInformationInvalidationKey(int groupId)
+        {
+            return $"invalidationKey_ModelInformation_{groupId}";
+        }
+        
+        public static string GetDeviceManufacturerInformationInvalidationKey(int groupId)
+        {
+            return $"invalidationKey_ManufacturerInformation_{groupId}";
+        }
+
         public static string GetPasswordPolicyInvalidationKey(long roleId)
         {
             return string.Format("invalidationKey_{0}", GetPasswordPolicyKey(roleId));

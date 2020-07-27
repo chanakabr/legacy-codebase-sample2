@@ -801,6 +801,96 @@ namespace DAL
             return res;
         }
 
+        public static ApiObjects.Response.GenericResponse<DeviceInformation> InsertDeviceModelInformation(int groupId, long? updaterId, DeviceModelInformation coreObject)
+        {
+            var response = new ApiObjects.Response.GenericResponse<DeviceInformation>();
+            var sp = new StoredProcedure("Insert_DeviceModelInformation");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupId);
+            sp.AddParameter("@userID", updaterId);
+            sp.AddParameter("@name", coreObject.Name);
+
+            var id = sp.ExecuteReturnValue<int>();
+
+            if (id > 0)
+            {
+                response.Object = GetDeviceModelInformation(groupId, updaterId, id);
+                response.SetStatus(ApiObjects.Response.eResponseStatus.OK);
+            }
+            else
+                response.SetStatus(ApiObjects.Response.eResponseStatus.Error, $"Failed adding {coreObject.Name}");
+
+            return response;
+        }
+
+        public static ApiObjects.Response.GenericResponse<DeviceInformation> InsertDeviceManufacturerInformation(int groupId, long? updaterId, DeviceManufacturerInformation coreObject)
+        {
+            var response = new ApiObjects.Response.GenericResponse<DeviceInformation>();
+            var sp = new StoredProcedure("Insert_DeviceManufacturerInformation");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupId);
+            sp.AddParameter("@userID", updaterId);
+            sp.AddParameter("@name", coreObject.Name);
+
+            var id = sp.ExecuteReturnValue<int>();
+
+            if (id > 0)
+            {
+                response.Object = GetDeviceManufacturerInformation(groupId, updaterId, id);
+                response.SetStatus(ApiObjects.Response.eResponseStatus.OK);
+            }
+            else
+                response.SetStatus(ApiObjects.Response.eResponseStatus.Error, $"Failed adding {coreObject.Name}");
+
+            return response;
+        }
+
+        private static DeviceModelInformation GetDeviceModelInformation(int groupId, long? updaterId, long id)
+        {
+            var res = new DeviceModelInformation();
+            var sp = new StoredProcedure("Get_DeviceModelInformation");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@updaterId", updaterId);
+            sp.AddParameter("@id", id);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res.Id = Utils.GetLongSafeVal(dt.Rows[0], "id");
+                    res.Name = Utils.GetSafeStr(dt.Rows[0], "id");
+                }
+            }
+
+            return res;
+        }
+
+        private static DeviceManufacturerInformation GetDeviceManufacturerInformation(int groupId, long? updaterId, long id)
+        {
+            var res = new DeviceManufacturerInformation();
+            var sp = new StoredProcedure("Get_DeviceManufacturerInformation");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@updaterId", updaterId);
+            sp.AddParameter("@id", id);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res.Id = Utils.GetLongSafeVal(dt.Rows[0], "id");
+                    res.Name = Utils.GetSafeStr(dt.Rows[0], "id");
+                }
+            }
+
+            return res;
+        }
+
         public static string GetActivationToken(int nGroupID, string sUserName)
         {
             string sActivationToken = string.Empty;
@@ -1357,8 +1447,8 @@ namespace DAL
         }
 
 
-        public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, 
-                                         string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity, 
+        public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted,
+                                         string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity,
                                          int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
                                          DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount, bool updateUserPassword)
         {
@@ -1393,7 +1483,7 @@ namespace DAL
                 {
                     updateQuery += Parameter.NEW_PARAM("COGUID", "=", sCoGuid);
                 }
-                
+
                 if (nCountryID >= 0)
                 {
                     updateQuery += Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
@@ -1403,7 +1493,7 @@ namespace DAL
                 {
                     updateQuery += Parameter.NEW_PARAM("STATE_ID", "=", nStateID);
                 }
-                
+
                 if (resetFailCount)
                 {
                     updateQuery += Parameter.NEW_PARAM("FAIL_COUNT", "=", 0);
@@ -1430,7 +1520,7 @@ namespace DAL
 
             return false;
         }
-        
+
         private static void HandleException(Exception ex)
         {
             //throw new NotImplementedException();
@@ -2219,8 +2309,8 @@ namespace DAL
             int sqlCommandTimeoutSec = SQL_COMMAND_TIMEOUT_SEC;
             if (ApplicationConfiguration.Current.DatabaseConfiguration.DbCommandExecuteTimeoutSec.Value > 0)
             {
-                sqlCommandTimeoutSec =  ApplicationConfiguration.Current.DatabaseConfiguration.DbCommandExecuteTimeoutSec.Value;
-            }           
+                sqlCommandTimeoutSec = ApplicationConfiguration.Current.DatabaseConfiguration.DbCommandExecuteTimeoutSec.Value;
+            }
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Purge");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -2343,7 +2433,7 @@ namespace DAL
             return updatedAdapater;
 
         }
-        
+
         public static List<long> GetUserIdsByRoleIds(int groupId, HashSet<long> roleIds)
         {
             List<long> userIds = null;

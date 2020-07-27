@@ -2060,6 +2060,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDeviceInformation":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
                 case "KalturaDevicePin":
                     switch(property.Name)
                     {
@@ -7972,6 +7982,29 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "deviceinformation":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("deviceinformation", "add");
+                            return DeviceInformationController.Add((KalturaDeviceInformation) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("deviceinformation", "update");
+                            return DeviceInformationController.Update((long) methodParams[0], (KalturaDeviceInformation) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("deviceinformation", "delete");
+                            DeviceInformationController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("deviceinformation", "list");
+                            return DeviceInformationController.List((KalturaDeviceInformationFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
                 case "discountdetails":
                     switch(action)
                     {
@@ -13378,6 +13411,49 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "deviceinformation":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaDeviceInformation),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaDeviceInformation),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaDeviceInformationFilter),
+                            });
                             return ret;
                             
                     }

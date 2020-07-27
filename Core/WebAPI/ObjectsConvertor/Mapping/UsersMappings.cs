@@ -298,6 +298,19 @@ namespace ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaKeyValue, ApiObjects.KeyValuePair>()
                 .ForMember(dest => dest.key, opt => opt.MapFrom(src => src.key))
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.value));
+
+            cfg.CreateMap<KalturaDeviceInformation, DeviceInformation>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                ;
+
+            cfg.CreateMap<KalturaDeviceModelInformation, DeviceModelInformation>()
+                .IncludeBase<KalturaDeviceInformation, DeviceInformation>()
+                ;
+
+            cfg.CreateMap<KalturaDeviceManufacturerInformation, DeviceManufacturerInformation>()
+                .IncludeBase<KalturaDeviceInformation, DeviceInformation>()
+                ;
         }
 
         private static List<SSOAdapterParam> ConvertSsoAdapterSettings(KalturaSSOAdapterProfile src)
