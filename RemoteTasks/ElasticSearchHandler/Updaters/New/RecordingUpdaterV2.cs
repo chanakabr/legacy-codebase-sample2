@@ -143,6 +143,11 @@ namespace ElasticSearchHandler.Updaters
             return false;
         }
 
+        protected override string GetAliasWithStartDate(int groupId, DateTime startDate)
+        {
+            return this.GetAlias();
+        }
+
         #endregion
     }
 }
