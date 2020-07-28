@@ -51,6 +51,10 @@ namespace Core.Users
 
         public string MacAddress;
 
+        public string Model;
+
+        public string Manufacturer;
+
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
         {
             int nFamilyID = 0;
@@ -249,8 +253,16 @@ namespace Core.Users
             return DeviceDal.Get_DeviceFamilyIDAndName(deviceBrand, ref familyID);
         }
 
-        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = ""
-            , bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        public int Save(int nIsActive, int nStatus = 1, DomainDevice device = null, bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        {
+            if (device == null)
+                device = new DomainDevice();
+
+            return Save(nIsActive, nStatus, device.DeviceId, device.MacAddress, device.ExternalId, device.Model, device.Manufacturer, allowNullExternalId, allowNullMacAddress);
+        }
+
+        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = "",
+            string model = "", string manufacturer = "", bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             int retVal = 0;
 
@@ -264,10 +276,9 @@ namespace Core.Users
             {
                 retVal = nDeviceID.Value;
             }
-
             if (!deviceFound) // New Device
             {
-                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, nIsActive, nStatus, m_pin, externalId, macAddress);
+                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, nIsActive, nStatus, m_pin, externalId, macAddress, model, manufacturer);
             }
             else // Update Device
             {
@@ -293,9 +304,11 @@ namespace Core.Users
                     }
 
                     if (!string.IsNullOrEmpty(macAddress) || allowNullMacAddress)
-                    {
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("mac_address", "=", macAddress);
-                    }
+                    if (!string.IsNullOrEmpty(model))
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("model", "=", model);
+                    if (!string.IsNullOrEmpty(manufacturer))
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("manufacturer", "=", manufacturer);
 
                     updateQuery += "where";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", m_deviceUDID);
@@ -325,12 +338,14 @@ namespace Core.Users
 
             m_id = retVal.ToString();
 
-            this.InvalidateDomainDevice();
+            InvalidateDomainDevice();
 
             if (retVal > 0)
             {
-                this.ExternalId = externalId;
-                this.MacAddress = macAddress;
+                ExternalId = externalId;
+                MacAddress = macAddress;
+                Model = model;
+                Manufacturer = manufacturer;
             }
 
             return retVal;
@@ -357,7 +372,7 @@ namespace Core.Users
                 string sNewDevicePIN = GenerateNewPIN();
                 m_pin = sNewDevicePIN;
 
-                nDeviceID = Save(0, 1); // Returns device ID, 0 otherwise
+                nDeviceID = Save(0, 1, new DomainDevice()); // Returns device ID, 0 otherwise
 
                 if (nDeviceID != 0)
                 {
@@ -414,15 +429,14 @@ namespace Core.Users
             return sNewPIN;
         }
 
-        public bool SetDeviceInfo(string sDeviceName, string macAddress, string externalId, 
-            bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        public bool SetDeviceInfo(DomainDevice device, bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             bool res = false;
-            m_deviceName = sDeviceName;
+            m_deviceName = device.Name;
 
             if (m_state >= DeviceState.Pending)
             {
-                int nDeviceID = Save(-1, 1, null, macAddress, externalId, allowNullExternalId, allowNullMacAddress); // Returns device ID, 0 otherwise
+                int nDeviceID = Save(-1, 1, device, allowNullExternalId, allowNullMacAddress); // Returns device ID, 0 otherwise
                 if (nDeviceID != 0)
                 {
                     res = true;
@@ -496,6 +510,8 @@ namespace Core.Users
                 m_pin = ODBCWrapper.Utils.GetSafeStr(dr["pin"]);
                 ExternalId = ODBCWrapper.Utils.GetSafeStr(dr["external_id"]);
                 MacAddress = ODBCWrapper.Utils.GetSafeStr(dr["mac_address"]);
+                Model = ODBCWrapper.Utils.GetSafeStr(dr["model"]);
+                Manufacturer = ODBCWrapper.Utils.GetSafeStr(dr["manufacturer"]);
 
                 PopulateDeviceStreamTypeAndProfile();
 

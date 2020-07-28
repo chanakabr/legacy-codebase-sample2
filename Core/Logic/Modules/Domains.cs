@@ -236,8 +236,7 @@ namespace Core.Domains
             return response;
         }
 
-
-        public static DeviceResponse AddDevice(int nGroupID, int nDomainID, string udid, string deviceName, int deviceBrandID, string externalId, string macAddress)
+        public static DeviceResponse AddDevice(int nGroupID, int nDomainID, Users.DomainDevice device)
         {
             var response = new DeviceResponse
             {
@@ -248,11 +247,10 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref baseDomain, nGroupID);
             if (baseDomain != null)
             {
-                response = baseDomain.AddDevice(nGroupID, nDomainID, udid, deviceName, deviceBrandID, externalId, macAddress);
+                response = baseDomain.AddDevice(nGroupID, nDomainID, device);
             }
             return response;
         }
-
 
         public static DomainStatusResponse RemoveDeviceFromDomain(int nGroupID, int nDomainID, string udid)
         {
@@ -835,14 +833,13 @@ namespace Core.Domains
             return response;
         }
 
-        public static DeviceResponse SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string macAddress, string externalId = ""
-            , bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        public static DeviceResponse SetDevice(int nGroupID, Users.DomainDevice device, bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             Core.Users.BaseDevice t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                DeviceResponseObject responseObject = t.SetDevice(nGroupID, sDeviceUDID, sDeviceName, macAddress, externalId, allowNullExternalId, allowNullMacAddress);
+                DeviceResponseObject responseObject = t.SetDevice(nGroupID, device, allowNullExternalId, allowNullMacAddress);
 
                 DeviceResponse response = new DeviceResponse()
                 {
@@ -935,8 +932,7 @@ namespace Core.Domains
         }
 
 
-        public static DeviceResponse SubmitAddDeviceToDomain(int nGroupID, int domainID, string userID, string deviceUdid, string deviceName,
-            int brandID, string externalId, string macAddress)
+        public static DeviceResponse SubmitAddDeviceToDomain(int nGroupID, int domainID, string userID, Users.DomainDevice device)
         {
             DeviceResponse response = new DeviceResponse() { Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
 
@@ -947,7 +943,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                response = t.SubmitAddDeviceToDomain(nGroupID, domainID, userID, deviceUdid, deviceName, brandID, externalId, macAddress);
+                response = t.SubmitAddDeviceToDomain(nGroupID, domainID, userID, device);
             }
 
             return response;

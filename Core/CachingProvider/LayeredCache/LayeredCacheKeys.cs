@@ -533,7 +533,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainKey(int domainId)
         {
-            return string.Format("domain_V2_{0}", domainId);
+            return string.Format("domain_V3_{0}", domainId);
         }
 
         public static string GetDlmKey(int dlmId)
