@@ -1,10 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Base;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
@@ -74,6 +77,19 @@ namespace WebAPI.Models.Catalog
             }
 
             return values;
+        }
+
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        {
+            var userId = contextData.UserId.ToString();
+            int domainId = (int)(contextData.DomainId ?? 0);
+            bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
+            
+            var response = ClientsManager.CatalogClient().SearchAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), pager.PageSize, this.Ksql,
+                this.OrderBy, this.getTypeIn(), this.getEpgChannelIdIn(), contextData.ManagementData, this.DynamicOrderBy,
+                this.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, this.GroupByOrder);
+
+            return response;
         }
     }
 }

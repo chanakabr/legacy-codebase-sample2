@@ -75,15 +75,25 @@ namespace Core.ConditionalAccess
 
                 if (assetType == eAssetTypes.NPVR || assetType == eAssetTypes.EPG)
                 {
+                    // check permissions                     
+                    bool permittedEpg = RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_EPG);
+                    bool permittedRecording = RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_RECORDING);
+
                     if (validationStatus.Code != (int)eResponseStatus.OK)
                     {
                         if (validationStatus.Code == (int)eResponseStatus.UserSuspended)
                         {
-                            return HandleUserSuspended(groupId, userId, assetId, assetType, response, domainId);
+                            if ((assetType == eAssetTypes.NPVR && !permittedRecording) || (assetType == eAssetTypes.EPG && !permittedEpg))
+                            {
+                                return HandleUserSuspended(groupId, userId, assetId, assetType, response, domainId);
+                            }
                         }
-                        log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", groupId, userId, domainId);
-                        response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
-                        return response;
+                        else
+                        {
+                            log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", groupId, userId, domainId);
+                            response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                            return response;
+                        }                        
                     }
                 }
 
@@ -1012,7 +1022,6 @@ namespace Core.ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
 
-            
             return response;
         }
     }

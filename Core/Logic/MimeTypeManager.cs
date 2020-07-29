@@ -691,7 +691,18 @@ namespace ApiLogic
             }
             else if (file.Take(4).SequenceEqual(ZIP_DOCX))
             {
-                mime = extension == ".DOCX" ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document" : "application/x-zip-compressed";
+                if (extension == ".DOCX" || extension == ".DOC")
+                {
+                    mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                }
+                else if (extension == ".XLSX" || extension == ".XLS")
+                {
+                    mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                }
+                else
+                {
+                    mime = "application/x-zip-compressed";
+                }
             }
 
             return mime;

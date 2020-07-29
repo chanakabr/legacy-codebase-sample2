@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
 using ApiObjects;
+using ApiObjects.Response;
 
 namespace UserTaskHandler
 {
@@ -31,6 +32,7 @@ namespace UserTaskHandler
 
                 bool success = false;
                 string message = string.Empty;
+                Status status = null;
                 
                 log.DebugFormat("Trying to handle user task. Task = {0}, userId = {1}, domainId= {2}",
                     request.Task, request.UserId, request.DomainId);
@@ -38,24 +40,30 @@ namespace UserTaskHandler
                 switch (request.Task)
                 {
                     case ApiObjects.UserTaskType.Delete:
-                    {
-                        var status = Core.ConditionalAccess.Module.HandleUserTask(request.GroupID, request.DomainId, request.UserId, UserTaskType.Delete);
+                        {
+                            status = Core.ConditionalAccess.Module.HandleUserTask(request.GroupID, request.DomainId, request.UserId, UserTaskType.Delete);
 
-                        if (status == null)
-                        {
-                            message = "status is null";
+                            break;
                         }
-                        else if (status.Code != 0)
+                    case ApiObjects.UserTaskType.DeleteDomain:
                         {
-                            message = string.Format("Status code is {0} and message is {1}", status.Code, status.Message);
-                        }
-                        else
-                        {
-                            success = true;
-                        }
+                            status = Core.ConditionalAccess.Module.HandleUserTask(request.GroupID, request.DomainId, request.UserId, UserTaskType.DeleteDomain);
 
-                        break;
-                    }
+                            break;
+                        }
+                }
+
+                if (status == null)
+                {
+                    message = "status is null";
+                }
+                else if (status.Code != 0)
+                {
+                    message = string.Format("Status code is {0} and message is {1}", status.Code, status.Message);
+                }
+                else
+                {
+                    success = true;
                 }
 
                 if (!success)

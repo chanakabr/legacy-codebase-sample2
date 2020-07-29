@@ -1574,7 +1574,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Users.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Users.Module.GenerateLoginPIN(nGroupID, siteGuid, secret);
+                return Core.Users.Module.GenerateLoginPIN(nGroupID, siteGuid, secret, null, null);
             }
             else
             {
@@ -1613,7 +1613,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Users.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Users.Module.SetLoginPIN(nGroupID, siteGuid, PIN, secret);
+                return Core.Users.Module.SetLoginPIN(nGroupID, siteGuid, PIN, secret, null, null);
             }
             else
             {

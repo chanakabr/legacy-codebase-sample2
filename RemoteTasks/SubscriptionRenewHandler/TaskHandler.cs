@@ -65,7 +65,7 @@ namespace SubscriptionRenewHandler
                             if (request.ProcessId > 0)
                             {
                                 success = Core.ConditionalAccess.Module.UnifiedRenewalReminder(
-                                    request.GroupID, request.SiteGuid, request.HouseholdId, request.ProcessId, request.EndDate);
+                                    request.GroupID, request.HouseholdId, request.ProcessId, request.EndDate);
                             }
                             else if (request.PurchaseId > 0)
                             {

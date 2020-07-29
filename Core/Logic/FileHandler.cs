@@ -172,7 +172,7 @@ namespace ApiLogic
             return (id + fileExtension);
         }
 
-        private GenericResponse<string> Validate(string objectTypeName, FileInfo fileInfo = null, string filePath = "")
+        private GenericResponse<string> Validate(string objectTypeName, FileInfo fileInfo = null)
         {
             var validationStatus = new GenericResponse<string>();
             if (fileInfo != null && !fileInfo.Exists)
@@ -185,7 +185,7 @@ namespace ApiLogic
 
             if (validationStatus.IsOkStatusCode())
             {
-                validationStatus.SetStatus(ValidateFileContent(fileInfo, filePath));
+                validationStatus.SetStatus(ValidateFileContent(fileInfo, fileInfo.FullName));
             }
 
             return validationStatus;

@@ -254,6 +254,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CHILD_CATEGORY_NOT_EXIST = new ClientExceptionType(eResponseStatus.ChildCategoryNotExist, "", "Child category does not exist");
         public static ClientExceptionType CHILD_CATEGORY_ALREADY_BELONGS_TO_ANOTHER = new ClientExceptionType(eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory, "", "Child Category already belongs to another category");
         public static ClientExceptionType CHILD_CATEGORY_CANNOT_BE_THE_CATEGORY_ITSELF = new ClientExceptionType(eResponseStatus.ChildCategoryCannotBeTheCategoryItself, "", "A child category cannot be the category itself");
+        public static ClientExceptionType INVALID_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.InvalidAssetStruct, "", "Invalid asset struct");
+        public static ClientExceptionType NO_NEXT_EPISODE = new ClientExceptionType(eResponseStatus.NoNextEpisode, "", "User have not started watching this TV series");
 
         #endregion
 
@@ -307,6 +309,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType REGION_CANNOT_BE_PARENT = new ClientExceptionType(eResponseStatus.RegionCannotBeParent, "Region cannot be parent", "Region cannot be parent");
         public static ClientExceptionType DEFAULT_REGION_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.DefaultRegionCannotBeDeleted, "Default region cannot be deleted", "Default region cannot be deleted");
         public static ClientExceptionType CANNOT_DELETE_REGION_IN_USE = new ClientExceptionType(eResponseStatus.CannotDeleteRegionInUse, "Region in use cannot be deleted", "Region in use cannot be deleted");
+        public static ClientExceptionType FILE_EXCEEDED_MAX_SIZE = new ClientExceptionType(eResponseStatus.FileExceededMaxSize, "File Exceeded Max Size", "File Exceeded Max Size");
+        public static ClientExceptionType FILE_EXTENSION_NOT_SUPPORTED = new ClientExceptionType(eResponseStatus.FileExtensionNotSupported, "File Extension Not Supported", "File Extension Not Supported");
+        public static ClientExceptionType FILE_MIME_DIFFERENT_THAN_EXPECTED = new ClientExceptionType(eResponseStatus.FileMimeDifferentThanExpected, "File Mime Different Than Expected", "File Mime Different Than Expected");
 
         #endregion
 

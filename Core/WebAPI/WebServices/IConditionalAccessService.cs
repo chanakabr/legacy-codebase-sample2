@@ -79,8 +79,6 @@ namespace WebAPI.WebServices
         [OperationContract]
         SeriesRecording DeleteSeriesRecord(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId, long epgId, long seasonNumber);
         [OperationContract]
-        bool DistributeRecording(string sWSUserName, string sWSPassword, long epgId, long Id, DateTime epgStartDate);
-        [OperationContract]
         bool DistributeRecordingWithDomainIds(string sWSUserName, string sWSPassword, long epgId, long Id, DateTime epgStartDate, long[] domainSeriesIds);
         [OperationContract]
         CDVRAdapterResponse GenerateCDVRSharedSecret(string sWSUserName, string sWSPassword, int adapterId);

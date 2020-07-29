@@ -278,7 +278,7 @@ namespace WebAPI.Clients
             }
             var dmsRestUrl = string.Format("{0}/api/{1}", dmsServer, url);
 
-            StringContent strContent = new StringContent(data, Encoding.UTF8, "application/json");
+            StringContent strContent = new StringContent(data != null ? data : string.Empty , Encoding.UTF8, "application/json");
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {

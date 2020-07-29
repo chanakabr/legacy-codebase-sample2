@@ -70,7 +70,7 @@ namespace Core.Catalog
         public long? ConnectingMetaId { get; set; }
         public long? ConnectedParentMetaId { get; set; }
         public string PluralName { get; set; }
-
+        
         // currently used only for internal use for migration and migrated accounts
         public bool IsLinearAssetStruct { get; set; }
 

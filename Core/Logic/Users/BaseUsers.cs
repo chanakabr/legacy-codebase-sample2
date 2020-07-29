@@ -76,7 +76,7 @@ namespace Core.Users
         }
 
         #region Abstract Methods
-        
+
         public abstract Domain AddUserToDomain(Int32 nGroupID, Int32 domainID, Int32 userGuid, bool isMaster);
         public abstract UserResponseObject CheckUserPassword(string username, string sPass, Int32 nMaxFailCount, Int32 nLockMinutes, Int32 nGroupID, bool bPreventDoubleLoginsbool);
         public abstract UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins);
@@ -1009,7 +1009,7 @@ namespace Core.Users
         /// <param name="groupID">group id</param>
         /// <param name="secret">security parameter</param>
         /// <returns>PinCodeResponse containing the generated pin code </returns>
-        public virtual PinCodeResponse GenerateLoginPIN(string siteGuid, int groupID, string secret)
+        public virtual PinCodeResponse GenerateLoginPIN(string siteGuid, int groupID, string secret, int? pinUsages, long? pinDuration)
         {
             PinCodeResponse response = new PinCodeResponse();
             try
@@ -1030,7 +1030,7 @@ namespace Core.Users
                             // generate login pin code
                             string pinCode = GenerateNewPIN(groupID);
 
-                            DataTable dt = DAL.UsersDal.Insert_LoginPIN(siteGuid, pinCode, groupID, DateTime.UtcNow, secret);
+                            DataTable dt = DAL.UsersDal.Insert_LoginPIN(siteGuid, pinCode, groupID, DateTime.UtcNow, secret, pinUsages, pinDuration);
                             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                             {
                                 DataRow dr = dt.Rows[0];
@@ -1235,8 +1235,10 @@ namespace Core.Users
                 if (isSecret)
                 {
                     int userId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_id");//, up.pinCode, up.
-                    DateTime expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
-                    if (DateTime.UtcNow >= expiredDate) // pincode is expired
+                    var dbUtcNow = ODBCWrapper.Utils.GetDateSafeVal(dr, "utc_Now");
+                    var expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
+
+                    if (expiredDate <= dbUtcNow) // pincode is expired
                     {
                         response.SetStatus(eResponseStatus.PinExpired, "Pin code expired at " + expiredDate.ToString());
                     }
@@ -1276,7 +1278,7 @@ namespace Core.Users
         /// <param name="groupID">group id</param>
         /// <param name="secret">must be supplied if security is forced</param>
         /// <returns></returns>
-        public PinCodeResponse SetLoginPIN(string siteGuid, string pinCode, int groupID, string secret)
+        public PinCodeResponse SetLoginPIN(string siteGuid, string pinCode, int groupID, string secret, int? pinUsages, long? pinDuration)
         {
             PinCodeResponse response = new PinCodeResponse();
             try
@@ -1313,7 +1315,7 @@ namespace Core.Users
                     // insert new PIN to user with expired date 
                     else
                     {
-                        DataTable dt = DAL.UsersDal.Insert_LoginPIN(siteGuid, pinCode, groupID, DateTime.UtcNow, secret);
+                        DataTable dt = DAL.UsersDal.Insert_LoginPIN(siteGuid, pinCode, groupID, DateTime.UtcNow, secret, pinUsages, pinDuration);
 
                         if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                         {

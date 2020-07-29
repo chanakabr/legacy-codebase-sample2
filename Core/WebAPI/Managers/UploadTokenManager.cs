@@ -81,18 +81,13 @@ namespace WebAPI.Managers
             log.DebugFormat("UploadUploadToken function params -> Id: {0}, filename: {1}, GroupId: {2}", id, fileData.name, groupId);
 
             UploadToken cbUploadToken = GetUploadToken(id, groupId);
-            OTTBasicFile file = fileData.ConvertToOttFileType();
-
-            OTTFile _file = null;
-
+            OTTBasicFile file = fileData.ConvertToOttFileType();       
+                        
             if (file is OTTFile)
             {
-                _file = file as OTTFile;
                 cbUploadToken.FileSize = new FileInfo(fileData.path).Length;
             }
-
-            long.TryParse(id, out long _id);
-            var saveFileResponse = FileHandler.Instance.SaveFile(_id, _file, "KalturaUploadToken");
+            var saveFileResponse = file.SaveFile(id, "KalturaUploadToken");            
                                   
             if (saveFileResponse == null)
             {

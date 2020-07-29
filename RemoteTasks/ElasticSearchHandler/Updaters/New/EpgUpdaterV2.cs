@@ -256,7 +256,7 @@ namespace ElasticSearchHandler.Updaters
                                     // in that case we need to use the specific date alias for each epg item to update
                                     if (isIngestV2)
                                     {
-                                        alias = IndexManager.GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date);
+                                        alias = GetAliasWithStartDate(groupId, epg.StartDate.Date);
                                     }
 
                                     epg.PadMetas(metasToPad);
@@ -451,6 +451,11 @@ namespace ElasticSearchHandler.Updaters
         protected virtual string GetAlias()
         {
             return ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
+        }
+
+        protected virtual string GetAliasWithStartDate(int groupId, DateTime startDate)
+        {
+            return IndexManager.GetIngestCurrentProgramsAliasName(groupId, startDate);
         }
     }
 }

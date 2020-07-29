@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29503.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OPC_Migration", "OPC_Migration.csproj", "{760546D7-C170-48A7-B0D4-D9817C6D1D58}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{68EFD3A1-FC80-4C7B-96E6-695F3602E0DB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiLogic", "..\Core\Logic\ApiLogic.csproj", "{B63D9C55-F11B-435D-B7B6-6A7B934AA18E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{760546D7-C170-48A7-B0D4-D9817C6D1D58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{760546D7-C170-48A7-B0D4-D9817C6D1D58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{760546D7-C170-48A7-B0D4-D9817C6D1D58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{760546D7-C170-48A7-B0D4-D9817C6D1D58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B63D9C55-F11B-435D-B7B6-6A7B934AA18E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B63D9C55-F11B-435D-B7B6-6A7B934AA18E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B63D9C55-F11B-435D-B7B6-6A7B934AA18E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B63D9C55-F11B-435D-B7B6-6A7B934AA18E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B63D9C55-F11B-435D-B7B6-6A7B934AA18E} = {68EFD3A1-FC80-4C7B-96E6-695F3602E0DB}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2F049685-53E5-4EAD-9C4D-B9EB92FDAEE1}
+	EndGlobalSection
+EndGlobal

@@ -49,7 +49,7 @@ namespace ElasticSearch.Searcher
             }
         }
 
-        public virtual FilteredQuery BuildChannelFilteredQuery(bool bAddDeviceRuleID = true)
+        public virtual FilteredQuery BuildChannelFilteredQuery(bool bAddDeviceRuleID = true, bool shouldMinimizeQuery = false)
         {
             FilteredQuery query = null;
 
@@ -164,14 +164,18 @@ namespace ElasticSearch.Searcher
             oGroupWPComposite.AddChild(groupTerm);
             oGroupWPComposite.AddChild(permittedWatcFilter);
 
-            filterParent.AddChild(oGroupWPComposite);
-            filterParent.AddChild(isActiveTerm);
             filterParent.AddChild(startDateRange);
             filterParent.AddChild(endDateRange);
             filterParent.AddChild(mediaTerm);
-            filterParent.AddChild(userTypeTerm);
             filterParent.AddChild(mediaTypesTerm);
-            filterParent.AddChild(deviceRulesTerms);
+
+            if (!shouldMinimizeQuery)
+            {
+                filterParent.AddChild(oGroupWPComposite);
+                filterParent.AddChild(isActiveTerm);
+                filterParent.AddChild(userTypeTerm);
+                filterParent.AddChild(deviceRulesTerms);
+            }
 
             if (QueryType == eQueryType.EXACT)
             {

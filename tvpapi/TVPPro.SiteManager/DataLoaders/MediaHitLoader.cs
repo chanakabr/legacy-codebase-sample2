@@ -290,7 +290,6 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
-        // TODO SHIR - ASK LIOR WHAT THIS IS
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
         {
             MediaHit result = new MediaHit();
