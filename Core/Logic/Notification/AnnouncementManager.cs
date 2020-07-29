@@ -1700,6 +1700,7 @@ namespace Core.Notification
                 {
                     log.Error($"Announcement not exist in DB: group: {groupId}, Id: {id}");
                     response.SetStatus(eResponseStatus.AnnouncementNotFound, ANNOUNCEMENT_NOT_FOUND);
+                    return response;
                 }
 
                 response.Object = Utils.GetMessageAnnouncementFromDataRow(dr);

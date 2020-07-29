@@ -1378,7 +1378,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateUnifiedProcess(long processId, DateTime? endDate, int? processUnifiedState)
+        public static bool UpdateUnifiedProcess(long processId, DateTime? endDate, int? processUnifiedState, long? cycle)
         {
             try
             {
@@ -1389,10 +1389,17 @@ namespace DAL
                 {
                     sp.AddParameter("@EndDate", endDate.Value);
                 }
+
                 if (processUnifiedState.HasValue)
                 {
                     sp.AddParameter("@ProcessUnifiedState", processUnifiedState.Value);
                 }
+
+                if (cycle.HasValue)
+                {
+                    sp.AddParameter("@Cycle", cycle.Value);
+                }
+
                 return sp.ExecuteReturnValue<bool>();
             }
             catch
@@ -1517,7 +1524,7 @@ namespace DAL
             return nStreamingCoID;
         }
 
-        public static long InsertUnifiedProcess(int groupId, int paymentGatewayId, DateTime endDate, long householdId, int processPurchasesState = 0)
+        public static long InsertUnifiedProcess(int groupId, int paymentGatewayId, DateTime endDate, long householdId, long cycle, int processPurchasesState)
         {
             try
             {
@@ -1528,6 +1535,7 @@ namespace DAL
                 sp.AddParameter("@endDate", endDate);
                 sp.AddParameter("@householdId", householdId);
                 sp.AddParameter("@state", processPurchasesState);
+                sp.AddParameter("@cycle", cycle);
 
                 return sp.ExecuteReturnValue<long>();
             }
@@ -1537,7 +1545,7 @@ namespace DAL
             }
         }
 
-        public static DataTable GetUnifiedProcessId(int groupId, int paymentGatewayId, DateTime endDate, long householdId, int? processPurchasesState = null)
+        public static DataTable GetUnifiedProcessId(int groupId, int paymentGatewayId, DateTime endDate, long householdId, long cycle, int? processPurchasesState)
         {
             try
             {
@@ -1547,6 +1555,7 @@ namespace DAL
                 sp.AddParameter("@paymentGatewayID", paymentGatewayId);
                 sp.AddParameter("@endDate", endDate);
                 sp.AddParameter("@householdId", householdId);
+                sp.AddParameter("@cycle", cycle);
                 if (processPurchasesState.HasValue)
                 {
                     sp.AddParameter("@state", processPurchasesState.Value);
@@ -1558,7 +1567,7 @@ namespace DAL
                 }
                 return null;
             }
-            catch
+            catch 
             {
                 return null;
             }
@@ -3253,39 +3262,32 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataTable GetUnifiedProcessIdByHouseholdPaymentGateway(int groupId, long paymentGatewayId, long householdId)
+        public static DataTable GetUnifiedProcessIdByHouseholdPaymentGateway(int groupId, long paymentGatewayId, long householdId, long cycle = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUnifiedProcessIdByHouseholdPaymentGateway");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@paymentGatewayId", paymentGatewayId);
             sp.AddParameter("@householdId", householdId);
+            if (cycle > 0)
+            {
+                sp.AddParameter("@cycle", cycle);
+            }
 
             return sp.Execute();
         }
 
-        public static bool SetSubscriptionPurchaseStatusByUnifiedProccessId(int groupId, long unifiedProccessId, SubscriptionPurchaseStatus subscriptionPurchseStatus, int paymentGatewayId, long householdId, PaymentGatewayStatus isSuspend)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetSubscriptionPurchaseStatusByUnifiedProccessId");
-            sp.SetConnectionKey("CA_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@unifiedProccessId", unifiedProccessId);
-            sp.AddParameter("@subscriptionPurchseStatus", (int)subscriptionPurchseStatus);
-            sp.AddParameter("@paymentGatewayId", paymentGatewayId);
-            sp.AddParameter("@householdId", householdId);
-            sp.AddParameter("@isSuspend", (int)isSuspend);
-
-            return sp.ExecuteReturnValue<int>() > 0;
-        }
-
-        public static bool SetSubscriptionPurchaseStatusByUnifiedProccessIds(int groupId, List<long> unifiedProccessIds, SubscriptionPurchaseStatus subscriptionPurchseStatus, PaymentGatewayStatus isSuspend)
+        public static bool SetSubscriptionPurchaseStatusByUnifiedProccessIds(int groupId, List<long> unifiedProccessIds, bool isRevoke)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetSubscriptionPurchaseStatusByUnifiedProccessIds");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddIDListParameter<long>("@unifiedProccessIds", unifiedProccessIds, "Id");
-            sp.AddParameter("@subscriptionPurchseStatus", (int)subscriptionPurchseStatus);
-            sp.AddParameter("@isSuspend", (int)isSuspend);
+            sp.AddParameter("@subscriptionPurchseStatus", (int)SubscriptionPurchaseStatus.Suspended);
+            if (isRevoke)
+            {
+                sp.AddParameter("@isRevoke", 1);
+            }
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
@@ -3435,6 +3437,40 @@ namespace DAL
         {
             string key = UtilsDal.GetRecurringRenewDetailsKey(purchaseId);
             return UtilsDal.GetObjectFromCB<RecurringRenewDetails>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        private static string GetResumRenewAdapterDataKey(long purchaseId)
+        {
+            return $"resum_renew_adapterData_purchaseId_{purchaseId}";
+        }
+
+        public static bool SaveResumRenewAdapterData(List<ApiObjects.KeyValuePair> adapterData, long purchaseId)
+        {
+            string key = GetResumRenewAdapterDataKey(purchaseId);
+            return UtilsDal.SaveObjectInCB(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key, adapterData, false, 3600);
+        }
+
+        public static List<ApiObjects.KeyValuePair> GetResumRenewAdapterData(long purchaseId)
+        {
+            string key = GetResumRenewAdapterDataKey(purchaseId);
+            return UtilsDal.GetObjectFromCB<List<ApiObjects.KeyValuePair>>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
+        }
+        
+        private static string GetResumRenewUnifiedAdapterDataKey(long processId)
+        {
+            return $"resum_renew_unified_adapterData_processId_{processId}";
+        }
+
+        public static bool SaveResumRenewUnifiedAdapterData(List<ApiObjects.KeyValuePair> adapterData, long processId)
+        {
+            string key = GetResumRenewUnifiedAdapterDataKey(processId);
+            return UtilsDal.SaveObjectInCB(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key, adapterData, false, 3600);
+        }
+
+        public static List<ApiObjects.KeyValuePair> GetResumRenewUnifiedAdapterData(long processId)
+        {
+            string key = GetResumRenewUnifiedAdapterDataKey(processId);
+            return UtilsDal.GetObjectFromCB<List<ApiObjects.KeyValuePair>>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
         }
     }
 }

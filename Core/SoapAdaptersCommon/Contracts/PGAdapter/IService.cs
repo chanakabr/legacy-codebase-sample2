@@ -30,7 +30,7 @@ namespace PGAdapter
             string purchaseToken, long timeStamp, string signature, string contentId, string adapterData);
 
         [OperationContract]
-        TransactionResponse ProcessRenewal(int paymentGatewayId, string userId, string productId, string productCode, string transactionId, int gracePeriodMinutes, double price, string currency, string chargeId, string paymentMethodExternalId, long timeStamp, string signature);
+        TransactionResponse ProcessRenewal(int paymentGatewayId, string userId, string productId, string productCode, string transactionId, int gracePeriodMinutes, double price, string currency, string chargeId, string paymentMethodExternalId, long timeStamp, string signature, List<KeyValue> AdapterData = null);
 
         [OperationContract]
         PaymentMethodResponse RemovePaymentMethod(int paymentGatewayId, string householdChargeId, string paymentMethodExternalId, long timeStamp, string signature);
@@ -40,6 +40,6 @@ namespace PGAdapter
 
         [OperationContract]
         TransactionResponse UnifiedProcessRenewal(int paymentGatewayId, long housholdId, string chargeId, string paymentMethodExternalId, string currency,
-                 double totalPrice, List<TransactionProductDetails> renewSubscription, long timeStamp, string signature);
+                 double totalPrice, List<TransactionProductDetails> renewSubscription, long timeStamp, string signature, List<KeyValue> AdapterData = null);
     }
 }

@@ -29,7 +29,7 @@ namespace Core.Users
             ApiObjects.Response.Status status = null;
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
             device.Initialize(sDeviceUDID);
-            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, "");
+            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, "", "");
 
             // in case set device Succeeded
             // domain should be remove from the cache 
@@ -68,7 +68,8 @@ namespace Core.Users
             return status;
         }
 
-        public override DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string externalId, bool allowNullExternalId)
+        public override DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string macAddress, 
+            string externalId, bool allowNullExternalId, bool allowNullMacAddress = false)
         {
             DeviceResponseObject ret = new DeviceResponseObject();
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
@@ -91,7 +92,8 @@ namespace Core.Users
                 return ret;
             }
 
-            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, externalId, allowNullExternalId);
+            var _deviceName = !string.IsNullOrEmpty(sDeviceName) ? sDeviceName : device.m_deviceName;
+            bool isSetSucceeded = device.SetDeviceInfo(_deviceName, macAddress, externalId, allowNullExternalId, allowNullMacAddress);
 
             // in case set device Succeeded
             // domain should be remove from the cache 

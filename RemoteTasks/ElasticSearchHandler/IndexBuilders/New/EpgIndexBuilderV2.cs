@@ -47,7 +47,6 @@ namespace ElasticSearchHandler.IndexBuilders
 
         public override bool BuildIndex()
         {
-            bool success = false;
 
             ContextData cd = new ContextData();
             CatalogGroupCache catalogGroupCache;
@@ -123,18 +122,18 @@ namespace ElasticSearchHandler.IndexBuilders
 
             if (this.SwitchIndexAlias || !indexExists)
             {
-
                 string groupAlias = GetAlias();
                 List<string> oldIndices = api.GetAliases(groupAlias);
 
-                success = api.SwitchIndex(newIndexName, groupAlias, oldIndices, null);
+                bool switchSuccess = api.SwitchIndex(newIndexName, groupAlias, oldIndices, null);
 
-                if (!success)
+                if (!switchSuccess)
                 {
                     log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, groupAlias);
+                    return false;
                 }
 
-                if (this.DeleteOldIndices && success && oldIndices.Count > 0)
+                if (this.DeleteOldIndices && oldIndices.Count > 0)
                 {
                     api.DeleteIndices(oldIndices);
                 }
@@ -142,7 +141,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #endregion
 
-            return success;
+            return true;
         }
 
 

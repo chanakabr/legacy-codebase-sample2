@@ -10,6 +10,7 @@ using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
+using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
@@ -33,6 +34,7 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
             string udid = KSUtils.ExtractKSPayload().UDID;
+            KalturaBaseResponseProfile responseProfile = Utils.Utils.GetResponseProfileFromRequest();
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -68,19 +70,39 @@ namespace WebAPI.Controllers
 
             // validate typeIn - can be multiple only if does not contain recordings!
             List<int> filterTypes = filter.getTypeIn();
-            if (filterTypes != null && filterTypes.Count > 1 && filterTypes.Contains(1))
+            if (filterTypes != null && filterTypes.Count > 1)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
-                    "KalturaAssetHistoryFilter.typeIn containing recording (1)", "KalturaAssetHistoryFilter.typeIn with single / multiple media types");
+                if (filterTypes.Contains(1))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                        "KalturaAssetHistoryFilter.typeIn containing recording (1)", "KalturaAssetHistoryFilter.typeIn with single / multiple media types");
+                }
+
+                if (filterTypes.Contains(0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                        "KalturaAssetHistoryFilter.typeIn containing program (0)", "KalturaAssetHistoryFilter.typeIn with single / multiple media types");
+                }
             }
 
             string language = Utils.Utils.GetLanguageFromRequest();
 
             try
             {
+                bool suppress = false;
+                if (responseProfile != null && responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
+                {
+                    var profile = detachedResponseProfile.RelatedProfiles?.FirstOrDefault(x => x.Filter is KalturaAssetHistorySuppressFilter);
+
+                    if (profile != null)
+                    {
+                        suppress = true;
+                    }
+                }
+
                 // call client
                 response = ClientsManager.CatalogClient().getAssetHistory(groupId, userId.ToString(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn());
+                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn(), suppress);
             }
             catch (ClientException ex)
             {
@@ -216,10 +238,19 @@ namespace WebAPI.Controllers
 
             // validate typeIn - can be multiple only if does not contain recordings!
             List<int> filterTypes = filter.getTypeIn();
-            if (filterTypes != null && filterTypes.Count > 1 && filterTypes.Contains(1))
+            if (filterTypes != null && filterTypes.Count > 1)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
-                    "KalturaAssetHistoryFilter.typeIn containing recording (1)", "KalturaAssetHistoryFilter.typeIn with single / multiple media types");
+                if (filterTypes.Contains(1))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                        "KalturaAssetHistoryFilter.typeIn containing recording (1)", "KalturaAssetHistoryFilter.typeIn with single / multiple media types");
+                }
+
+                if (filterTypes.Contains(0))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                        "KalturaAssetHistoryFilter.typeIn containing program (0)", "KalturaAssetHistoryFilter.typeIn with single / multiple media types");
+                }
             }
 
             try
@@ -231,6 +262,37 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
+        }
+
+        /// <summary>
+        /// Get next episode by last watch asset in given assetId
+        /// </summary>
+        /// <param name="assetId">asset Id of series to search for next episode</param>
+        /// <returns></returns>
+        [Action("getNextEpisode")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("assetId", MinLong = 1)]
+        [Throws(eResponseStatus.InvalidAssetType)]
+        [Throws(eResponseStatus.InvalidAssetStruct)]
+        [Throws(eResponseStatus.TopicNotFound)]
+        [Throws(eResponseStatus.MetaDoesNotExist)]
+        [Throws(eResponseStatus.NoNextEpisode)] 
+        static public KalturaAssetHistory GetNextEpisode(long assetId) 
+        {
+            KalturaAssetHistory response = null;
+
+            try
+            {
+                var contextData = KS.GetContextData();
+                response = ClientsManager.CatalogClient().GetNextEpisode(contextData.GroupId,contextData.UserId.ToString(), assetId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
     }
 }

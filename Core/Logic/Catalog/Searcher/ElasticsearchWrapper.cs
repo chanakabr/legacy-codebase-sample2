@@ -469,9 +469,8 @@ namespace Core.Catalog
             return finalSearchResults;
         }
 
-        private static BoolQuery BuildMultipleSearchQuery(List<BaseSearchObject> searchObjects, int parentGroupId)
+        private static BoolQuery BuildMultipleSearchQuery(List<BaseSearchObject> searchObjects, int parentGroupId, bool shouldMinimizeQuery = false)
         {
-
             ESMediaQueryBuilder mediaQueryBuilder = new ESMediaQueryBuilder();
             ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, parentGroupId);
 
@@ -494,7 +493,7 @@ namespace Core.Catalog
                     mediaSearchObject.m_nPageSize = 0;
                     mediaQueryBuilder.oSearchObject = mediaSearchObject;
                     mediaQueryBuilder.QueryType = (mediaSearchObject.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
-                    FilteredQuery tempQuery = mediaQueryBuilder.BuildChannelFilteredQuery();
+                    FilteredQuery tempQuery = mediaQueryBuilder.BuildChannelFilteredQuery(true, shouldMinimizeQuery);
 
                     if (tempQuery != null && tempQuery.Filter != null)
                     {
@@ -514,7 +513,7 @@ namespace Core.Catalog
                     BaseFilterCompositeType currentFilter;
                     IESTerm currentQuery;
 
-                    unifiedQueryBuilder.BuildInnerFilterAndQuery(out currentFilter, out currentQuery, definitions.shouldIgnoreDeviceRuleID);
+                    unifiedQueryBuilder.BuildInnerFilterAndQuery(out currentFilter, out currentQuery, definitions.shouldIgnoreDeviceRuleID, true, shouldMinimizeQuery);
 
                     ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
                     {
@@ -1196,7 +1195,7 @@ namespace Core.Catalog
                 unifiedSearchDefinitions.entitlementSearchDefinitions.subscriptionSearchObjects != null)
             {
                 // If we need to search by entitlements, we have A LOT of work to do now
-                BoolQuery boolQuery = BuildMultipleSearchQuery(unifiedSearchDefinitions.entitlementSearchDefinitions.subscriptionSearchObjects, parentGroupId);
+                BoolQuery boolQuery = BuildMultipleSearchQuery(unifiedSearchDefinitions.entitlementSearchDefinitions.subscriptionSearchObjects, parentGroupId, true);
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 

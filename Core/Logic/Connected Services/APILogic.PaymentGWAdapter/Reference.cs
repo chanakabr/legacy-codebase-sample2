@@ -181,6 +181,8 @@ namespace APILogic.PaymentGWAdapter
     public partial class Transaction : object
     {
         
+        private APILogic.PaymentGWAdapter.KeyValue[] AdapterDataField;
+        
         private bool AutoRenewingField;
         
         private long EndDateSecondsField;
@@ -202,6 +204,19 @@ namespace APILogic.PaymentGWAdapter
         private long StartDateSecondsField;
         
         private int StateCodeField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public APILogic.PaymentGWAdapter.KeyValue[] AdapterData
+        {
+            get
+            {
+                return this.AdapterDataField;
+            }
+            set
+            {
+                this.AdapterDataField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool AutoRenewing
@@ -517,7 +532,7 @@ namespace APILogic.PaymentGWAdapter
         System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.TransactionResponse> VerifyTransactionAsync(int paymentGatewayId, string userId, string ip, string productId, string productCode, APILogic.PaymentGWAdapter.eTransactionType transactionType, string purchaseToken, long timeStamp, string signature, string contentId, string adapterData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/ProcessRenewal", ReplyAction="http://tempuri.org/IService/ProcessRenewalResponse")]
-        System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.TransactionResponse> ProcessRenewalAsync(int paymentGatewayId, string userId, string productId, string productCode, string transactionId, int gracePeriodMinutes, double price, string currency, string chargeId, string paymentMethodExternalId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.TransactionResponse> ProcessRenewalAsync(int paymentGatewayId, string userId, string productId, string productCode, string transactionId, int gracePeriodMinutes, double price, string currency, string chargeId, string paymentMethodExternalId, long timeStamp, string signature, APILogic.PaymentGWAdapter.KeyValue[] AdapterData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/RemovePaymentMethod", ReplyAction="http://tempuri.org/IService/RemovePaymentMethodResponse")]
         System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.PaymentMethodResponse> RemovePaymentMethodAsync(int paymentGatewayId, string householdChargeId, string paymentMethodExternalId, long timeStamp, string signature);
@@ -526,7 +541,7 @@ namespace APILogic.PaymentGWAdapter
         System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.PaymentMethodResponse> RemoveAccountAsync(int paymentGatewayId, string householdChargeId, string[] paymentMethodExternalIds, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/UnifiedProcessRenewal", ReplyAction="http://tempuri.org/IService/UnifiedProcessRenewalResponse")]
-        System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.TransactionResponse> UnifiedProcessRenewalAsync(int paymentGatewayId, long housholdId, string chargeId, string paymentMethodExternalId, string currency, double totalPrice, APILogic.PaymentGWAdapter.TransactionProductDetails[] renewSubscription, long timeStamp, string signature);
+        System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.TransactionResponse> UnifiedProcessRenewalAsync(int paymentGatewayId, long housholdId, string chargeId, string paymentMethodExternalId, string currency, double totalPrice, APILogic.PaymentGWAdapter.TransactionProductDetails[] renewSubscription, long timeStamp, string signature, APILogic.PaymentGWAdapter.KeyValue[] AdapterData);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
@@ -549,7 +564,7 @@ namespace APILogic.PaymentGWAdapter
         public ServiceClient() : 
                 base(ServiceClient.GetDefaultBinding(), ServiceClient.GetDefaultEndpointAddress())
         {
-            this.Endpoint.Name = EndpointConfiguration.BasicHttpBinding_IService.ToString();
+            this.Endpoint.Name = EndpointConfiguration.BasicHttpBinding.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
         
@@ -604,9 +619,9 @@ namespace APILogic.PaymentGWAdapter
             return base.Channel.VerifyTransactionAsync(paymentGatewayId, userId, ip, productId, productCode, transactionType, purchaseToken, timeStamp, signature, contentId, adapterData);
         }
         
-        public System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.TransactionResponse> ProcessRenewalAsync(int paymentGatewayId, string userId, string productId, string productCode, string transactionId, int gracePeriodMinutes, double price, string currency, string chargeId, string paymentMethodExternalId, long timeStamp, string signature)
+        public System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.TransactionResponse> ProcessRenewalAsync(int paymentGatewayId, string userId, string productId, string productCode, string transactionId, int gracePeriodMinutes, double price, string currency, string chargeId, string paymentMethodExternalId, long timeStamp, string signature, APILogic.PaymentGWAdapter.KeyValue[] AdapterData)
         {
-            return base.Channel.ProcessRenewalAsync(paymentGatewayId, userId, productId, productCode, transactionId, gracePeriodMinutes, price, currency, chargeId, paymentMethodExternalId, timeStamp, signature);
+            return base.Channel.ProcessRenewalAsync(paymentGatewayId, userId, productId, productCode, transactionId, gracePeriodMinutes, price, currency, chargeId, paymentMethodExternalId, timeStamp, signature, AdapterData);
         }
         
         public System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.PaymentMethodResponse> RemovePaymentMethodAsync(int paymentGatewayId, string householdChargeId, string paymentMethodExternalId, long timeStamp, string signature)
@@ -619,9 +634,9 @@ namespace APILogic.PaymentGWAdapter
             return base.Channel.RemoveAccountAsync(paymentGatewayId, householdChargeId, paymentMethodExternalIds, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.TransactionResponse> UnifiedProcessRenewalAsync(int paymentGatewayId, long housholdId, string chargeId, string paymentMethodExternalId, string currency, double totalPrice, APILogic.PaymentGWAdapter.TransactionProductDetails[] renewSubscription, long timeStamp, string signature)
+        public System.Threading.Tasks.Task<APILogic.PaymentGWAdapter.TransactionResponse> UnifiedProcessRenewalAsync(int paymentGatewayId, long housholdId, string chargeId, string paymentMethodExternalId, string currency, double totalPrice, APILogic.PaymentGWAdapter.TransactionProductDetails[] renewSubscription, long timeStamp, string signature, APILogic.PaymentGWAdapter.KeyValue[] AdapterData)
         {
-            return base.Channel.UnifiedProcessRenewalAsync(paymentGatewayId, housholdId, chargeId, paymentMethodExternalId, currency, totalPrice, renewSubscription, timeStamp, signature);
+            return base.Channel.UnifiedProcessRenewalAsync(paymentGatewayId, housholdId, chargeId, paymentMethodExternalId, currency, totalPrice, renewSubscription, timeStamp, signature, AdapterData);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()
@@ -636,7 +651,7 @@ namespace APILogic.PaymentGWAdapter
         
         private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(EndpointConfiguration endpointConfiguration)
         {
-            if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding_IService))
+            if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding))
             {
                 System.ServiceModel.BasicHttpBinding result = new System.ServiceModel.BasicHttpBinding();
                 result.MaxBufferSize = int.MaxValue;
@@ -650,27 +665,27 @@ namespace APILogic.PaymentGWAdapter
         
         private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration)
         {
-            if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding_IService))
+            if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding))
             {
-                return new System.ServiceModel.EndpointAddress("http://localhost:90/PGAdapter/Service.svc");
+                return new System.ServiceModel.EndpointAddress("http://localhost:5000/PGAdapter/Service.svc");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
         
         private static System.ServiceModel.Channels.Binding GetDefaultBinding()
         {
-            return ServiceClient.GetBindingForEndpoint(EndpointConfiguration.BasicHttpBinding_IService);
+            return ServiceClient.GetBindingForEndpoint(EndpointConfiguration.BasicHttpBinding);
         }
         
         private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress()
         {
-            return ServiceClient.GetEndpointAddress(EndpointConfiguration.BasicHttpBinding_IService);
+            return ServiceClient.GetEndpointAddress(EndpointConfiguration.BasicHttpBinding);
         }
         
         public enum EndpointConfiguration
         {
             
-            BasicHttpBinding_IService,
+            BasicHttpBinding,
         }
     }
 }

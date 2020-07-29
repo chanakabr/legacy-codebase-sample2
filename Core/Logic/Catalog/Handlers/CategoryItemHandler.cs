@@ -645,39 +645,44 @@ namespace Core.Catalog.Handlers
         {
             Dictionary<string, UnifiedChannelInfo> channelsInfo = new Dictionary<string, UnifiedChannelInfo>();
 
-            List<long> externalChannels = unifiedChannels.Where(x => x.Type == UnifiedChannelType.External).Select(y => y.Id).ToList();
-            List<long> intenalChannels = unifiedChannels.Where(x => x.Type == UnifiedChannelType.Internal).Select(y => y.Id).ToList();
-
-            //check external channel exist
-            foreach (var channelId in externalChannels)
+            foreach (var unifiedChannel in unifiedChannels)
             {
-                var ec = ExternalChannelManager.GetChannelById(groupId, (int)channelId, true, userId);
+                var unifiedChannelInfo = unifiedChannel as UnifiedChannelInfo;
+                UnifiedChannelInfo uci = new UnifiedChannelInfo() { Id = unifiedChannel.Id };
 
-                if (ec != null && ec.IsOkStatusCode() && ec.Object != null)
+                //check external channel exist
+                if (unifiedChannel.Type == UnifiedChannelType.External)
                 {
-                    UnifiedChannelInfo uci = new UnifiedChannelInfo()
+                    var ec = ExternalChannelManager.GetChannelById(groupId, (int)unifiedChannel.Id, true, userId);
+                    if (ec != null && ec.IsOkStatusCode() && ec.Object != null)
                     {
-                        Id = channelId,
-                        Type = UnifiedChannelType.External,
-                        Name = ec.Object.Name
-                    };
-                    channelsInfo.Add($"{channelId}_{UnifiedChannelType.External}", uci);
+                        uci.Type = unifiedChannel.Type;
+                        uci.Name = ec.Object.Name;
+
+                        if (unifiedChannelInfo != null && unifiedChannelInfo.TimeSlot != null)
+                        {
+                            uci.TimeSlot = unifiedChannelInfo.TimeSlot;
+                        }
+
+                        channelsInfo.Add($"{unifiedChannel.Id}_{UnifiedChannelType.External}", uci);
+                    }
                 }
-            }
-
-            //check internal channel exist
-            foreach (var channelId in intenalChannels)
-            {
-                var channel = ChannelManager.GetChannelById(groupId, (int)channelId, true, userId);
-                if (channel.IsOkStatusCode() && channel.Object != null)
+                else
                 {
-                    UnifiedChannelInfo uci = new UnifiedChannelInfo()
+                    //check internal channel exist
+                    var channel = ChannelManager.GetChannelById(groupId, (int)unifiedChannel.Id, true, userId);
+                    if (channel.IsOkStatusCode() && channel.Object != null)
                     {
-                        Id = channelId,
-                        Type = UnifiedChannelType.Internal,
-                        Name = channel.Object.m_sName
-                    };
-                    channelsInfo.Add($"{channelId}_{UnifiedChannelType.Internal}", uci);
+                        uci.Type = UnifiedChannelType.Internal;
+                        uci.Name = channel.Object.m_sName;
+
+                        if (unifiedChannelInfo != null && unifiedChannelInfo.TimeSlot != null)
+                        {
+                            uci.TimeSlot = unifiedChannelInfo.TimeSlot;
+                        }
+
+                        channelsInfo.Add($"{unifiedChannel.Id}_{UnifiedChannelType.Internal}", uci);
+                    }
                 }
             }
 
@@ -792,7 +797,7 @@ namespace Core.Catalog.Handlers
                     channelInfoToUpdate = unifiedChannelToUpdate as UnifiedChannelInfo;
                     if (channelInfoToUpdate != null)
                     {
-                        var channel = currentUnifiedChannels.Where(x => x.Id == channelInfoToUpdate.Id && x.Type == channelInfoToUpdate.Type).First();
+                        var channel = currentUnifiedChannels.Where(x => x.Id == channelInfoToUpdate.Id && x.Type == channelInfoToUpdate.Type).FirstOrDefault();
                         if (channel != null)
                         {
                             currentUnifiedChannelInfo = channel as UnifiedChannelInfo;

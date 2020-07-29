@@ -825,7 +825,7 @@ namespace TVPApiServices
 
                     if (response.Status.Code == (int)TVPApiModule.Objects.Responses.eStatus.OK && isTokenizationValid)
                     {
-                        AuthorizationManager.Instance.DeleteAccessToken(initObj.Token);
+                        AuthorizationManager.Instance.DeleteAccessToken(groupID, initObj.Token);
                     }
 
                 }

@@ -79,6 +79,14 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isInherited")]
         [JsonProperty(PropertyName = "isInherited")]
         [XmlElement(ElementName = "isInherited", IsNullable = true)]        
-        public bool? IsInherited { get; set; }       
+        public bool? IsInherited { get; set; }
+
+        /// <summary>
+        /// Is Location Tag
+        /// </summary>
+        [DataMember(Name = "isLocationTag")]
+        [JsonProperty(PropertyName = "isLocationTag")]
+        [XmlElement(ElementName = "isLocationTag", IsNullable = true)]
+        public bool? IsLocationTag { get; set; }
     }
 }

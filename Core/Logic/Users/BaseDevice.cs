@@ -17,7 +17,11 @@ namespace Core.Users
 
         public abstract string GetPINForDevice(int nGroupID, string sDeviceUDID, int nBrandID);
         public abstract ApiObjects.Response.Status SetDeviceInfo(int nGroupID, string sDeviceUDID, string sDeviceName);
-        public abstract DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string externalId, bool allowNullExternalId);
+        public virtual DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string externalId, bool allowNullExternalId)
+        {
+            return SetDevice(nGroupID, sDeviceUDID, sDeviceName, "", externalId, allowNullExternalId);
+        }
+        public abstract DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string macAddress, string externalId, bool allowNullExternalId, bool allowNullMacAddress = false);
         public abstract DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID);
     }
 }

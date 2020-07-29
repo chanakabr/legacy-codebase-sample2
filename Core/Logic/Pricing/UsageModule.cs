@@ -75,8 +75,7 @@ namespace Core.Pricing
         public string m_sVirtualName;
         public Int32 m_nMaxNumberOfViews;
         public Int32 m_tsViewLifeCycle;
-        public Int32 
-            m_tsMaxUsageModuleLifeCycle;
+        public Int32 m_tsMaxUsageModuleLifeCycle;
         //new paramter supported multi usage module
         public Int32 m_ext_discount_id;
         public Int32 m_internal_discount_id;

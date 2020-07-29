@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Web;
 using System.Web.Services;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using ApiObjects.ConditionalAccess;
 
 namespace WebAPI.WebServices
 {
@@ -929,7 +930,22 @@ namespace WebAPI.WebServices
                 Int32 nGroupID = Core.Billing.Utils.GetGroupID(sWSUserName, sWSPassword, "ProcessRenewal");
                 if (nGroupID != 0)
                 {
-                    return Core.Billing.Module.ProcessRenewal(nGroupID, siteGUID, householdId, price, currency, customData, productId, productCode, paymentNumber, numberOfPayments, billingGuid, gracePeriodMinutes);
+                    var renewDetails = new RenewDetails()
+                    {
+                        GroupId = nGroupID,
+                        UserId = siteGUID, 
+                        DomainId = householdId, 
+                        Price = price,
+                        Currency = currency, 
+                        CustomData = customData,
+                        ProductId = productId,
+                        PaymentNumber = paymentNumber,
+                        NumOfPayments = numberOfPayments,
+                        BillingGuid = billingGuid,
+                        GracePeriodMinutes = gracePeriodMinutes
+                    };
+
+                    return Core.Billing.Module.ProcessRenewal(renewDetails, productCode);
                 }
                 else
                 {
