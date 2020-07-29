@@ -986,7 +986,7 @@ namespace DAL
         }
 
         public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime,
-            string timezone, int updaterId, string resultMsgId, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeIot)
+            string timezone, int updaterId, string resultMsgId, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeIot, bool includeSms)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -1003,11 +1003,8 @@ namespace DAL
             spInsert.AddParameter("@includeMail", includeMail);
             spInsert.AddParameter("@mailTemplate", mailTemplate);
             spInsert.AddParameter("@mailSubject", mailSubject);
-            
-            if (includeIot)
-            {
-                spInsert.AddParameter("@includeIot", includeIot);
-            }
+            spInsert.AddParameter("@includeIot", includeIot);
+            spInsert.AddParameter("@includeSms", includeSms);
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
