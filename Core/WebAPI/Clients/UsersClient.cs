@@ -820,16 +820,22 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool SignOut(int groupId, int userId, string ip, string deviceId)
+        public bool SignOut(int groupId, int userId, string ip, string deviceId, SerializableDictionary<string, KalturaStringValue> adapterData)
         {
             UserResponseObject response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
+                var keyValueList = new List<KeyValuePair>();
+
+                if (adapterData != null)
+                {
+                    keyValueList = adapterData.Select(p => new KeyValuePair { key = p.Key, value = p.Value.value }).ToList();
+                }
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Users.Module.SignOut(groupId, userId.ToString(), string.Empty, ip, deviceId, group.ShouldSupportSingleLogin);
+                    response = Core.Users.Module.SignOut(groupId, userId.ToString(), string.Empty, ip, deviceId, group.ShouldSupportSingleLogin, keyValueList);
                 }
             }
             catch (Exception ex)

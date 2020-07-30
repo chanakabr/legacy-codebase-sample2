@@ -1,4 +1,5 @@
-﻿using ApiLogic.Base;
+﻿using ApiLogic.Api.Managers;
+using ApiLogic.Base;
 using ApiLogic.Catalog;
 using ApiObjects;
 using ApiObjects.Base;
@@ -37,6 +38,17 @@ namespace Core.Catalog.Handlers
                 {
                     response.SetStatus(eResponseStatus.NameRequired, "Name Required");
                     return response;
+                }
+
+                if (!string.IsNullOrEmpty(objectToAdd.Type))
+                {
+                    // check that type exist.
+                    var assetStructId = PartnerConfigurationManager.GetAssetStructByObjectVirtualAssetInfo(contextData.GroupId, ObjectVirtualAssetInfoType.Category, objectToAdd.Type);
+                    if (assetStructId == 0)
+                    {
+                        response.SetStatus(eResponseStatus.CategoryTypeNotExist, $"Category type '{objectToAdd.Type}' does not exist.");
+                        return response;
+                    }
                 }
 
                 if (objectToAdd.ChildrenIds?.Count > 0)
@@ -391,6 +403,17 @@ namespace Core.Catalog.Handlers
             GenericListResponse<CategoryItem> response = new GenericListResponse<CategoryItem>();
 
             List<long> categoriesIds = new List<long>();
+            long assetStructId = 0;
+
+            if (!string.IsNullOrEmpty(filter.TypeEqual))
+            {
+                assetStructId = PartnerConfigurationManager.GetAssetStructByObjectVirtualAssetInfo(contextData.GroupId, ObjectVirtualAssetInfoType.Category, filter.TypeEqual);
+                if (assetStructId == 0)
+                {
+                    response.SetStatus(eResponseStatus.CategoryTypeNotExist, $"Category type '{filter.TypeEqual}' does not exist.");
+                    return response;
+                }
+            }
 
             if (filter.RootOnly)
             {
@@ -406,12 +429,14 @@ namespace Core.Catalog.Handlers
                 }
             }
 
+
             AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition()
             {
                 Filter = filter.Ksql,
                 UserId = contextData.UserId.Value,
                 IsAllowedToViewInactiveAssets = true,
-                NoSegmentsFilter = true
+                NoSegmentsFilter = true,
+                AssetStructId = assetStructId
             };
 
             var categories = new HashSet<long>(categoriesIds);
@@ -535,7 +560,8 @@ namespace Core.Catalog.Handlers
                 Name = parent.Name,
                 UnifiedChannels = parent.UnifiedChannels,
                 IsActive = parent.IsActive,
-                TimeSlot = parent.TimeSlot
+                TimeSlot = parent.TimeSlot,
+                Type = parent.Type
             };
 
             if (CategoriesManager.Add(groupId, userId, newICategory))

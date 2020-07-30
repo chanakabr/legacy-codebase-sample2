@@ -268,7 +268,8 @@ namespace Core.Users
             return null;
         }
 
-        public static UserResponseObject SignOut(int nGroupID, string sSiteGUID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
+        public static UserResponseObject SignOut(int nGroupID, string sSiteGUID, string sessionID, string sIP, string deviceID
+            , bool bPreventDoubleLogins, List<KeyValuePair> keyValueList = null)
         {
             try
             {
@@ -280,6 +281,11 @@ namespace Core.Users
                 {
                     log.Debug("SignOut - Illegal Siteguid");
                     return null;
+                }
+
+                if (keyValueList == null)
+                {
+                    keyValueList = new List<KeyValuePair>();
                 }
 
                 if (Utils.IsGroupIDContainedInConfig(nGroupID))
@@ -298,7 +304,7 @@ namespace Core.Users
                     // get group ID + user type
                     Utils.GetBaseImpl(ref kUser, nGroupID);
                     if (kUser != null)
-                        return FlowManager.SignOut(kUser, nSiteGuid, nGroupID, sessionID, sIP, deviceID, new List<KeyValuePair>());
+                        return FlowManager.SignOut(kUser, nSiteGuid, nGroupID, sessionID, sIP, deviceID, keyValueList);
                 }
             }
             catch (Exception ex)

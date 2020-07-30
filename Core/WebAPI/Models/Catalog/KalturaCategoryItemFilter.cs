@@ -98,6 +98,15 @@ namespace WebAPI.Models.Catalog
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public bool RootOnly { get; set; }
 
+        /// <summary>
+        /// Indicates which category to return by their type.
+        /// </summary>
+        [DataMember(Name = "typeEqual")]
+        [JsonProperty("typeEqual")]
+        [XmlElement(ElementName = "typeEqual", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string TypeEqual { get; set; }
+
         public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()
         {
             return KalturaCategoryItemOrderBy.CREATE_DATE_ASC;

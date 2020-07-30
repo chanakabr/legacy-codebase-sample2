@@ -45,6 +45,8 @@ namespace ApiObjects
         public AdsPolicy? AdsPolicy { get; set; }
         
         public string AdsParam { get; set; }
+
+        public string Opl { get; set; }
     }
 
     public class PlayManifestResponse

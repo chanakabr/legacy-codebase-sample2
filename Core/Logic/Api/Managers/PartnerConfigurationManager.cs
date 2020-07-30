@@ -64,19 +64,47 @@ namespace ApiLogic.Api.Managers
                     return new Status((int)eResponseStatus.Error); ;
                 }
 
-                // 1. foreach ObjectVirtualAssetInfo check that AssetStructId and MetaUd exists
+                // 1. foreach ObjectVirtualAssetInfo check that AssetStructId and MetaId exists
                 foreach (var objectVirtualAsset in partnerConfigToUpdate.ObjectVirtualAssets)
                 {
                     if (!catalogGroupCache.AssetStructsMapById.ContainsKey(objectVirtualAsset.AssetStructId))
                     {
                         log.Error($"AssetStructDoesNotExist {objectVirtualAsset.AssetStructId}. groupId: {groupId}");
-                        return new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                        return new Status((int)eResponseStatus.AssetStructDoesNotExist, $"AssetStruct {objectVirtualAsset.AssetStructId} does not exist");
                     }
 
                     if (!catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAsset.MetaId))
                     {
                         log.Error($"MetaDoesNotExist {objectVirtualAsset.MetaId}. groupId: {groupId}");
-                        return new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
+                        return new Status((int)eResponseStatus.MetaDoesNotExist, $"Meta id {objectVirtualAsset.MetaId} does not exist");
+                    }
+
+                    //check asset struct at mapping current
+                    var currentOVA = GetObjectVirtualAssetInfo(groupId, objectVirtualAsset.Type);
+
+                    if (currentOVA != null && currentOVA.ExtendedTypes?.Count > 0 && objectVirtualAsset.ExtendedTypes != null && objectVirtualAsset.ExtendedTypes.Count > 0)
+                    {
+                        // value of type should not change
+                        foreach (var type in currentOVA.ExtendedTypes.Keys)
+                        {
+                            if (objectVirtualAsset.ExtendedTypes.ContainsKey(type) && objectVirtualAsset.ExtendedTypes[type] != currentOVA.ExtendedTypes[type])
+                            {
+                                log.Error($"Extended type {type} value {objectVirtualAsset.ExtendedTypes[type]} cannot be changed. groupId: {groupId}");
+                                return new Status((int)eResponseStatus.ExtendedTypeValueCannotBeChanged, $"Extended type '{type}' value: {objectVirtualAsset.ExtendedTypes[type]} cannot be changed.");
+                            }
+                        }
+                    }
+
+                    if (objectVirtualAsset.ExtendedTypes != null && objectVirtualAsset.ExtendedTypes.Count > 0)
+                    {
+                        foreach (var assetStructId in objectVirtualAsset.ExtendedTypes.Values)
+                        {
+                            if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
+                            {
+                                log.Error($"AssetStructDoesNotExist {assetStructId}. groupId: {groupId}");
+                                return new Status((int)eResponseStatus.AssetStructDoesNotExist, $"AssetStruct id :{assetStructId} does not exist.");
+                            }
+                        }
                     }
                 }
 
@@ -602,6 +630,25 @@ namespace ApiLogic.Api.Managers
             response.SetStatus(eResponseStatus.OK);
 
             return response;
+        }
+
+        public static long GetAssetStructByObjectVirtualAssetInfo(int groupId, ObjectVirtualAssetInfoType objectVirtualAssetInfoType, string type)
+        {
+            ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType);
+
+            if (objectVirtualAssetInfo == null)
+            {
+                log.Debug($"No objectVirtualAssetInfo for groupId {groupId}. virtualAssetInfo.Type {objectVirtualAssetInfoType}. type {type}");
+                return 0;
+            }
+
+            if (objectVirtualAssetInfo.ExtendedTypes?.Count > 0 && objectVirtualAssetInfo.ExtendedTypes.ContainsKey(type))
+            {
+                return objectVirtualAssetInfo.ExtendedTypes[type];
+            }
+
+            log.Debug($"No type at objectVirtualAssetInfo for groupId {groupId}. virtualAssetInfo.Type {objectVirtualAssetInfoType}. type {type}");
+            return 0;
         }
 
         #region Payment

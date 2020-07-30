@@ -564,7 +564,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.HasValue ? src.StreamerType.ToString() : string.Empty))
               .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParam))
               .ForMember(dest => dest.AdsPolicy, opt => opt.ResolveUsing(src => ConvertAdsPolicy(src.AdsPolicy)))
-              .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => 0));
+              .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => 0))
+              .ForMember(dest => dest.Opl, opt => opt.ResolveUsing(src => src.Opl))
+              ;
 
             cfg.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()
               .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Files))

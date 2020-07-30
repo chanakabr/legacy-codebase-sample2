@@ -495,7 +495,8 @@ namespace Core.Users
                 {
                     UserId = siteGuid,
                     HouseholdId = domainId,
-                    DeviceUdid = deviceUdid
+                    DeviceUdid = deviceUdid,
+                    AdapterData = keyValueList?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray()
                 };
 
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, preSignOutModel.UserId);
@@ -541,9 +542,9 @@ namespace Core.Users
                     UserId = siteGuid,
                     DeviceUdid = deviceUdid,
                     HouseholdId = domainId,
-                    AuthenticatedUser = new SSOAdapaterUser() { HouseholdID = domainId, Id = siteGuid }
+                    AuthenticatedUser = new SSOAdapaterUser() { HouseholdID = domainId, Id = siteGuid },
+                    AdapterData = keyValueList?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray()
                 };
-
 
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, postSignOutModel.UserId);
                 _Logger.Debug($"[PostSignOut] Adapter model object: {JsonConvert.SerializeObject(postSignOutModel)}, Signature: {signature}");

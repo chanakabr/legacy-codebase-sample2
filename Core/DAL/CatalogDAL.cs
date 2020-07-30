@@ -446,7 +446,7 @@ namespace Tvinci.Core.DAL
                 result = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "play_cycle_key");
             }
             return result;
-        }        
+        }
 
         public static void Insert_NewWatcherMediaAction(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID,
                                                         int nGroupID, int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID)
@@ -5080,7 +5080,7 @@ namespace Tvinci.Core.DAL
         public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId,
             long billingType, double? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage,
             string language, int? orderNum, DateTime? startDate, string url, long? streamingSuplierId, int? type, string altExternalId,
-            bool? isActive, DateTime? catalogEndDate)
+            bool? isActive, DateTime? catalogEndDate, string opl = "")
         {
             StoredProcedure sp = new StoredProcedure("InsertMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5107,6 +5107,10 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@fileSize", fileSize ?? 0);
             sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);
             sp.AddParameter("@catalogEndDate", catalogEndDate);
+            if (!string.IsNullOrEmpty(opl))
+            {
+                sp.AddParameter("@opl", opl);
+            }
 
             return sp.ExecuteDataSet();
         }
@@ -5134,7 +5138,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet UpdateMediaFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId, long billingType,
             long? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage, string language, int? orderNum, DateTime? startDate,
-            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate)
+            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate, string opl)
         {
             StoredProcedure sp = new StoredProcedure("UpdateMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5161,6 +5165,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@fileSize", fileSize);
             sp.AddParameter("@IsActive", isActive);
             sp.AddParameter("@catalogEndDate", catalogEndDate);
+            sp.AddParameter("@opl", opl);
 
             return sp.ExecuteDataSet();
         }
@@ -5980,7 +5985,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot)
+             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type)
         {
             try
             {
@@ -6006,6 +6011,7 @@ namespace Tvinci.Core.DAL
                 {
                     sp.AddParameter("@endDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.EndDateInSeconds.Value));
                 }
+                sp.AddParameter("@type", type);
 
                 var id = sp.ExecuteReturnValue<long>();
                 if (dynamicData?.Count > 0 && id > 0)
@@ -6262,6 +6268,6 @@ namespace Tvinci.Core.DAL
             }
 
             return null;
-        }       
+        }
     }
 }

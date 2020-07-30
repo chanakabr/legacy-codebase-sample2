@@ -127,16 +127,16 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        internal static void AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        internal static void AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
         {
             try
             {
                 ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo.Type);
-                
+
                 if (objectVirtualAssetInfo == null)
                 {
                     return;
-                }
+                }                
 
                 MediaAsset virtualAsset = new MediaAsset()
                 {
@@ -153,6 +153,11 @@ namespace Core.Catalog.CatalogManagement
                         m_nTypeID = objectVirtualAssetInfo.AssetStructId
                     }
                 };
+
+                if (!string.IsNullOrEmpty(type) && objectVirtualAssetInfo.ExtendedTypes?.Count > 0 && objectVirtualAssetInfo.ExtendedTypes.ContainsKey(type))
+                {
+                    virtualAsset.MediaType.m_nTypeID = (int)objectVirtualAssetInfo.ExtendedTypes[type];
+                }
 
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
@@ -3568,7 +3573,5 @@ namespace Core.Catalog.CatalogManagement
         }
 
         #endregion
-
-       
     }
 }

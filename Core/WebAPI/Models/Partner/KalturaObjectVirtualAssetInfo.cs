@@ -31,6 +31,14 @@ namespace WebAPI.Models.Partner
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]
         public KalturaObjectVirtualAssetInfoType Type { get; set; }
+
+        /// <summary>
+        /// Extended types mapping
+        /// </summary>
+        [DataMember(Name = "extendedTypes")]
+        [JsonProperty("extendedTypes")]
+        [XmlElement(ElementName = "extendedTypes", IsNullable = true)]
+        public SerializableDictionary<string, KalturaLongValue> ExtendedTypes { get; set; }
     }
 
     public enum KalturaObjectVirtualAssetInfoType { Subscription = 0, Segment = 1, Category = 2 }

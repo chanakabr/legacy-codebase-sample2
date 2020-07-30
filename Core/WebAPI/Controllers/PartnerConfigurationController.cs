@@ -76,6 +76,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidLanguage)]
         [Throws(eResponseStatus.InvalidCurrency)]
         [Throws(eResponseStatus.DlmNotExist)]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
+        [Throws(eResponseStatus.MetaDoesNotExist)]
+        [Throws(eResponseStatus.ExtendedTypeValueCannotBeChanged)]
         static public bool Update(KalturaPartnerConfiguration configuration)
         {
             bool response = false;

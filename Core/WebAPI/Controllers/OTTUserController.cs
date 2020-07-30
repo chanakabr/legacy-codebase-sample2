@@ -95,7 +95,7 @@ namespace WebAPI.Controllers
                 priviliges = (Dictionary<string, string>)tmp;
                 HttpContext.Current.Items.Remove(KLogMonitor.Constants.PRIVILIGES);
             }
-            
+
             return new KalturaLoginResponse()
             {
                 LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), udid, response.GetRoleIds(), priviliges),
@@ -169,7 +169,7 @@ namespace WebAPI.Controllers
                 priviliges = (Dictionary<string, string>)tmp;
                 HttpContext.Current.Items.Remove(KLogMonitor.Constants.PRIVILIGES);
             }
-            
+
             return new KalturaLoginResponse()
             {
                 LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid, response.GetRoleIds(), priviliges),
@@ -251,7 +251,7 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
-            
+
             return new KalturaLoginResponse()
             {
                 LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid, response.GetRoleIds()),
@@ -312,7 +312,7 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-        
+
         /// <summary>
         /// Send an e-mail with URL to enable the user to set new password.
         /// </summary>
@@ -692,7 +692,7 @@ namespace WebAPI.Controllers
             {
                 List<long> roleToAdd = new List<long>();
                 roleToAdd.Add(roleId);
-                
+
                 if (!RolesManager.IsManagerAllowedUpdateAction(userId, roleToAdd))
                 {
                     throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
@@ -755,11 +755,12 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Logout the calling user.
         /// </summary>
+        /// <param name="adapterData">adapter data</param>
         /// <returns></returns>
         [Action("logout")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public bool Logout()
+        static public bool Logout(SerializableDictionary<string, KalturaStringValue> adapterData = null)
         {
             bool response = false;
 
@@ -768,10 +769,10 @@ namespace WebAPI.Controllers
             int userId = int.Parse(ks.UserId);
             string udid = KSUtils.ExtractKSPayload().UDID;
             string ip = Utils.Utils.GetClientIP();
-            
+
             try
             {
-                response = ClientsManager.UsersClient().SignOut(groupId, userId, ip, udid);
+                response = ClientsManager.UsersClient().SignOut(groupId, userId, ip, udid, adapterData);
                 if (response)
                 {
                     response = AuthorizationManager.LogOut(ks);
@@ -908,7 +909,7 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ExternalIdEqual);
                 }
-                else if (!string.IsNullOrEmpty(filter.IdIn)) 
+                else if (!string.IsNullOrEmpty(filter.IdIn))
                 {
                     List<string> usersToGet = null;
                     KalturaHousehold household = HouseholdUtils.GetHouseholdFromRequest();
@@ -929,9 +930,9 @@ namespace WebAPI.Controllers
                     }
                     else // no household and less then Operator
                     {
-                        throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, 
+                        throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
                                                         Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.READ),
-                                                        "KalturaOTTUserFilter", 
+                                                        "KalturaOTTUserFilter",
                                                         "idIn");
                     }
 

@@ -1,12 +1,11 @@
-﻿
-using Amazon.S3;
+﻿using Amazon.S3;
 using Amazon.S3.Transfer;
 using ApiLogic.Catalog;
 using ApiObjects.Response;
 using ConfigurationManager;
 using ConfigurationManager.Types;
 using KLogMonitor;
-
+using Core.Catalog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +21,7 @@ namespace ApiLogic
         protected abstract void Initialize();
         protected abstract GenericResponse<string> Save(string fileName, OTTFile fileInfo, string subDir);
         protected abstract GenericResponse<string> Save(string fileName, OTTStreamFile file, string subDir);
+        protected abstract GenericResponse<byte[]> Get(string fileName, string fileUrl, string subDir, System.Net.WebClient webClient, int groupId = 0, Image image = null);
         protected abstract GenericResponse<string> GetSubDir(string id, string typeName);
         protected abstract GenericResponse<string> GetSubDir(long id, string typeName);
         protected abstract string GetUrl(string subDir, string fileName);
@@ -167,6 +167,52 @@ namespace ApiLogic
             return saveFileResponse;
         }
 
+        public GenericResponse<byte[]> DownloadImage(int groupId, string url, string contentId, Image image)
+        {
+            log.Debug($"Starting Image Download, Id: {image.Id}, Image Content Id: {image.ContentId}");
+            var fileResponse = new GenericResponse<byte[]>();
+            try
+            {
+                fileResponse = Get(contentId, url ?? image.Url, string.Empty, null, groupId, image);
+            }
+            catch (Exception ex)
+            {
+                log.Debug($"Error downloading file: {ex}");
+                fileResponse.SetStatus(eResponseStatus.Error, "Error downloading file");
+            }
+
+            return fileResponse;
+        }
+
+        public GenericResponse<byte[]> DownloadFile(long id, string fileUrl, string objectTypeName = "KalturaBulkUpload")
+        {
+            log.Debug($"Starting File Download: {fileUrl}, type: {objectTypeName}");
+            var fileResponse = new GenericResponse<byte[]>();
+            try
+            {
+                var validationStatus = GetFileObjectTypeName(objectTypeName);
+                if (validationStatus.HasObject())
+                {
+                    var subDir = GetSubDir(id, validationStatus.Object);
+                    if (subDir.HasObject())
+                    {
+                        var _extension = $".{fileUrl.Substring(fileUrl.LastIndexOf('.') + 1)}";
+                        fileResponse = Get(GetFileName(id.ToString(), _extension), fileUrl, subDir.Object, new System.Net.WebClient());
+                    }
+                }
+                else
+                {
+                    fileResponse.SetStatus(validationStatus.Status);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Debug($"Error downloading file: {ex}");
+                fileResponse.SetStatus(eResponseStatus.Error, "Error downloading file");
+            }
+            return fileResponse;
+        }
+
         private string GetFileName(string id, string fileExtension)
         {
             return (id + fileExtension);
@@ -280,6 +326,69 @@ namespace ApiLogic
 
             saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Could not save file:{0} to S3", fileName));
             return saveResponse;
+        }
+
+        protected override GenericResponse<byte[]> Get(string fileName, string fileUrl, string subDir,
+            System.Net.WebClient webClient, int groupId = 0, Image image = null)
+        {
+            log.Debug($"Start download file: [{fileName}] from S3");
+            var response = new GenericResponse<byte[]>();
+            for (int i = 0; i < NumberOfRetries; i++)
+            {
+                using (var client = new AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(Region)))
+                {
+                    try
+                    {
+                        var filePath = string.Empty;
+                        if (image != null)
+                        {
+                            filePath = fileUrl.Split('/')?.Last();
+                        }
+                        else//for file
+                        {
+                            filePath = GetRelativeFilePath(subDir, fileName);
+                        }
+
+                        var getObjectRequest = new Amazon.S3.Model.GetObjectRequest
+                        {
+                            BucketName = BucketName,
+                            Key = filePath
+                        };
+
+                        using (var _response = client.GetObjectAsync(getObjectRequest).Result)
+                        using (Stream stream = _response.ResponseStream)
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            if (_response.HttpStatusCode != System.Net.HttpStatusCode.OK)
+                            {
+                                response.SetStatus(eResponseStatus.Error, $"Error while download file:{fileName} from S3");
+                                return response;
+                            }
+
+                            stream.CopyTo(memoryStream);
+                            memoryStream.Position = 0;
+
+                            response.SetStatus(eResponseStatus.OK);
+                            response.Object = memoryStream.ToArray();
+                        }
+                    }
+                    catch (AmazonS3Exception e)
+                    {
+                        // If bucket or object does not exist
+                        log.Error($"'AmazonS3Exception': Error encountered, ex:'{e}' when reading object");
+                        response.SetStatus(eResponseStatus.Error, $"Error while download file: {fileName} from S3");
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(string.Format("An Exception was occurred in Get file from S3, attempt: {0}/{1}. fileName:{2}, fileInfo.FullName:{3}, subDir:{4}.",
+                                                i + 1, NumberOfRetries, fileName, fileUrl, subDir), ex);
+                        response.SetStatus(eResponseStatus.Error, $"Error while download file: {fileName} from S3");
+                    }
+                    return response;
+                }
+            }
+            response.SetStatus(eResponseStatus.Error, $"Could not download file:{fileName} from S3");
+            return response;
         }
 
         protected override Status Delete(string fileURL)
@@ -466,6 +575,30 @@ namespace ApiLogic
             saveResponse.Object = GetUrl(subDir, fileName);
             saveResponse.SetStatus(eResponseStatus.OK);
             return saveResponse;
+        }
+
+        protected override GenericResponse<byte[]> Get(string fileName, string fileUrl, string subDir, System.Net.WebClient webClient, int groupId = 0, Image image = null)
+        {
+            log.Debug($"Start file download: [{fileName}] from FileSystem");
+            var response = new GenericResponse<byte[]>();
+            try
+            {
+                byte[] fileBytes = webClient.DownloadData(fileUrl);
+
+                if (fileBytes == null || fileBytes.Length == 0)
+                {
+                    response.SetStatus(eResponseStatus.FileDoesNotExists);
+                    return response;
+                }
+                response.SetStatus(eResponseStatus.OK);
+                response.Object = fileBytes;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Exception downloading file from 'FileSystemHandler', error: {ex}");
+                response.SetStatus(eResponseStatus.Error, "Error while downloading file");
+            }
+            return response;
         }
 
         protected override Status Delete(string fileURL)

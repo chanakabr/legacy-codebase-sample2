@@ -941,6 +941,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                  .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CatalogEndDate)))
+                 .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
                  ;
 
             //File
@@ -967,7 +968,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.CatalogEndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.CatalogEndDate)))
-                .ForMember(dest => dest.PpvModule, opt => opt.MapFrom(src => GetPPVModule(src.PPVModules)));
+                .ForMember(dest => dest.PpvModule, opt => opt.MapFrom(src => GetPPVModule(src.PPVModules)))
+                .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
+                ;
 
             #endregion
 
@@ -1231,7 +1234,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
-                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds));
+                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
 
             cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
@@ -3000,9 +3004,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static TimeSlot ConvertToTimeSlot(long? startDateInSeconds, long? endDateInSeconds, HashSet<string> nullableProperties)
         {
-            if(nullableProperties?.Count > 0)
+            if (nullableProperties?.Count > 0)
             {
-                if(nullableProperties.Contains("startdateinseconds"))
+                if (nullableProperties.Contains("startdateinseconds"))
                 {
                     startDateInSeconds = 0;
                 }
@@ -3014,7 +3018,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             if (startDateInSeconds.HasValue || endDateInSeconds.HasValue)
             {
-                return new TimeSlot() { StartDateInSeconds = startDateInSeconds, EndDateInSeconds = endDateInSeconds};
+                return new TimeSlot() { StartDateInSeconds = startDateInSeconds, EndDateInSeconds = endDateInSeconds };
             }
 
             return null;
