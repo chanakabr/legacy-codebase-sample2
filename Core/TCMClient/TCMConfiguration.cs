@@ -19,10 +19,6 @@ namespace TCMClient
 
         private bool? m_VerifySSL = null;
 
-        private bool? m_FromLocal = null;
-
-        private string m_LocalPath = null;
-
         public void OverrideEnvironmentVariable()
         {
             string application = System.Environment.GetEnvironmentVariable("TCM_APP");
@@ -174,34 +170,5 @@ namespace TCMClient
             }
         }
 
-        [ConfigurationProperty("FromLocal", DefaultValue = "false", IsRequired = false)]
-        public Boolean FromLocal
-        {
-
-            get
-            {
-                return m_FromLocal.HasValue ? m_FromLocal.Value : (Boolean)this["FromLocal"];
-            }
-
-            set
-            {
-                m_FromLocal = value;
-            }
-        }
-
-        [ConfigurationProperty("LocalPath", IsRequired = false)]
-        public string LocalPath
-        {
-
-            get
-            {
-                return m_LocalPath != null ? m_LocalPath : this["LocalPath"] as string;
-            }
-
-            set
-            {
-                m_LocalPath = value;
-            }
-        }
     }
 }

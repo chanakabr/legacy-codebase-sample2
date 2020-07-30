@@ -372,7 +372,7 @@ namespace WS_Billing
         {
             ODBCWrapper.DataSetInsertQuery insertQuery = new ODBCWrapper.DataSetInsertQuery("campaigns_uses");
             insertQuery.SetConnectionKey("ca_connection_string");
-            DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(maxLifeCycle));
+            DateTime d = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(maxLifeCycle));
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("campaign_id", "=", campaignID);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("site_guid", "=", int.Parse(siteGuid));
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("num_of_uses", "=", 0);
@@ -414,7 +414,7 @@ namespace WS_Billing
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", lBillingTransactionID);
             if (smaxusagemodulelifecycle != "")
             {
-                DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(smaxusagemodulelifecycle));
+                DateTime d = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(smaxusagemodulelifecycle));
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
                 //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", GetCurrentDBTime().AddSeconds());
             }
@@ -559,7 +559,7 @@ namespace WS_Billing
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", recurringInt);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", lBillingTransactionID);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-            DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(smaxusagemodulelifecycle));
+            DateTime d = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(smaxusagemodulelifecycle));
             if (smaxusagemodulelifecycle != "")
             {
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
@@ -674,7 +674,7 @@ namespace WS_Billing
             DateTime d = DateTime.MaxValue;
             if (!string.IsNullOrEmpty(smaxusagemodulelifecycle))
             {
-                d = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(smaxusagemodulelifecycle));
+                d = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(smaxusagemodulelifecycle));
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
                 //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", GetCurrentDBTime().AddSeconds(thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle));
             }

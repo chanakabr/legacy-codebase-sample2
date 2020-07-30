@@ -38,7 +38,10 @@ namespace Core.Catalog.CatalogManagement
         // Basic TCM configurations for indexing - number of shards/replicas, max results
         private static readonly int NUM_OF_SHARDS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
         private static readonly int NUM_OF_REPLICAS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
-        private static readonly int MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
+        private static readonly int MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;       
+        private static readonly int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
+        private static int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+
         protected const string ES_VERSION = "2";
 
         public const string EPG_INDEX_TYPE = "epg";
@@ -754,6 +757,8 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
+                // prevent from size of bulk to be more than the default value of 500 (currently as of 23.06.20)
+                sizeOfBulk = sizeOfBulk == 0 ? sizeOfBulkDefaultValue : sizeOfBulk > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : sizeOfBulk;
                 ESSerializerV2 esSerializer = new ESSerializerV2();
                 ElasticSearchApi esApi = new ElasticSearchApi();
 
@@ -921,7 +926,6 @@ namespace Core.Catalog.CatalogManagement
                                         ttl = ttl
                                     });
 
-                                    int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
                                     if (bulkRequests.Count > sizeOfBulk)
                                     {
                                         // send request to ES API
@@ -1668,19 +1672,7 @@ namespace Core.Catalog.CatalogManagement
 
                 Parallel.ForEach(lEpg.Cast<EpgCB>(), currentElement =>
                 {
-                    if (!linearChannelSettings.ContainsKey(currentElement.ChannelID.ToString()))
-                    {
-                        currentElement.SearchEndDate = currentElement.EndDate.AddDays(days);
-                    }
-                    else if (linearChannelSettings[currentElement.ChannelID.ToString()].EnableCatchUp)
-                    {
-                        currentElement.SearchEndDate =
-                            currentElement.EndDate.AddMinutes(linearChannelSettings[currentElement.ChannelID.ToString()].CatchUpBuffer);
-                    }
-                    else
-                    {
-                        currentElement.SearchEndDate = currentElement.EndDate;
-                    }
+                    currentElement.SearchEndDate = GetProgramSearchEndDate(groupID, currentElement.ChannelID.ToString(), currentElement.EndDate, linearChannelSettings);
                 });
             }
             catch (Exception ex)
@@ -1688,6 +1680,47 @@ namespace Core.Catalog.CatalogManagement
                 log.Error("Error - " + string.Format("Update EPGs threw an exception. (in GetLinearChannelValues). Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
                 throw ex;
             }
+        }
+
+        public static DateTime GetProgramSearchEndDate(int groupId, string channelId, DateTime endDate, Dictionary<string, LinearChannelSettings> linearChannelSettings = null)
+        {
+            // TODO SHIR - IF EPGCB.SearchEndDate IS NOT SET, I NEED TO COPY THIS CODE TO CatalogManager.SetHistoryValues 
+            DateTime searchEndDate = DateTime.MinValue;
+            try
+            {
+                int days = ApplicationConfiguration.Current.CatalogLogicConfiguration.CurrentRequestDaysOffset.Value;
+
+                if (days == 0)
+                {
+                    days = DAYS;
+                }
+
+                if (linearChannelSettings == null)
+                {
+                    linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { channelId });
+                }
+
+                if (!linearChannelSettings.ContainsKey(channelId))
+                {
+                    searchEndDate = endDate.AddDays(days);
+                }
+                else if (linearChannelSettings[channelId].EnableCatchUp)
+                {
+                    searchEndDate =
+                            endDate.AddMinutes(linearChannelSettings[channelId].CatchUpBuffer);
+                }
+                else
+                {
+                    searchEndDate = endDate;
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return searchEndDate;
         }
 
         /// <summary>

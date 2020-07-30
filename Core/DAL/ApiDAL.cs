@@ -1066,6 +1066,7 @@ namespace DAL
             return resultList;
         }
 
+        // CleanUserHistory - old method
         public static bool CleanUserHistory(string userId, List<int> lMediaIDs)
         {
             try
@@ -5574,7 +5575,6 @@ namespace DAL
                 sp.AddParameter("@defaultRegion", partnerConfig.DefaultRegion.Value);
             }
 
-
             var rollingDeviceRemovalPolicy = partnerConfig.RollingDeviceRemovalData?.RollingDeviceRemovalPolicy ?? RollingDevicePolicy.NONE;
 
             sp.AddParameter("@rollingDeviceRemovalPolicy",rollingDeviceRemovalPolicy);
@@ -5583,6 +5583,11 @@ namespace DAL
             {
                 sp.AddParameter("@rollingDeviceRemovalFamilyIds", 
                     string.Join(",",partnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds));
+            }
+
+            if (partnerConfig.FinishedPercentThreshold.HasValue)
+            {
+                sp.AddParameter("@finishedPercentThreshold", partnerConfig.FinishedPercentThreshold.Value);
             }
 
             return sp.ExecuteReturnValue<int>() > 0;
@@ -6187,6 +6192,23 @@ namespace DAL
         {
             string key = GetPlaybackPartnerConfigKey(groupId);
             return UtilsDal.SaveObjectInCB<PlaybackPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, partnerConfig);
+        }
+
+        private static string GetPaymentPartnerConfigKey(int groupId)
+        {
+            return $"payment_partner_config_{groupId}";
+        }
+
+        public static PaymentPartnerConfig GetPaymentPartnerConfig(int groupId)
+        {
+            string key = GetPaymentPartnerConfigKey(groupId);
+            return UtilsDal.GetObjectFromCB<PaymentPartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SavePaymentPartnerConfig(int groupId, PaymentPartnerConfig partnerConfig)
+        {
+            string key = GetPaymentPartnerConfigKey(groupId);
+            return UtilsDal.SaveObjectInCB<PaymentPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, partnerConfig);
         }
     }
 }

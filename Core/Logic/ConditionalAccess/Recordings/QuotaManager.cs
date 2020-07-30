@@ -216,9 +216,9 @@ namespace Core.Recordings
             return status;
         }
 
-        public ApiObjects.Response.Status HandleDomainAutoDelete(int groupId, long domainId, int recordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
+        public List<Recording> HandleDomainAutoDelete(int groupId, long domainId, int recordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
         {
-            ApiObjects.Response.Status bRes = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            List<Recording> deletedRecordings = null;
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
 
@@ -226,8 +226,8 @@ namespace Core.Recordings
             {
                 while (limitRetries > 0)
                 {
-                    bRes = DeleteDomainOldestRecordings(groupId, domainId, recordingDuration, domainRecordingStatus);
-                    if (bRes != null && bRes.Code == (int)eResponseStatus.OK)
+                    deletedRecordings = DeleteDomainOldestRecordings(groupId, domainId, recordingDuration, domainRecordingStatus);
+                    if (deletedRecordings?.Count > 0)
                     {                      
                         break;
                     }
@@ -238,16 +238,17 @@ namespace Core.Recordings
                     }
                 }
 
-                if (bRes.Code != (int)eResponseStatus.OK) // fail to delete and free some quota 
+                if (deletedRecordings == null) // fail to delete and free some quota 
                 {
-                    log.ErrorFormat("Failed HandleDomainAutoDelete groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}", groupId, domainId, recordingDuration, bRes.Message);
+                    log.ErrorFormat("Failed HandleDomainAutoDelete groupID: {0}, domainID: {1}, recordingDuration: {2}", groupId, domainId, recordingDuration);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed HandleDomainAutoDelete groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}, ex: {4}", groupId, domainId, recordingDuration, bRes.Message, ex);
+                log.ErrorFormat("Failed HandleDomainAutoDelete groupID: {0}, domainID: {1}, recordingDuration: {2}, ex: {4}", groupId, domainId, recordingDuration, ex);
             }
-            return bRes;
+
+            return deletedRecordings;
         }
 
         public ApiObjects.Response.Status HandleDomainRecoveringRecording(int groupId, long domainId, int totalRecordingDuration)
@@ -304,9 +305,9 @@ namespace Core.Recordings
             return bRes;
         }
 
-        private ApiObjects.Response.Status DeleteDomainOldestRecordings(int groupId, long domainId, int recordingQuota, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
+        private List<Recording> DeleteDomainOldestRecordings(int groupId, long domainId, int recordingQuota, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
         {
-            ApiObjects.Response.Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            List<Recording> deletedRecordings = null;
             try
             {
                 List<long> domainRecordingIds = new List<long>();
@@ -314,28 +315,38 @@ namespace Core.Recordings
                 Dictionary<long, Recording> domainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(groupId, domainId, recordingStatuses);
                 if (domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
-                    var ordered = domainRecordingIdToRecordingMap.OrderBy(x => x.Value.ViewableUntilDate.HasValue ? x.Value.ViewableUntilDate.Value : 0);
-                    Dictionary<long, Recording> recordings = ordered.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
-
-                    // build list of domain recordings id - Least as needed   
                     int tempQuotaOverage = 0;
-                    int recordingDuration = 0;
                     long currentUtcTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-                    foreach (KeyValuePair<long, Recording> recording in recordings)
+                    var ordered = domainRecordingIdToRecordingMap.OrderBy(x => x.Value.ViewableUntilDate.HasValue ? x.Value.ViewableUntilDate.Value : 0);
+                    if (ordered != null)
                     {
-                        // check if record is protected - ignore it 
-                        if (recording.Value.ProtectedUntilDate.HasValue && recording.Value.ProtectedUntilDate.Value > currentUtcTime)
-                        {
-                            continue;
-                        }
+                        // build list of domain recordings id - Least as needed   
+                        Dictionary<long, Recording> recordings = ordered.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
+                        int recordingDuration = 0;
 
-                        recordingDuration = (int)(recording.Value.EpgEndDate - recording.Value.EpgStartDate).TotalSeconds;
-                        domainRecordingIds.Add(recording.Key);
-                        tempQuotaOverage += recordingDuration;
-
-                        if (tempQuotaOverage >= recordingQuota)
+                        foreach (KeyValuePair<long, Recording> recording in recordings)
                         {
-                            break;
+                            // check if record is protected - ignore it 
+                            if (!recording.Value.ViewableUntilDate.HasValue || recording.Value.ViewableUntilDate.Value == 0 || 
+                                (recording.Value.ProtectedUntilDate.HasValue && recording.Value.ProtectedUntilDate.Value > currentUtcTime))
+                            {
+                                continue;
+                            }
+
+                            recordingDuration = (int)(recording.Value.EpgEndDate - recording.Value.EpgStartDate).TotalSeconds;
+                            domainRecordingIds.Add(recording.Key);
+                            if (deletedRecordings == null)
+                            {
+                                deletedRecordings = new List<Recording>();
+                            }
+
+                            deletedRecordings.Add(recording.Value);
+                            tempQuotaOverage += recordingDuration;
+
+                            if (tempQuotaOverage >= recordingQuota)
+                            {
+                                break;
+                            }
                         }
                     }
 
@@ -349,34 +360,25 @@ namespace Core.Recordings
                                 if (!RecordingsDAL.DeleteDomainRecording(domainRecordingIds, domainRecordingStatus))
                                 {
                                     QuotaManager.Instance.IncreaseDomainUsedQuota(groupId, domainId, tempQuotaOverage);
+                                    deletedRecordings = null;
                                     log.ErrorFormat("fail in DeleteDomainOldestRecordings to perform delete domainRecordingID = {0}", string.Join(",", domainRecordingIds));
-                                }
-                                else
-                                {
-                                    response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                                 }
                             }
                         }
                     }
                     else
                     {
-                        // not enough quota to free
-                        response = new Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
-                        log.DebugFormat("try to GetDomainRecordingsByTstvRecordingStatuses by : {0} status return no results", TstvRecordingStatus.Recorded.ToString());
+                        deletedRecordings = null;
                     }
-                }
-                else
-                {
-                    response = new Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
-                    log.DebugFormat("try to GetDomainRecordingsByTstvRecordingStatuses by : {0} status return no results", TstvRecordingStatus.Recorded.ToString());
                 }
             }
             catch (Exception ex)
             {
+                deletedRecordings = null;
                 log.Error(string.Format("Error in 'DeleteDomainOldestRecordings' for domainId = {0}", domainId), ex);
             }
 
-            return response;
+            return deletedRecordings;
         }
 
         #endregion

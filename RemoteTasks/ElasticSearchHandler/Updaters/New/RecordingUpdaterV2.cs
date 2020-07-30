@@ -138,6 +138,16 @@ namespace ElasticSearchHandler.Updaters
             return esSerializer.SerializeRecordingObject(epg, recordingId, suffix, doesGroupUsesTemplates);
         }
 
+        protected override bool ShouldSetTTL()
+        {
+            return false;
+        }
+
+        protected override string GetAliasWithStartDate(int groupId, DateTime startDate)
+        {
+            return this.GetAlias();
+        }
+
         #endregion
     }
 }

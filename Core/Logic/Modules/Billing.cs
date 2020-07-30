@@ -12,6 +12,7 @@ using System.Web;
 using APILogic.ConditionalAccess.Modules;
 using ApiObjects.ConditionalAccess;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using ApiObjects.Response;
 
 namespace Core.Billing
 {
@@ -373,6 +374,20 @@ namespace Core.Billing
         }
 
         
+        public static GenericResponse<PaymentGateway> GetPaymentGatewayById(int nGroupID, int paymentGatewayId)
+        {
+            BasePaymentGateway t = new BasePaymentGateway(nGroupID);
+            if (t != null)
+            {
+                return t.GetPaymentGatewayById(paymentGatewayId);
+            }
+            else
+            {
+                var response = new GenericResponse<PaymentGateway>();
+                return response;
+            }
+        }
+
         public static PaymentGatewayItemResponse UpdatePaymentGateway(int nGroupID, int paymentGatewayId, PaymentGateway paymentGateway)
         {
             BasePaymentGateway t = new BasePaymentGateway(nGroupID);
@@ -388,7 +403,7 @@ namespace Core.Billing
             }
         }
 
-        
+
         public static ApiObjects.Response.Status SetPaymentGWSettings(int nGroupID, int paymentGWID, List<PaymentGatewaySettings> settings)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
@@ -815,25 +830,19 @@ namespace Core.Billing
             return response;
         }
 
-        public static TransactResult ProcessRenewal(int groupId, RenewDetails renewDetails, string productCode, string billingGuid, int gracePeriodMinutes)
-        {
-            return ProcessRenewal(groupId, renewDetails.UserId, renewDetails.DomainId, renewDetails.Price, renewDetails.Currency, renewDetails.CustomData, renewDetails.ProductId, productCode, renewDetails.PaymentNumber, renewDetails.NumOfPayments, billingGuid, gracePeriodMinutes);
-        }
-
-        public static TransactResult ProcessRenewal(int nGroupID, string siteGUID, long householdId, double price, string currency,
-            string customData, int productId, string productCode, int paymentNumber, int numberOfPayments, string billingGuid, int gracePeriodMinutes)
+        public static TransactResult ProcessRenewal(RenewDetails renewDetails, string productCode)
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = renewDetails.UserId ?? "null";
 
             TransactResult response = null;
 
             try
             {
-                BasePaymentGateway t = new BasePaymentGateway(nGroupID);
+                BasePaymentGateway t = new BasePaymentGateway(renewDetails.GroupId);
                 if (t != null)
                 {
-                    return t.ProcessRenewal(siteGUID, householdId, price, currency, customData, productId, productCode, paymentNumber, numberOfPayments, billingGuid, gracePeriodMinutes);
+                    return t.ProcessRenewal(renewDetails, productCode);
                 }
                 else
                 {
@@ -1242,7 +1251,7 @@ namespace Core.Billing
         }
 
         public static TransactResult ProcessUnifiedRenewal(int groupId, long householdId, double totalPrice, string currency, int paymentgatewayId, 
-            int paymentMethodId, string userIp, ref List<RenewDetails> renewUnified, ref PaymentGateway paymentGateway)
+            int paymentMethodId, string userIp, ref List<RenewDetails> renewUnified, ref PaymentGateway paymentGateway, long processId)
         {   
             // add siteguid to logs/monitor
             // HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
@@ -1254,7 +1263,7 @@ namespace Core.Billing
                 if (t != null)
                 {
                     return t.ProcessUnifiedRenewal(householdId, totalPrice, currency, paymentgatewayId, paymentMethodId, userIp, ref renewUnified,
-                        ref  paymentGateway);
+                        ref paymentGateway, processId);
                 }
                 else
                 {

@@ -311,7 +311,7 @@ namespace WS_Billing
                                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDeviceName);
                                     if (nMaxUsageModuleLifeCycle != 0)
                                     {
-                                        DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, nMaxUsageModuleLifeCycle);
+                                        DateTime d = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, nMaxUsageModuleLifeCycle);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
                                     }
 
@@ -433,7 +433,7 @@ namespace WS_Billing
                                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDeviceName);
                                     if (nMaxUsageModuleLifeCycle != 0)
                                     {
-                                        DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, nMaxUsageModuleLifeCycle);
+                                        DateTime d = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, nMaxUsageModuleLifeCycle);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
                                         //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", DateTime.UtcNow.AddSeconds(nMaxUsageModuleLifeCycle));
                                     }
@@ -540,7 +540,7 @@ namespace WS_Billing
                                     }
                                     selectQuery.Finish();
                                     selectQuery = null;
-                                    DateTime d = Utils.GetEndDateTime(DDate, nMaxUsageModuleLifeCycle);
+                                    DateTime d = Core.ConditionalAccess.Utils.GetEndDateTime(DDate, nMaxUsageModuleLifeCycle);
                                     ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
                                     updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
                                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);

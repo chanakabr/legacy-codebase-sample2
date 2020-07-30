@@ -2,6 +2,7 @@
 using ApiLogic.Catalog;
 using ApiObjects;
 using ApiObjects.Catalog;
+using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
@@ -298,10 +299,9 @@ namespace Core.Catalog.CatalogManagement
                                 assetStructOrderedMetasMap.Add(assetStructId, new Dictionary<int, long>() { { order, metaId } });
                             }
 
-                            AssetStructMeta assetStructMeta = CreateAssetStructMeta(dr, assetStructId, metaId);
-
                             if (!idToAssetStructMap[assetStructId].AssetStructMetas.ContainsKey(metaId))
                             {
+                                AssetStructMeta assetStructMeta = CreateAssetStructMeta(dr, assetStructId, metaId);
                                 idToAssetStructMap[assetStructId].AssetStructMetas.Add(metaId, assetStructMeta);
                             }
                         }
@@ -727,9 +727,7 @@ namespace Core.Catalog.CatalogManagement
 
                 foreach (DataRow dr in dt.Rows)
                 {
-                    AssetStructMeta assetStructMeta = CreateAssetStructMeta(dr,
-                        ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID"),
-                        ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID"));
+                    AssetStructMeta assetStructMeta = CreateAssetStructMeta(dr, ODBCWrapper.Utils.GetLongSafeVal(dr, "TEMPLATE_ID"), ODBCWrapper.Utils.GetLongSafeVal(dr, "TOPIC_ID"));
                     assetStructMetaList.Add(assetStructMeta);
                 }
             }
@@ -748,7 +746,8 @@ namespace Core.Catalog.CatalogManagement
                 DefaultIngestValue = ODBCWrapper.Utils.GetSafeStr(dr, "DEFAULT_INGEST_VALUE"),
                 CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE")),
                 UpdateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
-                IsInherited = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_INHERITED") == 1
+                IsInherited = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_INHERITED") == 1,
+                IsLocationTag = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_LOCATION_TAG") == 1,
             };
             return assetStructMeta;
         }
@@ -2783,6 +2782,22 @@ namespace Core.Catalog.CatalogManagement
                 // Validate Metadata Inheritance
                 Status metaDataInheritanceStatus = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
+                if (assetStructMeta.IsLocationTag.HasValue && assetStructMeta.IsLocationTag.Value)
+                {
+                    if (catalogGroupCache.TopicsMapById[metaId].Type != MetaType.Number)
+                    {
+                        response.SetStatus(eResponseStatus.InvalidMetaType, "Location tag can be set only to numeric metas.");
+                        return response;
+                    }
+
+                    var locationTagMeta = catalogGroupCache.AssetStructsMapById[assetStructId].AssetStructMetas.Values.FirstOrDefault(x => x.IsLocationTag.HasValue && x.IsLocationTag.Value);
+                    if (locationTagMeta != null)
+                    {
+                        response.SetStatus(eResponseStatus.TagAlreadyInUse, $"Location tag is already in use for AssetStruct {assetStructId}.");
+                        return response;
+                    }
+                }
+
                 bool needToHandleHeritage = false;
                 if (assetStructMeta.IsInherited.HasValue && assetStructMeta.IsInherited.Value)
                 {
@@ -2794,9 +2809,8 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataTable dt = CatalogDAL.UpdateAssetStructMeta
-                                        (assetStructId, metaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, groupId, userId,
-                    assetStructMeta.IsInherited);
+                DataTable dt = CatalogDAL.UpdateAssetStructMeta(assetStructId, metaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, 
+                                                                groupId, userId, assetStructMeta.IsInherited, assetStructMeta.IsLocationTag);
 
                 List<AssetStructMeta> assetStructMetaList = CreateAssetStructMetaListFromDT(dt);
 
@@ -3172,6 +3186,68 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return linearMediaTypeIds;
+        }
+
+        internal static void SetHistoryValues(int groupId, UserMediaMark userMediaMark)
+        {
+            if (CatalogManager.DoesGroupUsesTemplates(groupId) && CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            {
+                EpgAsset asset = null;
+
+                if (catalogGroupCache.AssetStructsMapById.ContainsKey(userMediaMark.AssetTypeId))
+                {
+                    var locationAssetStractMeta = catalogGroupCache.AssetStructsMapById[userMediaMark.AssetTypeId].AssetStructMetas.Values.FirstOrDefault(x => x.IsLocationTag.HasValue && x.IsLocationTag.Value);
+                    if (locationAssetStractMeta != null)
+                    {
+                        if (catalogGroupCache.TopicsMapById.ContainsKey(locationAssetStractMeta.MetaId))
+                        {
+                            var locationTagName = catalogGroupCache.TopicsMapById[locationAssetStractMeta.MetaId].SystemName;
+                           
+                            if (!string.IsNullOrEmpty(locationTagName))
+                            {
+                                var assetResponse = AssetManager.GetAsset(groupId, userMediaMark.AssetID, userMediaMark.AssetType, true);
+                                if (assetResponse.HasObject() && assetResponse.Object.Metas != null)
+                                {
+                                    if (userMediaMark.AssetType == eAssetTypes.EPG)
+                                    {
+                                        asset = assetResponse.Object as EpgAsset;
+                                    }
+
+                                    var locationTagMeta = assetResponse.Object.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == locationTagName);
+                                    if (locationTagMeta != null && int.TryParse(locationTagMeta.m_sValue, out int locationTagValue))
+                                    {
+                                        userMediaMark.LocationTagValue = locationTagValue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (userMediaMark.AssetType == eAssetTypes.EPG)
+                {
+                    if (asset == null)
+                    {
+                        var assetResponse = AssetManager.GetAsset(groupId, userMediaMark.AssetID, userMediaMark.AssetType, true);
+                        if (assetResponse.HasObject() && assetResponse.Object.Metas != null)
+                        {
+                            asset = assetResponse.Object as EpgAsset;
+                        }
+                    }
+
+                    if (asset != null)
+                    {
+                        if (asset.SearchEndDate == DateTime.MinValue)
+                        {
+                            asset.SearchEndDate = IndexManager.GetProgramSearchEndDate(groupId, asset.EpgChannelId.Value.ToString(), asset.EndDate.Value);   
+                        }
+
+                        userMediaMark.ExpiredAt = DateUtils.ToUtcUnixTimestampSeconds(asset.SearchEndDate);
+                    }
+                }
+
+                
+            }
         }
 
         #endregion

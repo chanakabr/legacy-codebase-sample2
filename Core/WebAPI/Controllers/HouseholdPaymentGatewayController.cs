@@ -125,7 +125,7 @@ namespace WebAPI.Controllers
 
             return chargeId;
         }
-        
+
         /// <summary>
         /// Enable a payment-gateway provider for the household. 
         /// </summary>
@@ -157,7 +157,7 @@ namespace WebAPI.Controllers
 
                 // get domain id      
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-                
+
                 // call client
                 response = ClientsManager.BillingClient().SetHouseholdPaymentGateway(groupId, paymentGatewayId, userID, domainId);
             }
@@ -252,21 +252,20 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Suspends all the entitlements of the given payment gateway
         /// </summary>
-        /// <param name="paymentGatewayId">Payment gateway ID</param>                
+        /// <param name="paymentGatewayId">Payment gateway ID</param>           
+        /// /// <param name="suspendSettings">suspend settings</param>           
         [Action("suspend")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
-        static public void Suspend(int paymentGatewayId)
+        static public void Suspend(int paymentGatewayId, KalturaSuspendSettings suspendSettings = null)
         {
-            Models.Billing.KalturaPaymentGatewayConfiguration response = null;
-
             int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
             {
-                ClientsManager.ConditionalAccessClient().SuspendPaymentGatewayEntitlements(groupId, householdId, paymentGatewayId);
+                ClientsManager.ConditionalAccessClient().SuspendPaymentGatewayEntitlements(groupId, householdId, paymentGatewayId, suspendSettings);
             }
             catch (ClientException ex)
             {
@@ -278,11 +277,12 @@ namespace WebAPI.Controllers
         /// Resumes all the entitlements of the given payment gateway
         /// </summary>
         /// <param name="paymentGatewayId">Payment gateway ID</param>                
+        /// /// <param name="adapterData">Adapter data</param>                
         [Action("resume")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
-        static public void Resume(int paymentGatewayId)
+        static public void Resume(int paymentGatewayId, List<KalturaKeyValue> adapterData = null)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;
 
@@ -291,7 +291,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                ClientsManager.ConditionalAccessClient().ResumePaymentGatewayEntitlements(groupId, householdId, paymentGatewayId);
+                ClientsManager.ConditionalAccessClient().ResumePaymentGatewayEntitlements(groupId, householdId, paymentGatewayId, adapterData);
             }
             catch (ClientException ex)
             {

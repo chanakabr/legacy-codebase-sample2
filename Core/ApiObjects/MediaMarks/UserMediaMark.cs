@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using ApiObjects.Catalog;
 using Newtonsoft.Json;
 
 namespace ApiObjects.MediaMarks
@@ -49,6 +50,12 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("assetType")]
         public eAssetTypes AssetType { get; set; }
 
+        [JsonIgnore]
+        public long ExpiredAt { get; set; }
+
+        [JsonProperty("LocationTagValue")]
+        public int LocationTagValue { get; set; }
+
         public UserMediaMark()
         {
             // default values to members from joker version
@@ -70,6 +77,21 @@ namespace ApiObjects.MediaMarks
             {
                 return x.AssetID.CompareTo(y.AssetID);
             }
+        }
+
+        public bool IsFinished(int finishedPercentThreshold)
+        {
+            if (this.AssetAction.ToUpper() == MediaPlayActions.FINISH.ToString().ToUpper())
+            {
+                return true;
+            }
+            
+            if (this.LocationTagValue > 0 && this.Location >= this.LocationTagValue)
+            {
+                return true;
+            }
+
+            return this.LocationTagValue == 0 && ((float)this.Location / (float)this.FileDuration) * 100 > finishedPercentThreshold;
         }
     }
 }

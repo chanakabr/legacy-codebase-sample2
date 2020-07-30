@@ -79,7 +79,7 @@ namespace ElasticSearchHandler.Updaters
 
             if (sizeOfBulk == 0)
             {
-                sizeOfBulk = 50;
+                sizeOfBulk = 500;
             }
 
         }
@@ -256,7 +256,7 @@ namespace ElasticSearchHandler.Updaters
                                     // in that case we need to use the specific date alias for each epg item to update
                                     if (isIngestV2)
                                     {
-                                        alias = IndexManager.GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date);
+                                        alias = GetAliasWithStartDate(groupId, epg.StartDate.Date);
                                     }
 
                                     epg.PadMetas(metasToPad);
@@ -279,7 +279,14 @@ namespace ElasticSearchHandler.Updaters
                                     }
 
                                     string serializedEpg = SerializeEPG(epg, suffix, doesGroupUsesTemplates);
-                                    string ttl = string.Format("{0}m", Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes));
+                                    string ttl = string.Empty;
+                                    bool shouldSetTTL = ShouldSetTTL();
+
+                                    if (shouldSetTTL)
+                                    {
+                                        double totalMinutes = GetTTLMinutes(epg);
+                                        ttl = string.Format("{0}m", totalMinutes);
+                                    }
 
                                     bulkRequests.Add(new ESBulkRequestObj<ulong>()
                                     {
@@ -366,6 +373,16 @@ namespace ElasticSearchHandler.Updaters
             return EPG;
         }
 
+        protected virtual bool ShouldSetTTL()
+        {
+            return true;
+        }
+
+        protected virtual double GetTTLMinutes(EpgCB epg)
+        {
+            return Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes);
+        }
+
         protected virtual ulong GetDocumentId(int epgId)
         {
             return (ulong)epgId;
@@ -434,6 +451,11 @@ namespace ElasticSearchHandler.Updaters
         protected virtual string GetAlias()
         {
             return ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
+        }
+
+        protected virtual string GetAliasWithStartDate(int groupId, DateTime startDate)
+        {
+            return IndexManager.GetIngestCurrentProgramsAliasName(groupId, startDate);
         }
     }
 }

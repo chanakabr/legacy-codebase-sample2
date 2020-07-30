@@ -749,6 +749,8 @@ namespace WebAPI.Reflection
                             return "ingestReferencePath";
                         case "IsInherited":
                             return "isInherited";
+                        case "IsLocationTag":
+                            return "isLocationTag";
                         case "MetaId":
                             return "metaId";
                         case "ProtectFromIngest":
@@ -1401,8 +1403,6 @@ namespace WebAPI.Reflection
                             return "excludeWatched";
                         case "IdEqual":
                             return "idEqual";
-                        case "KSql":
-                            return "kSql";
                         case "OrderBy":
                             return "orderBy";
                     }
@@ -2200,6 +2200,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDuration":
+                    switch(property.Name)
+                    {
+                        case "Unit":
+                            return "unit";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
                 case "KalturaDynamicChannel":
                     switch(property.Name)
                     {
@@ -2779,6 +2789,8 @@ namespace WebAPI.Reflection
                             return "downgradePolicy";
                         case "EnableRegionFiltering":
                             return "enableRegionFiltering";
+                        case "FinishedPercentThreshold":
+                            return "finishedPercentThreshold";
                         case "HouseholdLimitationModule":
                             return "householdLimitationModule";
                         case "MailSettings":
@@ -2965,6 +2977,8 @@ namespace WebAPI.Reflection
                             return "externalId";
                         case "HouseholdId":
                             return "householdId";
+                        case "MacAddress":
+                            return "macAddress";
                         case "Name":
                             return "name";
                         case "State":
@@ -3053,6 +3067,8 @@ namespace WebAPI.Reflection
                             return "isDefault";
                         case "Name":
                             return "name";
+                        case "SuspendSettings":
+                            return "suspendSettings";
                     }
                     break;
                     
@@ -4523,6 +4539,14 @@ namespace WebAPI.Reflection
                     {
                         case "PaymentMethodProfiles":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPaymentPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "UnifiedBillingCycles":
+                            return "unifiedBillingCycles";
                     }
                     break;
                     
@@ -6416,6 +6440,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSuspendSettings":
+                    switch(property.Name)
+                    {
+                        case "RevokeEntitlements":
+                            return "revokeEntitlements";
+                        case "StopRenew":
+                            return "stopRenew";
+                    }
+                    break;
+                    
                 case "KalturaTag":
                     switch(property.Name)
                     {
@@ -6729,6 +6763,18 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaUnifiedBillingCycle":
+                    switch(property.Name)
+                    {
+                        case "Duration":
+                            return "duration";
+                        case "Name":
+                            return "name";
+                        case "PaymentGatewayId":
+                            return "paymentGatewayId";
                     }
                     break;
                     
@@ -7332,6 +7378,10 @@ namespace WebAPI.Reflection
                         case "cleanoldstandard":
                             RolesManager.ValidateActionPermitted("assetHistory", "cleanOldStandard", false);
                             return AssetHistoryController.CleanOldStandard((KalturaAssetsFilter) methodParams[0]);
+                            
+                        case "getnextepisode":
+                            RolesManager.ValidateActionPermitted("assetHistory", "getNextEpisode", false);
+                            return AssetHistoryController.GetNextEpisode((long) methodParams[0]);
                             
                         case "list":
                             if(isOldVersion)
@@ -8524,7 +8574,7 @@ namespace WebAPI.Reflection
                             
                         case "resume":
                             RolesManager.ValidateActionPermitted("householdPaymentGateway", "resume", false);
-                            HouseholdPaymentGatewayController.Resume((int) methodParams[0]);
+                            HouseholdPaymentGatewayController.Resume((int) methodParams[0], (List<KalturaKeyValue>) methodParams[1]);
                             return null;
                             
                         case "setchargeid":
@@ -8533,7 +8583,7 @@ namespace WebAPI.Reflection
                             
                         case "suspend":
                             RolesManager.ValidateActionPermitted("householdPaymentGateway", "suspend", false);
-                            HouseholdPaymentGatewayController.Suspend((int) methodParams[0]);
+                            HouseholdPaymentGatewayController.Suspend((int) methodParams[0], (KalturaSuspendSettings) methodParams[1]);
                             return null;
                             
                         case "delete":
@@ -9167,7 +9217,7 @@ namespace WebAPI.Reflection
                             
                         case "logout":
                             RolesManager.ValidateActionPermitted("ottUser", "logout", false);
-                            return OttUserController.Logout();
+                            return OttUserController.Logout((SerializableDictionary<string, KalturaStringValue>) methodParams[0]);
                             
                         case "refreshsession":
                             RolesManager.ValidateActionPermitted("ottUser", "refreshSession", true);
@@ -10660,7 +10710,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             RolesManager.ValidateActionPermitted("userLoginPin", "add", false);
-                            return UserLoginPinController.Add((string) methodParams[0]);
+                            return UserLoginPinController.Add((string) methodParams[0], (Nullable<int>) methodParams[1], (Nullable<long>) methodParams[2]);
                             
                         case "delete":
                             RolesManager.ValidateActionPermitted("userLoginPin", "delete", false);
@@ -10672,7 +10722,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("userLoginPin", "update", false);
-                            return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1]);
+                            return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1], (Nullable<int>) methodParams[2], (Nullable<long>) methodParams[3]);
                             
                     }
                     break;
@@ -12199,6 +12249,19 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaAssetsFilter),
+                            });
+                            return ret;
+                            
+                        case "getnextepisode":
+                            ret.Add("assetId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("assetId", "assetHistory", "getNextEpisode") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
                             });
                             return ret;
                             
@@ -14658,6 +14721,14 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(int),
                             });
+                            ret.Add("adapterData", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsList = true,
+                                GenericType = typeof(KalturaKeyValue),
+                                Type = typeof(List<KalturaKeyValue>),
+                            });
                             return ret;
                             
                         case "setchargeid":
@@ -14675,6 +14746,13 @@ namespace WebAPI.Reflection
                             ret.Add("paymentGatewayId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(int),
+                            });
+                            ret.Add("suspendSettings", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSuspendSettings),
                             });
                             return ret;
                             
@@ -15903,6 +15981,14 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "logout":
+                            ret.Add("adapterData", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
                             return ret;
                             
                         case "refreshsession":
@@ -18990,6 +19076,20 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
+                            ret.Add("pinUsages", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            ret.Add("pinDuration", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int64),
+                            });
                             return ret;
                             
                         case "delete":
@@ -19026,6 +19126,20 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
+                            });
+                            ret.Add("pinUsages", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            ret.Add("pinDuration", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int64),
                             });
                             return ret;
                             

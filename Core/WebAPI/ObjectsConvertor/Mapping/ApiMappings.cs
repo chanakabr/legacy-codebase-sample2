@@ -499,7 +499,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region Meta
 
             cfg.CreateMap<Meta, KalturaMeta>()
-              .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+              .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
               .ForMember(dest => dest.FieldName, opt => opt.ResolveUsing(src => ConvertFieldName(src.FieldName)))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
               .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertMetaType(src.Type)))
@@ -510,7 +510,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               ;
 
             cfg.CreateMap<KalturaMeta, Meta>()
-             .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+             .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
              .ForMember(dest => dest.FieldName, opt => opt.ResolveUsing(src => ConvertMetaFieldName(src.FieldName)))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertMetaType(src.Type)))
@@ -583,7 +583,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             
             cfg.CreateMap<WebAPI.Models.Catalog.KalturaSlimAsset, SlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertAssetType(src.Type)));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
             
             cfg.CreateMap<KalturaRuleConditionType, RuleConditionType>()
                .ConvertUsing(kalturaRuleConditionType =>
@@ -2834,27 +2834,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaAssetType ConvertAssetType(eAssetTypes assetType)
-        {
-            KalturaAssetType response;
-            switch (assetType)
-            {
-                case eAssetTypes.EPG:
-                    response = KalturaAssetType.epg;
-                    break;
-                case eAssetTypes.NPVR:
-                    response = KalturaAssetType.recording;
-                    break;
-                case eAssetTypes.MEDIA:
-                    response = KalturaAssetType.media;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
-            }
-
-            return response;
-        }
-
         private static KalturaMetaType ConvertMetaType(ApiObjects.MetaType metaType)
         {
             KalturaMetaType response;
@@ -2908,29 +2887,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case MetaFieldName.All:
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown meta field name type");
-            }
-            return response;
-        }
-
-        internal static eAssetTypes ConvertAssetType(KalturaAssetType? assetType)
-        {
-            eAssetTypes response = eAssetTypes.UNKNOWN;
-            if (assetType.HasValue)
-            {
-                switch (assetType)
-                {
-                    case KalturaAssetType.epg:
-                        response = eAssetTypes.EPG;
-                        break;
-                    case KalturaAssetType.recording:
-                        response = eAssetTypes.NPVR;
-                        break;
-                    case KalturaAssetType.media:
-                        response = eAssetTypes.MEDIA;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown KalturaAssetType");
-                }
             }
             return response;
         }

@@ -260,7 +260,7 @@ namespace DAL
             return retVal;
         }
 
-        public static int InsertNewDevice(string sDeviceUDID, int nDeviceBrandID, int nDeviceFamilyID, string sDeviceName, int nGroupID, int nIsActive, int nStatus, string sPin, string externalId)
+        public static int InsertNewDevice(string sDeviceUDID, int nDeviceBrandID, int nDeviceFamilyID, string sDeviceName, int nGroupID, int nIsActive, int nStatus, string sPin, string externalId, string macAddress = "")
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewDevice");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -274,6 +274,10 @@ namespace DAL
             sp.AddParameter("@Pin", sPin);
             sp.AddParameter("@CreateDate", DateTime.UtcNow);
             sp.AddParameter("@ExternalID", externalId);
+            if (!string.IsNullOrEmpty(macAddress))
+            {
+                sp.AddParameter("@MacAddress", macAddress);
+            }
 
             return sp.ExecuteReturnValue<int>();
         }

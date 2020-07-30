@@ -249,4 +249,7 @@ public partial class adm_subscriptions : System.Web.UI.Page
         Response.Write(PageUtils.GetPreHeader() + ": Subscriptions");
     }
 
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {        
+    }
 }

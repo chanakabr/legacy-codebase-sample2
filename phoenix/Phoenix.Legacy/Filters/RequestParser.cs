@@ -76,7 +76,7 @@ namespace WebAPI.Filters
             return true;
         }
 
-        private object CreateRandomFileName(string fileName)
+        private string CreateRandomFileName(string fileName)
         {
             var randomFileName = Path.GetRandomFileName();
             return Path.GetFileNameWithoutExtension(randomFileName) + Path.GetExtension(fileName);
@@ -105,8 +105,8 @@ namespace WebAPI.Filters
                     foreach (var uploadedFile in parser.Files)
                     {
                         if (ApplicationConfiguration.Current.RequestParserConfiguration.ShouldSaveAsFile.Value)
-                        {
-                            var filePath = $@"{fileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
+                        {                            
+                            var filePath = Path.Combine(fileSystemUploaderSourcePath, CreateRandomFileName(uploadedFile.FileName));
                             using (Stream tempFile = File.Create(filePath))
                             {
                                 uploadedFile.Data.CopyTo(tempFile);

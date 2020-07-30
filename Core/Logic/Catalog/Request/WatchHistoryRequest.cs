@@ -37,6 +37,9 @@ namespace Core.Catalog.Request
         [DataMember]
         public int NumOfDays { get; set; }
 
+        [DataMember]
+        public bool Suppress { get; set; }
+
         public override BaseResponse GetResponse(BaseRequest baseRequest)
         {
             WatchHistoryResponse response = new WatchHistoryResponse();
@@ -66,13 +69,10 @@ namespace Core.Catalog.Request
                     throw new Exception("Either user is not valid or user has no domain.");
                 }
 
-                // take finished percent threshold 
-                int finishedPercentThreshold = CatalogLogic.GetFinishedPercentThreshold(m_nGroupID, 3600);
-                
                 // get results
                 int totalItems = 0;
 
-                List<int> excludedAssetTypes = new List<int>() { (int)eAssetTypes.EPG };
+                List<int> excludedAssetTypes = new List<int>();
 
                 // If asset types contains NPVR explicitly, don't exclude it.
                 if (AssetTypes == null || !AssetTypes.Contains((int)eAssetTypes.NPVR))
@@ -80,9 +80,13 @@ namespace Core.Catalog.Request
                     excludedAssetTypes.Add((int)eAssetTypes.NPVR);
                 }
 
-                List<WatchHistory> res = CatalogLogic.GetUserWatchHistory(
-                    m_nGroupID, m_sSiteGuid, AssetTypes, AssetIds, excludedAssetTypes, FilterStatus, NumOfDays,
-                    OrderDir, m_nPageIndex, m_nPageSize, finishedPercentThreshold, out totalItems);
+                if (AssetTypes == null || !AssetTypes.Contains((int)eAssetTypes.EPG))
+                {
+                    excludedAssetTypes.Add((int)eAssetTypes.EPG);
+                }
+
+                List<WatchHistory> res = CatalogLogic.GetUserWatchHistory(m_nGroupID, m_sSiteGuid, userDomainID, AssetTypes, AssetIds, excludedAssetTypes, FilterStatus, NumOfDays,
+                                                                          OrderDir, m_nPageIndex, m_nPageSize, Suppress, out totalItems);
 
                 // convert to client response
                 UserWatchHistory userWatchHistory;

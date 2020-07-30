@@ -28,6 +28,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         private long epgCbBulkSize = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.EpgPageSize.Value;
         protected int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+        protected int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
         protected bool shouldAddRouting = true;
         protected Dictionary<long, List<int>> linearChannelsRegionsMapping;
 
@@ -46,7 +47,6 @@ namespace ElasticSearchHandler.IndexBuilders
 
         public override bool BuildIndex()
         {
-            bool success = false;
 
             ContextData cd = new ContextData();
             CatalogGroupCache catalogGroupCache;
@@ -77,8 +77,8 @@ namespace ElasticSearchHandler.IndexBuilders
                 this.EndDate = DateTime.UtcNow.Date.AddDays(7);
             }
 
-            // Default size of ES bulk request size
-            sizeOfBulk = sizeOfBulk == 0 ? 1000 : sizeOfBulk;
+            // prevent from size of bulk to be more than the default value of 500 (currently as of 23.06.20)
+            sizeOfBulk = sizeOfBulk == 0 ? sizeOfBulkDefaultValue : sizeOfBulk > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : sizeOfBulk;
             // Default size of epg cb bulk size
             epgCbBulkSize = epgCbBulkSize == 0 ? 1000 : epgCbBulkSize;
 
@@ -122,18 +122,18 @@ namespace ElasticSearchHandler.IndexBuilders
 
             if (this.SwitchIndexAlias || !indexExists)
             {
-
                 string groupAlias = GetAlias();
                 List<string> oldIndices = api.GetAliases(groupAlias);
 
-                success = api.SwitchIndex(newIndexName, groupAlias, oldIndices, null);
+                bool switchSuccess = api.SwitchIndex(newIndexName, groupAlias, oldIndices, null);
 
-                if (!success)
+                if (!switchSuccess)
                 {
                     log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, groupAlias);
+                    return false;
                 }
 
-                if (this.DeleteOldIndices && success && oldIndices.Count > 0)
+                if (this.DeleteOldIndices && oldIndices.Count > 0)
                 {
                     api.DeleteIndices(oldIndices);
                 }
@@ -141,7 +141,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #endregion
 
-            return success;
+            return true;
         }
 
 

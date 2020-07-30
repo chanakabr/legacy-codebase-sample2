@@ -134,12 +134,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialAction>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src =>src.AssetType))
                  .ForMember(dest => dest.ActionType, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.Action)));
 
             cfg.CreateMap<KalturaSocialAction ,ApiObjects.Social.UserSocialActionRequest>()
                  .ForMember(dest => dest.AssetID, opt => opt.MapFrom(src => src.AssetId))
-                 .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
                  .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.ActionType)))
                  .ForMember(dest => dest.ExtraParams, opt => opt.ResolveUsing(src => ConvertWatchParams(src.Url))); ;
 
@@ -147,27 +147,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialActionRate>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
                  .ForMember(dest => dest.ActionType, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.Action)))
                   .ForMember(dest => dest.Rate, opt => opt.ResolveUsing(src => ConvertRateParams(src.ExtraParams)));
 
             cfg.CreateMap<KalturaSocialActionRate, ApiObjects.Social.UserSocialActionRequest>()
                  .ForMember(dest => dest.AssetID, opt => opt.MapFrom(src => src.AssetId))
-                 .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
                  .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.ActionType)))
                   .ForMember(dest => dest.ExtraParams, opt => opt.ResolveUsing(src => ConvertRateParams(src.Rate)));
 
 
             cfg.CreateMap<UserSocialActionResponse, KalturaSocialAction>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.UserAction.AssetID))
-                .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.UserAction.AssetType)))
+                .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.UserAction.AssetType))
                 .ForMember(dest => dest.ActionType, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.UserAction.Action)))
                 .ForMember(dest => dest.Url, opt => opt.ResolveUsing(src => ConvertWatchParams(src.UserAction.ExtraParams)))
                 ;
 
             cfg.CreateMap<UserSocialActionResponse, KalturaSocialActionRate>()
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.UserAction.AssetID))
-               .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.UserAction.AssetType)))
+               .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.UserAction.AssetType))
                .ForMember(dest => dest.ActionType, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.UserAction.Action)))
                .ForMember(dest => dest.Rate, opt => opt.ResolveUsing(src => ConvertRateParams(src.UserAction.ExtraParams)))
                ;
@@ -196,7 +196,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<ApiObjects.Social.UserSocialActionResponse, KalturaUserSocialActionResponse>().ConstructUsing(ConvertSocialActionResponse);
 
             cfg.CreateMap<KalturaSocialAction, UserSocialActionQueryRequest>()                
-                 .ForMember(dest => dest.m_eAssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.m_eAssetType, opt => opt.MapFrom(src => src.AssetType))
                  .ForMember(dest => dest.m_eUserActions, opt => opt.ResolveUsing(src => ConvertSocialActionType(src.ActionType)));
             
         }
@@ -341,25 +341,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static eAssetType ConvertAssetType(KalturaAssetType kalturaAssetType)
-        {
-            switch (kalturaAssetType)
-            {
-                case KalturaAssetType.media:
-                    return eAssetType.MEDIA;
-                    break;
-                case KalturaAssetType.recording:
-                    return eAssetType.UNKNOWN;
-                    break;
-                case KalturaAssetType.epg:
-                    return eAssetType.PROGRAM;
-                    break;
-                default:
-                    return eAssetType.UNKNOWN;
-                    break;
-            }
-        }
-
         private static int ConvertRateParams(List<KeyValuePair> list)
         {
             int RateValue = 0;
@@ -413,22 +394,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaAssetType ConvertAssetType(eAssetType eAssetType)
-        {
-            switch (eAssetType)
-            {                
-                case eAssetType.MEDIA:
-                    return KalturaAssetType.media;
-                    break;
-                case eAssetType.PROGRAM:
-                    return KalturaAssetType.epg;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown AssetType");
-                    break;
-            }
-        }
-
         private static KalturaSocialComment ConvertToKalturaSocialComment(SocialFeedItem comment)
         {
             KalturaSocialComment result = null;
@@ -476,7 +441,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             result.Time = action.LastUpdate;
             result.AssetId = action.ActivityObject.AssetID;
-            result.AssetType = ConvertToKalturaAssetType(action.ActivityObject.AssetType);
+            result.AssetType = AutoMapper.Mapper.Map<KalturaAssetType>(action.ActivityObject.AssetType);
             result.Id = action.id;
 
             return result;
@@ -521,26 +486,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown social action");
                     break;
-            }
-
-            return result;
-        }
-
-        //eAssetType to KalturaAssetType
-        public static KalturaAssetType ConvertToKalturaAssetType(eAssetType assetType)
-        {
-            KalturaAssetType result;
-            switch (assetType)
-            {
-                case eAssetType.PROGRAM:
-                    result = KalturaAssetType.epg;
-                    break;
-                case eAssetType.MEDIA:
-                    result = KalturaAssetType.media;
-                    break;
-                case eAssetType.UNKNOWN:
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
             }
 
             return result;
