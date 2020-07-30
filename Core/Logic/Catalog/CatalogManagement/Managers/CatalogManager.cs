@@ -1770,6 +1770,24 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                // check AssetStruct is not part of category ExtendedTypes
+                GenericListResponse<ObjectVirtualAssetPartnerConfig> objectVirtualAssetPartnerConfig = PartnerConfigurationManager.GetObjectVirtualAssetPartnerConfiguration(groupId);
+                if(objectVirtualAssetPartnerConfig.IsOkStatusCode() && objectVirtualAssetPartnerConfig.HasObjects())
+                {
+                    foreach (ObjectVirtualAssetInfo objectVirtualAssetInfo in objectVirtualAssetPartnerConfig.Objects[0].ObjectVirtualAssets)
+                    {
+                        if(objectVirtualAssetInfo?.ExtendedTypes?.Count > 0)
+                        {
+                            var assetStructExist = objectVirtualAssetInfo.ExtendedTypes.Values.Contains(id);
+                            if (assetStructExist)
+                            {
+                                result = new Status((int)eResponseStatus.CannotDeleteAssetStruct, $"Can not delete mapped AssetStruct {id}");
+                                return result;
+                            }
+                        }
+                    }
+                }               
+
                 if (CatalogDAL.DeleteAssetStruct(groupId, id, userId))
                 {
                     List<long> tagTopicIds = new List<long>();

@@ -5985,7 +5985,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot)
+             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type)
         {
             try
             {
@@ -6011,6 +6011,7 @@ namespace Tvinci.Core.DAL
                 {
                     sp.AddParameter("@endDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.EndDateInSeconds.Value));
                 }
+                sp.AddParameter("@type", type);
 
                 var id = sp.ExecuteReturnValue<long>();
                 if (dynamicData?.Count > 0 && id > 0)

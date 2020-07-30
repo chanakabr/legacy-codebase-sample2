@@ -256,6 +256,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CHILD_CATEGORY_CANNOT_BE_THE_CATEGORY_ITSELF = new ClientExceptionType(eResponseStatus.ChildCategoryCannotBeTheCategoryItself, "", "A child category cannot be the category itself");
         public static ClientExceptionType INVALID_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.InvalidAssetStruct, "", "Invalid asset struct");
         public static ClientExceptionType NO_NEXT_EPISODE = new ClientExceptionType(eResponseStatus.NoNextEpisode, "", "User have not started watching this TV series");
+        public static ClientExceptionType CANNOT_DELETE_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CannotDeleteAssetStruct, "", "Cannot delete asset struct");
+        public static ClientExceptionType CATEGORY_TYPE_NOT_EXIST = new ClientExceptionType(eResponseStatus.CategoryTypeNotExist, "", "Category type does not exist");
+        public static ClientExceptionType EXTENDED_TYPE_VALUE_CANNOT_BE_CHANGED = new ClientExceptionType(eResponseStatus.ExtendedTypeValueCannotBeChanged, "", "ExtendedType value cannot be changed");
 
         #endregion
 

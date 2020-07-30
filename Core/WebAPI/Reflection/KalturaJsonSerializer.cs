@@ -10889,6 +10889,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("startDateInSeconds", "\"startDateInSeconds\": " + StartDateInSeconds);
             }
+            if(Type != null)
+            {
+                ret.Add("type", "\"type\": " + "\"" + EscapeJson(Type) + "\"");
+            }
             if(UnifiedChannels != null)
             {
                 propertyValue = "[" + String.Join(", ", UnifiedChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -10927,6 +10931,10 @@ namespace WebAPI.Models.Catalog
             if(StartDateInSeconds.HasValue)
             {
                 ret.Add("startDateInSeconds", "<startDateInSeconds>" + StartDateInSeconds + "</startDateInSeconds>");
+            }
+            if(Type != null)
+            {
+                ret.Add("type", "<type>" + EscapeXml(Type) + "</type>");
             }
             if(UnifiedChannels != null)
             {
@@ -11040,6 +11048,10 @@ namespace WebAPI.Models.Catalog
                 ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
             }
             ret.Add("rootOnly", "\"rootOnly\": " + RootOnly.ToString().ToLower());
+            if(TypeEqual != null)
+            {
+                ret.Add("typeEqual", "\"typeEqual\": " + "\"" + EscapeJson(TypeEqual) + "\"");
+            }
             return ret;
         }
         
@@ -11054,6 +11066,10 @@ namespace WebAPI.Models.Catalog
                 ret.Add("kSql", "<kSql>" + EscapeXml(Ksql) + "</kSql>");
             }
             ret.Add("rootOnly", "<rootOnly>" + RootOnly.ToString().ToLower() + "</rootOnly>");
+            if(TypeEqual != null)
+            {
+                ret.Add("typeEqual", "<typeEqual>" + EscapeXml(TypeEqual) + "</typeEqual>");
+            }
             return ret;
         }
     }
@@ -11098,6 +11114,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("startDateInSeconds", "\"startDateInSeconds\": " + StartDateInSeconds);
             }
+            if(Type != null)
+            {
+                ret.Add("type", "\"type\": " + "\"" + EscapeJson(Type) + "\"");
+            }
             if(UnifiedChannels != null)
             {
                 propertyValue = "[" + String.Join(", ", UnifiedChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -11140,6 +11160,10 @@ namespace WebAPI.Models.Catalog
             if(StartDateInSeconds.HasValue)
             {
                 ret.Add("startDateInSeconds", "<startDateInSeconds>" + StartDateInSeconds + "</startDateInSeconds>");
+            }
+            if(Type != null)
+            {
+                ret.Add("type", "<type>" + EscapeXml(Type) + "</type>");
             }
             if(UnifiedChannels != null)
             {
@@ -25978,6 +26002,11 @@ namespace WebAPI.Models.Partner
             string propertyValue;
 
             ret.Add("assetStructId", "\"assetStructId\": " + AssetStructId);
+            if(ExtendedTypes != null)
+            {
+                propertyValue = "{" + String.Join(", ", ExtendedTypes.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("extendedTypes", "\"extendedTypes\": " + propertyValue);
+            }
             ret.Add("metaId", "\"metaId\": " + MetaId);
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaObjectVirtualAssetInfoType), Type) + "\"");
             return ret;
@@ -25990,6 +26019,11 @@ namespace WebAPI.Models.Partner
             string propertyValue;
 
             ret.Add("assetStructId", "<assetStructId>" + AssetStructId + "</assetStructId>");
+            if(ExtendedTypes != null)
+            {
+                propertyValue = ExtendedTypes.Count > 0 ? "<item>" + String.Join("</item><item>", ExtendedTypes.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("extendedTypes", "<extendedTypes>" + propertyValue + "</extendedTypes>");
+            }
             ret.Add("metaId", "<metaId>" + MetaId + "</metaId>");
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaObjectVirtualAssetInfoType), Type) + "" + "</type>");
             return ret;

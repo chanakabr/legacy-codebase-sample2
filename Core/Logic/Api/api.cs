@@ -11946,9 +11946,9 @@ namespace Core.Api
             return response;
         }
 
-        internal static void AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        internal static void AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
         {
-            AssetManager.AddVirtualAsset(groupId, virtualAssetInfo);
+            AssetManager.AddVirtualAsset(groupId, virtualAssetInfo, type);
         }
 
         internal static void DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
@@ -12028,7 +12028,28 @@ namespace Core.Api
                 List<string> extraReturnFields = new List<string>() { "metas." + topic.SystemName };
 
                 string filterIds = GetIdsKsql(objectIds, topic.SystemName);
-                string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter} {assetFilter} {filterIds})";
+
+                string structFilter = string.Empty;
+                // TODO: check if AssetStructId exist - as ira
+                if (assetSearchDefinition.AssetStructId != 0)
+                {
+                    structFilter = $"asset_type = '{assetSearchDefinition.AssetStructId }'";
+                }
+                else
+                {
+                    structFilter = $"(or asset_type = '{objectVirtualAssetInfo.AssetStructId}' ";
+
+                    if (objectVirtualAssetInfo.ExtendedTypes != null && objectVirtualAssetInfo.ExtendedTypes.Count > 0)
+                    {
+                        foreach (var extendedType in objectVirtualAssetInfo.ExtendedTypes.Values)
+                        {
+                            structFilter += $"asset_type = '{extendedType}' ";
+                        }
+                        structFilter += ")";
+                    }
+                }
+
+                string filter = $"(and {structFilter} {assetSearchDefinition.Filter} {assetFilter} {filterIds})";
 
                 var assets = SearchAssetsExtended(groupId, filter, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty,
                     assetSearchDefinition.UserId.ToString(), 0, 0, true, assetSearchDefinition.IsAllowedToViewInactiveAssets,
