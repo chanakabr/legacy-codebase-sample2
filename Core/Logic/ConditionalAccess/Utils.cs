@@ -1442,8 +1442,7 @@ namespace Core.ConditionalAccess
             if (paymentConfigurationResponse.HasObject() && paymentConfigurationResponse.Object.UnifiedBillingCycles != null)
             {
                 paymentConfig = paymentConfigurationResponse.Object;
-                var unifiedBillingCycleObj = paymentConfig.UnifiedBillingCycles
-                     .FirstOrDefault(x => x.Duration.Value == subscriptionCycle.SubscriptionLifeCycle.Value && x.Duration.Unit == subscriptionCycle.SubscriptionLifeCycle.Unit);
+                var unifiedBillingCycleObj = paymentConfig.UnifiedBillingCycles.FirstOrDefault(x => x.Duration.Equals(subscriptionCycle.SubscriptionLifeCycle));
 
                 if (unifiedBillingCycleObj != null)
                 {
