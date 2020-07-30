@@ -6769,6 +6769,8 @@ namespace WebAPI.Reflection
                     {
                         case "Duration":
                             return "duration";
+                        case "IgnorePartialBilling":
+                            return "ignorePartialBilling";
                         case "Name":
                             return "name";
                         case "PaymentGatewayId":

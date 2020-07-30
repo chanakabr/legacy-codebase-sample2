@@ -77,6 +77,14 @@ namespace WebAPI.Models.Partner
         [SchemeProperty(MinInteger = 1)]
         public int? PaymentGatewayId { get; set; }
 
+        /// <summary>
+        /// Define if partial billing shall be calculated or not
+        /// </summary>
+        [DataMember(Name = "ignorePartialBilling")]
+        [JsonProperty("ignorePartialBilling")]
+        [XmlElement(ElementName = "ignorePartialBilling", IsNullable = true)]
+        public bool? IgnorePartialBilling { get; set; }
+
         internal void Validate()
         {
             if (string.IsNullOrEmpty(this.Name))

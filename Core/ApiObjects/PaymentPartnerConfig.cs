@@ -36,5 +36,8 @@ namespace ApiObjects
 
         [JsonProperty]
         public int? PaymentGatewayId { get; set; }
+
+        [JsonProperty]
+        public bool? IgnorePartialBilling { get; set; }
     }
 }
