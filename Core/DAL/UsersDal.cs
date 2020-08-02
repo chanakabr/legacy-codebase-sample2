@@ -862,8 +862,6 @@ namespace DAL
             sp.AddParameter("@updaterId", updaterId);
             sp.AddParameter("@status", coreObject.Status);
 
-            bool result = sp.ExecuteReturnValue<bool>();
-
             var id = sp.ExecuteReturnValue<int>();
 
             if (id > 0)
@@ -874,6 +872,23 @@ namespace DAL
             else
                 response.SetStatus(ApiObjects.Response.eResponseStatus.Error, $"Failed updating {coreObject.Name}");
 
+            return response;
+        }
+
+        public static ApiObjects.Response.GenericResponse<bool> DeleteDeviceInformation(int groupId, long? updaterId, long id)
+        {
+            var response = new ApiObjects.Response.GenericResponse<bool>();
+            var sp = new StoredProcedure("Delete_DeviceReferenceData");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@updaterId", updaterId);
+
+            response.Object = sp.ExecuteReturnValue<bool>();
+            if (response.Object)
+            {
+                response.SetStatus(ApiObjects.Response.eResponseStatus.OK);
+            }
             return response;
         }
 

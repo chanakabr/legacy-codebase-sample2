@@ -33,8 +33,8 @@ namespace ApiLogic.Users.Managers
             }
             else
             {
-                var delete = UsersDal.DeleteDeviceInformation(contextData.GroupId, id);
-                if (!delete)
+                var delete = UsersDal.DeleteDeviceInformation(contextData.GroupId, contextData.UserId, id);
+                if (delete == null || !delete.Object)
                     response.Set(eResponseStatus.Error, $"Failed to delete Device Reference Data, id: {id}");
                 else
                     response.Set(eResponseStatus.OK);
