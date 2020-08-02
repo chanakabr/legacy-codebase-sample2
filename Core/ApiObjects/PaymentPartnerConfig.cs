@@ -62,8 +62,18 @@ namespace ApiObjects
         {
             var needToUpdate = false;
 
-            if (!this.PaymentGatewayId.HasValue && oldUnifiedBillingCycleObject.PaymentGatewayId.HasValue)
+            if (this.Name != oldUnifiedBillingCycleObject.Name)
             {
+                needToUpdate = true;
+            }
+
+            if (!this.Duration.Equals(oldUnifiedBillingCycleObject.Duration))
+            {
+                needToUpdate = true;
+            }
+
+            if (!this.PaymentGatewayId.HasValue && oldUnifiedBillingCycleObject.PaymentGatewayId.HasValue)
+            {        
                 needToUpdate = true;
                 this.PaymentGatewayId = oldUnifiedBillingCycleObject.PaymentGatewayId;
             }
