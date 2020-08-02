@@ -13,13 +13,13 @@ using Newtonsoft.Json;
 
 namespace ApiLogic.Users.Managers
 {
-    public class DeviceInformationManager : ICrudHandler<DeviceReferenceData, long>
+    public class DeviceReferenceDataManager : ICrudHandler<DeviceReferenceData, long>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly Lazy<DeviceInformationManager> lazy = new Lazy<DeviceInformationManager>(() => new DeviceInformationManager());
-        public static DeviceInformationManager Instance { get { return lazy.Value; } }
+        private static readonly Lazy<DeviceReferenceDataManager> lazy = new Lazy<DeviceReferenceDataManager>(() => new DeviceReferenceDataManager());
+        public static DeviceReferenceDataManager Instance { get { return lazy.Value; } }
 
-        private DeviceInformationManager() { }
+        private DeviceReferenceDataManager() { }
 
         public Status Delete(ContextData contextData, long id)
         {

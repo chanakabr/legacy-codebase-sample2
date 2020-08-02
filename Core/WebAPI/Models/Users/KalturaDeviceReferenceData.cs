@@ -48,7 +48,7 @@ namespace WebAPI.Models.Users
         {
             get
             {
-                return DeviceInformationManager.Instance;
+                return DeviceReferenceDataManager.Instance;
             }
         }
 
@@ -65,13 +65,13 @@ namespace WebAPI.Models.Users
         internal override GenericResponse<DeviceReferenceData> Add(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<DeviceReferenceData>(this);
-            return DeviceInformationManager.Instance.Add(contextData, coreObject);
+            return DeviceReferenceDataManager.Instance.Add(contextData, coreObject);
         }
 
         internal override GenericResponse<DeviceReferenceData> Update(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<DeviceReferenceData>(this);
-            return DeviceInformationManager.Instance.Update(contextData, coreObject);
+            return DeviceReferenceDataManager.Instance.Update(contextData, coreObject);
         }
     }
 
@@ -84,7 +84,7 @@ namespace WebAPI.Models.Users
         internal override GenericResponse<DeviceReferenceData> Add(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<DeviceModelInformation>(this);
-            return DeviceInformationManager.Instance.Add(contextData, coreObject);
+            return DeviceReferenceDataManager.Instance.Add(contextData, coreObject);
         }
     }
 
@@ -97,7 +97,7 @@ namespace WebAPI.Models.Users
         internal override GenericResponse<DeviceReferenceData> Add(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<DeviceManufacturerInformation>(this);
-            return DeviceInformationManager.Instance.Add(contextData, coreObject);
+            return DeviceReferenceDataManager.Instance.Add(contextData, coreObject);
         }
     }
 
