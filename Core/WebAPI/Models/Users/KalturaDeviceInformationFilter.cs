@@ -9,29 +9,30 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Password policy settings filter
     /// </summary>
-    public partial class KalturaDeviceInformationFilter : KalturaCrudFilter<KalturaDeviceInformationOrderBy, DeviceInformation>
+    public partial class KalturaDeviceReferenceDataFilter : KalturaCrudFilter<KalturaDeviceReferenceDataOrderBy, DeviceReferenceData>
     {
-        public KalturaDeviceInformationFilter() : base()
+        public KalturaDeviceReferenceDataFilter() : base()
         {
         }
 
-        public override KalturaDeviceInformationOrderBy GetDefaultOrderByValue()
+        public override KalturaDeviceReferenceDataOrderBy GetDefaultOrderByValue()
         {
-            return KalturaDeviceInformationOrderBy.NONE;
+            return KalturaDeviceReferenceDataOrderBy.NONE;
         }
 
         public override void Validate()
         {
         }
 
-        public override GenericListResponse<DeviceInformation> List(ContextData contextData, CorePager pager)
+        public override GenericListResponse<DeviceReferenceData> List(ContextData contextData, CorePager pager)
         {
-            //var coreFilter = AutoMapper.Mapper.Map<PasswordPolicyFilter>(this);
+            //var reponse = DeviceInformationManager.Instance.GetModels(contextData.GroupId);
+            //var reponse = DeviceInformationManager.Instance.GetManufacturers(contextData.GroupId);
             return null;
         }
     }
 
-    public enum KalturaDeviceInformationOrderBy
+    public enum KalturaDeviceReferenceDataOrderBy
     {
         NONE
     }

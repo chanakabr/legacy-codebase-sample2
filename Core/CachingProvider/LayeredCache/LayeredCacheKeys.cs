@@ -576,6 +576,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("sso_adapter_by_group_{0}", groupId);
         }
 
+        public static string GetDeviceReferenceDataByGroupKey(int groupId)
+        {
+            return string.Format("device_reference_data_by_group_{0}", groupId);
+        }
+
         public static string GetSSOAdapaterImplementationsKey(int adapterId)
         {
             return string.Format("sso_adapter_implementations_v1_{0}", adapterId);
@@ -1100,6 +1105,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_sso_adapater_{0}", groupId);
         }
 
+        public static string GetDeviceReferenceDataInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_device_reference_data_{0}", groupId);
+        }
+        
         public static string GetSSOAdapaterImplementationsInvalidationKey(int adapaterId)
         {
             return string.Format("invalidationKey_sso_adapater_implementations_{0}", adapaterId);
@@ -1188,16 +1198,6 @@ namespace CachingProvider.LayeredCache
         public static string GetUserRolesToPasswordPolicyInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_{0}", GetUserRolesToPasswordPolicyKey(groupId));
-        }
-
-        public static string GetDeviceModelInformationInvalidationKey(int groupId)
-        {
-            return $"invalidationKey_ModelInformation_{groupId}";
-        }
-        
-        public static string GetDeviceManufacturerInformationInvalidationKey(int groupId)
-        {
-            return $"invalidationKey_ManufacturerInformation_{groupId}";
         }
 
         public static string GetPasswordPolicyInvalidationKey(long roleId)

@@ -299,17 +299,18 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.key, opt => opt.MapFrom(src => src.key))
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.value));
 
-            cfg.CreateMap<KalturaDeviceInformation, DeviceInformation>()
+            cfg.CreateMap<KalturaDeviceReferenceData, DeviceReferenceData>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 ;
 
             cfg.CreateMap<KalturaDeviceModelInformation, DeviceModelInformation>()
-                .IncludeBase<KalturaDeviceInformation, DeviceInformation>()
+                .IncludeBase<KalturaDeviceReferenceData, DeviceReferenceData>()
                 ;
 
             cfg.CreateMap<KalturaDeviceManufacturerInformation, DeviceManufacturerInformation>()
-                .IncludeBase<KalturaDeviceInformation, DeviceInformation>()
+                .IncludeBase<KalturaDeviceReferenceData, DeviceReferenceData>()
                 ;
         }
 

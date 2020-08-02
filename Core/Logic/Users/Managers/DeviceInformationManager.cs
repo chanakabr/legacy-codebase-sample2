@@ -6,10 +6,14 @@ using KLogMonitor;
 using System;
 using System.Reflection;
 using CachingProvider.LayeredCache;
+using System.Collections.Generic;
+using System.Linq;
+using DAL;
+using Newtonsoft.Json;
 
 namespace ApiLogic.Users.Managers
 {
-    public class DeviceInformationManager : ICrudHandler<DeviceInformation, long>
+    public class DeviceInformationManager : ICrudHandler<DeviceReferenceData, long>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<DeviceInformationManager> lazy = new Lazy<DeviceInformationManager>(() => new DeviceInformationManager());
@@ -19,56 +23,134 @@ namespace ApiLogic.Users.Managers
 
         public Status Delete(ContextData contextData, long id)
         {
-            return new Status(eResponseStatus.OK);
+            var response = new Status();
+            var all = GetReferenceData(contextData.GroupId);
+            var _object = all?.Where(d => d.Id == id).FirstOrDefault();
+            
+            if (_object == null)
+            {
+                response.Set(eResponseStatus.Error, $"No Device Reference Data exists with id: {id}");
+            }
+            else
+            {
+                var delete = UsersDal.DeleteDeviceInformation(contextData.GroupId, id);
+                if (!delete)
+                    response.Set(eResponseStatus.Error, $"Failed to delete Device Reference Data, id: {id}");
+                else
+                    response.Set(eResponseStatus.OK);
+            }
+
+            return response;
         }
 
-        public GenericResponse<DeviceInformation> Get(ContextData contextData, long id)
+        public GenericResponse<DeviceReferenceData> Get(ContextData contextData, long id)
         {
-            return new GenericResponse<DeviceInformation>();
+            var response = new GenericResponse<DeviceReferenceData>();
+            var all = GetReferenceData(contextData.GroupId);
+            response.Object = all?.Where(d => d.Id == id).FirstOrDefault();
+            if (response.Object != null)
+            {
+                response.SetStatus(eResponseStatus.OK);
+            }
+
+            return response;
         }
 
-        public GenericResponse<DeviceInformation> Add<T>(ContextData contextData, T coreObject) where T : DeviceInformation
+        public GenericResponse<DeviceReferenceData> Add<T>(ContextData contextData, T coreObject) where T : DeviceReferenceData
         {
-            var response = new GenericResponse<DeviceInformation>();
+            var response = new GenericResponse<DeviceReferenceData>();
             var groupId = contextData.GroupId;
             var updaterId = contextData.UserId;
             try
             {
-                var validationKey = string.Empty;
-                if (coreObject is DeviceModelInformation)
-                {
-                    response = DAL.UsersDal.InsertDeviceModelInformation
-                        (groupId, updaterId, coreObject as DeviceModelInformation);
-                    validationKey = LayeredCacheKeys.GetDeviceModelInformationInvalidationKey(groupId);
-                }
-                else if (coreObject is DeviceManufacturerInformation)
-                {
-                    response = DAL.UsersDal.InsertDeviceManufacturerInformation
-                        (groupId, updaterId, coreObject as DeviceManufacturerInformation);
-                    validationKey = LayeredCacheKeys.GetDeviceManufacturerInformationInvalidationKey(groupId);
-                }
+                response = UsersDal.InsertDeviceReferenceData(groupId, updaterId, coreObject);
 
                 if (response.IsOkStatusCode())
-                    LayeredCache.Instance.SetInvalidationKey(validationKey);
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(groupId));
                 else
                 {
-                    log.Info($"Cannot insert device information from type: {coreObject.GetType().Name}");
-                    response.SetStatus(eResponseStatus.Error, "Cannot insert device information");
+                    log.Info($"Cannot Add Device Reference Data from type: {(DeviceInformationType)coreObject.GetType()}");
+                    response.SetStatus(eResponseStatus.Error, "Cannot add Device Reference Data");
                 }
             }
             catch (Exception ex)
             {
                 log.Error($"An Exception was occurred in Add. contextData: {contextData}, " +
-                    $"DeviceInformation: {Newtonsoft.Json.JsonConvert.SerializeObject(coreObject)}", ex);
+                    $"Reference Data: {JsonConvert.SerializeObject(coreObject)}", ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
             return response;
         }
 
-        public GenericResponse<DeviceInformation> Update<T>(ContextData contextData, T coreObject) where T : DeviceInformation
+        public GenericResponse<DeviceReferenceData> Update<T>(ContextData contextData, T coreObject) where T : DeviceReferenceData
         {
-            return new GenericResponse<DeviceInformation>();
+            var response = new GenericResponse<DeviceReferenceData>();
+            var groupId = contextData.GroupId;
+            var updaterId = contextData.UserId;
+            try
+            {
+                response = UsersDal.UpdateDeviceReferenceData
+                        (groupId, updaterId, coreObject);
+
+                if (response.IsOkStatusCode())
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(groupId));
+                else
+                {
+                    log.Info($"Cannot update device information from type: {(DeviceInformationType)coreObject.GetType()}");
+                    response.SetStatus(eResponseStatus.Error, "Cannot update device information");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in Update. contextData: {contextData}, " +
+                    $"DeviceInformation: {JsonConvert.SerializeObject(coreObject)}", ex);
+                response.SetStatus(eResponseStatus.Error);
+            }
+
+            return response;
+        }
+
+        public List<DeviceReferenceData> GetReferenceData(int groupId)
+        {
+            var response = new List<DeviceReferenceData>();
+            try
+            {
+                IEnumerable<DeviceReferenceData> _response = null;
+                var key = LayeredCacheKeys.GetDeviceReferenceDataByGroupKey(groupId);
+                var cacheResult = LayeredCache.Instance.Get(
+                    key,
+                    ref _response,
+                    GetReferenceDataByGroupId,
+                    new Dictionary<string, object>() { { "groupId", groupId } },
+                    groupId,
+                    LayeredCacheConfigNames.GET_DEVICE_REFERENCE_DATA,
+                    new List<string>() { LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(groupId) });
+
+
+                response = _response?.ToList();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed groupID={groupId}, ex:{ex}");
+            }
+
+            return response;
+        }
+
+        private static Tuple<IEnumerable<DeviceReferenceData>, bool> GetReferenceDataByGroupId(Dictionary<string, object> arg)
+        {
+            try
+            {
+                var groupId = (int)arg["groupId"];
+                var models = DAL.UsersDal.GetDeviceReferenceData(groupId);
+                return new Tuple<IEnumerable<DeviceReferenceData>, bool>(models, true);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to get ReferenceData from DB group:[{arg["groupId"]}], ex: {ex}");
+                return new Tuple<IEnumerable<DeviceReferenceData>, bool>(Enumerable.Empty<DeviceReferenceData>(), false);
+            }
         }
     }
 }

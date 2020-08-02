@@ -801,20 +801,21 @@ namespace DAL
             return res;
         }
 
-        public static ApiObjects.Response.GenericResponse<DeviceInformation> InsertDeviceModelInformation(int groupId, long? updaterId, DeviceModelInformation coreObject)
+        public static ApiObjects.Response.GenericResponse<DeviceReferenceData> InsertDeviceReferenceData(int groupId, long? updaterId, DeviceReferenceData coreObject)
         {
-            var response = new ApiObjects.Response.GenericResponse<DeviceInformation>();
-            var sp = new StoredProcedure("Insert_DeviceModelInformation");
+            var response = new ApiObjects.Response.GenericResponse<DeviceReferenceData>();
+            var sp = new StoredProcedure("Insert_DeviceReferenceData");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupId);
-            sp.AddParameter("@userID", updaterId);
+            sp.AddParameter("@updaterID", updaterId);
             sp.AddParameter("@name", coreObject.Name);
+            sp.AddParameter("@type", coreObject.GetType());
 
             var id = sp.ExecuteReturnValue<int>();
 
             if (id > 0)
             {
-                response.Object = GetDeviceModelInformation(groupId, updaterId, id);
+                response.Object = GetDeviceReferenceData(groupId)?.Where(m => m.Id == id).FirstOrDefault();
                 response.SetStatus(ApiObjects.Response.eResponseStatus.OK);
             }
             else
@@ -823,72 +824,57 @@ namespace DAL
             return response;
         }
 
-        public static ApiObjects.Response.GenericResponse<DeviceInformation> InsertDeviceManufacturerInformation(int groupId, long? updaterId, DeviceManufacturerInformation coreObject)
+        public static List<DeviceReferenceData> GetDeviceReferenceData(int groupId)
         {
-            var response = new ApiObjects.Response.GenericResponse<DeviceInformation>();
-            var sp = new StoredProcedure("Insert_DeviceManufacturerInformation");
+            var res = new List<DeviceReferenceData>();
+            var sp = new StoredProcedure("GetDeviceReferenceData");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i] != null)
+                    {
+                        res.Add(new DeviceModelInformation
+                        {
+                            Id = Utils.GetLongSafeVal(dt.Rows[i], "id"),
+                            Name = Utils.GetSafeStr(dt.Rows[i], "name")
+                        });
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public static ApiObjects.Response.GenericResponse<DeviceReferenceData> UpdateDeviceReferenceData(int groupId, long? updaterId, DeviceReferenceData coreObject)
+        {
+            var response = new ApiObjects.Response.GenericResponse<DeviceReferenceData>();
+            var sp = new StoredProcedure("Update_DeviceReferenceData");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupId);
-            sp.AddParameter("@userID", updaterId);
+            sp.AddParameter("@id", coreObject.Id);
             sp.AddParameter("@name", coreObject.Name);
+            sp.AddParameter("@updaterId", updaterId);
+            sp.AddParameter("@status", coreObject.Status);
+
+            bool result = sp.ExecuteReturnValue<bool>();
 
             var id = sp.ExecuteReturnValue<int>();
 
             if (id > 0)
             {
-                response.Object = GetDeviceManufacturerInformation(groupId, updaterId, id);
+                response.Object = GetDeviceReferenceData(groupId)?.Where(m => m.Id == id).FirstOrDefault();
                 response.SetStatus(ApiObjects.Response.eResponseStatus.OK);
             }
             else
-                response.SetStatus(ApiObjects.Response.eResponseStatus.Error, $"Failed adding {coreObject.Name}");
+                response.SetStatus(ApiObjects.Response.eResponseStatus.Error, $"Failed updating {coreObject.Name}");
 
             return response;
-        }
-
-        private static DeviceModelInformation GetDeviceModelInformation(int groupId, long? updaterId, long id)
-        {
-            var res = new DeviceModelInformation();
-            var sp = new StoredProcedure("Get_DeviceModelInformation");
-            sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@updaterId", updaterId);
-            sp.AddParameter("@id", id);
-            DataSet ds = sp.ExecuteDataSet();
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    res.Id = Utils.GetLongSafeVal(dt.Rows[0], "id");
-                    res.Name = Utils.GetSafeStr(dt.Rows[0], "id");
-                }
-            }
-
-            return res;
-        }
-
-        private static DeviceManufacturerInformation GetDeviceManufacturerInformation(int groupId, long? updaterId, long id)
-        {
-            var res = new DeviceManufacturerInformation();
-            var sp = new StoredProcedure("Get_DeviceManufacturerInformation");
-            sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@updaterId", updaterId);
-            sp.AddParameter("@id", id);
-            DataSet ds = sp.ExecuteDataSet();
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    res.Id = Utils.GetLongSafeVal(dt.Rows[0], "id");
-                    res.Name = Utils.GetSafeStr(dt.Rows[0], "id");
-                }
-            }
-
-            return res;
         }
 
         public static string GetActivationToken(int nGroupID, string sUserName)

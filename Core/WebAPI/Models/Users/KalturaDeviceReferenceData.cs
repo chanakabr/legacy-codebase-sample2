@@ -16,7 +16,7 @@ namespace WebAPI.Models.Users
     /// Device Information
     /// </summary>
     [Serializable]
-    public partial class KalturaDeviceInformation : KalturaCrudObject<DeviceInformation, long>
+    public partial class KalturaDeviceReferenceData : KalturaCrudObject<DeviceReferenceData, long>
     {
         /// <summary>
         /// id
@@ -36,7 +36,15 @@ namespace WebAPI.Models.Users
         [SchemeProperty(MinLength = 1)]
         public string Name { get; set; }
 
-        internal override ICrudHandler<DeviceInformation, long> Handler
+        /// <summary>
+        /// Status
+        /// </summary>
+        [DataMember(Name = "status")]
+        [JsonProperty("status")]
+        [XmlElement(ElementName = "status")]
+        public bool? Status { get; set; }
+
+        internal override ICrudHandler<DeviceReferenceData, long> Handler
         {
             get
             {
@@ -44,7 +52,7 @@ namespace WebAPI.Models.Users
             }
         }
 
-        public KalturaDeviceInformation()
+        public KalturaDeviceReferenceData()
         {
 
         }
@@ -54,15 +62,15 @@ namespace WebAPI.Models.Users
             Id = id;
         }
 
-        internal override GenericResponse<DeviceInformation> Add(ContextData contextData)
+        internal override GenericResponse<DeviceReferenceData> Add(ContextData contextData)
         {
-            var coreObject = AutoMapper.Mapper.Map<DeviceInformation>(this);
-            return DeviceInformationManager.Instance.Add<DeviceInformation>(contextData, coreObject);
+            var coreObject = AutoMapper.Mapper.Map<DeviceReferenceData>(this);
+            return DeviceInformationManager.Instance.Add(contextData, coreObject);
         }
 
-        internal override GenericResponse<DeviceInformation> Update(ContextData contextData)
+        internal override GenericResponse<DeviceReferenceData> Update(ContextData contextData)
         {
-            var coreObject = AutoMapper.Mapper.Map<DeviceInformation>(this);
+            var coreObject = AutoMapper.Mapper.Map<DeviceReferenceData>(this);
             return DeviceInformationManager.Instance.Update(contextData, coreObject);
         }
     }
@@ -71,12 +79,12 @@ namespace WebAPI.Models.Users
     /// Device Model Information
     /// </summary>
     [Serializable]
-    public partial class KalturaDeviceModelInformation : KalturaDeviceInformation
+    public partial class KalturaDeviceModelInformation : KalturaDeviceReferenceData
     {
-        internal override GenericResponse<DeviceInformation> Add(ContextData contextData)
+        internal override GenericResponse<DeviceReferenceData> Add(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<DeviceModelInformation>(this);
-            return DeviceInformationManager.Instance.Add<DeviceModelInformation>(contextData, coreObject);
+            return DeviceInformationManager.Instance.Add(contextData, coreObject);
         }
     }
 
@@ -84,17 +92,17 @@ namespace WebAPI.Models.Users
     /// Device Manufacturer Information
     /// </summary>
     [Serializable]
-    public partial class KalturaDeviceManufacturerInformation : KalturaDeviceInformation
+    public partial class KalturaDeviceManufacturerInformation : KalturaDeviceReferenceData
     {
-        internal override GenericResponse<DeviceInformation> Add(ContextData contextData)
+        internal override GenericResponse<DeviceReferenceData> Add(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<DeviceManufacturerInformation>(this);
-            return DeviceInformationManager.Instance.Add<DeviceManufacturerInformation>(contextData, coreObject);
+            return DeviceInformationManager.Instance.Add(contextData, coreObject);
         }
     }
 
-    public partial class KalturaDeviceInformationListResponse : KalturaListResponse<KalturaDeviceInformation>
+    public partial class KalturaDeviceReferenceDataListResponse : KalturaListResponse<KalturaDeviceReferenceData>
     {
-        public KalturaDeviceInformationListResponse() : base() { }
+        public KalturaDeviceReferenceDataListResponse() : base() { }
     }
 }

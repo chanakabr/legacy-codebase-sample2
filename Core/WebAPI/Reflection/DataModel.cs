@@ -2060,21 +2060,23 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaDeviceInformation":
+                case "KalturaDevicePin":
+                    switch(property.Name)
+                    {
+                        case "Pin":
+                            return "pin";
+                    }
+                    break;
+                    
+                case "KalturaDeviceReferenceData":
                     switch(property.Name)
                     {
                         case "Id":
                             return "id";
                         case "Name":
                             return "name";
-                    }
-                    break;
-                    
-                case "KalturaDevicePin":
-                    switch(property.Name)
-                    {
-                        case "Pin":
-                            return "pin";
+                        case "Status":
+                            return "status";
                     }
                     break;
                     
@@ -2989,6 +2991,10 @@ namespace WebAPI.Reflection
                             return "householdId";
                         case "MacAddress":
                             return "macAddress";
+                        case "Manufacturer":
+                            return "manufacturer";
+                        case "Model":
+                            return "model";
                         case "Name":
                             return "name";
                         case "State":
@@ -7982,25 +7988,25 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "deviceinformation":
+                case "devicereferencedata":
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("deviceinformation", "add");
-                            return DeviceInformationController.Add((KalturaDeviceInformation) methodParams[0]);
+                            RolesManager.ValidateActionPermitted("devicereferencedata", "add");
+                            return DeviceReferenceDataController.Add((KalturaDeviceReferenceData) methodParams[0]);
                             
                         case "update":
-                            RolesManager.ValidateActionPermitted("deviceinformation", "update");
-                            return DeviceInformationController.Update((long) methodParams[0], (KalturaDeviceInformation) methodParams[1]);
+                            RolesManager.ValidateActionPermitted("devicereferencedata", "update");
+                            return DeviceReferenceDataController.Update((long) methodParams[0], (KalturaDeviceReferenceData) methodParams[1]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("deviceinformation", "delete");
-                            DeviceInformationController.Delete((long) methodParams[0]);
+                            RolesManager.ValidateActionPermitted("devicereferencedata", "delete");
+                            DeviceReferenceDataController.Delete((long) methodParams[0]);
                             return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("deviceinformation", "list");
-                            return DeviceInformationController.List((KalturaDeviceInformationFilter) methodParams[0]);
+                            RolesManager.ValidateActionPermitted("devicereferencedata", "list");
+                            return DeviceReferenceDataController.List((KalturaDeviceReferenceDataFilter) methodParams[0]);
                             
                     }
                     break;
@@ -13416,14 +13422,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "deviceinformation":
+                case "devicereferencedata":
                     switch(action)
                     {
                         case "add":
                             ret.Add("objectToAdd", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaDeviceInformation),
+                                Type = typeof(KalturaDeviceReferenceData),
                             });
                             return ret;
                             
@@ -13435,7 +13441,7 @@ namespace WebAPI.Reflection
                             ret.Add("objectToUpdate", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaDeviceInformation),
+                                Type = typeof(KalturaDeviceReferenceData),
                             });
                             return ret;
                             
@@ -13452,7 +13458,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaDeviceInformationFilter),
+                                Type = typeof(KalturaDeviceReferenceDataFilter),
                             });
                             return ret;
                             

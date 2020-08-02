@@ -24213,76 +24213,6 @@ namespace WebAPI.Models.Users
             return ret;
         }
     }
-    public partial class KalturaDeviceInformation
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            ret.Add("id", "\"id\": " + Id);
-            if(Name != null)
-            {
-                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            ret.Add("id", "<id>" + Id + "</id>");
-            if(Name != null)
-            {
-                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceInformationFilter
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceInformationListResponse
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-    }
     public partial class KalturaDeviceManufacturerInformation
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -24304,6 +24234,84 @@ namespace WebAPI.Models.Users
         }
     }
     public partial class KalturaDeviceModelInformation
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
+    public partial class KalturaDeviceReferenceData
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("id", "\"id\": " + Id);
+            if(Name != null)
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(Status.HasValue)
+            {
+                ret.Add("status", "\"status\": " + Status.ToString().ToLower());
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("id", "<id>" + Id + "</id>");
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(Status.HasValue)
+            {
+                ret.Add("status", "<status>" + Status.ToString().ToLower() + "</status>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaDeviceReferenceDataFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
+    public partial class KalturaDeviceReferenceDataListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -28291,6 +28299,14 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("macAddress", "\"macAddress\": " + "\"" + EscapeJson(MacAddress) + "\"");
             }
+            if(Manufacturer != null)
+            {
+                ret.Add("manufacturer", "\"manufacturer\": " + "\"" + EscapeJson(Manufacturer) + "\"");
+            }
+            if(Model != null)
+            {
+                ret.Add("model", "\"model\": " + "\"" + EscapeJson(Model) + "\"");
+            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -28353,6 +28369,14 @@ namespace WebAPI.Models.Domains
             if(MacAddress != null)
             {
                 ret.Add("macAddress", "<macAddress>" + EscapeXml(MacAddress) + "</macAddress>");
+            }
+            if(Manufacturer != null)
+            {
+                ret.Add("manufacturer", "<manufacturer>" + EscapeXml(Manufacturer) + "</manufacturer>");
+            }
+            if(Model != null)
+            {
+                ret.Add("model", "<model>" + EscapeXml(Model) + "</model>");
             }
             if(Name != null)
             {
