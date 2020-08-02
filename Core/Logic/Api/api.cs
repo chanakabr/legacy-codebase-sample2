@@ -12045,8 +12045,9 @@ namespace Core.Api
                         {
                             structFilter += $"asset_type = '{extendedType}' ";
                         }
-                        structFilter += ")";
                     }
+
+                    structFilter += ")";
                 }
 
                 string filter = $"(and {structFilter} {assetSearchDefinition.Filter} {assetFilter} {filterIds})";
