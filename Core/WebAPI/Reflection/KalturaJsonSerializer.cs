@@ -28347,13 +28347,13 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("macAddress", "\"macAddress\": " + "\"" + EscapeJson(MacAddress) + "\"");
             }
-            if(Manufacturer != null)
+            if(ManufacturerId.HasValue)
             {
-                ret.Add("manufacturer", "\"manufacturer\": " + "\"" + EscapeJson(Manufacturer) + "\"");
+                ret.Add("manufacturerId", "\"manufacturerId\": " + ManufacturerId);
             }
-            if(Model != null)
+            if(ModelId.HasValue)
             {
-                ret.Add("model", "\"model\": " + "\"" + EscapeJson(Model) + "\"");
+                ret.Add("modelId", "\"modelId\": " + ModelId);
             }
             if(Name != null)
             {
@@ -28418,13 +28418,13 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("macAddress", "<macAddress>" + EscapeXml(MacAddress) + "</macAddress>");
             }
-            if(Manufacturer != null)
+            if(ManufacturerId.HasValue)
             {
-                ret.Add("manufacturer", "<manufacturer>" + EscapeXml(Manufacturer) + "</manufacturer>");
+                ret.Add("manufacturerId", "<manufacturerId>" + ManufacturerId + "</manufacturerId>");
             }
-            if(Model != null)
+            if(ModelId.HasValue)
             {
-                ret.Add("model", "<model>" + EscapeXml(Model) + "</model>");
+                ret.Add("modelId", "<modelId>" + ModelId + "</modelId>");
             }
             if(Name != null)
             {

@@ -680,8 +680,8 @@ namespace Core.Users
                             DeviceFamilyId = device.m_deviceFamilyID,
                             ExternalId = device.ExternalId,
                             MacAddress = device.MacAddress,
-                            Model = device.Model,
-                            Manufacturer = device.Manufacturer
+                            ModelId = device.ModelId,
+                            ManufacturerId = device.ManufacturerId
                         };
 
                         bool updated = domainDevice.Update();
@@ -739,8 +739,8 @@ namespace Core.Users
                     DeviceFamilyId = device.m_deviceFamilyID,
                     ExternalId = device.ExternalId,
                     MacAddress = device.MacAddress,
-                    Model = device.Model,
-                    Manufacturer = device.Manufacturer
+                    ModelId = device.ModelId,
+                    ManufacturerId = device.ManufacturerId
                 };
 
                 bool domainDeviceInsertSuccess = domainDevice.Insert();
@@ -1916,8 +1916,8 @@ namespace Core.Users
                 int nDeviceID = 0;
                 string externalId = string.Empty;
                 string macAddress = string.Empty;
-                string model = string.Empty;
-                string manufacturer = string.Empty;
+                long? modelId = null;
+                long? manufacturerId = null;
 
                 Dictionary<string, int> domainDevices = new Dictionary<string, int>();
 
@@ -1935,8 +1935,8 @@ namespace Core.Users
                     nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["device_id"]);
                     externalId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "external_id");
                     macAddress = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "mac_address");
-                    model = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "model");
-                    manufacturer = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "manufacturer");
+                    modelId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "model_id");
+                    manufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "manufacturer_id");
 
                     Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, sDeviceName, m_nDomainID, nDeviceID, nDeviceFamilyID, string.Empty, sPin,
                         dtActivationDate, eState);
@@ -1945,10 +1945,10 @@ namespace Core.Users
                         device.ExternalId = externalId;
                     if (!string.IsNullOrEmpty(macAddress))
                         device.MacAddress = macAddress;
-                    if (!string.IsNullOrEmpty(model))
-                        device.Model = model;
-                    if (!string.IsNullOrEmpty(manufacturer))
-                        device.Manufacturer = manufacturer;
+                    if (modelId.HasValue)
+                        device.ModelId = modelId.Value;
+                    if (manufacturerId.HasValue)
+                        device.ManufacturerId = manufacturerId.Value;
 
                     if (AddDeviceToContainer(device))
                     {
@@ -2244,7 +2244,7 @@ namespace Core.Users
 
             // Get row id from devices table (not udid)
             device.m_domainID = this.m_nDomainID;
-            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId, device.Model, device.Manufacturer);
+            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId, device.ModelId, device.ManufacturerId);
             bRemoveDomain = true;
 
             string sActivationToken = Guid.NewGuid().ToString();

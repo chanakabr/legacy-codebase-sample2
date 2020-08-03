@@ -2999,10 +2999,10 @@ namespace WebAPI.Reflection
                             return "householdId";
                         case "MacAddress":
                             return "macAddress";
-                        case "Manufacturer":
-                            return "manufacturer";
-                        case "Model":
-                            return "model";
+                        case "ManufacturerId":
+                            return "manufacturerId";
+                        case "ModelId":
+                            return "modelId";
                         case "Name":
                             return "name";
                         case "State":

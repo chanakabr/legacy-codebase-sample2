@@ -279,9 +279,9 @@ namespace DAL
             if (!string.IsNullOrEmpty(macAddress))
                 sp.AddParameter("@MacAddress", macAddress);
             if (modelId.HasValue)
-                sp.AddParameter("@Model", modelId.Value);
+                sp.AddParameter("@ModelId", modelId.Value);
             if (manufacturerId.HasValue)
-                sp.AddParameter("@Manufacturer", manufacturerId.Value);
+                sp.AddParameter("@ManufacturerId", manufacturerId.Value);
 
             return sp.ExecuteReturnValue<int>();
         }

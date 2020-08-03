@@ -28467,7 +28467,7 @@ namespace WebAPI.Models.Domains
             MaxLength = 255,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ModelSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
+        private static RuntimeSchemePropertyAttribute ModelIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
             ReadOnly = false,
             InsertOnly = false,
@@ -28477,7 +28477,7 @@ namespace WebAPI.Models.Domains
             MaxLength = 255,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ManufacturerSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
+        private static RuntimeSchemePropertyAttribute ManufacturerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
             ReadOnly = false,
             InsertOnly = false,
@@ -28606,29 +28606,29 @@ namespace WebAPI.Models.Domains
                     }
                     MacAddress = (String) Convert.ChangeType(parameters["macAddress"], typeof(String));
                 }
-                if (parameters.ContainsKey("model__null") && parameters["model__null"] != null)
+                if (parameters.ContainsKey("modelId__null") && parameters["modelId__null"] != null)
                 {
-                    AddNullableProperty("model");
+                    AddNullableProperty("modelId");
                 }
-                if (parameters.ContainsKey("model") && parameters["model"] != null)
+                if (parameters.ContainsKey("modelId") && parameters["modelId"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        ModelSchemaProperty.Validate("model", parameters["model"]);
+                        ModelIdSchemaProperty.Validate("modelId", parameters["modelId"]);
                     }
-                    Model = (String) Convert.ChangeType(parameters["model"], typeof(String));
+                    ModelId = (Int64) Convert.ChangeType(parameters["modelId"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("manufacturer__null") && parameters["manufacturer__null"] != null)
+                if (parameters.ContainsKey("manufacturerId__null") && parameters["manufacturerId__null"] != null)
                 {
-                    AddNullableProperty("manufacturer");
+                    AddNullableProperty("manufacturerId");
                 }
-                if (parameters.ContainsKey("manufacturer") && parameters["manufacturer"] != null)
+                if (parameters.ContainsKey("manufacturerId") && parameters["manufacturerId"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        ManufacturerSchemaProperty.Validate("manufacturer", parameters["manufacturer"]);
+                        ManufacturerIdSchemaProperty.Validate("manufacturerId", parameters["manufacturerId"]);
                     }
-                    Manufacturer = (String) Convert.ChangeType(parameters["manufacturer"], typeof(String));
+                    ManufacturerId = (Int64) Convert.ChangeType(parameters["manufacturerId"], typeof(Int64));
                 }
             }
         }
