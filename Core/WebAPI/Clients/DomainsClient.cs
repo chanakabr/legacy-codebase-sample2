@@ -589,7 +589,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, string name, string udid, string macAddress, string externalId, string model, string manufacturer, bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, string name, string udid, string macAddress, string externalId, long? modelId = null, long? manufacturerId = null, bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             var dDevice = new DomainDevice
             {
@@ -597,8 +597,8 @@ namespace WebAPI.Clients
                 Udid = udid,
                 MacAddress = macAddress,
                 ExternalId = externalId,
-                Model = model,
-                Manufacturer = manufacturer
+                ModelId = modelId,
+                ManufacturerId = manufacturerId
             };
             return SetDeviceInfo(groupId, dDevice, allowNullExternalId, allowNullMacAddress);
         }

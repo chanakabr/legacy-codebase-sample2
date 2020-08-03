@@ -51,9 +51,9 @@ namespace Core.Users
 
         public string MacAddress;
 
-        public string Model;
+        public long? ModelId;
 
-        public string Manufacturer;
+        public long? ManufacturerId;
 
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
         {
@@ -258,11 +258,11 @@ namespace Core.Users
             if (device == null)
                 device = new DomainDevice();
 
-            return Save(nIsActive, nStatus, device.DeviceId, device.MacAddress, device.ExternalId, device.Model, device.Manufacturer, allowNullExternalId, allowNullMacAddress);
+            return Save(nIsActive, nStatus, device.DeviceId, device.MacAddress, device.ExternalId, device.ModelId, device.ManufacturerId, allowNullExternalId, allowNullMacAddress);
         }
 
         public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = "",
-            string model = "", string manufacturer = "", bool allowNullExternalId = false, bool allowNullMacAddress = false)
+            long? model = null, long? manufacturer = null, bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             int retVal = 0;
 
@@ -305,10 +305,10 @@ namespace Core.Users
 
                     if (!string.IsNullOrEmpty(macAddress) || allowNullMacAddress)
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("mac_address", "=", macAddress);
-                    if (!string.IsNullOrEmpty(model))
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("model", "=", model);
-                    if (!string.IsNullOrEmpty(manufacturer))
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("manufacturer", "=", manufacturer);
+                    if (model.HasValue)
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("model", "=", model.Value);
+                    if (manufacturer.HasValue)
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("manufacturer", "=", manufacturer.Value);
 
                     updateQuery += "where";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", m_deviceUDID);
@@ -344,8 +344,8 @@ namespace Core.Users
             {
                 ExternalId = externalId;
                 MacAddress = macAddress;
-                Model = model;
-                Manufacturer = manufacturer;
+                ModelId = model;
+                ManufacturerId = manufacturer;
             }
 
             return retVal;
@@ -510,8 +510,8 @@ namespace Core.Users
                 m_pin = ODBCWrapper.Utils.GetSafeStr(dr["pin"]);
                 ExternalId = ODBCWrapper.Utils.GetSafeStr(dr["external_id"]);
                 MacAddress = ODBCWrapper.Utils.GetSafeStr(dr["mac_address"]);
-                Model = ODBCWrapper.Utils.GetSafeStr(dr["model"]);
-                Manufacturer = ODBCWrapper.Utils.GetSafeStr(dr["manufacturer"]);
+                ModelId = ODBCWrapper.Utils.GetIntSafeVal(dr["modelId"]);
+                ManufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dr["manufacturerId"]);
 
                 PopulateDeviceStreamTypeAndProfile();
 

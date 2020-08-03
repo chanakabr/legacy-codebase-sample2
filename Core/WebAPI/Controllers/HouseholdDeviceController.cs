@@ -311,7 +311,7 @@ namespace WebAPI.Controllers
 
                 // call client
                 device.Udid = udid;
-                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.MacAddress, device.ExternalId, device.Model, device.Manufacturer, allowNullExternalId, allowNullMacAddress);
+                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.MacAddress, device.ExternalId, device.ModelId, device.ManufacturerId, allowNullExternalId, allowNullMacAddress);
             }
             catch (ClientException ex)
             {
@@ -346,7 +346,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid, string.Empty, string.Empty, string.Empty, string.Empty);
+                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid, string.Empty, string.Empty, null, null);
             }
             catch (ClientException ex)
             {

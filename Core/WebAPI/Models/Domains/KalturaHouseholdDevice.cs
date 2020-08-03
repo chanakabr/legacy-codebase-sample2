@@ -129,7 +129,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("model")]
         [XmlElement(ElementName = "model", IsNullable = true)]
         [SchemeProperty(IsNullable = true, MaxLength = 255)]
-        public string Model { get; set; }
+        public long? ModelId { get; set; }
 
         /// <summary>
         /// manufacturer
@@ -138,7 +138,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("manufacturer")]
         [XmlElement(ElementName = "manufacturer", IsNullable = true)]
         [SchemeProperty(IsNullable = true, MaxLength = 255)]
-        public string Manufacturer { get; set; }
+        public long? ManufacturerId { get; set; }
 
         internal int getBrandId()
         {

@@ -33,9 +33,9 @@ namespace Core.Users
 
         public string MacAddress { get; set; }
 
-        public string Model{ get; set; }
+        public long? ModelId{ get; set; }
 
-        public string Manufacturer { get; set; }
+        public long? ManufacturerId { get; set; }
 
         public long DeviceFamilyId
         {

@@ -370,10 +370,10 @@ namespace Core.Users
                     device.ExternalId = dDevice.ExternalId;
                 if (!string.IsNullOrEmpty(dDevice.MacAddress))
                     device.MacAddress = dDevice.MacAddress;
-                if (!string.IsNullOrEmpty(dDevice.Model))
-                    device.Model = dDevice.Model;
-                if (!string.IsNullOrEmpty(dDevice.Manufacturer))
-                    device.Manufacturer = dDevice.Manufacturer;
+                if (dDevice.ModelId.HasValue)
+                    device.ModelId = dDevice.ModelId.Value;
+                if (dDevice.ManufacturerId.HasValue)
+                    device.ManufacturerId = dDevice.ManufacturerId.Value;
 
                 // add device to domain
                 domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, dDevice.Udid, dDevice.Name, dDevice.DeviceBrandId, ref device);
