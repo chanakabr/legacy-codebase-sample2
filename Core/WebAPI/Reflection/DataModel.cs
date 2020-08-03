@@ -2080,6 +2080,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDeviceReferenceDataFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaDeviceRegistrationStatusHolder":
                     switch(property.Name)
                     {

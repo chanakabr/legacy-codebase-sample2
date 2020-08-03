@@ -659,8 +659,14 @@ namespace WebAPI.Reflection
                 case "KalturaDeviceManufacturerInformation":
                     return new KalturaDeviceManufacturerInformation(parameters);
                     
+                case "KalturaDeviceManufacturersReferenceDataFilter":
+                    return new KalturaDeviceManufacturersReferenceDataFilter(parameters);
+                    
                 case "KalturaDeviceModelInformation":
                     return new KalturaDeviceModelInformation(parameters);
+                    
+                case "KalturaDeviceModelsReferenceDataFilter":
+                    return new KalturaDeviceModelsReferenceDataFilter(parameters);
                     
                 case "KalturaDevicePin":
                     return new KalturaDevicePin(parameters);
@@ -24298,9 +24304,21 @@ namespace WebAPI.Models.Users
         {
         }
     }
+    public partial class KalturaDeviceManufacturersReferenceDataFilter
+    {
+        public KalturaDeviceManufacturersReferenceDataFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaDeviceModelInformation
     {
         public KalturaDeviceModelInformation(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaDeviceModelsReferenceDataFilter
+    {
+        public KalturaDeviceModelsReferenceDataFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
         }
     }
@@ -24357,8 +24375,31 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaDeviceReferenceDataFilter
     {
+        private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceReferenceDataFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 1,
+        };
         public KalturaDeviceReferenceDataFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
+                    }
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+            }
         }
     }
     public partial class KalturaDeviceReferenceDataListResponse

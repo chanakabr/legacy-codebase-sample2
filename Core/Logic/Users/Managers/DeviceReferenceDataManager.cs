@@ -26,7 +26,7 @@ namespace ApiLogic.Users.Managers
             var response = new Status();
             var all = GetReferenceData(contextData.GroupId);
             var _object = all?.Where(d => d.Id == id).FirstOrDefault();
-            
+
             if (_object == null)
             {
                 response.Set(eResponseStatus.Error, $"No Device Reference Data exists with id: {id}");
@@ -151,6 +151,61 @@ namespace ApiLogic.Users.Managers
                 log.Error($"Failed to get ReferenceData from DB group:[{arg["groupId"]}], ex: {ex}");
                 return new Tuple<IEnumerable<DeviceReferenceData>, bool>(Enumerable.Empty<DeviceReferenceData>(), false);
             }
+        }
+
+        public GenericListResponse<DeviceReferenceData> List(ContextData contextData, DeviceReferenceDataFilter filter, CorePager pager)
+        {
+            throw new NotImplementedException();
+        }
+
+        public GenericListResponse<DeviceReferenceData> List(ContextData contextData, DeviceModelReferenceDataFilter filter, CorePager pager)
+        {
+            var response = new GenericListResponse<DeviceReferenceData>();
+
+            if (filter == null)
+            {
+                filter = new DeviceModelReferenceDataFilter();
+            }
+
+            var dbContent = GetReferenceData(contextData.GroupId);
+
+            var filtered = dbContent?.Where(rd => rd.GetType() == (int)DeviceInformationType.Model).ToList();
+
+            if (filter.DeviceReferenceDataIdsIn != null && filter.DeviceReferenceDataIdsIn.Count > 0)
+            {
+                filtered = filtered?.Where(rd => filter.DeviceReferenceDataIdsIn.Contains((int)rd.Id)).ToList();
+            }
+
+            response.Objects = filtered;
+            response.TotalItems = filtered.Count;
+            response.SetStatus(eResponseStatus.OK);
+
+            return response;
+        }
+
+        public GenericListResponse<DeviceReferenceData> List(ContextData contextData, DeviceManufacturersReferenceDataFilter filter, CorePager pager)
+        {
+            var response = new GenericListResponse<DeviceReferenceData>();
+
+            if (filter == null)
+            {
+                filter = new DeviceManufacturersReferenceDataFilter();
+            }
+
+            var dbContent = GetReferenceData(contextData.GroupId);
+
+            var filtered = dbContent?.Where(rd => rd.GetType() == (int)DeviceInformationType.Manufacturer).ToList();
+
+            if (filter.DeviceReferenceDataIdsIn != null && filter.DeviceReferenceDataIdsIn.Count > 0)
+            {
+                filtered = filtered?.Where(rd => filter.DeviceReferenceDataIdsIn.Contains((int)rd.Id)).ToList();
+            }
+
+            response.Objects = filtered;
+            response.TotalItems = filtered.Count;
+            response.SetStatus(eResponseStatus.OK);
+
+            return response;
         }
     }
 }
