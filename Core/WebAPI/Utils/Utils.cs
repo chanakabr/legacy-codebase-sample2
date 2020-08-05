@@ -289,5 +289,33 @@ namespace WebAPI.Utils
             return res;
         }
 
+        internal static Dictionary<string, long> ConvertSerializeableDictionary(SerializableDictionary<string, KalturaLongValue> dict, bool setNullIfEmpty)
+        {
+            Dictionary<string, long> res = new Dictionary<string, long>();
+
+            if (dict != null && dict.Count > 0)
+            {
+                foreach (KeyValuePair<string, KalturaLongValue> pair in dict)
+                {
+                    if (!string.IsNullOrEmpty(pair.Key))
+                    {
+                        if (!res.ContainsKey(pair.Key))
+                        {
+                            res.Add(pair.Key, pair.Value.value);
+                        }
+                        else
+                        {
+                            throw new ClientException((int)StatusCode.ArgumentsDuplicate, string.Format("key {0} already exists in sent dictionary", pair.Key));
+                        }
+                    }
+                }
+            }
+            else if (setNullIfEmpty)
+            {
+                res = null;
+            }
+
+            return res;
+        }
     }
 }

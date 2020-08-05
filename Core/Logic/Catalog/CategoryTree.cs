@@ -14,7 +14,9 @@ namespace ApiLogic.Catalog
         public Dictionary<string, string> DynamicData { get; set; }
         public List<Image> Images { get; set; }
         public bool? IsActive { get; set; }
+
         public TimeSlot TimeSlot { get; set; }
+        public string Type { get; set; }
 
         public CategoryTree()
         {
@@ -29,6 +31,7 @@ namespace ApiLogic.Catalog
             this.DynamicData = categoryItem.DynamicData;
             this.IsActive= categoryItem.IsActive;
             this.TimeSlot= categoryItem.TimeSlot;
+            this.Type = categoryItem.Type;
         }
     }
 }

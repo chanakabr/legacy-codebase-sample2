@@ -122,6 +122,9 @@ namespace Core.Catalog
         [JsonProperty("PpvModule")]
         public string PpvModule { get; set; }
 
+        [JsonProperty("Opl")]
+        public string Opl { get; set; }
+
         #endregion
 
         #region Ctor's

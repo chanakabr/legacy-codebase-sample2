@@ -1213,6 +1213,8 @@ namespace WebAPI.Reflection
                             return "parentId";
                         case "StartDateInSeconds":
                             return "startDateInSeconds";
+                        case "Type":
+                            return "type";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                         case "UpdateDate":
@@ -1243,6 +1245,8 @@ namespace WebAPI.Reflection
                             return "kSql";
                         case "RootOnly":
                             return "rootOnly";
+                        case "TypeEqual":
+                            return "typeEqual";
                     }
                     break;
                     
@@ -1265,6 +1269,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "StartDateInSeconds":
                             return "startDateInSeconds";
+                        case "Type":
+                            return "type";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                     }
@@ -3831,6 +3837,8 @@ namespace WebAPI.Reflection
                             return "isDefaultLanguage";
                         case "Language":
                             return "language";
+                        case "Opl":
+                            return "opl";
                         case "OrderNum":
                             return "orderNum";
                         case "OutputProtecationLevel":
@@ -4187,6 +4195,8 @@ namespace WebAPI.Reflection
                     {
                         case "AssetStructId":
                             return "assetStructId";
+                        case "ExtendedTypes":
+                            return "extendedTypes";
                         case "MetaId":
                             return "metaId";
                         case "Type":
@@ -9262,7 +9272,7 @@ namespace WebAPI.Reflection
                             
                         case "logout":
                             RolesManager.ValidateActionPermitted("ottUser", "logout", false);
-                            return OttUserController.Logout();
+                            return OttUserController.Logout((SerializableDictionary<string, KalturaStringValue>) methodParams[0]);
                             
                         case "refreshsession":
                             RolesManager.ValidateActionPermitted("ottUser", "refreshSession", true);
@@ -10755,7 +10765,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             RolesManager.ValidateActionPermitted("userLoginPin", "add", false);
-                            return UserLoginPinController.Add((string) methodParams[0]);
+                            return UserLoginPinController.Add((string) methodParams[0], (Nullable<int>) methodParams[1], (Nullable<long>) methodParams[2]);
                             
                         case "delete":
                             RolesManager.ValidateActionPermitted("userLoginPin", "delete", false);
@@ -10767,7 +10777,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("userLoginPin", "update", false);
-                            return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1]);
+                            return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1], (Nullable<int>) methodParams[2], (Nullable<long>) methodParams[3]);
                             
                     }
                     break;
@@ -16069,6 +16079,14 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "logout":
+                            ret.Add("adapterData", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
                             return ret;
                             
                         case "refreshsession":
@@ -19156,6 +19174,20 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
+                            ret.Add("pinUsages", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            ret.Add("pinDuration", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int64),
+                            });
                             return ret;
                             
                         case "delete":
@@ -19192,6 +19224,20 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
+                            });
+                            ret.Add("pinUsages", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            ret.Add("pinDuration", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int64),
                             });
                             return ret;
                             

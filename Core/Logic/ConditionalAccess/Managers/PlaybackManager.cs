@@ -660,18 +660,19 @@ namespace Core.ConditionalAccess
 
                 if (adapterResponse == null || adapterResponse.Adapter == null || adapterResponse.Status.Code != (int)eResponseStatus.OK || string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
                 {
-                    log.ErrorFormat("failed to get CDN adapter for recordings for groupId = {0}. userId = {1}, domainRecordingId = {2}, recordingId = {3}",
-                        groupId, userId, recording.Id, recording.Id);
-                    return response;
-                }
-
-                // main url
-                var link = CDNAdapterController.GetInstance().GetRecordingLink(groupId, adapterResponse.Adapter.ID, userId, recordingLink.Url, file.Type, recording.ExternalRecordingId, ip);
-
-                if (link != null && !string.IsNullOrEmpty(link.Url))
-                {
-                    response.Url = link.Url;
+                    response.Url = recordingLink.Url;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    // main url
+                    var link = CDNAdapterController.GetInstance().GetRecordingLink(groupId, adapterResponse.Adapter.ID, userId, recordingLink.Url, file.Type, recording.ExternalRecordingId, ip);
+
+                    if (link != null && !string.IsNullOrEmpty(link.Url))
+                    {
+                        response.Url = link.Url;
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
                 }
             }
             catch (Exception ex)

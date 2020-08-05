@@ -113,7 +113,8 @@ namespace Core.Catalog.CatalogManagement
                         ParentId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "PARENT_CATEGORY_ID"),
                         Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "CATEGORY_NAME"),
                         UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[0].Rows[0], "UPDATE_DATE"),
-                        IsActive = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "IS_ACTIVE")                      
+                        IsActive = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "IS_ACTIVE"),
+                        Type =  ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "TYPE")
                     };
 
                     bool hasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA");
@@ -457,7 +458,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 long id = CatalogDAL.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, objectToAdd.UnifiedChannels, objectToAdd.DynamicData,
-                    objectToAdd.IsActive, objectToAdd.TimeSlot);
+                    objectToAdd.IsActive, objectToAdd.TimeSlot, objectToAdd.Type);
 
                 if (id == 0)
                 {
@@ -488,7 +489,7 @@ namespace Core.Catalog.CatalogManagement
                     UserId = userId
                 };
 
-                api.AddVirtualAsset(groupId, virtualAssetInfo);
+                api.AddVirtualAsset(groupId, virtualAssetInfo, objectToAdd.Type);
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(groupId));
                 if (invalidateChilds)

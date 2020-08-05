@@ -1855,7 +1855,8 @@ namespace DAL
             return rows;
         }
 
-        public static DataTable Insert_LoginPIN(string siteGuid, string pinCode, int groupID, DateTime expired_date, string secret)
+        public static DataTable Insert_LoginPIN(string siteGuid, string pinCode, int groupID, DateTime expired_date,
+            string secret, int? pinUsages, long? pinDuration)
         {
             try
             {
@@ -1866,7 +1867,9 @@ namespace DAL
                 sp.AddParameter("@pinCode", pinCode);
                 sp.AddParameter("@expired_date", expired_date);
                 sp.AddParameter("@secret", secret != null ? secret : string.Empty);
-                DataSet ds = sp.ExecuteDataSetWithListParam();
+                sp.AddParameter("@usages", pinUsages == 0 ? -1 : pinUsages); //unlimited
+                sp.AddParameter("@duration", pinDuration == 0 ? -1 : pinDuration); //unlimited
+                DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     return ds.Tables[0];

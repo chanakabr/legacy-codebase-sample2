@@ -95,5 +95,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "endDateInSeconds", IsNullable = true)]
         [SchemeProperty(MinInteger = 0)]
         public long? EndDateInSeconds { get; set; }
+
+        /// <summary>
+        /// Category type
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty(PropertyName = "type")]
+        [XmlElement(ElementName = "type")]
+        [SchemeProperty(InsertOnly = true)]
+        public string Type { get; set; }
     }
 }

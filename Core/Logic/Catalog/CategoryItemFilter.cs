@@ -23,6 +23,8 @@ namespace ApiLogic.Catalog
         public bool RootOnly { get; set; }
 
         public bool IsOrderByUpdateDate { get; set; }
+        
+        public string  TypeEqual { get; set; }
     }
 
     public class CategoryItemAncestorsFilter : CategoryItemFilter
