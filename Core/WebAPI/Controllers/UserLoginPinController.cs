@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.InvalidParameters)]
-        static public KalturaUserLoginPin Add(string secret = null, int? pinUsages = null, long? pinDuration = null)
+        static public KalturaUserLoginPin Add(string secret = null, int? pinUsages = null, int? pinDuration = null)
         {
             KalturaUserLoginPin response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -64,7 +64,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PinNotInTheRightLength)]
         [Throws(eResponseStatus.PinAlreadyExists)]
         [Throws(eResponseStatus.InvalidParameters)]
-        static public KalturaUserLoginPin Update(string pinCode, string secret = null, int? pinUsages = null, long? pinDuration = null)
+        static public KalturaUserLoginPin Update(string pinCode, string secret = null, int? pinUsages = null, int? pinDuration = null)
         {
             KalturaUserLoginPin res = null;
             int groupId = KS.GetFromRequest().GroupId;
