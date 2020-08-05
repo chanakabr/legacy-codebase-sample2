@@ -846,8 +846,18 @@ namespace Core.Users
                 DeviceId = deviceId,
                 GroupId = m_nGroupID,
                 DomainId = m_nDomainID,
-                ActivataionStatus = device != null ? device.m_state : DeviceState.UnActivated
+                ActivataionStatus = DeviceState.UnActivated
             };
+
+            if (device != null) //BEO-8622
+            {
+                domainDevice.ActivataionStatus = device.m_state;
+                domainDevice.DeviceBrandId = device.m_deviceBrandID;
+                domainDevice.ActivatedOn = device.m_activationDate;
+                domainDevice.Name = device.m_deviceName;
+                domainDevice.DeviceFamilyId = device.m_deviceFamilyID;
+            }
+
 
             bool deleted = domainDevice.Delete();
 

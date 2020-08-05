@@ -1213,6 +1213,8 @@ namespace WebAPI.Reflection
                             return "parentId";
                         case "StartDateInSeconds":
                             return "startDateInSeconds";
+                        case "Type":
+                            return "type";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                         case "UpdateDate":
@@ -1243,6 +1245,8 @@ namespace WebAPI.Reflection
                             return "kSql";
                         case "RootOnly":
                             return "rootOnly";
+                        case "TypeEqual":
+                            return "typeEqual";
                     }
                     break;
                     
@@ -1265,6 +1269,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "StartDateInSeconds":
                             return "startDateInSeconds";
+                        case "Type":
+                            return "type";
                         case "UnifiedChannels":
                             return "unifiedChannels";
                     }
@@ -3807,6 +3813,8 @@ namespace WebAPI.Reflection
                             return "isDefaultLanguage";
                         case "Language":
                             return "language";
+                        case "Opl":
+                            return "opl";
                         case "OrderNum":
                             return "orderNum";
                         case "OutputProtecationLevel":
@@ -4163,6 +4171,8 @@ namespace WebAPI.Reflection
                     {
                         case "AssetStructId":
                             return "assetStructId";
+                        case "ExtendedTypes":
+                            return "extendedTypes";
                         case "MetaId":
                             return "metaId";
                         case "Type":

@@ -138,7 +138,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetMediaFilesKey(long mediaId, string assetType)
         {
-            return string.Format("mediaFiles_mediaId_{0}_assetType_{1}", mediaId, assetType);
+            return string.Format("mediaFiles_mediaId_{0}_assetType_{1}_V1", mediaId, assetType);
         }
 
         public static string GetGroupParentalRulesKey(int groupId)

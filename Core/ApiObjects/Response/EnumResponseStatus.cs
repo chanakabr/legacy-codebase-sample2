@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -303,7 +303,10 @@ namespace ApiObjects.Response
         FileMimeDifferentThanExpected = 4097,
         InvalidAssetStruct = 4098,
         NoNextEpisode = 4099,
-        
+        CannotDeleteAssetStruct = 4100,
+        CategoryTypeNotExist = 4101,
+        ExtendedTypeValueCannotBeChanged = 4102,
+
         #endregion
 
         #region Api 5000 - 5999
@@ -451,7 +454,7 @@ namespace ApiObjects.Response
         UserEmailIsMissing = 7017,
 
         #endregion
-        
+
         #region notification 8000-8999
 
         NoNotificationSettingsSent = 8000,

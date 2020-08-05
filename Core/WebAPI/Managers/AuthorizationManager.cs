@@ -427,8 +427,9 @@ namespace WebAPI.Managers
             List<long> userRoles = RolesManager.GetRoleIds(KS.GetFromRequest(), false);
 
             int utcNow = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+            int appTokenExpiry = appToken.getExpiry();
 
-            if (appToken.getExpiry() == 0 && userRoles.Count(ur => ur > RolesManager.MASTER_ROLE_ID) == 0)
+            if ((appTokenExpiry == 0 || appTokenExpiry - utcNow > group.AppTokenMaxExpirySeconds) && userRoles.Count(ur => ur > RolesManager.MASTER_ROLE_ID) == 0)
             {
                 appToken.Expiry = utcNow + group.AppTokenMaxExpirySeconds;
             }

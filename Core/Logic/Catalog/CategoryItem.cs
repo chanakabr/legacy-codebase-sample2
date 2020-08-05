@@ -23,6 +23,7 @@ namespace ApiLogic.Catalog
         public DateTime? UpdateDate { get; set; }
         public bool? IsActive { get; set; }
         public TimeSlot TimeSlot { get; set; }
+        public string Type{ get; set; }
 
         public CategoryItem()
         {

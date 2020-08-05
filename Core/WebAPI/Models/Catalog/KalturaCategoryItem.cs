@@ -107,6 +107,15 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(IsNullable = true)]
         public long? EndDateInSeconds { get; set; }
 
+        /// <summary>
+        /// Category type
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty(PropertyName = "type")]
+        [XmlElement(ElementName = "type")]
+        [SchemeProperty(InsertOnly = true)]
+        public string Type { get; set; }
+
         internal override ICrudHandler<CategoryItem, long> Handler
         {
             get

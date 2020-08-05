@@ -1,9 +1,9 @@
-﻿using System;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.Rules;
 using AutoMapper.Configuration;
 using System.Collections.Generic;
+using System.Linq;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
@@ -99,12 +99,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.AssetStructId, opt => opt.MapFrom(src => src.AssetStructId))
                 .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
+                .ForMember(dest => dest.ExtendedTypes, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.ExtendedTypes, true)))
+                .AfterMap((src, dest) => dest.ExtendedTypes = src.ExtendedTypes != null ? dest.ExtendedTypes : null)
                 ;
 
             cfg.CreateMap<ObjectVirtualAssetInfo, KalturaObjectVirtualAssetInfo>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.AssetStructId, opt => opt.MapFrom(src => src.AssetStructId))
                 .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
+                .ForMember(dest => dest.ExtendedTypes, opt => opt.MapFrom(src => src.ExtendedTypes != null ? src.ExtendedTypes.ToDictionary(k => k.Key, v =>v.Value) : null))
                 ;
 
             cfg.CreateMap<KalturaObjectVirtualAssetInfoType, ObjectVirtualAssetInfoType>()
