@@ -115,6 +115,8 @@ namespace WebAPI.Controllers
 
             try
             {
+                ClientsManager.DomainsClient().ValidateDeviceReferences(groupId, device);
+
                 if (HouseholdUtils.IsUserMaster())
                 {
                     device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device);
@@ -299,6 +301,8 @@ namespace WebAPI.Controllers
 
             try
             {
+                ClientsManager.DomainsClient().ValidateDeviceReferences(groupId, device);
+
                 // check device registration status - return forbidden if device not in domain        
                 var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                 if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)

@@ -15,6 +15,7 @@ using WebAPI.Models.Users;
 using WebAPI.Utils;
 using ApiObjects.Response;
 using WebAPI.Models.General;
+using ApiLogic.Users.Managers;
 
 namespace WebAPI.Clients
 {
@@ -444,6 +445,31 @@ namespace WebAPI.Clients
             result = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
 
             return result;
+        }
+
+        internal void ValidateDeviceReferences(int groupId, KalturaHouseholdDevice device)
+        {
+            var referenceData = DeviceReferenceDataManager.Instance.GetReferenceData(groupId);
+            if (device == null)
+            {
+                return;
+            }
+            if (device.ModelId.HasValue)
+            {
+                var models = referenceData?.Where(model => model.GetType() == (long)DeviceInformationType.Model);
+                if (models != null && !models.Select(model => model.Id).Contains(device.ModelId.Value))
+                {
+                    throw new ClientException((int)StatusCode.Error, "Model Id doesn't exists");
+                }
+            }
+            if (device.ManufacturerId.HasValue)
+            {
+                var manufacturers = referenceData?.Where(manufacturer => manufacturer.GetType() == (long)DeviceInformationType.Manufacturer);
+                if (manufacturers != null && !manufacturers.Select(manufacturer => manufacturer.Id).Contains(device.ManufacturerId.Value))
+                {
+                    throw new ClientException((int)StatusCode.Error, "Manufacturer Id doesn't exists");
+                }
+            }
         }
 
         internal KalturaHouseholdDevice AddDevice(int groupId, int domainId, KalturaHouseholdDevice device)

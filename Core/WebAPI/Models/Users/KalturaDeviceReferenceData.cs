@@ -9,6 +9,9 @@ using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using ApiObjects.Base;
 using ApiObjects.Response;
+using System.Text.RegularExpressions;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Models.Users
 {
@@ -33,7 +36,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
-        [SchemeProperty(MinLength = 1)]
+        [SchemeProperty(MinLength = 1, MaxLength = 50)]
         public string Name { get; set; }
 
         /// <summary>
@@ -62,6 +65,16 @@ namespace WebAPI.Models.Users
             Id = id;
         }
 
+        internal override void ValidateForAdd()
+        {
+            ValidateName();
+        }
+
+        internal override void ValidateForUpdate()
+        {
+            ValidateName();
+        }
+
         internal override GenericResponse<DeviceReferenceData> Add(ContextData contextData)
         {
             throw new NotImplementedException();
@@ -70,6 +83,15 @@ namespace WebAPI.Models.Users
         internal override GenericResponse<DeviceReferenceData> Update(ContextData contextData)
         {
             throw new NotImplementedException();
+        }
+
+        internal void ValidateName()
+        {
+            //Numeric, words, underscore and spaces
+            if (!string.IsNullOrEmpty(Name) && !Regex.IsMatch(Name, @"^[a-zA-Z0-9\_ ]+$"))
+            {
+                throw new ClientException((int)StatusCode.Error, "Field [Name] didn't passed validation");
+            }
         }
     }
 
