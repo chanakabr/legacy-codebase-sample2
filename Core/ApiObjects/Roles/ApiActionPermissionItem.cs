@@ -6,7 +6,8 @@ using System.Text;
 
 namespace ApiObjects.Roles
 {
-    [JsonObject()]
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class ApiActionPermissionItem : PermissionItem
     {
         public string Service { get; set; }

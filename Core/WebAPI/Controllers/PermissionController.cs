@@ -139,31 +139,58 @@ namespace WebAPI.Controllers
             }
         }
 
-        ///// <summary>
-        ///// Adds permission item to permission
-        ///// </summary>
-        ///// <param name="permission_id">Permission identifier to add to</param>
-        ///// <param name="permission_item_id">Permission item identifier to add</param>
-        ///// <remarks></remarks>
-        //[Action("addPermissionItem")]
-        //[ApiAuthorize]
-        //static public bool AddPermissionItem(long permission_id, long permission_item_id)
-        //{
-        //    bool response = false;
+        /// <summary>
+        /// Adds permission item to permission
+        /// </summary>
+        /// <param name="permissionId">Permission ID to add to</param>
+        /// <param name="permissionItemId">Permission item ID to add</param>
+        /// <remarks></remarks>
+        [Action("addPermissionItem")]
+        [Throws(eResponseStatus.PermissionNotFound)]
+        [Throws(eResponseStatus.PermissionItemNotFound)]
+        [Throws(eResponseStatus.PermissionPermissionItemAlreadyExists)]
+        [Throws(eResponseStatus.PermissionReadOnly)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ApiAuthorize]
+        static public void AddPermissionItem(long permissionId, long permissionItemId)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+            try
+            {
+                ClientsManager.ApiClient().AddPermissionItemToPermission(groupId, permissionId, permissionItemId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
 
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.ApiClient().AddPermissionItemToPermission(groupId, permission_id, permission_item_id);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+        /// <summary>
+        /// Removes permission item from permission
+        /// </summary>
+        /// <param name="permissionId">Permission ID to remove from</param>
+        /// <param name="permissionItemId">Permission item ID to remove</param>
+        /// <remarks></remarks>
+        [Action("removePermissionItem")]
+        [Throws(eResponseStatus.PermissionNotFound)]
+        [Throws(eResponseStatus.PermissionItemNotFound)]
+        [Throws(eResponseStatus.PermissionPermissionItemNotFound)]
+        [Throws(eResponseStatus.PermissionReadOnly)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ApiAuthorize]
+        static public void RemovePermissionItem(long permissionId, long permissionItemId)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    return response;
-        //}
+            try
+            {
+                ClientsManager.ApiClient().RemovePermissionItemFromPermission(groupId, permissionId, permissionItemId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
     }
 }

@@ -10,6 +10,7 @@ using System.Web;
 using ConfigurationManager;
 using System.Runtime.Caching;
 using CachingProvider.LayeredCache.Helper;
+using System.ServiceModel.Channels;
 
 namespace CachingProvider.LayeredCache
 {
@@ -27,6 +28,9 @@ namespace CachingProvider.LayeredCache
         public const string IS_READ_ACTION = "IsReadAction";
         public const string CURRENT_REQUEST_LAYERED_CACHE = "CurrentRequestLayeredCache";
         public const string DATABASE_ERROR_DURING_SESSION = "DATABASE_ERROR_DURING_SESSION";
+
+        public const string REQUEST_TAGS = "request_tags";
+        public const string REQUEST_TAGS_PARTNER_ROLE = "partner_role";
 
         public static readonly HashSet<string> readActions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
@@ -1513,8 +1517,22 @@ namespace CachingProvider.LayeredCache
             try
             {
                 LayeredCacheGroupConfig layeredCacheGroupConfig;
+
                 res = TryGetInvalidationKeyLayeredCacheConfig(layeredCacheConfigName, out layeredCacheConfig) && TryGetLayeredCacheGroupConfig(groupId, out layeredCacheGroupConfig)
                         && !layeredCacheGroupConfig.DisableLayeredCache && !layeredCacheGroupConfig.LayeredCacheInvalidationKeySettingsToExclude.Contains(layeredCacheConfigName);
+
+                //BEO-7703 - No cache for operator+ 
+                if (res && HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items.ContainsKey(REQUEST_TAGS))
+                {
+                    var tags = (HashSet<string>)HttpContext.Current.Items[REQUEST_TAGS];
+                    if (tags != null && tags.Contains(REQUEST_TAGS_PARTNER_ROLE))
+                    {
+                        layeredCacheConfig = layeredCacheConfig.Where(x => x.Type == LayeredCacheType.CbCache || x.Type == LayeredCacheType.CbMemCache).ToList();
+                        res = layeredCacheConfig != null && layeredCacheConfig.Count > 0;
+                    }
+                }
+
+               
             }
 
             catch (Exception ex)

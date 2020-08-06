@@ -925,6 +925,13 @@ namespace Core.Users
                 return result;
             }
 
+            var roles = Core.Api.Module.GetRoles(m_nGroupID, null);
+            if (!roles.Status.IsOkStatusCode())
+            {
+                result = roles.Status;
+                return result;
+            }
+
             Role suspendDefaultRole = null;
 
             // validate domain is not suspended
@@ -933,7 +940,7 @@ namespace Core.Users
                 if (!roleId.HasValue)
                 {
                     //get default sespend role id 
-                    suspendDefaultRole = GetDefaultSuspendedRole();
+                    suspendDefaultRole = roles.Roles.FirstOrDefault(x => x.Profile == RoleProfileType.Profile && x.GroupId == 0);
                     if (suspendDefaultRole != null)
                     {
                         // if domain == the default role id return "Domain already suspended"
@@ -959,8 +966,23 @@ namespace Core.Users
             // get current domain.roleId ==> to update the users 
             int? currentRoleId = domain.roleId;
 
-            if (roleId.HasValue)
+            if (roleId.HasValue && roleId.Value > 0)
             {
+                var role = roles.Roles.FirstOrDefault(x => x.Id == roleId.Value);
+                if (role == null)
+                {
+                    result.Code = (int)eResponseStatus.RoleDoesNotExists;
+                    result.Message = "Role Does Not Exists";
+                    return result;
+                }
+
+                if (role.Profile.HasValue && role.Profile != RoleProfileType.Profile)
+                {
+                    result.Code = (int)eResponseStatus.Error;
+                    result.Message = "Unauthorized role";
+                    return result;
+                }
+
                 domain.roleId = roleId.Value;
             }
             else // get default roleId
@@ -968,8 +990,9 @@ namespace Core.Users
                 // get default role 
                 if (suspendDefaultRole == null)
                 {
-                    suspendDefaultRole = GetDefaultSuspendedRole();
+                    suspendDefaultRole = roles.Roles.FirstOrDefault(x => x.Profile == RoleProfileType.Profile && x.GroupId == 0);
                 }
+
                 if (suspendDefaultRole != null)
                 {
                     domain.roleId = (int)suspendDefaultRole.Id;
@@ -1026,23 +1049,6 @@ namespace Core.Users
             }
 
             return result;
-        }
-
-        private Role GetDefaultSuspendedRole()
-        {
-            try
-            {
-                List<Role> roles = ApiDAL.GetRolesByNames(m_nGroupID, new List<string>() { DEFAULT_SUSPENDED_ROLE });
-                if (roles != null && roles.Count() > 0)
-                {
-                    return roles[0];
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("fail to get ApiDAL.GetRolesByNames ex :{0}, m_nGroupID : {1}, DefaultSuspendedRoleName : {2}", ex, m_nGroupID, DEFAULT_SUSPENDED_ROLE);
-            }
-            return null;
         }
 
         private bool UpdateSuspendedUserRoles(Domain domain, int groupId, int? currentRoleId, int? newRoleId)
