@@ -1118,7 +1118,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                         catch (Exception ex)
                         {
-                            log.Error(string.Format("Failed to validate image ratio, groupId: {0}, imageId: {1}, url: {2}", groupId, id, url), ex);
+                            log.Error(string.Format("Failed to validate image ratio, groupId: {0}, imageId: {1}, url: {2}, ex: {3}", groupId, id, url, ex), ex);
                             result = new Status((int)eResponseStatus.InvalidUrlForImage, eResponseStatus.InvalidUrlForImage.ToString());
                             return result;
                         }
