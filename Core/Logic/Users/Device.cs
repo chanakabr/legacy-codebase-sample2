@@ -262,7 +262,7 @@ namespace Core.Users
         }
 
         public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = "",
-            long? model = null, long? manufacturer = null, bool allowNullExternalId = false, bool allowNullMacAddress = false)
+            long? modelId = null, long? manufacturerId = null, bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             int retVal = 0;
 
@@ -276,9 +276,15 @@ namespace Core.Users
             {
                 retVal = nDeviceID.Value;
             }
+
+            log.Debug($"Device for Save: nIsActive: {nIsActive}, nStatus: {nStatus}, nDeviceID: {nDeviceID}, macAddress: {macAddress}, externalId: {externalId}," +
+                $" modelId: {modelId}, manufacturerId: {manufacturerId}, allowNullExternalId: {allowNullExternalId}, allowNullMacAddress: {allowNullMacAddress}, " +
+                $"deviceFound: {deviceFound}, retVal: {retVal}");
+
             if (!deviceFound) // New Device
             {
-                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, nIsActive, nStatus, m_pin, externalId, macAddress, model, manufacturer);
+                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, 
+                    nIsActive, nStatus, m_pin, externalId, macAddress, modelId, manufacturerId);
             }
             else // Update Device
             {
@@ -305,10 +311,10 @@ namespace Core.Users
 
                     if (!string.IsNullOrEmpty(macAddress) || allowNullMacAddress)
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("mac_address", "=", macAddress);
-                    if (model.HasValue)
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("model", "=", model.Value);
-                    if (manufacturer.HasValue)
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("manufacturer", "=", manufacturer.Value);
+                    if (modelId.HasValue)
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("model", "=", modelId.Value);
+                    if (manufacturerId.HasValue)
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("manufacturer", "=", manufacturerId.Value);
 
                     updateQuery += "where";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", m_deviceUDID);
@@ -344,8 +350,8 @@ namespace Core.Users
             {
                 ExternalId = externalId;
                 MacAddress = macAddress;
-                ModelId = model;
-                ManufacturerId = manufacturer;
+                ModelId = modelId;
+                ManufacturerId = manufacturerId;
             }
 
             return retVal;
@@ -433,6 +439,7 @@ namespace Core.Users
         {
             bool res = false;
             m_deviceName = device.Name;
+            log.Debug($"SetDeviceInfo: device: {JsonConvert.SerializeObject(device)}, m_state: {m_state}");
 
             if (m_state >= DeviceState.Pending)
             {
