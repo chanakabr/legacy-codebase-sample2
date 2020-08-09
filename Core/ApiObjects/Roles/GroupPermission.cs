@@ -6,7 +6,8 @@ using System.Text;
 
 namespace ApiObjects.Roles
 {
-    [JsonObject()]
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class GroupPermission : Permission
     {
         [JsonProperty("users_group")]

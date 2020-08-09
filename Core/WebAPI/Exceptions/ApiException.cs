@@ -315,6 +315,11 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType FILE_EXCEEDED_MAX_SIZE = new ClientExceptionType(eResponseStatus.FileExceededMaxSize, "File Exceeded Max Size", "File Exceeded Max Size");
         public static ClientExceptionType FILE_EXTENSION_NOT_SUPPORTED = new ClientExceptionType(eResponseStatus.FileExtensionNotSupported, "File Extension Not Supported", "File Extension Not Supported");
         public static ClientExceptionType FILE_MIME_DIFFERENT_THAN_EXPECTED = new ClientExceptionType(eResponseStatus.FileMimeDifferentThanExpected, "File Mime Different Than Expected", "File Mime Different Than Expected");
+        public static ClientExceptionType PERMISSION_ITEM_NOT_FOUND = new ClientExceptionType(eResponseStatus.PermissionItemNotFound, "Permission item cannot be found", "Permission item cannot be found");
+        public static ClientExceptionType PERMISSION_READ_ONLY = new ClientExceptionType(eResponseStatus.PermissionReadOnly, "Permission is readonly and cannot be updated", "Permission is readonly and cannot be updated");
+        public static ClientExceptionType PERMISSION_PERMISSION_ITEM_NOT_FOUND = new ClientExceptionType(eResponseStatus.PermissionPermissionItemNotFound, "Permission item is not associated with permission", "Permission item is not associated with permission");
+        public static ClientExceptionType PERMISSION_PERMISSION_ITEM_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.PermissionPermissionItemAlreadyExists, "Permission item is already associated with permission", "Permission item is already associated with permission");
+        public static ClientExceptionType ROLE_READ_ONLY = new ClientExceptionType(eResponseStatus.RoleReadOnly, "Role is readonly and cannot be updated", "Role is readonly and cannot be updated");
 
         #endregion
 

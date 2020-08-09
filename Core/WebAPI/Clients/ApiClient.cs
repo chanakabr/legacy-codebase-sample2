@@ -1,6 +1,7 @@
 ﻿using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
@@ -2633,44 +2634,6 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal bool AddPermissionItemToPermission(int groupId, long permissionId, long permissionItemId)
-        {
-            bool success = false;
-
-
-
-            Status response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.AddPermissionItemToPermission(groupId, permissionId, permissionItemId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException(StatusCode.Error);
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response);
-            }
-            else
-            {
-                success = true;
-            }
-
-            return success;
-        }
-
         internal bool CleanUserHistory(int groupId, string userId, List<Models.Catalog.KalturaSlimAsset> assetsList)
         {
             bool success = false;
@@ -4531,6 +4494,18 @@ namespace WebAPI.Clients
             result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
             result.TotalCount = response.TotalCount;
             return result;
+        }
+
+        internal void AddPermissionItemToPermission(int groupId, long permissionId, long permissionItemId)
+        {
+            Func<Status> addPermissionItemToPermissionFunc = () => RolesPermissionsManager.AddPermissionItemToPermission(groupId, permissionId, permissionItemId);
+            ClientUtils.GetResponseStatusFromWS(addPermissionItemToPermissionFunc);
+        }
+
+        internal void RemovePermissionItemFromPermission(int groupId, long permissionId, long permissionItemId)
+        {
+            Func<Status> removePermissionItemToPermissionFunc = () => RolesPermissionsManager.RemovePermissionItemFromPermission(groupId, permissionId, permissionItemId);
+            ClientUtils.GetResponseStatusFromWS(removePermissionItemToPermissionFunc);
         }
 
         internal KalturaExternalChannelProfileListResponse GetExternalChannels(int groupId, long userId, List<long> list)

@@ -6,7 +6,8 @@ using System.Text;
 
 namespace ApiObjects.Roles
 {
-    [JsonObject()]
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class Permission
     {
         public long Id { get; set; }
@@ -17,6 +18,10 @@ namespace ApiObjects.Roles
         [JsonProperty("friendlyName")]
         public string FriendlyName { get; set; }
 
+        [JsonProperty(PropertyName = "PermissionItems",
+                      TypeNameHandling = TypeNameHandling.Auto,
+                      ItemTypeNameHandling = TypeNameHandling.Auto,
+                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<PermissionItem> PermissionItems { get; set; }
 
         [JsonProperty("group_id")]
@@ -30,7 +35,11 @@ namespace ApiObjects.Roles
 
         [JsonProperty("type")]
         public ePermissionType Type { get; set; }
+
+        [JsonProperty("permission_items_ids")]
+        public List<long> PermissionItemsIds { get; set; }
     }
+
 
     public class PermissionsResponse
     {

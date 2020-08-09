@@ -49,6 +49,21 @@ namespace WebAPI.Models.API
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public bool? CurrentUserRoleIdsContains { get; set; }
 
+        /// <summary>
+        /// User role type
+        /// </summary>
+        [DataMember(Name = "typeEqual")]
+        [JsonProperty("typeEqual")]
+        [XmlElement(ElementName = "typeEqual", IsNullable = true)]
+        public KalturaUserRoleType? TypeEqual { get; set; }
+
+        /// <summary>
+        /// User role profile
+        /// </summary>
+        [DataMember(Name = "profileEqual")]
+        [JsonProperty("profileEqual")]
+        [XmlElement(ElementName = "profileEqual", IsNullable = true)]
+        public KalturaUserRoleProfile? ProfileEqual { get; set; }
 
         public override KalturaUserRoleOrderBy GetDefaultOrderByValue()
         {

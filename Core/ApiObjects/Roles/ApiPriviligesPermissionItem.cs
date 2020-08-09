@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Roles
 {
-    [JsonObject()]
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class ApiPriviligesPermissionItem : PermissionItem
     {
         public string Object { get; set; }

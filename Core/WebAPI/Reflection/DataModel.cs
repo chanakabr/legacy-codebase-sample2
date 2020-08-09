@@ -4593,6 +4593,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Name":
                             return "name";
+                        case "PermissionItemsIds":
+                            return "permissionItemsIds";
                         case "Type":
                             return "type";
                     }
@@ -4617,6 +4619,42 @@ namespace WebAPI.Reflection
                             return "isExcluded";
                         case "Name":
                             return "name";
+                    }
+                    break;
+                    
+                case "KalturaPermissionItemByApiActionFilter":
+                    switch(property.Name)
+                    {
+                        case "ActionEqual":
+                            return "actionEqual";
+                        case "ServiceEqual":
+                            return "serviceEqual";
+                    }
+                    break;
+                    
+                case "KalturaPermissionItemByArgumentFilter":
+                    switch(property.Name)
+                    {
+                        case "ParameterEqual":
+                            return "parameterEqual";
+                    }
+                    break;
+                    
+                case "KalturaPermissionItemByIdInFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaPermissionItemByParameterFilter":
+                    switch(property.Name)
+                    {
+                        case "ObjectEqual":
+                            return "objectEqual";
+                        case "ParameterEqual":
+                            return "parameterEqual";
                     }
                     break;
                     
@@ -7057,6 +7095,10 @@ namespace WebAPI.Reflection
                             return "permissionNames";
                         case "Permissions":
                             return "permissions";
+                        case "Profile":
+                            return "profile";
+                        case "Type":
+                            return "type";
                     }
                     break;
                     
@@ -7077,6 +7119,10 @@ namespace WebAPI.Reflection
                             return "idIn";
                         case "Ids":
                             return "ids";
+                        case "ProfileEqual":
+                            return "profileEqual";
+                        case "TypeEqual":
+                            return "typeEqual";
                     }
                     break;
                     
@@ -9645,6 +9691,11 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("permission", "add", false);
                             return PermissionController.Add((KalturaPermission) methodParams[0]);
                             
+                        case "addpermissionitem":
+                            RolesManager.ValidateActionPermitted("permission", "addPermissionItem", false);
+                            PermissionController.AddPermissionItem((long) methodParams[0], (long) methodParams[1]);
+                            return null;
+                            
                         case "delete":
                             RolesManager.ValidateActionPermitted("permission", "delete", false);
                             PermissionController.Delete((long) methodParams[0]);
@@ -9657,6 +9708,21 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("permission", "list", false);
                             return PermissionController.List((KalturaPermissionFilter) methodParams[0]);
+                            
+                        case "removepermissionitem":
+                            RolesManager.ValidateActionPermitted("permission", "removePermissionItem", false);
+                            PermissionController.RemovePermissionItem((long) methodParams[0], (long) methodParams[1]);
+                            return null;
+                            
+                    }
+                    break;
+                    
+                case "permissionitem":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("permissionItem", "list", false);
+                            return PermissionItemController.List((KalturaPermissionItemFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -16890,6 +16956,17 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "addpermissionitem":
+                            ret.Add("permissionId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("permissionItemId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
                         case "delete":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
@@ -16907,6 +16984,40 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPermissionFilter),
+                            });
+                            return ret;
+                            
+                        case "removepermissionitem":
+                            ret.Add("permissionId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("permissionItemId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "permissionitem":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPermissionItemFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             

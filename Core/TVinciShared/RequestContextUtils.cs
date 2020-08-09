@@ -34,6 +34,9 @@ namespace TVinciShared
 
         public const string MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR = "global_abort_on_error";
 
+        public const string REQUEST_TAGS = "request_tags";
+        public const string REQUEST_TAGS_PARTNER_ROLE = "partner_role";
+
         public static bool GetRequestContextValue<T>(string key, out T value)
         {
             value = default(T);

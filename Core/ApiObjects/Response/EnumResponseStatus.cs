@@ -371,6 +371,11 @@ namespace ApiObjects.Response
         DefaultRegionCannotBeDeleted = 5068,
         CannotDeleteRegionInUse = 5069,
         PartnerConfigurationDoesNotExist = 5070,
+        PermissionItemNotFound = 5071,
+        PermissionReadOnly = 5072,
+        PermissionPermissionItemNotFound = 5073,
+        PermissionPermissionItemAlreadyExists = 5074,
+        RoleReadOnly = 5075,
 
         #endregion
 

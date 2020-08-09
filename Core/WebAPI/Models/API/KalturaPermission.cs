@@ -57,6 +57,15 @@ namespace WebAPI.Models.API
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]
         public KalturaPermissionType Type { get; set; }
+
+        /// <summary>
+        /// Comma separated assosiated permission items IDs
+        /// </summary>
+        [DataMember(Name = "permissionItemsIds")]
+        [JsonProperty("permissionItemsIds")]
+        [XmlElement(ElementName = "permissionItemsIds")]
+        [SchemeProperty(ReadOnly = true)]
+        public string PermissionItemsIds { get; set; }
     }
 
     public enum KalturaPermissionType
