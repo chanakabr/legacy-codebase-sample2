@@ -283,7 +283,7 @@ namespace Core.Users
 
             if (!deviceFound) // New Device
             {
-                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, 
+                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID,
                     nIsActive, nStatus, m_pin, externalId, macAddress, modelId, manufacturerId);
             }
             else // Update Device
@@ -439,7 +439,9 @@ namespace Core.Users
         {
             bool res = false;
             m_deviceName = device.Name;
-            log.Debug($"SetDeviceInfo: device: {JsonConvert.SerializeObject(device)}, m_state: {m_state}");
+
+            log.Debug($"SetDeviceInfo: DomainDevice: {JsonConvert.SerializeObject(device)}, device: {this.ToString()} " +
+                $"m_state: {m_state}");
 
             if (m_state >= DeviceState.Pending)
             {
