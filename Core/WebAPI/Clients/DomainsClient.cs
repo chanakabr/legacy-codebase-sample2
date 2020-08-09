@@ -1036,7 +1036,16 @@ namespace WebAPI.Clients
 
             try
             {
-                var dDevice = Mapper.Map<DomainDevice>(device);
+                var dDevice = new DomainDevice
+                {
+                    Udid = device.Udid,
+                    Name = device.Name,
+                    DeviceBrandId = device.BrandId ?? 0,
+                    ExternalId = device.ExternalId,
+                    MacAddress = device.MacAddress,
+                    ModelId = device.ModelId,
+                    ManufacturerId = device.ManufacturerId
+                };
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
