@@ -128,7 +128,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "modelId")]
         [JsonProperty("modelId")]
         [XmlElement(ElementName = "modelId", IsNullable = true)]
-        [SchemeProperty(IsNullable = true, MaxLength = 255)]
+        [SchemeProperty(IsNullable = true)]
         public long? ModelId { get; set; }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "manufacturerId")]
         [JsonProperty("manufacturerId")]
         [XmlElement(ElementName = "manufacturerId", IsNullable = true)]
-        [SchemeProperty(IsNullable = true, MaxLength = 255)]
+        [SchemeProperty(IsNullable = true)]
         public long? ManufacturerId { get; set; }
 
         internal int getBrandId()
