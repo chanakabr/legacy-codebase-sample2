@@ -1,12 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -26,7 +28,7 @@ namespace WebAPI.Models.API
         ASSET_SUBSCRIPTION,
         USER_ROLE
     }
-    
+
     /// <summary>
     /// Condition
     /// </summary>
@@ -178,7 +180,7 @@ namespace WebAPI.Models.API
         [JsonProperty("limit")]
         [XmlElement(ElementName = "limit")]
         public int Limit { get; set; }
-        
+
         /// <summary>
         /// Concurrency limitation type
         /// </summary>
@@ -222,7 +224,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "fromIP")]
         [JsonProperty("fromIP")]
         [XmlElement(ElementName = "fromIP")]
-        public string FromIP{ get; set; }
+        public string FromIP { get; set; }
 
         /// <summary>
         /// TO IP address range
@@ -315,7 +317,7 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "segmentsIds")]
         [SchemeProperty(DynamicMinInt = 0)]
         public string SegmentsIds { get; set; }
-        
+
 
         protected override void Init()
         {
@@ -429,7 +431,7 @@ namespace WebAPI.Models.API
             }
         }
     }
-    
+
     public abstract partial class KalturaSubscriptionCondition : KalturaCondition
     {
         /// <summary>
@@ -449,7 +451,7 @@ namespace WebAPI.Models.API
             }
         }
     }
-    
+
     /// <summary>
     /// UserSubscription Condition - indicates which users this rule is applied on by their subscriptions
     /// </summary>
@@ -473,7 +475,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.ASSET_SUBSCRIPTION;
         }
     }
-    
+
     /// <summary>
     /// UserRole Condition - indicates which users this rule is applied on by their roles
     /// </summary>
@@ -502,4 +504,24 @@ namespace WebAPI.Models.API
             }
         }
     }
+
+    //public abstract class KalturaTriggerCondition<T, U> : KalturaCondition 
+    //    where T : KalturaOTTObject
+    //    where U:IConvertible
+    //{
+    //    public abstract bool CheckValues(T objectToCheck);
+    //    public List<U> Values { get; set; }
+    //}
+    //public class KalturaDeviceBrandCondition : KalturaTriggerCondition<WebAPI.Models.Domains.KalturaHouseholdDevice, int>
+    //{
+    //    internal override void Validate()
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public override bool CheckValues(KalturaHouseholdDevice objectToCheck)
+    //    {
+    //        return (Values.Contains(objectToCheck.BrandId.Value));
+    //    }
+    //}
 }
