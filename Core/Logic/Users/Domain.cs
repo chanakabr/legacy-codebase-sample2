@@ -724,7 +724,7 @@ namespace Core.Users
             {
                 // Get row id from devices table (not udid)
                 device.m_domainID = nDomainID;
-                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId);
+                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.ModelId, device.ManufacturerId);
                 DomainDevice domainDevice = new DomainDevice()
                 {
                     Id = nDbDomainDeviceID,
