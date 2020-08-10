@@ -776,7 +776,10 @@ namespace Core.Users
                         ActivatedOn = DateTime.UtcNow,
                         Udid = sUDID,
                         GroupId = m_nGroupID,
-                        DeviceFamilyId = device.m_deviceFamilyID
+                        DeviceFamilyId = device.m_deviceFamilyID,
+                        MacAddress = device.MacAddress,
+                        ModelId = device.ModelId,
+                        ManufacturerId = device.ManufacturerId
                     };
 
                     bool updated = domainDevice.Update();

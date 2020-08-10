@@ -478,7 +478,17 @@ namespace WebAPI.Clients
 
             try
             {
-                var _device = Mapper.Map<DomainDevice>(device);
+                var _device = new DomainDevice
+                {
+                    Name = device.Name,
+                    Udid = device.Udid,
+                    DeviceBrandId = device.BrandId ?? 0,
+                    ExternalId = device.ExternalId,
+                    MacAddress = device.MacAddress,
+                    ModelId = device.ModelId,
+                    ManufacturerId = device.ManufacturerId
+                };
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Domains.Module.AddDevice(groupId, domainId, _device);
