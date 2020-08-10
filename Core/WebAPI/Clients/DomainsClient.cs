@@ -478,20 +478,11 @@ namespace WebAPI.Clients
 
             try
             {
-                var _device = new DomainDevice
-                {
-                    Name = device.Name,
-                    Udid = device.Udid,
-                    DeviceBrandId = device.BrandId ?? 0,
-                    ExternalId = device.ExternalId,
-                    MacAddress = device.MacAddress,
-                    ModelId = device.ModelId,
-                    ManufacturerId = device.ManufacturerId
-                };
+                var dDevice = CastToDomainDevice(device);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.AddDevice(groupId, domainId, _device);
+                    response = Core.Domains.Module.AddDevice(groupId, domainId, dDevice);
                 }
             }
             catch (Exception ex)
@@ -1046,16 +1037,7 @@ namespace WebAPI.Clients
 
             try
             {
-                var dDevice = new DomainDevice
-                {
-                    Udid = device.Udid,
-                    Name = device.Name,
-                    DeviceBrandId = device.BrandId ?? 0,
-                    ExternalId = device.ExternalId,
-                    MacAddress = device.MacAddress,
-                    ModelId = device.ModelId,
-                    ManufacturerId = device.ManufacturerId
-                };
+                var dDevice = CastToDomainDevice(device);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -1086,6 +1068,20 @@ namespace WebAPI.Clients
             KalturaHouseholdDevice result = Mapper.Map<KalturaHouseholdDevice>(response.Device.m_oDevice);
 
             return result;
+        }
+
+        private static DomainDevice CastToDomainDevice(KalturaHouseholdDevice device)
+        {
+            return new DomainDevice
+            {
+                Udid = device.Udid,
+                Name = device.Name,
+                DeviceBrandId = device.getBrandId(),
+                ExternalId = device.ExternalId,
+                MacAddress = device.MacAddress,
+                ModelId = device.ModelId,
+                ManufacturerId = device.ManufacturerId
+            };
         }
 
         internal KalturaHousehold SubmitAddUserToDomainRequest(int groupId, string userId, string householdMasterUsername)
