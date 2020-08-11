@@ -90,7 +90,6 @@ namespace WebAPI
             })
             {
                 cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
-
                 string cbKey = GetCBSpecificKey(objectEvent);
                 specificNotification = cbManager.Get<EventNotification>(cbKey, true);
             }

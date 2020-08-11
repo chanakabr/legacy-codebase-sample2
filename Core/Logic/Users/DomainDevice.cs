@@ -33,11 +33,7 @@ namespace Core.Users
 
         public string MacAddress { get; set; }
 
-        public long DeviceFamilyId
-        {
-            get;
-            set;
-        }
+        public long DeviceFamilyId { get; set; }
 
         protected override bool DoInsert()
         {
@@ -71,12 +67,6 @@ namespace Core.Users
 
             return Id > 0;
         }
-
-
-
-
-
-
 
         protected override bool DoUpdate()
         {

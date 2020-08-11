@@ -46,13 +46,13 @@ namespace ApiObjects
 
                  if (insertResult)
                  {
-                    
+                    var afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent( this.GroupId, this, eKalturaEventActions.Created));
+                    if (afterEventResults != null)
+                    {
+                        // ?
+                    }
 
-                     var afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent( this.GroupId, this, eKalturaEventActions.Created));
-                     if (afterEventResults != null)
-                     {
-                         // ?
-                     }
+                    EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.Created, eKalturaEventTime.Campaign));
                  }
                  else
                  {
@@ -83,6 +83,7 @@ namespace ApiObjects
                 if (result)
                 {
                     EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(this.GroupId, this, previous, this.ChangedFields));
+                    EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.Changed, eKalturaEventTime.Campaign));
                 }
                 else
                 {
@@ -110,6 +111,7 @@ namespace ApiObjects
                 if (result)
                 {
                     EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(this.GroupId, this.Id, null, this));
+                    EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.Deleted, eKalturaEventTime.Campaign));
                 }
                 else
                 {
@@ -144,6 +146,11 @@ namespace ApiObjects
             else
             {
                 result = afterEventResults.Any(x => x == eEventConsumptionResult.Failure) ? false : result;
+            }
+
+            if (result)
+            {
+                EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.None, eKalturaEventTime.Campaign));
             }
 
             return result;

@@ -1,13 +1,11 @@
 ﻿using EventBus.Abstraction;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ApiObjects.EventBus
 {
     public class CampaignUserEvent : ServiceEvent
     {
-        public long Id { get; set; }
-        public int Status { get; set; }
+        public long CampaignId { get; set; }
+        public int DomainId { get; set; }
+        public CoreObject TheObject { get; set; }
     }
 }

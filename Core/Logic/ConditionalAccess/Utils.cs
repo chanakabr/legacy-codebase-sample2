@@ -1708,7 +1708,10 @@ namespace Core.ConditionalAccess
                         }
                     }
                 }
+
+                // TODO SHIR - calc lowest price by campaign only for subscription
             }
+
 
             if (lowestPrice.IsFree() || transactionType == eTransactionType.PPV || string.IsNullOrEmpty(couponCode)) { return lowestPrice; }
 

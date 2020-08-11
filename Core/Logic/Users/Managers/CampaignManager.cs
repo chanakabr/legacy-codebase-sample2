@@ -39,22 +39,6 @@ namespace ApiLogic.Users.Managers
             return null;
         }
 
-        public GenericResponse<Campaign> SendCampaignEventToServiceEventBus(int groupId, long userId, GenericResponse<Campaign> response)
-        {
-            var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            var _event = new CampaignUserEvent
-            {
-                RequestId = KLogger.GetRequestId(),
-                GroupId = groupId,
-                UserId = userId,
-                Id = response.Object.Id,
-            };
-
-            publisher.Publish(_event);
-            response = UpdateCampaignStatusWithVersionCheck(response.Object, CampaignEventStatus.Queued);
-            return response;
-        }
-
         private static GenericResponse<Campaign> UpdateCampaignStatusWithVersionCheck(Campaign objectToUpdate, CampaignEventStatus newStatus)
         {
             var response = new GenericResponse<Campaign>();

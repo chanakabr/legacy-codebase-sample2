@@ -1684,7 +1684,6 @@ namespace Core.Catalog.CatalogManagement
 
         public static DateTime GetProgramSearchEndDate(int groupId, string channelId, DateTime endDate, Dictionary<string, LinearChannelSettings> linearChannelSettings = null)
         {
-            // TODO SHIR - IF EPGCB.SearchEndDate IS NOT SET, I NEED TO COPY THIS CODE TO CatalogManager.SetHistoryValues 
             DateTime searchEndDate = DateTime.MinValue;
             try
             {
