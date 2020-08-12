@@ -27,14 +27,34 @@ namespace ApiLogic.Users.Managers
             throw new NotImplementedException();
         }
 
-        GenericResponse<Campaign> ICrudHandler<Campaign, long>.Get(ContextData contextData, long id)
+        public GenericListResponse<Campaign> List(ContextData contextData, CampaignFilter filter, CorePager pager)
         {
+            // TODO SHIR
+            return new GenericListResponse<Campaign>();
+        }
+
+        public GenericResponse<Campaign> AddTriggerCampaign(ContextData contextData, TriggerCampaign campaignToAdd)
+        {
+            // TODO SHIR
             throw new NotImplementedException();
         }
 
-        public GenericListResponse<Campaign> List(ContextData contextData, object filter)
+        public GenericResponse<Campaign> AddBatchCampaign(ContextData contextData, BatchCampaign campaignToAdd)
         {
-            return null;
+            // TODO SHIR
+            throw new NotImplementedException();
+        }
+
+        public GenericResponse<Campaign> UpdateTriggerCampaign(ContextData contextData, TriggerCampaign campaignToUpdate)
+        {
+            // TODO SHIR
+            throw new NotImplementedException();
+        }
+
+        public GenericResponse<Campaign> UpdateBatchCampaign(ContextData contextData, BatchCampaign campaignToUpdate)
+        {
+            // TODO SHIR
+            throw new NotImplementedException();
         }
 
         // TODO MATAN

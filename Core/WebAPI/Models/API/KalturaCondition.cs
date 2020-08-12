@@ -26,7 +26,8 @@ namespace WebAPI.Models.API
         HEADER,
         USER_SUBSCRIPTION,
         ASSET_SUBSCRIPTION,
-        USER_ROLE
+        USER_ROLE,
+        TRIGGER
     }
 
     /// <summary>
@@ -505,23 +506,57 @@ namespace WebAPI.Models.API
         }
     }
 
-    //public abstract class KalturaTriggerCondition<T, U> : KalturaCondition 
-    //    where T : KalturaOTTObject
-    //    where U:IConvertible
-    //{
-    //    public abstract bool CheckValues(T objectToCheck);
-    //    public List<U> Values { get; set; }
-    //}
-    //public class KalturaDeviceBrandCondition : KalturaTriggerCondition<WebAPI.Models.Domains.KalturaHouseholdDevice, int>
-    //{
-    //    internal override void Validate()
-    //    {
-    //        throw new NotImplementedException();
-    //    }
+    public abstract class KalturaTriggerCondition<T> : KalturaCondition where T : IConvertible
+    {
+        [DataMember(Name = "valueIn")]
+        [JsonProperty("valueIn")]
+        [XmlElement(ElementName = "valueIn")]
+        public string ValueIn { get; set; }
 
-    //    public override bool CheckValues(KalturaHouseholdDevice objectToCheck)
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.TRIGGER;
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.ValueIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTriggerCondition.valueIn");
+            }
+        }
+
+        public List<T> GetValues()
+        {
+            return GetItemsIn<List<T>, T>(this.ValueIn, "valueIn", true);
+        }
+    }
+
+    public partial class KalturaDeviceBrandCondition : KalturaTriggerCondition<long>
+    {
+    }
+
+    // TODO MATAN - CREATE MORE TRIGGER CONDITIONS BY DR
+
+    //    public abstract class KalturaTriggerCondition<T, U> : KalturaCondition
+    //        where T : KalturaOTTObject
+    //        where U : IConvertible
     //    {
-    //        return (Values.Contains(objectToCheck.BrandId.Value));
+    //        public abstract bool CheckValues(T objectToCheck);
+    //        public List<U> ValuesCore;
+    //        public string Values { get; set; }
     //    }
-    //}
+    //    public class KalturaDeviceBrandCondition : KalturaTriggerCondition<WebAPI.Models.Domains.KalturaHouseholdDevice, int>
+    //    {
+    //        internal override void Validate()
+    //        {
+    //            throw new NotImplementedException();
+    //        }
+
+    //        public override bool CheckValues(KalturaHouseholdDevice objectToCheck)
+    //        {
+    //            return (ValuesCore.Contains(objectToCheck.BrandId.Value));
+    //        }
+    //    }
 }

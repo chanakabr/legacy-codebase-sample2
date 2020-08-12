@@ -43,6 +43,34 @@ namespace ApiObjects
             }
             return true;
         }
+
+        ///// <summary>
+        ///// Fill current AssetRule data members with given assetRule only if they are empty\null
+        ///// </summary>
+        ///// <param name="oldRule">given assetRule to fill with</param>
+        //internal void FillEmpty(KalturaBusinessModuleRule oldRule)
+        //{
+        //    // TODO shir - WWE NEED THIS
+        //    if (oldRule != null)
+        //    {
+        //        this.CreateDate = oldRule.CreateDate;
+
+        //        if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
+        //        {
+        //            this.Name = oldRule.Name;
+        //        }
+
+        //        if (this.Description == null)
+        //        {
+        //            this.Description = oldRule.Description;
+        //        }
+
+        //        if (this.Conditions == null)
+        //        {
+        //            this.Conditions = oldRule.Conditions;
+        //        }
+        //    }
+        //}
     }
 
     public class TriggerCampaign : Campaign
@@ -57,10 +85,76 @@ namespace ApiObjects
         {
             return true;
         }
+
+        ///// <summary>
+        ///// Fill current AssetRule data members with given assetRule only if they are empty\null
+        ///// </summary>
+        ///// <param name="oldRule">given assetRule to fill with</param>
+        //internal void FillEmpty(KalturaBusinessModuleRule oldRule)
+        //{
+        //    // TODO shir - WWE NEED THIS
+        //    if (oldRule != null)
+        //    {
+        //        this.CreateDate = oldRule.CreateDate;
+
+        //        if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
+        //        {
+        //            this.Name = oldRule.Name;
+        //        }
+
+        //        if (this.Description == null)
+        //        {
+        //            this.Description = oldRule.Description;
+        //        }
+
+        //        if (this.Conditions == null)
+        //        {
+        //            this.Conditions = oldRule.Conditions;
+        //        }
+        //    }
+        //}
+    }
+
+    public class BatchCampaign : Campaign
+    {
+        // TODO SHIR BatchCampaign
+
+        ///// <summary>
+        ///// Fill current AssetRule data members with given assetRule only if they are empty\null
+        ///// </summary>
+        ///// <param name="oldRule">given assetRule to fill with</param>
+        //internal void FillEmpty(KalturaBusinessModuleRule oldRule)
+        //{
+        //    // TODO shir - WWE NEED THIS
+        //    if (oldRule != null)
+        //    {
+        //        this.CreateDate = oldRule.CreateDate;
+
+        //        if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
+        //        {
+        //            this.Name = oldRule.Name;
+        //        }
+
+        //        if (this.Description == null)
+        //        {
+        //            this.Description = oldRule.Description;
+        //        }
+
+        //        if (this.Conditions == null)
+        //        {
+        //            this.Conditions = oldRule.Conditions;
+        //        }
+        //    }
+        //}
     }
 
     public enum CampaignEventStatus
     {
         Queued, Failed, InProgress
+    }
+
+    public class CampaignFilter : ICrudFilter
+    {
+
     }
 }
