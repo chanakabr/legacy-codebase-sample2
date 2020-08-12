@@ -361,4 +361,22 @@ namespace ApiObjects.Rules
             return userRoleIds != null && userRoleIds.Any(x => RoleIds.Contains(x));
         }
     }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class CampaignTriggerCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    {
+        public CampaignTriggerCondition()
+        {
+            //this.Type = RuleConditionType.;
+        }
+
+        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
+        {
+            if (string.IsNullOrEmpty(scope.UserId)) { return true; }
+
+            var userRoleIds = scope.Get(scope.GroupId, scope.UserId);
+            return true;
+        }
+    }
 }

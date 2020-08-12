@@ -12,6 +12,8 @@ using System.Linq;
 using System.Collections.Generic;
 using domain = Core.Domains.Module;
 using notification = Core.Notification.Module;
+using Core.Notification;
+using ApiObjects.Notification;
 
 namespace CampaignHandler
 {
@@ -43,7 +45,8 @@ namespace CampaignHandler
                 var domainUsers = domain.GetDomainUserList(serviceEvent.DomainId, serviceEvent.GroupId);
 
                 var filter = new List<ApiObjects.eMessageCategory> { ApiObjects.eMessageCategory.Interest };
-                var triggerCampaign = campaign.Object as TriggerCampaign;
+                var triggerCampaign = campaign.Object as ApiObjects.TriggerCampaign;
+                var messages = triggerCampaign.Messages;
 
                 if (!CampaignManager.Instance.ValidateTriggerCampaign(triggerCampaign, serviceEvent.EventObject))
                 {
@@ -60,22 +63,65 @@ namespace CampaignHandler
                     }
 
                     // get user inbox messages for this specific campaign
-                    var inbox = notification.GetInboxMessages(serviceEvent.GroupId, userId, 100, 0, filter, 0, 0);//change inbox messages filter
-                    var messageExists = inbox?.InboxMessages?.Select(im => im.Message).Contains(serviceEvent.CampaignId.ToString()); //change condition
+                    var inbox = MessageInboxManger.GetInboxMessages(serviceEvent.GroupId, userId, 100, 0, filter, 0, 0);//change inbox messages filter
 
-                    //if message exist not need to do anything
-                    if (messageExists.HasValue && messageExists.Value)
+                    if (CampaignManager.Instance.ValidateCampaignConditionsToUser(contextData, triggerCampaign))
                     {
-                        _Logger.Info($"Campaign: {serviceEvent.CampaignId} already assigned to user: {userId}, group: {serviceEvent.GroupId}");
-                        return;
-                    }
-                    else
-                    {
-                        if (CampaignManager.Instance.ValidateCampaignConditionsToUser(userId, triggerCampaign, serviceEvent.EventObject))
+                        var inboxIds = inbox?.InboxMessages?.Select(x => x.Id).ToList();
+                        var campaignMessageIds = messages.Select(x => x.Key).ToList();
+                        var contained = !inboxIds.Except(campaignMessageIds).Any();
+
+                        if (contained)
                         {
-                            //TODO - Matan: send message
+                            _Logger.Info($"Campaign: {serviceEvent.CampaignId} already assigned to user: {userId}, group: {serviceEvent.GroupId}");
+                            return;
                         }
+                        else
+                        {
+                            var missingMessages = campaignMessageIds.Where(msg => inboxIds.All(p2 => p2 != msg)).ToList();
+                            foreach (var message in missingMessages)
+                            {
+                                var pushMessage = new PushMessage()
+                                {
+                                    //Message = messages
+                                };
+                                var result = EngagementManager.SendPushToUser(serviceEvent.GroupId, userId, pushMessage);
+                            }
+                        }
+
+                        ////TODO - Matan: send message
+                        //var pushMessage = new PushMessage()
+                        //{
+
+                        //};
+                        //var result = EngagementManager.SendPushToUser(serviceEvent.GroupId, userId, pushMessage);
                     }
+
+
+
+
+
+                    //var inbox = notification.GetInboxMessages(serviceEvent.GroupId, userId, 100, 0, filter, 0, 0);//change inbox messages filter
+                    //var messageExists = inbox?.InboxMessages?.Select(im => im.Message).Contains(serviceEvent.CampaignId.ToString()); //change condition
+                    //if (messages.Count > 0)
+                    //{
+                    //    var exists = true;
+                    //    foreach (var message in messages)
+                    //    {
+                    //        exists += inbox?.InboxMessages?.Select(im=>im)
+                    //    }
+                    //}
+
+                    ////if message exist not need to do anything
+                    //if (messageExists.HasValue && messageExists.Value)
+                    //{
+                    //    _Logger.Info($"Campaign: {serviceEvent.CampaignId} already assigned to user: {userId}, group: {serviceEvent.GroupId}");
+                    //    return;
+                    //}
+                    //else
+                    //{
+                       
+                    //}
                 });
 
                 return null;

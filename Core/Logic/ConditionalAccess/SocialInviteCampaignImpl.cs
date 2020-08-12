@@ -14,7 +14,7 @@ namespace Core.ConditionalAccess
     public class SocialInviteCampaignImpl : BaseCampaignActionImpl
     {
 
-        public override CampaignActionInfo ActivateCampaignWithInfo(Campaign camp, CampaignActionInfo cai, int groupID)
+        public override CampaignActionInfo ActivateCampaignWithInfo(Core.Pricing.Campaign camp, CampaignActionInfo cai, int groupID)
         {
             CampaignActionInfo retVal = null;
             int numOfUses = 0;
@@ -157,7 +157,7 @@ namespace Core.ConditionalAccess
             return retVal;
         }
 
-        private void InitializeCampaignUses(Campaign camp, int siteGuid, int maxUses)
+        private void InitializeCampaignUses(Core.Pricing.Campaign camp, int siteGuid, int maxUses)
         {
             ODBCWrapper.InsertQuery insertQuery = null;
             try

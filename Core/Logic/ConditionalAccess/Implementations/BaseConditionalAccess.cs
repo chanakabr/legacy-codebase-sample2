@@ -5306,7 +5306,7 @@ namespace Core.ConditionalAccess
                         Subscription relevantSub = null;
                         Collection relevantCol = null;
                         PrePaidModule relevantPP = null;
-                        Campaign relevantCamp = null;
+                        Core.Pricing.Campaign relevantCamp = null;
                         PPVModule thePPVModule = Pricing.Module.GetPPVModuleData(m_nGroupID, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                         if (!string.IsNullOrEmpty(sCampaignCode))
                         {
@@ -5510,7 +5510,7 @@ namespace Core.ConditionalAccess
 
                         PriceReason theReason = PriceReason.UnKnown;
                         PPVModule theBundle = null;
-                        Campaign relevantCamp = null;
+                        Core.Pricing.Campaign relevantCamp = null;
                         Price price = null;
 
                         switch (bundleType)
@@ -7735,7 +7735,7 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get CustomData string  
         /// </summary>
-        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign,
+        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Core.Pricing.Campaign campaign,
                string sSiteGUID, double dPrice, string sCurrency,
                Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCampaignCode, string sCouponCode, string sUserIP,
                string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate)
@@ -7812,7 +7812,7 @@ namespace Core.ConditionalAccess
         }
 
         // Get CustomData string
-        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign,
+        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Core.Pricing.Campaign campaign,
                                                string sSiteGUID, double dPrice, string sCurrency, Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode,
                                                string sCampaignCode, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long domainId)
         {
@@ -7823,7 +7823,7 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get Custom Data For Pre Paid
         /// </summary>
-        protected virtual string GetCustomDataForPrePaid(PrePaidModule thePrePaidModule, Campaign campaign, string sPrePaidCode, string sCampaignCode,
+        protected virtual string GetCustomDataForPrePaid(PrePaidModule thePrePaidModule, Core.Pricing.Campaign campaign, string sPrePaidCode, string sCampaignCode,
         string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
         string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate)
         {
@@ -7898,7 +7898,7 @@ namespace Core.ConditionalAccess
 
         }
 
-        protected virtual string GetCustomDataForPrePaid(PrePaidModule thePrePaidModule, Campaign campaign, string sPrePaidCode, string sCampaignCode,
+        protected virtual string GetCustomDataForPrePaid(PrePaidModule thePrePaidModule, Core.Pricing.Campaign campaign, string sPrePaidCode, string sCampaignCode,
            string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
@@ -7909,7 +7909,7 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get Custom Data For Subscription
         /// </summary>
-        protected internal virtual string GetCustomDataForSubscription(Subscription theSub, Campaign campaign, string sSubscriptionCode, string sCampaignCode, string sSiteGUID,
+        protected internal virtual string GetCustomDataForSubscription(Subscription theSub, Core.Pricing.Campaign campaign, string sSubscriptionCode, string sCampaignCode, string sSiteGUID,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID,
             bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false, int? context = null, bool isPartialPrice = false)
         {
@@ -8071,7 +8071,7 @@ namespace Core.ConditionalAccess
 
         }
 
-        protected virtual string GetCustomDataForSubscription(Subscription theSub, Campaign campaign, string sSubscriptionCode, string sCampaignCode,
+        protected virtual string GetCustomDataForSubscription(Subscription theSub, Core.Pricing.Campaign campaign, string sSubscriptionCode, string sCampaignCode,
                                                                 string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
                                                                 string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long domainId)
         {

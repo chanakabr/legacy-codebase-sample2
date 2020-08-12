@@ -1,19 +1,11 @@
 ﻿using ApiLogic.Base;
 using ApiObjects;
 using ApiObjects.Base;
-using ApiObjects.EventBus;
 using ApiObjects.Response;
-using EventBus.RabbitMQ;
 using KLogMonitor;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using Newtonsoft.Json;
-using ApiObjects.Rules;
-using domain = Core.Domains.Module;
-using notification = Core.Notification.Module;
-using System.Threading.Tasks;
-using System.Linq;
+using APILogic.ConditionalAccess;
 
 namespace ApiLogic.Users.Managers
 {
@@ -45,37 +37,6 @@ namespace ApiLogic.Users.Managers
             return null;
         }
 
-        private static GenericResponse<Campaign> UpdateCampaignStatusWithVersionCheck(Campaign objectToUpdate, CampaignEventStatus newStatus)
-        {
-            var response = new GenericResponse<Campaign>();
-            try
-            {
-                var originalStatus = objectToUpdate.Status;
-                response.Object = objectToUpdate;
-
-                CampaignEventStatus updatedStatus;
-
-                //if (!CatalogDAL.SaveBulkUploadStatusAndErrorsCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
-                //{
-                //    log.ErrorFormat("UpdateBulkUploadStatusWithVersionCheck > Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
-                //}
-                //log.Debug($"UpdateBulkUploadStatusWithVersionCheck > status by results is:[{updatedStatus}], status to set:[{newStatus}]");
-                response.Object.Status = newStatus;
-
-                //UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
-
-
-                response.SetStatus(eResponseStatus.OK);
-            }
-            catch (Exception ex)
-            {
-                log.Error($"An Exception was occurred in UpdateCampaignStatusWithVersionCheck. Id:{objectToUpdate.Id}, status:{objectToUpdate.Status}, ex: {ex}", ex);
-                response.SetStatus(eResponseStatus.Error);
-            }
-
-            return response;
-        }
-
         // TODO MATAN
         /// <summary>
         /// Validate if user matches to CampaignConditions
@@ -84,9 +45,20 @@ namespace ApiLogic.Users.Managers
         /// <param name="triggerCampaign"></param>
         /// <param name="coreObject"></param>
         /// <returns></returns>
-        public bool ValidateCampaignConditionsToUser(int userId, TriggerCampaign triggerCampaign, CoreObject coreObject)
+        public bool ValidateCampaignConditionsToUser(ContextData contextData, Campaign campaign)
         {
-            return false;
+            ConditionScope filter = new ConditionScope()
+            {
+                //BusinessModuleId = businessModuleId,
+                //BusinessModuleType = transactionType,
+                //SegmentIds = segmentIds,
+                FilterByDate = true,
+                //FilterBySegments = true,
+                GroupId = contextData.GroupId,
+                //MediaId = mediaId
+            };
+
+            return campaign.Evaluate(filter);
         }
 
         // TODO MATAN
@@ -99,37 +71,18 @@ namespace ApiLogic.Users.Managers
         /// <returns></returns>
         public bool ValidateTriggerCampaign(TriggerCampaign triggerCampaign, CoreObject coreObject)
         {
-            return false;
+            ConditionScope filter = new ConditionScope()
+            {
+                //BusinessModuleId = businessModuleId,
+                //BusinessModuleType = transactionType,
+                //SegmentIds = segmentIds,
+                FilterByDate = true,
+                //FilterBySegments = true,
+                GroupId = coreObject.GroupId,
+                //MediaId = mediaId
+            };
+
+            return true;// triggerCampaign.Evaluate(coreObject);
         }
-    }
-
-    public abstract class Campaign : ICrudHandeledObject
-    {
-        public long Id { get; set; }
-        public CampaignEventStatus Status { get; set; }
-
-        public Campaign()
-        {
-        }
-
-        [JsonProperty(PropertyName = "Conditions",
-                      TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
-                      ItemTypeNameHandling = TypeNameHandling.Auto,
-                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<RuleCondition> CampaignConditions { get; set; }
-    }
-
-    public class TriggerCampaign : Campaign
-    {
-        [JsonProperty(PropertyName = "Conditions",
-                      TypeNameHandling = TypeNameHandling.Auto,
-                      ItemTypeNameHandling = TypeNameHandling.Auto,
-                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<RuleCondition> TriggerConditions { get; set; }
-    }
-
-    public enum CampaignEventStatus
-    {
-        Queued, Failed, InProgress
     }
 }

@@ -1225,7 +1225,7 @@ namespace Core.ConditionalAccess
                         theCouponData.Coupon.m_ownerMedia == mediaID)
                 {
                     bool isCampaignValid = false;
-                    Campaign camp = Core.Pricing.Module.GetCampaignData(nGroupID, theCouponData.Coupon.m_campID);
+                    Core.Pricing.Campaign camp = Core.Pricing.Module.GetCampaignData(nGroupID, theCouponData.Coupon.m_campID);
 
                     if (camp != null && camp.m_ID == theCouponData.Coupon.m_campID)
                     {
