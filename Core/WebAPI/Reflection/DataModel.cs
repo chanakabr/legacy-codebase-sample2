@@ -3007,8 +3007,8 @@ namespace WebAPI.Reflection
                             return "macAddress";
                         case "ManufacturerId":
                             return "manufacturerId";
-                        case "ModelId":
-                            return "modelId";
+                        case "Model":
+                            return "model";
                         case "Name":
                             return "name";
                         case "State":

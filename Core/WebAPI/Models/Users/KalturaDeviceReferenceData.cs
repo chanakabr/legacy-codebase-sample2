@@ -88,28 +88,10 @@ namespace WebAPI.Models.Users
         internal void ValidateName()
         {
             //Numeric, words, underscore and spaces
-            if (!string.IsNullOrEmpty(Name) && !Regex.IsMatch(Name, @"^[a-zA-Z0-9\_ ]+$"))
+            if (!string.IsNullOrEmpty(Name) && !Regex.IsMatch(Name, @"^[a-zA-Z0-9\_ ]+$", RegexOptions.IgnoreCase))
             {
                 throw new ClientException((int)StatusCode.Error, "Field [Name] didn't passed validation");
             }
-        }
-    }
-
-    /// <summary>
-    /// Device Model Information
-    /// </summary>
-    [Serializable]
-    public partial class KalturaDeviceModelInformation : KalturaDeviceReferenceData
-    {
-        internal override GenericResponse<DeviceReferenceData> Add(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<DeviceModelInformation>(this);
-            return DeviceReferenceDataManager.Instance.Add(contextData, coreObject);
-        }
-        internal override GenericResponse<DeviceReferenceData> Update(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<DeviceModelInformation>(this);
-            return DeviceReferenceDataManager.Instance.Update(contextData, coreObject);
         }
     }
 

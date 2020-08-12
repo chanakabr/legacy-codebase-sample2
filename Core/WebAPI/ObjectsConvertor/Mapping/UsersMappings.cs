@@ -311,16 +311,8 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 ;
 
-            cfg.CreateMap<KalturaDeviceModelInformation, DeviceModelInformation>()
-                .IncludeBase<KalturaDeviceReferenceData, DeviceReferenceData>()
-                ;
-
             cfg.CreateMap<KalturaDeviceManufacturerInformation, DeviceManufacturerInformation>()
                 .IncludeBase<KalturaDeviceReferenceData, DeviceReferenceData>()
-                ;
-
-            cfg.CreateMap<DeviceModelInformation, KalturaDeviceModelInformation>()
-                .IncludeBase<DeviceReferenceData, KalturaDeviceReferenceData>()
                 ;
 
             cfg.CreateMap<DeviceManufacturerInformation, KalturaDeviceManufacturerInformation>()
@@ -333,10 +325,6 @@ namespace ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaDeviceReferenceDataFilter, DeviceReferenceDataFilter>()
                .ForMember(dest => dest.DeviceReferenceDataIdsIn, opt => opt.MapFrom(src => src.IdIn))
-                ;
-
-            cfg.CreateMap<KalturaDeviceModelsReferenceDataFilter, DeviceModelReferenceDataFilter>()
-                .IncludeBase<KalturaDeviceReferenceDataFilter, DeviceReferenceDataFilter>()
                 ;
 
             cfg.CreateMap<KalturaDeviceManufacturersReferenceDataFilter, DeviceManufacturersReferenceDataFilter>()

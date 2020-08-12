@@ -24487,46 +24487,6 @@ namespace WebAPI.Models.Users
             return ret;
         }
     }
-    public partial class KalturaDeviceModelInformation
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceModelsReferenceDataFilter
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-    }
     public partial class KalturaDeviceReferenceData
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -28595,9 +28555,9 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("manufacturerId", "\"manufacturerId\": " + ManufacturerId);
             }
-            if(ModelId.HasValue)
+            if(Model != null)
             {
-                ret.Add("modelId", "\"modelId\": " + ModelId);
+                ret.Add("model", "\"model\": " + "\"" + EscapeJson(Model) + "\"");
             }
             if(Name != null)
             {
@@ -28666,9 +28626,9 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("manufacturerId", "<manufacturerId>" + ManufacturerId + "</manufacturerId>");
             }
-            if(ModelId.HasValue)
+            if(Model != null)
             {
-                ret.Add("modelId", "<modelId>" + ModelId + "</modelId>");
+                ret.Add("model", "<model>" + EscapeXml(Model) + "</model>");
             }
             if(Name != null)
             {

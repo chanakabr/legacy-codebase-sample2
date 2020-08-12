@@ -680,7 +680,7 @@ namespace Core.Users
                             DeviceFamilyId = device.m_deviceFamilyID,
                             ExternalId = device.ExternalId,
                             MacAddress = device.MacAddress,
-                            ModelId = device.ModelId,
+                            Model = device.Model,
                             ManufacturerId = device.ManufacturerId
                         };
 
@@ -724,7 +724,7 @@ namespace Core.Users
             {
                 // Get row id from devices table (not udid)
                 device.m_domainID = nDomainID;
-                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.ModelId, device.ManufacturerId);
+                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId);
                 DomainDevice domainDevice = new DomainDevice()
                 {
                     Id = nDbDomainDeviceID,
@@ -739,7 +739,7 @@ namespace Core.Users
                     DeviceFamilyId = device.m_deviceFamilyID,
                     ExternalId = device.ExternalId,
                     MacAddress = device.MacAddress,
-                    ModelId = device.ModelId,
+                    Model = device.Model,
                     ManufacturerId = device.ManufacturerId
                 };
 
@@ -778,7 +778,7 @@ namespace Core.Users
                         GroupId = m_nGroupID,
                         DeviceFamilyId = device.m_deviceFamilyID,
                         MacAddress = device.MacAddress,
-                        ModelId = device.ModelId,
+                        Model = device.Model,
                         ManufacturerId = device.ManufacturerId
                     };
 
@@ -1929,7 +1929,7 @@ namespace Core.Users
                 int nDeviceID = 0;
                 string externalId = string.Empty;
                 string macAddress = string.Empty;
-                long? modelId = null;
+                string model = string.Empty;
                 long? manufacturerId = null;
 
                 Dictionary<string, int> domainDevices = new Dictionary<string, int>();
@@ -1948,7 +1948,7 @@ namespace Core.Users
                     nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["device_id"]);
                     externalId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "external_id");
                     macAddress = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "mac_address");
-                    modelId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "model_id");
+                    model = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "model");
                     manufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "manufacturer_id");
 
                     Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, sDeviceName, m_nDomainID, nDeviceID, nDeviceFamilyID, string.Empty, sPin,
@@ -1958,8 +1958,8 @@ namespace Core.Users
                         device.ExternalId = externalId;
                     if (!string.IsNullOrEmpty(macAddress))
                         device.MacAddress = macAddress;
-                    if (modelId.HasValue)
-                        device.ModelId = modelId.Value;
+                    if (!string.IsNullOrEmpty(model))
+                        device.Model = model;
                     if (manufacturerId.HasValue)
                         device.ManufacturerId = manufacturerId.Value;
 
@@ -2257,7 +2257,7 @@ namespace Core.Users
 
             // Get row id from devices table (not udid)
             device.m_domainID = this.m_nDomainID;
-            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId, device.ModelId, device.ManufacturerId);
+            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId);
             bRemoveDomain = true;
 
             string sActivationToken = Guid.NewGuid().ToString();

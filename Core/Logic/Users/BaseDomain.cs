@@ -370,8 +370,8 @@ namespace Core.Users
                     device.ExternalId = dDevice.ExternalId;
                 if (!string.IsNullOrEmpty(dDevice.MacAddress))
                     device.MacAddress = dDevice.MacAddress;
-                if (dDevice.ModelId.HasValue)
-                    device.ModelId = dDevice.ModelId.Value;
+                if (!string.IsNullOrEmpty(dDevice.Model))
+                    device.Model = dDevice.Model;
                 if (dDevice.ManufacturerId.HasValue)
                     device.ManufacturerId = dDevice.ManufacturerId.Value;
 
@@ -1958,8 +1958,8 @@ namespace Core.Users
                 device.ExternalId = dDevice.ExternalId;
             if (!string.IsNullOrEmpty(dDevice.MacAddress))
                 device.MacAddress = dDevice.MacAddress;
-            if (dDevice.ModelId.HasValue)
-                device.ModelId = dDevice.ModelId.Value;
+            if (!string.IsNullOrEmpty(dDevice.Model))
+                device.Model = dDevice.Model;
             if (dDevice.ManufacturerId.HasValue)
                 device.ManufacturerId = dDevice.ManufacturerId.Value;
 

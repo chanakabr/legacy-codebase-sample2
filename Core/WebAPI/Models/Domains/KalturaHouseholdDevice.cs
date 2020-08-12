@@ -125,11 +125,11 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// model
         /// </summary>
-        [DataMember(Name = "modelId")]
-        [JsonProperty("modelId")]
-        [XmlElement(ElementName = "modelId", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
-        public long? ModelId { get; set; }
+        [DataMember(Name = "model")]
+        [JsonProperty("model")]
+        [XmlElement(ElementName = "model", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MaxLength = 255)]
+        public string Model { get; set; }
 
         /// <summary>
         /// manufacturer

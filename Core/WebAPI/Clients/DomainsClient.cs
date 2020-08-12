@@ -16,6 +16,7 @@ using WebAPI.Utils;
 using ApiObjects.Response;
 using WebAPI.Models.General;
 using ApiLogic.Users.Managers;
+using System.Text.RegularExpressions;
 
 namespace WebAPI.Clients
 {
@@ -449,19 +450,17 @@ namespace WebAPI.Clients
 
         internal void ValidateDeviceReferences(int groupId, KalturaHouseholdDevice device)
         {
-            var referenceData = DeviceReferenceDataManager.Instance.GetReferenceData(groupId);
             if (device == null)
             {
                 return;
             }
-            if (device.ModelId.HasValue)
+
+            if (!string.IsNullOrEmpty(device.Model) && !Regex.IsMatch(device.Model, @"^[a-zA-Z0-9\_ ]+$", RegexOptions.IgnoreCase))
             {
-                var models = referenceData?.Where(model => model.GetType() == (long)DeviceInformationType.Model);
-                if (models != null && !models.Select(model => model.Id).Contains(device.ModelId.Value))
-                {
-                    throw new ClientException((int)StatusCode.Error, "Model Id doesn't exists");
-                }
+                throw new ClientException((int)StatusCode.Error, $"Model: {device.Name} didn't passed validation");
             }
+
+            var referenceData = DeviceReferenceDataManager.Instance.GetReferenceData(groupId);
             if (device.ManufacturerId.HasValue)
             {
                 var manufacturers = referenceData?.Where(manufacturer => manufacturer.GetType() == (long)DeviceInformationType.Manufacturer);
@@ -616,17 +615,15 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, string name, string udid, string macAddress, string externalId, long? modelId = null, long? manufacturerId = null, bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        public KalturaHouseholdDevice SetDeviceInfo(int groupId, string device_name, string udid)
         {
-            var dDevice = new DomainDevice
-            {
-                Name = name,
-                Udid = udid,
-                MacAddress = macAddress,
-                ExternalId = externalId,
-                ModelId = modelId,
-                ManufacturerId = manufacturerId
-            };
+            var dDevice = new DomainDevice { Name = device_name, Udid = udid };
+            return SetDeviceInfo(groupId, dDevice);
+        }
+
+        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, KalturaHouseholdDevice device, bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        {
+            var dDevice = CastToDomainDevice(device);
             return SetDeviceInfo(groupId, dDevice, allowNullExternalId, allowNullMacAddress);
         }
 
@@ -1079,7 +1076,7 @@ namespace WebAPI.Clients
                 DeviceBrandId = device.getBrandId(),
                 ExternalId = device.ExternalId,
                 MacAddress = device.MacAddress,
-                ModelId = device.ModelId,
+                Model = device.Model,
                 ManufacturerId = device.ManufacturerId
             };
         }

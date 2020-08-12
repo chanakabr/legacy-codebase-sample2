@@ -813,7 +813,12 @@ namespace DAL
 
             var id = sp.ExecuteReturnValue<int>();
 
-            if (id > 0)
+            if (id == -1)
+            {
+                response.SetStatus(ApiObjects.Response.eResponseStatus.AlreadyExist, 
+                    $"Device Reference of type: {(DeviceInformationType)coreObject.GetType()} already exist with name: {coreObject.Name}");
+            }
+            else if (id > 0)
             {
                 response.Object = GetDeviceReferenceData(groupId)?.Where(m => m.Id == id).FirstOrDefault();
                 response.SetStatus(ApiObjects.Response.eResponseStatus.OK);

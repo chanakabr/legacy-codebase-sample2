@@ -662,12 +662,6 @@ namespace WebAPI.Reflection
                 case "KalturaDeviceManufacturersReferenceDataFilter":
                     return new KalturaDeviceManufacturersReferenceDataFilter(parameters);
                     
-                case "KalturaDeviceModelInformation":
-                    return new KalturaDeviceModelInformation(parameters);
-                    
-                case "KalturaDeviceModelsReferenceDataFilter":
-                    return new KalturaDeviceModelsReferenceDataFilter(parameters);
-                    
                 case "KalturaDevicePin":
                     return new KalturaDevicePin(parameters);
                     
@@ -24512,18 +24506,6 @@ namespace WebAPI.Models.Users
         {
         }
     }
-    public partial class KalturaDeviceModelInformation
-    {
-        public KalturaDeviceModelInformation(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
-    public partial class KalturaDeviceModelsReferenceDataFilter
-    {
-        public KalturaDeviceModelsReferenceDataFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
     public partial class KalturaDeviceReferenceData
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceReferenceData")
@@ -28676,14 +28658,14 @@ namespace WebAPI.Models.Domains
             MaxLength = 255,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ModelIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
+        private static RuntimeSchemePropertyAttribute ModelSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
-            MaxLength = -1,
+            MaxLength = 255,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ManufacturerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
@@ -28815,17 +28797,17 @@ namespace WebAPI.Models.Domains
                     }
                     MacAddress = (String) Convert.ChangeType(parameters["macAddress"], typeof(String));
                 }
-                if (parameters.ContainsKey("modelId__null") && parameters["modelId__null"] != null)
+                if (parameters.ContainsKey("model__null") && parameters["model__null"] != null)
                 {
-                    AddNullableProperty("modelId");
+                    AddNullableProperty("model");
                 }
-                if (parameters.ContainsKey("modelId") && parameters["modelId"] != null)
+                if (parameters.ContainsKey("model") && parameters["model"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        ModelIdSchemaProperty.Validate("modelId", parameters["modelId"]);
+                        ModelSchemaProperty.Validate("model", parameters["model"]);
                     }
-                    ModelId = (Int64) Convert.ChangeType(parameters["modelId"], typeof(Int64));
+                    Model = (String) Convert.ChangeType(parameters["model"], typeof(String));
                 }
                 if (parameters.ContainsKey("manufacturerId__null") && parameters["manufacturerId__null"] != null)
                 {

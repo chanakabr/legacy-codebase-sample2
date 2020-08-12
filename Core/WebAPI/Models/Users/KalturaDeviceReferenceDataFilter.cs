@@ -44,15 +44,6 @@ namespace WebAPI.Models.Users
         }
     }
 
-    public partial class KalturaDeviceModelsReferenceDataFilter : KalturaDeviceReferenceDataFilter
-    {
-        public override GenericListResponse<DeviceReferenceData> List(ContextData contextData, CorePager pager)
-        {
-            var coreFilter = AutoMapper.Mapper.Map<DeviceModelReferenceDataFilter>(this);
-            return DeviceReferenceDataManager.Instance.List(contextData, coreFilter, pager);
-        }
-    }
-
     public partial class KalturaDeviceManufacturersReferenceDataFilter : KalturaDeviceReferenceDataFilter
     {
         public override GenericListResponse<DeviceReferenceData> List(ContextData contextData, CorePager pager)
