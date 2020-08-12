@@ -69,7 +69,7 @@ namespace Core.Notification
 
         public static InboxMessageResponse GetInboxMessages(int groupId, int userId, int pageSize, int pageIndex, List<eMessageCategory> messageCategorys, long CreatedAtGreaterThanOrEqual, long CreatedAtLessThanOrEqual)
         {
-            InboxMessageResponse response = new InboxMessageResponse() { Status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() } };
+            var response = new InboxMessageResponse() { Status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() } };
 
             // validate partner inbox configuration is enabled
             if (!NotificationSettings.IsPartnerInboxEnabled(groupId))
@@ -123,12 +123,15 @@ namespace Core.Notification
                 }
 
                 // TODO SHIR OR MATAN
-                // key "inbox_message_group_id_{groupId}_campaign_id_{campaign_id}_user_id_{user_id}";
-                // get campaign messages (batch or trigger)
-                // add new messages by new campaigns
+                var campaignMessages = NotificationDal.GetCampaignInboxMessages(groupId, userId);
+                if (campaignMessages == null)
+                {
+                    log.DebugFormat("No campaign inbox message. {0}", logData);
+                    campaignMessages = new List<InboxMessage>();
+                }
 
                 // merge System InboxMessages To UserInbox
-                MergeSystemInboxMessagesToUserInbox(groupId, userId, logData, systemMessages, ref userMessages);
+                MergeSystemInboxMessagesToUserInbox(groupId, userId, logData, systemMessages, campaignMessages, ref userMessages);
 
                 // in case messageCategorys  is null, no filter. get all.
                 if (messageCategorys == null)
@@ -158,12 +161,14 @@ namespace Core.Notification
             return response;
         }
 
-        private static void MergeSystemInboxMessagesToUserInbox(int groupId, int userId, string logData, List<string> systemMessages, ref List<InboxMessage> userMessages)
+        private static void MergeSystemInboxMessagesToUserInbox(int groupId, int userId, string logData, List<string> systemMessages,
+        List<InboxMessage> campaignMessages, ref List<InboxMessage> userMessages)
         {
             try
             {
                 //compare messageId [userMessages] not in [systemMessages]            
                 var newSystemMessage = systemMessages.Select(m => m).Except(userMessages.Select(x => x.Id)).ToList();
+                var newCampaignMessage = userMessages.Where(p => campaignMessages.All(p2 => p2.Id != p.Id));
 
                 //get newInboxSystemMessage for update and saving to user inbox
                 List<InboxMessage> newInboxSystemMessage = NotificationDal.GetSystemInboxMessages(groupId, newSystemMessage);
@@ -185,6 +190,10 @@ namespace Core.Notification
                             log.ErrorFormat("Error while saving system Message to user. {0}, messageId: {1}", logData, systemInboxMessage.Id);
                         }
                     }
+                }
+                if (newCampaignMessage != null)
+                {
+                    userMessages.AddRange(newCampaignMessage);
                 }
             }
             catch (Exception ex)

@@ -107,6 +107,10 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "messages")]
         public SerializableDictionary<string, KalturaStringValue> Messages { get; set; }
 
+        public KalturaCampaign()
+        {
+
+        }
         internal override ICrudHandler<Campaign, long> Handler
         {
             get

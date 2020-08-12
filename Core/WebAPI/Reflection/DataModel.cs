@@ -1180,6 +1180,40 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCampaign":
+                    switch(property.Name)
+                    {
+                        case "CampaignConditions":
+                            return "campaignConditions";
+                        case "CreateDate":
+                            return "createDate";
+                        case "Description":
+                            return "description";
+                        case "DiscountModuleId":
+                            return "discountModuleId";
+                        case "Id":
+                            return "id";
+                        case "IsActive":
+                            return "isActive";
+                        case "Messages":
+                            return "messages";
+                        case "Name":
+                            return "name";
+                        case "SystemName":
+                            return "systemName";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaCampaignFilter":
+                    switch(property.Name)
+                    {
+                        case "DiscountModuleIdApplied":
+                            return "discountModuleIdApplied";
+                    }
+                    break;
+                    
                 case "KalturaCaptionPlaybackPluginData":
                     switch(property.Name)
                     {
@@ -6758,6 +6792,22 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaTriggerCampain":
+                    switch(property.Name)
+                    {
+                        case "TriggerConditions":
+                            return "triggerConditions";
+                    }
+                    break;
+                    
+                case "KalturaTriggerCondition`1":
+                    switch(property.Name)
+                    {
+                        case "ValueIn":
+                            return "valueIn";
+                    }
+                    break;
+                    
                 case "KalturaTvmDeviceRule":
                     switch(property.Name)
                     {
@@ -7627,6 +7677,29 @@ namespace WebAPI.Reflection
                         case "update":
                             RolesManager.ValidateActionPermitted("businessModuleRule", "update", false);
                             return BusinessModuleRuleController.Update((long) methodParams[0], (KalturaBusinessModuleRule) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "campaign":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("campaign", "add");
+                            return CampaignController.Add((KalturaCampaign) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("campaign", "update");
+                            return CampaignController.Update((long) methodParams[0], (KalturaCampaign) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("campaign", "delete");
+                            CampaignController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("campaign", "list");
+                            return CampaignController.List((KalturaCampaignFilter) methodParams[0]);
                             
                     }
                     break;
@@ -12741,6 +12814,47 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaBusinessModuleRule),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "campaign":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCampaign),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCampaign),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCampaignFilter),
                             });
                             return ret;
                             

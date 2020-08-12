@@ -14651,6 +14651,26 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaBatchCampaign
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
     public partial class KalturaBusinessModuleCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -14810,6 +14830,134 @@ namespace WebAPI.Models.API
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaCampaign
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(CampaignConditions != null)
+            {
+                propertyValue = "[" + String.Join(", ", CampaignConditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("campaignConditions", "\"campaignConditions\": " + propertyValue);
+            }
+            ret.Add("createDate", "\"createDate\": " + CreateDate);
+            if(Description != null)
+            {
+                ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
+            }
+            if(DiscountModuleId.HasValue)
+            {
+                ret.Add("discountModuleId", "\"discountModuleId\": " + DiscountModuleId);
+            }
+            ret.Add("id", "\"id\": " + Id);
+            ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
+            if(Messages != null)
+            {
+                propertyValue = "{" + String.Join(", ", Messages.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("messages", "\"messages\": " + propertyValue);
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(SystemName != null)
+            {
+                ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(SystemName) + "\"");
+            }
+            ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(CampaignConditions != null)
+            {
+                propertyValue = CampaignConditions.Count > 0 ? "<item>" + String.Join("</item><item>", CampaignConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("campaignConditions", "<campaignConditions>" + propertyValue + "</campaignConditions>");
+            }
+            ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            if(Description != null)
+            {
+                ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
+            }
+            if(DiscountModuleId.HasValue)
+            {
+                ret.Add("discountModuleId", "<discountModuleId>" + DiscountModuleId + "</discountModuleId>");
+            }
+            ret.Add("id", "<id>" + Id + "</id>");
+            ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
+            if(Messages != null)
+            {
+                propertyValue = Messages.Count > 0 ? "<item>" + String.Join("</item><item>", Messages.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("messages", "<messages>" + propertyValue + "</messages>");
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(SystemName != null)
+            {
+                ret.Add("systemName", "<systemName>" + EscapeXml(SystemName) + "</systemName>");
+            }
+            ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            return ret;
+        }
+    }
+    public partial class KalturaCampaignFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(DiscountModuleIdApplied.HasValue)
+            {
+                ret.Add("discountModuleIdApplied", "\"discountModuleIdApplied\": " + DiscountModuleIdApplied);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(DiscountModuleIdApplied.HasValue)
+            {
+                ret.Add("discountModuleIdApplied", "<discountModuleIdApplied>" + DiscountModuleIdApplied + "</discountModuleIdApplied>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCampaignListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
             return ret;
         }
     }
@@ -19391,7 +19539,7 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaTriggerCondition<T, U>
+    public partial class KalturaTriggerCampain
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -19399,6 +19547,11 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(TriggerConditions != null)
+            {
+                propertyValue = "[" + String.Join(", ", TriggerConditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("triggerConditions", "\"triggerConditions\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -19408,6 +19561,39 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(TriggerConditions != null)
+            {
+                propertyValue = TriggerConditions.Count > 0 ? "<item>" + String.Join("</item><item>", TriggerConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("triggerConditions", "<triggerConditions>" + propertyValue + "</triggerConditions>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaTriggerCondition<T>
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ValueIn != null)
+            {
+                ret.Add("valueIn", "\"valueIn\": " + "\"" + EscapeJson(ValueIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ValueIn != null)
+            {
+                ret.Add("valueIn", "<valueIn>" + EscapeXml(ValueIn) + "</valueIn>");
+            }
             return ret;
         }
     }

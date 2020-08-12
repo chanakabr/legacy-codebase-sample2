@@ -87,6 +87,11 @@ namespace DAL
             return string.Format("system_inbox:{0}:{1}", groupId, messageId);
         }
 
+        public static string GetCampaignMessageKey(int groupId, int userId, string campaignId)
+        {
+            return $"inbox_message_group_id_{groupId}_campaign_id_{campaignId}_user_id_{userId}";
+        }
+
         private static string GetNotificationCleanupKey()
         {
             return "notification_cleanup";
@@ -2067,6 +2072,33 @@ namespace DAL
             }
 
             return null;
+        }
+
+        public static List<InboxMessage> GetCampaignInboxMessages(int groupId, int userId)
+        {
+            var response = new List<InboxMessage>();
+            try
+            {
+                //TODO - MATAN OR SHIR: Get list of campaigns - TBD
+                var userCampaigns = new List<string>();
+
+                if (userCampaigns == null || userCampaigns.Count == 0)
+                {
+                    return null;
+                }
+
+                foreach (var campaign in userCampaigns)
+                {
+                    var requestKey = GetCampaignMessageKey(groupId, userId, campaign);
+                    response.Add(cbManager.Get<InboxMessage>(requestKey, true));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while trying to get user campaign messages. user: {userId}, ex: {ex}");
+            }
+
+            return response;
         }
 
         public static bool UpdateAnnouncement(int groupId, int announcementId, bool? automaticSending, DateTime? lastMessageSentDate = null, string queueName = null)

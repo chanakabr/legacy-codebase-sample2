@@ -506,13 +506,22 @@ namespace WebAPI.Models.API
         }
     }
 
-    public abstract class KalturaTriggerCondition<T> : KalturaCondition where T : IConvertible
+    /// <summary>
+    /// Kaltura Trigger Condition
+    /// </summary>
+    public abstract partial class KalturaTriggerCondition<T> : KalturaCondition where T : IConvertible
     {
+        /// <summary>
+        /// Value In
+        /// </summary>
         [DataMember(Name = "valueIn")]
         [JsonProperty("valueIn")]
         [XmlElement(ElementName = "valueIn")]
         public string ValueIn { get; set; }
 
+        /// <summary>
+        /// Init
+        /// </summary>
         protected override void Init()
         {
             base.Init();
