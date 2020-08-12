@@ -10,6 +10,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using Newtonsoft.Json;
 using ApiObjects.Rules;
+using domain = Core.Domains.Module;
+using notification = Core.Notification.Module;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace ApiLogic.Users.Managers
 {
@@ -26,7 +30,7 @@ namespace ApiLogic.Users.Managers
             throw new NotImplementedException();
         }
 
-        public GenericResponse<PasswordPolicy> Get(ContextData contextData, long id)
+        public GenericResponse<Campaign> Get(ContextData contextData, long id)
         {
             throw new NotImplementedException();
         }
@@ -50,7 +54,7 @@ namespace ApiLogic.Users.Managers
                 response.Object = objectToUpdate;
 
                 CampaignEventStatus updatedStatus;
-                
+
                 //if (!CatalogDAL.SaveBulkUploadStatusAndErrorsCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 //{
                 //    log.ErrorFormat("UpdateBulkUploadStatusWithVersionCheck > Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
@@ -73,18 +77,28 @@ namespace ApiLogic.Users.Managers
         }
 
         // TODO MATAN
-        public bool ValidateTriggerCampainToUser(int userId, TriggerCampaign triggerCampaign, CoreObject coreObject)
+        /// <summary>
+        /// Validate if user matches to CampaignConditions
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="triggerCampaign"></param>
+        /// <param name="coreObject"></param>
+        /// <returns></returns>
+        public bool ValidateCampaignConditionsToUser(int userId, TriggerCampaign triggerCampaign, CoreObject coreObject)
         {
-            //for (int i = 0; i < Domain.users; i++)
-            //{
-                // get user inbox messages for this specific campaign
-                // if message exist not need to do anything
-                // else 
-                // check that this user is good with CampaignConditions
-                // check that this coreobject is good with TriggerConditions - expensive, not need to do more than one time
-                // send message to user's inbox by push
-            //}
+            return false;
+        }
 
+        // TODO MATAN
+        /// <summary>
+        /// Validate coreobject matches to TriggerConditions
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="triggerCampaign"></param>
+        /// <param name="coreObject"></param>
+        /// <returns></returns>
+        public bool ValidateTriggerCampaign(TriggerCampaign triggerCampaign, CoreObject coreObject)
+        {
             return false;
         }
     }

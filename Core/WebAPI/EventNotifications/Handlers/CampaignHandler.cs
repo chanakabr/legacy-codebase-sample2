@@ -26,7 +26,7 @@ namespace WebAPI.EventNotifications
                 RequestId = KLogger.GetRequestId(),
                 GroupId = kalturaEvent.PartnerId,
                 CampaignId = this.CampaignId,
-                TheObject = objectEvent.Object,
+                EventObject = objectEvent.Object,
                 DomainId = (int)Utils.HouseholdUtils.GetHouseholdIDByKS(kalturaEvent.PartnerId)
             };
 

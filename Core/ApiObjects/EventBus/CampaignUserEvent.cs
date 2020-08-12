@@ -6,6 +6,6 @@ namespace ApiObjects.EventBus
     {
         public long CampaignId { get; set; }
         public int DomainId { get; set; }
-        public CoreObject TheObject { get; set; }
+        public CoreObject EventObject { get; set; }
     }
 }
