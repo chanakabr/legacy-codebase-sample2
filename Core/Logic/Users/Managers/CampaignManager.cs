@@ -8,6 +8,8 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Newtonsoft.Json;
+using ApiObjects.Rules;
 
 namespace ApiLogic.Users.Managers
 {
@@ -69,9 +71,25 @@ namespace ApiLogic.Users.Managers
 
             return response;
         }
+
+        // TODO MATAN
+        public bool ValidateTriggerCampainToUser(int userId, TriggerCampaign triggerCampaign, CoreObject coreObject)
+        {
+            //for (int i = 0; i < Domain.users; i++)
+            //{
+                // get user inbox messages for this specific campaign
+                // if message exist not need to do anything
+                // else 
+                // check that this user is good with CampaignConditions
+                // check that this coreobject is good with TriggerConditions - expensive, not need to do more than one time
+                // send message to user's inbox by push
+            //}
+
+            return false;
+        }
     }
 
-    public class Campaign : ICrudHandeledObject
+    public abstract class Campaign : ICrudHandeledObject
     {
         public long Id { get; set; }
         public CampaignEventStatus Status { get; set; }
@@ -79,6 +97,21 @@ namespace ApiLogic.Users.Managers
         public Campaign()
         {
         }
+
+        [JsonProperty(PropertyName = "Conditions",
+                      TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto,
+                      ItemTypeNameHandling = TypeNameHandling.Auto,
+                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
+        public List<RuleCondition> CampaignConditions { get; set; }
+    }
+
+    public class TriggerCampaign : Campaign
+    {
+        [JsonProperty(PropertyName = "Conditions",
+                      TypeNameHandling = TypeNameHandling.Auto,
+                      ItemTypeNameHandling = TypeNameHandling.Auto,
+                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
+        public List<RuleCondition> TriggerConditions { get; set; }
     }
 
     public enum CampaignEventStatus

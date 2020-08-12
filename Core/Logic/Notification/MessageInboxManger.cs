@@ -122,6 +122,11 @@ namespace Core.Notification
                     userMessages = new List<InboxMessage>();
                 }
 
+                // TODO SHIR OR MATAN
+                // key "inbox_message_group_id_{groupId}_campaign_id_{campaign_id}_user_id_{user_id}";
+                // get campaign messages (batch or trigger)
+                // add new messages by new campaigns
+
                 // merge System InboxMessages To UserInbox
                 MergeSystemInboxMessagesToUserInbox(groupId, userId, logData, systemMessages, ref userMessages);
 
