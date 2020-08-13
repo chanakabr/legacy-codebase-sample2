@@ -6,6 +6,7 @@ namespace WebAPI.Models.Notification
         SystemAnnouncement = 0,
         Followed = 1,
         Engagement = 2,
-        Interest = 3
+        Interest = 3,
+        Campaign = 4
     }
 }

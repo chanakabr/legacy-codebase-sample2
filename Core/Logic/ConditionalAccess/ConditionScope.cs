@@ -1,5 +1,7 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Users.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
@@ -14,16 +16,17 @@ using System.Threading.Tasks;
 
 namespace APILogic.ConditionalAccess
 {
-    public class ConditionScope : IConditionScope, 
-                                  IBusinessModuleConditionScope, 
-                                  ISegmentsConditionScope, 
-                                  IDateConditionScope, 
-                                  IHeaderConditionScope, 
-                                  IIpRangeConditionScope, 
-                                  IAssetConditionScope, 
+    public class ConditionScope : IConditionScope,
+                                  IBusinessModuleConditionScope,
+                                  ISegmentsConditionScope,
+                                  IDateConditionScope,
+                                  IHeaderConditionScope,
+                                  IIpRangeConditionScope,
+                                  IAssetConditionScope,
                                   IUserRoleConditionScope,
                                   IUserSubscriptionConditionScope,
-                                  IAssetSubscriptionConditionScope
+                                  IAssetSubscriptionConditionScope,
+                                  ITriggerCampaignConditionScope
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -39,6 +42,12 @@ namespace APILogic.ConditionalAccess
         public int GroupId { get; set; }
         public string UserId { get; set; }
         public List<int> UserSubscriptions { get; set; }
+        public long CampaignId { get; set; }
+        public int? BrandId { get; set; }
+        public int? Family { get; set; }
+        public int? ManufacturerId { get; set; }
+        public string Model { get; set; }
+        public string Udid { get; set; }
 
         public override string ToString()
         {
@@ -92,7 +101,7 @@ namespace APILogic.ConditionalAccess
             {
                 sb.AppendFormat("UserId: {0}; ", UserId);
             }
-            
+
             if (UserSubscriptions != null)
             {
                 sb.AppendFormat("UserSubscriptions: {0}; ", string.Join(", ", UserSubscriptions));
@@ -100,7 +109,7 @@ namespace APILogic.ConditionalAccess
 
             return sb.ToString();
         }
-        
+
         public List<BusinessModuleRule> GetBusinessModuleRulesByMediaId(int groupId, long mediaId)
         {
             List<BusinessModuleRule> allBusinessModuleRules = BusinessModuleRuleManager.GetAllBusinessModuleRules(groupId);
@@ -132,7 +141,7 @@ namespace APILogic.ConditionalAccess
 
             return businessRulesByMedia;
         }
-        
+
         private static Tuple<List<BusinessModuleRule>, bool> GetBusinessModuleRulesByMedia(Dictionary<string, object> funcParams)
         {
             List<BusinessModuleRule> BusinessModuleRulesByAsset = new List<BusinessModuleRule>();
@@ -198,7 +207,7 @@ namespace APILogic.ConditionalAccess
 
             return null;
         }
-        
+
         public bool IsMediaIncludedInSubscription(int groupId, long mediaId, HashSet<long> subscriptionIds)
         {
             var subscriptionsChannels = Core.Pricing.Module.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty, null);
@@ -220,6 +229,20 @@ namespace APILogic.ConditionalAccess
 
             List<int> validChannelIds = Core.ConditionalAccess.Utils.ValidateMediaContainedInChannels((int)mediaId, groupId, channelsIds);
             return validChannelIds != null && validChannelIds.Count > 0;
+        }
+
+        public List<long> GetCampaignBrands(int groupId, string userId, long campaignId)
+        {
+            //TODO MATAN
+            int.TryParse(userId, out int _userId);
+            var contextData = new ContextData(groupId) { UserId = _userId };
+            var campaign = CampaignManager.Instance.Get(contextData, campaignId);
+
+            if (campaign.IsOkStatusCode())
+            {
+                //return campaign.Object.CampaignConditions.Where(c=>c.Type == RuleConditionType.Campaign).Select(c=>c.)
+            }
+            return null;
         }
     }
 }

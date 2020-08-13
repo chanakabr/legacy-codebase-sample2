@@ -364,19 +364,19 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class CampaignTriggerCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    public class DeviceBrandTriggerCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
     {
-        public CampaignTriggerCondition()
+        public DeviceBrandTriggerCondition()
         {
-            //this.Type = RuleConditionType.;
+            Type = RuleConditionType.Campaign;
         }
 
         protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
         {
-            if (string.IsNullOrEmpty(scope.UserId)) { return true; }
+            if (!scope.BrandId.HasValue) { return false; }
 
-            var userRoleIds = scope.Get(scope.GroupId, scope.UserId);
-            return true;
+            var brands = scope.GetCampaignBrands(scope.GroupId, scope.UserId, scope.CampaignId);
+            return brands != null && brands.Contains(scope.BrandId.Value);
         }
     }
 }

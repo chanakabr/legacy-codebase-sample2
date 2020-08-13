@@ -27,7 +27,8 @@ namespace WebAPI.Models.API
         USER_SUBSCRIPTION,
         ASSET_SUBSCRIPTION,
         USER_ROLE,
-        TRIGGER
+        TRIGGER,
+        CAMPAIGN
     }
 
     /// <summary>
@@ -542,30 +543,42 @@ namespace WebAPI.Models.API
         }
     }
 
-    public partial class KalturaDeviceBrandCondition : KalturaTriggerCondition<long>
+    public partial class KalturaDeviceBrandCondition : KalturaTriggerCondition<long>, ICampaignCondition<KalturaOTTObject>
+    {
+        public bool CheckValues(KalturaOTTObject objectToCheck)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ICampaignCondition<KalturaOTTObject>.Validate()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public partial class KalturaDeviceFamilyCondition : KalturaTriggerCondition<long>
     {
     }
 
-    // TODO MATAN - CREATE MORE TRIGGER CONDITIONS BY DR
+    public partial class KalturaDeviceUdidCondition : KalturaTriggerCondition<long>
+    {
+    }
 
-    //    public abstract class KalturaTriggerCondition<T, U> : KalturaCondition
-    //        where T : KalturaOTTObject
-    //        where U : IConvertible
-    //    {
-    //        public abstract bool CheckValues(T objectToCheck);
-    //        public List<U> ValuesCore;
-    //        public string Values { get; set; }
-    //    }
-    //    public class KalturaDeviceBrandCondition : KalturaTriggerCondition<WebAPI.Models.Domains.KalturaHouseholdDevice, int>
-    //    {
-    //        internal override void Validate()
-    //        {
-    //            throw new NotImplementedException();
-    //        }
+    public partial class KalturaDeviceModelCondition : KalturaTriggerCondition<long>
+    {
+    }
 
-    //        public override bool CheckValues(KalturaHouseholdDevice objectToCheck)
-    //        {
-    //            return (ValuesCore.Contains(objectToCheck.BrandId.Value));
-    //        }
-    //    }
+    public partial class KalturaDeviceManufacturerCondition : KalturaTriggerCondition<long>
+    {
+    }
+
+    /// <summary>
+    /// Campaign Condition Interface
+    /// </summary>
+    /// <typeparam name="T">Type of object to check</typeparam>
+    public interface ICampaignCondition<T>
+    {
+        void Validate();
+        bool CheckValues(T objectToCheck);
+    }
 }

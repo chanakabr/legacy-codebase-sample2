@@ -664,10 +664,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
-                .ForMember(dest => dest.PushChannels, opt => opt.MapFrom(src => ConvertPushChannels(src.PushChannels)));                
+                .ForMember(dest => dest.PushChannels, opt => opt.MapFrom(src => ConvertPushChannels(src.PushChannels)));
 
             #endregion
-        }        
+        }
 
         public static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)
         {
@@ -800,6 +800,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaInboxMessageType.Interest:
                     result = eMessageCategory.Interest;
                     break;
+                case KalturaInboxMessageType.Campaign:
+                    result = eMessageCategory.Campaign;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown inbox message type");
             }
@@ -823,6 +826,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case eMessageCategory.Interest:
                     result = KalturaInboxMessageType.Interest;
+                    break;
+                case eMessageCategory.Campaign:
+                    result = KalturaInboxMessageType.Campaign;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown inbox message type");
@@ -1007,6 +1013,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaInboxMessageType.Interest:
                     messageCategory = eMessageCategory.Interest;
+                    break;
+                case KalturaInboxMessageType.Campaign:
+                    messageCategory = eMessageCategory.Campaign;
                     break;
                 default:
                     break;
@@ -1267,7 +1276,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             default:
                                 break;
                         }
-                    }                    
+                    }
                 }
             }
             return pushChannelList;

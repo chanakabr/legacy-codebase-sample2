@@ -70,9 +70,15 @@ namespace ApiObjects.Rules
 
     public interface ITriggerCampaignConditionScope : IConditionScope
     {
-        string UserId { get; set; }
         int GroupId { get; set; }
+        string UserId { get; set; }
+        long CampaignId { get; set; }
+        int? BrandId { get; set; }
+        int? Family { get; set; }
+        int? ManufacturerId { get; set; }
+        string Model { get; set; }
+        string Udid { get; set; }
 
-        List<long> Get(int groupId, string userId);
+        List<long> GetCampaignBrands(int groupId, string userId, long campaignId);
     }
 }

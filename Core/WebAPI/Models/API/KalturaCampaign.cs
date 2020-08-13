@@ -15,7 +15,6 @@ using ApiObjects;
 
 namespace WebAPI.Models.API
 {
-    // TODO MATAN - ADD MAP BETWEEN KalturaCampaign -> Campaign AND Campaign -> KalturaCampaign 
     /// <summary>
     /// Campaign
     /// </summary>
@@ -107,6 +106,14 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "messages")]
         public SerializableDictionary<string, KalturaStringValue> Messages { get; set; }
 
+        /// <summary>
+        /// status
+        /// </summary>
+        [DataMember(Name = "status")]
+        [JsonProperty("status")]
+        [XmlElement(ElementName = "status")]
+        public KalturaCampaignEventStatus Status { get; set; }
+
         public KalturaCampaign()
         {
 
@@ -166,5 +173,10 @@ namespace WebAPI.Models.API
     public partial class KalturaCampaignListResponse : KalturaListResponse<KalturaCampaign>
     {
         public KalturaCampaignListResponse() : base() { }
+    }
+
+    public enum KalturaCampaignEventStatus
+    {
+        Queued, Failed, InProgress
     }
 }

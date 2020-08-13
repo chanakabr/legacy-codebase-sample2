@@ -57,7 +57,7 @@ namespace CampaignHandler
                         return;
                     }
                     // get user inbox messages for a specific campaign
-                    var inbox = MessageInboxManger.GetInboxMessages(serviceEvent.GroupId, userId, 100, 0, filter, 0, 0);
+                    var inbox = MessageInboxManger.GetInboxMessages(serviceEvent.GroupId, userId, 100, 0, filter, triggerCampaign.CreateDate, 0);//Filter options
 
                     if (CampaignManager.Instance.ValidateCampaignConditionsToUser(contextData, triggerCampaign))
                     {
@@ -75,6 +75,8 @@ namespace CampaignHandler
                             var missingMessages = campaignMessageIds.Where(msg => inboxIds.All(p2 => p2 != msg)).ToList();
                             foreach (var message in missingMessages)
                             {
+                                //TODO - MATAN, ask Shir regarding override same document because key is not unique for each message, 
+                                //need to update inbox document with more messages
                                 SendMessage(serviceEvent, messages, userId, message);
                             }
                         }
@@ -92,19 +94,24 @@ namespace CampaignHandler
 
         private void SendMessage(CampaignUserEvent serviceEvent, List<KeyValuePair<string, string>> messages, int userId, string message)
         {
+            var current = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
+            
             var pushMessage = new PushMessage()
             {
                 Message = messages.Where(msg => msg.Key == message).First().Value
             };
-
+            //Actual send is needed?
             Task.Run(() => EngagementManager.SendPushToUser(serviceEvent.GroupId, userId, pushMessage));
 
+            //Add to user Inbox
             var inboxMessage = new InboxMessage
             {
                 Id = DAL.NotificationDal.GetCampaignMessageKey(serviceEvent.GroupId, userId, serviceEvent.CampaignId.ToString()),
                 Message = message,
                 UserId = userId,
-                CreatedAtSec = TVinciShared.DateUtils.GetUtcUnixTimestampNow(),
+                CreatedAtSec = current,
+                UpdatedAtSec = current,
+                State = ApiObjects.eMessageState.Unread,
                 Category = ApiObjects.eMessageCategory.Campaign
             };
 

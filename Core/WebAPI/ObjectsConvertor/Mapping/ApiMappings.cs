@@ -325,7 +325,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Permissions, opt => opt.ResolveUsing(src => ConvertPermissionsNames(src.PermissionNames, src.ExcludedPermissionNames)))
             .ForMember(dest => dest.Profile, opt => opt.ResolveUsing(src => ConvertRoleProfileType(src.Profile)));
-            
+
             cfg.CreateMap<KalturaPermissionItemFilter, PermissionItemFilter>();
 
             cfg.CreateMap<KalturaPermissionItemByIdInFilter, PermissionItemByIdInFilter>()
@@ -345,7 +345,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .IncludeBase<KalturaPermissionItemFilter, PermissionItemFilter>()
                .ForMember(dest => dest.Object, opt => opt.MapFrom(src => src.ObjectEqual))
                .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.ParameterEqual));
-            
+
             #endregion
 
             //Api.RegistrySettings to KalturaRegistrySettings
@@ -602,11 +602,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
-            
+
             cfg.CreateMap<WebAPI.Models.Catalog.KalturaSlimAsset, SlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
-            
+
             cfg.CreateMap<KalturaRuleConditionType, RuleConditionType>()
                .ConvertUsing(kalturaRuleConditionType =>
                {
@@ -636,12 +636,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                            return RuleConditionType.AssetSubscription;
                        case KalturaRuleConditionType.USER_ROLE:
                            return RuleConditionType.UserRole;
+                       case KalturaRuleConditionType.CAMPAIGN:
+                           return RuleConditionType.Campaign;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", kalturaRuleConditionType.ToString()));
-                           break;
                    }
                });
-            
+
             cfg.CreateMap<RuleConditionType, KalturaRuleConditionType>()
                 .ConvertUsing(ruleConditionType =>
                 {
@@ -671,6 +672,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return KalturaRuleConditionType.ASSET_SUBSCRIPTION;
                         case RuleConditionType.UserRole:
                             return KalturaRuleConditionType.USER_ROLE;
+                        case RuleConditionType.Campaign:
+                            return KalturaRuleConditionType.CAMPAIGN;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", ruleConditionType.ToString()));
                             break;
@@ -690,7 +693,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<RuleBaseCondition<IConditionScope>, KalturaCondition>()
                  .IncludeBase<RuleCondition, KalturaCondition>();
-                
+
             cfg.CreateMap<KalturaCondition, RuleBaseCondition<IBusinessModuleConditionScope>>()
                 .IncludeBase<KalturaCondition, RuleCondition>();
 
@@ -702,7 +705,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<RuleBaseCondition<ISegmentsConditionScope>, KalturaCondition>()
                 .IncludeBase<RuleCondition, KalturaCondition>();
-                
+
             cfg.CreateMap<KalturaCondition, RuleBaseCondition<IDateConditionScope>>()
                 .IncludeBase<KalturaCondition, RuleCondition>();
 
@@ -723,10 +726,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaCondition, RuleBaseCondition<IAssetConditionScope>>()
                 .IncludeBase<KalturaCondition, RuleCondition>();
-            
+
             cfg.CreateMap<RuleBaseCondition<IAssetConditionScope>, KalturaCondition>()
                 .IncludeBase<RuleCondition, KalturaCondition>();
-            
+
             cfg.CreateMap<KalturaCondition, AssetRuleCondition<IConditionScope>>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition<IConditionScope>>();
 
@@ -750,7 +753,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<AssetRuleCondition<IAssetConditionScope>, KalturaCondition>()
                .IncludeBase<RuleBaseCondition<IAssetConditionScope>, KalturaCondition>();
-           
+
             cfg.CreateMap<KalturaOrCondition, OrCondition>()
                 .IncludeBase<KalturaCondition, AssetRuleCondition<IConditionScope>>()
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
@@ -946,7 +949,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<UserRoleCondition, KalturaUserRoleCondition>()
                 .IncludeBase<RuleBaseCondition<IUserRoleConditionScope>, KalturaCondition>()
                 .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.RoleIds)));
-            
+
             cfg.CreateMap<KalturaRuleActionType, RuleActionType>()
                .ConvertUsing(kalturaRuleActionType =>
                {
@@ -1021,7 +1024,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<RuleAction, KalturaRuleAction>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
-            
+
             cfg.CreateMap<KalturaApplyPlaybackAdapterAction, ApplyPlaybackAdapterRuleAction>()
                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
                .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId));
@@ -1288,6 +1291,79 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<TvmDeviceRule, KalturaTvmDeviceRule>()
                 .IncludeBase<TvmRule, KalturaTvmRule>()
                 .ForMember(dest => dest.DeviceBrandIds, opt => opt.MapFrom(src => src.DeviceBrandIds != null ? string.Join(",", src.DeviceBrandIds) : null));
+
+            //Campaign
+            cfg.CreateMap<KalturaBatchCampaign, BatchCampaign>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CampaignConditions, opt => opt.MapFrom(src => src.CampaignConditions))
+                .IncludeBase<KalturaCondition, RuleCondition>()
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.Messages, opt => opt.ResolveUsing(src => ConvertCampaignMessages(src.Messages)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertCampaignStatus(src.Status)))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+            ;
+
+            cfg.CreateMap<BatchCampaign, KalturaBatchCampaign>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CampaignConditions, opt => opt.MapFrom(src => src.CampaignConditions))
+                .IncludeBase<RuleCondition, KalturaCondition>()
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.Messages, opt => opt.ResolveUsing(src => ConvertCampaignMessages(src.Messages)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertCampaignStatus(src.Status)))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+            ;
+
+            cfg.CreateMap<KalturaCampaign, Campaign>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => ConvertCampaignMessages(src.Messages)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertCampaignStatus(src.Status)))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
+                .ForMember(dest => dest.CampaignConditions, opt => opt.MapFrom(src => src.CampaignConditions))
+                .IncludeBase<KalturaCondition, RuleCondition>()
+                ;
+
+            cfg.CreateMap<Campaign, KalturaCampaign>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => ConvertCampaignMessages(src.Messages)))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertCampaignStatus(src.Status)))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
+                .ForMember(dest => dest.CampaignConditions, opt => opt.MapFrom(src => src.CampaignConditions))
+                .IncludeBase<RuleCondition, KalturaCondition>()
+                ;
+
+            cfg.CreateMap<KalturaTriggerCampain, TriggerCampaign>()
+                .IncludeBase<KalturaCampaign, Campaign>()
+                .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
+                .IncludeBase<KalturaCondition, RuleCondition>()
+                ;
+
+            cfg.CreateMap<TriggerCampaign, KalturaTriggerCampain>()
+                .IncludeBase<Campaign, KalturaCampaign>()
+                .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
+                .IncludeBase<RuleCondition, KalturaCondition>()
+                ;
 
             #endregion
 
@@ -1705,7 +1781,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
-            cfg.CreateMap<KalturaPlaybackContextOptions, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>()                
+            cfg.CreateMap<KalturaPlaybackContextOptions, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>()
             .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.AdapterData, false)))
             .ForMember(dest => dest.AssetFileIds, opt => opt.MapFrom(src => src.AssetFileIds))
             .ForMember(dest => dest.Context, opt => opt.MapFrom(src => src.Context))
@@ -1738,7 +1814,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                    {
                        case KalturaUrlType.DIRECT:
                            return ApiObjects.UrlType.direct;
-                       case KalturaUrlType.PLAYMANIFEST:  
+                       case KalturaUrlType.PLAYMANIFEST:
                            return ApiObjects.UrlType.playmanifest;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown UrlType value : {0}", type.ToString()));
@@ -1822,6 +1898,75 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EventObject, opt => opt.MapFrom(src => src.EventObject));
 
             #endregion
+        }
+
+        private static KalturaCampaignEventStatus ConvertCampaignStatus(CampaignEventStatus status)
+        {
+            switch (status)
+            {
+                case CampaignEventStatus.Queued:
+                    return KalturaCampaignEventStatus.Queued;
+                case CampaignEventStatus.Failed:
+                    return KalturaCampaignEventStatus.Failed;
+                case CampaignEventStatus.InProgress:
+                    return KalturaCampaignEventStatus.InProgress;
+                default:
+                    throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", status.ToString()));
+            }
+        }
+
+        private static SerializableDictionary<string, KalturaStringValue> ConvertCampaignMessages(List<KeyValuePair<string, string>> messages)
+        {
+            SerializableDictionary<string, KalturaStringValue> result = null;
+
+            if (messages != null && messages.Count > 0)
+            {
+                result = new SerializableDictionary<string, KalturaStringValue>();
+                foreach (var data in messages)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        result.Add(data.Key, new KalturaStringValue() { value = data.Value });
+                    }
+                }
+            }
+            return result;
+        }
+
+        private static List<KeyValuePair<string, string>> ConvertCampaignMessages(SerializableDictionary<string, KalturaStringValue> messages)
+        {
+            List<KeyValuePair<string, string>> result = null;
+
+            if (messages != null && messages.Count > 0)
+            {
+                result = new List<KeyValuePair<string, string>>();
+
+                KeyValuePair<string, string> kvPair;
+                foreach (var data in messages)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        kvPair = new KeyValuePair<string, string>(data.Key, data.Value.value);
+                        result.Add(kvPair);
+                    }
+                }
+            }
+            return result;
+        }
+
+        private static CampaignEventStatus ConvertCampaignStatus(KalturaCampaignEventStatus status)
+        {
+            switch (status)
+            {
+                case KalturaCampaignEventStatus.Queued:
+                    return CampaignEventStatus.Queued;
+                case KalturaCampaignEventStatus.Failed:
+                    return CampaignEventStatus.Failed;
+                case KalturaCampaignEventStatus.InProgress:
+                    return CampaignEventStatus.InProgress;
+                default:
+                    throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", status.ToString()));
+            }
         }
 
         #region Private Convertors
@@ -3087,7 +3232,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         private static KalturaUserRoleProfile? ConvertRoleProfileType(RoleProfileType? profile)
         {
             KalturaUserRoleProfile? res = null;
-            
+
             switch (profile)
             {
                 case RoleProfileType.System:

@@ -1127,7 +1127,8 @@ namespace ApiObjects
         Header,
         UserSubscription,
         AssetSubscription,
-        UserRole
+        UserRole,
+        Campaign
     }
 
     public enum RuleActionTaskType
