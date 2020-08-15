@@ -142,15 +142,12 @@ namespace WebAPI.Clients
             BillingTransactions response = null;
 
             TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(filter.OrderBy);
-            var _businessModuleTypeEqual = ConditionalAccessMappings.ConvertKalturaTransactionType(filter.BusinessModuleTypeEqual);
-            var _transactionTypeEqual = ConditionalAccessMappings.ConvertKalturaTransactionType(filter.TransactionTypeEqual);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetUserBillingHistory(groupId, userid, page_number, page_size, wsOrderBy, startDate,
-                        endDate, filter.EntitlementIdEqual, filter.ExternalIdEqual, _businessModuleTypeEqual, _transactionTypeEqual);
+                    response = Core.ConditionalAccess.Module.GetUserBillingHistory(groupId, userid, page_number, page_size, wsOrderBy, startDate, endDate);
                 }
             }
             catch (Exception ex)

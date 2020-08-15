@@ -409,7 +409,7 @@ namespace Core.ConditionalAccess
 
 
         public static DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int groupID, int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex, TransactionHistoryOrderBy orderBy,
-            string entitlementId = "", string externalId = "", eTransactionType? businessModuleType = null, eTransactionType? transactionType = null)
+            long entitlementId = 0, string externalId = "", eTransactionType? businessModuleType = null, eTransactionType? transactionType = null)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
@@ -441,8 +441,7 @@ namespace Core.ConditionalAccess
 
 
         public static BillingTransactions GetUserBillingHistory(int groupID, string sSiteGUID, Int32 nStartIndex, Int32 nNumberOfItems,
-                                                                TransactionHistoryOrderBy orderBy, DateTime startDate, DateTime endDate,
-                                                                string entitlementId = "", string externalId = "", eTransactionType? businessModuleType = null, eTransactionType? transactionType = null)
+                                                                TransactionHistoryOrderBy orderBy, DateTime startDate, DateTime endDate)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
@@ -451,7 +450,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetUserBillingHistory(sSiteGUID, nStartIndex, nNumberOfItems, orderBy, startDate, endDate, entitlementId, externalId, businessModuleType, transactionType);
+                return t.GetUserBillingHistory(sSiteGUID, nStartIndex, nNumberOfItems, orderBy, startDate, endDate);
             }
             else
             {

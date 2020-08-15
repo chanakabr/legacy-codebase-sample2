@@ -7234,7 +7234,7 @@ namespace Core.ConditionalAccess
         /// Get Domain Billing History
         /// </summary>
         public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex, TransactionHistoryOrderBy orderBy,
-            string entitlementId, string externalId, eTransactionType? businessModuleType, eTransactionType? transactionType)
+            long entitlementId, string externalId, eTransactionType? businessModuleType, eTransactionType? transactionType)
         {
             DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
 
@@ -7254,8 +7254,12 @@ namespace Core.ConditionalAccess
                     return domainTransactionsHistoryResponse;
                 }
 
-                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate, (int)orderBy,
-                    entitlementId, externalId, businessModuleType, transactionType);
+                if (!string.IsNullOrEmpty(externalId))
+                {
+                    //get from Billing.dbo.payment_gateway_transactions by external_transaction_id & domain_id
+                }
+
+                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, dStartDate, dEndDate, (int)orderBy);
 
                 if (domainBillingHistory == null || domainBillingHistory.Rows == null || domainBillingHistory.Rows.Count == 0)
                 {
@@ -7263,9 +7267,16 @@ namespace Core.ConditionalAccess
                     domainTransactionsHistoryResponse.TransactionsCount = 0;
                     return domainTransactionsHistoryResponse;
                 }
+
+                bool withFilter = entitlementId > 0 || businessModuleType.HasValue;
+
                 var filteredRows = new List<DataRow>();
 
-                if (pageIndex > 0)
+                if (withFilter)
+                {
+                    filteredRows.AddRange(domainBillingHistory.AsEnumerable());
+                }
+                else if (pageIndex > 0)
                 {
                     int takeTop = pageIndex * pageSize;
                     Int64 maxTransactionID = (from row in domainBillingHistory.AsEnumerable().Take(takeTop)
@@ -7292,7 +7303,7 @@ namespace Core.ConditionalAccess
 
                 //New filters - BEO-8380
                 //New filter? might alter the count per page
-                FilterTransactions(ref domainTransactionsHistoryResponse.TransactionsHistory, entitlementId, externalId, businessModuleType, transactionType);
+                FilterTransactions(ref domainTransactionsHistoryResponse.TransactionsHistory, entitlementId, businessModuleType, transactionType);
 
                 domainTransactionsHistoryResponse.TransactionsCount = domainBillingHistory.Rows.Count;
                 domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -7365,8 +7376,7 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0, TransactionHistoryOrderBy orderBy = TransactionHistoryOrderBy.CreateDateDesc,
-            string entitlementId = null, string externalId = null, eTransactionType? businessModuleType = null, eTransactionType? transactionType = null)
+        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0, TransactionHistoryOrderBy orderBy = TransactionHistoryOrderBy.CreateDateDesc)
         {
             BillingTransactionsResponse theResp = new BillingTransactionsResponse();
             BillingTransactions response = new BillingTransactions();
@@ -7376,8 +7386,7 @@ namespace Core.ConditionalAccess
                 string[] arrGroupIDs = new string[] { m_nGroupID.ToString() };
 
                 int nTopNum = nStartIndex + nNumberOfItems;
-                DataView dvBillHistory = ConditionalAccessDAL.GetUserBillingHistory(arrGroupIDs, sUserGUID, nTopNum, dStartDate, dEndDate, (int)orderBy/*,
-                    entitlementId, externalId, businessModuleType, transactionType*/);
+                DataView dvBillHistory = ConditionalAccessDAL.GetUserBillingHistory(arrGroupIDs, sUserGUID, nTopNum, dStartDate, dEndDate, (int)orderBy);
 
                 if (dvBillHistory == null || dvBillHistory.Count == 0)
                 {
@@ -7407,9 +7416,6 @@ namespace Core.ConditionalAccess
                     } // for
                 }
 
-                //New filters - BEO-8380
-                FilterTransactions(ref theResp.m_Transactions, entitlementId, externalId, businessModuleType, transactionType);
-
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 response.transactions = theResp;
             }
@@ -7423,16 +7429,11 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private void FilterTransactions(ref BillingTransactionContainer[] m_Transactions, string entitlementId = null, string externalId = null, eTransactionType? businessModuleType = null, eTransactionType? transactionType = null)
+        private void FilterTransactions(ref List<TransactionHistoryContainer> m_Transactions, long entitlementId, eTransactionType? businessModuleType, eTransactionType? transactionType)
         {
-            if (!string.IsNullOrEmpty(entitlementId))
+            if (entitlementId > 0)
             {
-                m_Transactions = m_Transactions.Where(t => t.m_nPurchaseID.ToString() == entitlementId).ToArray();
-            }
-
-            if (!string.IsNullOrEmpty(externalId))
-            {
-                m_Transactions = m_Transactions.Where(t => t.ExternalTransactionId == externalId).ToArray();
+                m_Transactions = m_Transactions.Where(t => t.m_nPurchaseID == entitlementId).ToList();
             }
 
             if (businessModuleType.HasValue)
@@ -7446,21 +7447,27 @@ namespace Core.ConditionalAccess
             }
         }
 
-        private void FilterTransactions(ref List<TransactionHistoryContainer> transactionsHistory, string entitlementId, string externalId, eTransactionType? businessModuleType, eTransactionType? transactionType)
+        private void FilterTransactions(ref List<TransactionHistoryContainer> transactionsHistory, string entitlementId, eTransactionType? businessModuleType, eTransactionType? transactionType)
         {
             if (!string.IsNullOrEmpty(entitlementId))
             {
                 transactionsHistory = transactionsHistory.Where(t => t.m_nPurchaseID.ToString() == entitlementId).ToList();
             }
 
-            if (!string.IsNullOrEmpty(externalId))
-            {
-                transactionsHistory = transactionsHistory.Where(t => t.ExternalTransactionId == externalId).ToList();
-            }
-
             if (businessModuleType.HasValue)
             {
-                //??
+                if (businessModuleType.Value == eTransactionType.PPV)
+                {
+                    transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == BillingItemsType.PPV).ToList();
+                }
+                else if (businessModuleType.Value == eTransactionType.Subscription)
+                {
+                    transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == BillingItemsType.Subscription).ToList();
+                }
+                else
+                {
+                    transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == BillingItemsType.Collection).ToList();
+                }
             }
 
             if (transactionType.HasValue)
@@ -7703,13 +7710,12 @@ namespace Core.ConditionalAccess
         /// Get User Billing History
         /// </summary>
         public virtual BillingTransactions GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems, TransactionHistoryOrderBy orderBy,
-                                                                 DateTime startDate, DateTime endDate, string entitlementId, string externalId,
-                                                                 eTransactionType? businessModuleType, eTransactionType? transactionType)
+                                                                 DateTime startDate, DateTime endDate)
         {
             BillingTransactions res = null;
             try
             {
-                res = GetUserBillingHistoryExt(sUserGUID, startDate, endDate, nStartIndex, nNumberOfItems, orderBy, entitlementId, externalId, businessModuleType, transactionType);
+                res = GetUserBillingHistoryExt(sUserGUID, startDate, endDate, nStartIndex, nNumberOfItems, orderBy);
             }
             catch (Exception ex)
             {

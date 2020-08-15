@@ -53,7 +53,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "entitlementIdEqual")]
         [JsonProperty("entitlementIdEqual")]
         [XmlElement(ElementName = "entitlementIdEqual", IsNullable = true)]
-        public string EntitlementIdEqual { get; set; }
+        public long EntitlementIdEqual { get; set; }
 
         /// <summary>
         ///Filter transaction by external Id

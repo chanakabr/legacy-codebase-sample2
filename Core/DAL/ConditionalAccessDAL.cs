@@ -285,8 +285,7 @@ namespace DAL
 
         }
 
-        public static DataTable GetDomainBillingHistory(int groupID, int domainID, int topNum, DateTime startDate, DateTime endDate, int orderBy,
-            string entitlementId, string externalId, eTransactionType? businessModuleType, eTransactionType? transactionType)
+        public static DataTable GetDomainBillingHistory(int groupID, int domainID, DateTime startDate, DateTime endDate, int orderBy)
         {
             DataTable dt = null;
             if (domainID > 0)
@@ -300,23 +299,6 @@ namespace DAL
                     spGet_DomainBillingHistory.AddParameter("@StartDate", startDate);
                     spGet_DomainBillingHistory.AddParameter("@EndDate", endDate);
                     spGet_DomainBillingHistory.AddParameter("@orderBy", orderBy);
-
-                    if (!string.IsNullOrEmpty(entitlementId))
-                    {
-                        spGet_DomainBillingHistory.AddParameter("@entitlementId", entitlementId);
-                    }
-                    if (!string.IsNullOrEmpty(externalId))
-                    {
-                        spGet_DomainBillingHistory.AddParameter("@externalId", externalId);
-                    }
-                    if (businessModuleType.HasValue)
-                    {
-                        spGet_DomainBillingHistory.AddParameter("@businessModuleType", (int)businessModuleType);
-                    }
-                    if (transactionType.HasValue)
-                    {
-                        spGet_DomainBillingHistory.AddParameter("@transactionType", (int)transactionType);
-                    }
 
                     dt = spGet_DomainBillingHistory.Execute();
                 }
