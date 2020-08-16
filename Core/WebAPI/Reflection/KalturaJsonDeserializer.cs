@@ -5697,22 +5697,22 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     ExternalIdEqual = (String) Convert.ChangeType(parameters["externalIdEqual"], typeof(String));
                 }
-                if (parameters.ContainsKey("transactionTypeEqual") && parameters["transactionTypeEqual"] != null)
+                if (parameters.ContainsKey("billingItemsTypeEqual") && parameters["billingItemsTypeEqual"] != null)
                 {
-                    TransactionTypeEqual = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["transactionTypeEqual"].ToString(), true);
+                    BillingItemsTypeEqual = (KalturaBillingItemsType) Enum.Parse(typeof(KalturaBillingItemsType), parameters["billingItemsTypeEqual"].ToString(), true);
 
-                    if (!Enum.IsDefined(typeof(KalturaTransactionType), TransactionTypeEqual))
+                    if (!Enum.IsDefined(typeof(KalturaBillingItemsType), BillingItemsTypeEqual))
                     {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", TransactionTypeEqual, typeof(KalturaTransactionType)));
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", BillingItemsTypeEqual, typeof(KalturaBillingItemsType)));
                     }
                 }
-                if (parameters.ContainsKey("businessModuleTypeEqual") && parameters["businessModuleTypeEqual"] != null)
+                if (parameters.ContainsKey("billingActionEqual") && parameters["billingActionEqual"] != null)
                 {
-                    BusinessModuleTypeEqual = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["businessModuleTypeEqual"].ToString(), true);
+                    BillingActionEqual = (KalturaBillingAction) Enum.Parse(typeof(KalturaBillingAction), parameters["billingActionEqual"].ToString(), true);
 
-                    if (!Enum.IsDefined(typeof(KalturaTransactionType), BusinessModuleTypeEqual))
+                    if (!Enum.IsDefined(typeof(KalturaBillingAction), BillingActionEqual))
                     {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", BusinessModuleTypeEqual, typeof(KalturaTransactionType)));
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", BillingActionEqual, typeof(KalturaBillingAction)));
                     }
                 }
             }

@@ -3493,15 +3493,22 @@ namespace WebAPI.Models.ConditionalAccess
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(BusinessModuleTypeEqual.HasValue)
+            if(BillingActionEqual.HasValue)
             {
-                ret.Add("businessModuleTypeEqual", "\"businessModuleTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeEqual) + "\"");
+                ret.Add("billingActionEqual", "\"billingActionEqual\": " + "\"" + Enum.GetName(typeof(KalturaBillingAction), BillingActionEqual) + "\"");
+            }
+            if(BillingItemsTypeEqual.HasValue)
+            {
+                ret.Add("billingItemsTypeEqual", "\"billingItemsTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaBillingItemsType), BillingItemsTypeEqual) + "\"");
             }
             if(EndDateLessThanOrEqual.HasValue)
             {
                 ret.Add("endDateLessThanOrEqual", "\"endDateLessThanOrEqual\": " + EndDateLessThanOrEqual);
             }
-            ret.Add("entitlementIdEqual", "\"entitlementIdEqual\": " + EntitlementIdEqual);
+            if(EntitlementIdEqual.HasValue)
+            {
+                ret.Add("entitlementIdEqual", "\"entitlementIdEqual\": " + EntitlementIdEqual);
+            }
             ret.Add("entityReferenceEqual", "\"entityReferenceEqual\": " + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "\"");
             if(ExternalIdEqual != null)
             {
@@ -3510,10 +3517,6 @@ namespace WebAPI.Models.ConditionalAccess
             if(StartDateGreaterThanOrEqual.HasValue)
             {
                 ret.Add("startDateGreaterThanOrEqual", "\"startDateGreaterThanOrEqual\": " + StartDateGreaterThanOrEqual);
-            }
-            if(TransactionTypeEqual.HasValue)
-            {
-                ret.Add("transactionTypeEqual", "\"transactionTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), TransactionTypeEqual) + "\"");
             }
             return ret;
         }
@@ -3524,15 +3527,22 @@ namespace WebAPI.Models.ConditionalAccess
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(BusinessModuleTypeEqual.HasValue)
+            if(BillingActionEqual.HasValue)
             {
-                ret.Add("businessModuleTypeEqual", "<businessModuleTypeEqual>" + "" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeEqual) + "" + "</businessModuleTypeEqual>");
+                ret.Add("billingActionEqual", "<billingActionEqual>" + "" + Enum.GetName(typeof(KalturaBillingAction), BillingActionEqual) + "" + "</billingActionEqual>");
+            }
+            if(BillingItemsTypeEqual.HasValue)
+            {
+                ret.Add("billingItemsTypeEqual", "<billingItemsTypeEqual>" + "" + Enum.GetName(typeof(KalturaBillingItemsType), BillingItemsTypeEqual) + "" + "</billingItemsTypeEqual>");
             }
             if(EndDateLessThanOrEqual.HasValue)
             {
                 ret.Add("endDateLessThanOrEqual", "<endDateLessThanOrEqual>" + EndDateLessThanOrEqual + "</endDateLessThanOrEqual>");
             }
-            ret.Add("entitlementIdEqual", "<entitlementIdEqual>" + EntitlementIdEqual + "</entitlementIdEqual>");
+            if(EntitlementIdEqual.HasValue)
+            {
+                ret.Add("entitlementIdEqual", "<entitlementIdEqual>" + EntitlementIdEqual + "</entitlementIdEqual>");
+            }
             ret.Add("entityReferenceEqual", "<entityReferenceEqual>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "" + "</entityReferenceEqual>");
             if(ExternalIdEqual != null)
             {
@@ -3541,10 +3551,6 @@ namespace WebAPI.Models.ConditionalAccess
             if(StartDateGreaterThanOrEqual.HasValue)
             {
                 ret.Add("startDateGreaterThanOrEqual", "<startDateGreaterThanOrEqual>" + StartDateGreaterThanOrEqual + "</startDateGreaterThanOrEqual>");
-            }
-            if(TransactionTypeEqual.HasValue)
-            {
-                ret.Add("transactionTypeEqual", "<transactionTypeEqual>" + "" + Enum.GetName(typeof(KalturaTransactionType), TransactionTypeEqual) + "" + "</transactionTypeEqual>");
             }
             return ret;
         }

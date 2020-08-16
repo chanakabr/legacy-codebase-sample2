@@ -7237,7 +7237,7 @@ namespace Core.ConditionalAccess
         /// Get Domain Billing History
         /// </summary>
         public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex, TransactionHistoryOrderBy orderBy,
-            long entitlementId, string externalId, eTransactionType? businessModuleType, eTransactionType? transactionType)
+            long? entitlementId, string externalId, BillingItemsType? billingItemsType, BillingAction? billingAction)
         {
             DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
 
@@ -7271,7 +7271,7 @@ namespace Core.ConditionalAccess
                     return domainTransactionsHistoryResponse;
                 }
 
-                bool withFilter = entitlementId > 0 || businessModuleType.HasValue;
+                bool withFilter = (entitlementId.HasValue && entitlementId > 0) || billingItemsType.HasValue || billingAction.HasValue;
 
                 var filteredRows = new List<DataRow>();
 
@@ -7306,7 +7306,7 @@ namespace Core.ConditionalAccess
 
                 //New filters - BEO-8380
                 //New filter? might alter the count per page
-                FilterTransactions(ref domainTransactionsHistoryResponse.TransactionsHistory, entitlementId, businessModuleType, transactionType);
+                FilterTransactions(ref domainTransactionsHistoryResponse.TransactionsHistory, entitlementId, billingItemsType, billingAction);
 
                 domainTransactionsHistoryResponse.TransactionsCount = domainBillingHistory.Rows.Count;
                 domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -7432,50 +7432,21 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private void FilterTransactions(ref List<TransactionHistoryContainer> m_Transactions, long entitlementId, eTransactionType? businessModuleType, eTransactionType? transactionType)
+        private void FilterTransactions(ref List<TransactionHistoryContainer> transactionsHistory, long? entitlementId, BillingItemsType? billingItemsType, BillingAction? billingAction)
         {
-            if (entitlementId > 0)
+            if (entitlementId.HasValue && entitlementId > 0)
             {
-                m_Transactions = m_Transactions.Where(t => t.m_nPurchaseID == entitlementId).ToList();
+                transactionsHistory = transactionsHistory.Where(t => t.m_nPurchaseID == entitlementId).ToList();
             }
 
-            if (businessModuleType.HasValue)
+            if (billingItemsType.HasValue)
             {
-                //??
+                transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == billingItemsType.Value).ToList();   
             }
 
-            if (transactionType.HasValue)
+            if (billingAction.HasValue)
             {
-                //??
-            }
-        }
-
-        private void FilterTransactions(ref List<TransactionHistoryContainer> transactionsHistory, string entitlementId, eTransactionType? businessModuleType, eTransactionType? transactionType)
-        {
-            if (!string.IsNullOrEmpty(entitlementId))
-            {
-                transactionsHistory = transactionsHistory.Where(t => t.m_nPurchaseID.ToString() == entitlementId).ToList();
-            }
-
-            if (businessModuleType.HasValue)
-            {
-                if (businessModuleType.Value == eTransactionType.PPV)
-                {
-                    transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == BillingItemsType.PPV).ToList();
-                }
-                else if (businessModuleType.Value == eTransactionType.Subscription)
-                {
-                    transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == BillingItemsType.Subscription).ToList();
-                }
-                else
-                {
-                    transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == BillingItemsType.Collection).ToList();
-                }
-            }
-
-            if (transactionType.HasValue)
-            {
-                //??
+                transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == billingItemsType.Value).ToList();
             }
         }
 

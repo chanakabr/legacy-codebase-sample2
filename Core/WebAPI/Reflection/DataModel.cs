@@ -6723,8 +6723,10 @@ namespace WebAPI.Reflection
                 case "KalturaTransactionHistoryFilter":
                     switch(property.Name)
                     {
-                        case "BusinessModuleTypeEqual":
-                            return "businessModuleTypeEqual";
+                        case "BillingActionEqual":
+                            return "billingActionEqual";
+                        case "BillingItemsTypeEqual":
+                            return "billingItemsTypeEqual";
                         case "EndDateLessThanOrEqual":
                             return "endDateLessThanOrEqual";
                         case "EntitlementIdEqual":
@@ -6735,8 +6737,6 @@ namespace WebAPI.Reflection
                             return "externalIdEqual";
                         case "StartDateGreaterThanOrEqual":
                             return "startDateGreaterThanOrEqual";
-                        case "TransactionTypeEqual":
-                            return "transactionTypeEqual";
                     }
                     break;
                     
