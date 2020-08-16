@@ -81,7 +81,7 @@ namespace ApiObjects
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<Rules.RuleCondition> TriggerConditions { get; set; }
 
-        internal bool Evaluate(CoreObject coreObject)
+        public bool Evaluate(CoreObject coreObject)
         {
             return true;
         }

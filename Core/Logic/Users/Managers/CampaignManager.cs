@@ -6,6 +6,7 @@ using KLogMonitor;
 using System;
 using System.Reflection;
 using APILogic.ConditionalAccess;
+using System.Linq;
 
 namespace ApiLogic.Users.Managers
 {
@@ -69,13 +70,13 @@ namespace ApiLogic.Users.Managers
         {
             ConditionScope filter = new ConditionScope()
             {
-                //BusinessModuleId = businessModuleId,
-                //BusinessModuleType = transactionType,
-                //SegmentIds = segmentIds,
                 FilterByDate = true,
-                //FilterBySegments = true,
                 GroupId = contextData.GroupId,
-                //MediaId = mediaId
+                UserId = contextData.UserId.ToString(),
+                
+                BrandId = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => 4).FirstOrDefault(),
+                ManufacturerId = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => 4).FirstOrDefault(),
+                Model = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => "").FirstOrDefault(),
             };
 
             return campaign.Evaluate(filter);
@@ -102,7 +103,7 @@ namespace ApiLogic.Users.Managers
                 //MediaId = mediaId
             };
 
-            return true;// triggerCampaign.Evaluate(coreObject);
+            return triggerCampaign.Evaluate(coreObject);
         }
     }
 }
