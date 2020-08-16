@@ -2266,13 +2266,12 @@ namespace DAL
             return null;
         }
 
-        public static List<InboxMessage> GetCampaignInboxMessages(int groupId, int userId)
+        public static List<InboxMessage> GetCampaignInboxMessages(int groupId, int userId, List<Campaign> campaigns)
         {
             var response = new List<InboxMessage>();
             try
             {
-                //TODO - MATAN OR SHIR: Get list of campaigns - TBD
-                var userCampaigns = new List<string>();
+                var userCampaigns = campaigns.Select(x => x.Id.ToString()).ToList();
 
                 if (userCampaigns == null || userCampaigns.Count == 0)
                 {
@@ -2287,7 +2286,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.Error($"Error while trying to get user campaign messages. user: {userId}, ex: {ex}");
+                log.Error($"Error while trying to get user campaign messages for user: {userId}, ex: {ex}", ex);
             }
 
             return response;

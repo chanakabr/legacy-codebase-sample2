@@ -58,7 +58,7 @@ namespace CampaignHandler
 
                     if (CampaignManager.Instance.ValidateCampaignConditionsToUser(contextData, triggerCampaign))
                     {
-                        SendMessage(serviceEvent, userId, triggerCampaign, string.Join(';', messages.Select(m => $"{ m.Key}:{m.Value}")));
+                        SendMessage(serviceEvent, userId, triggerCampaign, string.Join(';', messages.Select(m => $"{m.Key}:{m.Value}")));
                     }
                 });
 
@@ -107,7 +107,6 @@ namespace CampaignHandler
 
             if (isSuccess)
             {
-                //TODO - MATAN, Add mapping between inboxMessage.Id & campaign
                 DAL.NotificationDal.SetInboxMessageCampaignMapping(serviceEvent.GroupId, serviceEvent.UserId, campaign, inboxMessage.Id);
             }
         }

@@ -47,6 +47,14 @@ namespace Core.Notification
             {
                 // get user inbox message
                 var userInboxMessage = NotificationDal.GetUserInboxMessage(groupId, userId, messageId);
+
+                if (userInboxMessage == null)
+                {
+                    var campaignId = NotificationDal.GetInboxMessageCampaignMapping(groupId, userId, messageId);
+                    if (campaignId.HasValue)
+                        userInboxMessage = NotificationDal.GetCampaignInboxMessage(groupId, userId, campaignId.Value.ToString());
+                }
+
                 if (userInboxMessage != null)
                 {
                     response.InboxMessages = new List<InboxMessage>();
@@ -122,8 +130,8 @@ namespace Core.Notification
                     userMessages = new List<InboxMessage>();
                 }
 
-                // TODO SHIR OR MATAN
-                var campaignMessages = NotificationDal.GetCampaignInboxMessages(groupId, userId);
+                var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.List(new ApiObjects.Base.ContextData(groupId) { UserId = userId }, null, null);
+                var campaignMessages = NotificationDal.GetCampaignInboxMessages(groupId, userId, campaigns?.Objects);
                 if (campaignMessages == null)
                 {
                     log.DebugFormat("No campaign inbox message. {0}", logData);
