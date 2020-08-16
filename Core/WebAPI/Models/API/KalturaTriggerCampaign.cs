@@ -30,11 +30,39 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "triggerConditions")]
         public List<KalturaCondition> TriggerConditions { get; set; }
 
+        /// <summary>
+        /// service
+        /// </summary>
+        [DataMember(Name = "service")]
+        [JsonProperty("service")]
+        [XmlElement(ElementName = "service")]
+        public string Service { get; set; }
+
+        /// <summary>
+        /// action
+        /// </summary>
+        [DataMember(Name = "action")]
+        [JsonProperty("action")]
+        [XmlElement(ElementName = "action")]
+        public string Action { get; set; }
+
         internal override void ValidateForAdd()
         {
             // TODO SHIR - WHAT NEED TO BE VALIDATE?
             base.ValidateForAdd();
 
+            if (string.IsNullOrEmpty(this.Service))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "service");
+            }
+
+            if (string.IsNullOrEmpty(this.Action))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "action");
+            }
+
+            var methodParams = WebAPI.Reflection.DataModel.getMethodParams(this.Service, this.Action);
+            
             if (this.TriggerConditions == null || this.TriggerConditions.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "triggerConditions");

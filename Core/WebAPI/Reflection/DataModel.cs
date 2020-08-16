@@ -1199,6 +1199,8 @@ namespace WebAPI.Reflection
                             return "messages";
                         case "Name":
                             return "name";
+                        case "Status":
+                            return "status";
                         case "SystemName":
                             return "systemName";
                         case "UpdateDate":
@@ -6795,6 +6797,10 @@ namespace WebAPI.Reflection
                 case "KalturaTriggerCampain":
                     switch(property.Name)
                     {
+                        case "Action":
+                            return "action";
+                        case "Service":
+                            return "service";
                         case "TriggerConditions":
                             return "triggerConditions";
                     }

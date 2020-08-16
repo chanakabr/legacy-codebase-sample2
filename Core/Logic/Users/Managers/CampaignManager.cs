@@ -36,6 +36,35 @@ namespace ApiLogic.Users.Managers
         public GenericResponse<Campaign> AddTriggerCampaign(ContextData contextData, TriggerCampaign campaignToAdd)
         {
             // TODO SHIR
+            // validate discountModelId!!
+            //GenericResponse<BusinessModuleRule> response = new GenericResponse<BusinessModuleRule>();
+            //try
+            //{
+            //    businessModuleRuleToAdd.GroupId = groupId;
+            //    DataTable dt = ApiDAL.AddBusinessModuleRule(groupId, businessModuleRuleToAdd.Name, businessModuleRuleToAdd.Description);
+            //    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            //    {
+            //        businessModuleRuleToAdd.Id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+            //        businessModuleRuleToAdd.CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "CREATE_DATE"));
+            //        businessModuleRuleToAdd.UpdateDate = businessModuleRuleToAdd.CreateDate;
+
+            //        if (!ApiDAL.SaveBusinessModuleRuleCB(groupId, businessModuleRuleToAdd))
+            //        {
+            //            log.ErrorFormat("Error while saving BusinessModuleRule. groupId: {0}, BusinessModuleRuleId:{1}", groupId, businessModuleRuleToAdd.Id);
+            //            return response;
+            //        }
+
+            //        SetInvalidationKeys(groupId);
+            //        response.Object = businessModuleRuleToAdd;
+            //        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.ErrorFormat("Error while adding new businessModuleRule . groupId: {0}, businessModuleRule: {1}, ex: {2}", groupId, JsonConvert.SerializeObject(businessModuleRuleToAdd), ex);
+            //}
+
+            //return response;
             throw new NotImplementedException();
         }
 
