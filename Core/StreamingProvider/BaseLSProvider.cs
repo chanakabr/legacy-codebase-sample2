@@ -26,7 +26,7 @@ namespace StreamingProvider
 
         protected string GetUrl(Dictionary<string, object> dParams)
         {
-            return string.Empty;
+            return dParams.ContainsKey("basic_link") ? (string)dParams["basic_link"] : string.Empty;
         }
 
         protected void ReplaceSubStr(ref string url, Dictionary<string, object> oValuesToReplace)

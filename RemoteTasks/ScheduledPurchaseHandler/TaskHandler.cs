@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ApiObjects.Base;
 
 namespace ScheduledPurchaseHandler
 {
@@ -25,9 +26,22 @@ namespace ScheduledPurchaseHandler
                 log.DebugFormat("starting ScheduledPurchaseTaskRequest request. data={0}", data);
                 ScheduledPurchaseTaskRequest request = JsonConvert.DeserializeObject<ScheduledPurchaseTaskRequest>(data);
 
-                TransactionResponse transactionResult = Core.ConditionalAccess.Module.Purchase(request.GroupId, request.Siteguid, request.Household, request.Price, request.Currency, request.ContentId,
-                                                                                               request.ProductId, request.TransactionType, request.Coupon, request.UserIp, request.DeviceName,
-                                                                                               request.PaymentGwId, request.PaymentMethodId, request.adapterData);
+                if (!long.TryParse(request.Siteguid, out long userId))
+                {
+                    userId = 0;
+                }
+
+                var contextData = new ContextData(request.GroupId)
+                {
+                    DomainId = request.Household,
+                    UserId = userId,
+                    UserIp = request.UserIp,
+                    Udid = request.DeviceName
+                };
+
+                TransactionResponse transactionResult = 
+                    Core.ConditionalAccess.Module.Purchase(contextData, request.Price, request.Currency, request.ContentId,request.ProductId, request.TransactionType, request.Coupon,
+                                                           request.PaymentGwId, request.PaymentMethodId, request.adapterData);
                 if (transactionResult != null && transactionResult.Status.Code == (int)eResponseStatus.OK)
                 {
                     result = "success";

@@ -558,14 +558,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-              .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.DirectUrl))
+              .ForMember(dest => dest.Url, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.DirectUrl) ? src.DirectUrl : src.Url))
               .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
               .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.Url) || !src.Url.Contains(".") ? string.Empty : src.Url.Substring(src.Url.LastIndexOf('.'))))
               .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))
               .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.HasValue ? src.StreamerType.ToString() : string.Empty))
               .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParam))
               .ForMember(dest => dest.AdsPolicy, opt => opt.ResolveUsing(src => ConvertAdsPolicy(src.AdsPolicy)))
-              .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => 0));
+              .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => 0))
+              .ForMember(dest => dest.Opl, opt => opt.ResolveUsing(src => src.Opl))
+              ;
 
             cfg.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()
               .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Files))

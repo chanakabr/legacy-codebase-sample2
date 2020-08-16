@@ -105,7 +105,7 @@ namespace Core.Billing
 
                     if (templateType == eMailTemplateType.PurchaseWithPreviewModule)
                     {
-                        ((PurchaseWithPreviewModuleRequest)mailRequest).m_sPreviewModuleEndDate = Utils.GetEndDateTime(DateTime.UtcNow.AddHours(hoursOffset), int.Parse(previewModuleLifeCycle)).ToString("dd/MM/yyyy");
+                        ((PurchaseWithPreviewModuleRequest)mailRequest).m_sPreviewModuleEndDate = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow.AddHours(hoursOffset), int.Parse(previewModuleLifeCycle)).ToString("dd/MM/yyyy");
                     }
                     if (partialPrice && templateType == eMailTemplateType.Purchase)
                     {

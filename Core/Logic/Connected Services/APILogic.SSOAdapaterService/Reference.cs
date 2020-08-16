@@ -950,11 +950,26 @@ namespace APILogic.SSOAdapaterService
     public partial class PreSignOutModel : object
     {
         
+        private APILogic.SSOAdapaterService.KeyValue[] AdapterDataField;
+        
         private string DeviceUdidField;
         
         private int HouseholdIdField;
         
         private int UserIdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public APILogic.SSOAdapaterService.KeyValue[] AdapterData
+        {
+            get
+            {
+                return this.AdapterDataField;
+            }
+            set
+            {
+                this.AdapterDataField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string DeviceUdid
@@ -998,9 +1013,48 @@ namespace APILogic.SSOAdapaterService
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="KeyValue", Namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models")]
+    public partial class KeyValue : object
+    {
+        
+        private string KeyField;
+        
+        private string ValueField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Key
+        {
+            get
+            {
+                return this.KeyField;
+            }
+            set
+            {
+                this.KeyField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Value
+        {
+            get
+            {
+                return this.ValueField;
+            }
+            set
+            {
+                this.ValueField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Runtime.Serialization.DataContractAttribute(Name="PostSignOutModel", Namespace="http://schemas.datacontract.org/2004/07/SSOAdapter.Models")]
     public partial class PostSignOutModel : object
     {
+        
+        private APILogic.SSOAdapaterService.KeyValue[] AdapterDataField;
         
         private APILogic.SSOAdapaterService.User AuthenticatedUserField;
         
@@ -1009,6 +1063,19 @@ namespace APILogic.SSOAdapaterService
         private int HouseholdIdField;
         
         private int UserIdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public APILogic.SSOAdapaterService.KeyValue[] AdapterData
+        {
+            get
+            {
+                return this.AdapterDataField;
+            }
+            set
+            {
+                this.AdapterDataField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.User AuthenticatedUser
@@ -1096,43 +1163,6 @@ namespace APILogic.SSOAdapaterService
             set
             {
                 this.IntentField = value;
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="KeyValue", Namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models")]
-    public partial class KeyValue : object
-    {
-        
-        private string KeyField;
-        
-        private string ValueField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Key
-        {
-            get
-            {
-                return this.KeyField;
-            }
-            set
-            {
-                this.KeyField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Value
-        {
-            get
-            {
-                return this.ValueField;
-            }
-            set
-            {
-                this.ValueField = value;
             }
         }
     }

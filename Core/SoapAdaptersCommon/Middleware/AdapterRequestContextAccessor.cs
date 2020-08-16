@@ -1,8 +1,11 @@
 ﻿using KLogMonitor;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SoapAdaptersCommon.Middleware
@@ -43,6 +46,33 @@ namespace SoapAdaptersCommon.Middleware
         public AdapterRequestContext(IHttpContextAccessor httpContextAccessor)
         {
             _HttpContextAccessor = httpContextAccessor;
+        }
+    }
+
+    public static class AdapterRequestContextAccessorExtentions
+    {
+        public static IApplicationBuilder UseAdapterRequestContextAccessor(this IApplicationBuilder app)
+        {
+            return app.Use(async (ctx, _next) =>
+            {
+                var headers = ctx.Request.Headers;
+                ctx.Items[Constants.REQUEST_ID_KEY] = KLogger.GetRequestId();
+
+                if (headers.TryGetValue(Constants.KS, out var legacyKsHeaderValue))
+                {
+                    ctx.Items[Constants.KS] = legacyKsHeaderValue;
+                }
+                else if (headers.TryGetValue("Authorization", out var authHeader))
+                {
+                    var authHeaderParts = authHeader.ToString().Split(' ');
+                    if (authHeaderParts.Length > 0)
+                    {
+                        ctx.Items[Constants.KS] = authHeaderParts[1];
+                    }
+                }
+
+                await _next.Invoke();
+            });
         }
     }
 }

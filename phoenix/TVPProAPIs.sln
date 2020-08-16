@@ -317,6 +317,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaptersCommon", "..\core\A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck", "..\Core\HealthCheck\HealthCheck.csproj", "{D7D62DCC-85E5-4E9B-99CD-269338824BD4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitQueueWrapper", "..\Core\RabbitQueueWrapper\RabbitQueueWrapper.csproj", "{A1F9D6BC-DB02-431D-960C-3A2E2D316EB3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -876,6 +878,16 @@ Global
 		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7D62DCC-85E5-4E9B-99CD-269338824BD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1F9D6BC-DB02-431D-960C-3A2E2D316EB3}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{A1F9D6BC-DB02-431D-960C-3A2E2D316EB3}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{A1F9D6BC-DB02-431D-960C-3A2E2D316EB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1F9D6BC-DB02-431D-960C-3A2E2D316EB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1F9D6BC-DB02-431D-960C-3A2E2D316EB3}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{A1F9D6BC-DB02-431D-960C-3A2E2D316EB3}.Local|Any CPU.Build.0 = Release|Any CPU
+		{A1F9D6BC-DB02-431D-960C-3A2E2D316EB3}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{A1F9D6BC-DB02-431D-960C-3A2E2D316EB3}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
+		{A1F9D6BC-DB02-431D-960C-3A2E2D316EB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1F9D6BC-DB02-431D-960C-3A2E2D316EB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -941,7 +953,7 @@ Global
 		{D7D62DCC-85E5-4E9B-99CD-269338824BD4} = {A48B9A9E-0752-4B6D-A2ED-6F42CADAACD4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 	EndGlobalSection
 EndGlobal

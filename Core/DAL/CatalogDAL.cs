@@ -446,7 +446,7 @@ namespace Tvinci.Core.DAL
                 result = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "play_cycle_key");
             }
             return result;
-        }        
+        }
 
         public static void Insert_NewWatcherMediaAction(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID,
                                                         int nGroupID, int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID)
@@ -1417,7 +1417,7 @@ namespace Tvinci.Core.DAL
                     {
                         nMediaID = assetAndLocation.AssetId;
                         lastDate = Utils.UtcUnixTimestampSecondsToDateTime(assetAndLocation.CreatedAt);
-
+                        
                         UserMediaMark objUserMediaMark = new UserMediaMark
                         {
                             AssetID = nMediaID,
@@ -2000,7 +2000,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static void UpdateOrInsertUsersMediaMark(UserMediaMark userMediaMark, bool isFirstPlay, bool isLinearChannel)
+        public static void UpdateOrInsertUsersMediaMark(UserMediaMark userMediaMark)
         {
             int limitRetries = RETRY_LIMIT;
             bool success = false;
@@ -2070,8 +2070,7 @@ namespace Tvinci.Core.DAL
             }
             else
             {
-                var relevantMediaMark = mediaMarks.mediaMarks.FirstOrDefault(m => m.AssetId == userMediaMark.AssetID);
-
+                var relevantMediaMark = mediaMarks.mediaMarks.FirstOrDefault(m => m.AssetId == userMediaMark.AssetID && m.AssetType == userMediaMark.AssetType);
                 if (relevantMediaMark != null)
                 {
                     mediaMarks.mediaMarks.Remove(relevantMediaMark);
@@ -2082,11 +2081,14 @@ namespace Tvinci.Core.DAL
             {
                 AssetId = userMediaMark.AssetID,
                 AssetType = userMediaMark.AssetType,
-                CreatedAt = userMediaMark.CreatedAtEpoch
+                CreatedAt = userMediaMark.CreatedAtEpoch,
+                ExpiredAt = userMediaMark.ExpiredAt
             });
 
             // order by create date, only select top [TCM] (let's say 300, it should cater 99% of users)
-            var temporaryMediaMarks = mediaMarks.mediaMarks.OrderByDescending(mark => mark.CreatedAt);
+            TimeSpan ts = DateTime.UtcNow - (new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc));
+            var utcNow = Convert.ToInt64(ts.TotalSeconds, System.Globalization.CultureInfo.CurrentCulture);
+            var temporaryMediaMarks = mediaMarks.mediaMarks.Where(x => x.ExpiredAt == 0 || x.ExpiredAt > utcNow).OrderByDescending(mark => mark.CreatedAt);
             mediaMarks.mediaMarks = temporaryMediaMarks.Take(ApplicationConfiguration.Current.MediaMarksListLength.Value).ToList();
 
             uint expiration = (uint)ApplicationConfiguration.Current.MediaMarksTTL.Value * 60 * 60 * 24;
@@ -2101,6 +2103,7 @@ namespace Tvinci.Core.DAL
 
         public static void UpdateOrInsertUsersNpvrMark(UserMediaMark userNpvrMark, bool isFirstPlay)
         {
+            log.Debug($"UpdateOrInsertUsersNpvrMark");
             string mmKey = UtilsDal.GetUserNpvrMarkDocKey(userNpvrMark.UserID, userNpvrMark.NpvrID.ToString());
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -2117,14 +2120,7 @@ namespace Tvinci.Core.DAL
 
             if (isFirstPlay || shouldUpdateLocation)
             {
-                bool markSuccess = false;
-                limitRetries = RETRY_LIMIT;
-                markSuccess = false;
-
-                while (limitRetries >= 0 && !markSuccess)
-                {
-                    UpdateOrInsertUsersMediaMarkOrHit(mediaMarkManager, ref limitRetries, r, mmKey, ref markSuccess, userNpvrMark);
-                }
+                InsertMediaMarkToUserMediaMarks(userNpvrMark);
             }
         }
 
@@ -5084,7 +5080,7 @@ namespace Tvinci.Core.DAL
         public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId,
             long billingType, double? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage,
             string language, int? orderNum, DateTime? startDate, string url, long? streamingSuplierId, int? type, string altExternalId,
-            bool? isActive, DateTime? catalogEndDate)
+            bool? isActive, DateTime? catalogEndDate, string opl = "")
         {
             StoredProcedure sp = new StoredProcedure("InsertMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5111,6 +5107,10 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@fileSize", fileSize ?? 0);
             sp.AddParameter("@IsActive", isActive.HasValue ? isActive.Value ? 1 : 0 : 0);
             sp.AddParameter("@catalogEndDate", catalogEndDate);
+            if (!string.IsNullOrEmpty(opl))
+            {
+                sp.AddParameter("@opl", opl);
+            }
 
             return sp.ExecuteDataSet();
         }
@@ -5138,7 +5138,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet UpdateMediaFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId, long billingType,
             long? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage, string language, int? orderNum, DateTime? startDate,
-            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate)
+            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate, string opl)
         {
             StoredProcedure sp = new StoredProcedure("UpdateMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5165,6 +5165,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@fileSize", fileSize);
             sp.AddParameter("@IsActive", isActive);
             sp.AddParameter("@catalogEndDate", catalogEndDate);
+            sp.AddParameter("@opl", opl);
 
             return sp.ExecuteDataSet();
         }
@@ -5597,7 +5598,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataTable UpdateAssetStructMeta(long assetStructId, long metaId, string ingestReferencePath, bool? protectFromIngest, string defaultIngestValue, int groupId, long userId,
-            bool? isInherited)
+                                                      bool? isInherited, bool? isLocationTag)
         {
             StoredProcedure sp = new StoredProcedure("UpdateAssetStructMeta");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5609,7 +5610,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@UserId", userId);
             sp.AddParameter("@IsInherited", isInherited);
-
+            sp.AddParameter("@isLocationTag", isLocationTag);
+            
             return sp.Execute();
         }
 
@@ -5919,7 +5921,7 @@ namespace Tvinci.Core.DAL
 
                 case (int)eAssetTypes.NPVR:
                     {
-                        assetType = "npvr";
+                        assetType = "n";
                         break;
                     }
                 case (int)eAssetTypes.MEDIA:
@@ -5983,7 +5985,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot)
+             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type)
         {
             try
             {
@@ -6009,6 +6011,7 @@ namespace Tvinci.Core.DAL
                 {
                     sp.AddParameter("@endDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.EndDateInSeconds.Value));
                 }
+                sp.AddParameter("@type", type);
 
                 var id = sp.ExecuteReturnValue<long>();
                 if (dynamicData?.Count > 0 && id > 0)
@@ -6265,6 +6268,6 @@ namespace Tvinci.Core.DAL
             }
 
             return null;
-        }       
+        }
     }
 }

@@ -46,6 +46,10 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.ApiClient().GetPlaybackAdapterConfiguration(groupId);
                 }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.Payment)
+                {
+                    response = ClientsManager.ApiClient().GetPaymentConfiguration(groupId);
+                }
                 else
                 {
                     throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "filter.partnerConfigurationTypeEqual", filter.PartnerConfigurationTypeEqual);
@@ -72,6 +76,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidLanguage)]
         [Throws(eResponseStatus.InvalidCurrency)]
         [Throws(eResponseStatus.DlmNotExist)]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
+        [Throws(eResponseStatus.MetaDoesNotExist)]
+        [Throws(eResponseStatus.ExtendedTypeValueCannotBeChanged)]
         static public bool Update(KalturaPartnerConfiguration configuration)
         {
             bool response = false;
@@ -79,6 +86,7 @@ namespace WebAPI.Controllers
 
             try
             {
+                configuration.ValidateForUpdate();
                 response = configuration.Update(groupId);
             }
             catch (ClientException ex)

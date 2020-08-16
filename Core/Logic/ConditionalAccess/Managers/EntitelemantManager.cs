@@ -373,7 +373,7 @@ namespace Core.ConditionalAccess
                     response.entitelments.Add(subscriptionEntitlement.Object);
 
                     //unified billing cycle updates
-                    Utils.HandleUnifiedBillingCycle(groupId, domainID, entitlement.paymentGatewayId, endDateFromDB, entitlement.purchaseID, subscriptionEntitlement.Object.UnifiedPaymentId);
+                    Utils.HandleUnifiedBillingCycle(groupId, domainID, entitlement.paymentGatewayId, endDateFromDB, entitlement.purchaseID, subscriptionEntitlement.Object.UnifiedPaymentId, 0);
                 }
                 response.status = changeStatus;
             }

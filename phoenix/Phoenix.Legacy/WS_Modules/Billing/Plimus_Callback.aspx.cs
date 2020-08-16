@@ -335,7 +335,7 @@ namespace WS_Billing
             updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
             
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-            DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(smaxusagemodulelifecycle));
+            DateTime d = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(smaxusagemodulelifecycle));
             if (smaxusagemodulelifecycle != "")
             {
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);

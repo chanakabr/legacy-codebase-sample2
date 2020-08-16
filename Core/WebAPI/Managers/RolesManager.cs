@@ -1,4 +1,5 @@
-﻿using CachingProvider.LayeredCache;
+﻿using Amazon.S3.Model;
+using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using KLogMonitor;
 using System;
@@ -144,6 +145,7 @@ namespace WebAPI.Managers
                                         }
                                         else
                                         {
+                                            log.DebugFormat("Failed to get permission item type");
                                             continue;
                                         }
 
@@ -305,6 +307,30 @@ namespace WebAPI.Managers
             // no roles found for the user
             if (roleIds == null || roleIds.Count == 0)
                 throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
+
+            //BEO-7703 - No cache for operator+
+            var roles = ClientsManager.ApiClient().GetRoles(ks.GroupId, roleIds);
+            if (roles?.Count > 0)
+            {
+                bool isPartner = roles.Any(x => x.Profile != null && (x.Profile == KalturaUserRoleProfile.PARTNER || x.Profile == KalturaUserRoleProfile.SYSTEM));
+
+                if (isPartner)
+                {
+                    if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TAGS))
+                    {
+                        var tags = (HashSet<string>)HttpContext.Current.Items[RequestContextUtils.REQUEST_TAGS];
+                        if (!tags.Contains(RequestContextUtils.REQUEST_TAGS_PARTNER_ROLE))
+                        {
+                            tags.Add(RequestContextUtils.REQUEST_TAGS_PARTNER_ROLE);
+                            HttpContext.Current.Items[RequestContextUtils.REQUEST_TAGS] = tags;
+                        }
+                    }
+                    else
+                    {
+                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_TAGS, new HashSet<string>() { RequestContextUtils.REQUEST_TAGS_PARTNER_ROLE });
+                    }
+                }
+            }
 
             string allowedUsersGroup = null;
 

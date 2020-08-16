@@ -64,19 +64,47 @@ namespace ApiLogic.Api.Managers
                     return new Status((int)eResponseStatus.Error); ;
                 }
 
-                // 1. foreach ObjectVirtualAssetInfo check that AssetStructId and MetaUd exists
+                // 1. foreach ObjectVirtualAssetInfo check that AssetStructId and MetaId exists
                 foreach (var objectVirtualAsset in partnerConfigToUpdate.ObjectVirtualAssets)
                 {
                     if (!catalogGroupCache.AssetStructsMapById.ContainsKey(objectVirtualAsset.AssetStructId))
                     {
                         log.Error($"AssetStructDoesNotExist {objectVirtualAsset.AssetStructId}. groupId: {groupId}");
-                        return new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                        return new Status((int)eResponseStatus.AssetStructDoesNotExist, $"AssetStruct {objectVirtualAsset.AssetStructId} does not exist");
                     }
 
                     if (!catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAsset.MetaId))
                     {
                         log.Error($"MetaDoesNotExist {objectVirtualAsset.MetaId}. groupId: {groupId}");
-                        return new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
+                        return new Status((int)eResponseStatus.MetaDoesNotExist, $"Meta id {objectVirtualAsset.MetaId} does not exist");
+                    }
+
+                    //check asset struct at mapping current
+                    var currentOVA = GetObjectVirtualAssetInfo(groupId, objectVirtualAsset.Type);
+
+                    if (currentOVA != null && currentOVA.ExtendedTypes?.Count > 0 && objectVirtualAsset.ExtendedTypes != null && objectVirtualAsset.ExtendedTypes.Count > 0)
+                    {
+                        // value of type should not change
+                        foreach (var type in currentOVA.ExtendedTypes.Keys)
+                        {
+                            if (objectVirtualAsset.ExtendedTypes.ContainsKey(type) && objectVirtualAsset.ExtendedTypes[type] != currentOVA.ExtendedTypes[type])
+                            {
+                                log.Error($"Extended type {type} value {objectVirtualAsset.ExtendedTypes[type]} cannot be changed. groupId: {groupId}");
+                                return new Status((int)eResponseStatus.ExtendedTypeValueCannotBeChanged, $"Extended type '{type}' value: {objectVirtualAsset.ExtendedTypes[type]} cannot be changed.");
+                            }
+                        }
+                    }
+
+                    if (objectVirtualAsset.ExtendedTypes != null && objectVirtualAsset.ExtendedTypes.Count > 0)
+                    {
+                        foreach (var assetStructId in objectVirtualAsset.ExtendedTypes.Values)
+                        {
+                            if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
+                            {
+                                log.Error($"AssetStructDoesNotExist {assetStructId}. groupId: {groupId}");
+                                return new Status((int)eResponseStatus.AssetStructDoesNotExist, $"AssetStruct id :{assetStructId} does not exist.");
+                            }
+                        }
                     }
                 }
 
@@ -603,11 +631,140 @@ namespace ApiLogic.Api.Managers
 
             return response;
         }
+
+        public static long GetAssetStructByObjectVirtualAssetInfo(int groupId, ObjectVirtualAssetInfoType objectVirtualAssetInfoType, string type)
+        {
+            ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType);
+
+            if (objectVirtualAssetInfo == null)
+            {
+                log.Debug($"No objectVirtualAssetInfo for groupId {groupId}. virtualAssetInfo.Type {objectVirtualAssetInfoType}. type {type}");
+                return 0;
+            }
+
+            if (objectVirtualAssetInfo.ExtendedTypes?.Count > 0 && objectVirtualAssetInfo.ExtendedTypes.ContainsKey(type))
+            {
+                return objectVirtualAssetInfo.ExtendedTypes[type];
+            }
+
+            log.Debug($"No type at objectVirtualAssetInfo for groupId {groupId}. virtualAssetInfo.Type {objectVirtualAssetInfoType}. type {type}");
+            return 0;
+        }
+
+        #region Payment
+
+        public static GenericResponse<PaymentPartnerConfig> GetPaymentConfig(int groupId)
+        {
+            var response = new GenericResponse<PaymentPartnerConfig>();
+
+            try
+            {
+                PaymentPartnerConfig partnerConfig = null;
+                string key = LayeredCacheKeys.GetPaymentPartnerConfigKey(groupId);
+                var invalidationKey = new List<string>() { LayeredCacheKeys.GetPaymentPartnerConfigInvalidationKey(groupId) };
+                if (!LayeredCache.Instance.Get(key,
+                                               ref partnerConfig,
+                                               GetPaymentPartnerConfigDB,
+                                               new Dictionary<string, object>() { { "groupId", groupId } },
+                                               groupId,
+                                               LayeredCacheConfigNames.GET_PAYMENT_PARTNER_CONFIG,
+                                               invalidationKey))
+                {
+                    log.Error($"Failed getting GetPaymentConfig from LayeredCache, groupId: {groupId}, key: {key}");
+                }
+                else
+                {
+                    if (partnerConfig == null)
+                    {
+                        response.SetStatus(eResponseStatus.PartnerConfigurationDoesNotExist, "Payment partner configuration does not exist.");
+                    }
+                    else
+                    {
+                        response.Object = partnerConfig;
+                        response.SetStatus(eResponseStatus.OK);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed GetPaymentConfig for groupId: {groupId}", ex);
+            }
+
+            return response;
+        }
+
+        public static GenericListResponse<PaymentPartnerConfig> GetPaymentConfigList(int groupId)
+        {
+            var response = new GenericListResponse<PaymentPartnerConfig>();
+            var partnerConfig = GetPaymentConfig(groupId);
+
+            if (partnerConfig.HasObject())
+            {
+                response.Objects.Add(partnerConfig.Object);
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+
+            return response;
+        }
+
+        public static Status UpdatePaymentConfig(int groupId, PaymentPartnerConfig paymentPartnerConfig)
+        {
+            Status response = new Status(eResponseStatus.Error);
+
+            try
+            {
+                var needToUpdate = false;
+                var oldPaymentConfig = GetPaymentConfig(groupId);
+
+                if (oldPaymentConfig == null || !oldPaymentConfig.HasObject())
+                {
+                    needToUpdate = true;
+                }
+                else
+                {
+                    needToUpdate = paymentPartnerConfig.SetUnchangedProperties(oldPaymentConfig.Object);
+                }
+
+                if (needToUpdate)
+                {
+                    response = ValidatePaymentPartnerConfigForUpdate(groupId, paymentPartnerConfig);
+                    if (!response.IsOkStatusCode())
+                    {
+                        return response;
+                    }
+
+                    if (!ApiDAL.SavePaymentPartnerConfig(groupId, paymentPartnerConfig))
+                    {
+                        log.Error($"Error while save PaymentPartnerConfig. groupId: {groupId}.");
+                        return response;
+                    }
+
+                    string invalidationKey = LayeredCacheKeys.GetPaymentPartnerConfigInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.Error($"Failed to set invalidation key for PaymentPartnerConfig with invalidationKey: {invalidationKey}.");
+                    }
+                }
+
+                response.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                response.Set(eResponseStatus.Error);
+                log.Error($"An Exception was occurred in UpdatePaymentConfig. groupId:{groupId}.", ex);
+            }
+
+            return response;
+        }
+
+        #endregion
+
         #endregion
 
         #region private methods
 
-        private static GeneralPartnerConfig GetGeneralPartnerConfig(int groupId)
+        internal static GeneralPartnerConfig GetGeneralPartnerConfig(int groupId)
         {
             GeneralPartnerConfig generalPartnerConfig = null;
 
@@ -657,8 +814,14 @@ namespace ApiLogic.Api.Managers
                                 MainCurrency = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "CURRENCY_ID"),
                                 PartnerName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "GROUP_NAME"),
                                 MainLanguage = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "LANGUAGE_ID"),
-                                RollingDeviceRemovalData = GetRollingDeviceRemovalData(dt.Rows[0])
+                                RollingDeviceRemovalData = GetRollingDeviceRemovalData(dt.Rows[0]),
+                                FinishedPercentThreshold = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "FINISHED_PERCENT_THRESHOLD"),
                             };
+
+                            if (!generalPartnerConfig.FinishedPercentThreshold.HasValue || generalPartnerConfig.FinishedPercentThreshold.Value == 0)
+                            {
+                                generalPartnerConfig.FinishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
+                            }
 
                             int? deleteMediaPolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DELETE_MEDIA_POLICY");
                             int? downgradePolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DOWNGRADE_POLICY");
@@ -707,11 +870,6 @@ namespace ApiLogic.Api.Managers
                                 generalPartnerConfig.SecondaryCurrencies.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
                             }
                         }
-
-
-
-
-
                     }
                 }
             }
@@ -989,6 +1147,51 @@ namespace ApiLogic.Api.Managers
             }
 
             return new Status(eResponseStatus.OK);
+        }
+
+        private static Tuple<PaymentPartnerConfig, bool> GetPaymentPartnerConfigDB(Dictionary<string, object> funcParams)
+        {
+            PaymentPartnerConfig partnerConfig = null;
+            bool result = false;
+
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue)
+                {
+                    partnerConfig = ApiDAL.GetPaymentPartnerConfig(groupId.Value);
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetPaymentPartnerConfigDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<PaymentPartnerConfig, bool>(partnerConfig, result);
+        }
+
+        private static Status ValidatePaymentPartnerConfigForUpdate(int groupId, PaymentPartnerConfig paymentPartnerConfig)
+        {
+            var response = Status.Ok;
+
+            if (paymentPartnerConfig.UnifiedBillingCycles != null)
+            {
+                foreach (var unifiedBillingCycle in paymentPartnerConfig.UnifiedBillingCycles)
+                {
+                    if (unifiedBillingCycle.PaymentGatewayId.HasValue)
+                    {
+                        var paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayById(groupId, unifiedBillingCycle.PaymentGatewayId.Value);
+                        if (!paymentGatewayResponse.HasObject())
+                        {
+                            response.Set(paymentGatewayResponse.Status);
+                            return response;
+                        }
+                    }
+                }
+            }
+
+            return response;
         }
 
         #endregion

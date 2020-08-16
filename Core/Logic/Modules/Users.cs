@@ -268,7 +268,8 @@ namespace Core.Users
             return null;
         }
 
-        public static UserResponseObject SignOut(int nGroupID, string sSiteGUID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
+        public static UserResponseObject SignOut(int nGroupID, string sSiteGUID, string sessionID, string sIP, string deviceID
+            , bool bPreventDoubleLogins, List<KeyValuePair> keyValueList = null)
         {
             try
             {
@@ -280,6 +281,11 @@ namespace Core.Users
                 {
                     log.Debug("SignOut - Illegal Siteguid");
                     return null;
+                }
+
+                if (keyValueList == null)
+                {
+                    keyValueList = new List<KeyValuePair>();
                 }
 
                 if (Utils.IsGroupIDContainedInConfig(nGroupID))
@@ -298,7 +304,7 @@ namespace Core.Users
                     // get group ID + user type
                     Utils.GetBaseImpl(ref kUser, nGroupID);
                     if (kUser != null)
-                        return FlowManager.SignOut(kUser, nSiteGuid, nGroupID, sessionID, sIP, deviceID, new List<KeyValuePair>());
+                        return FlowManager.SignOut(kUser, nSiteGuid, nGroupID, sessionID, sIP, deviceID, keyValueList);
                 }
             }
             catch (Exception ex)
@@ -1302,7 +1308,7 @@ namespace Core.Users
             }
         }
 
-        public static PinCodeResponse GenerateLoginPIN(int nGroupID, string siteGuid, string secret)
+        public static PinCodeResponse GenerateLoginPIN(int nGroupID, string siteGuid, string secret, int? pinUsages = null, long? pinDuration = null)
         {
             // add siteguid to logs/monitor
             AddItemToContext(Constants.USER_ID, siteGuid);
@@ -1311,7 +1317,7 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.GenerateLoginPIN(siteGuid, nGroupID, secret);
+                return t.GenerateLoginPIN(siteGuid, nGroupID, secret, pinUsages, pinDuration);
             }
             else
             {
@@ -1394,7 +1400,7 @@ namespace Core.Users
             return response;
         }
 
-        public static PinCodeResponse SetLoginPIN(int nGroupID, string siteGuid, string PIN, string secret)
+        public static PinCodeResponse SetLoginPIN(int nGroupID, string siteGuid, string PIN, string secret, int? pinUsages = null, long? pinDuration = null)
         {
             // add siteguid to logs/monitor
             AddItemToContext(Constants.USER_ID, siteGuid);
@@ -1403,7 +1409,7 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.SetLoginPIN(siteGuid, PIN, nGroupID, secret);
+                return t.SetLoginPIN(siteGuid, PIN, nGroupID, secret, pinUsages, pinDuration);
             }
             else
             {

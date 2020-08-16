@@ -1403,41 +1403,7 @@ namespace Core.Billing
             }
 
         }
-
-        public static DateTime GetEndDateTime(DateTime dBase, Int32 nVal)
-        {
-            DateTime dRet = dBase;
-            if (nVal == 1111111)
-                dRet = dRet.AddMonths(1);
-            else if (nVal == 2222222)
-                dRet = dRet.AddMonths(2);
-            else if (nVal == 3333333)
-                dRet = dRet.AddMonths(3);
-            else if (nVal == 4444444)
-                dRet = dRet.AddMonths(4);
-            else if (nVal == 5555555)
-                dRet = dRet.AddMonths(5);
-            else if (nVal == 6666666)
-                dRet = dRet.AddMonths(6);
-            else if (nVal == 9999999)
-                dRet = dRet.AddMonths(9);
-            else if (nVal == 11111111)
-                dRet = dRet.AddYears(1);
-            else if (nVal == 22222222)
-                dRet = dRet.AddYears(2);
-            else if (nVal == 33333333)
-                dRet = dRet.AddYears(3);
-            else if (nVal == 44444444)
-                dRet = dRet.AddYears(4);
-            else if (nVal == 55555555)
-                dRet = dRet.AddYears(5);
-            else if (nVal == 100000000)
-                dRet = dRet.AddYears(10);
-            else
-                dRet = dRet.AddMinutes(nVal);
-            return dRet;
-        }
-
+        
         public static void GetBasePopupImpl(ref BasePopup t, Int32 nGroupID)
         {
             Int32 nImplID = 0;
@@ -1921,13 +1887,13 @@ namespace Core.Billing
                 PreviewModule pm = GetPreviewModuleByID((int)lGroupID, lPreviewModuleID);
                 if (pm != null && pm.m_tsFullLifeCycle > 0)
                 {
-                    res = GetEndDateTime(dtBaseDate, pm.m_tsFullLifeCycle);
+                    res = Core.ConditionalAccess.Utils.GetEndDateTime(dtBaseDate, pm.m_tsFullLifeCycle);
                     return res;
                 }
 
             }
             if (lMaxUsageModuleLifeCycle > 0)
-                res = GetEndDateTime(dtBaseDate, (int)lMaxUsageModuleLifeCycle);
+                res = Core.ConditionalAccess.Utils.GetEndDateTime(dtBaseDate, lMaxUsageModuleLifeCycle);
 
             return res;
 
@@ -2004,7 +1970,8 @@ namespace Core.Billing
             {
                 if (lMaxUsageModuleLifeCycle > 0)
                 {
-                    res = Core.Billing.Utils.GetEndDateTime(dtBase, (int)lMaxUsageModuleLifeCycle);
+                    var duration = new Duration(lMaxUsageModuleLifeCycle);
+                    res = Core.ConditionalAccess.Utils.GetEndDateTime(duration, dtBase);
                 }
             }
 
@@ -2457,7 +2424,6 @@ namespace Core.Billing
             return result;
         }
 
-
         public static Subscription GetSubscriptionData(int nGroupID, string subID)
         {
             Subscription res = null;
@@ -2489,7 +2455,6 @@ namespace Core.Billing
             return bytes;
         }
 
-
         internal static bool DataTableExsits(DataTable dataTable)
         {
             return dataTable != null && dataTable.Rows != null && dataTable.Rows.Count > 0;
@@ -2510,6 +2475,5 @@ namespace Core.Billing
 
             return res;
         }
-
     }
 }

@@ -287,7 +287,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateRole(int groupId, long id, string name, string permissionMap, int isActive = 1, int status = 1)
+        public static bool UpdateRole(int groupId, long id, string name, string permissionMap, int? profile, int isActive = 1, int status = 1)
         {
             try
             {
@@ -298,6 +298,7 @@ namespace DAL
                 sp.AddParameter("@XmlDoc", permissionMap);
                 sp.AddParameter("@isActive", isActive);
                 sp.AddParameter("@status", status);
+                sp.AddParameter("@ProfileType", profile); ;
 
                 int rowCount = sp.ExecuteReturnValue<int>();
                 return rowCount > 0;
@@ -1066,6 +1067,7 @@ namespace DAL
             return resultList;
         }
 
+        // CleanUserHistory - old method
         public static bool CleanUserHistory(string userId, List<int> lMediaIDs)
         {
             try
@@ -3056,6 +3058,8 @@ namespace DAL
                             {
                                 Id = ODBCWrapper.Utils.GetLongSafeVal(rolesRow, "ID"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(rolesRow, "NAME"),
+                                GroupId = ODBCWrapper.Utils.GetIntSafeVal(rolesRow, "GROUP_ID"),
+                                Profile = (RoleProfileType?)ODBCWrapper.Utils.GetNullableInt(rolesRow, "PROFILE_TYPE")
                             };
 
                             // add permissions for role if exists
@@ -3124,7 +3128,7 @@ namespace DAL
                                 Id = ODBCWrapper.Utils.GetLongSafeVal(rolesRow, "ID"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(rolesRow, "NAME"),
                             };
-
+                            
                             // add permissions for role if exists
                             if (rolesPermissions != null && rolesPermissions.ContainsKey(role.Id) && rolesPermissions[role.Id] != null)
                             {
@@ -3197,6 +3201,10 @@ namespace DAL
                         if (permissionPermissionItems != null && permissionPermissionItems.ContainsKey(permission.Id) && permissionPermissionItems[permission.Id] != null)
                         {
                             permission.PermissionItems = permissionPermissionItems[permission.Id].Values.ToList();
+                        }
+                        if (permission.PermissionItems?.Count > 0)
+                        {
+                            permission.PermissionItemsIds = permission.PermissionItems.Select(pi => pi.Id).ToList();
                         }
 
                         roleId = ODBCWrapper.Utils.GetLongSafeVal(permissionItemsRow, "ROLE_ID");
@@ -3406,7 +3414,7 @@ namespace DAL
             return rowCount;
         }
 
-        public static int InsertRolePermission(int groupId, string roleName, string permissionMap)
+        public static int InsertRolePermission(int groupId, string roleName, string permissionMap, int? profile)
         {
             int roleId = 0;
 
@@ -3416,6 +3424,7 @@ namespace DAL
                 sp.AddParameter("@roleName", roleName);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@XmlDoc", permissionMap);
+                sp.AddParameter("@profileType", profile);
 
                 roleId = sp.ExecuteReturnValue<int>();
             }
@@ -3429,19 +3438,41 @@ namespace DAL
 
         public static int InsertPermissionPermissionItem(int groupId, long permissionId, long permissionItemId)
         {
-            int rowCount = 0;
+            int id = 0;
 
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PermissionPermissionItem");
+                sp.AddParameter("@permissionId", permissionId);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@permissionItemId", permissionItemId);
+                sp.AddParameter("@isExcluded", 0);
+                id = Convert.ToInt32(sp.ExecuteReturnValue());
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while adding permission item to permission in DB, group id = {0}", groupId), ex);
+            }
+
+            return id;
+        }
+
+        public static int DeletePermissionItemFromPermission(int groupId, long permissionId, long permissionItemId)
+        {
+            int rowCount = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PermissionItemFromPermission");
                 sp.AddParameter("@permission_id", permissionId);
-                sp.AddParameter("@group_id", groupId);
                 sp.AddParameter("@permission_item_id", permissionItemId);
+                sp.AddParameter("@group_id", groupId);
+
                 rowCount = sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error while adding permission to role in DB, group id = {0}", groupId), ex);
+                log.Error(string.Format("Error while deleting permission item from permission in DB, group id = {0}", groupId), ex);
             }
 
             return rowCount;
@@ -4157,13 +4188,14 @@ namespace DAL
             return dt;
         }
 
-        public static List<MediaFile> GetMediaFiles(long mediaId)
+        public static List<MediaFile> GetMediaFiles(int groupId, long mediaId)
         {
             List<MediaFile> files = null;
             DataTable dt = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFiles");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@mediaId", mediaId);
+            sp.AddParameter("@groupId", groupId);
             dt = sp.Execute();
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -4183,6 +4215,7 @@ namespace DAL
                         Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                         DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
                         MediaId = mediaId,
+                        Opl = ODBCWrapper.Utils.GetSafeStr(dr, "OPL")
                     };
 
                     if (ODBCWrapper.Utils.GetNullableInt(dr, "streamer_type").HasValue)
@@ -5572,7 +5605,6 @@ namespace DAL
                 sp.AddParameter("@defaultRegion", partnerConfig.DefaultRegion.Value);
             }
 
-
             var rollingDeviceRemovalPolicy = partnerConfig.RollingDeviceRemovalData?.RollingDeviceRemovalPolicy ?? RollingDevicePolicy.NONE;
 
             sp.AddParameter("@rollingDeviceRemovalPolicy",rollingDeviceRemovalPolicy);
@@ -5581,6 +5613,11 @@ namespace DAL
             {
                 sp.AddParameter("@rollingDeviceRemovalFamilyIds", 
                     string.Join(",",partnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds));
+            }
+
+            if (partnerConfig.FinishedPercentThreshold.HasValue)
+            {
+                sp.AddParameter("@finishedPercentThreshold", partnerConfig.FinishedPercentThreshold.Value);
             }
 
             return sp.ExecuteReturnValue<int>() > 0;
@@ -6185,6 +6222,38 @@ namespace DAL
         {
             string key = GetPlaybackPartnerConfigKey(groupId);
             return UtilsDal.SaveObjectInCB<PlaybackPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, partnerConfig);
+        }
+
+        private static string GetPaymentPartnerConfigKey(int groupId)
+        {
+            return $"payment_partner_config_{groupId}";
+        }
+
+        public static PaymentPartnerConfig GetPaymentPartnerConfig(int groupId)
+        {
+            string key = GetPaymentPartnerConfigKey(groupId);
+            return UtilsDal.GetObjectFromCB<PaymentPartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SavePaymentPartnerConfig(int groupId, PaymentPartnerConfig partnerConfig)
+        {
+            string key = GetPaymentPartnerConfigKey(groupId);
+            return UtilsDal.SaveObjectInCB<PaymentPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, partnerConfig);
+        }
+
+        public static DataTable GetGroupPermissions(int groupId)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@group_id", groupId } };
+                return UtilsDal.Execute("Get_GroupPermissions", parameters);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while Get_GroupPermissions from DB, group id = {0}", groupId), ex);
+            }
+
+            return null;
         }
     }
 }

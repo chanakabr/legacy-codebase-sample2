@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
+using ApiObjects.Base;
+using WebAPI.Models.General;
+using WebAPI.ClientManagers.Client;
 
 namespace WebAPI.Models.Catalog
 {
@@ -43,11 +46,21 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "freeText", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string FreeText { get; set; }
-
-       
+  
         internal List<int> getTypeIn()
         {
             return this.GetItemsIn<List<int>, int>(TypeIn, "KalturaRelatedExternalFilter.typeIn");
+        }
+
+        //Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. 
+        //Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). 
+        //Maximum number of returned assets – 20, using paging  
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
+        {
+            int domainId = (int)(contextData.DomainId ?? 0);
+            var response = ClientsManager.CatalogClient().GetRelatedMediaExternal(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid,
+                        contextData.Language, pager.getPageIndex(), pager.PageSize, this.IdEqual, this.getTypeIn(), this.UtcOffsetEqual, this.FreeText);
+            return response;
         }
     }
 }

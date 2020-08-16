@@ -261,31 +261,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<PermissionItem, KalturaPermissionItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.IsExcluded, opt => opt.MapFrom(src => src.IsExcluded));
+
 
             cfg.CreateMap<ApiActionPermissionItem, KalturaApiActionPermissionItem>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .IncludeBase<PermissionItem, KalturaPermissionItem>()
                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
 
             cfg.CreateMap<ApiParameterPermissionItem, KalturaApiParameterPermissionItem>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .IncludeBase<PermissionItem, KalturaPermissionItem>()
                .ForMember(dest => dest.Object, opt => opt.MapFrom(src => src.Object))
                .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.Parameter))
                .ForMember(dest => dest.Action, opt => opt.ResolveUsing(src => ConvertApiParameterPermissionItemAction(src.Action)));
 
             cfg.CreateMap<ApiArgumentPermissionItem, KalturaApiArgumentPermissionItem>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .IncludeBase<PermissionItem, KalturaPermissionItem>()
                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.Parameter));
 
             cfg.CreateMap<ApiPriviligesPermissionItem, KalturaApiPriviligesPermissionItem>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .IncludeBase<PermissionItem, KalturaPermissionItem>()
                .ForMember(dest => dest.Object, opt => opt.MapFrom(src => src.Object))
                .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.Parameter));
 
@@ -294,7 +292,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.FriendlyName, opt => opt.MapFrom(src => src.FriendlyName))
               //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPermissionType(src.Type)))
-              .ForMember(dest => dest.PermissionItems, opt => opt.ResolveUsing(src => ConvertPermissionItems(src.PermissionItems)));
+              .ForMember(dest => dest.PermissionItems, opt => opt.ResolveUsing(src => ConvertPermissionItems(src.PermissionItems)))
+              .ForMember(dest => dest.PermissionItemsIds, opt => opt.MapFrom(src => src.PermissionItemsIds != null ? string.Join(",", src.PermissionItemsIds) : null));
 
             cfg.CreateMap<KalturaPermission, Permission>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -317,15 +316,38 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.Permissions, opt => opt.ResolveUsing(src => ConvertPermissions(src.Permissions)))
              .ForMember(dest => dest.PermissionNames, opt => opt.ResolveUsing(src => ConvertPermissionsNames(src.Permissions, false)))
-             .ForMember(dest => dest.ExcludedPermissionNames, opt => opt.ResolveUsing(src => ConvertPermissionsNames(src.Permissions, true)));
+             .ForMember(dest => dest.ExcludedPermissionNames, opt => opt.ResolveUsing(src => ConvertPermissionsNames(src.Permissions, true)))
+             .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => src.GroupId == 0 ? KalturaUserRoleType.SYSTEM : KalturaUserRoleType.CUSTOM))
+             .ForMember(dest => dest.Profile, opt => opt.ResolveUsing(src => ConvertRoleProfileType(src.Profile)));
 
             cfg.CreateMap<KalturaUserRole, Role>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.Permissions, opt => opt.ResolveUsing(src => ConvertPermissionsNames(src.PermissionNames, src.ExcludedPermissionNames)));
-
-            #endregion
+            .ForMember(dest => dest.Permissions, opt => opt.ResolveUsing(src => ConvertPermissionsNames(src.PermissionNames, src.ExcludedPermissionNames)))
+            .ForMember(dest => dest.Profile, opt => opt.ResolveUsing(src => ConvertRoleProfileType(src.Profile)));
             
+            cfg.CreateMap<KalturaPermissionItemFilter, PermissionItemFilter>();
+
+            cfg.CreateMap<KalturaPermissionItemByIdInFilter, PermissionItemByIdInFilter>()
+               .IncludeBase<KalturaPermissionItemFilter, PermissionItemFilter>()
+               .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? src.GetItemsIn<List<long>, long>(src.IdIn, "KalturaPermissionItemByIdInFilter.IdIn", true) : null));
+
+            cfg.CreateMap<KalturaPermissionItemByApiActionFilter, PermissionItemByApiActionFilter>()
+               .IncludeBase<KalturaPermissionItemFilter, PermissionItemFilter>()
+               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.ActionEqual))
+               .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.ServiceEqual));
+
+            cfg.CreateMap<KalturaPermissionItemByArgumentFilter, PermissionItemByArgumentFilter>()
+               .IncludeBase<KalturaPermissionItemByApiActionFilter, PermissionItemByApiActionFilter>()
+               .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.ParameterEqual));
+
+            cfg.CreateMap<KalturaPermissionItemByParameterFilter, PermissionItemByParameterFilter>()
+               .IncludeBase<KalturaPermissionItemFilter, PermissionItemFilter>()
+               .ForMember(dest => dest.Object, opt => opt.MapFrom(src => src.ObjectEqual))
+               .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.ParameterEqual));
+            
+            #endregion
+
             //Api.RegistrySettings to KalturaRegistrySettings
             cfg.CreateMap<RegistrySettings, KalturaRegistrySettings>()
               .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
@@ -499,7 +521,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region Meta
 
             cfg.CreateMap<Meta, KalturaMeta>()
-              .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+              .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
               .ForMember(dest => dest.FieldName, opt => opt.ResolveUsing(src => ConvertFieldName(src.FieldName)))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
               .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertMetaType(src.Type)))
@@ -510,7 +532,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               ;
 
             cfg.CreateMap<KalturaMeta, Meta>()
-             .ForMember(dest => dest.AssetType, opt => opt.ResolveUsing(src => ConvertAssetType(src.AssetType)))
+             .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
              .ForMember(dest => dest.FieldName, opt => opt.ResolveUsing(src => ConvertMetaFieldName(src.FieldName)))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertMetaType(src.Type)))
@@ -583,7 +605,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             
             cfg.CreateMap<WebAPI.Models.Catalog.KalturaSlimAsset, SlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertAssetType(src.Type)));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
             
             cfg.CreateMap<KalturaRuleConditionType, RuleConditionType>()
                .ConvertUsing(kalturaRuleConditionType =>
@@ -1407,7 +1429,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParams))
                 .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => ConvertPlaybackSourceFileExtention(src)))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
-                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));
+                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized))
+                .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.OutputProtecationLevel))
+                ;
 
             cfg.CreateMap<KalturaPlaybackSource, ApiObjects.PlaybackAdapter.PlaybackSource>()
              .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.Format))
@@ -1417,7 +1441,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParams))
                 .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.FileExtention))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
-                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));
+                .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized))
+                .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.Opl))
+                ;
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaPluginData>();
 
@@ -2830,27 +2856,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaAssetType ConvertAssetType(eAssetTypes assetType)
-        {
-            KalturaAssetType response;
-            switch (assetType)
-            {
-                case eAssetTypes.EPG:
-                    response = KalturaAssetType.epg;
-                    break;
-                case eAssetTypes.NPVR:
-                    response = KalturaAssetType.recording;
-                    break;
-                case eAssetTypes.MEDIA:
-                    response = KalturaAssetType.media;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
-            }
-
-            return response;
-        }
-
         private static KalturaMetaType ConvertMetaType(ApiObjects.MetaType metaType)
         {
             KalturaMetaType response;
@@ -2904,29 +2909,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case MetaFieldName.All:
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown meta field name type");
-            }
-            return response;
-        }
-
-        internal static eAssetTypes ConvertAssetType(KalturaAssetType? assetType)
-        {
-            eAssetTypes response = eAssetTypes.UNKNOWN;
-            if (assetType.HasValue)
-            {
-                switch (assetType)
-                {
-                    case KalturaAssetType.epg:
-                        response = eAssetTypes.EPG;
-                        break;
-                    case KalturaAssetType.recording:
-                        response = eAssetTypes.NPVR;
-                        break;
-                    case KalturaAssetType.media:
-                        response = eAssetTypes.MEDIA;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown KalturaAssetType");
-                }
             }
             return response;
         }
@@ -3079,7 +3061,52 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return kalturaActionRules;
         }
 
-       
+        private static RoleProfileType? ConvertRoleProfileType(KalturaUserRoleProfile? profile)
+        {
+            RoleProfileType? res = null;
+            switch (profile)
+            {
+                case KalturaUserRoleProfile.SYSTEM:
+                    res = RoleProfileType.System;
+                    break;
+                case KalturaUserRoleProfile.USER:
+                    res = RoleProfileType.User;
+                    break;
+                case KalturaUserRoleProfile.PARTNER:
+                    res = RoleProfileType.Partner;
+                    break;
+                case KalturaUserRoleProfile.PROFILE:
+                default:
+                    res = RoleProfileType.Profile;
+                    break;
+            }
+
+            return res;
+        }
+
+        private static KalturaUserRoleProfile? ConvertRoleProfileType(RoleProfileType? profile)
+        {
+            KalturaUserRoleProfile? res = null;
+            
+            switch (profile)
+            {
+                case RoleProfileType.System:
+                    res = KalturaUserRoleProfile.SYSTEM;
+                    break;
+                case RoleProfileType.User:
+                    res = KalturaUserRoleProfile.USER;
+                    break;
+                case RoleProfileType.Partner:
+                    res = KalturaUserRoleProfile.PARTNER;
+                    break;
+                case RoleProfileType.Profile:
+                default:
+                    res = KalturaUserRoleProfile.PROFILE;
+                    break;
+            }
+
+            return res;
+        }
 
         #endregion
     }

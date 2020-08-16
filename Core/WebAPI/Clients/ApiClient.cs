@@ -1,6 +1,7 @@
 ﻿using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
@@ -2633,44 +2634,6 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal bool AddPermissionItemToPermission(int groupId, long permissionId, long permissionItemId)
-        {
-            bool success = false;
-
-
-
-            Status response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.AddPermissionItemToPermission(groupId, permissionId, permissionItemId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException(StatusCode.Error);
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response);
-            }
-            else
-            {
-                success = true;
-            }
-
-            return success;
-        }
-
         internal bool CleanUserHistory(int groupId, string userId, List<Models.Catalog.KalturaSlimAsset> assetsList)
         {
             bool success = false;
@@ -3238,7 +3201,7 @@ namespace WebAPI.Clients
             MetaResponse response = null;
             try
             {
-                eAssetTypes wsAssetType = ApiMappings.ConvertAssetType(assetType);
+                eAssetTypes wsAssetType = AutoMapper.Mapper.Map<eAssetTypes>(assetType);
                 ApiObjects.MetaType wsMetaType = ApiMappings.ConvertMetaType(metaType);
                 MetaFieldName wsFieldNameEqual = ApiMappings.ConvertMetaFieldName(fieldNameEqual);
                 MetaFieldName wsFieldNameNotEqual = ApiMappings.ConvertMetaFieldName(fieldNameNotEqual);
@@ -3588,7 +3551,7 @@ namespace WebAPI.Clients
 
             Status response = null;
 
-            KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId, udid, string.Empty, 0, 0, watchStatus, days, assetTypes, assetIds);
+            KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId, udid, string.Empty, 0, 0, watchStatus, days, assetTypes, assetIds, false);
 
             if (historyResponse != null && historyResponse.Objects != null && historyResponse.Objects.Count > 0)
             {
@@ -3597,7 +3560,7 @@ namespace WebAPI.Clients
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         response = Core.Api.Module.CleanUserAssetHistory(groupId, userId,
-                            historyResponse.Objects.Select(a => new KeyValuePair<int, eAssetTypes>((int)a.AssetId, ApiMappings.ConvertAssetType(a.AssetType))).ToList());
+                            historyResponse.Objects.Select(a => new KeyValuePair<int, eAssetTypes>((int)a.AssetId, AutoMapper.Mapper.Map<eAssetTypes>(a.AssetType))).ToList());
                     }
                 }
                 catch (Exception ex)
@@ -3618,7 +3581,7 @@ namespace WebAPI.Clients
             }
         }
 
-        internal string GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, KalturaAssetType assetType, int fileId, string externalFileId,
+        internal string GetCustomDrmAssetLicenseData(int groupId, int drmAdapterId, string userId, string assetId, KalturaAssetType kalturaAssetType, int fileId, string externalFileId,
             string udid, KalturaPlaybackContextType? context, string recordingId, out string code, out string message)
         {
             StringResponse drmAdapterResponse = null;
@@ -3633,10 +3596,11 @@ namespace WebAPI.Clients
                 {
                     contextType = ConditionalAccessMappings.ConvertPlayContextType(context.Value) == PlayContextType.Download ? PlayContextType.Download : PlayContextType.Playback;
                 }
+                var assetType = AutoMapper.Mapper.Map<eAssetTypes>(kalturaAssetType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    drmAdapterResponse = Core.Api.Module.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, ApiMappings.ConvertAssetType(assetType), fileId,
+                    drmAdapterResponse = Core.Api.Module.GetCustomDrmAssetLicenseData(groupId, drmAdapterId, userId, assetId, assetType, fileId,
                         externalFileId, Utils.Utils.GetClientIP(), udid, contextType, recordingId);
                 }
             }
@@ -4148,7 +4112,7 @@ namespace WebAPI.Clients
 
             ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = AutoMapper.Mapper.Map<ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>(contextDataParams);
             requestPlaybackContextOptions.AssetId = assetId;
-            requestPlaybackContextOptions.AssetType = ApiMappings.ConvertAssetType(assetType);
+            requestPlaybackContextOptions.AssetType = AutoMapper.Mapper.Map<eAssetTypes>(assetType);
 
             Func<ApiObjects.PlaybackAdapter.PlaybackContext, GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>> updateBusinessModuleRuleFunc = (ApiObjects.PlaybackAdapter.PlaybackContext getPlaybackContext) =>
              Core.Api.Module.GetPlaybackContext(adapterId, groupId, userId, udid, ip, getPlaybackContext, requestPlaybackContextOptions);
@@ -4459,7 +4423,8 @@ namespace WebAPI.Clients
         {
             ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions = AutoMapper.Mapper.Map<ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>(contextDataParams);
             requestPlaybackContextOptions.AssetId = assetId;
-            requestPlaybackContextOptions.AssetType = ApiMappings.ConvertAssetType(assetType);
+            requestPlaybackContextOptions.AssetType = AutoMapper.Mapper.Map<eAssetTypes>(assetType);
+            ;
 
             Func<ApiObjects.PlaybackAdapter.PlaybackContext, GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext>> updateBusinessModuleRuleFunc = (ApiObjects.PlaybackAdapter.PlaybackContext playbackContext) =>
              Core.Api.Module.GetPlaybackManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions, userId);
@@ -4531,6 +4496,18 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal void AddPermissionItemToPermission(int groupId, long permissionId, long permissionItemId)
+        {
+            Func<Status> addPermissionItemToPermissionFunc = () => RolesPermissionsManager.AddPermissionItemToPermission(groupId, permissionId, permissionItemId);
+            ClientUtils.GetResponseStatusFromWS(addPermissionItemToPermissionFunc);
+        }
+
+        internal void RemovePermissionItemFromPermission(int groupId, long permissionId, long permissionItemId)
+        {
+            Func<Status> removePermissionItemToPermissionFunc = () => RolesPermissionsManager.RemovePermissionItemFromPermission(groupId, permissionId, permissionItemId);
+            ClientUtils.GetResponseStatusFromWS(removePermissionItemToPermissionFunc);
+        }
+
         internal KalturaExternalChannelProfileListResponse GetExternalChannels(int groupId, long userId, List<long> list)
         {
             var result = new KalturaExternalChannelProfileListResponse();
@@ -4542,6 +4519,21 @@ namespace WebAPI.Clients
                 ClientUtils.GetResponseListFromWS<KalturaExternalChannelProfile, ExternalChannel>(getListFunc);
 
             result.Objects = new List<KalturaExternalChannelProfile>(response.Objects);
+            result.TotalCount = response.TotalCount;
+            return result;
+        }
+
+        internal KalturaPartnerConfigurationListResponse GetPaymentConfiguration(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<PaymentPartnerConfig>> getPartnerConfigListFunc = () =>
+                PartnerConfigurationManager.GetPaymentConfigList(groupId);
+
+            KalturaGenericListResponse<KalturaPaymentPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaPaymentPartnerConfig, PaymentPartnerConfig>(getPartnerConfigListFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
             result.TotalCount = response.TotalCount;
             return result;
         }

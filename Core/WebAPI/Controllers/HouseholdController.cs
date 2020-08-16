@@ -609,6 +609,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.DomainAlreadySuspended)]
+        [Throws(eResponseStatus.RoleDoesNotExists)]
         static public bool Suspend(int? roleId = null)
         {
             var ks = KS.GetFromRequest();

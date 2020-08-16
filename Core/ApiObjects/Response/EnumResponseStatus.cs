@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -301,6 +301,12 @@ namespace ApiObjects.Response
         FileExceededMaxSize = 4095,
         FileExtensionNotSupported = 4096,
         FileMimeDifferentThanExpected = 4097,
+        InvalidAssetStruct = 4098,
+        NoNextEpisode = 4099,
+        CannotDeleteAssetStruct = 4100,
+        CategoryTypeNotExist = 4101,
+        ExtendedTypeValueCannotBeChanged = 4102,
+
         #endregion
 
         #region Api 5000 - 5999
@@ -365,6 +371,11 @@ namespace ApiObjects.Response
         DefaultRegionCannotBeDeleted = 5068,
         CannotDeleteRegionInUse = 5069,
         PartnerConfigurationDoesNotExist = 5070,
+        PermissionItemNotFound = 5071,
+        PermissionReadOnly = 5072,
+        PermissionPermissionItemNotFound = 5073,
+        PermissionPermissionItemAlreadyExists = 5074,
+        RoleReadOnly = 5075,
 
         #endregion
 
@@ -448,7 +459,7 @@ namespace ApiObjects.Response
         UserEmailIsMissing = 7017,
 
         #endregion
-        
+
         #region notification 8000-8999
 
         NoNotificationSettingsSent = 8000,

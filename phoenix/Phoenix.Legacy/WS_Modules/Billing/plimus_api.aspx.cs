@@ -372,7 +372,7 @@ namespace WS_Billing
         {
             ODBCWrapper.DataSetInsertQuery insertQuery = new ODBCWrapper.DataSetInsertQuery("campaigns_uses");
             insertQuery.SetConnectionKey("ca_connection_string");
-            DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(maxLifeCycle));
+            DateTime d = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(maxLifeCycle));
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("campaign_id", "=", campaignID);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("site_guid", "=", int.Parse(siteGuid));
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("num_of_uses", "=", 0);
@@ -393,7 +393,7 @@ namespace WS_Billing
             int maxUsageModuleLifecycle = 0;
             if (!string.IsNullOrEmpty(smaxusagemodulelifecycle) && int.TryParse(smaxusagemodulelifecycle, out maxUsageModuleLifecycle))
             {                
-                endDate = Utils.GetEndDateTime(DateTime.UtcNow, maxUsageModuleLifecycle);
+                endDate = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, maxUsageModuleLifecycle);
             }
 
             long purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(groupID, long.Parse(smedia_file), sSiteGUID, double.Parse(price), scurrency, !string.IsNullOrEmpty(smnou) ? long.Parse(smnou) : 0,
@@ -461,7 +461,7 @@ namespace WS_Billing
             int maxUsageModuleLifecycle = 0;
             if (!string.IsNullOrEmpty(smaxusagemodulelifecycle) && int.TryParse(smaxusagemodulelifecycle, out maxUsageModuleLifecycle))
             {                
-                endDate = Utils.GetEndDateTime(DateTime.UtcNow, maxUsageModuleLifecycle);
+                endDate = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, maxUsageModuleLifecycle);
             }
             
             long purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(groupID, sSubscriptionID, sSiteGUID, double.Parse(price), scurrency, sCustomData, sCountryCode, sLangCode, sDevice,
@@ -523,7 +523,7 @@ namespace WS_Billing
             DateTime d = DateTime.MaxValue;
             if (!string.IsNullOrEmpty(smaxusagemodulelifecycle))
             {
-                d = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(smaxusagemodulelifecycle));
+                d = Core.ConditionalAccess.Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(smaxusagemodulelifecycle));
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
                 //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", GetCurrentDBTime().AddSeconds(thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle));
             }

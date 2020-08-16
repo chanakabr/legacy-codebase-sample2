@@ -43,7 +43,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DomainStatusResponse AddDomainWithCoGuid(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid, string sCoGuid, int? regionId)
         {
             DomainStatusResponse response = new DomainStatusResponse();
@@ -66,7 +66,7 @@ namespace Core.Domains
 
             return response;
         }
-        
+
         public static DomainResponseStatus RemoveDomain(int nGroupID, int nDomainID, bool purge)
 
         {
@@ -105,7 +105,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DomainStatusResponse AddUserToDomain(int nGroupID, int nDomainID, int nUserGuid, int nMasterUserGuid, bool bIsMaster)
         {
             // add siteguid to logs/monitor
@@ -137,7 +137,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DomainStatusResponse SubmitAddUserToDomainRequest(int nGroupID, int nUserID, string sMasterUsername)
         {
             DomainStatusResponse response = new DomainStatusResponse()
@@ -168,7 +168,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static List<string> GetDomainUserList(int nGroupID, int nDomainID)
         {
             Core.Users.BaseDomain t = null;
@@ -179,7 +179,7 @@ namespace Core.Domains
             }
             return null;
         }
-        
+
         public static DomainStatusResponse RemoveUserFromDomain(int nGroupID, Int32 nDomainID, string sUserGUID)
         {
             // add siteguid to logs/monitor
@@ -213,7 +213,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DomainStatusResponse AddDeviceToDomain(int nGroupID, int nDomainID, string udid, string deviceName, int deviceBrandID)
         {
             DomainStatusResponse response = new DomainStatusResponse();
@@ -237,24 +237,24 @@ namespace Core.Domains
             return response;
         }
 
-        
-        public static DeviceResponse AddDevice(int nGroupID, int nDomainID, string udid, string deviceName, int deviceBrandID, string externalId)
+
+        public static DeviceResponse AddDevice(int nGroupID, int nDomainID, string udid, string deviceName, int deviceBrandID, string externalId, string macAddress)
         {
             var response = new DeviceResponse
             {
-                Status = new ApiObjects.Response.Status((int) eResponseStatus.Error, eResponseStatus.Error.ToString())
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
             BaseDomain baseDomain = null;
             Utils.GetBaseImpl(ref baseDomain, nGroupID);
             if (baseDomain != null)
             {
-                response = baseDomain.AddDevice(nGroupID, nDomainID, udid, deviceName, deviceBrandID, externalId);
+                response = baseDomain.AddDevice(nGroupID, nDomainID, udid, deviceName, deviceBrandID, externalId, macAddress);
             }
             return response;
         }
 
-        
+
         public static DomainStatusResponse RemoveDeviceFromDomain(int nGroupID, int nDomainID, string udid)
         {
             DomainStatusResponse response = new DomainStatusResponse();
@@ -278,7 +278,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DomainStatusResponse ChangeDeviceDomainStatus(int nGroupID, int nDomainID, string deviceUDID, bool activate)
         {
             DomainStatusResponse response = new DomainStatusResponse();
@@ -300,14 +300,14 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DomainResponse GetDomainInfo(int nGroupID, Int32 nDomainID)
         {
             DomainResponse response = new DomainResponse()
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
-            
+
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
@@ -326,7 +326,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static int GetDomainIDByCoGuid(int nGroupID, string sCoGuid)
         {
             Core.Users.BaseDomain t = null;
@@ -339,7 +339,7 @@ namespace Core.Domains
             return 0;
         }
 
-        
+
         public static DomainStatusResponse GetDomainByCoGuid(int nGroupID, string sCoGuid)
         {
             DomainStatusResponse response = new DomainStatusResponse();
@@ -364,7 +364,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static List<Domain> GetDeviceDomains(int nGroupID, string udid)
         {
             Core.Users.BaseDomain t = null;
@@ -377,7 +377,7 @@ namespace Core.Domains
         }
 
 
-        
+
         public static DevicePinResponse GetPINForDevice(int nGroupID, string sDeviceUDID, int nBrandID)
         {
             DevicePinResponse response = new DevicePinResponse()
@@ -397,7 +397,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DeviceResponse RegisterDeviceToDomainWithPIN(int nGroupID, string sPID, int nDomainID, string sDeviceName)
         {
             DeviceResponse response = new DeviceResponse();
@@ -422,7 +422,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DomainResponseObject ResetDomain(int nGroupID, int nDomainID)
         {
             Core.Users.BaseDomain t = null;
@@ -438,7 +438,7 @@ namespace Core.Domains
             return new DomainResponseObject(domain, DomainResponseStatus.Error);
         }
 
-        
+
         public static DomainStatusResponse ResetDomainFrequency(int nGroupID, int nDomainID, int nFrequencyType)
         {
             DomainStatusResponse response = new DomainStatusResponse();
@@ -464,7 +464,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DomainResponseObject ChangeDomainMaster(int nGroupID, int nDomainID, int nCurrentMasterID, int nNewMasterID)
         {
             Core.Users.BaseDomain t = null;
@@ -480,7 +480,7 @@ namespace Core.Domains
             return new DomainResponseObject(domain, DomainResponseStatus.Error);
         }
 
-        
+
         public static int[] GetDomainIDsByOperatorCoGuid(int nGroupID, string sOperatorCoGuid)
         {
             Core.Users.BaseDomain t = null;
@@ -493,7 +493,7 @@ namespace Core.Domains
             return new int[] { };
         }
 
-        
+
         public static DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID)
         {
             Core.Users.BaseDevice t = null;
@@ -553,7 +553,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DomainResponseObject ConfirmDeviceByDomainMaster(int nGroupID, string sMasterUN, string sDeviceUDID, string sToken)
         {
             Core.Users.BaseDomain t = null;
@@ -569,7 +569,7 @@ namespace Core.Domains
             return new DomainResponseObject(domain, DomainResponseStatus.Error);
         }
 
-        
+
         public static bool SetDomainRestriction(int nGroupID, int nDomainID, int nRestriction)
         {
             Core.Users.BaseDomain t = null;
@@ -582,7 +582,7 @@ namespace Core.Domains
             return false;
         }
 
-        
+
         public static NetworkResponseObject AddHomeNetworkToDomain(int nGroupID, long lDomainID,
             string sNetworkID, string sNetworkName, string sNetworkDesc)
         {
@@ -597,7 +597,7 @@ namespace Core.Domains
 
         }
 
-        
+
         public static HomeNetworkResponse SetDomainHomeNetwork(int nGroupID, long lDomainID,
             string sNetworkID, string sNetworkName, string sNetworkDesc, bool bIsActive)
         {
@@ -616,7 +616,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static ApiObjects.Response.Status RemoveDomainHomeNetwork(int nGroupID, long lDomainID,
             string sNetworkID)
         {
@@ -632,7 +632,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static HomeNetworksResponse GetDomainHomeNetworks(int nGroupID, long lDomainID)
         {
             HomeNetworksResponse response = new HomeNetworksResponse()
@@ -671,7 +671,7 @@ namespace Core.Domains
             {
                 return baseDomain.ValidateLimitationModule(deviceBrandId, validationType, devicePlayData);
             }
-            
+
             return new ValidationResponseObject(DomainResponseStatus.UnKnown, devicePlayData.DomainId);
         }
 
@@ -693,7 +693,7 @@ namespace Core.Domains
         }
 
 
-        
+
         public static ApiObjects.Response.Status RemoveDLM(int nGroupID, int nDlmID)
         {
             ApiObjects.Response.Status resp = new ApiObjects.Response.Status();
@@ -715,7 +715,7 @@ namespace Core.Domains
             }
         }
 
-        
+
         public static ChangeDLMObj ChangeDLM(int nGroupID, int nDomainID, int nDlmID)
         {
             ChangeDLMObj oChangeDLMObj = new ChangeDLMObj();
@@ -737,7 +737,7 @@ namespace Core.Domains
             return oChangeDLMObj;
         }
 
-        
+
         public static DLMResponse GetDLM(int nGroupID, int nDlmID)
         {
             DLMResponse oDLMObj = new DLMResponse();
@@ -757,7 +757,7 @@ namespace Core.Domains
             return oDLMObj;
         }
 
-        
+
         public static ApiObjects.Response.Status SuspendDomain(int nGroupID, int nDomainID, int? roleId = null)
         {
             Core.Users.BaseDomain d = null;
@@ -770,7 +770,7 @@ namespace Core.Domains
             }
         }
 
-        
+
         public static ApiObjects.Response.Status ResumeDomain(int nGroupID, int nDomainID)
         {
             Core.Users.BaseDomain d = null;
@@ -783,7 +783,7 @@ namespace Core.Domains
             }
         }
 
-        
+
         public static ApiObjects.Response.Status SetDomainRegion(int nGroupID, int domainId, string extRegionId, string lookupKey)
         {
             Core.Users.BaseDomain d = null;
@@ -798,7 +798,7 @@ namespace Core.Domains
             }
         }
 
-        
+
         public static DomainResponse GetDomainByUser(int nGroupID, string siteGuid)
         {
             // add siteguid to logs/monitor
@@ -820,7 +820,7 @@ namespace Core.Domains
             return response;
         }
 
-        
+
         public static DeviceRegistrationStatusResponse GetDeviceRegistrationStatus(int nGroupID, string udid, int domainId)
         {
             DeviceRegistrationStatusResponse response = new DeviceRegistrationStatusResponse();
@@ -836,13 +836,14 @@ namespace Core.Domains
             return response;
         }
 
-        public static DeviceResponse SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string externalId = "", bool allowNullExternalId = false)
+        public static DeviceResponse SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string macAddress, string externalId = ""
+            , bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             Core.Users.BaseDevice t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                DeviceResponseObject responseObject = t.SetDevice(nGroupID, sDeviceUDID, sDeviceName, externalId, allowNullExternalId);
+                DeviceResponseObject responseObject = t.SetDevice(nGroupID, sDeviceUDID, sDeviceName, macAddress, externalId, allowNullExternalId, allowNullMacAddress);
 
                 DeviceResponse response = new DeviceResponse()
                 {
@@ -863,7 +864,7 @@ namespace Core.Domains
             }
         }
 
-        
+
         public static DeviceResponse GetDevice(int nGroupID, string udid, int domainId, string userId, string ip)
         {
             DeviceResponse response = new DeviceResponse();
@@ -895,7 +896,7 @@ namespace Core.Domains
             return status;
         }
 
-        
+
         public static ApiObjects.Response.Status RemoveDomainByCoGuid(int nGroupID, string coGuid, bool purge)
         {
 
@@ -915,7 +916,7 @@ namespace Core.Domains
             return status;
         }
 
-        
+
         public static HomeNetworkResponse AddDomainHomeNetwork(int nGroupID, long lDomainID,
             string sNetworkID, string sNetworkName, string sNetworkDesc, bool isActive)
         {
@@ -934,8 +935,9 @@ namespace Core.Domains
             return response;
         }
 
-        
-        public static DeviceResponse SubmitAddDeviceToDomain(int nGroupID, int domainID, string userID, string deviceUdid, string deviceName, int brandID, string externalId)
+
+        public static DeviceResponse SubmitAddDeviceToDomain(int nGroupID, int domainID, string userID, string deviceUdid, string deviceName,
+            int brandID, string externalId, string macAddress)
         {
             DeviceResponse response = new DeviceResponse() { Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
 
@@ -946,7 +948,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                response = t.SubmitAddDeviceToDomain(nGroupID, domainID, userID, deviceUdid, deviceName, brandID, externalId);
+                response = t.SubmitAddDeviceToDomain(nGroupID, domainID, userID, deviceUdid, deviceName, brandID, externalId, macAddress);
             }
 
             return response;
@@ -1014,7 +1016,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                status = t.PurgeDomain(householdId);                
+                status = t.PurgeDomain(householdId);
             }
 
             return status;

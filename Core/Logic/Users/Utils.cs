@@ -340,40 +340,6 @@ namespace Core.Users
             return ret;
         }
 
-        static public DateTime GetEndDateTime(DateTime dBase, Int32 nVal)
-        {
-            DateTime dRet = dBase;
-            if (nVal == 1111111)
-                dRet = dRet.AddMonths(1);
-            else if (nVal == 2222222)
-                dRet = dRet.AddMonths(2);
-            else if (nVal == 3333333)
-                dRet = dRet.AddMonths(3);
-            else if (nVal == 4444444)
-                dRet = dRet.AddMonths(4);
-            else if (nVal == 5555555)
-                dRet = dRet.AddMonths(5);
-            else if (nVal == 6666666)
-                dRet = dRet.AddMonths(6);
-            else if (nVal == 9999999)
-                dRet = dRet.AddMonths(9);
-            else if (nVal == 11111111)
-                dRet = dRet.AddYears(1);
-            else if (nVal == 22222222)
-                dRet = dRet.AddYears(2);
-            else if (nVal == 33333333)
-                dRet = dRet.AddYears(3);
-            else if (nVal == 44444444)
-                dRet = dRet.AddYears(4);
-            else if (nVal == 55555555)
-                dRet = dRet.AddYears(5);
-            else if (nVal == 100000000)
-                dRet = dRet.AddYears(10);
-            else
-                dRet = dRet.AddMinutes(nVal);
-            return dRet;
-        }
-
         static public BaseMailImpl GetBaseImpl(int nGroupID, int nRuleID, int nImpID)
         {
             BaseMailImpl retVal = null;

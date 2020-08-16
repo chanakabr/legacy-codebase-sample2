@@ -254,6 +254,11 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CHILD_CATEGORY_NOT_EXIST = new ClientExceptionType(eResponseStatus.ChildCategoryNotExist, "", "Child category does not exist");
         public static ClientExceptionType CHILD_CATEGORY_ALREADY_BELONGS_TO_ANOTHER = new ClientExceptionType(eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory, "", "Child Category already belongs to another category");
         public static ClientExceptionType CHILD_CATEGORY_CANNOT_BE_THE_CATEGORY_ITSELF = new ClientExceptionType(eResponseStatus.ChildCategoryCannotBeTheCategoryItself, "", "A child category cannot be the category itself");
+        public static ClientExceptionType INVALID_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.InvalidAssetStruct, "", "Invalid asset struct");
+        public static ClientExceptionType NO_NEXT_EPISODE = new ClientExceptionType(eResponseStatus.NoNextEpisode, "", "User have not started watching this TV series");
+        public static ClientExceptionType CANNOT_DELETE_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CannotDeleteAssetStruct, "", "Cannot delete asset struct");
+        public static ClientExceptionType CATEGORY_TYPE_NOT_EXIST = new ClientExceptionType(eResponseStatus.CategoryTypeNotExist, "", "Category type does not exist");
+        public static ClientExceptionType EXTENDED_TYPE_VALUE_CANNOT_BE_CHANGED = new ClientExceptionType(eResponseStatus.ExtendedTypeValueCannotBeChanged, "", "ExtendedType value cannot be changed");
 
         #endregion
 
@@ -307,6 +312,14 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType REGION_CANNOT_BE_PARENT = new ClientExceptionType(eResponseStatus.RegionCannotBeParent, "Region cannot be parent", "Region cannot be parent");
         public static ClientExceptionType DEFAULT_REGION_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.DefaultRegionCannotBeDeleted, "Default region cannot be deleted", "Default region cannot be deleted");
         public static ClientExceptionType CANNOT_DELETE_REGION_IN_USE = new ClientExceptionType(eResponseStatus.CannotDeleteRegionInUse, "Region in use cannot be deleted", "Region in use cannot be deleted");
+        public static ClientExceptionType FILE_EXCEEDED_MAX_SIZE = new ClientExceptionType(eResponseStatus.FileExceededMaxSize, "File Exceeded Max Size", "File Exceeded Max Size");
+        public static ClientExceptionType FILE_EXTENSION_NOT_SUPPORTED = new ClientExceptionType(eResponseStatus.FileExtensionNotSupported, "File Extension Not Supported", "File Extension Not Supported");
+        public static ClientExceptionType FILE_MIME_DIFFERENT_THAN_EXPECTED = new ClientExceptionType(eResponseStatus.FileMimeDifferentThanExpected, "File Mime Different Than Expected", "File Mime Different Than Expected");
+        public static ClientExceptionType PERMISSION_ITEM_NOT_FOUND = new ClientExceptionType(eResponseStatus.PermissionItemNotFound, "Permission item cannot be found", "Permission item cannot be found");
+        public static ClientExceptionType PERMISSION_READ_ONLY = new ClientExceptionType(eResponseStatus.PermissionReadOnly, "Permission is readonly and cannot be updated", "Permission is readonly and cannot be updated");
+        public static ClientExceptionType PERMISSION_PERMISSION_ITEM_NOT_FOUND = new ClientExceptionType(eResponseStatus.PermissionPermissionItemNotFound, "Permission item is not associated with permission", "Permission item is not associated with permission");
+        public static ClientExceptionType PERMISSION_PERMISSION_ITEM_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.PermissionPermissionItemAlreadyExists, "Permission item is already associated with permission", "Permission item is already associated with permission");
+        public static ClientExceptionType ROLE_READ_ONLY = new ClientExceptionType(eResponseStatus.RoleReadOnly, "Role is readonly and cannot be updated", "Role is readonly and cannot be updated");
 
         #endregion
 

@@ -16,6 +16,7 @@ using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.Helper;
 using ClientResponseStatus = TVPApiModule.Objects.Responses.ClientResponseStatus;
 using LicensedLinkResponse = Core.ConditionalAccess.LicensedLinkResponse;
+using ApiObjects.Base;
 
 namespace TVPApiModule.Services
 {
@@ -1693,9 +1694,21 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = Core.ConditionalAccess.Module.Purchase(m_groupID, userId, 0, price, currency, contentId, productId, productType, coupon, SiteHelper.GetClientIP(), deviceName, paymentGatewayId, paymentMethodId, string.Empty);
-                    response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse(result);
+                    if (!long.TryParse(userId, out long userID))
+                    {
+                        userID = 0;
+                    }
 
+                    var contextData = new ContextData(m_groupID)
+                    {
+                        UserId = userID,
+                        DomainId = 0, 
+                        UserIp = SiteHelper.GetClientIP(),
+                        Udid = deviceName,
+                    };
+
+                    var result = Core.ConditionalAccess.Module.Purchase(contextData, price, currency, contentId, productId, productType, coupon, paymentGatewayId, paymentMethodId, string.Empty);
+                    response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse(result);
                 }
             }
             catch (Exception ex)

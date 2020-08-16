@@ -120,7 +120,7 @@ namespace ApiObjects.MediaMarks
             this.ProductId = other.ProductId;
         }
 
-        public UserMediaMark ConvertToUserMediaMark(int location, int fileDuration, int assetTypeId)
+        public UserMediaMark ConvertToUserMediaMark(int location, int fileDuration, int assetTypeId, eAssetTypes assetType)
         {
             return new UserMediaMark()
             {
@@ -135,7 +135,8 @@ namespace ApiObjects.MediaMarks
                 AssetAction = this.AssetAction,
                 AssetTypeId = assetTypeId,
                 CreatedAtEpoch = this.CreatedAt,
-                MediaConcurrencyRuleIds = this.MediaConcurrencyRuleIds
+                MediaConcurrencyRuleIds = this.MediaConcurrencyRuleIds,
+                AssetType = assetType
             };
         }
 

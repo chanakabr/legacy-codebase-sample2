@@ -182,7 +182,7 @@ namespace Core.Notification
             DateTime announcementStartTime = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime);
 
             DataRow row = DAL.NotificationDal.Update_MessageAnnouncement(announcementId, groupId, (int)announcement.Recipients, announcement.Name, announcement.Message, announcement.Enabled, announcementStartTime, announcement.Timezone, 0, null,
-                announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeIot);
+                announcement.ImageUrl, announcement.IncludeMail, announcement.MailTemplate, announcement.MailSubject, announcement.IncludeIot, announcement.IncludeSms);
             announcement = Utils.GetMessageAnnouncementFromDataRow(row);
 
             // add a new message to queue when new time updated
@@ -1700,6 +1700,7 @@ namespace Core.Notification
                 {
                     log.Error($"Announcement not exist in DB: group: {groupId}, Id: {id}");
                     response.SetStatus(eResponseStatus.AnnouncementNotFound, ANNOUNCEMENT_NOT_FOUND);
+                    return response;
                 }
 
                 response.Object = Utils.GetMessageAnnouncementFromDataRow(dr);

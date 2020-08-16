@@ -14,10 +14,8 @@ namespace ApiObjects.Billing
         public PaymentGateway paymentGateway;
         public string chargeId;
         public string paymentMethodExternalId;
-        
         public string currency;
         public string userIP;
-        
         public double price;
         public int productId;
         public eTransactionType productType;
@@ -28,5 +26,6 @@ namespace ApiObjects.Billing
         public string customData;
         public string productCode;
         public string adapterData;
+        public List<KeyValuePair> AdapterData;
     }
 }

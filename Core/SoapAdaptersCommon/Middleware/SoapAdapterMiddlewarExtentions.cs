@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using SoapAdaptersCommon.GrpcAdapters;
 using SoapCore;
 using SoapCore.Extensibility;
 using System;
@@ -38,6 +39,7 @@ namespace SoapAdaptersCommon.Middleware
         /// </summary>
         public static IServiceCollection ConfigureSoapAdapaters(this IServiceCollection services, Action<SoapAdapatersOptions> configure = null)
         {
+            
             services.AddHttpContextAccessor();
             services.AddStaticHttpContextAccessor();
             services.AddMvc(x => x.EnableEndpointRouting = false);
@@ -55,6 +57,9 @@ namespace SoapAdaptersCommon.Middleware
                 _Logger.Info($"Configuring adapter: {adapterConfig}");
                 services.TryAddScoped(adapterConfig.AdapaterInterface, adapterConfig.AdapaterType);
             }
+
+            _Logger.Info("Trying to configure GRPC Endpoint");
+            services.AddHostedService(c=> new GrpcServer(services));
 
             return services;
         }

@@ -10,6 +10,8 @@ namespace ApiObjects
         public int MetaId { get; set; }
 
         public ObjectVirtualAssetInfoType Type { get; set; }
+        
+        public Dictionary<string,long> ExtendedTypes { get; set; }
     }   
 
     public enum ObjectVirtualAssetInfoType { Subscription = 0, Segment = 1, Category = 2 }

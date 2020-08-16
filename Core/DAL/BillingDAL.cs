@@ -1239,29 +1239,27 @@ namespace DAL
                         PaymentGateway paymentGateway = null;
                         foreach (DataRow dr in dtPG.Rows)
                         {
-                            paymentGateway = new PaymentGateway();
-
-                            paymentGateway.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                            paymentGateway.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                            paymentGateway.Selected = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected");
-                            int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
-                            paymentGateway.IsDefault = isDefault == 1 ? true : false;
-                            paymentGateway.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier");
-                            paymentGateway.PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_interval");
-                            paymentGateway.PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_retries");
-                            paymentGateway.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
-                            paymentGateway.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
-                            paymentGateway.TransactUrl = ODBCWrapper.Utils.GetSafeStr(dr, "transact_url");
-                            paymentGateway.StatusUrl = ODBCWrapper.Utils.GetSafeStr(dr, "status_url");
-                            paymentGateway.RenewUrl = ODBCWrapper.Utils.GetSafeStr(dr, "renew_url");
-                            paymentGateway.Status = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
-                            paymentGateway.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_interval_minutes");
-                            paymentGateway.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_start_minutes");
-                            paymentGateway.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
-                            int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support");
-                            paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
-                            paymentGateway.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(dr, "external_verification") == 0 ? false : true;
-
+                            paymentGateway = new PaymentGateway
+                            {
+                                ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
+                                Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                                Selected = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected"),
+                                ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier"),
+                                PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_interval"),
+                                PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_retries"),
+                                SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),
+                                AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url"),
+                                TransactUrl = ODBCWrapper.Utils.GetSafeStr(dr, "transact_url"),
+                                StatusUrl = ODBCWrapper.Utils.GetSafeStr(dr, "status_url"),
+                                RenewUrl = ODBCWrapper.Utils.GetSafeStr(dr, "renew_url"),
+                                Status = ODBCWrapper.Utils.GetIntSafeVal(dr, "status"),
+                                RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_interval_minutes"),
+                                RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_start_minutes"),
+                                IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active"),
+                                ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(dr, "external_verification") == 0 ? false : true,
+                                IsDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default") == 1 ? true : false,
+                                SupportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support") == 1
+                            };
 
                             if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                             {
@@ -1278,7 +1276,6 @@ namespace DAL
                                     paymentGateway.Settings.Add(new PaymentGatewaySettings(key, value));
                                 }
                             }
-
                             res.Add(paymentGateway);
                         }
                     }
@@ -1444,7 +1441,7 @@ namespace DAL
             return res;
         }
 
-        public static bool UpdatePaymentGatewayHouseholdStatus(long householdId, int paymentGatewayId, PaymentGatewayStatus status)
+        public static bool UpdatePaymentGatewayHouseholdStatus(long householdId, int paymentGatewayId, PaymentGatewayStatus status, SuspendSettings suspendSettings = null)
         {
             bool res = false;
             try
@@ -1454,8 +1451,14 @@ namespace DAL
                 sp.AddParameter("@paymentGatewayId", paymentGatewayId);
                 sp.AddParameter("@householdId", householdId);
                 sp.AddParameter("@isSuspend", (int)status);
+                
+                if (suspendSettings != null)
+                {
+                    sp.AddParameter("@revokeEntitlements", suspendSettings.RevokeEntitlements ? 1 : 0);
+                    sp.AddParameter("@stopRenew", suspendSettings.StopRenew ? 1 : 0);
+                }
+                
                 res = sp.ExecuteReturnValue<bool>();
-
             }
             catch (Exception ex)
             {
@@ -1549,10 +1552,10 @@ namespace DAL
                     sp.AddParameter("@KeyValueListHasItems", 1);
                 }
 
-
                 DataSet ds = sp.ExecuteDataSet();
-
-                return CreatePaymentGateway(ds);
+                
+                var result = CreatePaymentGateway(ds);
+                return result;
             }
             catch (Exception ex)
             {
@@ -1792,19 +1795,20 @@ namespace DAL
                 sp.AddParameter("@status", status);
                 DataSet ds = sp.ExecuteDataSet();
 
-
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    // get PaymentGatewayStatus
-                    int pgStatus = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_suspended");
-
                     res = new HouseholdPaymentGateway()
                     {
                         PaymentGatewayId = paymentGatewayId,
                         Selected = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "selected"),
                         ChargeId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_id"),
                         HouseholdId = householdId,
-                        Status = (PaymentGatewayStatus)pgStatus
+                        Status = (PaymentGatewayStatus)ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_suspended"),
+                        SuspendSettings = new SuspendSettings()
+                        {
+                            RevokeEntitlements = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "revoke_entitlements") == 1,
+                            StopRenew = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "stop_renew") == 1
+                        }
                     };
                 }
             }
@@ -1943,26 +1947,27 @@ namespace DAL
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
-                result = new PaymentGateway();
-                result.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-                result.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
-                result.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
-                result.PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_interval");
-                result.PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_retries");
-                result.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
-                result.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                result.TransactUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "transact_url");
-                result.StatusUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "status_url");
-                result.RenewUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "renew_url");
-                result.Status = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "status");
-                result.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_interval_minutes");
-                result.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_start_minutes");
-                result.IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
-                int DefaultPaymentGateway = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "DEFAULT_PAYMENT_GATEWAY");
-                result.IsDefault = DefaultPaymentGateway == result.ID ? true : false;
-                int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
-                result.SupportPaymentMethod = supportPaymentMethod == 1 ? true : false;
-                result.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "external_verification") == 0 ? false : true;
+                result = new PaymentGateway
+                {
+                    ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID"),
+                    Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name"),
+                    ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier"),
+                    PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_interval"),
+                    PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_retries"),
+                    SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret"),
+                    AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url"),
+                    TransactUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "transact_url"),
+                    StatusUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "status_url"),
+                    RenewUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "renew_url"),
+                    Status = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "status"),
+                    RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_interval_minutes"),
+                    RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_start_minutes"),
+                    IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active"),
+                    ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "external_verification") == 0 ? false : true,
+                    SupportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support") == 1 ? true : false,
+                };
+
+                result.IsDefault = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "DEFAULT_PAYMENT_GATEWAY") == result.ID ? true : false;
 
                 if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                 {
@@ -1982,7 +1987,6 @@ namespace DAL
             }
 
             return result;
-
         }
 
         public static PaymentGatewayHouseholdPaymentMethod GetSelectedHouseholdPaymentGatewayPaymentMethod(int groupID, long householdId, int paymentGatewayId)
@@ -2094,13 +2098,15 @@ namespace DAL
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    pghhpm = new PaymentGatewayHouseholdPaymentMethod();
-
-                    pghhpm.PaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_GATEWAY_ID");
-                    pghhpm.PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_METHOD_ID");
-                    pghhpm.HouseholdId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "HOUSEHOLD_ID");
-                    pghhpm.PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_EXTERNAL_ID");
-                    pghhpm.PaymentDetails = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_DETAILS");
+                    pghhpm = new PaymentGatewayHouseholdPaymentMethod
+                    {
+                        PaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_GATEWAY_ID"),
+                        PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_METHOD_ID"),
+                        HouseholdId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "HOUSEHOLD_ID"),
+                        PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_EXTERNAL_ID"),
+                        PaymentDetails = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_DETAILS")
+                        
+                    };
                 }
             }
             catch (Exception ex)
@@ -2444,13 +2450,14 @@ namespace DAL
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    pghhpm = new PaymentGatewayHouseholdPaymentMethod();
-
-                    pghhpm.PaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_GATEWAY_ID");
-                    pghhpm.PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_METHOD_ID");
-                    pghhpm.HouseholdId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "HOUSEHOLD_ID");
-                    pghhpm.PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_EXTERNAL_ID");
-                    pghhpm.PaymentDetails = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_DETAILS");
+                    pghhpm = new PaymentGatewayHouseholdPaymentMethod
+                    {
+                        PaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_GATEWAY_ID"),
+                        PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_METHOD_ID"),
+                        HouseholdId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "HOUSEHOLD_ID"),
+                        PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_EXTERNAL_ID"),
+                        PaymentDetails = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_DETAILS")
+                    };
                 }
             }
             catch (Exception ex)

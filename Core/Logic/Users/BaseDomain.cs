@@ -330,7 +330,7 @@ namespace Core.Users
             return oDomainResponseObject;
         }
 
-        public virtual DeviceResponse AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId, string externalId)
+        public virtual DeviceResponse AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId, string externalId, string macAddress)
         {
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -340,7 +340,6 @@ namespace Core.Users
                 return response;
 
             var device_Id = Device.GetDeviceIDByExternalId(groupId, externalId);
-
 
             //device with same external Id already exists
             if (!string.IsNullOrEmpty(device_Id))
@@ -370,6 +369,11 @@ namespace Core.Users
                 if (!string.IsNullOrEmpty(externalId))
                 {
                     device.ExternalId = externalId;
+                }
+
+                if (!string.IsNullOrEmpty(macAddress))
+                {
+                    device.MacAddress = macAddress;
                 }
 
                 // add device to domain
@@ -922,6 +926,13 @@ namespace Core.Users
                 return result;
             }
 
+            var roles = Core.Api.Module.GetRoles(m_nGroupID, null);
+            if (!roles.Status.IsOkStatusCode())
+            {
+                result = roles.Status;
+                return result;
+            }
+
             Role suspendDefaultRole = null;
 
             // validate domain is not suspended
@@ -930,7 +941,7 @@ namespace Core.Users
                 if (!roleId.HasValue)
                 {
                     //get default sespend role id 
-                    suspendDefaultRole = GetDefaultSuspendedRole();
+                    suspendDefaultRole = roles.Roles.FirstOrDefault(x => x.Profile == RoleProfileType.Profile && x.GroupId == 0);
                     if (suspendDefaultRole != null)
                     {
                         // if domain == the default role id return "Domain already suspended"
@@ -956,8 +967,23 @@ namespace Core.Users
             // get current domain.roleId ==> to update the users 
             int? currentRoleId = domain.roleId;
 
-            if (roleId.HasValue)
+            if (roleId.HasValue && roleId.Value > 0)
             {
+                var role = roles.Roles.FirstOrDefault(x => x.Id == roleId.Value);
+                if (role == null)
+                {
+                    result.Code = (int)eResponseStatus.RoleDoesNotExists;
+                    result.Message = "Role Does Not Exists";
+                    return result;
+                }
+
+                if (role.Profile.HasValue && role.Profile != RoleProfileType.Profile)
+                {
+                    result.Code = (int)eResponseStatus.Error;
+                    result.Message = "Unauthorized role";
+                    return result;
+                }
+
                 domain.roleId = roleId.Value;
             }
             else // get default roleId
@@ -965,8 +991,9 @@ namespace Core.Users
                 // get default role 
                 if (suspendDefaultRole == null)
                 {
-                    suspendDefaultRole = GetDefaultSuspendedRole();
+                    suspendDefaultRole = roles.Roles.FirstOrDefault(x => x.Profile == RoleProfileType.Profile && x.GroupId == 0);
                 }
+
                 if (suspendDefaultRole != null)
                 {
                     domain.roleId = (int)suspendDefaultRole.Id;
@@ -1025,23 +1052,6 @@ namespace Core.Users
             return result;
         }
 
-        private Role GetDefaultSuspendedRole()
-        {
-            try
-            {
-                List<Role> roles = ApiDAL.GetRolesByNames(m_nGroupID, new List<string>() { DEFAULT_SUSPENDED_ROLE });
-                if (roles != null && roles.Count() > 0)
-                {
-                    return roles[0];
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("fail to get ApiDAL.GetRolesByNames ex :{0}, m_nGroupID : {1}, DefaultSuspendedRoleName : {2}", ex, m_nGroupID, DEFAULT_SUSPENDED_ROLE);
-            }
-            return null;
-        }
-
         private bool UpdateSuspendedUserRoles(Domain domain, int groupId, int? currentRoleId, int? newRoleId)
         {
             int rowCount = 0;
@@ -1051,7 +1061,7 @@ namespace Core.Users
                 List<int> usersInDomain = domain.m_DefaultUsersIDs;
                 usersInDomain.AddRange(domain.m_UsersIDs);
 
-                rowCount = UsersDal.Upsert_SuspendedUsersRole(groupId, usersInDomain, currentRoleId.HasValue ? currentRoleId.Value : 0, newRoleId.HasValue ? newRoleId.Value : 0);
+                rowCount = UsersDal.Upsert_SuspendedUsersRole(groupId, usersInDomain?.Distinct().ToList(), currentRoleId.HasValue ? currentRoleId.Value : 0, newRoleId.HasValue ? newRoleId.Value : 0);
             }
             catch (Exception ex)
             {
@@ -1306,8 +1316,7 @@ namespace Core.Users
 
         protected bool IsSatisfiesFrequencyConstraint(DateTime dtLastDeactivationDate, int frequency)
         {
-            DateTime dt = Utils.GetEndDateTime(dtLastDeactivationDate, frequency);
-
+            DateTime dt = Core.ConditionalAccess.Utils.GetEndDateTime(dtLastDeactivationDate, frequency);
             return dt < DateTime.UtcNow;
         }
 
@@ -1919,7 +1928,8 @@ namespace Core.Users
             return response;
         }
 
-        public virtual DeviceResponse SubmitAddDeviceToDomain(int groupID, int domainID, string userID, string deviceUdid, string deviceName, int brandID, string externalId)
+        public virtual DeviceResponse SubmitAddDeviceToDomain(int groupID, int domainID, string userID, string deviceUdid, string deviceName, 
+            int brandID, string externalId, string macAddress)
         {
             DeviceResponse response = new DeviceResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -1949,6 +1959,11 @@ namespace Core.Users
             if (!string.IsNullOrEmpty(externalId))
             {
                 device.ExternalId = externalId;
+            }
+
+            if (!string.IsNullOrEmpty(macAddress))
+            {
+                device.MacAddress = macAddress;
             }
 
             DomainResponseStatus domainResponseStatus;
@@ -2226,7 +2241,7 @@ namespace Core.Users
             {
                 log.ErrorFormat("Failed to delete pin for device after successful login. udid = {0}, pin = {1}", udid, pin);
             }
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid,groupId);
+            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid, groupId);
             return response;
         }
 

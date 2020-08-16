@@ -18,7 +18,8 @@ namespace WebAPI.Controllers
                     eResponseStatus.CategoryNotExist,
                     eResponseStatus.ChannelDoesNotExist,
                     eResponseStatus.ChildCategoryNotExist,
-                    eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory
+                    eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory,
+                    eResponseStatus.CategoryTypeNotExist
         }
      )]
 

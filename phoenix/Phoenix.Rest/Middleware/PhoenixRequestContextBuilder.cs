@@ -322,7 +322,8 @@ namespace Phoenix.Rest.Middleware
 
                 if (ApplicationConfiguration.Current.RequestParserConfiguration.ShouldSaveAsFile.Value)
                 {
-                    var filePath = $@"{_FileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
+                    
+                    var filePath = Path.Combine(_FileSystemUploaderSourcePath, CreateRandomFileName(uploadedFile.FileName));
                     using (Stream tempFile = File.Create(filePath))
                     {
                         await uploadedFile.CopyToAsync(tempFile);

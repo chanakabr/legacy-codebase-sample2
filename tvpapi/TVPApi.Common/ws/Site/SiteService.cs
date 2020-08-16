@@ -793,7 +793,7 @@ namespace TVPApiServices
                     bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
                     new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignOut(initObj.SiteGuid, initObj.UDID, initObj.UDID, isSingleLogin);
 
-                    AuthorizationManager.Instance.DeleteAccessToken(initObj.Token);
+                    AuthorizationManager.Instance.DeleteAccessToken(groupID, initObj.Token, false, true);
                 }
                 catch (Exception ex)
                 {

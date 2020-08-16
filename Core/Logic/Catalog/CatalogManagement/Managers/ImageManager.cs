@@ -1096,24 +1096,29 @@ namespace Core.Catalog.CatalogManagement
 
                         try
                         {
-                            using (WebClient webClient = new WebClient())
+                            var imageBytes = ApiLogic.FileHandler.Instance.DownloadImage(groupId, url, image.ContentId, image);
+
+                            if (!imageBytes.IsOkStatusCode())
                             {
-                                byte[] imageBytes = webClient.DownloadData(url);
-                                MemoryStream imageStream = new MemoryStream(imageBytes);
-                                System.Drawing.Image downloadedImage = System.Drawing.Image.FromStream(imageStream);
-                                double downloadedImageRatio = (double)downloadedImage.Width / downloadedImage.Height;
-                                double imageDefinedRatio = (double)ratio.Width / ratio.Height;
-                                double imageRatioPrecisionPrecentage = Math.Round((1 - Math.Abs((downloadedImageRatio - imageDefinedRatio) / imageDefinedRatio)) * 100);
-                                if (ratio.PrecisionPrecentage > imageRatioPrecisionPrecentage)
-                                {
-                                    result = new Status((int)eResponseStatus.InvalidRatioForImage, eResponseStatus.InvalidRatioForImage.ToString());
-                                    return result;
-                                }
+                                log.Error($"Failed to set content of: id: {id}, url: {url}");
+                                result = imageBytes.Status;
+                                return result;
+                            }
+
+                            var imageStream = new MemoryStream(imageBytes.Object);
+                            System.Drawing.Image downloadedImage = System.Drawing.Image.FromStream(imageStream);
+                            double downloadedImageRatio = (double)downloadedImage.Width / downloadedImage.Height;
+                            double imageDefinedRatio = (double)ratio.Width / ratio.Height;
+                            double imageRatioPrecisionPrecentage = Math.Round((1 - Math.Abs((downloadedImageRatio - imageDefinedRatio) / imageDefinedRatio)) * 100);
+                            if (ratio.PrecisionPrecentage > imageRatioPrecisionPrecentage)
+                            {
+                                result = new Status((int)eResponseStatus.InvalidRatioForImage, eResponseStatus.InvalidRatioForImage.ToString());
+                                return result;
                             }
                         }
                         catch (Exception ex)
                         {
-                            log.Error(string.Format("Failed to validate image ratio, groupId: {0}, imageId: {1}, url: {2}", groupId, id, url), ex);
+                            log.Error(string.Format("Failed to validate image ratio, groupId: {0}, imageId: {1}, url: {2}, ex: {3}", groupId, id, url, ex), ex);
                             result = new Status((int)eResponseStatus.InvalidUrlForImage, eResponseStatus.InvalidUrlForImage.ToString());
                             return result;
                         }

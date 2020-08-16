@@ -49,6 +49,8 @@ namespace Core.Users
 
         public string ExternalId;
 
+        public string MacAddress;
+
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
         {
             int nFamilyID = 0;
@@ -247,14 +249,15 @@ namespace Core.Users
             return DeviceDal.Get_DeviceFamilyIDAndName(deviceBrand, ref familyID);
         }
 
-        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string externalId = "", bool allowNullExternalId = false)
+        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = ""
+            , bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             int retVal = 0;
 
             bool deviceFound = (nDeviceID.HasValue && nDeviceID.Value > 0);
             if (!deviceFound)
             {
-                retVal = DAL.DeviceDal.GetDeviceID(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, nStatus);
+                retVal = DeviceDal.GetDeviceID(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, nStatus);
                 deviceFound = retVal > 0;
             }
             else
@@ -264,7 +267,7 @@ namespace Core.Users
 
             if (!deviceFound) // New Device
             {
-                retVal = DAL.DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, nIsActive, nStatus, m_pin, externalId);
+                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, nIsActive, nStatus, m_pin, externalId, macAddress);
             }
             else // Update Device
             {
@@ -287,6 +290,11 @@ namespace Core.Users
                     if (!string.IsNullOrEmpty(externalId) || allowNullExternalId)
                     {
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("external_Id", "=", externalId);
+                    }
+
+                    if (!string.IsNullOrEmpty(macAddress) || allowNullMacAddress)
+                    {
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("mac_address", "=", macAddress);
                     }
 
                     updateQuery += "where";
@@ -322,6 +330,7 @@ namespace Core.Users
             if (retVal > 0)
             {
                 this.ExternalId = externalId;
+                this.MacAddress = macAddress;
             }
 
             return retVal;
@@ -405,14 +414,15 @@ namespace Core.Users
             return sNewPIN;
         }
 
-        public bool SetDeviceInfo(string sDeviceName, string externalId, bool allowNullExternalId = false)
+        public bool SetDeviceInfo(string sDeviceName, string macAddress, string externalId, 
+            bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             bool res = false;
             m_deviceName = sDeviceName;
 
             if (m_state >= DeviceState.Pending)
             {
-                int nDeviceID = Save(-1, 1, null, externalId, allowNullExternalId); // Returns device ID, 0 otherwise
+                int nDeviceID = Save(-1, 1, null, macAddress, externalId, allowNullExternalId, allowNullMacAddress); // Returns device ID, 0 otherwise
                 if (nDeviceID != 0)
                 {
                     res = true;
@@ -485,6 +495,7 @@ namespace Core.Users
                 m_deviceFamilyID = ODBCWrapper.Utils.GetIntSafeVal(dr["device_family_id"]);
                 m_pin = ODBCWrapper.Utils.GetSafeStr(dr["pin"]);
                 ExternalId = ODBCWrapper.Utils.GetSafeStr(dr["external_id"]);
+                MacAddress = ODBCWrapper.Utils.GetSafeStr(dr["mac_address"]);
 
                 PopulateDeviceStreamTypeAndProfile();
 
@@ -573,9 +584,9 @@ namespace Core.Users
         public void InvalidateDomainDevice()
         {
             List<string> invalidationKeys = new List<string>()
-                {
-                    string.Format("invalidationKey_domain_{0}_device_{1}", this.m_domainID, this.m_id)
-                };
+            {
+                LayeredCacheKeys.GetDomainDeviceInvalidationKey(m_domainID, m_id)
+            };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }
