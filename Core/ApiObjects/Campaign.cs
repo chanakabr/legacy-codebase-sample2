@@ -7,15 +7,16 @@ namespace ApiObjects
     public abstract class Campaign : ICrudHandeledObject
     {
         public long Id { get; set; }
+        public long GroupId { get; set; }
         public long CreateDate { get; set; }
         public long UpdateDate { get; set; }
-        public CampaignEventStatus Status { get; set; }
         public string Name { get; set; }
         public string SystemName { get; set; }
         public string Description { get; set; }
         public bool IsActive { get; set; }
         public long? DiscountModuleId { get; set; }
-        public List<KeyValuePair<string, string>> Messages { get; set; }
+        public string Message { get; set; }
+        public List<KeyValuePair<string, string>> DaynamicData { get; set; }
 
         public Campaign()
         {
@@ -149,11 +150,6 @@ namespace ApiObjects
         //        }
         //    }
         //}
-    }
-
-    public enum CampaignEventStatus
-    {
-        Queued, Failed, InProgress
     }
 
     public class CampaignFilter : ICrudFilter

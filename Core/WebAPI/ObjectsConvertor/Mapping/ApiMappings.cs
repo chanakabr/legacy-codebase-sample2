@@ -1336,11 +1336,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<BatchCampaign, KalturaBatchCampaign>()
                  .IncludeBase<Campaign, KalturaCampaign>();
 
-            cfg.CreateMap<KalturaTriggerCampain, TriggerCampaign>()
+            cfg.CreateMap<KalturaTriggerCampaign, TriggerCampaign>()
                 .IncludeBase<KalturaCampaign, Campaign>()
                 .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions));
 
-            cfg.CreateMap<TriggerCampaign, KalturaTriggerCampain>()
+            cfg.CreateMap<TriggerCampaign, KalturaTriggerCampaign>()
                 .IncludeBase<Campaign, KalturaCampaign>()
                 .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
                 .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))

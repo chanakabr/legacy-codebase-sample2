@@ -111,7 +111,6 @@ namespace ApiObjects
                 if (result)
                 {
                     EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(this.GroupId, this.Id, null, this));
-                    EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.Deleted, eKalturaEventTime.Campaign));
                 }
                 else
                 {
@@ -146,11 +145,6 @@ namespace ApiObjects
             else
             {
                 result = afterEventResults.Any(x => x == eEventConsumptionResult.Failure) ? false : result;
-            }
-
-            if (result)
-            {
-                EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.None, eKalturaEventTime.Campaign));
             }
 
             return result;

@@ -15,13 +15,11 @@ using ApiObjects;
 
 namespace WebAPI.Models.API
 {
-    // TODO MATAN - ADD MAP BETWEEN KalturaTriggerCampain -> TriggerCampaign AND TriggerCampaign -> KalturaTriggerCampain 
     /// <summary>
     /// Campaign
     /// </summary>
-    public partial class KalturaTriggerCampain : KalturaCampaign
+    public partial class KalturaTriggerCampaign : KalturaCampaign
     {
-        // TODO SHIR - FILL ALL
         /// <summary>
         /// List of conditions for the trigger (condions on the object)
         /// </summary>
@@ -48,7 +46,6 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForAdd()
         {
-            // TODO SHIR - WHAT NEED TO BE VALIDATE?
             base.ValidateForAdd();
 
             if (string.IsNullOrEmpty(this.Service))
@@ -62,7 +59,22 @@ namespace WebAPI.Models.API
             }
 
             var methodParams = WebAPI.Reflection.DataModel.getMethodParams(this.Service, this.Action);
-            
+            if (methodParams.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ACTION_NOT_SPECIFIED);
+            }
+
+            if (Action != "add" && Action != "update")
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "Action");
+            }
+
+            var typeMap = AutoMapper.Mapper.Configuration.GetAllTypeMaps().FirstOrDefault(x => x.SourceType == methodParams.First().Value.Type);
+            if (typeMap == null || !typeMap.DestinationType.IsSubclassOf(typeof(CoreObject)))
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
+            }
+
             if (this.TriggerConditions == null || this.TriggerConditions.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "triggerConditions");

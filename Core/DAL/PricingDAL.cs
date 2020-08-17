@@ -1,4 +1,5 @@
-﻿using ApiObjects.AssetLifeCycleRules;
+﻿using ApiObjects;
+using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Pricing;
 using CouchbaseManager;
 using KLogMonitor;
@@ -1834,6 +1835,25 @@ namespace DAL
         private static string GetCouponWalletKey(long householdId)
         {
             return string.Format("household_coupon_wallet:{0}", householdId);
+        }
+
+        public static T Addcampaign<T>(T campaign) where T : Campaign
+        {
+            var sp = new StoredProcedure("Insert_Campaign");
+            sp.SetConnectionKey("pricing_connection");
+            // TODO SHIR - ADD PARAMS
+            var dt = sp.Execute();
+
+            if (dt != null && dt.Rows?.Count > 0)
+            {
+                DataRow dr = dt.Rows[0];
+                // TODO SHIR - DESIREALIZE CAMPAIGN
+                //businessModuleRuleToAdd.Id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
+                //businessModuleRuleToAdd.CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "CREATE_DATE"));
+                //businessModuleRuleToAdd.UpdateDate = businessModuleRuleToAdd.CreateDate;
+            }
+
+            return null;
         }
     }
 }

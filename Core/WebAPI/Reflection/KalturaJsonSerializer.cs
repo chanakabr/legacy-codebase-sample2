@@ -19621,7 +19621,7 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaTriggerCampain
+    public partial class KalturaTriggerCampaign
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {

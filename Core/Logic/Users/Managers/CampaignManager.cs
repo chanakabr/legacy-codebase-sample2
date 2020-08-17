@@ -6,6 +6,9 @@ using KLogMonitor;
 using System;
 using System.Reflection;
 using APILogic.ConditionalAccess;
+using Core.Pricing;
+using Campaign = ApiObjects.Campaign;
+using DAL;
 
 namespace ApiLogic.Users.Managers
 {
@@ -35,37 +38,37 @@ namespace ApiLogic.Users.Managers
 
         public GenericResponse<Campaign> AddTriggerCampaign(ContextData contextData, TriggerCampaign campaignToAdd)
         {
-            // TODO SHIR
-            // validate discountModelId!!
-            //GenericResponse<BusinessModuleRule> response = new GenericResponse<BusinessModuleRule>();
-            //try
-            //{
-            //    businessModuleRuleToAdd.GroupId = groupId;
-            //    DataTable dt = ApiDAL.AddBusinessModuleRule(groupId, businessModuleRuleToAdd.Name, businessModuleRuleToAdd.Description);
-            //    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            //    {
-            //        businessModuleRuleToAdd.Id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
-            //        businessModuleRuleToAdd.CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "CREATE_DATE"));
-            //        businessModuleRuleToAdd.UpdateDate = businessModuleRuleToAdd.CreateDate;
+            var response = new GenericResponse<Campaign>();
+            try
+            {
+                if (campaignToAdd.DiscountModuleId.HasValue)
+                {
+                    // TODO SHIR - ASK IRA WHAT TO PASS HERE
+                    //var discountModule = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(contextData.GroupId, campaignToAdd.DiscountModuleId, countryCode, currencyCode);
+                    //if (discountModule == null)
+                    //{
+                    //    response.SetStatus(eResponseStatus.DiscountCodeNotExist);
+                    //    return response;
+                    //}
+                }
 
-            //        if (!ApiDAL.SaveBusinessModuleRuleCB(groupId, businessModuleRuleToAdd))
-            //        {
-            //            log.ErrorFormat("Error while saving BusinessModuleRule. groupId: {0}, BusinessModuleRuleId:{1}", groupId, businessModuleRuleToAdd.Id);
-            //            return response;
-            //        }
+                // TODO SHIR what else need to be validate??
+                campaignToAdd.GroupId = contextData.GroupId;
+                campaignToAdd.IsActive = false;
 
-            //        SetInvalidationKeys(groupId);
-            //        response.Object = businessModuleRuleToAdd;
-            //        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.ErrorFormat("Error while adding new businessModuleRule . groupId: {0}, businessModuleRule: {1}, ex: {2}", groupId, JsonConvert.SerializeObject(businessModuleRuleToAdd), ex);
-            //}
+                response.Object = PricingDAL.Addcampaign<TriggerCampaign>(campaignToAdd);
+                if (response.Object != null)
+                {
+                    SetInvalidationKeys(contextData);
+                    response.SetStatus(eResponseStatus.OK);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while adding new TriggerCampaign. contextData: {contextData}, ex: {ex};");
+            }
 
-            //return response;
-            throw new NotImplementedException();
+            return response;
         }
 
         public GenericResponse<Campaign> AddBatchCampaign(ContextData contextData, BatchCampaign campaignToAdd)
@@ -132,6 +135,11 @@ namespace ApiLogic.Users.Managers
             };
 
             return true;// triggerCampaign.Evaluate(coreObject);
+        }
+
+        private void SetInvalidationKeys(ContextData contextData)
+        {
+            // TODO SHIR - SetInvalidationKeys
         }
     }
 }

@@ -6794,7 +6794,7 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaTriggerCampain":
+                case "KalturaTriggerCampaign":
                     switch(property.Name)
                     {
                         case "Action":
