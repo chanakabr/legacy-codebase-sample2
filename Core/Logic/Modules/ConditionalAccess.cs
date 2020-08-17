@@ -410,13 +410,13 @@ namespace Core.ConditionalAccess
 
 
         public static DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int groupID, int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex, TransactionHistoryOrderBy orderBy,
-            long? entitlementId = 0, string externalId = "", BillingItemsType? billingItemsType = null, BillingAction? billingAction = null)
+            TransactionHistoryFilter transactionHistoryFilter = null)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetDomainTransactionsHistory(domainID, dStartDate, dEndDate, pageSize, pageIndex, orderBy, entitlementId, externalId, billingItemsType, billingAction);
+                return t.GetDomainTransactionsHistory(domainID, dStartDate, dEndDate, pageSize, pageIndex, orderBy, transactionHistoryFilter);
             }
             else
             {

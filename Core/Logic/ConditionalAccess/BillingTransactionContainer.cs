@@ -131,4 +131,40 @@ namespace Core.ConditionalAccess
             m_dtActionDate = new DateTime(2000, 1, 1);
         }
     }
+
+    public class TransactionHistoryFilter
+    {
+        public long? EntitlementId;
+        public string ExternalId;
+        public BillingItemsType? BillingItemsType;
+        public BillingAction? BillingAction;
+
+        public bool HasFilter()
+        {
+            return EntitlementId.HasValue || !string.IsNullOrEmpty(ExternalId) || BillingItemsType.HasValue || BillingAction.HasValue;
+        }
+
+        public void FilterTransactions(ref List<TransactionHistoryContainer> transactionsHistory)
+        {
+            if (EntitlementId.HasValue)
+            {
+                transactionsHistory = transactionsHistory.Where(t => t.m_nPurchaseID == EntitlementId).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(ExternalId))
+            {
+                transactionsHistory = transactionsHistory.Where(t => t.ExternalTransactionId == ExternalId).ToList();
+            }
+
+            if (BillingItemsType.HasValue)
+            {
+                transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == BillingItemsType.Value).ToList();
+            }
+
+            if (BillingAction.HasValue)
+            {
+                transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == BillingItemsType.Value).ToList();
+            }
+        }
+    }
 }

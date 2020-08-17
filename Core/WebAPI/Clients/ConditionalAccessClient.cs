@@ -630,26 +630,29 @@ namespace WebAPI.Clients
             DomainTransactionsHistoryResponse wsResponse = null;
 
             // get group by ID
-
             TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(filter.OrderBy);
-            BillingItemsType? wsBillingItemsTypeEqual = null;
-            BillingAction? wsBillingActionEqual = null;
+
+            TransactionHistoryFilter transactionHistoryFilter = new TransactionHistoryFilter()
+            {
+                EntitlementId = filter.EntitlementIdEqual,
+                ExternalId = filter.ExternalIdEqual
+            };
             
             if (filter.BillingItemsTypeEqual.HasValue)
             {
-                wsBillingItemsTypeEqual = Mapper.Map<BillingItemsType>(filter.BillingItemsTypeEqual);
+                transactionHistoryFilter.BillingItemsType = Mapper.Map<BillingItemsType>(filter.BillingItemsTypeEqual);
             }
 
             if (filter.BillingActionEqual.HasValue)
             {
-                wsBillingActionEqual = Mapper.Map<BillingAction>(filter.BillingActionEqual);
+                transactionHistoryFilter.BillingAction = Mapper.Map<BillingAction>(filter.BillingActionEqual);
             }
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    wsResponse = Core.ConditionalAccess.Module.GetDomainTransactionsHistory(groupId, domainId, startDate, endDate, pageSize, pageIndex, wsOrderBy, filter.EntitlementIdEqual, filter.ExternalIdEqual, wsBillingItemsTypeEqual, wsBillingActionEqual);
+                    wsResponse = Core.ConditionalAccess.Module.GetDomainTransactionsHistory(groupId, domainId, startDate, endDate, pageSize, pageIndex, wsOrderBy, transactionHistoryFilter);
                 }
             }
             catch (Exception ex)
