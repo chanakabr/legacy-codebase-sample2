@@ -47,6 +47,14 @@ namespace Core.Notification
             {
                 // get user inbox message
                 var userInboxMessage = NotificationDal.GetUserInboxMessage(groupId, userId, messageId);
+
+                if (userInboxMessage == null)
+                {
+                    var campaignId = NotificationDal.GetInboxMessageCampaignMapping(groupId, userId, messageId);
+                    if (campaignId.HasValue)
+                        userInboxMessage = NotificationDal.GetCampaignInboxMessage(groupId, userId, campaignId.Value.ToString());
+                }
+
                 if (userInboxMessage != null)
                 {
                     response.InboxMessages = new List<InboxMessage>();
@@ -122,8 +130,8 @@ namespace Core.Notification
                     userMessages = new List<InboxMessage>();
                 }
 
-                // TODO SHIR OR MATAN
-                var campaignMessages = NotificationDal.GetCampaignInboxMessages(groupId, userId);
+                var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.List(new ApiObjects.Base.ContextData(groupId) { UserId = userId }, null, null);
+                var campaignMessages = NotificationDal.GetCampaignInboxMessages(groupId, userId, campaigns?.Objects);
                 if (campaignMessages == null)
                 {
                     log.DebugFormat("No campaign inbox message. {0}", logData);
@@ -222,8 +230,21 @@ namespace Core.Notification
                     return new Status() { Code = (int)eResponseStatus.MessageIdentifierRequired, Message = MESSAGE_IDENTIFIER_REQUIRED };
                 }
 
+                var isCampaign = false;
+                long? campaignId = null;
                 // get user inbox message
                 var userInboxMessage = NotificationDal.GetUserInboxMessage(groupId, userId, messageId);
+                if (userInboxMessage == null)
+                {
+                    //try to get campaign message
+                    campaignId = NotificationDal.GetInboxMessageCampaignMapping(groupId, userId, messageId);
+                    if (campaignId.HasValue)
+                    {
+                        userInboxMessage = NotificationDal.GetCampaignInboxMessage(groupId, userId, campaignId.Value.ToString());
+                        isCampaign = userInboxMessage != null;
+                    }
+                }
+
                 if (userInboxMessage == null)
                 {
                     log.ErrorFormat("No user inbox message. {0}.", logData);
@@ -231,7 +252,9 @@ namespace Core.Notification
                 }
 
                 //get newInboxSystemMessage for update and saving to user inbox
-                var isSet = NotificationDal.UpdateInboxMessageState(groupId, userId, messageId, status);
+                var isSet = isCampaign ?
+                    NotificationDal.UpdateCampaignInboxMessageState(groupId, userId, campaignId.Value.ToString(), status) :
+                    NotificationDal.UpdateInboxMessageState(groupId, userId, messageId, status);
 
                 if (!isSet)
                 {

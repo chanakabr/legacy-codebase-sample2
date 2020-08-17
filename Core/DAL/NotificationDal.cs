@@ -60,6 +60,11 @@ namespace DAL
             return string.Format("inbox_message:{0}:{1}:{2}", groupId, userId, messageId);
         }
 
+        private static string GetInboxMessageCampaignMappingKey(int groupId, long userId, string messageId)
+        {
+            return $"inbox_message_campaign:{groupId}:{userId}:{messageId}";
+        }
+
         private static string GetUserPushKey(int groupId, long userId)
         {
             return string.Format("user_push:{0}:{1}", groupId, userId);
@@ -1882,6 +1887,61 @@ namespace DAL
             return userInboxMessage;
         }
 
+        public static InboxMessage GetCampaignInboxMessage(int groupId, int userId, string campaignId)
+        {
+            InboxMessage inboxMessage = null;
+            var status = eResultStatus.ERROR;
+
+            try
+            {
+                bool result = false;
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    inboxMessage = cbManager.Get<InboxMessage>(GetCampaignMessageKey(groupId, userId, campaignId), out status);
+                    if (inboxMessage == null)
+                    {
+                        if (status == eResultStatus.KEY_NOT_EXIST)
+                        {
+                            // key doesn't exist - don't try again
+                            log.DebugFormat("campaign inbox message wasn't found. key: {0}", GetCampaignMessageKey(groupId, userId, campaignId));
+                            break;
+                        }
+                        else
+                        {
+                            numOfTries++;
+                            log.ErrorFormat("Error while getting campaign inbox message. number of tries: {0}/{1}. key: {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                GetCampaignMessageKey(groupId, userId, campaignId));
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                    else
+                    {
+                        result = true;
+
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully received user inbox message. number of tries: {0}/{1}. key {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            GetCampaignMessageKey(groupId, userId, campaignId));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get campaign inbox message. key: {0}, ex: {1}", GetCampaignMessageKey(groupId, userId, campaignId), ex);
+            }
+
+            return inboxMessage;
+        }
+
         public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage, int ttlDays)
         {
             bool result = false;
@@ -1896,6 +1956,49 @@ namespace DAL
                     {
                         numOfTries++;
                         log.ErrorFormat("Error while setting inbox message. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
+                             numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            inboxMessage.UserId,
+                            JsonConvert.SerializeObject(inboxMessage));
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set inbox message. number of tries: {0}/{1}. object {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            JsonConvert.SerializeObject(inboxMessage));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while setting inbox message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, inboxMessage.UserId, inboxMessage.Id, ex);
+            }
+
+            return result;
+        }
+
+        public static bool SetCampaignInboxMessage(int groupId, InboxMessage inboxMessage, long campaignId, int ttlDays)
+        {
+            bool result = false;
+            try
+            {
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    result = cbManager.Set(GetCampaignMessageKey(groupId, (int)inboxMessage.UserId, campaignId.ToString()), inboxMessage, (uint)TimeSpan.FromDays(ttlDays).TotalSeconds);
+
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while setting campaign inbox message. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
                              numOfTries,
                             NUM_OF_INSERT_TRIES,
                             groupId,
@@ -1979,6 +2082,94 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static bool UpdateCampaignInboxMessageState(int groupId, int userId, string campaignId, eMessageState messageState)
+        {
+            bool result = false;
+            try
+            {
+                var inboxMessage = GetCampaignInboxMessage(groupId, userId, campaignId);
+                if (inboxMessage == null)
+                {
+                    log.ErrorFormat("couldn't update message state to {0}. Campaign wasn't found. key: {1}", messageState.ToString(), GetInboxMessageKey(groupId, userId, campaignId));
+                    return false;
+                }
+
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    // update message
+                    inboxMessage.State = messageState;
+
+                    // update document
+                    result = cbManager.Set(GetCampaignMessageKey(groupId, userId, campaignId), inboxMessage);
+
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while updating campaign message state to {0}. number of tries: {1}/{2}. GID: {3}, user ID: {4}. data: {5}",
+                            messageState.ToString(),
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            userId,
+                            JsonConvert.SerializeObject(inboxMessage));
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully updated campaign message to state {0}. number of tries: {1}/{2}. object {3}",
+                            messageState.ToString(),
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            JsonConvert.SerializeObject(inboxMessage));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while updating campaign message to state {0}. GID: {1}, user ID: {2}, campaign ID: {3}, ex: {4}", messageState.ToString(), groupId, userId, campaignId, ex);
+            }
+
+            return result;
+        }
+
+        public static void SetInboxMessageCampaignMapping(int groupId, long userId, Campaign campaign, string inboxMessageId)
+        {
+            try
+            {
+                cbManager.Set(GetInboxMessageCampaignMappingKey(groupId, userId, inboxMessageId), campaign);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed: SetInboxMessageCampaignMapping for campaign: {campaign.Id} and message: {inboxMessageId} for user: {userId}, group: {groupId}", ex);
+            }
+        }
+
+        public static long? GetInboxMessageCampaignMapping(int groupId, long userId, string inboxMessageId)
+        {
+            try
+            {
+                var campaign = cbManager.Get<Campaign>(GetInboxMessageCampaignMappingKey(groupId, userId, inboxMessageId));
+                if (campaign != null)
+                {
+                    return campaign.Id;
+                }
+
+                log.Error($"Key: {GetInboxMessageCampaignMappingKey(groupId, userId, inboxMessageId)} not found");
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed: GetInboxMessageCampaignMapping message: {inboxMessageId} for user: {userId}, group: {groupId}", ex);
+            }
+
+            return null;
         }
 
         public static List<string> GetSystemInboxMessagesView(int groupId, long fromDate)
@@ -2074,13 +2265,12 @@ namespace DAL
             return null;
         }
 
-        public static List<InboxMessage> GetCampaignInboxMessages(int groupId, int userId)
+        public static List<InboxMessage> GetCampaignInboxMessages(int groupId, int userId, List<Campaign> campaigns)
         {
             var response = new List<InboxMessage>();
             try
             {
-                //TODO - MATAN OR SHIR: Get list of campaigns - TBD
-                var userCampaigns = new List<string>();
+                var userCampaigns = campaigns.Select(x => x.Id.ToString()).ToList();
 
                 if (userCampaigns == null || userCampaigns.Count == 0)
                 {
@@ -2095,7 +2285,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.Error($"Error while trying to get user campaign messages. user: {userId}, ex: {ex}");
+                log.Error($"Error while trying to get user campaign messages for user: {userId}, ex: {ex}", ex);
             }
 
             return response;

@@ -1,17 +1,13 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
-using WebAPI.Managers.Scheme;
-using WebAPI.Models.ConditionalAccess;
-using WebAPI.Models.General;
 using ApiLogic.Users.Managers;
-using ApiLogic.Base;
 using ApiObjects.Response;
 using ApiObjects.Base;
 using ApiObjects;
+using System.Linq;
 
 namespace WebAPI.Models.API
 {
@@ -21,7 +17,7 @@ namespace WebAPI.Models.API
     public partial class KalturaTriggerCampaign : KalturaCampaign
     {
         /// <summary>
-        /// List of conditions for the trigger (condions on the object)
+        /// List of conditions for the trigger (conditions on the object)
         /// </summary>
         [DataMember(Name = "triggerConditions")]
         [JsonProperty("triggerConditions")]

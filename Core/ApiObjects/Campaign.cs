@@ -85,7 +85,7 @@ namespace ApiObjects
         public string Service { get; set; }
         public string Action { get; set; }
 
-        internal bool Evaluate(CoreObject coreObject)
+        public bool Evaluate(CoreObject coreObject)
         {
             return true;
         }

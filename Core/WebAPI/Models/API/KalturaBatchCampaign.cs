@@ -5,7 +5,6 @@ using ApiObjects;
 
 namespace WebAPI.Models.API
 {
-    // TODO MATAN - ADD MAP BETWEEN KalturaBatchCampaign -> BatchCampaign AND BatchCampaign -> KalturaBatchCampaign 
     /// <summary>
     /// Campaign
     /// </summary>
