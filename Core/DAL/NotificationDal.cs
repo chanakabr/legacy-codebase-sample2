@@ -2084,16 +2084,15 @@ namespace DAL
             return result;
         }
 
-        public static bool UpdateCampaignInboxMessageState(int groupId, int userId, string messageId, eMessageState messageState)
+        public static bool UpdateCampaignInboxMessageState(int groupId, int userId, string campaignId, eMessageState messageState)
         {
-            //TODO - MATAN, support new campaign key as well
             bool result = false;
             try
             {
-                var inboxMessage = GetUserInboxMessage(groupId, userId, messageId);
+                var inboxMessage = GetCampaignInboxMessage(groupId, userId, campaignId);
                 if (inboxMessage == null)
                 {
-                    log.ErrorFormat("couldn't update message state to {0}. inbox message wasn't found. key: {1}", messageState.ToString(), GetInboxMessageKey(groupId, userId, messageId));
+                    log.ErrorFormat("couldn't update message state to {0}. Campaign wasn't found. key: {1}", messageState.ToString(), GetInboxMessageKey(groupId, userId, campaignId));
                     return false;
                 }
 
@@ -2104,12 +2103,12 @@ namespace DAL
                     inboxMessage.State = messageState;
 
                     // update document
-                    result = cbManager.Set(GetInboxMessageKey(groupId, userId, messageId), inboxMessage);
+                    result = cbManager.Set(GetCampaignMessageKey(groupId, userId, campaignId), inboxMessage);
 
                     if (!result)
                     {
                         numOfTries++;
-                        log.ErrorFormat("Error while updating inbox message state to {0}. number of tries: {1}/{2}. GID: {3}, user ID: {4}. data: {5}",
+                        log.ErrorFormat("Error while updating campaign message state to {0}. number of tries: {1}/{2}. GID: {3}, user ID: {4}. data: {5}",
                             messageState.ToString(),
                             numOfTries,
                             NUM_OF_INSERT_TRIES,
@@ -2124,7 +2123,7 @@ namespace DAL
                         if (numOfTries > 0)
                         {
                             numOfTries++;
-                            log.DebugFormat("successfully updated inbox message to state {0}. number of tries: {1}/{2}. object {3}",
+                            log.DebugFormat("successfully updated campaign message to state {0}. number of tries: {1}/{2}. object {3}",
                             messageState.ToString(),
                             numOfTries,
                             NUM_OF_INSERT_TRIES,
@@ -2135,7 +2134,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while updating inbox message to state {0}. GID: {1}, user ID: {2}, message ID: {3}, ex: {4}", messageState.ToString(), groupId, userId, messageId, ex);
+                log.ErrorFormat("Error while updating campaign message to state {0}. GID: {1}, user ID: {2}, campaign ID: {3}, ex: {4}", messageState.ToString(), groupId, userId, campaignId, ex);
             }
 
             return result;

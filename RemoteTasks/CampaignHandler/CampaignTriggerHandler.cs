@@ -36,7 +36,6 @@ namespace CampaignHandler
                     return Task.CompletedTask;
                 }
 
-                //Check all users from domain for existence of campaign keys in Inbox
                 var domainUsers = domain.GetDomainUserList(serviceEvent.DomainId, serviceEvent.GroupId);
                 var triggerCampaign = campaign.Object as ApiObjects.TriggerCampaign;
                 var messages = triggerCampaign.Messages;
@@ -46,7 +45,8 @@ namespace CampaignHandler
                     _Logger.Info($"Domain: {serviceEvent.DomainId} doesn't match campaign: {serviceEvent.CampaignId}, group: {serviceEvent.GroupId}");
                     return Task.CompletedTask;
                 }
-                var filter = new List<ApiObjects.eMessageCategory> { ApiObjects.eMessageCategory.Campaign };
+
+                var filter = new List<eMessageCategory> { eMessageCategory.Campaign };
 
                 Parallel.ForEach(domainUsers, user =>
                 {
@@ -74,13 +74,6 @@ namespace CampaignHandler
         private void SendMessage(CampaignUserEvent serviceEvent, int userId, TriggerCampaign campaign, string message)
         {
             var current = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
-
-            var pushMessage = new PushMessage()
-            {
-                Message = message
-            };
-
-            Task.Run(() => EngagementManager.SendPushToUser(serviceEvent.GroupId, userId, pushMessage));
 
             //Add to user Inbox
             var inboxMessage = new InboxMessage
