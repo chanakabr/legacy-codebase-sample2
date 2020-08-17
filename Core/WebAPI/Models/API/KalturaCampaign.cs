@@ -99,20 +99,21 @@ namespace WebAPI.Models.API
         public List<KalturaCondition> CampaignConditions { get; set; }
 
         /// <summary>
-        /// list of free text messages to the user that gives information about the campaign.
+        /// list of free strings to the user that gives information about the campaign.
         /// </summary>
-        [DataMember(Name = "messages")]
-        [JsonProperty("messages")]
-        [XmlElement(ElementName = "messages")]
-        public SerializableDictionary<string, KalturaStringValue> Messages { get; set; }
+        [DataMember(Name = "dynamicData")]
+        [JsonProperty("dynamicData")]
+        [XmlElement(ElementName = "dynamicData")]
+        public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
 
         /// <summary>
-        /// status
+        /// Free text message to the user that gives information about the campaign.
         /// </summary>
-        [DataMember(Name = "status")]
-        [JsonProperty("status")]
-        [XmlElement(ElementName = "status")]
-        public KalturaCampaignEventStatus Status { get; set; }
+        [DataMember(Name = "message")]
+        [JsonProperty("message")]
+        [XmlElement(ElementName = "message")]
+        [SchemeProperty(MaxLength = 1200)]
+        public string Message { get; set; }
 
         public KalturaCampaign()
         {
@@ -128,6 +129,8 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForAdd()
         {
+            //TODO - Shir or Matan
+            //get list count of all, limit to 500/configuration
             if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
@@ -138,9 +141,9 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
             }
 
-            if (this.Messages == null || this.Messages.Count == 0)
+            if (string.IsNullOrEmpty(this.Message))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "messages");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "message");
             }
 
             if (this.CampaignConditions == null || this.CampaignConditions.Count == 0)
@@ -167,16 +170,12 @@ namespace WebAPI.Models.API
         internal override void ValidateForUpdate()
         {
             // TODO SHIR - WHAT NEED TO BE VALIDATE?
+            //get list count of all, if has active 500 and activating the 501 return error
         }
     }
 
     public partial class KalturaCampaignListResponse : KalturaListResponse<KalturaCampaign>
     {
         public KalturaCampaignListResponse() : base() { }
-    }
-
-    public enum KalturaCampaignEventStatus
-    {
-        Queued, Failed, InProgress
     }
 }

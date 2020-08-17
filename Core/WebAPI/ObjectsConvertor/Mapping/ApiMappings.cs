@@ -1307,9 +1307,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaCampaign, Campaign>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-               .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => ConvertCampaignMessages(src.Messages)))
+               .ForMember(dest => dest.DaynamicData, opt => opt.MapFrom(src => ConvertCampaignMessages(src.DynamicData)))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertCampaignStatus(src.Status)))
+               .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
@@ -1320,9 +1320,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<Campaign, KalturaCampaign>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => ConvertCampaignMessages(src.Messages)))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertCampaignMessages(src.DaynamicData)))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertCampaignStatus(src.Status)))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
@@ -1881,21 +1881,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
         }
 
-        private static KalturaCampaignEventStatus ConvertCampaignStatus(CampaignEventStatus status)
-        {
-            switch (status)
-            {
-                case CampaignEventStatus.Queued:
-                    return KalturaCampaignEventStatus.Queued;
-                case CampaignEventStatus.Failed:
-                    return KalturaCampaignEventStatus.Failed;
-                case CampaignEventStatus.InProgress:
-                    return KalturaCampaignEventStatus.InProgress;
-                default:
-                    throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", status.ToString()));
-            }
-        }
-
         private static SerializableDictionary<string, KalturaStringValue> ConvertCampaignMessages(List<KeyValuePair<string, string>> messages)
         {
             SerializableDictionary<string, KalturaStringValue> result = null;
@@ -1933,21 +1918,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
             }
             return result;
-        }
-
-        private static CampaignEventStatus ConvertCampaignStatus(KalturaCampaignEventStatus status)
-        {
-            switch (status)
-            {
-                case KalturaCampaignEventStatus.Queued:
-                    return CampaignEventStatus.Queued;
-                case KalturaCampaignEventStatus.Failed:
-                    return CampaignEventStatus.Failed;
-                case KalturaCampaignEventStatus.InProgress:
-                    return CampaignEventStatus.InProgress;
-                default:
-                    throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", status.ToString()));
-            }
         }
 
         #region Private Convertors

@@ -1191,16 +1191,16 @@ namespace WebAPI.Reflection
                             return "description";
                         case "DiscountModuleId":
                             return "discountModuleId";
+                        case "DynamicData":
+                            return "dynamicData";
                         case "Id":
                             return "id";
                         case "IsActive":
                             return "isActive";
-                        case "Messages":
-                            return "messages";
+                        case "Message":
+                            return "message";
                         case "Name":
                             return "name";
-                        case "Status":
-                            return "status";
                         case "SystemName":
                             return "systemName";
                         case "UpdateDate":

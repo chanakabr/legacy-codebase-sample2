@@ -14855,18 +14855,21 @@ namespace WebAPI.Models.API
             {
                 ret.Add("discountModuleId", "\"discountModuleId\": " + DiscountModuleId);
             }
+            if(DynamicData != null)
+            {
+                propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
+            }
             ret.Add("id", "\"id\": " + Id);
             ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
-            if(Messages != null)
+            if(Message != null)
             {
-                propertyValue = "{" + String.Join(", ", Messages.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
-                ret.Add("messages", "\"messages\": " + propertyValue);
+                ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
             }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
-            ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaCampaignEventStatus), Status) + "\"");
             if(SystemName != null)
             {
                 ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(SystemName) + "\"");
@@ -14895,18 +14898,21 @@ namespace WebAPI.Models.API
             {
                 ret.Add("discountModuleId", "<discountModuleId>" + DiscountModuleId + "</discountModuleId>");
             }
+            if(DynamicData != null)
+            {
+                propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
+            }
             ret.Add("id", "<id>" + Id + "</id>");
             ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
-            if(Messages != null)
+            if(Message != null)
             {
-                propertyValue = Messages.Count > 0 ? "<item>" + String.Join("</item><item>", Messages.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
-                ret.Add("messages", "<messages>" + propertyValue + "</messages>");
+                ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
             }
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaCampaignEventStatus), Status) + "" + "</status>");
             if(SystemName != null)
             {
                 ret.Add("systemName", "<systemName>" + EscapeXml(SystemName) + "</systemName>");

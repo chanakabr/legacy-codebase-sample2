@@ -37,8 +37,7 @@ namespace CampaignHandler
                 }
 
                 var domainUsers = domain.GetDomainUserList(serviceEvent.DomainId, serviceEvent.GroupId);
-                var triggerCampaign = campaign.Object as ApiObjects.TriggerCampaign;
-                var messages = triggerCampaign.Messages;
+                var triggerCampaign = campaign.Object as TriggerCampaign;
 
                 if (!CampaignManager.Instance.ValidateTriggerCampaign(triggerCampaign, serviceEvent.EventObject))
                 {
@@ -58,7 +57,7 @@ namespace CampaignHandler
 
                     if (CampaignManager.Instance.ValidateCampaignConditionsToUser(contextData, triggerCampaign))
                     {
-                        SendMessage(serviceEvent, userId, triggerCampaign, string.Join(';', messages.Select(m => $"{m.Key}:{m.Value}")));
+                        SendMessage(serviceEvent, userId, triggerCampaign, triggerCampaign.Message);
                     }
                 });
 
