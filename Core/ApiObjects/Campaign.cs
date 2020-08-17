@@ -84,6 +84,9 @@ namespace ApiObjects
 
         public string Service { get; set; }
         public string Action { get; set; }
+        public string CoreObject { get; set; }//TODO SHIR, INIT
+        public string CoreAction { get; set; }//TODO SHIR
+        public string EventNotification { get; set; }//Json
 
         public bool Evaluate(CoreObject coreObject)
         {

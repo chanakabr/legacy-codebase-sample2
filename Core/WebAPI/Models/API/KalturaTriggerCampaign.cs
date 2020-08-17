@@ -8,6 +8,8 @@ using ApiObjects.Response;
 using ApiObjects.Base;
 using ApiObjects;
 using System.Linq;
+using System;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.Models.API
 {
@@ -90,7 +92,29 @@ namespace WebAPI.Models.API
         internal override GenericResponse<Campaign> Add(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<TriggerCampaign>(this);
+            coreObject.EventNotification = GetEventNotification(contextData, coreObject);
             return CampaignManager.Instance.AddTriggerCampaign(contextData, coreObject);
+        }
+
+        private string GetEventNotification(ContextData contextData, TriggerCampaign coreObject)
+        {
+            var _event = new EventNotification()
+            {
+                PartnerId = contextData.GroupId,
+                Actions = new List<NotificationAction> 
+                {
+                    new EventNotifications.CampaignHandler
+                    {
+                        //Type?
+                        Status = 1,
+                        SystemName = coreObject.SystemName,
+                        FriendlyName = coreObject.Name,
+                        CampaignId = coreObject.Id
+                    }
+                },
+                //PhoenixType = "",
+            };
+            return JsonConvert.SerializeObject(_event);
         }
 
         internal override void ValidateForUpdate()

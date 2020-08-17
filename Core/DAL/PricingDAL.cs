@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
+using ApiObjects.Base;
 using ApiObjects.Pricing;
 using CouchbaseManager;
 using KLogMonitor;
@@ -1837,23 +1838,45 @@ namespace DAL
             return string.Format("household_coupon_wallet:{0}", householdId);
         }
 
-        public static T Addcampaign<T>(T campaign) where T : Campaign
+        public static T AddCampaign<T>(T campaign) where T : Campaign
         {
+            var businessModuleRuleToAdd = default(T);
             var sp = new StoredProcedure("Insert_Campaign");
             sp.SetConnectionKey("pricing_connection");
-            // TODO SHIR - ADD PARAMS
-            var dt = sp.Execute();
+            sp.AddParameter("@groupId", campaign.GroupId);
+            sp.AddParameter("@createDate", campaign.CreateDate);
+            sp.AddParameter("@updateDate", campaign.UpdateDate);
+            sp.AddParameter("@isActive", campaign.IsActive);
+            //sp.AddParameter("@status", campaign.Status);
+            sp.AddParameter("@campaign_json", Newtonsoft.Json.JsonConvert.SerializeObject(campaign));
 
-            if (dt != null && dt.Rows?.Count > 0)
+            // TODO SHIR - ADD PARAMS
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
-                DataRow dr = dt.Rows[0];
-                // TODO SHIR - DESIREALIZE CAMPAIGN
-                //businessModuleRuleToAdd.Id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
-                //businessModuleRuleToAdd.CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0], "CREATE_DATE"));
-                //businessModuleRuleToAdd.UpdateDate = businessModuleRuleToAdd.CreateDate;
+                if (ds.Tables[0].Rows != null && ds.Tables[0].Rows?.Count > 0)
+                {
+                    DataRow dr = ds.Tables[0].Rows[0];
+                    // TODO SHIR - DESIREALIZE CAMPAIGN
+                    businessModuleRuleToAdd.Id = Utils.GetLongSafeVal(dr, "ID");
+                    businessModuleRuleToAdd.CreateDate = Utils.GetLongSafeVal(dr, "CREATE_DATE");
+                    businessModuleRuleToAdd.UpdateDate = businessModuleRuleToAdd.CreateDate;
+                }
             }
 
-            return null;
+            return businessModuleRuleToAdd;
+        }
+
+        public static bool AddNotificationCampaignAction(ContextData contextData, TriggerCampaign campaignToAdd)
+        {
+            var key = GetNotificationCampaignActionKey(contextData, campaignToAdd);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, campaignToAdd.EventNotification, true);
+        }
+
+        private static string GetNotificationCampaignActionKey(ContextData contextData, TriggerCampaign campaignToAdd)
+        {
+            return $"notification_{contextData.GroupId}_campaign_{campaignToAdd.CoreObject}_{campaignToAdd.Action}";
         }
     }
 }

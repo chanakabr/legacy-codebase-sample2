@@ -56,7 +56,13 @@ namespace ApiLogic.Users.Managers
                 campaignToAdd.GroupId = contextData.GroupId;
                 campaignToAdd.IsActive = false;
 
-                response.Object = PricingDAL.Addcampaign<TriggerCampaign>(campaignToAdd);
+                if (!PricingDAL.AddNotificationCampaignAction(contextData, campaignToAdd))
+                {
+                    //TODO Shir or Matan
+                    log.Error($"Failed adding Notification Campaign Action, campaign Id: {campaignToAdd.Id}");
+                }
+
+                response.Object = PricingDAL.AddCampaign(campaignToAdd);
                 if (response.Object != null)
                 {
                     SetInvalidationKeys(contextData);
@@ -104,7 +110,7 @@ namespace ApiLogic.Users.Managers
                 FilterByDate = true,
                 GroupId = contextData.GroupId,
                 UserId = contextData.UserId.ToString(),
-                
+
                 BrandId = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => 4).FirstOrDefault(),
                 ManufacturerId = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => 4).FirstOrDefault(),
                 Model = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => "").FirstOrDefault(),
