@@ -61,5 +61,12 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "url")]
         public string Url { get; set; }
 
+        /// <summary>
+        /// campaignId
+        /// </summary>
+        [DataMember(Name = "campaignId")]
+        [JsonProperty("campaignId")]
+        [XmlElement(ElementName = "campaignId")]
+        public long? CampaignId { get; set; }
     }
 }

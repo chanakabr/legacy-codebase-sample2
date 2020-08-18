@@ -116,16 +116,12 @@ namespace ApiLogic.Users.Managers
         /// <returns></returns>
         public bool ValidateCampaignConditionsToUser(ContextData contextData, Campaign campaign)
         {
+            //TODO - Shir or Matan, build filter
             ConditionScope filter = new ConditionScope()
             {
                 FilterByDate = true,
                 GroupId = contextData.GroupId,
-                UserId = contextData.UserId.ToString(),
-
-                //TODO - Matan
-                BrandId = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => 4).FirstOrDefault(),
-                ManufacturerId = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => 4).FirstOrDefault(),
-                Model = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => "").FirstOrDefault(),
+                UserId = contextData.UserId.ToString()
             };
 
             return campaign.Evaluate(filter);
@@ -141,17 +137,6 @@ namespace ApiLogic.Users.Managers
         /// <returns></returns>
         public bool ValidateTriggerCampaign(TriggerCampaign triggerCampaign, CoreObject coreObject)
         {
-            ConditionScope filter = new ConditionScope()
-            {
-                //BusinessModuleId = businessModuleId,
-                //BusinessModuleType = transactionType,
-                //SegmentIds = segmentIds,
-                FilterByDate = true,
-                //FilterBySegments = true,
-                GroupId = coreObject.GroupId,
-                //MediaId = mediaId
-            };
-
             return triggerCampaign.Evaluate(coreObject);
         }
 

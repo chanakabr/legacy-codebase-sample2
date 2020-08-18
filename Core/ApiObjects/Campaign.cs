@@ -17,22 +17,24 @@ namespace ApiObjects
         public long? DiscountModuleId { get; set; }
         public string Message { get; set; }
         public List<KeyValuePair<string, string>> DaynamicData { get; set; }
+        public long StartDate { get; set; }
+        public long EndDate { get; set; }
 
         public Campaign()
         {
         }
 
-        [JsonProperty(PropertyName = "Conditions",
+        [JsonProperty(PropertyName = "DiscountConditions",
                       TypeNameHandling = TypeNameHandling.Auto,
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<Rules.RuleCondition> CampaignConditions { get; set; }
+        public List<Rules.RuleCondition> DiscountConditions { get; set; }
 
         public bool Evaluate(Rules.IConditionScope scope)
         {
-            if (CampaignConditions != null && CampaignConditions.Count > 0)
+            if (DiscountConditions != null && DiscountConditions.Count > 0)
             {
-                foreach (var condition in CampaignConditions)
+                foreach (var condition in DiscountConditions)
                 {
                     scope.RuleId = this.Id;
 
@@ -76,7 +78,7 @@ namespace ApiObjects
 
     public class TriggerCampaign : Campaign
     {
-        [JsonProperty(PropertyName = "Conditions",
+        [JsonProperty(PropertyName = "TriggerConditions",
                       TypeNameHandling = TypeNameHandling.Auto,
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
@@ -124,6 +126,12 @@ namespace ApiObjects
 
     public class BatchCampaign : Campaign
     {
+        [JsonProperty(PropertyName = "PopulationConditions",
+              TypeNameHandling = TypeNameHandling.Auto,
+              ItemTypeNameHandling = TypeNameHandling.Auto,
+              ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
+        public List<Rules.RuleCondition> PopulationConditions { get; set; }
+
         // TODO SHIR BatchCampaign
 
         ///// <summary>

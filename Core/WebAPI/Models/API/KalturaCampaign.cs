@@ -5,12 +5,9 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using ApiLogic.Users.Managers;
 using ApiLogic.Base;
-using ApiObjects.Response;
-using ApiObjects.Base;
 using ApiObjects;
 
 namespace WebAPI.Models.API
@@ -73,6 +70,22 @@ namespace WebAPI.Models.API
         public long UpdateDate { get; set; }
 
         /// <summary>
+        /// Start date of the rule
+        /// </summary>
+        [DataMember(Name = "startDate")]
+        [JsonProperty(PropertyName = "startDate")]
+        [XmlElement(ElementName = "startDate")]
+        public long StartDate { get; set; }
+
+        /// <summary>
+        /// End date of the rule
+        /// </summary>
+        [DataMember(Name = "endDate")]
+        [JsonProperty(PropertyName = "endDate")]
+        [XmlElement(ElementName = "endDate")]
+        public long EndDate { get; set; }
+
+        /// <summary>
         /// isActive
         /// </summary>
         [DataMember(Name = "isActive")]
@@ -91,12 +104,12 @@ namespace WebAPI.Models.API
         public long? DiscountModuleId { get; set; }
 
         /// <summary>
-        /// List of conditions for the campaign
+        /// These conditions define the discount that apply one the campaign
         /// </summary>
-        [DataMember(Name = "campaignConditions")]
-        [JsonProperty("campaignConditions")]
-        [XmlElement(ElementName = "campaignConditions")]
-        public List<KalturaCondition> CampaignConditions { get; set; }
+        [DataMember(Name = "discountConditions")]
+        [JsonProperty("discountConditions")]
+        [XmlElement(ElementName = "discountConditions")]
+        public List<KalturaCondition> DiscountConditions { get; set; }
 
         /// <summary>
         /// list of free strings to the user that gives information about the campaign.
@@ -146,17 +159,17 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "message");
             }
 
-            if (this.CampaignConditions == null || this.CampaignConditions.Count == 0)
+            if (this.DiscountConditions == null || this.DiscountConditions.Count == 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "campaignConditions");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "discountConditions");
             }
 
-            if (!this.CampaignConditions.Any(x => x.Type == KalturaRuleConditionType.DATE))
+            if (!this.DiscountConditions.Any(x => x.Type == KalturaRuleConditionType.DATE))
             {
-                throw new BadRequestException(BadRequestException.MISSING_MANDATORY_ARGUMENT_IN_PROPERTY, "campaignConditions", "KalturaDateCondition");
+                throw new BadRequestException(BadRequestException.MISSING_MANDATORY_ARGUMENT_IN_PROPERTY, "discountConditions", "KalturaDateCondition");
             }
 
-            foreach (var condition in this.CampaignConditions)
+            foreach (var condition in this.DiscountConditions)
             {
                 condition.Validate();
             }

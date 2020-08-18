@@ -7567,6 +7567,10 @@ namespace WebAPI.Models.Notification
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(CampaignId.HasValue)
+            {
+                ret.Add("campaignId", "\"campaignId\": " + CampaignId);
+            }
             ret.Add("createdAt", "\"createdAt\": " + CreatedAt);
             if(Id != null)
             {
@@ -7591,6 +7595,10 @@ namespace WebAPI.Models.Notification
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(CampaignId.HasValue)
+            {
+                ret.Add("campaignId", "<campaignId>" + CampaignId + "</campaignId>");
+            }
             ret.Add("createdAt", "<createdAt>" + CreatedAt + "</createdAt>");
             if(Id != null)
             {
@@ -14659,6 +14667,11 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(PopulationConditions != null)
+            {
+                propertyValue = "[" + String.Join(", ", PopulationConditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("populationConditions", "\"populationConditions\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -14668,6 +14681,11 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(PopulationConditions != null)
+            {
+                propertyValue = PopulationConditions.Count > 0 ? "<item>" + String.Join("</item><item>", PopulationConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("populationConditions", "<populationConditions>" + propertyValue + "</populationConditions>");
+            }
             return ret;
         }
     }
@@ -14841,15 +14859,15 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(CampaignConditions != null)
-            {
-                propertyValue = "[" + String.Join(", ", CampaignConditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("campaignConditions", "\"campaignConditions\": " + propertyValue);
-            }
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             if(Description != null)
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
+            }
+            if(DiscountConditions != null)
+            {
+                propertyValue = "[" + String.Join(", ", DiscountConditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("discountConditions", "\"discountConditions\": " + propertyValue);
             }
             if(DiscountModuleId.HasValue)
             {
@@ -14860,6 +14878,7 @@ namespace WebAPI.Models.API
                 propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
                 ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
             }
+            ret.Add("endDate", "\"endDate\": " + EndDate);
             ret.Add("id", "\"id\": " + Id);
             ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
             if(Message != null)
@@ -14870,6 +14889,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
+            ret.Add("startDate", "\"startDate\": " + StartDate);
             if(SystemName != null)
             {
                 ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(SystemName) + "\"");
@@ -14884,15 +14904,15 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(CampaignConditions != null)
-            {
-                propertyValue = CampaignConditions.Count > 0 ? "<item>" + String.Join("</item><item>", CampaignConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("campaignConditions", "<campaignConditions>" + propertyValue + "</campaignConditions>");
-            }
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             if(Description != null)
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
+            }
+            if(DiscountConditions != null)
+            {
+                propertyValue = DiscountConditions.Count > 0 ? "<item>" + String.Join("</item><item>", DiscountConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("discountConditions", "<discountConditions>" + propertyValue + "</discountConditions>");
             }
             if(DiscountModuleId.HasValue)
             {
@@ -14903,6 +14923,7 @@ namespace WebAPI.Models.API
                 propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
             }
+            ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
             ret.Add("id", "<id>" + Id + "</id>");
             ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
             if(Message != null)
@@ -14913,6 +14934,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
+            ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
             if(SystemName != null)
             {
                 ret.Add("systemName", "<systemName>" + EscapeXml(SystemName) + "</systemName>");
@@ -15643,26 +15665,6 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaDeviceBrandCondition
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-    }
     public partial class KalturaDeviceBrandListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -15693,7 +15695,7 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaDeviceFamilyCondition
+    public partial class KalturaDeviceBrandTriggerCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -15743,7 +15745,7 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaDeviceManufacturerCondition
+    public partial class KalturaDeviceFamilyTriggerCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -15763,7 +15765,7 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaDeviceModelCondition
+    public partial class KalturaDeviceManufacturerTriggerCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -15783,7 +15785,27 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaDeviceUdidCondition
+    public partial class KalturaDeviceModelTriggerCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
+    public partial class KalturaDeviceUdidTriggerCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -22245,6 +22267,11 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(!isOldVersion && OriginalPrice != null)
+            {
+                propertyValue = OriginalPrice.ToJson(currentVersion, omitObsolete);
+                ret.Add("originalPrice", "\"originalPrice\": " + propertyValue);
+            }
             if(!isOldVersion && Price != null)
             {
                 propertyValue = Price.ToJson(currentVersion, omitObsolete);
@@ -22276,6 +22303,11 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(!isOldVersion && OriginalPrice != null)
+            {
+                propertyValue = OriginalPrice.ToXml(currentVersion, omitObsolete);
+                ret.Add("originalPrice", "<originalPrice>" + propertyValue + "</originalPrice>");
+            }
             if(!isOldVersion && Price != null)
             {
                 propertyValue = Price.ToXml(currentVersion, omitObsolete);

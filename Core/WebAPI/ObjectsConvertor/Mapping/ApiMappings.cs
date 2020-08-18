@@ -1315,7 +1315,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
-               .ForMember(dest => dest.CampaignConditions, opt => opt.MapFrom(src => src.CampaignConditions));
+               .ForMember(dest => dest.DiscountConditions, opt => opt.MapFrom(src => src.DiscountConditions))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
+               ;
 
             cfg.CreateMap<Campaign, KalturaCampaign>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1328,13 +1331,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
-                .ForMember(dest => dest.CampaignConditions, opt => opt.MapFrom(src => src.CampaignConditions));
+                .ForMember(dest => dest.DiscountConditions, opt => opt.MapFrom(src => src.DiscountConditions))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
+                ;
 
             cfg.CreateMap<KalturaBatchCampaign, BatchCampaign>()
-                .IncludeBase<KalturaCampaign, Campaign>();
+                .IncludeBase<KalturaCampaign, Campaign>()
+                .IncludeBase<KalturaCondition, RuleCondition>()
+                ;
 
             cfg.CreateMap<BatchCampaign, KalturaBatchCampaign>()
-                 .IncludeBase<Campaign, KalturaCampaign>();
+                 .IncludeBase<Campaign, KalturaCampaign>()
+                 .IncludeBase<RuleCondition, KalturaCondition>()
+                 ;
 
             cfg.CreateMap<KalturaTriggerCampaign, TriggerCampaign>()
                 .IncludeBase<KalturaCampaign, Campaign>()
@@ -1345,6 +1355,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
                 .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
+
+            //cfg.CreateMap<KalturaDeviceFamilyTriggerCondition, DeviceFamilyTriggerCondition>()
+            //    .IncludeBase<Campaign, KalturaCampaign>()
 
             #endregion
 

@@ -17,6 +17,6 @@ namespace ApiObjects.Notification
         public long CreatedAtSec { get; set; }
         public long UpdatedAtSec { get; set; }
         public eMessageState State { get; set; }
-
+        public long? CampaignId { get; set; }
     }
 }

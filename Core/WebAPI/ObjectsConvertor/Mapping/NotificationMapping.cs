@@ -317,7 +317,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertInboxMessageStatus(src.State)))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
-                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertInboxMessageType(src.Category)));
+                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertInboxMessageType(src.Category)))
+                 .ForMember(dest => dest.CampaignId, opt => opt.MapFrom(src => src.CampaignId))
+                 ;
 
             //KalturaInboxMessage TO InboxMessage
             cfg.CreateMap<KalturaInboxMessage, InboxMessage>()
@@ -326,7 +328,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertInboxMessageStatus(src.Status)))
-                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                 .ForMember(dest => dest.CampaignId, opt => opt.MapFrom(src => src.CampaignId))
+                 ;
 
             //DbAnnouncement to KalturaTopic
             cfg.CreateMap<DbAnnouncement, KalturaTopic>()

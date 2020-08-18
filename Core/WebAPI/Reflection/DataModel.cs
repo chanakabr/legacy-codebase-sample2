@@ -868,6 +868,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBatchCampaign":
+                    switch(property.Name)
+                    {
+                        case "PopulationConditions":
+                            return "populationConditions";
+                    }
+                    break;
+                    
                 case "KalturaBillingPartnerConfig":
                     switch(property.Name)
                     {
@@ -1183,16 +1191,18 @@ namespace WebAPI.Reflection
                 case "KalturaCampaign":
                     switch(property.Name)
                     {
-                        case "CampaignConditions":
-                            return "campaignConditions";
                         case "CreateDate":
                             return "createDate";
                         case "Description":
                             return "description";
+                        case "DiscountConditions":
+                            return "discountConditions";
                         case "DiscountModuleId":
                             return "discountModuleId";
                         case "DynamicData":
                             return "dynamicData";
+                        case "EndDate":
+                            return "endDate";
                         case "Id":
                             return "id";
                         case "IsActive":
@@ -1201,6 +1211,8 @@ namespace WebAPI.Reflection
                             return "message";
                         case "Name":
                             return "name";
+                        case "StartDate":
+                            return "startDate";
                         case "SystemName":
                             return "systemName";
                         case "UpdateDate":
@@ -3323,6 +3335,8 @@ namespace WebAPI.Reflection
                 case "KalturaInboxMessage":
                     switch(property.Name)
                     {
+                        case "CampaignId":
+                            return "campaignId";
                         case "CreatedAt":
                             return "createdAt";
                         case "Id":
@@ -5187,6 +5201,8 @@ namespace WebAPI.Reflection
                 case "KalturaProductPrice":
                     switch(property.Name)
                     {
+                        case "OriginalPrice":
+                            return "originalPrice";
                         case "Price":
                             return "price";
                         case "ProductId":

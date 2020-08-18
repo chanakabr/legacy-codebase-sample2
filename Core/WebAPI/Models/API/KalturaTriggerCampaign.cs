@@ -78,7 +78,7 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "triggerConditions");
             }
 
-            foreach (var condition in this.CampaignConditions)
+            foreach (var condition in this.DiscountConditions)
             {
                 if (condition.Type != KalturaRuleConditionType.OR && condition.Type != KalturaRuleConditionType.TRIGGER)
                 {

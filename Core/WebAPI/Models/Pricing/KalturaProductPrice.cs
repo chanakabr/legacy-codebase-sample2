@@ -41,6 +41,15 @@ namespace WebAPI.Models.Pricing
         public KalturaPrice Price { get; set; }
 
         /// <summary>
+        /// Original price of the product
+        /// </summary>
+        [DataMember(Name = "originalPrice")]
+        [JsonProperty("originalPrice")]
+        [XmlElement(ElementName = "originalPrice", IsNullable = true)]
+        [OnlyNewStandard]
+        public KalturaPrice OriginalPrice { get; set; }
+
+        /// <summary>
         /// Product purchase status  
         /// </summary>
         [DataMember(Name = "purchaseStatus")]

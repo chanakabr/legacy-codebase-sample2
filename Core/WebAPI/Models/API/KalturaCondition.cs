@@ -543,7 +543,7 @@ namespace WebAPI.Models.API
         }
     }
 
-    public partial class KalturaDeviceBrandCondition : KalturaTriggerCondition<long>, ICampaignCondition<KalturaOTTObject>
+    public partial class KalturaDeviceBrandTriggerCondition : KalturaTriggerCondition<long>, ICampaignCondition<KalturaOTTObject>
     {
         public bool CheckValues(KalturaOTTObject objectToCheck)
         {
@@ -556,19 +556,19 @@ namespace WebAPI.Models.API
         }
     }
 
-    public partial class KalturaDeviceFamilyCondition : KalturaTriggerCondition<long>
+    public partial class KalturaDeviceFamilyTriggerCondition : KalturaTriggerCondition<long>
     {
     }
 
-    public partial class KalturaDeviceUdidCondition : KalturaTriggerCondition<long>
+    public partial class KalturaDeviceUdidTriggerCondition : KalturaTriggerCondition<long>
     {
     }
 
-    public partial class KalturaDeviceModelCondition : KalturaTriggerCondition<long>
+    public partial class KalturaDeviceModelTriggerCondition : KalturaTriggerCondition<long>
     {
     }
 
-    public partial class KalturaDeviceManufacturerCondition : KalturaTriggerCondition<long>
+    public partial class KalturaDeviceManufacturerTriggerCondition : KalturaTriggerCondition<long>
     {
     }
 

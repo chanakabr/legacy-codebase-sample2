@@ -97,6 +97,7 @@ namespace Core.ConditionalAccess
         public string m_sPPVModuleCode;
         public bool m_bSubscriptionOnly;
         public Price m_oPrice;
+        public Price OriginalPrice;
         public Price m_oFullPrice;
         public PriceReason m_PriceReason;
         public Subscription m_relevantSub;
