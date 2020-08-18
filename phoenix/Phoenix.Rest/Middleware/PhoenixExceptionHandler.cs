@@ -75,7 +75,7 @@ namespace Phoenix.Rest.Middleware
 
             var stringResponse = await formatter.GetStringResponse(errorResponse);
 
-            string phoenixContextMasked = RequestLoggingMiddleware.MaskPersonalInformation(JsonConvert.SerializeObject(ctx));
+            string phoenixContextMasked = _Logger.MaskPersonalInformation(JsonConvert.SerializeObject(ctx));
 
             _Logger.Error($"Error while calling api:[{ctx.RouteData}] response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{phoenixContextMasked}]{Environment.NewLine}", ex);
             return new ApiExceptionHandlerResponse

@@ -16,6 +16,7 @@ using System.Xml;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using System.Web;
+using System.Text.RegularExpressions;
 
 namespace KLogMonitor
 {
@@ -28,6 +29,8 @@ namespace KLogMonitor
         private readonly ILog _Logger;
         private static ILoggerRepository _LogRepository;
         private static string configurationFileName;
+
+        private const string MASK = "*****";
 
         public static LogicalThreadContextProperties LogContextData => LogicalThreadContext.Properties;
 
@@ -336,6 +339,42 @@ namespace KLogMonitor
         public void ErrorFormat(string format, params object[] args)
         {
             HandleEvent(format, KLogger.LogEvent.LogLevel.ERROR, args, null);
+        }
+
+        public string MaskPersonalInformation(string bodyAsText)
+        {
+            try
+            {
+                // with regex find all json fields that END with "password", "pass", "email" or "emailfield" -
+                // then after they're found, replace only the VALUE of the field to be masked
+                bodyAsText = Regex.Replace(bodyAsText, "(password|email|pass|emailfield)\"\\s*:\\s*(\"(?:\\\\\"|[^\"])*?\")", (match) =>
+                {
+                    // match.Groups:
+                    // [0] = entire match. e.g. "key" : "value"
+                    // [1] = key e.g. "password"
+                    // [2] = value 
+
+                    string replaceResult = string.Empty;
+
+                    if (match != null && match.Groups.Count > 2)
+                    {
+                        replaceResult = $"{match.Groups[1].Value}\" : \"{MASK}\"";
+                    }
+                    else
+                    {
+                        replaceResult = match.ToString().Replace(match.Groups[match.Groups.Count - 1].Value, MASK);
+                    }
+
+                    return replaceResult;
+                },
+                RegexOptions.IgnoreCase);
+            }
+            catch (Exception ex)
+            {
+                this.Error($"Error when performing regex replace for masking personal information. error = {ex}");
+            }
+
+            return bodyAsText;
         }
 
         #endregion
