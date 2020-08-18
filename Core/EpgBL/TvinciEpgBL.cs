@@ -962,7 +962,8 @@ namespace EpgBL
         {
             try
             {
-                // Arthur: TODO: check if we can do long.parse here to get the key from elastic
+                lIds = lIds.Select(x => GetEpgCBKey(m_nGroupID, long.Parse(x))).ToList();
+
                 List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(lIds);
                 return lResCB;
             }
