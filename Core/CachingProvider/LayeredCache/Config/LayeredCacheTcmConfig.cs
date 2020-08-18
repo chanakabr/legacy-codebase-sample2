@@ -16,6 +16,9 @@ namespace CachingProvider.LayeredCache
         [JsonProperty("Version")]
         public string Version { get; set; }
 
+        [JsonProperty("ShouldProduceInvalidationEventsToKafka")]
+        public bool ShouldProduceInvalidationEventsToKafka { get; set; }
+
         [JsonProperty("GroupCacheSettings")]
         public List<LayeredCacheConfig> GroupCacheSettings { get; set; }
 
@@ -37,6 +40,7 @@ namespace CachingProvider.LayeredCache
         public LayeredCacheTcmConfig()
         {
             Version = string.Empty;
+            ShouldProduceInvalidationEventsToKafka = false;
             GroupCacheSettings = new List<LayeredCacheConfig>();
             InvalidationKeySettings = new List<LayeredCacheConfig>();
             BucketSettings = new List<LayeredCacheBucketSettings>();
