@@ -11,6 +11,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
+using Newtonsoft.Json;
 
 namespace DAL
 {
@@ -1840,7 +1841,7 @@ namespace DAL
 
         public static T AddCampaign<T>(T campaign) where T : Campaign
         {
-            var businessModuleRuleToAdd = default(T);
+            var campaignToAdd = default(T);
             var sp = new StoredProcedure("Insert_Campaign");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", campaign.GroupId);
@@ -1848,9 +1849,8 @@ namespace DAL
             sp.AddParameter("@updateDate", campaign.UpdateDate);
             sp.AddParameter("@isActive", campaign.IsActive);
             //sp.AddParameter("@status", campaign.Status);
-            sp.AddParameter("@campaign_json", Newtonsoft.Json.JsonConvert.SerializeObject(campaign));
+            sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
-            // TODO SHIR - ADD PARAMS
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -1859,13 +1859,13 @@ namespace DAL
                 {
                     DataRow dr = ds.Tables[0].Rows[0];
                     // TODO SHIR - DESIREALIZE CAMPAIGN
-                    businessModuleRuleToAdd.Id = Utils.GetLongSafeVal(dr, "ID");
-                    businessModuleRuleToAdd.CreateDate = Utils.GetLongSafeVal(dr, "CREATE_DATE");
-                    businessModuleRuleToAdd.UpdateDate = businessModuleRuleToAdd.CreateDate;
+                    campaignToAdd.Id = Utils.GetLongSafeVal(dr, "ID");
+                    campaignToAdd.CreateDate = Utils.GetLongSafeVal(dr, "CREATE_DATE");
+                    campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
                 }
             }
 
-            return businessModuleRuleToAdd;
+            return campaignToAdd;
         }
 
         public static bool AddNotificationCampaignAction(ContextData contextData, TriggerCampaign campaignToAdd)

@@ -58,11 +58,22 @@ namespace ApiLogic.Users.Managers
 
                 if (!PricingDAL.AddNotificationCampaignAction(contextData, campaignToAdd))
                 {
-                    //TODO Shir or Matan
-                    log.Error($"Failed adding Notification Campaign Action, campaign Id: {campaignToAdd.Id}");
+                    var message = $"Failed adding Notification Campaign Action, campaign Id: {campaignToAdd.Id}";
+                    log.Error($"{message}, contextData: {contextData}");
+                    response.SetStatus(eResponseStatus.Error, message);
+                    return response;
                 }
 
-                response.Object = PricingDAL.AddCampaign(campaignToAdd);
+                var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd);
+
+                if (insertedCampaign?.Id > 0)
+                {
+                    campaignToAdd.Id = insertedCampaign.Id;
+                    campaignToAdd.CreateDate = insertedCampaign.CreateDate;
+                    campaignToAdd.UpdateDate = insertedCampaign.UpdateDate;
+                    response.Object = campaignToAdd;
+                }
+
                 if (response.Object != null)
                 {
                     SetInvalidationKeys(contextData);
@@ -71,7 +82,7 @@ namespace ApiLogic.Users.Managers
             }
             catch (Exception ex)
             {
-                log.Error($"Error while adding new TriggerCampaign. contextData: {contextData}, ex: {ex};");
+                log.Error($"Error while adding new TriggerCampaign. contextData: {contextData}, ex: {ex};", ex);
             }
 
             return response;
@@ -111,6 +122,7 @@ namespace ApiLogic.Users.Managers
                 GroupId = contextData.GroupId,
                 UserId = contextData.UserId.ToString(),
 
+                //TODO - Matan
                 BrandId = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => 4).FirstOrDefault(),
                 ManufacturerId = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => 4).FirstOrDefault(),
                 Model = campaign.CampaignConditions?.Where(c => c.Type == RuleConditionType.Campaign).Select(c => "").FirstOrDefault(),
