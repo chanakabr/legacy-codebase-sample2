@@ -328,8 +328,16 @@ namespace Core.Catalog
 
                     try
                     {
+                        // set max amount of concurrent tasks
+                        int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+                        if (maxDegreeOfParallelism == 0)
+                        {
+                            maxDegreeOfParallelism = 5;
+                        }
+
+                        ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
                         ContextData contextData = new ContextData();
-                        Parallel.ForEach<int>(lMediaIDs, mediaID =>
+                        Parallel.ForEach<int>(lMediaIDs, options, mediaID =>
                         {
                             contextData.Load();
                             SearchResult res = new SearchResult()
