@@ -125,6 +125,7 @@ namespace ConfigurationManager
         public CeleryRoutingConfiguration CeleryRoutingConfiguration = new CeleryRoutingConfiguration();
         public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration();
         public NPVRHttpClientConfiguration NPVRHttpClientConfiguration = new NPVRHttpClientConfiguration();
+        public KafkaClientConfiguration KafkaClientConfiguration = new KafkaClientConfiguration();
         public ElasticSearchHttpClientConfiguration ElasticSearchHttpClientConfiguration = new ElasticSearchHttpClientConfiguration();
         public MailerHttpClientConfiguration MailerHttpClientConfiguration = new MailerHttpClientConfiguration();
         public IotHttpClientConfiguration IotHttpClientConfiguration = new IotHttpClientConfiguration();
