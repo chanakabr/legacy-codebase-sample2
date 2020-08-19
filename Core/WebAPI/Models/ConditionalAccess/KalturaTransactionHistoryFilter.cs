@@ -64,7 +64,7 @@ namespace WebAPI.Models.ConditionalAccess
         public string ExternalIdEqual { get; set; }
 
         /// <summary>
-        ///Filter transaction by type
+        ///Filter transaction by billing item type
         /// </summary>
         [DataMember(Name = "billingItemsTypeEqual")]
         [JsonProperty("billingItemsTypeEqual")]
@@ -72,15 +72,31 @@ namespace WebAPI.Models.ConditionalAccess
         public KalturaBillingItemsType? BillingItemsTypeEqual { get; set; }
 
         /// <summary>
-        ///Filter transaction by business module type
+        ///Filter transaction by billing action
         /// </summary>
         [DataMember(Name = "billingActionEqual")]
         [JsonProperty("billingActionEqual")]
         [XmlElement(ElementName = "billingActionEqual", IsNullable = true)]
         public KalturaBillingAction? BillingActionEqual { get; set; }
 
-        
+        /// <summary>
+        ///Filter transaction by payment gateway id
+        /// </summary>
+        [DataMember(Name = "paymentGatewayId")]
+        [JsonProperty("paymentGatewayId")]
+        [XmlElement(ElementName = "paymentGatewayId", IsNullable = true)]
+        public int? PaymentGatewayId { get; set; }
 
-            
+        /// <summary>
+        ///Filter transaction by payment method id
+        /// </summary>
+        [DataMember(Name = "paymentMethodId")]
+        [JsonProperty("paymentMethodId")]
+        [XmlElement(ElementName = "paymentMethodId", IsNullable = true)]
+        public int? PaymentMethodId { get; set; }
+
+
+
+
     }
 }
