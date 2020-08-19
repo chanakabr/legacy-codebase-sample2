@@ -42,4 +42,9 @@ namespace WebAPI.Models.API
             return Id.HasValue ? (long)Id : 0;
         }
     }
+
+    public partial class KalturaPermissionItemListResponse : KalturaListResponse<KalturaPermissionItem>
+    {
+    }
+
 }

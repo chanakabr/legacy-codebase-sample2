@@ -10,6 +10,9 @@ using System.Web;
 using ConfigurationManager;
 using System.Runtime.Caching;
 using CachingProvider.LayeredCache.Helper;
+using EventBus.Kafka;
+using EventBus.Abstraction;
+using System.ServiceModel.Channels;
 
 namespace CachingProvider.LayeredCache
 {
@@ -28,15 +31,21 @@ namespace CachingProvider.LayeredCache
         public const string CURRENT_REQUEST_LAYERED_CACHE = "CurrentRequestLayeredCache";
         public const string DATABASE_ERROR_DURING_SESSION = "DATABASE_ERROR_DURING_SESSION";
 
+        public const string REQUEST_TAGS = "request_tags";
+        public const string REQUEST_TAGS_PARTNER_ROLE = "partner_role";
+
         public static readonly HashSet<string> readActions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
             "get", "list", "getContext", "playManifest"
         };
 
+        private readonly IEventBusPublisher _InvalidationEventsPublisher;
+
         private LayeredCache()
         {
             layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
             jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+            _InvalidationEventsPublisher = KafkaPublisher.GetFromTcmConfiguration();
         }
 
         public static LayeredCache Instance
@@ -85,7 +94,7 @@ namespace CachingProvider.LayeredCache
                 {
                     return true;
                 }
-                
+
                 Tuple<T, long> tuple = null;
 
                 // save data in cache only if result is true!!!!
@@ -114,7 +123,7 @@ namespace CachingProvider.LayeredCache
 
                 if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null &&
                     // insert to cache only if no errors during session
-                    !(HttpContext.Current != null && HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) && 
+                    !(HttpContext.Current != null && HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) &&
                     HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION] is bool &&
                     (bool)HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION]))
                 {
@@ -217,7 +226,7 @@ namespace CachingProvider.LayeredCache
 
                     if (insertToCacheConfigMappings != null && insertToCacheConfigMappings.Count > 0 && res && results != null &&
                         // insert to cache only if no errors during session
-                        !(HttpContext.Current !=  null && HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) && 
+                        !(HttpContext.Current != null && HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) &&
                         HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION] is bool &&
                         (bool)HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION]))
                     {
@@ -389,7 +398,7 @@ namespace CachingProvider.LayeredCache
                 layeredCacheTcmConfig.DefaultSettings.RemoveAll(x => x.Type == LayeredCacheType.InMemoryCache);
             }
         }
-        
+
         public bool SetLayeredCacheGroupConfig(int groupId, int? version = null, bool? shouldDisableLayeredCache = null,
                                                 List<string> layeredCacheSettingsToExclude = null, bool? shouldOverrideExistingExludeSettings = false,
                                                 List<string> layeredCacheInvalidationKeySettingsToExclude = null, bool? shouldOverrideExistingInvalidationKeyExludeSettings = false)
@@ -488,7 +497,7 @@ namespace CachingProvider.LayeredCache
             return HttpContext.Current != null && HttpContext.Current.Items != null &&
                    HttpContext.Current.Items[LayeredCache.IS_READ_ACTION] != null ? (bool)HttpContext.Current.Items[LayeredCache.IS_READ_ACTION] : false;
         }
-        
+
         public bool TryGetKeyFromCurrentRequest<T>(string key, ref T genericParameter)
         {
             List<string> keys = new List<string>() { key };
@@ -542,12 +551,12 @@ namespace CachingProvider.LayeredCache
 
             return success;
         }
-        
+
         public void InsertResultsToCurrentRequest<T>(Dictionary<string, T> results, Dictionary<string, List<string>> invalidationKeysToKeys)
         {
             RequestLayeredCache requestLayeredCache = null;
 
-            if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items.ContainsKey(CURRENT_REQUEST_LAYERED_CACHE) && 
+            if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items.ContainsKey(CURRENT_REQUEST_LAYERED_CACHE) &&
                 HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] != null &&
                 HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] is RequestLayeredCache)
             {
@@ -788,7 +797,7 @@ namespace CachingProvider.LayeredCache
                                 {
                                     log.ErrorFormat("Error getting inValidationKeysMaxDateMapping for keys: {0}, layeredCacheConfigName: {1}, groupId: {2}",
                                         string.Join(",", keysToGet).Take(20),
-                                        layeredCacheConfigName, 
+                                        layeredCacheConfigName,
                                         groupId);
                                     insertToCacheConfig.Add(cacheConfig, new List<string>(keysToGet));
                                     continue;
@@ -839,7 +848,7 @@ namespace CachingProvider.LayeredCache
                 }
                 else
                 {
-                    log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}", 
+                    log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}",
                         string.Join(",", keysToGet).Take(20), layeredCacheConfigName, groupId);
                 }
 
@@ -953,7 +962,7 @@ namespace CachingProvider.LayeredCache
             {
                 log.Error(string.Format("Failed TryGetValuesFromICachingService with keys {0}, LayeredCacheTypes {1}",
                     // take only 20 first keys - to avoid flood of log
-                    string.Join(",", keys).Take(20), 
+                    string.Join(",", keys).Take(20),
                     GetLayeredCacheConfigTypesForLog(new List<LayeredCacheConfig>() { cacheConfig }), ex));
             }
 
@@ -974,7 +983,7 @@ namespace CachingProvider.LayeredCache
 
                 HashSet<string> keysToGet = new HashSet<string>(keys);
                 Dictionary<string, long> compeleteResultMap = new Dictionary<string, long>();
-                
+
                 if (ShouldCheckInvalidationKey(layeredCacheConfigName, groupId, ref invalidationKeyCacheConfig) && keysToGet.Count > 0)
                 {
                     if (invalidationKeyCacheConfig == null)
@@ -1028,7 +1037,7 @@ namespace CachingProvider.LayeredCache
                             }
                         }
                     }
-                    
+
                     if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && compeleteResultMap != null)
                     {
                         foreach (KeyValuePair<LayeredCacheConfig, List<string>> pair in insertToCacheConfig)
@@ -1328,7 +1337,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("layeredCacheGroupConfig_V1_{0}", groupId);
         }
-        
+
         private bool TryGetKeyFromAppDomainCache<T>(string key, ref T genericParameter)
         {
             bool res = false;
@@ -1396,6 +1405,11 @@ namespace CachingProvider.LayeredCache
         private bool TrySetInValidationKey(string key, long valueToUpdate)
         {
             bool res = false;
+            if (layeredCacheTcmConfig.ShouldProduceInvalidationEventsToKafka)
+            {
+                ProduceInvalidationEvent(key);
+            }
+
             try
             {
                 if (string.IsNullOrEmpty(key))
@@ -1422,6 +1436,25 @@ namespace CachingProvider.LayeredCache
             }
 
             return res;
+        }
+
+        private void ProduceInvalidationEvent(string key)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(key)) { return; }
+
+                var invalidationEvent = InvalidationKeysLegacyMapping.GetInvalidationEventKeyByLegacyKey(key);
+                if (invalidationEvent != null)
+                {
+                    // TODO: move the publisher creation to the staic constarctonr....
+                    _InvalidationEventsPublisher.Publish(invalidationEvent);
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error($"Error while trying to produce cache invalidation event for key:[{key}]", e);
+            }
         }
 
         private static bool TrySetInvalidationKeyWithCacheConfig(string key, long valueToUpdate, LayeredCacheConfig invalidationKeyCacheConfig)
@@ -1513,8 +1546,22 @@ namespace CachingProvider.LayeredCache
             try
             {
                 LayeredCacheGroupConfig layeredCacheGroupConfig;
+
                 res = TryGetInvalidationKeyLayeredCacheConfig(layeredCacheConfigName, out layeredCacheConfig) && TryGetLayeredCacheGroupConfig(groupId, out layeredCacheGroupConfig)
                         && !layeredCacheGroupConfig.DisableLayeredCache && !layeredCacheGroupConfig.LayeredCacheInvalidationKeySettingsToExclude.Contains(layeredCacheConfigName);
+
+                //BEO-7703 - No cache for operator+ 
+                if (res && HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items.ContainsKey(REQUEST_TAGS))
+                {
+                    var tags = (HashSet<string>)HttpContext.Current.Items[REQUEST_TAGS];
+                    if (tags != null && tags.Contains(REQUEST_TAGS_PARTNER_ROLE))
+                    {
+                        layeredCacheConfig = layeredCacheConfig.Where(x => x.Type == LayeredCacheType.CbCache || x.Type == LayeredCacheType.CbMemCache).ToList();
+                        res = layeredCacheConfig != null && layeredCacheConfig.Count > 0;
+                    }
+                }
+
+               
             }
 
             catch (Exception ex)

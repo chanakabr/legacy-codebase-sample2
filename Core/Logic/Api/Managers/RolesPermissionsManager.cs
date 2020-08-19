@@ -1,6 +1,9 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Catalog;
+using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.Roles;
+using ApiObjects.Social;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
@@ -10,6 +13,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using TVinciShared;
 
 namespace APILogic.Api.Managers
 {
@@ -60,7 +64,7 @@ namespace APILogic.Api.Managers
             }
             return dictionary;
         }
-        
+
         private static List<long> GetRoleIds(int groupId, string userId)
         {
             // ??????? we set list to be only anonymous at first but it is never used. something here smells fishy!
@@ -239,9 +243,9 @@ namespace APILogic.Api.Managers
             return status;
         }
 
-        public static List<Permission> GetGroupPermissions(int groupId, long? roleIdIn)
+        public static Dictionary<long, Permission> GetGroupPermissions(int groupId, long? roleIdIn)
         {
-            List<Permission> result = null;
+            Dictionary<long, Permission> result = null;
             try
             {
                 List<Role> roles = null;
@@ -261,7 +265,7 @@ namespace APILogic.Api.Managers
                         roles = roles.Where(r => r.Id.Equals(roleIdIn.Value)).ToList();
                     }
 
-                    result = roles.Where(x => x.Permissions != null).SelectMany(x => x.Permissions).GroupBy(x => x.Name).Select(x => x.First()).ToList();
+                    result = roles.Where(x => x.Permissions != null).SelectMany(x => x.Permissions).GroupBy(x => x.Name).Select(x => new KeyValuePair<long, Permission>(x.First().Id, x.First())).ToDictionary(x => x.Key, x => x.Value);
                 }
             }
             catch (Exception ex)
@@ -431,6 +435,333 @@ namespace APILogic.Api.Managers
         private static bool DoesGroupUsesTemplates(int groupId)
         {
             return Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+        }
+
+        public static GenericListResponse<PermissionItem> GetPermissionItemList(PermissionItemFilter filter, CorePager pager)
+        {
+            GenericListResponse<PermissionItem> response = new GenericListResponse<PermissionItem>();
+            response.Objects = GetAllPermissionItems();
+            response.TotalItems = response.Objects.Count;
+            response.Objects = response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList();
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
+        public static GenericListResponse<PermissionItem> GetPermissionItemList(PermissionItemByIdInFilter filter, CorePager pager)
+        {
+            GenericListResponse<PermissionItem> response = new GenericListResponse<PermissionItem>();
+            response.Objects = GetAllPermissionItems();
+            response.Objects = response.Objects.Where(pi => filter.IdIn.Contains(pi.Id)).ToList();
+            response.TotalItems = response.Objects.Count;
+            response.Objects = response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList();
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
+        public static GenericListResponse<PermissionItem> GetPermissionItemList(PermissionItemByApiActionFilter filter, CorePager pager)
+        {
+            GenericListResponse<PermissionItem> response = new GenericListResponse<PermissionItem>();
+            response.Objects = GetAllPermissionItems();
+            response.Objects = response.Objects.Where(pi => pi.GetPermissionItemType() == ePermissionItemType.Action &&
+                (string.IsNullOrEmpty(filter.Action) || ((ApiActionPermissionItem)pi).Action.ToLower() == filter.Action.ToLower()) &&
+                ((string.IsNullOrEmpty(filter.Service) || ((ApiActionPermissionItem)pi).Service.ToLower() == filter.Service.ToLower()))).ToList();
+            response.TotalItems = response.Objects.Count;
+            response.Objects = response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList();
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
+        public static GenericListResponse<PermissionItem> GetPermissionItemList(PermissionItemByArgumentFilter filter, CorePager pager)
+        {
+            GenericListResponse<PermissionItem> response = new GenericListResponse<PermissionItem>();
+            response.Objects = GetAllPermissionItems();
+            response.Objects = response.Objects.Where(pi => pi.GetPermissionItemType() == ePermissionItemType.Argument &&
+                (string.IsNullOrEmpty(filter.Parameter) || ((ApiArgumentPermissionItem)pi).Parameter.ToLower() == filter.Parameter.ToLower()) &&
+                (string.IsNullOrEmpty(filter.Action) || ((ApiArgumentPermissionItem)pi).Action.ToLower() == filter.Action.ToLower()) &&
+                (string.IsNullOrEmpty(filter.Service) || ((ApiArgumentPermissionItem)pi).Service.ToLower() == filter.Service.ToLower())).ToList();
+            response.TotalItems = response.Objects.Count;
+            response.Objects = response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList();
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
+        public static GenericListResponse<PermissionItem> GetPermissionItemList(PermissionItemByParameterFilter filter, CorePager pager)
+        {
+            GenericListResponse<PermissionItem> response = new GenericListResponse<PermissionItem>();
+            response.Objects = GetAllPermissionItems();
+            response.Objects = response.Objects.Where(pi => pi.GetPermissionItemType() == ePermissionItemType.Parameter &&
+                (string.IsNullOrEmpty(filter.Parameter) || ((ApiParameterPermissionItem)pi).Parameter.ToLower() == filter.Parameter.ToLower()) &&
+                (string.IsNullOrEmpty(filter.Object) || ((ApiParameterPermissionItem)pi).Object.ToLower() == filter.Object.ToLower())).ToList();
+            response.TotalItems = response.Objects.Count;
+            response.Objects = response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList();
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
+        public static ApiObjects.Response.Status AddPermissionItemToPermission(int groupId, long permissionId, long permissionItemId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status(eResponseStatus.Error);
+
+            try
+            {
+                PermissionItem permissionItem = RolesPermissionsManager.GetPermissionItem(permissionItemId);
+                if (permissionItem == null)
+                {
+                    response.Set(eResponseStatus.PermissionItemNotFound);
+                    return response;
+                }
+
+                Permission permission = RolesPermissionsManager.GetPermission(groupId, permissionId);
+                if (permission == null)
+                {
+                    response.Set(eResponseStatus.PermissionNotFound);
+                    return response;
+                }
+
+                if (permission.GroupId == 0)
+                {
+                    response.Set(eResponseStatus.PermissionReadOnly);
+                    return response;
+                }
+
+                if (permission.PermissionItemsIds?.Count > 0 && permission.PermissionItemsIds.Contains(permissionItemId))
+                {
+                    response.Set(eResponseStatus.PermissionPermissionItemAlreadyExists);
+                    return response;
+                }
+
+                int id = DAL.ApiDAL.InsertPermissionPermissionItem(groupId, permissionId, permissionItemId);
+                if (id > 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+
+                if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
+                {
+                    log.DebugFormat("Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {0}", groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while adding permission item to permission. group id = {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+        public static ApiObjects.Response.Status RemovePermissionItemFromPermission(int groupId, long permissionId, long permissionItemId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status(eResponseStatus.Error);
+
+            try
+            {
+                PermissionItem permissionItem = RolesPermissionsManager.GetPermissionItem(permissionItemId);
+                if (permissionItem == null)
+                {
+                    response.Set(eResponseStatus.PermissionItemNotFound);
+                    return response;
+                }
+
+                Permission permission = RolesPermissionsManager.GetPermission(groupId, permissionId);
+                if (permission == null)
+                {
+                    response.Set(eResponseStatus.PermissionNotFound);
+                    return response;
+                }
+
+                if (permission.GroupId == 0)
+                {
+                    response.Set(eResponseStatus.PermissionReadOnly);
+                    return response;
+                }
+
+                if (permission.PermissionItemsIds?.Count == 0 && !permission.PermissionItemsIds.Contains(permissionItemId))
+                {
+                    response.Set(eResponseStatus.PermissionPermissionItemNotFound);
+                    return response;
+                }
+
+                int rowCount = DAL.ApiDAL.DeletePermissionItemFromPermission(groupId, permissionId, permissionItemId);
+                if (rowCount > 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+
+                if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
+                {
+                    log.DebugFormat("Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {0}", groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while deleting permission item from permission. group id = {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+        private static List<PermissionItem> GetAllPermissionItems()
+        {
+            List<PermissionItem> items = new List<PermissionItem>(); 
+            var roles = GetRolesByGroupId(0);
+
+            HashSet<long> ids = new HashSet<long>();
+
+            foreach (var role in roles)
+            {
+                foreach (var permisson in role.Permissions)
+                {
+                    if (permisson.PermissionItems?.Count > 0)
+                    {
+                        foreach (var permissonItem in permisson.PermissionItems)
+                        {
+                            if (!ids.Contains(permissonItem.Id))
+                            {
+                                ids.Add(permissonItem.Id);
+                                items.Add(permissonItem);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return items.OrderBy(x => x.Id).ToList();
+        }
+
+        internal static Permission GetPermission(int groupId, long permissionId)
+        {
+            Permission permission = null;
+
+            var customPermissions = GetGroupPermissions(groupId);
+            if (customPermissions?.Count > 0 && customPermissions.ContainsKey(permissionId))
+            {
+                return customPermissions[permissionId];
+            }
+
+            var otherPermissions = GetGroupPermissions(groupId, null);
+            if (otherPermissions?.Count > 0 && otherPermissions.ContainsKey(permissionId))
+            {
+                return otherPermissions[permissionId];
+            }
+
+            return permission;
+        }
+
+        internal static PermissionItem GetPermissionItem(long permissionItemId)
+        {
+            var allPermissionItems = GetAllPermissionItems();
+            PermissionItem permissionItem = allPermissionItems.FirstOrDefault(x => x.Id == permissionItemId);
+            
+            return permissionItem;
+        }
+
+        public static Dictionary<long, Permission> GetGroupPermissions(int groupId)
+        {
+            Dictionary<long, Permission> result = new Dictionary<long, Permission>();
+
+            try
+            {
+                string key = LayeredCacheKeys.GetGroupPermissionsKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<long, Permission>>(key, ref result, BuildGroupPermissions,
+                                                                                                                new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                                                                                LayeredCacheConfigNames.GET_GROUP_PERMISSIONS,
+                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
+                                                                                                                new List<string>() { invalidationKey }))
+                {
+                    log.ErrorFormat("Failed getting GetGroupPermissions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupPermissions, groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        private static Tuple<Dictionary<long, Permission>, bool> BuildGroupPermissions(Dictionary<string, object> funcParams)
+        {
+            Dictionary<long, Permission> result = new Dictionary<long, Permission>();
+            bool success = false;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        result = BuildGroupPermissions(groupId.Value);
+                        success = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("BuildPermissionItemsToFeaturesDictionary failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<long, Permission>, bool>(result, success);
+        }
+
+        public static Dictionary<long, Permission> BuildGroupPermissions(int groupId)
+        {
+            Dictionary<long, Permission> permissions = new Dictionary<long, Permission>();
+            Permission permission;
+            PermissionItem permissionItem;
+
+            try
+            {
+                DataTable dt = ApiDAL.GetGroupPermissions(groupId);
+                if (dt?.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        var id = ODBCWrapper.Utils.GetIntSafeVal(dr, "PERMISSION_ID");
+
+                        if (id > 0)
+                        {
+                            if (!permissions.ContainsKey(id))
+                            {
+                                permission = new Permission()
+                                {
+                                    Name = ODBCWrapper.Utils.GetSafeStr(dr, "PERMISSION_NAME"),
+                                    DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES"),
+                                    FriendlyName = ODBCWrapper.Utils.GetSafeStr(dr, "FRIENDLY_NAME"),
+                                    Id = id,
+                                    GroupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID"),
+                                    Type = (ePermissionType)ODBCWrapper.Utils.GetIntSafeVal(dr, "TYPE"),
+                                    PermissionItemsIds = new List<long>()
+                                };
+
+                                permissions.Add(permission.Id, permission);
+                            }
+
+                            var permissionItemId = ODBCWrapper.Utils.GetIntSafeVal(dr, "PERMISSION_ITEM_ID");
+                            if (permissionItemId > 0)
+                            {
+                                if (ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_EXCLUDED") == 1)
+                                {
+                                    if (permissions[id].PermissionItemsIds.Contains(permissionItemId))
+                                    {
+                                        permissions[id].PermissionItemsIds.Remove(permissionItemId);
+                                    }
+                                }
+                                else
+                                {
+                                    permissions[id].PermissionItemsIds.Add(permissionItemId);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting Group permissions. group id = {0}", groupId), ex);
+            }
+
+            return permissions;
         }
     }
 }

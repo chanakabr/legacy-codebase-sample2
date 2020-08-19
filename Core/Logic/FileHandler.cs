@@ -21,7 +21,7 @@ namespace ApiLogic
         protected abstract void Initialize();
         protected abstract GenericResponse<string> Save(string fileName, OTTFile fileInfo, string subDir);
         protected abstract GenericResponse<string> Save(string fileName, OTTStreamFile file, string subDir);
-        protected abstract GenericResponse<byte[]> Get(string fileName, string fileUrl, string subDir, System.Net.WebClient webClient, int groupId = 0, Image image = null);
+        protected abstract GenericResponse<byte[]> Get(string fileName, string fileUrl, string subDir, int groupId = 0, Image image = null);
         protected abstract GenericResponse<string> GetSubDir(string id, string typeName);
         protected abstract GenericResponse<string> GetSubDir(long id, string typeName);
         protected abstract string GetUrl(string subDir, string fileName);
@@ -169,11 +169,11 @@ namespace ApiLogic
 
         public GenericResponse<byte[]> DownloadImage(int groupId, string url, string contentId, Image image)
         {
-            log.Debug($"Starting Image Download, Id: {image.Id}, Image Content Id: {image.ContentId}");
+            log.Debug($"Starting Image Download, Id: {image.Id}, Image Content Id: {image.ContentId}, url: {url}");
             var fileResponse = new GenericResponse<byte[]>();
             try
             {
-                fileResponse = Get(contentId, url ?? image.Url, string.Empty, null, groupId, image);
+                fileResponse = Get(contentId, url ?? image.Url, string.Empty, groupId, image);
             }
             catch (Exception ex)
             {
@@ -197,7 +197,7 @@ namespace ApiLogic
                     if (subDir.HasObject())
                     {
                         var _extension = $".{fileUrl.Substring(fileUrl.LastIndexOf('.') + 1)}";
-                        fileResponse = Get(GetFileName(id.ToString(), _extension), fileUrl, subDir.Object, new System.Net.WebClient());
+                        fileResponse = Get(GetFileName(id.ToString(), _extension), fileUrl, subDir.Object);
                     }
                 }
                 else
@@ -328,8 +328,7 @@ namespace ApiLogic
             return saveResponse;
         }
 
-        protected override GenericResponse<byte[]> Get(string fileName, string fileUrl, string subDir,
-            System.Net.WebClient webClient, int groupId = 0, Image image = null)
+        protected override GenericResponse<byte[]> Get(string fileName, string fileUrl, string subDir, int groupId = 0, Image image = null)
         {
             log.Debug($"Start download file: [{fileName}] from S3");
             var response = new GenericResponse<byte[]>();
@@ -577,25 +576,28 @@ namespace ApiLogic
             return saveResponse;
         }
 
-        protected override GenericResponse<byte[]> Get(string fileName, string fileUrl, string subDir, System.Net.WebClient webClient, int groupId = 0, Image image = null)
+        protected override GenericResponse<byte[]> Get(string fileName, string fileUrl, string subDir, int groupId = 0, Image image = null)
         {
-            log.Debug($"Start file download: [{fileName}] from FileSystem");
+            log.Debug($"Start file download: [{fileName}] from FileSystem. (url: {fileUrl})");
             var response = new GenericResponse<byte[]>();
             try
             {
-                byte[] fileBytes = webClient.DownloadData(fileUrl);
-
-                if (fileBytes == null || fileBytes.Length == 0)
+                using (var webClient = new System.Net.WebClient())
                 {
-                    response.SetStatus(eResponseStatus.FileDoesNotExists);
-                    return response;
+                    byte[] fileBytes = webClient.DownloadData(fileUrl);
+
+                    if (fileBytes == null || fileBytes.Length == 0)
+                    {
+                        response.SetStatus(eResponseStatus.FileDoesNotExists);
+                        return response;
+                    }
+                    response.SetStatus(eResponseStatus.OK);
+                    response.Object = fileBytes;
                 }
-                response.SetStatus(eResponseStatus.OK);
-                response.Object = fileBytes;
             }
             catch (Exception ex)
             {
-                log.Error($"Exception downloading file from 'FileSystemHandler', error: {ex}");
+                log.Error($"Exception downloading file from 'FileSystemHandler', url: {fileUrl} error: {ex}");
                 response.SetStatus(eResponseStatus.Error, "Error while downloading file");
             }
             return response;

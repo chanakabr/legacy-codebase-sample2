@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -44,7 +45,6 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    // call client
                     list = ClientsManager.ApiClient().GetRoles(groupId, filter.getIds());
                 }
             }
@@ -56,6 +56,16 @@ namespace WebAPI.Controllers
             if (list == null)
             {
                 throw new InternalServerErrorException();
+            }
+
+            if (filter.TypeEqual.HasValue)
+            {
+                list = list.Where(r => r.Type == filter.TypeEqual.Value).ToList();
+            }
+
+            if (filter.ProfileEqual.HasValue)
+            {
+                list = list.Where(r => r.Profile == filter.ProfileEqual.Value).ToList();
             }
 
             return new KalturaUserRoleListResponse() { UserRoles = list, TotalCount = list.Count };
@@ -107,6 +117,8 @@ namespace WebAPI.Controllers
         {
             KalturaUserRole response = null;
 
+            role.Validate();
+
             int groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -138,8 +150,11 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
         [Throws(eResponseStatus.PermissionNameNotExists)]
+        [Throws(eResponseStatus.RoleReadOnly)]
         static public KalturaUserRole Update(long id, KalturaUserRole role)
         {
+            role.Validate();
+
             if (id < 1)
             {
                 throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETER, "id");

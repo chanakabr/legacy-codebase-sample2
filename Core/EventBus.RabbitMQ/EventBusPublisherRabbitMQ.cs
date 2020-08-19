@@ -59,8 +59,8 @@ namespace EventBus.RabbitMQ
 
                 foreach (var serviceEvent in serviceEvents)
                 {
-                    var eventName = ServiceEvent.GetEventName(serviceEvent);
-                    var message = JsonConvert.SerializeObject(serviceEvent);
+                    var eventName = ServiceEvent.GetEventRoutingKey(serviceEvent);
+                    var message = serviceEvent.Serialize();
                     var body = Encoding.UTF8.GetBytes(message);
 
                     publishRetryPolicy.Execute(() =>

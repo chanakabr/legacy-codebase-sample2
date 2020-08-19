@@ -88,7 +88,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetPermissionsRolesIdsKey(int groupId)
         {
-            return string.Format("getPermissionRoleIds_groupId_{0}", groupId);
+            return string.Format("getPermissionRoleIds_V1_groupId_{0}", groupId);
         }
 
         public static string GetGroupPermissionItemsDictionaryKey(int groupId)
@@ -109,6 +109,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupFeaturesKey(int groupId)
         {
             return string.Format("groupFeaturesKey_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupPermissionsKey(int groupId)
+        {
+            return string.Format("groupPermissionsKey_groupId_{0}", groupId);
         }
 
         public static string GetFileCdnDataKey(int fileId)
@@ -1210,6 +1215,8 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_group_segmentation_types_{0}", groupId);
         }
 
+
+        // todo: arthur map to kafka ...
         public static string GetSegmentationTypeInvalidationKey(int groupId, long segmentationTypeId)
         {
             return string.Format("invalidationKey_segmentation_type_{0}_{1}", groupId, segmentationTypeId);

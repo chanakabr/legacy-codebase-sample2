@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Roles;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -69,9 +71,48 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "excludedPermissionNames")]
         public string ExcludedPermissionNames { get; set; }
 
+        /// <summary>
+        /// Role type
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty("type")]
+        [XmlElement(ElementName = "type")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaUserRoleType Type { get; set; }
+
+        /// <summary>
+        /// Role profile
+        /// </summary>
+        [DataMember(Name = "profile")]
+        [JsonProperty("profile")]
+        [XmlElement(ElementName = "profile")]
+        public KalturaUserRoleProfile? Profile { get; set; }
+
         internal long getId()
         {
             return Id.HasValue ? (long)Id : 0;
         }
+
+        internal void Validate()
+        {
+            if (Profile == KalturaUserRoleProfile.SYSTEM)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "profile", "KalturaUserRoleProfile.SYSTEM");
+            }
+            if (Profile == KalturaUserRoleProfile.USER)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "profile", "KalturaUserRoleProfile.USER");
+            }
+        }
+
     }
+
+    public enum KalturaUserRoleProfile
+    {
+        USER,
+        PARTNER,
+        PROFILE,
+        SYSTEM
+    }
+
 }

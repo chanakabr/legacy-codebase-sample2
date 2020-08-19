@@ -203,6 +203,8 @@ namespace Core.Api
                     return response;
                 }
 
+                role.GroupId = groupId;
+
                 Dictionary<long, string> permissionNamesDict = DAL.ApiDAL.GetPermissions(groupId, role.Permissions.Select(x => x.Name).ToList());
                 if (role.Permissions.Select(x => x.Name).ToList().Count != permissionNamesDict.Count)
                 {
@@ -212,7 +214,7 @@ namespace Core.Api
                 XmlDocument xmlDoc = new XmlDocument();
                 BuildRolePermissionXml(role, permissionNamesDict, ref xmlDoc);
 
-                int roleId = DAL.ApiDAL.InsertRolePermission(groupId, role.Name, xmlDoc.InnerXml.ToString());
+                int roleId = DAL.ApiDAL.InsertRolePermission(groupId, role.Name, xmlDoc.InnerXml.ToString(), (int?)role.Profile);
 
                 if (roleId > 0)
                 {
@@ -246,6 +248,8 @@ namespace Core.Api
                     return response;
                 }
 
+                role.GroupId = groupId;
+
                 Dictionary<long, string> permissionNamesDict = DAL.ApiDAL.GetPermissions(groupId, role.Permissions.Select(x => x.Name.Trim()).ToList());
                 if (role.Permissions.Select(x => x.Name).ToList().Count != permissionNamesDict.Count)
                 {
@@ -263,10 +267,20 @@ namespace Core.Api
                     return response;
                 }
 
+                var currentRole = roles.Roles[0];
+
+                if (currentRole.GroupId == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RoleReadOnly , eResponseStatus.RoleReadOnly.ToString());
+                    return response; 
+                }
+
+                var profileToUpdate = role.Profile.HasValue ? (int?)role.Profile.Value : (int?)currentRole.Profile;
+
                 XmlDocument xmlDoc = new XmlDocument();
                 BuildRolePermissionXml(role, permissionNamesDict, ref xmlDoc);
-
-                if (DAL.ApiDAL.UpdateRole(groupId, role.Id, role.Name, xmlDoc.InnerXml.ToString()))
+            
+                if (DAL.ApiDAL.UpdateRole(groupId, role.Id, role.Name, xmlDoc.InnerXml.ToString(), profileToUpdate))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.Roles = new List<Role>() { role };
@@ -8331,9 +8345,15 @@ namespace Core.Api
 
             try
             {
-                response.Roles = DAL.ApiDAL.GetRoles(groupId, roleIds);
-                if (response.Roles != null)
+                List<Role> roles = RolesPermissionsManager.GetRolesByGroupId(groupId);
+                if (roles?.Count > 0 && roleIds?.Count > 0)
                 {
+                    roles = roles.Where(x => roleIds.Contains(x.Id)).ToList();
+                }
+
+                if (roles?.Count > 0)
+                {
+                    response.Roles = roles;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
@@ -8421,13 +8441,25 @@ namespace Core.Api
 
             try
             {
-                response.Permissions = RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
+                var rolesPermissions = RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
+                response.Permissions = rolesPermissions.Values.ToList();
 
                 // Merge permission with type features
                 Dictionary<string, Permission> groupFeatures = GetGroupFeatures(groupId);
                 if (groupFeatures?.Count > 0)
                 {
                     response.Permissions.AddRange(groupFeatures.Values.ToList());
+                }
+
+                if (!roleIdIn.HasValue)
+                {
+                    Dictionary<long, Permission> permissions = RolesPermissionsManager.GetGroupPermissions(groupId);
+                    { 
+                        if (permissions?.Count > 0)
+                        {
+                            response.Permissions.AddRange(permissions.Where(p => !rolesPermissions.Keys.Contains(p.Key)).Select(p => p.Value));
+                        }
+                    }
                 }
 
                 if (response.Permissions != null)
@@ -8513,7 +8545,7 @@ namespace Core.Api
 
         public static ApiObjects.Response.Status AddPermissionItemToPermission(int groupId, long permissionId, long permissionItemId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status(eResponseStatus.Error);
 
             try
             {
@@ -8525,7 +8557,7 @@ namespace Core.Api
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error while getting permissions. group id = {0}", groupId), ex);
+                log.Error(string.Format("Error while adding permission item to permission. group id = {0}", groupId), ex);
             }
 
             return response;
@@ -11841,10 +11873,9 @@ namespace Core.Api
                     response.Object = permission;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                    string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
                     {
-                        log.ErrorFormat("Failed to set invalidation key on permission key = {0}", invalidationKey);
+                        log.DebugFormat("Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {0}", groupId);
                     }
                 }
                 else
@@ -11910,10 +11941,9 @@ namespace Core.Api
                     return new Status((int)eResponseStatus.Error); ;
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
-                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
                 {
-                    log.ErrorFormat("Failed to set invalidation key on permission key = {0}", invalidationKey);
+                    log.DebugFormat("Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {0}", groupId);
                 }
             }
             catch (Exception exc)

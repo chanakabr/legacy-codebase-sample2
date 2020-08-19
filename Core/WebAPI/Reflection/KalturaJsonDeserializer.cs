@@ -1301,6 +1301,24 @@ namespace WebAPI.Reflection
                 case "KalturaPermissionItem":
                     return new KalturaPermissionItem(parameters);
                     
+                case "KalturaPermissionItemByApiActionFilter":
+                    return new KalturaPermissionItemByApiActionFilter(parameters);
+                    
+                case "KalturaPermissionItemByArgumentFilter":
+                    return new KalturaPermissionItemByArgumentFilter(parameters);
+                    
+                case "KalturaPermissionItemByIdInFilter":
+                    return new KalturaPermissionItemByIdInFilter(parameters);
+                    
+                case "KalturaPermissionItemByParameterFilter":
+                    return new KalturaPermissionItemByParameterFilter(parameters);
+                    
+                case "KalturaPermissionItemFilter":
+                    return new KalturaPermissionItemFilter(parameters);
+                    
+                case "KalturaPermissionItemListResponse":
+                    return new KalturaPermissionItemListResponse(parameters);
+                    
                 case "KalturaPermissionListResponse":
                     return new KalturaPermissionListResponse(parameters);
                     
@@ -18311,6 +18329,16 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute PermissionItemsIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermission")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaPermission(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -18349,6 +18377,14 @@ namespace WebAPI.Models.API
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaPermissionType)));
                     }
+                }
+                if (parameters.ContainsKey("permissionItemsIds") && parameters["permissionItemsIds"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        PermissionItemsIdsSchemaProperty.Validate("permissionItemsIds", parameters["permissionItemsIds"]);
+                    }
+                    PermissionItemsIds = (String) Convert.ChangeType(parameters["permissionItemsIds"], typeof(String));
                 }
             }
         }
@@ -18421,6 +18457,78 @@ namespace WebAPI.Models.API
                     IsExcluded = (Boolean) Convert.ChangeType(parameters["isExcluded"], typeof(Boolean));
                 }
             }
+        }
+    }
+    public partial class KalturaPermissionItemByApiActionFilter
+    {
+        public KalturaPermissionItemByApiActionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("serviceEqual") && parameters["serviceEqual"] != null)
+                {
+                    ServiceEqual = (String) Convert.ChangeType(parameters["serviceEqual"], typeof(String));
+                }
+                if (parameters.ContainsKey("actionEqual") && parameters["actionEqual"] != null)
+                {
+                    ActionEqual = (String) Convert.ChangeType(parameters["actionEqual"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaPermissionItemByArgumentFilter
+    {
+        public KalturaPermissionItemByArgumentFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("parameterEqual") && parameters["parameterEqual"] != null)
+                {
+                    ParameterEqual = (String) Convert.ChangeType(parameters["parameterEqual"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaPermissionItemByIdInFilter
+    {
+        public KalturaPermissionItemByIdInFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaPermissionItemByParameterFilter
+    {
+        public KalturaPermissionItemByParameterFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("parameterEqual") && parameters["parameterEqual"] != null)
+                {
+                    ParameterEqual = (String) Convert.ChangeType(parameters["parameterEqual"], typeof(String));
+                }
+                if (parameters.ContainsKey("objectEqual") && parameters["objectEqual"] != null)
+                {
+                    ObjectEqual = (String) Convert.ChangeType(parameters["objectEqual"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaPermissionItemFilter
+    {
+        public KalturaPermissionItemFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaPermissionItemListResponse
+    {
+        public KalturaPermissionItemListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaPermissionListResponse
@@ -19756,6 +19864,16 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserRole")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaUserRole(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -19792,6 +19910,28 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("excludedPermissionNames") && parameters["excludedPermissionNames"] != null)
                 {
                     ExcludedPermissionNames = (String) Convert.ChangeType(parameters["excludedPermissionNames"], typeof(String));
+                }
+                if (parameters.ContainsKey("type") && parameters["type"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        TypeSchemaProperty.Validate("type", parameters["type"]);
+                    }
+                    Type = (KalturaUserRoleType) Enum.Parse(typeof(KalturaUserRoleType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserRoleType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaUserRoleType)));
+                    }
+                }
+                if (parameters.ContainsKey("profile") && parameters["profile"] != null)
+                {
+                    Profile = (KalturaUserRoleProfile) Enum.Parse(typeof(KalturaUserRoleProfile), parameters["profile"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserRoleProfile), Profile))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Profile, typeof(KalturaUserRoleProfile)));
+                    }
                 }
             }
         }
@@ -19850,6 +19990,24 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("currentUserRoleIdsContains") && parameters["currentUserRoleIdsContains"] != null)
                 {
                     CurrentUserRoleIdsContains = (Boolean) Convert.ChangeType(parameters["currentUserRoleIdsContains"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("typeEqual") && parameters["typeEqual"] != null)
+                {
+                    TypeEqual = (KalturaUserRoleType) Enum.Parse(typeof(KalturaUserRoleType), parameters["typeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserRoleType), TypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", TypeEqual, typeof(KalturaUserRoleType)));
+                    }
+                }
+                if (parameters.ContainsKey("profileEqual") && parameters["profileEqual"] != null)
+                {
+                    ProfileEqual = (KalturaUserRoleProfile) Enum.Parse(typeof(KalturaUserRoleProfile), parameters["profileEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaUserRoleProfile), ProfileEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ProfileEqual, typeof(KalturaUserRoleProfile)));
+                    }
                 }
             }
         }

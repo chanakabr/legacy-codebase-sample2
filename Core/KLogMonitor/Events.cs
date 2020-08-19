@@ -20,7 +20,8 @@ namespace KLogMonitor
             EVENT_SPHINX,
             EVENT_CONNTOOK,
             EVENT_DUMPFILE,
-            EVENT_WS
+            EVENT_WS,
+            EVENT_KAFKA
         }
 
         internal static string GetEventString(eEvent eventMonitor)
