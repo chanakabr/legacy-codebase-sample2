@@ -6735,6 +6735,10 @@ namespace WebAPI.Reflection
                             return "entityReferenceEqual";
                         case "ExternalIdEqual":
                             return "externalIdEqual";
+                        case "PaymentGatewayIdEqual":
+                            return "paymentGatewayIdEqual";
+                        case "PaymentMethodIdEqual":
+                            return "paymentMethodIdEqual";
                         case "StartDateGreaterThanOrEqual":
                             return "startDateGreaterThanOrEqual";
                     }

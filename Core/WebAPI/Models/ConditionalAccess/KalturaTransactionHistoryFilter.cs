@@ -2,6 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -82,18 +83,20 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         ///Filter transaction by payment gateway id
         /// </summary>
-        [DataMember(Name = "paymentGatewayId")]
-        [JsonProperty("paymentGatewayId")]
-        [XmlElement(ElementName = "paymentGatewayId", IsNullable = true)]
-        public int? PaymentGatewayId { get; set; }
+        [DataMember(Name = "paymentGatewayIdEqual")]
+        [JsonProperty("paymentGatewayIdEqual")]
+        [XmlElement(ElementName = "paymentGatewayIdEqual", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        public int? PaymentGatewayIdEqual { get; set; }
 
         /// <summary>
         ///Filter transaction by payment method id
         /// </summary>
-        [DataMember(Name = "paymentMethodId")]
-        [JsonProperty("paymentMethodId")]
-        [XmlElement(ElementName = "paymentMethodId", IsNullable = true)]
-        public int? PaymentMethodId { get; set; }
+        [DataMember(Name = "paymentMethodIdEqual")]
+        [JsonProperty("paymentMethodIdEqual")]
+        [XmlElement(ElementName = "paymentMethodIdEqual", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        public int? PaymentMethodIdEqual { get; set; }
 
 
 

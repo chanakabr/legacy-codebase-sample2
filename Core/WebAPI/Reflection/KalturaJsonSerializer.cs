@@ -3514,6 +3514,14 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("externalIdEqual", "\"externalIdEqual\": " + "\"" + EscapeJson(ExternalIdEqual) + "\"");
             }
+            if(PaymentGatewayIdEqual.HasValue)
+            {
+                ret.Add("paymentGatewayIdEqual", "\"paymentGatewayIdEqual\": " + PaymentGatewayIdEqual);
+            }
+            if(PaymentMethodIdEqual.HasValue)
+            {
+                ret.Add("paymentMethodIdEqual", "\"paymentMethodIdEqual\": " + PaymentMethodIdEqual);
+            }
             if(StartDateGreaterThanOrEqual.HasValue)
             {
                 ret.Add("startDateGreaterThanOrEqual", "\"startDateGreaterThanOrEqual\": " + StartDateGreaterThanOrEqual);
@@ -3547,6 +3555,14 @@ namespace WebAPI.Models.ConditionalAccess
             if(ExternalIdEqual != null)
             {
                 ret.Add("externalIdEqual", "<externalIdEqual>" + EscapeXml(ExternalIdEqual) + "</externalIdEqual>");
+            }
+            if(PaymentGatewayIdEqual.HasValue)
+            {
+                ret.Add("paymentGatewayIdEqual", "<paymentGatewayIdEqual>" + PaymentGatewayIdEqual + "</paymentGatewayIdEqual>");
+            }
+            if(PaymentMethodIdEqual.HasValue)
+            {
+                ret.Add("paymentMethodIdEqual", "<paymentMethodIdEqual>" + PaymentMethodIdEqual + "</paymentMethodIdEqual>");
             }
             if(StartDateGreaterThanOrEqual.HasValue)
             {
