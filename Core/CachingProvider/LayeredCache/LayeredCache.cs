@@ -1034,22 +1034,24 @@ namespace CachingProvider.LayeredCache
         private bool TryGetMaxInValidationKeysDate(string layeredCacheConfigName, int groupId, List<string> keys, out long MaxInValidationDate)
         {
             bool res = false;
-            MaxInValidationDate = 0;
-            List<LayeredCacheConfig> invalidationKeyCacheConfig = null;
+            MaxInValidationDate = 0;            
             try
             {
                 if (keys == null || keys.Count == 0)
                 {
                     return true;
                 }
-                
-                HashSet<string> keysToGet = new HashSet<string>(keys);
+
+                List<LayeredCacheConfig> invalidationKeyCacheConfig = null;
+                Dictionary<string, long> currentRequestResultMap = null;
                 Dictionary<string, long> compeleteResultMap = new Dictionary<string, long>();
-                if (TryGetInvalidationKeysFromCurrentRequest(keysToGet, ref compeleteResultMap))
+                HashSet<string> keysToGet = new HashSet<string>(keys);
+                if (TryGetInvalidationKeysFromCurrentRequest(keysToGet, ref currentRequestResultMap))
                 {                    
-                    foreach (string key in compeleteResultMap.Keys)
+                    foreach (KeyValuePair<string, long> pair in currentRequestResultMap)
                     {
-                        keysToGet.Remove(key);
+                        keysToGet.Remove(pair.Key);
+                        compeleteResultMap.Add(pair.Key, pair.Value);
                     }
                 }
 
@@ -1066,17 +1068,18 @@ namespace CachingProvider.LayeredCache
                         ICachingService cache = cacheConfig.GetICachingService();
                         if (cache != null)
                         {
-                            IDictionary<string, long> resultMap = null;
-                            // todo: fore some reason GetValues with allowPartial=true returens getSuccess true even when its not partial but when not key was found
+                            IDictionary<string, long> resultMap = null;                            
                             bool getSuccess = cache.GetValues<long>(keysToGet.ToList(), ref resultMap, true);
-                            if (getSuccess && resultMap?.Any() == true)
+                            if (getSuccess && resultMap?.Count > 0)
                             {
                                 bool shouldSearchKeyInResult = cacheConfig.Type == LayeredCacheType.CbCache || cacheConfig.Type == LayeredCacheType.CbMemCache;
                                 foreach (string keyToGet in keys)
                                 {
-                                    if (shouldSearchKeyInResult || resultMap.ContainsKey(keyToGet))
+                                    bool keyExistsInResult = resultMap.ContainsKey(keyToGet);
+                                    if (keyExistsInResult || shouldSearchKeyInResult)
                                     {
-                                        compeleteResultMap[keyToGet] = resultMap.ContainsKey(keyToGet) ? resultMap[keyToGet] : 0;
+                                        // in case invalidation key value wasn't found on CB, we know it was never set and we can put the value 0
+                                        compeleteResultMap[keyToGet] = keyExistsInResult ? resultMap[keyToGet] : 0;
                                         keysToGet.Remove(keyToGet);
                                     }
                                     else
@@ -1104,36 +1107,34 @@ namespace CachingProvider.LayeredCache
                                 continue;
                             }
                         }
+
+                        InsertInvalidationKeysToCurrentRequest(compeleteResultMap);
                     }
 
-                    if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && compeleteResultMap != null)
+                    if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && compeleteResultMap?.Count > 0)
                     {
                         foreach (KeyValuePair<LayeredCacheConfig, List<string>> pair in insertToCacheConfig)
                         {
-                            foreach (string keyToInsert in pair.Value)
+                            // insert only to in memory cache, for CB there is no point to insert invalidation keys that were never set
+                            if (pair.Key.Type == LayeredCacheType.InMemoryCache)
                             {
-                                // in case invalidation key value wasn't found on CB, we know it was never set and we can put the value 0
-                                long invalidationDateToInsert = compeleteResultMap.ContainsKey(keyToInsert) ? compeleteResultMap[keyToInsert] : 0;
-                                if (!TrySetInvalidationKeyWithCacheConfig(keyToInsert, invalidationDateToInsert, pair.Key))
+                                foreach (string keyToInsert in pair.Value)
                                 {
-                                    log.ErrorFormat("Failed inserting key {0} to {1}", keyToInsert, pair.Key.Type.ToString());
+                                    // in case invalidation key value wasn't found at all, it means it wasn't set and we can assign 0
+                                    long invalidationDateToInsert = compeleteResultMap.ContainsKey(keyToInsert) ? compeleteResultMap[keyToInsert] : 0;
+                                    if (!TrySetInvalidationKeyWithCacheConfig(keyToInsert, invalidationDateToInsert, pair.Key))
+                                    {
+                                        log.ErrorFormat("Failed inserting key {0} to {1}", keyToInsert, pair.Key.Type.ToString());
+                                    }
                                 }
                             }
                         }
                     }
-                }
+                }                
 
-                InsertInvalidationKeysToCurrentRequest(compeleteResultMap);
-
-                if (compeleteResultMap != null)
+                if (compeleteResultMap?.Count > 0)
                 {
-                    foreach (long inValidationDate in compeleteResultMap.Values)
-                    {
-                        if (inValidationDate > MaxInValidationDate)
-                        {
-                            MaxInValidationDate = inValidationDate;
-                        }
-                    }
+                    MaxInValidationDate = compeleteResultMap.Values.Max();
                 }
 
                 res = true;
