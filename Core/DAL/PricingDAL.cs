@@ -1871,7 +1871,14 @@ namespace DAL
         public static bool AddNotificationCampaignAction(ContextData contextData, TriggerCampaign campaignToAdd)
         {
             var key = GetNotificationCampaignActionKey(contextData, campaignToAdd);
-            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, campaignToAdd.EventNotification, true);
+
+            if (!string.IsNullOrEmpty(campaignToAdd.EventNotification))
+            {
+                var obj = JsonConvert.DeserializeObject<EventNotificationAction>(campaignToAdd.EventNotification);
+                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, obj, false);
+            }
+
+            return false;
         }
 
         private static string GetNotificationCampaignActionKey(ContextData contextData, TriggerCampaign campaignToAdd)
