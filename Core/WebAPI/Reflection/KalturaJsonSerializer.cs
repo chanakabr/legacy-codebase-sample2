@@ -26464,6 +26464,10 @@ namespace WebAPI.Models.Partner
                 propertyValue = Duration.ToJson(currentVersion, omitObsolete);
                 ret.Add("duration", "\"duration\": " + propertyValue);
             }
+            if(IgnorePartialBilling.HasValue)
+            {
+                ret.Add("ignorePartialBilling", "\"ignorePartialBilling\": " + IgnorePartialBilling.ToString().ToLower());
+            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -26485,6 +26489,10 @@ namespace WebAPI.Models.Partner
             {
                 propertyValue = Duration.ToXml(currentVersion, omitObsolete);
                 ret.Add("duration", "<duration>" + propertyValue + "</duration>");
+            }
+            if(IgnorePartialBilling.HasValue)
+            {
+                ret.Add("ignorePartialBilling", "<ignorePartialBilling>" + IgnorePartialBilling.ToString().ToLower() + "</ignorePartialBilling>");
             }
             if(Name != null)
             {
