@@ -12,17 +12,17 @@ namespace Phoenix.Rest
         public static async Task Main(string[] args)
         {
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
-            var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";
-            
-            ConfigurationManager.ApplicationConfiguration.Init();
+            var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";  
 
-            await KalturaWebHostBuilder.RunWebServerAsync<Startup>(new WebServerConfiguration
+            var host = KalturaWebHostBuilder.BuildWebServerAsync<Startup>(new WebServerConfiguration
             {
                 CommandlineArgs = args,
                 AllowSynchronousIO = true,
                 DefaultLogDirectoryPath = defaultLogDir,
             });
 
+            ConfigurationManager.ApplicationConfiguration.Init();
+            await host.RunAsync();
         }
     }
 }

@@ -98,24 +98,24 @@ namespace EventBus.RabbitMQ
 
         public void Subscribe(Type eventType, Type handlerType)
         {
-            var eventName = ServiceEvent.GetEventName(eventType);
+            var routingKey = ServiceEvent.GetEventRoutingKey(eventType);
             var subscriptionInfo = new SubscriptionInfo(eventType, handlerType);
             _Logger.Debug($"Subscribing [{subscriptionInfo}]");
 
-            if (!_Handlers.ContainsKey(eventName))
+            if (!_Handlers.ContainsKey(routingKey))
             {
-                _Handlers[eventName] = new HashSet<SubscriptionInfo>();
+                _Handlers[routingKey] = new HashSet<SubscriptionInfo>();
                 // If we are already connected and someone asked to dynamically subscribe we need to add a new binding
                 // otherwise the bindings for all subscriptions during configuration will be done in StartAsync
-                if (_ConsumerChannels != null) { InitializeNewEventBinding(eventName); }
+                if (_ConsumerChannels != null) { InitializeNewEventBinding(routingKey); }
             }
 
-            _Handlers[eventName].Add(subscriptionInfo);
+            _Handlers[routingKey].Add(subscriptionInfo);
         }
 
         public void Unsubscribe(Type eventType, Type handlerType)
         {
-            var eventName = ServiceEvent.GetEventName(eventType);
+            var eventName = ServiceEvent.GetEventRoutingKey(eventType);
             var subscriptionInfo = new SubscriptionInfo(eventType, handlerType);
             if (_Handlers.TryGetValue(eventName, out var handlersForEvent))
             {

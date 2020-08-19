@@ -1215,6 +1215,8 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_group_segmentation_types_{0}", groupId);
         }
 
+
+        // todo: arthur map to kafka ...
         public static string GetSegmentationTypeInvalidationKey(int groupId, long segmentationTypeId)
         {
             return string.Format("invalidationKey_segmentation_type_{0}_{1}", groupId, segmentationTypeId);

@@ -12,7 +12,7 @@ namespace Core.Middleware
 {
     public static class KalturaWebHostBuilder
     {
-        public static Task RunWebServerAsync<TStartup>(WebServerConfiguration config) where TStartup : class
+        public static IWebHost BuildWebServerAsync<TStartup>(WebServerConfiguration config) where TStartup : class
         {
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, config.DefaultLogDirectoryPath);
             var webHost = WebHost.CreateDefaultBuilder(config.CommandlineArgs)
@@ -25,8 +25,14 @@ namespace Core.Middleware
                 .UseStartup<TStartup>()
                 .Build();
 
-            return webHost.RunAsync();
+            return webHost;
         }
+
+        public static Task RunWebServerAsync<TStartup>(WebServerConfiguration config) where TStartup : class
+        {
+            return BuildWebServerAsync<TStartup>(config).RunAsync();
+        }
+
     }
 
     public class WebServerConfiguration
