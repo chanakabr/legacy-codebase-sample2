@@ -105,14 +105,12 @@ namespace WebAPI.Models.API
                 {
                     new EventNotifications.CampaignHandler
                     {
-                        //Type?
-                        Status = 1,
+                        Status = 0,
                         SystemName = coreObject.SystemName,
                         FriendlyName = coreObject.Name,
                         CampaignId = coreObject.Id
                     }
                 },
-                //PhoenixType = "",
             };
             return JsonConvert.SerializeObject(_event);
         }

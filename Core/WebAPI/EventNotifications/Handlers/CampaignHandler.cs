@@ -21,7 +21,7 @@ namespace WebAPI.EventNotifications
         {
             KalturaObjectEvent objectEvent = kalturaEvent as KalturaObjectEvent;
 
-            var serviceEvent = new CampaignUserEvent()
+            var serviceEvent = new CampaignTriggerEvent()
             {
                 RequestId = KLogger.GetRequestId(),
                 GroupId = kalturaEvent.PartnerId,

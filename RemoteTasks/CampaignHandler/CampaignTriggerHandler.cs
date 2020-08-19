@@ -15,7 +15,7 @@ using ApiObjects;
 
 namespace CampaignHandler
 {
-    public class CampaignTriggerHandler : IServiceEventHandler<CampaignUserEvent>
+    public class CampaignTriggerHandler : IServiceEventHandler<CampaignTriggerEvent>
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -23,7 +23,7 @@ namespace CampaignHandler
         {
         }
 
-        public Task Handle(CampaignUserEvent serviceEvent)
+        public Task Handle(CampaignTriggerEvent serviceEvent)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace CampaignHandler
             }
         }
 
-        private void SendMessage(CampaignUserEvent serviceEvent, int userId, TriggerCampaign campaign, string message)
+        private void SendMessage(CampaignTriggerEvent serviceEvent, int userId, TriggerCampaign campaign, string message)
         {
             var current = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
 
@@ -82,8 +82,8 @@ namespace CampaignHandler
                 UserId = userId,
                 CreatedAtSec = current,
                 UpdatedAtSec = current,
-                State = ApiObjects.eMessageState.Unread,
-                Category = ApiObjects.eMessageCategory.Campaign
+                State = eMessageState.Unread,
+                Category = eMessageCategory.Campaign
             };
 
             var isSuccess = false;
@@ -98,9 +98,7 @@ namespace CampaignHandler
                 _Logger.Debug($"Campaign message (campaign: {serviceEvent.CampaignId}) sent successfully to User: {userId} Inbox");
 
             if (isSuccess)
-            {
                 DAL.NotificationDal.SetInboxMessageCampaignMapping(serviceEvent.GroupId, serviceEvent.UserId, campaign, inboxMessage.Id);
-            }
         }
     }
 }

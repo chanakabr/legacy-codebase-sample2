@@ -8,7 +8,7 @@ using System.Reflection;
 using APILogic.ConditionalAccess;
 using Campaign = ApiObjects.Campaign;
 using DAL;
-using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace ApiLogic.Users.Managers
 {
@@ -56,14 +56,6 @@ namespace ApiLogic.Users.Managers
                 campaignToAdd.GroupId = contextData.GroupId;
                 campaignToAdd.IsActive = false;
 
-                if (!PricingDAL.AddNotificationCampaignAction(contextData, campaignToAdd))
-                {
-                    var message = $"Failed adding Notification Campaign Action, campaign Id: {campaignToAdd.Id}";
-                    log.Error($"{message}, contextData: {contextData}");
-                    response.SetStatus(eResponseStatus.Error, message);
-                    return response;
-                }
-
                 var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd);
 
                 if (insertedCampaign?.Id > 0)
@@ -71,14 +63,23 @@ namespace ApiLogic.Users.Managers
                     campaignToAdd.Id = insertedCampaign.Id;
                     campaignToAdd.CreateDate = insertedCampaign.CreateDate;
                     campaignToAdd.UpdateDate = insertedCampaign.UpdateDate;
-                    response.Object = campaignToAdd;
-                }
 
-                if (response.Object != null)
-                {
+                    AddCampaignIdToEvent(campaignToAdd);
+
+                    if (!PricingDAL.AddNotificationCampaignAction(contextData, campaignToAdd))
+                    {
+                        var message = $"Failed adding Notification Campaign Action, campaign Id: {campaignToAdd.Id}";
+                        log.Error($"{message}, contextData: {contextData}");
+                        response.SetStatus(eResponseStatus.Error, message);
+                        return response;
+                    }
+
+                    response.Object = campaignToAdd;
                     SetInvalidationKeys(contextData);
                     response.SetStatus(eResponseStatus.OK);
                 }
+                else
+                    response.SetStatus(eResponseStatus.Error, $"Error saving TriggerCampaign: [{campaignToAdd.Name}] for group: {contextData.GroupId}");
             }
             catch (Exception ex)
             {
@@ -143,6 +144,18 @@ namespace ApiLogic.Users.Managers
         private void SetInvalidationKeys(ContextData contextData)
         {
             // TODO SHIR - SetInvalidationKeys
+        }
+
+        /// <summary>
+        /// Replace json event campaignId
+        /// </summary>
+        /// <param name="triggerCampaign"></param>
+        private void AddCampaignIdToEvent(TriggerCampaign triggerCampaign)
+        {
+            var _object = JObject.Parse(triggerCampaign.EventNotification);
+            var val = _object["Actions"][0];
+            val["CampaignId"] = triggerCampaign.Id;
+            triggerCampaign.EventNotification = _object.ToString();
         }
     }
 }

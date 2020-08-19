@@ -2,7 +2,7 @@
 
 namespace ApiObjects.EventBus
 {
-    public class CampaignUserEvent : ServiceEvent
+    public class CampaignTriggerEvent : ServiceEvent
     {
         public long CampaignId { get; set; }
         public int DomainId { get; set; }
