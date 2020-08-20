@@ -120,6 +120,46 @@ namespace DAL
 
         }
 
+        public static bool Update_Campaign<T>(T campaign) where T : Campaign
+        {
+            var sp = new StoredProcedure("Update_Campaign");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", campaign.GroupId);
+            sp.AddParameter("@id", campaign.Id);
+            sp.AddParameter("@updateDate", campaign.UpdateDate);
+            sp.AddParameter("@isActive", campaign.IsActive);
+            //sp.AddParameter("@status", campaign.Status);
+            sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static TriggerCampaign Get_Campaign(ContextData contextData, long campaignId)
+        {
+            TriggerCampaign campaign = null;
+            var sp = new StoredProcedure("Get_Campaign");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", contextData.GroupId);
+            sp.AddParameter("@id", campaignId);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                var dt = ds.Tables[0];
+                campaign = new TriggerCampaign
+                {
+                    Id = Utils.GetLongSafeVal(dt.Rows[0]["id"]),
+                    GroupId = Utils.GetLongSafeVal(dt.Rows[0]["group_id"]),
+                    IsActive = Utils.GetLongSafeVal(dt.Rows[0]["is_active"]) == 1,
+                    CreateDate = Utils.GetLongSafeVal(dt.Rows[0]["create_date"]),
+                    UpdateDate = Utils.GetLongSafeVal(dt.Rows[0]["update_date"]),
+                    CoreObject = Utils.GetSafeStr(dt.Rows[0]["campaign_json"])
+                };
+            }
+
+            return campaign;
+        }
+
         public static void Insert_NewCouponUse(string sSiteGuid, long lCouponID, long lGroupID, long lMediaFileID, long lSubscriptionCode, long lPrePaidCode, long nCollectionCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewCouponUse");

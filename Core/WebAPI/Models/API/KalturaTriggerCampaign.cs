@@ -96,12 +96,29 @@ namespace WebAPI.Models.API
             return CampaignManager.Instance.AddTriggerCampaign(contextData, coreObject);
         }
 
+        internal override GenericResponse<Campaign> Update(ContextData contextData)
+        {
+            var coreObject = AutoMapper.Mapper.Map<TriggerCampaign>(this);
+            return CampaignManager.Instance.UpdateTriggerCampaign(contextData, coreObject);
+        }
+
+        internal GenericResponse<Campaign> Dispatch(ContextData contextData, long id)
+        {
+            return CampaignManager.Instance.DispatchTriggerCampaign(contextData, id);
+        }
+
+        internal override void ValidateForUpdate()
+        {
+            // TODO SHIR - WHAT NEED TO BE VALIDATE?
+            base.ValidateForUpdate();
+        }
+
         private string GetEventNotification(ContextData contextData, TriggerCampaign coreObject)
         {
             var _event = new EventNotification()
             {
                 PartnerId = contextData.GroupId,
-                Actions = new List<NotificationAction> 
+                Actions = new List<NotificationAction>
                 {
                     new EventNotifications.CampaignHandler
                     {
@@ -113,18 +130,6 @@ namespace WebAPI.Models.API
                 },
             };
             return JsonConvert.SerializeObject(_event);
-        }
-
-        internal override void ValidateForUpdate()
-        {
-            // TODO SHIR - WHAT NEED TO BE VALIDATE?
-            base.ValidateForUpdate();
-        }
-
-        internal override GenericResponse<Campaign> Update(ContextData contextData)
-        {
-            var coreObject = AutoMapper.Mapper.Map<TriggerCampaign>(this);
-            return CampaignManager.Instance.UpdateTriggerCampaign(contextData, coreObject);
         }
     }
 }
