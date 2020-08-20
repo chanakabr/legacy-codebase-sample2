@@ -160,6 +160,35 @@ namespace DAL
             return campaign;
         }
 
+        public static List<TriggerCampaign> List_Campaign(ContextData contextData)
+        {
+            List<TriggerCampaign> campaigns = null;
+            var sp = new StoredProcedure("List_Campaign");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", contextData.GroupId);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                campaigns = new List<TriggerCampaign>();
+                var dt = ds.Tables[0];
+                foreach (DataRow row in dt.Rows)
+                {
+                    campaigns.Add(new TriggerCampaign
+                    {
+                        Id = Utils.GetLongSafeVal(row["id"]),
+                        GroupId = Utils.GetLongSafeVal(row["group_id"]),
+                        IsActive = Utils.GetLongSafeVal(row["is_active"]) == 1,
+                        CreateDate = Utils.GetLongSafeVal(row["create_date"]),
+                        UpdateDate = Utils.GetLongSafeVal(row["update_date"]),
+                        CoreObject = Utils.GetSafeStr(row["campaign_json"])
+                    });
+                }
+            }
+
+            return campaigns;
+        }
+
         public static void Insert_NewCouponUse(string sSiteGuid, long lCouponID, long lGroupID, long lMediaFileID, long lSubscriptionCode, long lPrePaidCode, long nCollectionCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewCouponUse");

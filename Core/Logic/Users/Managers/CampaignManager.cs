@@ -10,6 +10,7 @@ using Campaign = ApiObjects.Campaign;
 using DAL;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace ApiLogic.Users.Managers
 {
@@ -44,6 +45,21 @@ namespace ApiLogic.Users.Managers
 
         public GenericListResponse<Campaign> List(ContextData contextData, CampaignFilter filter, CorePager pager)
         {
+            //Get and List should be separated by inheritance type?
+
+            var response = new GenericListResponse<Campaign>();
+            var campaigns = PricingDAL.List_Campaign(contextData);//Cache?
+            if (campaigns == null || campaigns.Count == 0)
+            {
+                response.SetStatus(eResponseStatus.Error, $"Campaigns not found, ContextData: {contextData}");
+                return response;
+            }
+
+            response.Objects = campaigns.Select(cmp => JsonConvert.DeserializeObject<Campaign>(cmp.CoreObject)).ToList();
+            response.SetStatus(eResponseStatus.OK);
+
+            return response;
+
             // TODO SHIR
             return new GenericListResponse<Campaign>();
         }
