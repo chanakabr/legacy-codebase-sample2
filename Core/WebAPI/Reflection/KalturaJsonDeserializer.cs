@@ -5668,34 +5668,10 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaTransactionHistoryFilter
     {
-        private static RuntimeSchemePropertyAttribute PaymentGatewayIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTransactionHistoryFilter")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-            MinInteger = 1,
-        };
-        private static RuntimeSchemePropertyAttribute PaymentMethodIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTransactionHistoryFilter")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-            MinInteger = 1,
-        };
         public KalturaTransactionHistoryFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("entityReferenceEqual") && parameters["entityReferenceEqual"] != null)
                 {
                     EntityReferenceEqual = (KalturaEntityReferenceBy) Enum.Parse(typeof(KalturaEntityReferenceBy), parameters["entityReferenceEqual"].ToString(), true);
@@ -5738,22 +5714,6 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", BillingActionEqual, typeof(KalturaBillingAction)));
                     }
-                }
-                if (parameters.ContainsKey("paymentGatewayIdEqual") && parameters["paymentGatewayIdEqual"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        PaymentGatewayIdEqualSchemaProperty.Validate("paymentGatewayIdEqual", parameters["paymentGatewayIdEqual"]);
-                    }
-                    PaymentGatewayIdEqual = (Int32) Convert.ChangeType(parameters["paymentGatewayIdEqual"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("paymentMethodIdEqual") && parameters["paymentMethodIdEqual"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        PaymentMethodIdEqualSchemaProperty.Validate("paymentMethodIdEqual", parameters["paymentMethodIdEqual"]);
-                    }
-                    PaymentMethodIdEqual = (Int32) Convert.ChangeType(parameters["paymentMethodIdEqual"], typeof(Int32));
                 }
             }
         }

@@ -80,6 +80,7 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "billingActionEqual", IsNullable = true)]
         public KalturaBillingAction? BillingActionEqual { get; set; }
 
+        /*
         /// <summary>
         ///Filter transaction by payment gateway id
         /// </summary>
@@ -97,9 +98,7 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "paymentMethodIdEqual", IsNullable = true)]
         [SchemeProperty(MinInteger = 1)]
         public int? PaymentMethodIdEqual { get; set; }
-
-
-
+        */
 
     }
 }
