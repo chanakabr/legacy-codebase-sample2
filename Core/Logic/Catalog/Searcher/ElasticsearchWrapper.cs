@@ -53,11 +53,15 @@ namespace Core.Catalog
 
             ESMediaQueryBuilder queryParser = new ESMediaQueryBuilder(nGroupID, oSearch);
 
+            bool shouldSortByStartDateOfAssociationTagsAndParentMedia = 
+                oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE) && 
+                oSearch.associationTags?.Count > 0 &&
+                oSearch.parentMediaTypes?.Count > 0;
             int nPageIndex = 0;
             int nPageSize = 0;
             if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
                 || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT)
-                || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
+                || shouldSortByStartDateOfAssociationTagsAndParentMedia)
             {
                 nPageIndex = oSearch.m_nPageIndex;
                 nPageSize = oSearch.m_nPageSize;
@@ -110,7 +114,7 @@ namespace Core.Catalog
                         if ((oSearch.m_oOrder.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS &&
                             oSearch.m_oOrder.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER)
                             || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT)
-                            || oSearch.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
+                            || shouldSortByStartDateOfAssociationTagsAndParentMedia)
                         {
                             List<int> lMediaIds = oRes.m_resultIDs.Select(item => item.assetID).ToList();
 
@@ -647,7 +651,116 @@ namespace Core.Catalog
                     oResult.UpdateDate = mediaDoc.update_date;
                 }
             }
+
             return oResult;
+        }
+
+        public List<SearchResult> GetAssetsUpdateDate(int groupId, eObjectType assetType, List<int> assetIds)
+        {
+            List<SearchResult> response = new List<SearchResult>();
+
+            try
+            {
+                string index = string.Empty;
+                string type = string.Empty;
+                string idField = string.Empty;
+
+                switch (assetType)
+                {
+                    case eObjectType.Media:
+                        index = $"{groupId}";
+                        type = "media";
+                        idField = "media_id";
+                        break;
+                    case eObjectType.EPG:
+                        index = $"epg_{groupId}";
+                        type = "epg";
+                        idField = "epg_id";
+                        break;
+                    case eObjectType.Recording:
+                        index = $"recording_{groupId}";
+                        type = "recording";
+                        idField = "recording_id";
+                        break;
+                    default:
+                        break;
+                }
+
+                if (string.IsNullOrEmpty(index))
+                {
+                    log.Error($"Got invalid asset type when trying to get assets update date. type = {assetType}");
+                    return response;
+                }
+
+                /*
+                {
+                    "size": 500,
+                    "from": 0,
+                    "fields": [
+                        "media_id",
+                        "update_date"
+                    ],
+                    "query": {
+                        "terms": {
+                            "media_id": [
+                                762870,
+                                762874
+                            ]
+                        }
+                    }
+                }
+                */
+
+                for (int from = 0; from < assetIds.Count; from += 500)
+                {
+                    JObject searchJsonObject = new JObject();
+                    searchJsonObject["size"] = 500;
+                    searchJsonObject["from"] = 0;
+                    searchJsonObject["fields"] = new JArray(new List<string>() { idField, "update_date" });
+                    JObject queryPart = new JObject();
+                    JObject termsPart = new JObject();
+                    // every time take another 500 assets
+                    termsPart[idField] = new JArray(assetIds.Skip(from).Take(500));
+                    queryPart["terms"] = termsPart;
+                    searchJsonObject["query"] = queryPart;
+
+                    string searchQuery = searchJsonObject.ToString();
+
+                    string searchResultString = m_oESApi.Search(index, type, ref searchQuery);
+
+                    if (string.IsNullOrEmpty(searchResultString))
+                    {
+                        log.Error($"Got empty search result when trying to get assets update date in group {groupId} type {assetType}");
+                        return response;
+                    }
+
+                    var searchResultObject = JObject.Parse(searchResultString);
+
+                    var hitsArray = (searchResultObject["hits"]["hits"] as JArray);
+                    foreach (var hit in hitsArray)
+                    {
+                        var fields = hit["fields"];
+                        if (fields[idField] != null && fields["update_date"] != null)
+                        {
+                            var assetId = Convert.ToInt32((fields[idField].FirstOrDefault() as JValue));
+                            var dateString = Convert.ToString((fields["update_date"].FirstOrDefault() as JValue));
+                            var updateDate = DateTime.ParseExact(dateString, ElasticSearch.Common.Utils.ES_DATE_FORMAT, null);
+
+                            response.Add(new SearchResult()
+                            {
+                                assetID = assetId,
+                                UpdateDate = updateDate
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error when getting assets update date. group = {groupId}, ex = {ex}");
+            }
+
+            return response;
         }
 
         public virtual SearchResultsObj SearchEpgs(EpgSearchObj epgSearch)
@@ -1076,7 +1189,11 @@ namespace Core.Catalog
             bool isOrderedByString = false;
 
             ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(unifiedSearchDefinitions);
-
+            bool shouldSortByStartDateOfAssociationTagsAndParentMedia =
+                unifiedSearchDefinitions.order.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE) &&
+                unifiedSearchDefinitions.associationTags?.Count > 0 &&
+                unifiedSearchDefinitions.parentMediaTypes?.Count > 0 && 
+                unifiedSearchDefinitions.shouldSearchMedia;
             int pageIndex = 0;
             int pageSize = 0;
             KeyValuePair<string, string> distinctGroup = unifiedSearchDefinitions.distinctGroup;
@@ -1088,10 +1205,7 @@ namespace Core.Catalog
                 // Recommendations is also non-sortable
                 orderBy.Equals(ApiObjects.SearchObjects.OrderBy.RECOMMENDATION) ||
                 // If there are virtual assets (series/episode) and the sort is by start date - this is another case of unique sort
-                (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE) &&
-                unifiedSearchDefinitions.parentMediaTypes.Count > 0 &&
-                unifiedSearchDefinitions.shouldSearchMedia
-                ))
+                shouldSortByStartDateOfAssociationTagsAndParentMedia)
             {
                 pageIndex = unifiedSearchDefinitions.pageIndex;
                 pageSize = unifiedSearchDefinitions.pageSize;
@@ -1262,7 +1376,7 @@ namespace Core.Catalog
                                 List<long> orderedIds = null;
 
                                 // Do special sort only when searching by media
-                                if (orderBy == ApiObjects.SearchObjects.OrderBy.START_DATE && unifiedSearchDefinitions.shouldSearchMedia)
+                                if (shouldSortByStartDateOfAssociationTagsAndParentMedia)
                                 {
                                     orderedIds = SortAssetsByStartDate(assetsDocumentsDecoded, parentGroupId, order.m_eOrderDir,
                                         unifiedSearchDefinitions.associationTags,
@@ -1670,9 +1784,6 @@ namespace Core.Catalog
 
             if (search)
             {
-
-
-
                 ESTerm isActiveTerm = new ESTerm(true)
                 {
                     Key = "is_active",
