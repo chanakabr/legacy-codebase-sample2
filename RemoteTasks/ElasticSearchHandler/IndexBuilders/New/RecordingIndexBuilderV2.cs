@@ -98,7 +98,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 if (epgIds.Count >= sizeOfBulk)
                 {
                     // Get EPG objects
-                    epgs.AddRange(epgBL.GetEpgs(epgIds));
+                    epgs.AddRange(epgBL.GetEpgs(epgIds, true));
                     epgIds.Clear();
                 }
             }
@@ -106,7 +106,7 @@ namespace ElasticSearchHandler.IndexBuilders
             // Finish off what's left to get from CB
             if (epgIds.Count >= 0)
             {
-                epgs.AddRange(epgBL.GetEpgs(epgIds));
+                epgs.AddRange(epgBL.GetEpgs(epgIds, true));
             }
 
             Dictionary<ulong, Dictionary<string, EpgCB>> epgDictionary = BuildEpgsLanguageDictionary(epgs);

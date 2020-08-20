@@ -19,7 +19,8 @@ namespace EpgBL
         public abstract EPGChannelProgrammeObject GetEpg(ulong nProgramID);
         public abstract List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds);
         public abstract List<EPGChannelProgrammeObject> GetEpgChannelProgrammeObjects(List<string> lIds);
-        public abstract List<EpgCB> GetEpgs(List<string> lIds);
+        public abstract List<EpgCB> GetEpgs(List<string> lIds, bool isRecordings = false);
+
 
         public abstract EpgCB GetEpgCB(ulong nProgramID, bool includeRecordingFallback = false);
         public abstract EpgCB GetEpgCB(ulong nProgramID, out ulong cas);
