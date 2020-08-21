@@ -346,6 +346,8 @@ namespace CachingProvider.LayeredCache
             return string.Format("Asset_V1_type_{0}_id_{1}_lang_{2}", assetType, id, languageId);
         }
 
+        
+
         public static string GetGroupImageTypesKey(int groupId)
         {
             return string.Format("GroupImageTypes_groupId_{0}", groupId);
@@ -988,7 +990,7 @@ namespace CachingProvider.LayeredCache
                 ids = ids.Distinct().ToList();
                 foreach (long id in ids)
                 {
-                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });
+                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });                    
                 }
             }
 

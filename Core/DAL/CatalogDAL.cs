@@ -1417,7 +1417,7 @@ namespace Tvinci.Core.DAL
                     {
                         nMediaID = assetAndLocation.AssetId;
                         lastDate = Utils.UtcUnixTimestampSecondsToDateTime(assetAndLocation.CreatedAt);
-                        
+
                         UserMediaMark objUserMediaMark = new UserMediaMark
                         {
                             AssetID = nMediaID,
@@ -5611,7 +5611,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@UserId", userId);
             sp.AddParameter("@IsInherited", isInherited);
             sp.AddParameter("@isLocationTag", isLocationTag);
-            
+
             return sp.Execute();
         }
 
@@ -5855,33 +5855,32 @@ namespace Tvinci.Core.DAL
             }
 
             var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
-            if (isAnyInError)
-            {
-                return BulkUploadJobStatus.Failed;
-            }
-
+            var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
             var isAnyInProgress = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.InProgress);
+
+            // there are still items in progress we will return the current proccessing\parsing etc.. status 
             if (isAnyInProgress)
             {
                 return newStatus;
             }
 
-            var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
-
-            if (!isAnyInError)
+            // there are no items in progress anymore, so we check if all OK or some failed..
+            // found some errors there might be partial or total failue 
+            if (isAnyInError)
             {
-                newStatus = BulkUploadJobStatus.Success;
-            }
-            else if (!isAnyInOk)
-            {
-                newStatus = BulkUploadJobStatus.Failed;
+                if (isAnyInOk)
+                {
+                    return BulkUploadJobStatus.Partial;
+                }
+                else
+                {
+                    return BulkUploadJobStatus.Failed;
+                }
             }
             else
             {
-                newStatus = BulkUploadJobStatus.Partial;
+                return BulkUploadJobStatus.Success;
             }
-
-            return newStatus;
         }
 
         #endregion

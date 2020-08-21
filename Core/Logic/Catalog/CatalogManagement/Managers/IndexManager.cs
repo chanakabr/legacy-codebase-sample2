@@ -38,9 +38,10 @@ namespace Core.Catalog.CatalogManagement
         // Basic TCM configurations for indexing - number of shards/replicas, max results
         private static readonly int NUM_OF_SHARDS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
         private static readonly int NUM_OF_REPLICAS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
-        private static readonly int MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;       
+        private static readonly int MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
         private static readonly int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
         private static int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+        private static readonly ElasticSearchApi esClientApi = null;
 
         protected const string ES_VERSION = "2";
 
@@ -60,6 +61,13 @@ namespace Core.Catalog.CatalogManagement
             "\"phrase_starts_with_search_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\", \"icu_folding\",\"icu_normalizer\"]," +
             "\"char_filter\":[\"html_strip\"]}";
 
+        public const string EPG_GREEN_SUFFIX = "green";
+        public const string EPG_BLUE_SUFFIX = "blue";
+
+        static IndexManager()
+        {
+            esClientApi = new ElasticSearchApi();
+        }
 
         #region Public Methods
 
@@ -156,7 +164,7 @@ namespace Core.Catalog.CatalogManagement
                                 string nullValue = string.Empty;
                                 eESFieldType metaType;
                                 serializer.GetMetaType(meta.Key, out metaType, out nullValue);
-                                
+
                                 var metaName = meta.Value.ToLower();
                                 if (!metas.ContainsKey(metaName))
                                 {
@@ -178,7 +186,7 @@ namespace Core.Catalog.CatalogManagement
                             string nullValue = string.Empty;
                             eESFieldType metaType;
                             serializer.GetMetaType(epgMeta, out metaType, out nullValue);
-                            
+
                             var epgMetaName = epgMeta.ToLower();
                             if (!metas.ContainsKey(epgMetaName))
                             {
@@ -277,7 +285,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             Dictionary<int, LanguageObj> languagesMap = null;
-            CatalogGroupCache catalogGroupCache = null;            
+            CatalogGroupCache catalogGroupCache = null;
             Group group = null;
             HashSet<string> metasToPad = null;
 
@@ -315,7 +323,6 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 ESSerializerV2 esSerializer = new ESSerializerV2();
-                ElasticSearchApi esApi = new ElasticSearchApi();
 
                 //Create Media Object
                 Dictionary<int, Dictionary<int, Media>> mediaDictionary = GetGroupMedias(groupId, assetId);
@@ -341,7 +348,7 @@ namespace Core.Catalog.CatalogManagement
                                 string type = GetTanslationType(MEDIA, language);
                                 if (!string.IsNullOrEmpty(serializedMedia))
                                 {
-                                    result = esApi.InsertRecord(groupId.ToString(), type, media.m_nMediaID.ToString(), serializedMedia);
+                                    result = esClientApi.InsertRecord(groupId.ToString(), type, media.m_nMediaID.ToString(), serializedMedia);
                                     if (!result)
                                     {
                                         log.Error("Error - " + string.Format("Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
@@ -666,20 +673,19 @@ namespace Core.Catalog.CatalogManagement
         public static bool DeleteChannelPercolator(int groupId, List<int> channelIds)
         {
             bool result = false;
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearchApi();
             string mediaIndex = groupId.ToString();
             string epgIndex = string.Format("{0}_epg", groupId);
             ESDeleteResult deleteResult;
 
             try
             {
-                bool epgExists = esApi.IndexExists(epgIndex);
-                List<string> mediaAliases = esApi.GetAliases(mediaIndex);
+                bool epgExists = esClientApi.IndexExists(epgIndex);
+                List<string> mediaAliases = esClientApi.GetAliases(mediaIndex);
                 List<string> epgAliases = null;
 
                 if (epgExists)
                 {
-                    epgAliases = esApi.GetAliases(epgIndex);
+                    epgAliases = esClientApi.GetAliases(epgIndex);
                 }
 
                 // If we found aliases to both, or if we don't have EPG at all
@@ -695,7 +701,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         foreach (string index in mediaAliases)
                         {
-                            deleteResult = esApi.DeleteDoc(index, PERCOLATOR, channelID.ToString());
+                            deleteResult = esClientApi.DeleteDoc(index, PERCOLATOR, channelID.ToString());
                             result &= deleteResult.Ok;
 
                             if (!deleteResult.Ok)
@@ -716,7 +722,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         foreach (string index in epgAliases)
                         {
-                            deleteResult = esApi.DeleteDoc(index, PERCOLATOR, channelId.ToString());
+                            deleteResult = esClientApi.DeleteDoc(index, PERCOLATOR, channelId.ToString());
                             result &= deleteResult.Ok;
 
                             if (!deleteResult.Ok)
@@ -760,7 +766,6 @@ namespace Core.Catalog.CatalogManagement
                 // prevent from size of bulk to be more than the default value of 500 (currently as of 23.06.20)
                 sizeOfBulk = sizeOfBulk == 0 ? sizeOfBulkDefaultValue : sizeOfBulk > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : sizeOfBulk;
                 ESSerializerV2 esSerializer = new ESSerializerV2();
-                ElasticSearchApi esApi = new ElasticSearchApi();
 
                 bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
                 CatalogGroupCache catalogGroupCache = null;
@@ -870,7 +875,7 @@ namespace Core.Catalog.CatalogManagement
                             List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg =>
                                 epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
 
-                            var alias = EpgIndexGroupAlias(groupId);
+                            var alias = IndexManager.GetEpgIndexAlias(groupId);
                             var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
                             if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                             {
@@ -878,18 +883,17 @@ namespace Core.Catalog.CatalogManagement
                                 // Create bulk request object for each program
                                 foreach (EpgCB epg in currentLanguageEpgs)
                                 {
+
                                     // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
                                     // in that case we need to use the specific date alias for each epg item to update
                                     if (isIngestV2)
                                     {
-                                        alias = GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date);
+                                        alias = GetDailyEpgIndexName(groupId, epg.StartDate.Date);
                                         //in case alias already created ,no need to check in ES
                                         if (!createdAliases.Contains(alias))
                                         {
-                                            var aliases = 
-                                                new string[] { GetIngestCurrentProgramsAliasName(groupId, epg.StartDate.Date),
-                                                        EpgIndexGroupAlias(groupId)};
-                                            CreateIndex(alias, groupId, group,catalogGroupCache, languages, aliases);
+                                            var aliases = new string[] { GetEpgIndexAlias(groupId) };
+                                            CreateIndex(alias, groupId, group, catalogGroupCache, languages, aliases);
                                             createdAliases.Add(alias);
                                         }
                                     }
@@ -929,7 +933,7 @@ namespace Core.Catalog.CatalogManagement
                                     if (bulkRequests.Count > sizeOfBulk)
                                     {
                                         // send request to ES API
-                                        invalidResults = esApi.CreateBulkRequest(bulkRequests);
+                                        invalidResults = esClientApi.CreateBulkRequest(bulkRequests);
 
                                         if (invalidResults != null && invalidResults.Count > 0)
                                         {
@@ -958,7 +962,7 @@ namespace Core.Catalog.CatalogManagement
                         if (bulkRequests.Count > 0)
                         {
                             // send request to ES API
-                            invalidResults = esApi.CreateBulkRequest(bulkRequests);
+                            invalidResults = esClientApi.CreateBulkRequest(bulkRequests);
 
                             if (invalidResults != null && invalidResults.Count > 0)
                             {
@@ -991,7 +995,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-       
+
 
         /// <summary>
         /// will create a new index in case not exists
@@ -1000,17 +1004,15 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="groupId"></param>
         private static void CreateIndex(string index, int groupId, Group group, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages, string[] aliases)
         {
-            
+
             ElasticSearchApi esApi = new ElasticSearchApi();
             if (!esApi.IndexExists(index))
             {
-                                        
-                CreateNewEpgIndex(groupId, catalogGroupCache, group, languages, languages.First(x => x.IsDefault), index);
 
-                var esClient = new ElasticSearchApi();
+                CreateNewEpgIndex(groupId, catalogGroupCache, group, languages, languages.First(x => x.IsDefault), index);
                 foreach (var indexAlias in aliases)
                 {
-                    esClient.AddAlias(index, indexAlias);
+                    esClientApi.AddAlias(index, indexAlias);
                 }
             }
         }
@@ -1168,7 +1170,6 @@ namespace Core.Catalog.CatalogManagement
         public static void AddMappingsToEpgIndex(int groupId, string indexName, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
              bool isRecording, out HashSet<string> metasToPad, Group group = null, CatalogGroupCache catalogGroupCache = null)
         {
-            var esClient = new ElasticSearchApi();
             var serializer = new ESSerializerV2();
             var defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage, ES_VERSION);
 
@@ -1186,7 +1187,7 @@ namespace Core.Catalog.CatalogManagement
 
                 var shouldAddRouting = true;
                 string mappingString = serializer.CreateEpgMapping(metas, tags, metasToPad, specificMappingAnalyzers, defaultMappingAnalyzers, specificType, shouldAddRouting);
-                bool isMappingInsertSuccess = esClient.InsertMapping(indexName, specificType, mappingString.ToString());
+                bool isMappingInsertSuccess = esClientApi.InsertMapping(indexName, specificType, mappingString.ToString());
 
                 if (!isMappingInsertSuccess)
                 {
@@ -1245,20 +1246,29 @@ namespace Core.Catalog.CatalogManagement
             return specificMappingAnlyzers;
         }
 
-        public static HashSet<string> CreateNewEpgIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, string newIndexName, bool isRecording = false)
+        public static HashSet<string> CreateNewEpgIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
+                                                        string newIndexName, bool isRecording = false, bool shouldBuildWithReplicas = true, bool shouldUseNumOfConfiguredShards = true,
+                                                        string refreshInterval = null)
         {
 
-            CreateEmptyIndex(newIndexName, languages);
+            CreateEmptyIndex(newIndexName, languages, shouldBuildWithReplicas, shouldUseNumOfConfiguredShards, refreshInterval);
             AddMappingsToEpgIndex(groupId, newIndexName, languages, defaultLanguage, isRecording, out var metasToPad, group, catalogGroupCache);
             return metasToPad;
         }
 
-        private static void CreateEmptyIndex(string newIndexName,IEnumerable<LanguageObj> languages)
-        {            
-            var esClient = new ElasticSearchApi();
+        private static void CreateEmptyIndex(string newIndexName, IEnumerable<LanguageObj> languages, bool shouldBuildWithReplicas = true,
+                                                bool shouldUseNumOfConfiguredShards = true, string refreshInterval = null)
+        {
             GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);
-            var isIndexCreated = esClient.BuildIndex(newIndexName, NUM_OF_SHARDS, NUM_OF_REPLICAS, analyzers, filters, tokenizers, MAX_RESULTS);
+            int replicas = shouldBuildWithReplicas ? NUM_OF_REPLICAS : 0;
+            int shards = shouldUseNumOfConfiguredShards ? NUM_OF_SHARDS : 1;
+            var isIndexCreated = esClientApi.BuildIndex(newIndexName, shards, replicas, analyzers, filters, tokenizers, MAX_RESULTS, refreshInterval);
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
+        }
+
+        public static bool ForceRefresh(string index)
+        {
+            return esClientApi.ForceRefresh(index);
         }
 
         public static string GetIndexType(bool isRecording, ApiObjects.LanguageObj language = null)
@@ -1723,27 +1733,15 @@ namespace Core.Catalog.CatalogManagement
             return searchEndDate;
         }
 
-        /// <summary>
-        /// This is the index name that we will ingest into, used by ingest V2 only
-        /// </summary>
-        public static string GetIngestDraftTargetIndexName(int groupId, long bulkUploadId, DateTime dateOfProgramsToIngest)
+        public static string GetDailyEpgIndexName(int groupId, DateTime indexDate)
         {
-            string dateString = dateOfProgramsToIngest.ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
-            return $"{groupId}_epg_v2_{dateString}_{bulkUploadId}";
-        }
-
-        /// <summary>
-        /// This is the index name of exsisting programs, used by Ingest V2 only
-        /// </summary>
-        public static string GetIngestCurrentProgramsAliasName(int groupId, DateTime dateOfProgramsToIngest)
-        {
-            string dateString = dateOfProgramsToIngest.Date.ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
+            string dateString = indexDate.Date.ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
             return $"{groupId}_epg_v2_{dateString}";
         }
 
-        public static string EpgIndexGroupAlias(int groupId)
+        public static string GetEpgIndexAlias(int nGroupID)
         {
-            return string.Format("{0}_epg", groupId);
+            return string.Format("{0}_epg", nGroupID);
         }
     }
 }

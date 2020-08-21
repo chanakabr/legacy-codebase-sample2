@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
 using AdapterClients.IngestTransformation;
+using Amazon.Runtime.Internal.Util;
 using ApiLogic;
 using ApiLogic.Catalog.BulkUpload.Validators;
 using ApiObjects;
@@ -37,6 +38,8 @@ namespace Core.Catalog
 
         public string[] LockKeys;
 
+        public DateTime[] DatesOfProgramsToIngest;
+
         public override GenericListResponse<BulkUploadResult> Deserialize(int groupId, long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
             var response = new GenericListResponse<BulkUploadResult>();
@@ -60,18 +63,20 @@ namespace Core.Catalog
                 var epgData = DeserializeXmlTvEpgData(bulkUploadId, xmlTvString);
                 response.Objects = epgData;
 
-                var blukResultToProgrmResultObject
+                var bulkResultToProgrmResultObject
                     = epgData.ToDictionary(x => x, x => (EpgProgramBulkUploadObject)x.Object);
 
-                foreach (var epg in blukResultToProgrmResultObject.Keys)
+                foreach (var epg in bulkResultToProgrmResultObject.Keys)
                 {
-                    var epgProgramBulkUploadObject = blukResultToProgrmResultObject[epg];
+                    var epgProgramBulkUploadObject = bulkResultToProgrmResultObject[epg];
                     epgProgramBulkUploadObject.Validate(epg);
-                }              
+                }
+                
 
-                var allPrograms = blukResultToProgrmResultObject.Values.ToList();                
-                var allProgramDates = allPrograms.Select(p => p.StartDate.Date).Distinct().ToList();
-                LockKeys = allProgramDates.Select(programDate => GetIngestLockKey(programDate)).ToArray();
+                var allPrograms = bulkResultToProgrmResultObject.Values.ToList();
+                var allProgramDates = allPrograms.Select(p => p.StartDate.Date).Distinct().ToArray();
+                DatesOfProgramsToIngest = allProgramDates;
+                LockKeys = allProgramDates.Select(programDate => GetIngestLockKey(groupId, programDate)).ToArray();
 
                 response.SetStatus(eResponseStatus.OK);
             }
@@ -161,6 +166,7 @@ namespace Core.Catalog
                 // Every channel external id can point to mulitple interbal channels that have to have the same EPG
                 // like channel per region or HD channel vs SD channel etc..
                 var channelsToIngestProgramInto = kalturaChannels.Where(c => c.ChannelExternalID.Equals(channelExternalId, StringComparison.OrdinalIgnoreCase));
+               
                 var programResults = new List<BulkUploadProgramAssetResult>();
 
                 foreach (var innerChannel in channelsToIngestProgramInto)
@@ -195,6 +201,7 @@ namespace Core.Catalog
                 // If there are no inner channels found the previous loop did not fill any results, than we add error results;
                 if (!channelsToIngestProgramInto.Any())
                 {
+
                     var result = new BulkUploadProgramAssetResult
                     {
                         BulkUploadId = bulkUploadId,
@@ -219,15 +226,18 @@ namespace Core.Catalog
                         EpgExternalId = prog.external_id,
                     };
 
+                    var msg = $"no channel was found for channelExternalId:[{channelExternalId}]";
+                    result.AddError(eResponseStatus.ChannelDoesNotExist, msg);
                     programResults.Add(result);
+                    
                 }
-                
+
                 response.AddRange(programResults);
             }
 
             return response;
         }
-        
+
         // TODO: Take this from apiLogic after logic is fully converted
         public static List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<string> channelExternalIds)
         {
@@ -237,9 +247,9 @@ namespace Core.Catalog
             return liveAsstes;
         }
 
-        public static string GetIngestLockKey(DateTime dateOfProgramsToIngest)
+        public static string GetIngestLockKey(int groupId, DateTime dateOfProgramsToIngest)
         {
-            return $"Ingest_V2_Lock_{dateOfProgramsToIngest.ToString(LOCK_KEY_DATE_FORMAT)}";
+            return $"Ingest_V2_Lock_{groupId}_{dateOfProgramsToIngest.ToString(LOCK_KEY_DATE_FORMAT)}";
         }
     }
 }

@@ -21,7 +21,14 @@ namespace Core.Middleware
                     logging.ClearProviders();
                     logging.AddProvider(new KLoggerProvider());
                 })
-                .ConfigureKestrel(o => o.AllowSynchronousIO = config.AllowSynchronousIO)
+                .ConfigureKestrel(o =>
+                {
+                    o.AllowSynchronousIO = config.AllowSynchronousIO;
+                    if (config.MaxRequestBodySize.HasValue)
+                    {
+                        o.Limits.MaxRequestBodySize = config.MaxRequestBodySize.Value;
+                    }
+                })
                 .UseStartup<TStartup>()
                 .Build();
 
@@ -40,5 +47,6 @@ namespace Core.Middleware
         public string[] CommandlineArgs { get; set; }
         public string DefaultLogDirectoryPath { get; set; }
         public bool AllowSynchronousIO { get; set; }
+        public long? MaxRequestBodySize { get; set; }
     }
 }

@@ -77,7 +77,7 @@ namespace EventBus.RabbitMQ
             properties.DeliveryMode = 2; // persistent
             const bool isDeliverySuccessMandatory = true;
             channel.BasicPublish(_ExchangeName, eventName, isDeliverySuccessMandatory, properties, body);
-            _Logger.Info($"Event [{eventName}] with body:[{message}] sent to exchange:[{_ExchangeName}]");
+            _Logger.Info($"Event [{eventName}] with body length:[{message?.Length}] sent to exchange:[{_ExchangeName}]");
             // TODO: Configure wait for conformation timespan;
             // TODO: This takes long, 100 msgs takes 11 seconds .. whitout it takes 1 sec.
             channel.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5));

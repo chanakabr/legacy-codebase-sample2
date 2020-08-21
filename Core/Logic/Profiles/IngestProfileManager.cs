@@ -20,6 +20,7 @@ namespace Core.Profiles
         private const string NAME_REQUIRED = "Name must have a value";
         private const string NO_PROFILE_TO_INSERT = "No profile to insert";
         private const string PROFILE_NOT_EXIST = "profile doesn't exist";
+        private const string PROFILE_ID_EMPTY = "Profile externall ID cannot be empty";
 
         public static GenericResponse<IngestProfile> AddIngestProfile(int groupId, int userId, IngestProfile profileToAdd)
         {
@@ -35,6 +36,12 @@ namespace Core.Profiles
                 if (string.IsNullOrEmpty(profileToAdd.Name))
                 {
                     response.SetStatus((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;                
+                }
+
+                if (string.IsNullOrEmpty(profileToAdd.ExternalId))
+                {
+                    response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, PROFILE_ID_EMPTY);
                     return response;
                 }
 
@@ -43,6 +50,19 @@ namespace Core.Profiles
                     response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
                 }
+
+                if (!string.IsNullOrEmpty(profileToAdd.TransformationAdapterUrl))
+                {
+                    Uri uriResult;
+                    bool result = Uri.TryCreate(profileToAdd.TransformationAdapterUrl, UriKind.Absolute, out uriResult)
+                        && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+                    if (!result)
+                    {
+                        response.SetStatus((int)eResponseStatus.Error, "Transformation Adapter URL is Invalid");
+                        return response;
+                    }
+                }
+
 
                 // Create Shared secret 
                 profileToAdd.TransformationAdapterSharedSecret = profileToAdd.TransformationAdapterSharedSecret ?? Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
@@ -64,7 +84,6 @@ namespace Core.Profiles
                             response.SetStatus((int)eResponseStatus.Error, "failed to call transformation adapter client");
                         }
                     }
-
                 }
                 else
                 {
@@ -204,6 +223,19 @@ namespace Core.Profiles
                     response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
                 }
+
+                if (!string.IsNullOrEmpty(profileToUpdate.TransformationAdapterUrl))
+                {
+                    Uri uriResult;
+                    bool result = Uri.TryCreate(profileToUpdate.TransformationAdapterUrl, UriKind.Absolute, out uriResult)
+                        && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+                    if (!result)
+                    {
+                        response.SetStatus((int)eResponseStatus.Error, "Transformation Adapter URL is Invalid");
+                        return response;
+                    }
+                }
+
 
                 profileToUpdate.TransformationAdapterSharedSecret = profileToUpdate.TransformationAdapterSharedSecret ?? Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
 

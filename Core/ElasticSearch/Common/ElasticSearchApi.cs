@@ -5,14 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
 using ConfigurationManager;
-using System.Collections.Specialized;
-using Newtonsoft.Json;
 using ElasticSearch.Searcher;
 using System.Net.Http;
 using TVinciShared;
@@ -40,12 +36,17 @@ namespace ElasticSearch.Common
             baseUrl = ES_URL;
         }
 
+        public ElasticSearchApi(string baseUrl)
+        {
+            baseUrl = baseUrl;
+        }
+
         #endregion
 
-        #region Index creation
+        #region Index Actions
 
-        public bool BuildIndex(string index, int shards, int replicas,
-            List<string> analyzers, List<string> filters, List<string> tokenizers = null, int maxResultWindow = 0)
+        public bool BuildIndex(string index, int shards, int replicas, List<string> analyzers, List<string> filters,
+                                List<string> tokenizers = null, int maxResultWindow = 0, string refreshInterval = null)
         {
             bool bRes = false;
 
@@ -55,35 +56,39 @@ namespace ElasticSearch.Common
             StringBuilder stringBuilder = new StringBuilder();
 
             stringBuilder.Append(@"{ ""settings"": {");
-
-            bool bShards = false;
-            if ((shards > 0 && replicas > 0) || maxResultWindow > 0)
+            bool shouldAddShardsAndReplicas = shards > 0 && replicas >= 0, shouldAddMaxResultWindow = maxResultWindow > 0, shouldAddRefreshInterval = !string.IsNullOrEmpty(refreshInterval);
+            bool shouldAddIndexKey = shouldAddShardsAndReplicas || shouldAddMaxResultWindow || shouldAddRefreshInterval;
+            if (shouldAddIndexKey)
             {
-                bShards = true;
                 stringBuilder.Append(@"""index"": {");
 
-                if (shards > 0 && replicas > 0)
+                if (shouldAddShardsAndReplicas)
                 {
                     stringBuilder.AppendFormat(" \"number_of_shards\": {0}, \"number_of_replicas\": {1}", shards, replicas);
-
-                    if (maxResultWindow > 0)
+                    if (shouldAddMaxResultWindow)
                     {
                         stringBuilder.Append(",");
                     }
                 }
 
-                if (maxResultWindow > 0)
+                if (shouldAddMaxResultWindow)
                 {
                     stringBuilder.AppendFormat("\"max_result_window\" : {0}", maxResultWindow);
+                    if (shouldAddRefreshInterval)
+                    {
+                        stringBuilder.Append(",");
+                    }
                 }
 
-                stringBuilder.Append("} ");
+                if (shouldAddRefreshInterval)
+                {
+                    stringBuilder.AppendFormat("\"refresh_interval\" : \"{0}\"", refreshInterval);
+                }
+
+                stringBuilder.Append("} ,");
             }
 
             #region add analyzers/filters/tokenizers
-
-            if (bShards)
-                stringBuilder.Append(",");
 
             stringBuilder.Append("\"analysis\": {");
             bool bAnalyzer = false;
@@ -158,8 +163,6 @@ namespace ElasticSearch.Common
             return result;
         }
 
-
-
         public bool Reindex(string source, string destination, string filterQuery = null)
         {
             bool result = false;
@@ -226,11 +229,75 @@ namespace ElasticSearch.Common
             }
             catch (Exception ex)
             {
-                log.Error($"Failed reindex of {source} to {destination} with ex {ex}", ex);
+                log.Error($"Failed reindex of {source} to {destination}", ex);
                 result = false;
             }
 
             return result;
+        }
+
+        public bool UpdateIndexRefreshInterval(string index, string refreshInterval)
+        {
+            bool res = false;
+
+            try
+            {
+                if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(refreshInterval))
+                    return res;
+
+                string url = string.Format("{0}/{1}/_settings", baseUrl, index);
+                StringBuilder sb = new StringBuilder(@"{ ""index"": {");
+                sb.AppendFormat(" \"refresh_interval\" : \"{0}\"", refreshInterval);
+                sb.Append(" } }");
+                string response = SendPutHttpRequest(url, sb.ToString());
+                JObject jsonResult = JObject.Parse(response);
+                if (jsonResult.ContainsKey("acknowledged") && jsonResult["acknowledged"].Value<bool>())
+                {
+                    res = true;
+                }
+                else
+                {
+                    log.ErrorFormat("Error when UpdateIndexRefreshInterval for index {0}. Response is: {1}", index, response);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed UpdateIndexRefreshInterval of index {index} to {refreshInterval} refresh_interval", ex);
+                res = false;
+            }
+
+            return res;
+        }
+
+        public bool ForceRefresh(string index)
+        {
+            bool res = false;
+
+            try
+            {
+                if (string.IsNullOrEmpty(index))
+                    return res;
+
+                string url = string.Format("{0}/{1}/_refresh", baseUrl, index);
+                int status = 0;
+                var response = SendPostHttpReq(url, ref status, string.Empty, string.Empty, "", true, isPut: false);
+
+                if (status == 200)
+                {
+                    res = true;
+                }
+                else
+                {
+                    log.ErrorFormat("Error when ForceRefresh for index {0}. Status: {1} Response is: {2}", index, status, response);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed ForceRefresh of index {index} refresh_interval", ex);
+                res = false;
+            }
+
+            return res;
         }
 
         #region Index definitions: Analyzers, filters, tokenizers
@@ -1059,7 +1126,7 @@ namespace ElasticSearch.Common
                 return result;
 
             Search(index, indexType, searchQuery, routing, preference, out result, out string url, out int httpStatus);
-            
+
             return result;
         }
 
@@ -1468,7 +1535,7 @@ namespace ElasticSearch.Common
                 })
                 {
                     var response = httpClient.GetAsync(url).ExecuteAndWait();
-                        
+
                     status = GetResponseCode(response.StatusCode);
                     result = response.Content.ReadAsStringAsync().ExecuteAndWait();
                 }
@@ -1516,7 +1583,7 @@ namespace ElasticSearch.Common
                     };
 
                     HttpResponseMessage response = httpClient.SendAsync(request).ExecuteAndWait();
-                        
+
                     status = GetResponseCode(response.StatusCode);
                     result = response.Content.ReadAsStringAsync().ExecuteAndWait();
                 }

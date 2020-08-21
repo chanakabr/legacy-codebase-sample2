@@ -76,7 +76,7 @@ namespace ApiLogic
             else
             {
                 response.AddError(eResponseStatus.EPGSProgramDatesError,
-                    $"programExternalId:[{prog.external_id}], Start date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
+                    $"programExternalId:[{prog.external_id}], End date:[{prog.stop}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
             }
 
             return result;

@@ -1932,7 +1932,20 @@ namespace WebAPI.Clients
                 }).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
+
+                if (Utils.Utils.DoesGroupUsesTemplates(groupId))
+                {
+                    KalturaAssetListResponse getAssetRes = GetAssetsForOPCAccount(groupId, assetsBaseDataList, Utils.Utils.IsAllowedToViewInactiveAssets(groupId, siteGuid, true));
+                    if (getAssetRes != null)
+                    {
+                        result.Objects = getAssetRes.Objects;
+                    }
+                }
+                else
+                {
+                    result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
+                }
+
                 result.TotalCount = epgProgramResponse.m_nTotalItems;
 
                 if (result.Objects != null)

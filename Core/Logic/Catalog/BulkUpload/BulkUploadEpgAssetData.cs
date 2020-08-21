@@ -55,8 +55,9 @@ namespace Core.Catalog
 
             // Lock all dates before starting the ingest
             var jobData = bulkUpload.JobData as BulkUploadIngestJobData;
-            var locker = new DistributedLock();
+            var locker = new DistributedLock(bulkUpload.GroupId);
             var epgV2Config = ApplicationConfiguration.Current.EPGIngestV2Configuration;
+
             var isLocked = locker.Lock(jobData.LockKeys, epgV2Config.LockNumOfRetries.Value, epgV2Config.LockRetryIntervalMS.Value, epgV2Config.LockTTLSeconds.Value, $"BulkUpload_{bulkUpload.Id}");
            
             if (!isLocked) { throw new Exception("Failed to aquire lock on ingest dates"); }
