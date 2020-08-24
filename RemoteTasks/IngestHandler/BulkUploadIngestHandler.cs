@@ -427,6 +427,7 @@ namespace IngestHandler
                             msg += $", policy is set to CutSource, program {programToIngest.EpgExternalId} will be removed as its end and start date are inside an existing program.";
                             crudOperations.ItemsToAdd.Remove(programToIngest);
                             crudOperations.ItemsToUpdate.Remove(programToIngest);
+                            _ResultsDictionary[programToIngest.ChannelId][programToIngest.EpgExternalId].Status = BulkUploadResultStatus.Ok;
                         }
 
                         _ResultsDictionary[programToIngest.ChannelId][programToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);

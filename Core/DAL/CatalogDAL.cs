@@ -5808,10 +5808,10 @@ namespace Tvinci.Core.DAL
                 foreach (var resultToSave in resultsToSave)
                 {
                     bulkUpload.Results[resultToSave.Index] = resultToSave;
-                    statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
-
-                    log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
                 }
+                statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
+                log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
+
             });
 
             status = statusAfterUpdate;
