@@ -3269,6 +3269,20 @@ namespace Core.Catalog.CatalogManagement
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
                                 LiveAsset linearMediaAssetToUpdate = assetToUpdate as LiveAsset;
+                                if (isFromIngest)
+                                {
+                                    var oldLiveAsset = currentAsset as LiveAsset;
+                                    linearMediaAssetToUpdate.ExternalEpgIngestId = oldLiveAsset.ExternalEpgIngestId;
+                                    linearMediaAssetToUpdate.EnableCatchUpState = oldLiveAsset.EnableCatchUpState;
+                                    linearMediaAssetToUpdate.EnableCdvrState = oldLiveAsset.EnableCdvrState;
+                                    linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState = oldLiveAsset.EnableRecordingPlaybackNonEntitledChannelState;
+                                    linearMediaAssetToUpdate.EnableStartOverState = oldLiveAsset.EnableStartOverState;
+                                    linearMediaAssetToUpdate.EnableTrickPlayState = oldLiveAsset.EnableTrickPlayState;
+                                    linearMediaAssetToUpdate.BufferCatchUp = oldLiveAsset.BufferCatchUp;
+                                    linearMediaAssetToUpdate.BufferTrickPlay = oldLiveAsset.BufferTrickPlay;
+                                    linearMediaAssetToUpdate.ChannelType = oldLiveAsset.ChannelType;
+                                }
+
                                 result = UpdateLinearMediaAsset(groupId, result.Object as MediaAsset, linearMediaAssetToUpdate, userId);
                             }
                         }
