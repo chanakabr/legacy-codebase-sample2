@@ -856,6 +856,7 @@ namespace Core.Users
                 domainDevice.ActivatedOn = device.m_activationDate;
                 domainDevice.Name = device.m_deviceName;
                 domainDevice.DeviceFamilyId = device.m_deviceFamilyID;
+                domainDevice.ExternalId = device.ExternalId;
             }
 
 
