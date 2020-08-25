@@ -362,8 +362,17 @@ namespace IngestHandler
                 var ids = _EpgBL.GetNewEpgIds(autofillEpgs.Count).ToList();
                 for (int i = 0; i < autofillEpgs.Count; i++)
                 {
-                    autofillEpgs[i].EpgId = ids[i];
+                    autofillEpgs[i].EpgId = ids[i];                    
                 }
+
+                foreach (var prog in autofillEpgs)
+                {                    
+                    prog.EpgCbObjects = new List<EpgCB>();                    
+                    var epgItems = GetAutoFillEpgCBDocuments(prog);
+                    prog.EpgCbObjects.AddRange(epgItems.Values);
+                }
+
+                crudOperations.ItemsToAdd.AddRange(autofillEpgs);
             }
 
             return isValid;
@@ -891,6 +900,7 @@ namespace IngestHandler
         {
             var key = $"autofill_{_BulkUploadObject.GroupId}";
             _AutoFillEpgsCB = _AutoFillEpgsCB ?? _CouchbaseManager.Get<Dictionary<string, EpgCB>>(key, true);
+            
             var autofillDocs = new Dictionary<string, EpgCB>();
             foreach (var doc in _AutoFillEpgsCB)
             {
@@ -910,7 +920,7 @@ namespace IngestHandler
                 autofillDocs[doc.Key].EnableStartOver = 0;
                 autofillDocs[doc.Key].EnableTrickPlay = 0;
             }
-            return _AutoFillEpgsCB;
+            return autofillDocs;
         }
 
 
