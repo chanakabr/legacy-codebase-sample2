@@ -169,13 +169,21 @@ namespace ApiLogic.Users.Managers
             try
             {
                 var campaign = Get(contextData, campaignId);
-                if (!campaign.IsOkStatusCode())
+                if (!campaign.IsOkStatusCode() || !(campaign.Object is TriggerCampaign))
                 {
                     response.SetStatus(campaign.Status);
                     return response;
                 }
+
                 var tCampaign = campaign.Object as TriggerCampaign;
-                ValidateDispatch(tCampaign);
+                var validated = ValidateDispatch(tCampaign);
+
+                if (!validated.IsOkStatusCode())
+                {
+                    response.SetStatus(validated);
+                    return response;
+                }
+
                 Dispatch(contextData, tCampaign, response);
             }
             catch (Exception ex)
@@ -192,10 +200,10 @@ namespace ApiLogic.Users.Managers
 
             if (SetEventStatus(tCampaign) && //Update internal json
                 PricingDAL.Update_Campaign(tCampaign) && //Update campaign object in db
-                PricingDAL.AddNotificationCampaignAction(contextData, tCampaign))//Update event
+                PricingDAL.AddNotificationCampaignAction(contextData, tCampaign))//Update event in CB
             {
-                response.Object = tCampaign;
                 SetInvalidationKeys(contextData);
+                response.Object = Get(contextData, tCampaign.Id)?.Object;
                 response.SetStatus(eResponseStatus.OK);
             }
             else
@@ -206,9 +214,32 @@ namespace ApiLogic.Users.Managers
         /// check if can be dispatched
         /// </summary>
         /// <param name="object"></param>
-        private void ValidateDispatch(TriggerCampaign campaign)
+        private Status ValidateDispatch(TriggerCampaign campaign)
         {
+            var status = Status.Ok;
             //Todo - Shir or Matan
+            if (campaign.IsActive)
+            {
+                log.Error($"Campaign: {campaign.Id} is already active, campaign event: {campaign.EventNotification}");
+                status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} is already active");
+            }
+            if (campaign.EndDate <= TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))
+            {
+                log.Error($"Campaign: {campaign.Id} was ended at ({campaign.EndDate}), campaign event: {campaign.EventNotification}");
+                status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} was ended");
+            }
+            if (campaign.TriggerConditions == null || campaign.TriggerConditions.Count == 0)
+            {
+                log.Error($"Campaign: {campaign.Id} must have a t least a single trigger condition, campaign event: {campaign.EventNotification}");
+                status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} must have a t least a single trigger condition");
+            }
+            if (campaign.DiscountConditions == null || campaign.DiscountConditions.Count == 0)
+            {
+                log.Error($"Campaign: {campaign.Id} must have a t least a single discount condition, campaign event: {campaign.EventNotification}");
+                status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} must have a t least a single discount condition");
+            }
+
+            return status;
         }
 
         private void ValidateParametersForUpdate(TriggerCampaign campaignToUpdate)
