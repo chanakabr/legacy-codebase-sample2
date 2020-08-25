@@ -289,6 +289,23 @@ namespace WebAPI.Utils
             return res;
         }
 
+        public static IEnumerable<string> GetOnDemandResponseProfileProperties()
+        {
+            Models.General.KalturaBaseResponseProfile responseProfile = Utils.GetResponseProfileFromRequest();
+
+            if (responseProfile != null && responseProfile is Models.General.KalturaOnDemandResponseProfile onDemandResponseProfile)
+            {
+                SerializableDictionary<string, object> filteredResponse = new SerializableDictionary<string, object>();
+
+                if (!string.IsNullOrEmpty(onDemandResponseProfile.RetrievedProperties))
+                {
+                    return onDemandResponseProfile.RetrievedProperties.Split(',').Select(p => p.Trim());
+                }
+            }
+
+            return null;
+        }
+
         internal static Dictionary<string, long> ConvertSerializeableDictionary(SerializableDictionary<string, KalturaLongValue> dict, bool setNullIfEmpty)
         {
             Dictionary<string, long> res = new Dictionary<string, long>();

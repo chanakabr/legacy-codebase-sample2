@@ -4188,6 +4188,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaOnDemandResponseProfile":
+                    switch(property.Name)
+                    {
+                        case "RetrievedProperties":
+                            return "retrievedProperties";
+                    }
+                    break;
+                    
                 case "KalturaOrCondition":
                     switch(property.Name)
                     {
