@@ -143,7 +143,8 @@ namespace WebAPI.Models.API
         internal override void ValidateForAdd()
         {
             //TODO - Shir or Matan
-            //get list count of all, limit to 500/configuration
+            // validate start & end dates
+
             if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
@@ -159,19 +160,22 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "message");
             }
 
-            if (this.DiscountConditions == null || this.DiscountConditions.Count == 0)
+            if (this.DiscountModuleId.HasValue && (this.DiscountConditions == null || this.DiscountConditions.Count == 0))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "discountConditions");
             }
 
-            if (!this.DiscountConditions.Any(x => x.Type == KalturaRuleConditionType.DATE))
+            if (this.DiscountConditions != null && this.DiscountConditions.Count > 0)
             {
-                throw new BadRequestException(BadRequestException.MISSING_MANDATORY_ARGUMENT_IN_PROPERTY, "discountConditions", "KalturaDateCondition");
-            }
+                if (!this.DiscountModuleId.HasValue)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "discountModuleId");
+                }
 
-            foreach (var condition in this.DiscountConditions)
-            {
-                condition.Validate();
+                foreach (var condition in this.DiscountConditions)
+                {
+                    condition.Validate();
+                }
             }
         }
 

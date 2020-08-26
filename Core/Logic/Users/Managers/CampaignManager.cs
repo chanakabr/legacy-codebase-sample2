@@ -16,6 +16,8 @@ namespace ApiLogic.Users.Managers
 {
     public class CampaignManager : ICrudHandler<Campaign, long>
     {
+        private const int MAX_TRIGGER_CAMPAIGNS = 500;
+        private const int MAX_BATCH_CAMPAIGNS = 500;
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<CampaignManager> lazy = new Lazy<CampaignManager>(() => new CampaignManager());
         public static CampaignManager Instance { get { return lazy.Value; } }
@@ -45,6 +47,7 @@ namespace ApiLogic.Users.Managers
 
         public GenericListResponse<Campaign> List(ContextData contextData, CampaignFilter filter, CorePager pager)
         {
+            // TODO SHIR
             //Get and List should be separated by inheritance type?
 
             var response = new GenericListResponse<Campaign>();
@@ -59,9 +62,6 @@ namespace ApiLogic.Users.Managers
             response.SetStatus(eResponseStatus.OK);
 
             return response;
-
-            // TODO SHIR
-            return new GenericListResponse<Campaign>();
         }
 
         public GenericResponse<Campaign> AddTriggerCampaign(ContextData contextData, TriggerCampaign campaignToAdd)
@@ -69,19 +69,27 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<Campaign>();
             try
             {
-                if (campaignToAdd.DiscountModuleId.HasValue)
-                {
-                    // TODO SHIR - ASK IRA WHAT TO PASS HERE
-                    //var discountModule = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(contextData.GroupId, campaignToAdd.DiscountModuleId, countryCode, currencyCode);
-                    //if (discountModule == null)
-                    //{
-                    //    response.SetStatus(eResponseStatus.DiscountCodeNotExist);
-                    //    return response;
-                    //}
-                }
-
                 // TODO SHIR what else need to be validate??
                 campaignToAdd.GroupId = contextData.GroupId;
+
+
+                if (campaignToAdd.DiscountModuleId.HasValue)
+                {
+                    var discounts = Core.Pricing.Module.GetValidDiscounts(contextData.GroupId);
+                    if (!discounts.HasObjects())
+                    {
+                        // TODO SHIR ERROR FOR NO GROUP DISCOUNT
+                    }
+
+                    if (!discounts.Objects.Any(x => x.Id == campaignToAdd.DiscountModuleId.Value))
+                    {
+                        response.SetStatus(eResponseStatus.DiscountCodeNotExist);
+                        return response;
+                    }
+                }
+
+                //TODO SHIR  get list count of all, limit to 500 per group
+
                 campaignToAdd.IsActive = false;
 
                 var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd);
@@ -92,9 +100,11 @@ namespace ApiLogic.Users.Managers
                     campaignToAdd.CreateDate = insertedCampaign.CreateDate;
                     campaignToAdd.UpdateDate = insertedCampaign.UpdateDate;
 
-                    AddCampaignIdToEvent(campaignToAdd);
+                    var campaignEvent = PricingDAL.GetCampaignEventNotification(contextData, campaignToAdd);
 
-                    if (!PricingDAL.AddNotificationCampaignAction(contextData, campaignToAdd))
+                    SetCampaignIdToEvent(campaignToAdd);
+
+                    if (!PricingDAL.SaveNotificationCampaignAction(contextData, campaignToAdd))
                     {
                         var message = $"Failed adding Notification Campaign Action, campaign Id: {campaignToAdd.Id}";
                         log.Error($"{message}, contextData: {contextData}");
@@ -200,7 +210,7 @@ namespace ApiLogic.Users.Managers
 
             if (SetEventStatus(tCampaign) && //Update internal json
                 PricingDAL.Update_Campaign(tCampaign) && //Update campaign object in db
-                PricingDAL.AddNotificationCampaignAction(contextData, tCampaign))//Update event in CB
+                PricingDAL.SaveNotificationCampaignAction(contextData, tCampaign))//Update event in CB
             {
                 SetInvalidationKeys(contextData);
                 response.Object = Get(contextData, tCampaign.Id)?.Object;
@@ -374,7 +384,7 @@ namespace ApiLogic.Users.Managers
         /// Replace json event campaignId
         /// </summary>
         /// <param name="triggerCampaign"></param>
-        private void AddCampaignIdToEvent(TriggerCampaign triggerCampaign)
+        private void SetCampaignIdToEvent(TriggerCampaign triggerCampaign)
         {
             var _object = JObject.Parse(triggerCampaign.EventNotification);
             var val = _object["Actions"][0];

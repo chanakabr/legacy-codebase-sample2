@@ -512,6 +512,8 @@ namespace WebAPI.Models.API
     /// </summary>
     public abstract partial class KalturaTriggerCondition<T> : KalturaCondition where T : IConvertible
     {
+        protected int max_values = 10;
+
         /// <summary>
         /// Value In
         /// </summary>
@@ -533,7 +535,13 @@ namespace WebAPI.Models.API
         {
             if (string.IsNullOrEmpty(this.ValueIn))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTriggerCondition.valueIn");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, this.objectType + ".valueIn");
+            }
+
+            var values = GetValues();
+            if (values.Count > max_values)
+            {
+                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, this.objectType + ".valueIn", max_values);
             }
         }
 
@@ -562,6 +570,11 @@ namespace WebAPI.Models.API
 
     public partial class KalturaDeviceUdidTriggerCondition : KalturaTriggerCondition<long>
     {
+        protected override void Init()
+        {
+            base.Init();
+            max_values = 500; // TODO SHIR MATAN - CHECK IF THIS VALUE IS CORRECT
+        }
     }
 
     public partial class KalturaDeviceModelTriggerCondition : KalturaTriggerCondition<long>

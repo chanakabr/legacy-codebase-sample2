@@ -1960,5 +1960,40 @@ namespace Core.Pricing
 
             return new Tuple<List<DiscountDetails>, bool>(discountDetails, res);
         }
+
+        // TODO SHIR\MATAN - GET VALID DISCOUNTS
+        public override GenericListResponse<DiscountDetails> GetValidDiscounts()
+        {
+            GenericListResponse<DiscountDetails> response = new GenericListResponse<DiscountDetails>();
+
+            string key = LayeredCacheKeys.GetDiscountsKey(m_nGroupID);
+            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", m_nGroupID } };
+            List<DiscountDetails> discountDetails = null;
+
+            bool res = LayeredCache.Instance.Get(key, 
+                                                 ref discountDetails, 
+                                                 GetGroupDiscounts, 
+                                                 funcParams, 
+                                                 m_nGroupID,
+                                                 LayeredCacheConfigNames.GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME, 
+                                                 new List<string>() { LayeredCacheKeys.GetGroupDiscountsInvalidationKey(m_nGroupID) });
+
+            if (discountDetails != null)
+            {
+                response.Objects = new List<DiscountDetails>();
+                
+                foreach (DiscountDetails dt in discountDetails)
+                {
+                    if (dt.EndDate >= DateTime.UtcNow && dt.StartDate <= DateTime.UtcNow)
+                    {
+                        response.Objects.Add(dt);
+                    }
+                }
+            }
+
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            return response;
+        }
     }
 }

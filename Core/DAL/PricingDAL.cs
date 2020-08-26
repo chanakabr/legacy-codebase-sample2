@@ -120,75 +120,6 @@ namespace DAL
 
         }
 
-        public static bool Update_Campaign<T>(T campaign) where T : Campaign
-        {
-            var sp = new StoredProcedure("Update_Campaign");
-            sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", campaign.GroupId);
-            sp.AddParameter("@id", campaign.Id);
-            sp.AddParameter("@updateDate", campaign.UpdateDate);
-            sp.AddParameter("@isActive", campaign.IsActive);
-            //sp.AddParameter("@status", campaign.Status);
-            sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
-
-            return sp.ExecuteReturnValue<int>() > 0;
-        }
-
-        public static TriggerCampaign Get_Campaign(ContextData contextData, long campaignId)
-        {
-            TriggerCampaign campaign = null;
-            var sp = new StoredProcedure("Get_Campaign");
-            sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", contextData.GroupId);
-            sp.AddParameter("@id", campaignId);
-            DataSet ds = sp.ExecuteDataSet();
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                var dt = ds.Tables[0];
-                campaign = new TriggerCampaign
-                {
-                    Id = Utils.GetLongSafeVal(dt.Rows[0]["id"]),
-                    GroupId = Utils.GetLongSafeVal(dt.Rows[0]["group_id"]),
-                    IsActive = Utils.GetLongSafeVal(dt.Rows[0]["is_active"]) == 1,
-                    CreateDate = Utils.GetLongSafeVal(dt.Rows[0]["create_date"]),
-                    UpdateDate = Utils.GetLongSafeVal(dt.Rows[0]["update_date"]),
-                    CoreObject = Utils.GetSafeStr(dt.Rows[0]["campaign_json"])
-                };
-            }
-
-            return campaign;
-        }
-
-        public static List<TriggerCampaign> List_Campaign(ContextData contextData)
-        {
-            List<TriggerCampaign> campaigns = null;
-            var sp = new StoredProcedure("List_Campaign");
-            sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", contextData.GroupId);
-            DataSet ds = sp.ExecuteDataSet();
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                campaigns = new List<TriggerCampaign>();
-                var dt = ds.Tables[0];
-                foreach (DataRow row in dt.Rows)
-                {
-                    campaigns.Add(new TriggerCampaign
-                    {
-                        Id = Utils.GetLongSafeVal(row["id"]),
-                        GroupId = Utils.GetLongSafeVal(row["group_id"]),
-                        IsActive = Utils.GetLongSafeVal(row["is_active"]) == 1,
-                        CreateDate = Utils.GetLongSafeVal(row["create_date"]),
-                        UpdateDate = Utils.GetLongSafeVal(row["update_date"]),
-                        CoreObject = Utils.GetSafeStr(row["campaign_json"])
-                    });
-                }
-            }
-
-            return campaigns;
-        }
-
         public static void Insert_NewCouponUse(string sSiteGuid, long lCouponID, long lGroupID, long lMediaFileID, long lSubscriptionCode, long lPrePaidCode, long nCollectionCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewCouponUse");
@@ -1908,6 +1839,78 @@ namespace DAL
             return string.Format("household_coupon_wallet:{0}", householdId);
         }
 
+
+        public static bool Update_Campaign<T>(T campaign) where T : Campaign
+        {
+            var sp = new StoredProcedure("Update_Campaign");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", campaign.GroupId);
+            sp.AddParameter("@id", campaign.Id);
+            sp.AddParameter("@updateDate", campaign.UpdateDate);
+            sp.AddParameter("@isActive", campaign.IsActive);
+            //sp.AddParameter("@status", campaign.Status);
+            sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        // TODO MATAN delete Get_Campaign
+        public static TriggerCampaign Get_Campaign(ContextData contextData, long campaignId)
+        {
+            TriggerCampaign campaign = null;
+            var sp = new StoredProcedure("Get_Campaign");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", contextData.GroupId);
+            sp.AddParameter("@id", campaignId);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                var dt = ds.Tables[0];
+                campaign = new TriggerCampaign
+                {
+                    Id = Utils.GetLongSafeVal(dt.Rows[0]["id"]),
+                    GroupId = Utils.GetLongSafeVal(dt.Rows[0]["group_id"]),
+                    IsActive = Utils.GetLongSafeVal(dt.Rows[0]["is_active"]) == 1,
+                    CreateDate = Utils.GetLongSafeVal(dt.Rows[0]["create_date"]),
+                    UpdateDate = Utils.GetLongSafeVal(dt.Rows[0]["update_date"]),
+                    CoreObject = Utils.GetSafeStr(dt.Rows[0]["campaign_json"]) // this is not true, campaign_json is the all campaign object and not only the core object
+                };
+            }
+
+            return campaign;
+        }
+
+        public static List<TriggerCampaign> List_Campaign(ContextData contextData)
+        {
+            List<TriggerCampaign> campaigns = null;
+            var sp = new StoredProcedure("List_Campaign");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", contextData.GroupId);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                campaigns = new List<TriggerCampaign>();
+                var dt = ds.Tables[0];
+                foreach (DataRow row in dt.Rows)
+                {
+                    campaigns.Add(new TriggerCampaign
+                    {
+                        Id = Utils.GetLongSafeVal(row["id"]),
+                        GroupId = Utils.GetLongSafeVal(row["group_id"]),
+                        IsActive = Utils.GetLongSafeVal(row["is_active"]) == 1,
+                        CreateDate = Utils.GetLongSafeVal(row["create_date"]),
+                        UpdateDate = Utils.GetLongSafeVal(row["update_date"]),
+                        CoreObject = Utils.GetSafeStr(row["campaign_json"])
+                    });
+                }
+            }
+
+            return campaigns;
+        }
+
+
         public static T AddCampaign<T>(T campaign) where T : Campaign
         {
             var campaignToAdd = default(T);
@@ -1927,7 +1930,7 @@ namespace DAL
                 if (ds.Tables[0].Rows != null && ds.Tables[0].Rows?.Count > 0)
                 {
                     DataRow dr = ds.Tables[0].Rows[0];
-                    // TODO SHIR - DESIREALIZE CAMPAIGN
+                    // TODO MATAN - DESIREALIZE CAMPAIGN
                     campaignToAdd.Id = Utils.GetLongSafeVal(dr, "ID");
                     campaignToAdd.CreateDate = Utils.GetLongSafeVal(dr, "CREATE_DATE");
                     campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
@@ -1937,22 +1940,32 @@ namespace DAL
             return campaignToAdd;
         }
 
-        public static bool AddNotificationCampaignAction(ContextData contextData, TriggerCampaign campaignToAdd)
+        // TODO MATAN - UpdateCampaign
+
+        public static bool SaveNotificationCampaignAction(ContextData contextData, TriggerCampaign campaignToAdd)
         {
+            // TODO SHIR - UPDATE WITH VERSION CHECK
             var key = GetNotificationCampaignActionKey(contextData, campaignToAdd);
 
             if (!string.IsNullOrEmpty(campaignToAdd.EventNotification))
             {
                 var obj = JsonConvert.DeserializeObject<EventNotificationAction>(campaignToAdd.EventNotification);
-                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, obj, false);
+                //return UtilsDal.SaveObjectWithVersionCheckInCB<EventNotificationAction>(eCouchbaseBucket.OTT_APPS, key, obj, false);
+                return true;
             }
 
             return false;
         }
 
-        private static string GetNotificationCampaignActionKey(ContextData contextData, TriggerCampaign campaignToAdd)
+        private static string GetNotificationCampaignActionKey(ContextData contextData, TriggerCampaign campaign)
         {
-            return $"notification_{contextData.GroupId}_campaign_{campaignToAdd.CoreObject}_{campaignToAdd.Action}";
+            return $"notification_{contextData.GroupId}_campaign_{campaign.CoreObject}_{campaign.Action}";
+        }
+
+        public static string GetCampaignEventNotification(ContextData contextData, TriggerCampaign campaign)
+        {
+            var key = GetNotificationCampaignActionKey(contextData, campaign);
+            return UtilsDal.GetObjectFromCB<string>(eCouchbaseBucket.OTT_APPS, key);
         }
     }
 }

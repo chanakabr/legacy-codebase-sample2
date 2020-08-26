@@ -1822,5 +1822,19 @@ namespace Core.Pricing
         {
             throw new NotImplementedException();
         }
+
+        public static GenericListResponse<DiscountDetails> GetValidDiscounts(int groupId)
+        {
+            var response = new GenericListResponse<DiscountDetails>();
+
+            BasePricing t = null;
+            t = Utils.GetBasePricing(groupId, "GetValidDiscounts");
+            if (t != null)
+            {
+                return t.GetValidDiscounts();
+            }
+
+            return response;
+        }
     }
 }
