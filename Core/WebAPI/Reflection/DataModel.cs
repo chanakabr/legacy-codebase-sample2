@@ -2122,6 +2122,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDeviceReferenceData":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "Status":
+                            return "status";
+                    }
+                    break;
+                    
+                case "KalturaDeviceReferenceDataFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaDeviceRegistrationStatusHolder":
                     switch(property.Name)
                     {
@@ -3033,6 +3053,10 @@ namespace WebAPI.Reflection
                             return "householdId";
                         case "MacAddress":
                             return "macAddress";
+                        case "ManufacturerId":
+                            return "manufacturerId";
+                        case "Model":
+                            return "model";
                         case "Name":
                             return "name";
                         case "State":
@@ -4235,6 +4259,14 @@ namespace WebAPI.Reflection
                     {
                         case "ObjectVirtualAssets":
                             return "objectVirtualAssets";
+                    }
+                    break;
+                    
+                case "KalturaOnDemandResponseProfile":
+                    switch(property.Name)
+                    {
+                        case "RetrievedProperties":
+                            return "retrievedProperties";
                     }
                     break;
                     
@@ -6889,6 +6921,8 @@ namespace WebAPI.Reflection
                     {
                         case "Duration":
                             return "duration";
+                        case "IgnorePartialBilling":
+                            return "ignorePartialBilling";
                         case "Name":
                             return "name";
                         case "PaymentGatewayId":
@@ -8119,6 +8153,29 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("deviceFamily", "list", false);
                             return DeviceFamilyController.List();
+                            
+                    }
+                    break;
+                    
+                case "devicereferencedata":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("devicereferencedata", "add");
+                            return DeviceReferenceDataController.Add((KalturaDeviceReferenceData) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("devicereferencedata", "update");
+                            return DeviceReferenceDataController.Update((long) methodParams[0], (KalturaDeviceReferenceData) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("devicereferencedata", "delete");
+                            DeviceReferenceDataController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("devicereferencedata", "list");
+                            return DeviceReferenceDataController.List((KalturaDeviceReferenceDataFilter) methodParams[0]);
                             
                     }
                     break;
@@ -10879,7 +10936,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             RolesManager.ValidateActionPermitted("userLoginPin", "add", false);
-                            return UserLoginPinController.Add((string) methodParams[0], (Nullable<int>) methodParams[1], (Nullable<long>) methodParams[2]);
+                            return UserLoginPinController.Add((string) methodParams[0], (Nullable<int>) methodParams[1], (Nullable<int>) methodParams[2]);
                             
                         case "delete":
                             RolesManager.ValidateActionPermitted("userLoginPin", "delete", false);
@@ -10891,7 +10948,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("userLoginPin", "update", false);
-                            return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1], (Nullable<int>) methodParams[2], (Nullable<long>) methodParams[3]);
+                            return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1], (Nullable<int>) methodParams[2], (Nullable<int>) methodParams[3]);
                             
                     }
                     break;
@@ -13590,6 +13647,49 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "devicereferencedata":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaDeviceReferenceData),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaDeviceReferenceData),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaDeviceReferenceDataFilter),
+                            });
                             return ret;
                             
                     }
@@ -19343,7 +19443,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
-                                Type = typeof(Int64),
+                                Type = typeof(Int32),
                             });
                             return ret;
                             
@@ -19394,7 +19494,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
-                                Type = typeof(Int64),
+                                Type = typeof(Int32),
                             });
                             return ret;
                             

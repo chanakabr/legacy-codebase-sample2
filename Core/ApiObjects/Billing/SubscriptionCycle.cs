@@ -7,5 +7,6 @@ namespace ApiObjects.Billing
         public bool HasCycle { get; set; }
         public Duration SubscriptionLifeCycle { get; set; }
         public int PaymentGatewayId { get; set; }
+        public bool IgnorePartialBilling { get; set; }
     }
 }

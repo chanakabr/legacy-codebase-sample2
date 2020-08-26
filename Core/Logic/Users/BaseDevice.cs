@@ -19,9 +19,10 @@ namespace Core.Users
         public abstract ApiObjects.Response.Status SetDeviceInfo(int nGroupID, string sDeviceUDID, string sDeviceName);
         public virtual DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string externalId, bool allowNullExternalId)
         {
-            return SetDevice(nGroupID, sDeviceUDID, sDeviceName, "", externalId, allowNullExternalId);
+            var dDevice = new DomainDevice { Udid = sDeviceUDID, Name = sDeviceName, ExternalId = externalId };
+            return SetDevice(nGroupID, dDevice, allowNullExternalId);
         }
-        public abstract DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string macAddress, string externalId, bool allowNullExternalId, bool allowNullMacAddress = false);
+        public abstract DeviceResponseObject SetDevice(int nGroupID, DomainDevice device, bool allowNullExternalId, bool allowNullMacAddress = false);
         public abstract DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID);
     }
 }

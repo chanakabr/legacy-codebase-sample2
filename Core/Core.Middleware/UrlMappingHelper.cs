@@ -15,6 +15,7 @@ namespace Core.Middleware
                 var incomingUrlSegments = context.Request.Path.ToString().Split('/', StringSplitOptions.RemoveEmptyEntries);
                 var matchUrlSegments = url.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
+                // todo: sequance equal is not right here .. sometimes its just the begging of the path
                 return incomingUrlSegments.Length >= matchUrlSegments.Length 
                     && incomingUrlSegments.SequenceEqual(matchUrlSegments, StringComparer.OrdinalIgnoreCase);
 

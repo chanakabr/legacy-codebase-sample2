@@ -298,6 +298,38 @@ namespace ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaKeyValue, ApiObjects.KeyValuePair>()
                 .ForMember(dest => dest.key, opt => opt.MapFrom(src => src.key))
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.value));
+
+            cfg.CreateMap<KalturaDeviceReferenceData, DeviceReferenceData>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                ;
+
+            cfg.CreateMap<DeviceReferenceData, KalturaDeviceReferenceData>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                ;
+
+            cfg.CreateMap<KalturaDeviceManufacturerInformation, DeviceManufacturerInformation>()
+                .IncludeBase<KalturaDeviceReferenceData, DeviceReferenceData>()
+                ;
+
+            cfg.CreateMap<DeviceManufacturerInformation, KalturaDeviceManufacturerInformation>()
+                .IncludeBase<DeviceReferenceData, KalturaDeviceReferenceData>()
+                ;
+
+            cfg.CreateMap<DeviceReferenceDataFilter, KalturaDeviceReferenceDataFilter> ()
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.DeviceReferenceDataIdsIn)))
+            ;
+
+            cfg.CreateMap<KalturaDeviceReferenceDataFilter, DeviceReferenceDataFilter>()
+               .ForMember(dest => dest.DeviceReferenceDataIdsIn, opt => opt.MapFrom(src => src.IdIn))
+                ;
+
+            cfg.CreateMap<KalturaDeviceManufacturersReferenceDataFilter, DeviceManufacturersReferenceDataFilter>()
+                .IncludeBase<KalturaDeviceReferenceDataFilter, DeviceReferenceDataFilter>()
+                ;
         }
 
         private static List<SSOAdapterParam> ConvertSsoAdapterSettings(KalturaSSOAdapterProfile src)

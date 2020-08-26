@@ -1442,14 +1442,14 @@ namespace Core.ConditionalAccess
             if (paymentConfigurationResponse.HasObject() && paymentConfigurationResponse.Object.UnifiedBillingCycles != null)
             {
                 paymentConfig = paymentConfigurationResponse.Object;
-                var unifiedBillingCycleObj = paymentConfig.UnifiedBillingCycles
-                     .FirstOrDefault(x => x.Duration.Value == subscriptionCycle.SubscriptionLifeCycle.Value && x.Duration.Unit == subscriptionCycle.SubscriptionLifeCycle.Unit);
+                var unifiedBillingCycleObj = paymentConfig.UnifiedBillingCycles.FirstOrDefault(x => x.Duration.Equals(subscriptionCycle.SubscriptionLifeCycle));
 
                 if (unifiedBillingCycleObj != null)
                 {
                     //get key from CB household_renewBillingCyclepublic class Subscription : PPVModule
                     subscriptionCycle.HasCycle = true;
                     subscriptionCycle.PaymentGatewayId = unifiedBillingCycleObj.PaymentGatewayId ?? 0;
+                    subscriptionCycle.IgnorePartialBilling = unifiedBillingCycleObj.IgnorePartialBilling ?? false;
                 }
             }
 
@@ -1507,7 +1507,7 @@ namespace Core.ConditionalAccess
             }
 
             // check that end date between next end date and unified billing cycle end date are different
-            if (subscriptionCycle.HasCycle && subscriptionCycle.UnifiedBillingCycle != null && subscriptionCycle.UnifiedBillingCycle.endDate > DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
+            if (!subscriptionCycle.IgnorePartialBilling && subscriptionCycle.HasCycle && subscriptionCycle.UnifiedBillingCycle != null && subscriptionCycle.UnifiedBillingCycle.endDate > DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
             {
                 DateTime nextRenew = Utils.GetEndDateTime(subscriptionCycle.SubscriptionLifeCycle, DateTime.UtcNow);
                 int numOfUnitsByBillingCycle = 1;

@@ -9,7 +9,8 @@ namespace Core.Middleware
 {
     public static class KloggerSessionBuilder
     {
-        public const string SESSION_HEADER_KEY = KLogMonitor.Constants.REQUEST_ID_KEY;
+        public const string LEGACY_SESSION_HEADER_KEY = KLogMonitor.Constants.REQUEST_ID_KEY;
+        public const string SESSION_HEADER_KEY = "x-kaltura-session-id";
 
         public static IApplicationBuilder UseKloggerSessionIdBuilder(this IApplicationBuilder app)
         {
@@ -17,7 +18,11 @@ namespace Core.Middleware
             return app.Use(async (context, _next) =>
             {
                 string sessionId;
-                if (context.Request.Headers.TryGetValue(SESSION_HEADER_KEY, out var sessionHeader))
+                if (context.Request.Headers.TryGetValue(SESSION_HEADER_KEY, out var legacySessionHeader))
+                {
+                    sessionId = legacySessionHeader;
+                }
+                else if (context.Request.Headers.TryGetValue(LEGACY_SESSION_HEADER_KEY, out var sessionHeader))
                 {
                     sessionId = sessionHeader;
                 }

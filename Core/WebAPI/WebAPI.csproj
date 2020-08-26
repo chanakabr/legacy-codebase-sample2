@@ -15,8 +15,8 @@
   <PropertyGroup>
     <DocumentationFile>bin\WebAPI.xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <NoWarn>1701;1702;1591</NoWarn>
+  <PropertyGroup>
+    <NoWarn>1701;1702;1591;612</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="7.0.1" />

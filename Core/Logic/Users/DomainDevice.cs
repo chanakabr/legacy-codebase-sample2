@@ -35,6 +35,10 @@ namespace Core.Users
 
         public long DeviceFamilyId { get; set; }
 
+        public string Model{ get; set; }
+
+        public long? ManufacturerId { get; set; }
+
         protected override bool DoInsert()
         {
             switch (ActivataionStatus)

@@ -538,7 +538,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainKey(int domainId)
         {
-            return string.Format("domain_V2_{0}", domainId);
+            return string.Format("domain_V3_{0}", domainId);
         }
 
         public static string GetDlmKey(int dlmId)
@@ -579,6 +579,11 @@ namespace CachingProvider.LayeredCache
         public static string GetSSOAdapaterByGroupKey(int groupId)
         {
             return string.Format("sso_adapter_by_group_{0}", groupId);
+        }
+
+        public static string GetDeviceReferenceDataByGroupKey(int groupId)
+        {
+            return string.Format("device_reference_data_by_group_{0}", groupId);
         }
 
         public static string GetSSOAdapaterImplementationsKey(int adapterId)
@@ -1105,6 +1110,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_sso_adapater_{0}", groupId);
         }
 
+        public static string GetDeviceReferenceDataInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_device_reference_data_{0}", groupId);
+        }
+        
         public static string GetSSOAdapaterImplementationsInvalidationKey(int adapaterId)
         {
             return string.Format("invalidationKey_sso_adapater_implementations_{0}", adapaterId);
@@ -1215,6 +1225,8 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_group_segmentation_types_{0}", groupId);
         }
 
+
+        // todo: arthur map to kafka ...
         public static string GetSegmentationTypeInvalidationKey(int groupId, long segmentationTypeId)
         {
             return string.Format("invalidationKey_segmentation_type_{0}_{1}", groupId, segmentationTypeId);

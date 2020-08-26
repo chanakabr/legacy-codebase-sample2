@@ -17,9 +17,9 @@ namespace WebAPI.Models.General
 {
     public interface IKalturaSerializable
     {
-        string ToJson(Version currentVersion, bool omitObsolete);
+        string ToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false);
 
-        string ToXml(Version currentVersion, bool omitObsolete);
+        string ToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false);
     }
 
     public class KalturaSerializable : IKalturaSerializable
@@ -58,22 +58,22 @@ namespace WebAPI.Models.General
             return WebUtility.HtmlEncode(str);
         }
 
-        public virtual string ToJson(Version currentVersion, bool omitObsolete)
+        public virtual string ToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
-            return "{" + String.Join(", ", PropertiesToJson(currentVersion, omitObsolete).Values) + "}";
+            return "{" + String.Join(", ", PropertiesToJson(currentVersion, omitObsolete, responseProfile).Values) + "}";
         }
 
-        public virtual string ToXml(Version currentVersion, bool omitObsolete)
+        public virtual string ToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
-            return String.Join("", PropertiesToXml(currentVersion, omitObsolete).Values);
+            return String.Join("", PropertiesToXml(currentVersion, omitObsolete, responseProfile).Values);
         }
 
-        protected virtual Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        protected virtual Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
             return new Dictionary<string, string>();
         }
 
-        protected virtual Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        protected virtual Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
             return new Dictionary<string, string>();
         }

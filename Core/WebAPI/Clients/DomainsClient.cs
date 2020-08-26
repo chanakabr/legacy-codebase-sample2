@@ -15,6 +15,8 @@ using WebAPI.Models.Users;
 using WebAPI.Utils;
 using ApiObjects.Response;
 using WebAPI.Models.General;
+using ApiLogic.Users.Managers;
+using System.Text.RegularExpressions;
 
 namespace WebAPI.Clients
 {
@@ -446,15 +448,40 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaHouseholdDevice AddDevice(int groupId, int domainId, string deviceName, string udid, int deviceBrandId, string externalId, string macAddress)
+        internal void ValidateDeviceReferences(int groupId, KalturaHouseholdDevice device)
+        {
+            if (device == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(device.Model) && !Regex.IsMatch(device.Model, @"^[a-zA-Z0-9\_ ]+$", RegexOptions.IgnoreCase))
+            {
+                throw new ClientException((int)StatusCode.Error, $"Model: {device.Name} didn't passed validation");
+            }
+
+            var referenceData = DeviceReferenceDataManager.Instance.GetReferenceData(groupId);
+            if (device.ManufacturerId.HasValue)
+            {
+                var manufacturers = referenceData?.Where(manufacturer => manufacturer.GetType() == (long)DeviceInformationType.Manufacturer);
+                if (manufacturers != null && !manufacturers.Select(manufacturer => manufacturer.Id).Contains(device.ManufacturerId.Value))
+                {
+                    throw new ClientException((int)StatusCode.Error, "Manufacturer Id doesn't exists");
+                }
+            }
+        }
+
+        internal KalturaHouseholdDevice AddDevice(int groupId, int domainId, KalturaHouseholdDevice device)
         {
             DeviceResponse response = null;
 
             try
             {
+                var dDevice = CastToDomainDevice(device);
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.AddDevice(groupId, domainId, udid, deviceName, deviceBrandId, externalId, macAddress);
+                    response = Core.Domains.Module.AddDevice(groupId, domainId, dDevice);
                 }
             }
             catch (Exception ex)
@@ -478,7 +505,7 @@ namespace WebAPI.Clients
                 throw new ClientException(StatusCode.Error);
             }
 
-            KalturaHouseholdDevice result = Mapper.Map<KalturaHouseholdDevice>(response.Device.m_oDevice);
+            var result = Mapper.Map<KalturaHouseholdDevice>(response.Device.m_oDevice);
 
             return result;
         }
@@ -588,7 +615,19 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, string deviceName, string udid, string macAddress, string externalId, bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        public KalturaHouseholdDevice SetDeviceInfo(int groupId, string device_name, string udid)
+        {
+            var dDevice = new DomainDevice { Name = device_name, Udid = udid };
+            return SetDeviceInfo(groupId, dDevice);
+        }
+
+        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, KalturaHouseholdDevice device, bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        {
+            var dDevice = CastToDomainDevice(device);
+            return SetDeviceInfo(groupId, dDevice, allowNullExternalId, allowNullMacAddress);
+        }
+
+        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, DomainDevice dDevice, bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             KalturaHouseholdDevice result;
             DeviceResponse response = null;
@@ -597,7 +636,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.SetDevice(groupId, udid, deviceName, macAddress, externalId, allowNullExternalId, allowNullMacAddress);
+                    response = Core.Domains.Module.SetDevice(groupId, dDevice, allowNullExternalId, allowNullMacAddress);
                 }
             }
             catch (Exception ex)
@@ -989,15 +1028,17 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaHouseholdDevice SubmitAddDeviceToDomain(int groupId, int domainId, string userId, string udid, string deviceName, int deviceBrandId, string externalId, string macAddress)
+        internal KalturaHouseholdDevice SubmitAddDeviceToDomain(int groupId, int domainId, string userId, KalturaHouseholdDevice device)
         {
             DeviceResponse response = null;
 
             try
             {
+                var dDevice = CastToDomainDevice(device);
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.SubmitAddDeviceToDomain(groupId, domainId, userId, udid, deviceName, deviceBrandId, externalId, macAddress);
+                    response = Core.Domains.Module.SubmitAddDeviceToDomain(groupId, domainId, userId, dDevice);
                 }
             }
             catch (Exception ex)
@@ -1024,6 +1065,20 @@ namespace WebAPI.Clients
             KalturaHouseholdDevice result = Mapper.Map<KalturaHouseholdDevice>(response.Device.m_oDevice);
 
             return result;
+        }
+
+        private static DomainDevice CastToDomainDevice(KalturaHouseholdDevice device)
+        {
+            return new DomainDevice
+            {
+                Udid = device.Udid,
+                Name = device.Name,
+                DeviceBrandId = device.getBrandId(),
+                ExternalId = device.ExternalId,
+                MacAddress = device.MacAddress,
+                Model = device.Model,
+                ManufacturerId = device.ManufacturerId
+            };
         }
 
         internal KalturaHousehold SubmitAddUserToDomainRequest(int groupId, string userId, string householdMasterUsername)
