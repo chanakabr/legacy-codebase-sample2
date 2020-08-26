@@ -59,22 +59,5 @@ namespace SoapAdaptersCommon.Middleware
         public void BeforeSendReply(ref Message reply, object correlationState)
         {
         }
-
-        private XmlDocument GetDocument(Message request)
-        {
-            var document = new XmlDocument();
-            using (var memoryStream = new MemoryStream())
-            {
-                var writer = XmlWriter.Create(memoryStream);
-                request.WriteMessage(writer);
-                writer.Flush();
-                memoryStream.Position = 0;
-
-                // load memory stream into a document
-                document.Load(memoryStream);
-            }
-
-            return document;
-        }
     }
 }

@@ -21,7 +21,7 @@ namespace WebAPI.Managers.Models
             Result = result;
         }
 
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
@@ -35,7 +35,7 @@ namespace WebAPI.Managers.Models
                 }
                 else if (Result is IKalturaSerializable)
                 {
-                    propertyValue = (Result as IKalturaSerializable).ToJson(currentVersion, omitObsolete);
+                    propertyValue = (Result as IKalturaSerializable).ToJson(currentVersion, omitObsolete, true);
                 }
                 else
                 {
@@ -47,7 +47,7 @@ namespace WebAPI.Managers.Models
             return ret;
         }
 
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
@@ -63,13 +63,13 @@ namespace WebAPI.Managers.Models
                     propertyValue = "<item>" + 
                             String.Join("</item><item>", 
                                 (Result as IEnumerable<object>).Select(item => item == null ? string.Empty : 
-                                    (item is IKalturaSerializable) ? (item as IKalturaSerializable).ToXml(currentVersion, omitObsolete) : 
+                                    (item is IKalturaSerializable) ? (item as IKalturaSerializable).ToXml(currentVersion, omitObsolete, true) : 
                                         item.ToString()))
                                     + "</item>";
                 }
                 else if (Result is IKalturaSerializable)
                 {
-                    propertyValue = (Result as IKalturaSerializable).ToXml(currentVersion, omitObsolete);
+                    propertyValue = (Result as IKalturaSerializable).ToXml(currentVersion, omitObsolete, true);
                 }
                 else if (Result is bool)
                 {

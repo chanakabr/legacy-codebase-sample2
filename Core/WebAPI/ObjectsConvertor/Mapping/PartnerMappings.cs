@@ -179,12 +179,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaUnifiedBillingCycle, UnifiedBillingCycleObject>()
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-               .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId));
+               .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
+               .ForMember(dest => dest.IgnorePartialBilling, opt => opt.MapFrom(src => src.IgnorePartialBilling));
 
             cfg.CreateMap<UnifiedBillingCycleObject, KalturaUnifiedBillingCycle>()
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-               .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId));
+               .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
+               .ForMember(dest => dest.IgnorePartialBilling, opt => opt.MapFrom(src => src.IgnorePartialBilling));
 
             cfg.CreateMap<KalturaDuration, Duration>()
               .ForMember(dest => dest.Unit, opt => opt.MapFrom(src => src.Unit))

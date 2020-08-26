@@ -4212,6 +4212,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaOnDemandResponseProfile":
+                    switch(property.Name)
+                    {
+                        case "RetrievedProperties":
+                            return "retrievedProperties";
+                    }
+                    break;
+                    
                 case "KalturaOrCondition":
                     switch(property.Name)
                     {
@@ -6841,6 +6849,8 @@ namespace WebAPI.Reflection
                     {
                         case "Duration":
                             return "duration";
+                        case "IgnorePartialBilling":
+                            return "ignorePartialBilling";
                         case "Name":
                             return "name";
                         case "PaymentGatewayId":
@@ -10831,7 +10841,7 @@ namespace WebAPI.Reflection
                     {
                         case "add":
                             RolesManager.ValidateActionPermitted("userLoginPin", "add", false);
-                            return UserLoginPinController.Add((string) methodParams[0], (Nullable<int>) methodParams[1], (Nullable<long>) methodParams[2]);
+                            return UserLoginPinController.Add((string) methodParams[0], (Nullable<int>) methodParams[1], (Nullable<int>) methodParams[2]);
                             
                         case "delete":
                             RolesManager.ValidateActionPermitted("userLoginPin", "delete", false);
@@ -10843,7 +10853,7 @@ namespace WebAPI.Reflection
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("userLoginPin", "update", false);
-                            return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1], (Nullable<int>) methodParams[2], (Nullable<long>) methodParams[3]);
+                            return UserLoginPinController.Update((string) methodParams[0], (string) methodParams[1], (Nullable<int>) methodParams[2], (Nullable<int>) methodParams[3]);
                             
                     }
                     break;
@@ -19297,7 +19307,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
-                                Type = typeof(Int64),
+                                Type = typeof(Int32),
                             });
                             return ret;
                             
@@ -19348,7 +19358,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsNullable = true,
-                                Type = typeof(Int64),
+                                Type = typeof(Int32),
                             });
                             return ret;
                             

@@ -1208,6 +1208,9 @@ namespace WebAPI.Reflection
                 case "KalturaObjectVirtualAssetPartnerConfig":
                     return new KalturaObjectVirtualAssetPartnerConfig(parameters);
                     
+                case "KalturaOnDemandResponseProfile":
+                    return new KalturaOnDemandResponseProfile(parameters);
+                    
                 case "KalturaOrCondition":
                     return new KalturaOrCondition(parameters);
                     
@@ -7492,6 +7495,19 @@ namespace WebAPI.Models.General
                         IdSchemaProperty.Validate("Id", parameters["Id"]);
                     }
                     Id = (String) Convert.ChangeType(parameters["Id"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaOnDemandResponseProfile
+    {
+        public KalturaOnDemandResponseProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("retrievedProperties") && parameters["retrievedProperties"] != null)
+                {
+                    RetrievedProperties = (String) Convert.ChangeType(parameters["retrievedProperties"], typeof(String));
                 }
             }
         }
@@ -26538,6 +26554,10 @@ namespace WebAPI.Models.Partner
                         PaymentGatewayIdSchemaProperty.Validate("paymentGatewayId", parameters["paymentGatewayId"]);
                     }
                     PaymentGatewayId = (Int32) Convert.ChangeType(parameters["paymentGatewayId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("ignorePartialBilling") && parameters["ignorePartialBilling"] != null)
+                {
+                    IgnorePartialBilling = (Boolean) Convert.ChangeType(parameters["ignorePartialBilling"], typeof(Boolean));
                 }
             }
         }

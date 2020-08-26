@@ -293,7 +293,7 @@ namespace Core.ConditionalAccess
             try
             {
                 var renewDuration = new Duration(renewUsageModule);
-                if (subscriptionCycle.HasCycle && subscriptionCycle.SubscriptionLifeCycle.Unit == renewDuration.Unit && subscriptionCycle.SubscriptionLifeCycle.Value == renewDuration.Value)
+                if (subscriptionCycle.HasCycle && subscriptionCycle.SubscriptionLifeCycle.Equals(renewDuration))
                 {
                     unifiedProcess = GetRenewalProcessId(groupId, householdId, paymentGatewayId, renewUsageModule);
 

@@ -29,9 +29,9 @@ namespace WebAPI.Models.Upload
     {
         internal override void Validate(KalturaOTTFile fileData)
         {
-            if (!fileData.path.EndsWith(ExcelFormatterConsts.EXCEL_EXTENTION))
+            if (!fileData.name.EndsWith(ExcelFormatterConsts.EXCEL_EXTENTION))
             {
-                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "fileData.path");
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "fileData.name");
             }
         }
     }
