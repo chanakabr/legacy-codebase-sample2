@@ -7740,6 +7740,10 @@ namespace WebAPI.Reflection
                 case "campaign":
                     switch(action)
                     {
+                        case "dispatch":
+                            RolesManager.ValidateActionPermitted("campaign", "dispatch", false);
+                            return CampaignController.Dispatch((long) methodParams[0]);
+                            
                         case "add":
                             RolesManager.ValidateActionPermitted("campaign", "add");
                             return CampaignController.Add((KalturaCampaign) methodParams[0]);
@@ -12902,6 +12906,13 @@ namespace WebAPI.Reflection
                 case "campaign":
                     switch(action)
                     {
+                        case "dispatch":
+                            ret.Add("campaignId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
                         case "add":
                             ret.Add("objectToAdd", new MethodParam(){
                                 NewName = newParamName,
