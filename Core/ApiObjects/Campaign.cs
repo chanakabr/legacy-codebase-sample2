@@ -6,18 +6,36 @@ namespace ApiObjects
 {
     public abstract class Campaign : ICrudHandeledObject
     {
+        [DBFieldMapping("ID")]
         public long Id { get; set; }
+        
+        [DBFieldMapping("group_id")]
         public long GroupId { get; set; }
+        
+        [DBFieldMapping("create_date")]
         public long CreateDate { get; set; }
+        
         public long UpdateDate { get; set; }
+        
         public string Name { get; set; }
+        
         public string SystemName { get; set; }
+        
         public string Description { get; set; }
+
+        [DBFieldMapping("is_active")]
         public bool IsActive { get; set; }
+        
         public long? DiscountModuleId { get; set; }
+        
         public string Message { get; set; }
+        
         public List<KeyValuePair<string, string>> DaynamicData { get; set; }
+
+        [DBFieldMapping("start_date")]
         public long StartDate { get; set; }
+
+        [DBFieldMapping("end_date")]
         public long EndDate { get; set; }
 
         public Campaign()
@@ -88,6 +106,10 @@ namespace ApiObjects
         public string Action { get; set; }
         public string CoreObject { get; set; }//TODO SHIR, INIT
         public string CoreAction { get; set; }//TODO SHIR
+            
+        [DBFieldMapping("campaign_json")]
+        public string CampaignJson { get; set; }
+        
         public string EventNotification { get; set; }//Json
 
         public bool Evaluate(CoreObject coreObject)

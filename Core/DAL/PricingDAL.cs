@@ -1840,107 +1840,49 @@ namespace DAL
         }
 
 
-        public static bool Update_Campaign<T>(T campaign) where T : Campaign
+        public static bool Update_Campaign<T>(T campaign) where T : Campaign, new()
         {
             var sp = new StoredProcedure("Update_Campaign");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", campaign.GroupId);
             sp.AddParameter("@id", campaign.Id);
-            sp.AddParameter("@updateDate", campaign.UpdateDate);
             sp.AddParameter("@isActive", campaign.IsActive);
-            //sp.AddParameter("@status", campaign.Status);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        // TODO MATAN delete Get_Campaign
+        // TODO MATAN TBD: delete Get_Campaign
         public static TriggerCampaign Get_Campaign(ContextData contextData, long campaignId)
         {
-            TriggerCampaign campaign = null;
             var sp = new StoredProcedure("Get_Campaign");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", contextData.GroupId);
             sp.AddParameter("@id", campaignId);
-            DataSet ds = sp.ExecuteDataSet();
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                var dt = ds.Tables[0];
-                campaign = new TriggerCampaign
-                {
-                    Id = Utils.GetLongSafeVal(dt.Rows[0]["id"]),
-                    GroupId = Utils.GetLongSafeVal(dt.Rows[0]["group_id"]),
-                    IsActive = Utils.GetLongSafeVal(dt.Rows[0]["is_active"]) == 1,
-                    CreateDate = Utils.GetLongSafeVal(dt.Rows[0]["create_date"]),
-                    UpdateDate = Utils.GetLongSafeVal(dt.Rows[0]["update_date"]),
-                    CoreObject = Utils.GetSafeStr(dt.Rows[0]["campaign_json"]) // this is not true, campaign_json is the all campaign object and not only the core object
-                };
-            }
-
-            return campaign;
+            return sp.ExecuteDataSet().Tables[0].ToList<TriggerCampaign>().FirstOrDefault();
         }
 
         public static List<TriggerCampaign> List_Campaign(ContextData contextData)
         {
-            List<TriggerCampaign> campaigns = null;
             var sp = new StoredProcedure("List_Campaign");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", contextData.GroupId);
-            DataSet ds = sp.ExecuteDataSet();
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                campaigns = new List<TriggerCampaign>();
-                var dt = ds.Tables[0];
-                foreach (DataRow row in dt.Rows)
-                {
-                    campaigns.Add(new TriggerCampaign
-                    {
-                        Id = Utils.GetLongSafeVal(row["id"]),
-                        GroupId = Utils.GetLongSafeVal(row["group_id"]),
-                        IsActive = Utils.GetLongSafeVal(row["is_active"]) == 1,
-                        CreateDate = Utils.GetLongSafeVal(row["create_date"]),
-                        UpdateDate = Utils.GetLongSafeVal(row["update_date"]),
-                        CoreObject = Utils.GetSafeStr(row["campaign_json"])
-                    });
-                }
-            }
-
-            return campaigns;
+            return sp.ExecuteDataSet().Tables[0].ToList<TriggerCampaign>();
         }
 
 
-        public static T AddCampaign<T>(T campaign) where T : Campaign
+        public static T AddCampaign<T>(T campaign) where T : Campaign, new()
         {
-            var campaignToAdd = default(T);
             var sp = new StoredProcedure("Insert_Campaign");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", campaign.GroupId);
             sp.AddParameter("@createDate", campaign.CreateDate);
-            sp.AddParameter("@updateDate", campaign.UpdateDate);
-            sp.AddParameter("@isActive", campaign.IsActive);
-            //sp.AddParameter("@status", campaign.Status);
+            sp.AddParameter("@startDate", campaign.UpdateDate);
+            sp.AddParameter("@endDate", campaign.UpdateDate);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
-            DataSet ds = sp.ExecuteDataSet();
-
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                if (ds.Tables[0].Rows != null && ds.Tables[0].Rows?.Count > 0)
-                {
-                    DataRow dr = ds.Tables[0].Rows[0];
-                    // TODO MATAN - DESIREALIZE CAMPAIGN
-                    campaignToAdd.Id = Utils.GetLongSafeVal(dr, "ID");
-                    campaignToAdd.CreateDate = Utils.GetLongSafeVal(dr, "CREATE_DATE");
-                    campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
-                }
-            }
-
-            return campaignToAdd;
+            return sp.ExecuteDataSet().Tables[0].ToList<T>().FirstOrDefault();
         }
-
-        // TODO MATAN - UpdateCampaign
 
         public static bool SaveNotificationCampaignAction(ContextData contextData, TriggerCampaign campaignToAdd)
         {

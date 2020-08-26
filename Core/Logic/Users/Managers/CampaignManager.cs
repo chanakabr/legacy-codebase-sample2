@@ -277,7 +277,6 @@ namespace ApiLogic.Users.Managers
         /// <param name="campaignToUpdate"></param>
         private void FillCampaignTriggerObject(TriggerCampaign campaign, TriggerCampaign campaignToUpdate)
         {
-            //TODO - Matan
             if (string.IsNullOrEmpty(campaignToUpdate.Action))
             {
                 campaignToUpdate.Action = campaign.Action;
