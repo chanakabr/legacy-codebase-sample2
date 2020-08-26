@@ -162,9 +162,4 @@ namespace ApiObjects
         //    }
         //}
     }
-
-    public class CampaignFilter : ICrudFilter
-    {
-
-    }
 }

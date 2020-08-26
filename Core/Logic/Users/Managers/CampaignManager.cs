@@ -64,6 +64,17 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
+        public GenericListResponse<TriggerCampaign> ListTriggerCampaigns(ContextData contextData, TriggerCampaignFilter filter, CorePager pager = null)
+        {
+            if (pager == null)
+            {
+                pager = new CorePager();
+            }
+
+            // TODO SHIR / MATAN - ListTriggerCampaigns WHEN ODED WILL FINISH WITH SPEC
+            return new GenericListResponse<TriggerCampaign>();
+        }
+
         public GenericResponse<Campaign> AddTriggerCampaign(ContextData contextData, TriggerCampaign campaignToAdd)
         {
             var response = new GenericResponse<Campaign>();
@@ -71,45 +82,45 @@ namespace ApiLogic.Users.Managers
             {
                 // TODO SHIR what else need to be validate??
                 campaignToAdd.GroupId = contextData.GroupId;
+                campaignToAdd.IsActive = false;
 
+                //TODO SHIR  set filter 
+                var triggerCampaignFilter = new TriggerCampaignFilter();
+                var triggerCampaigns = ListTriggerCampaigns(contextData, triggerCampaignFilter);
+                if (triggerCampaigns.HasObjects() && triggerCampaigns.Objects.Count >= MAX_TRIGGER_CAMPAIGNS)
+                {
+                    // TODO SHIR ERROR FOR limit to 500 per group
+                }
 
                 if (campaignToAdd.DiscountModuleId.HasValue)
                 {
                     var discounts = Core.Pricing.Module.GetValidDiscounts(contextData.GroupId);
-                    if (!discounts.HasObjects())
-                    {
-                        // TODO SHIR ERROR FOR NO GROUP DISCOUNT
-                    }
-
-                    if (!discounts.Objects.Any(x => x.Id == campaignToAdd.DiscountModuleId.Value))
+                    if (!discounts.HasObjects() || !discounts.Objects.Any(x => x.Id == campaignToAdd.DiscountModuleId.Value))
                     {
                         response.SetStatus(eResponseStatus.DiscountCodeNotExist);
                         return response;
                     }
                 }
 
-                //TODO SHIR  get list count of all, limit to 500 per group
-
-                campaignToAdd.IsActive = false;
-
                 var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd);
-
                 if (insertedCampaign?.Id > 0)
                 {
-                    campaignToAdd.Id = insertedCampaign.Id;
-                    campaignToAdd.CreateDate = insertedCampaign.CreateDate;
-                    campaignToAdd.UpdateDate = insertedCampaign.UpdateDate;
-
+                    campaignToAdd = insertedCampaign;
                     var campaignEvent = PricingDAL.GetCampaignEventNotification(contextData, campaignToAdd);
-
-                    SetCampaignIdToEvent(campaignToAdd);
-
-                    if (!PricingDAL.SaveNotificationCampaignAction(contextData, campaignToAdd))
+                    if (string.IsNullOrEmpty(campaignEvent))
                     {
-                        var message = $"Failed adding Notification Campaign Action, campaign Id: {campaignToAdd.Id}";
-                        log.Error($"{message}, contextData: {contextData}");
-                        response.SetStatus(eResponseStatus.Error, message);
-                        return response;
+                        SetCampaignIdToEvent(campaignToAdd);
+                        if (!PricingDAL.SaveNotificationCampaignAction(contextData, campaignToAdd))
+                        {
+                            var message = $"Failed adding Notification Campaign Action, campaign Id: {campaignToAdd.Id}";
+                            log.Error($"{message}, contextData: {contextData}");
+                            response.SetStatus(eResponseStatus.Error, message);
+                            return response;
+                        }
+                    }
+                    else
+                    {
+
                     }
 
                     response.Object = campaignToAdd;
@@ -117,7 +128,9 @@ namespace ApiLogic.Users.Managers
                     response.SetStatus(eResponseStatus.OK);
                 }
                 else
-                    response.SetStatus(eResponseStatus.Error, $"Error saving TriggerCampaign: [{campaignToAdd.Name}] for group: {contextData.GroupId}");
+                {
+                    response.SetStatus(eResponseStatus.Error, $"Error while saving TriggerCampaign");
+                }
             }
             catch (Exception ex)
             {
@@ -391,6 +404,7 @@ namespace ApiLogic.Users.Managers
             val["CampaignId"] = triggerCampaign.Id;
             triggerCampaign.EventNotification = _object.ToString();
         }
+
 
         /// <summary>
         /// Replace json event status
