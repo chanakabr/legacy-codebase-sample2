@@ -69,6 +69,7 @@
         public const string MailerHttpClientConfiguration = "mailer_http_client_configuration";
         public const string Stub = "Stub";   
         public const string EPGIngestV2Configuration = "epg_ingest_v2";
+        public const string KafkaClientConfiguration = "kafka_client_configuration";
         public const string HealthCheckConfiguration = "health_check";
         public const string IotConfiguration = "iot_configuration";
         public const string UdidUsageConfiguration = "udid_usage";

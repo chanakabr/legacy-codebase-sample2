@@ -159,6 +159,16 @@ namespace ApiObjects
 
             return 0;
         }
+
+        public bool Equals(Duration other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            return (this.Value == other.Value) && (this.Unit == other.Unit);
+        }
     }
 
     public enum DurationUnit

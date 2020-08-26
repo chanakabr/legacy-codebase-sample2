@@ -65,6 +65,8 @@ namespace Reflector
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Managers;");
             file.WriteLine("using TVinciShared;");
+            file.WriteLine("using WebAPI.Utils;");
+
         }
 
         protected override void writeBody()
@@ -144,22 +146,39 @@ namespace Reflector
 
         private void writePartialClass(Type type)
         {
-            file.WriteLine("    public partial class " + GetTypeName(type, true));
+            string typeName = GetTypeName(type, true);
+            file.WriteLine("    public partial class " + typeName);
             file.WriteLine("    {");
-            file.WriteLine("        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)");
+            file.WriteLine("        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)");
             file.WriteLine("        {");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
-            file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);");
-            file.WriteLine("            string propertyValue;");
+            file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);");
+            file.WriteLine("            string propertyValue = null;");
+            if (typeName != "KalturaListResponse")
+            {
+                file.WriteLine("            IEnumerable<string> retrievedProperties = null;");
+                file.WriteLine("            if (responseProfile)");
+                file.WriteLine("            {");
+                file.WriteLine("                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();");
+                file.WriteLine("            }");
+            }
             writeSerializeTypeProperties(type, SerializeType.JSON);
             file.WriteLine("            return ret;");
             file.WriteLine("        }");
             file.WriteLine("        ");
-            file.WriteLine("        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)");
+            file.WriteLine("        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)");
             file.WriteLine("        {");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
-            file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);");
+            file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);");
             file.WriteLine("            string propertyValue;");
+            if (typeName != "KalturaListResponse")
+            {
+                file.WriteLine("            IEnumerable<string> retrievedProperties = null;");
+                file.WriteLine("            if (responseProfile)");
+                file.WriteLine("            {");
+                file.WriteLine("                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();");
+                file.WriteLine("            }");
+            }
             writeSerializeTypeProperties(type, SerializeType.XML);
             file.WriteLine("            return ret;");
             file.WriteLine("        }");
@@ -298,6 +317,12 @@ namespace Reflector
                     conditions.Add(string.Format("(requestType != RequestType.READ || RolesManager.IsPropertyPermitted(\"{0}\", \"{1}\", requestType.Value))", type.Name, propertyName));
                 }
 
+                // responseProfile 
+                if (propertyName != "TotalCount" && property.DeclaringType.BaseType.Name != "KalturaListResponse" && propertyName != "Metas" && propertyName != "Tags")
+                {
+                    conditions.Add("(retrievedProperties == null || retrievedProperties.Contains(\"" + dataMember.Name + "\"))");
+                }
+
                 if (conditions.Count > 0)
                 {
                     tab = "    ";
@@ -349,21 +374,58 @@ namespace Reflector
                         }
                         break;
 
-                    case PropertyType.ARRAY:
+                    case PropertyType.ARRAY: 
                         if (serializeType == SerializeType.JSON)
                         {
-                            file.WriteLine(tab + "            propertyValue = \"[\" + String.Join(\", \", " + propertyName + ".Select(item => item.ToJson(currentVersion, omitObsolete))) + \"]\";");
+                            if (property.DeclaringType.BaseType.Name == "KalturaListResponse")
+                            {
+                                file.WriteLine(tab + "            propertyValue = \"[\" + String.Join(\", \", " + propertyName + ".Select(item => item.ToJson(currentVersion, omitObsolete, true))) + \"]\";");
+                            }
+                            else
+                            {
+                                file.WriteLine(tab + "            propertyValue = \"[\" + String.Join(\", \", " + propertyName + ".Select(item => item.ToJson(currentVersion, omitObsolete))) + \"]\";");
+
+                            }
                         }
                         else
                         {
-                            file.WriteLine(tab + "            propertyValue = " + propertyName + ".Count > 0 ? \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToXml(currentVersion, omitObsolete))) + \"</item>\": \"\";");
+                            if (property.DeclaringType.BaseType.Name == "KalturaListResponse")
+                            {
+                                file.WriteLine(tab + "            propertyValue = " + propertyName + ".Count > 0 ? \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToXml(currentVersion, omitObsolete, true))) + \"</item>\": \"\";");
+                            }
+                            else
+                            {
+                                file.WriteLine(tab + "            propertyValue = " + propertyName + ".Count > 0 ? \"<item>\" + String.Join(\"</item><item>\", " + propertyName + ".Select(item => item.ToXml(currentVersion, omitObsolete))) + \"</item>\": \"\";");
+                            }
                         }
                         break;
 
-                    case PropertyType.MAP:
+                    case PropertyType.MAP: //TODO: irena - case sensitivity 
                         if (serializeType == SerializeType.JSON)
                         {
-                            file.WriteLine(tab + "            propertyValue = \"{\" + String.Join(\", \", " + propertyName + ".Select(pair => \"\\\"\" + pair.Key + \"\\\": \" + pair.Value.ToJson(currentVersion, omitObsolete))) + \"}\";");
+                            if (propertyName == "Metas" || propertyName == "Tags")
+                            {
+                                // filter metas / tags from profile 
+                                file.WriteLine(tab + "            propertyValue = null;");
+                                file.WriteLine(tab + "            if (retrievedProperties != null && !retrievedProperties.Contains(\"" + dataMember.Name + "\"))");
+                                file.WriteLine(tab + "            {");
+                                file.WriteLine(tab + "                  var valuesToFilter = retrievedProperties.Where(rp => rp.StartsWith(\"" + dataMember.Name + ".\")).Select(p => p.Replace(\"" + dataMember.Name + ".\", \"\"));");
+                                file.WriteLine(tab + "                  var filteredValues = " + propertyName + ".Where(pair => valuesToFilter.Contains(pair.Key));");
+                                file.WriteLine(tab + "                  if (valuesToFilter.Any())");
+                                file.WriteLine(tab + "                  {");
+                                file.WriteLine(tab + "                      propertyValue = \"{\" + String.Join(\", \", filteredValues.Select(pair => \"\\\"\" + pair.Key + \"\\\": \" + pair.Value.ToJson(currentVersion, omitObsolete))) + \"}\";");
+                                file.WriteLine(tab + "                  }");
+                                file.WriteLine(tab + "            }");
+                                file.WriteLine(tab + "            else");
+                                file.WriteLine(tab + "            {");
+                                file.WriteLine(tab + "                  propertyValue = \"{\" + String.Join(\", \", " + propertyName + ".Select(pair => \"\\\"\" + pair.Key + \"\\\": \" + pair.Value.ToJson(currentVersion, omitObsolete))) + \"}\";");
+                                file.WriteLine(tab + "            }");
+                            }
+                            else
+                            {
+                                file.WriteLine(tab + "            propertyValue = \"{\" + String.Join(\", \", " + propertyName + ".Select(pair => \"\\\"\" + pair.Key + \"\\\": \" + pair.Value.ToJson(currentVersion, omitObsolete))) + \"}\";");
+
+                            }
                         }
                         else
                         {
@@ -395,7 +457,17 @@ namespace Reflector
                     }
                     else
                     {
-                        file.WriteLine(tab + "            ret.Add(\"" + dataMember.Name + "\", \"\\\"" + dataMember.Name + "\\\": \" + " + value + ");");
+                        if (propertyName == "Metas" || propertyName == "Tags")
+                        {
+                            file.WriteLine(tab + "            if(propertyValue != null)");
+                            file.WriteLine(tab + "            {");
+                            file.WriteLine(tab + "               ret.Add(\"" + dataMember.Name + "\", \"\\\"" + dataMember.Name + "\\\": \" + " + value + ");");
+                            file.WriteLine(tab + "            }");
+                        }
+                        else
+                        {
+                            file.WriteLine(tab + "            ret.Add(\"" + dataMember.Name + "\", \"\\\"" + dataMember.Name + "\\\": \" + " + value + ");");
+                        }
                     }
                 }
                 else

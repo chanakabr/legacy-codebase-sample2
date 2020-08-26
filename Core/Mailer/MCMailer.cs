@@ -49,7 +49,7 @@ namespace Mailer
                 string mcURL = ApplicationConfiguration.Current.MailerConfiguration.MCURL.Value;
                 string sResp = Utils.SendPostHttpReq(mcURL, json);
 
-                log.DebugFormat("mailurl={0} response={1} ", mcURL + " key:" + mcObj.key, sResp);
+                log.DebugFormat("mailurl={0} response={1} ", mcURL + " key:" + mcObj.key, log.MaskPersonalInformation(sResp));
                 if (sResp.Contains("sent"))
                 {
                     retVal = true;
