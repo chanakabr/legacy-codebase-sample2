@@ -688,7 +688,7 @@ namespace Core.Users
                             bRemove = true;
                             device.m_domainID = nDomainID;
                             device.m_state = DeviceState.Activated;
-                            int deviceID = device.Save(1, 1, tempDeviceID, device.ExternalId);
+                            int deviceID = device.Save(1, 1, tempDeviceID, device.MacAddress, device.ExternalId);
                             GetDeviceList();
 
                             return eRetVal;
@@ -721,7 +721,7 @@ namespace Core.Users
             {
                 // Get row id from devices table (not udid)
                 device.m_domainID = nDomainID;
-                int deviceID = device.Save(1, 1, null, device.ExternalId);
+                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId);
                 DomainDevice domainDevice = new DomainDevice()
                 {
                     Id = nDbDomainDeviceID,
@@ -2214,7 +2214,7 @@ namespace Core.Users
 
             // Get row id from devices table (not udid)
             device.m_domainID = this.m_nDomainID;
-            deviceID = device.Save(0, 3, null, device.ExternalId);
+            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId);
             bRemoveDomain = true;
 
             string sActivationToken = Guid.NewGuid().ToString();
