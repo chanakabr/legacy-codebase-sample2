@@ -233,7 +233,7 @@ namespace APILogic.ConditionalAccess
 
         public List<long> GetCampaignBrands(int groupId, string userId, long campaignId)
         {
-            //TODO MATAN
+            //TODO MATAN OR SHIR
             int.TryParse(userId, out int _userId);
             var contextData = new ContextData(groupId) { UserId = _userId };
             var campaign = CampaignManager.Instance.Get(contextData, campaignId);
