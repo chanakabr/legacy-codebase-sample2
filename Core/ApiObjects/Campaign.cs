@@ -42,7 +42,7 @@ namespace ApiObjects
         {
         }
 
-        [JsonProperty(PropertyName = "DiscountConditions",
+        [JsonProperty(PropertyName = "discountConditions",
                       TypeNameHandling = TypeNameHandling.Auto,
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
@@ -96,7 +96,7 @@ namespace ApiObjects
 
     public class TriggerCampaign : Campaign
     {
-        [JsonProperty(PropertyName = "TriggerConditions",
+        [JsonProperty(PropertyName = "triggerConditions",
                       TypeNameHandling = TypeNameHandling.Auto,
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
@@ -110,8 +110,6 @@ namespace ApiObjects
         [DBFieldMapping("campaign_json")]
         public string CampaignJson { get; set; }
         
-        //public string EventNotification { get; set; }//Json
-
         public bool Evaluate(CoreObject coreObject)
         {
             return true;

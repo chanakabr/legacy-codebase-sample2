@@ -379,4 +379,20 @@ namespace ApiObjects.Rules
             return brands != null && brands.Contains(scope.BrandId.Value);
         }
     }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class DeviceFamilyTriggerCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    {
+        public DeviceFamilyTriggerCondition()
+        {
+            Type = RuleConditionType.Campaign;
+        }
+
+        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
+        {
+            if (!scope.Family.HasValue) { return false; }
+            return true;
+        }
+    }
 }

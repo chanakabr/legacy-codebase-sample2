@@ -753,7 +753,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<AssetRuleCondition<IAssetConditionScope>, KalturaCondition>()
                .IncludeBase<RuleBaseCondition<IAssetConditionScope>, KalturaCondition>();
-
+            
             cfg.CreateMap<KalturaOrCondition, OrCondition>()
                 .IncludeBase<KalturaCondition, AssetRuleCondition<IConditionScope>>()
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
@@ -935,6 +935,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<AssetSubscriptionCondition, KalturaAssetSubscriptionCondition>()
                .IncludeBase<SubscriptionCondition<IAssetSubscriptionConditionScope>, KalturaSubscriptionCondition>();
+            
+            //Campaign conditions
+            cfg.CreateMap<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
+               .IncludeBase<KalturaCondition, RuleCondition>();
+
+            cfg.CreateMap<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
+               .IncludeBase<RuleCondition, KalturaCondition>();
+
+            cfg.CreateMap<KalturaDeviceBrandTriggerCondition, DeviceBrandTriggerCondition>()
+                .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
+                ;
+
+            cfg.CreateMap<DeviceBrandTriggerCondition, KalturaDeviceBrandTriggerCondition>()
+                .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
+                ;
+
+            cfg.CreateMap<KalturaDeviceFamilyTriggerCondition, DeviceFamilyTriggerCondition>()
+                .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
+                ;
+
+            cfg.CreateMap<DeviceFamilyTriggerCondition, KalturaDeviceFamilyTriggerCondition>()
+                .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
+                ;
 
             cfg.CreateMap<KalturaCondition, RuleBaseCondition<IUserRoleConditionScope>>()
                .IncludeBase<KalturaCondition, RuleCondition>();
@@ -950,17 +973,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<RuleBaseCondition<IUserRoleConditionScope>, KalturaCondition>()
                 .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.RoleIds)));
 
-            // TODO MATAN - SET ALL MAPPING FOR CONDITIONS
-            //cfg.CreateMap<KalturaDeviceBrandCondition, DeviceBrandTriggerCondition>()
-            //   .IncludeBase<KalturaCondition, RuleBaseCondition<IUserRoleConditionScope>>()
-            //   .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<long>, long>(src.IdIn, "KalturaUserRoleCondition.idIn", true, true)));
-
-            //cfg.CreateMap<UserRoleCondition, KalturaUserRoleCondition>()
-            //    .IncludeBase<RuleBaseCondition<IUserRoleConditionScope>, KalturaCondition>()
-            //    .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.RoleIds)));
-
-
-            cfg.CreateMap<KalturaRuleActionType, RuleActionType>()
+                cfg.CreateMap<KalturaRuleActionType, RuleActionType>()
                .ConvertUsing(kalturaRuleActionType =>
                {
                    switch (kalturaRuleActionType)
@@ -989,7 +1002,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                            return RuleActionType.ApplyFreePlayback;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown RuleAction value : {0}", kalturaRuleActionType.ToString()));
-                           break;
                    }
                });
 
@@ -1023,7 +1035,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return KalturaRuleActionType.APPLY_FREE_PLAYBACK;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ruleActionType value : {0}", ruleActionType.ToString()));
-                            break;
                     }
                 });
 
@@ -1315,13 +1326,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
-               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
-               //.ForMember(dest => dest.DiscountConditions, opt => opt.MapFrom(src => src.DiscountConditions))
-               //.IncludeBase<KalturaCondition, RuleCondition>()
-               ;
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate));
 
             cfg.CreateMap<Campaign, KalturaCampaign>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertCampaignMessages(src.DaynamicData)))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -1332,35 +1340,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
-                //.ForMember(dest => dest.DiscountConditions, opt => opt.MapFrom(src => src.DiscountConditions))
-                //.IncludeBase<RuleCondition, KalturaCondition>()
-                ;
-
-            cfg.CreateMap<KalturaBatchCampaign, BatchCampaign>()
-                .IncludeBase<KalturaCampaign, Campaign>()
-                //.IncludeBase<KalturaCondition, RuleCondition>()
-                ;
-
-            cfg.CreateMap<BatchCampaign, KalturaBatchCampaign>()
-                 .IncludeBase<Campaign, KalturaCampaign>()
-                 //.IncludeBase<RuleCondition, KalturaCondition>()
-                 ;
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate));
 
             cfg.CreateMap<KalturaTriggerCampaign, TriggerCampaign>()
-                .IncludeBase<KalturaCampaign, Campaign>()
-                //.ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
-                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
-                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
+               .IncludeBase<KalturaCampaign, Campaign>()
+               .ForMember(dest => dest.DiscountConditions, opt => opt.MapFrom(src => src.DiscountConditions))
+               .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
+               ;
 
             cfg.CreateMap<TriggerCampaign, KalturaTriggerCampaign>()
                 .IncludeBase<Campaign, KalturaCampaign>()
-                //.ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
-                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
-                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
-
-            //cfg.CreateMap<KalturaDeviceFamilyTriggerCondition, DeviceFamilyTriggerCondition>()
-            //    .IncludeBase<Campaign, KalturaCampaign>()
+                .ForMember(dest => dest.DiscountConditions, opt => opt.MapFrom(src => src.DiscountConditions))
+                .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
+                ;
 
             #endregion
 

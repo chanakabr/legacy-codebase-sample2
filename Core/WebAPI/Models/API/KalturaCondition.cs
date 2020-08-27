@@ -553,6 +553,12 @@ namespace WebAPI.Models.API
 
     public partial class KalturaDeviceBrandTriggerCondition : KalturaTriggerCondition<long>, ICampaignCondition<KalturaOTTObject>
     {
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.CAMPAIGN;
+        }
+
         public bool CheckValues(KalturaOTTObject objectToCheck)
         {
             throw new NotImplementedException();
@@ -566,6 +572,11 @@ namespace WebAPI.Models.API
 
     public partial class KalturaDeviceFamilyTriggerCondition : KalturaTriggerCondition<long>
     {
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.CAMPAIGN;
+        }
     }
 
     public partial class KalturaDeviceUdidTriggerCondition : KalturaTriggerCondition<long>
