@@ -105,6 +105,9 @@ namespace ApiLogic.Users.Managers
                     }
                 }
 
+                campaignToAdd.CreateDate = TVinciShared.DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
+                campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
+
                 var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd);
                 if (insertedCampaign?.Id > 0)
                 {
@@ -153,6 +156,9 @@ namespace ApiLogic.Users.Managers
 
                 ValidateParametersForUpdate(campaignToUpdate);
                 FillCampaignTriggerObject(campaign, campaignToUpdate);
+
+                campaignToUpdate.UpdateDate = TVinciShared.DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
+                campaignToUpdate.GroupId = contextData.GroupId;
 
                 if (PricingDAL.Update_Campaign(campaignToUpdate))
                 {

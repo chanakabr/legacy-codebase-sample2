@@ -1877,8 +1877,8 @@ namespace DAL
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", campaign.GroupId);
             sp.AddParameter("@createDate", campaign.CreateDate);
-            sp.AddParameter("@startDate", campaign.UpdateDate);
-            sp.AddParameter("@endDate", campaign.UpdateDate);
+            sp.AddParameter("@startDate", campaign.StartDate);
+            sp.AddParameter("@endDate", campaign.EndDate);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
             return sp.ExecuteDataSet().Tables[0].ToList<T>().FirstOrDefault();
