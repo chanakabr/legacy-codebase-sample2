@@ -372,32 +372,26 @@ namespace ApiLogic.Users.Managers
             // TODO SHIR - SetInvalidationKeys
         }
 
-        public void PublishTriggerCampaign(ContextData contextData, CoreObject eventObject, ApiService apiService, ApiAction apiAction)
+        public void PublishTriggerCampaign(int groupId, int domainId, CoreObject eventObject, ApiService apiService, ApiAction apiAction)
         {
-            var filter = new TriggerCampaignFilter()
+            //TODO - Shir: Check if campaign of this type is allowed for group
+            if (1 != 1)
             {
-                Service = apiService,
-                Action = apiAction
+                return;
+            }
+
+            var serviceEvent = new CampaignTriggerEvent()
+            {
+                RequestId = KLogger.GetRequestId(),
+                GroupId = groupId,
+                EventObject = eventObject,
+                DomainId = domainId,
+                ApiAction = (int)apiAction,
+                ApiService = (int)apiService
             };
 
-            var triggerCampaigns = this.ListTriggerCampaigns(contextData, filter);
-            if (triggerCampaigns.HasObjects())
-            {
-                foreach (var triggerCampaign in triggerCampaigns.Objects)
-                {
-                    var serviceEvent = new CampaignTriggerEvent()
-                    {
-                        RequestId = KLogger.GetRequestId(),
-                        GroupId = contextData.GroupId,
-                        CampaignId = triggerCampaign.Id,
-                        EventObject = eventObject,
-                        DomainId = contextData.DomainId.Value
-                    };
-
-                    var publisher = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    publisher.Publish(serviceEvent);
-                }
-            }
+            var publisher = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+            publisher.Publish(serviceEvent);
         }
     }
 }

@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ApiObjects.Base;
 using ApiLogic.Users.Managers;
-using System.Linq;
 using System.Collections.Generic;
 using domain = Core.Domains.Module;
 using Core.Notification;
@@ -27,58 +26,83 @@ namespace CampaignHandler
         {
             try
             {
-                _Logger.Debug($"Starting CampaignTriggerHandler requestId:[{serviceEvent.RequestId}], CampaignId: [{serviceEvent.CampaignId}]");
-                var contextData = new ContextData(serviceEvent.GroupId) { UserId = serviceEvent.UserId, DomainId = serviceEvent.DomainId };
-                var campaign = CampaignManager.Instance.Get(contextData, serviceEvent.CampaignId);
-                if (campaign == null)
+                var filter = new TriggerCampaignFilter()
                 {
-                    _Logger.Info($"No campaign with Id: {serviceEvent.CampaignId} was found for group: {serviceEvent.GroupId} and domain: {serviceEvent.DomainId}");
+                    Service = (ApiService)serviceEvent.ApiService,
+                    Action = (ApiAction)serviceEvent.ApiAction
+                };
+
+                var contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId };
+                var domainUsers = domain.GetDomainUserList((int)serviceEvent.DomainId, serviceEvent.GroupId);
+
+                if (domainUsers == null || domainUsers.Count == 0)
+                {
+                    _Logger.Error($"No domain users for domain: {contextData.DomainId}, group: {contextData.GroupId}");
                     return Task.CompletedTask;
                 }
 
-                var domainUsers = domain.GetDomainUserList(serviceEvent.DomainId, serviceEvent.GroupId);
-                var triggerCampaign = campaign.Object as TriggerCampaign;
+                var triggerCampaigns = CampaignManager.Instance.ListTriggerCampaigns(contextData, filter);
 
-                if (!CampaignManager.Instance.ValidateTriggerCampaign(triggerCampaign, serviceEvent.EventObject))
+                if (!triggerCampaigns.HasObjects())
                 {
-                    _Logger.Info($"Domain: {serviceEvent.DomainId} doesn't match campaign: {serviceEvent.CampaignId}, group: {serviceEvent.GroupId}");
+                    _Logger.Error($"Error finding CampaignTriggerEvent for object: {serviceEvent.EventObject}");
                     return Task.CompletedTask;
                 }
 
-                var filter = new List<eMessageCategory> { eMessageCategory.Campaign };
+                _Logger.Debug($"Starting CampaignTriggerHandler requestId:[{serviceEvent.RequestId}], Service: [{filter.Service.ToString()}]");
 
-                Parallel.ForEach(domainUsers, user =>
+                foreach (var _triggerCampaign in triggerCampaigns.Objects)
                 {
-                    if (!int.TryParse(user, out int userId))
+                    if (!CampaignManager.Instance.ValidateTriggerCampaign(_triggerCampaign, serviceEvent.EventObject))
                     {
-                        _Logger.Info($"Incorrect user: {user} was sent to CampaignTriggerHandler");
-                        return;
+                        _Logger.Info($"Domain: {serviceEvent.DomainId} doesn't match campaign: {_triggerCampaign.Id}, group: {serviceEvent.GroupId}");
+                        continue;
                     }
 
-                    if (CampaignManager.Instance.ValidateCampaignConditionsToUser(contextData, triggerCampaign))
+                    var _filter = new List<eMessageCategory> { eMessageCategory.Campaign };
+
+                    Parallel.ForEach(domainUsers, user =>
                     {
-                        SendMessage(serviceEvent, userId, triggerCampaign, triggerCampaign.Message);
-                    }
-                });
+                        if (!int.TryParse(user, out int userId))
+                        {
+                            _Logger.Info($"Incorrect user: {user} was sent to CampaignTriggerHandler, campaign: {_triggerCampaign.Id}");
+                            return;
+                        }
+
+                        if (CampaignManager.Instance.ValidateCampaignConditionsToUser(contextData, _triggerCampaign))
+                        {
+                            AddMessageToInbox(serviceEvent, userId, _triggerCampaign);
+                        }
+                    });
+                }
 
                 return Task.FromResult(true);
             }
             catch (Exception ex)
             {
-                _Logger.Error($"An Exception occurred in CampaignTriggerHandler requestId:[{serviceEvent.RequestId}], CampaignId:[{serviceEvent.CampaignId}].", ex);
+                _Logger.Error($"An Exception occurred in CampaignTriggerHandler requestId:[{serviceEvent.RequestId}]", ex);
                 return Task.FromException(ex);
             }
         }
 
-        private void SendMessage(CampaignTriggerEvent serviceEvent, int userId, TriggerCampaign campaign, string message)
+        private void AddMessageToInbox(CampaignTriggerEvent serviceEvent, int userId, TriggerCampaign campaign)
         {
+            //Check if user has this campaign in his inbox
+            var inboxMessage = DAL.NotificationDal.GetCampaignInboxMessage(serviceEvent.GroupId, userId, campaign.Id.ToString());
+
+            if (inboxMessage != null && !string.IsNullOrEmpty(inboxMessage.Id))
+            {
+                _Logger.Info($"Campaign: {campaign.Id} already assigned to user: {userId}, group: {serviceEvent.GroupId}, domain: {serviceEvent.DomainId}");
+                return;
+            }
+
             var current = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
 
             //Add to user Inbox
-            var inboxMessage = new InboxMessage
+            inboxMessage = new InboxMessage
             {
                 Id = Guid.NewGuid().ToString(),
-                Message = message,
+                Message = campaign.Message,
                 UserId = userId,
                 CreatedAtSec = current,
                 UpdatedAtSec = current,
@@ -88,14 +112,14 @@ namespace CampaignHandler
 
             var isSuccess = false;
 
-            if (!DAL.NotificationDal.SetCampaignInboxMessage(serviceEvent.GroupId, inboxMessage, serviceEvent.CampaignId,
+            if (!DAL.NotificationDal.SetCampaignInboxMessage(serviceEvent.GroupId, inboxMessage, campaign.Id,
                 NotificationSettings.GetInboxMessageTTLDays(serviceEvent.GroupId)))
             {
-                _Logger.Error($"Failed to add campaign message (campaign: {serviceEvent.CampaignId}) to User: {userId} Inbox");
+                _Logger.Error($"Failed to add campaign message (campaign: {campaign.Id}) to User: {userId} Inbox");
                 isSuccess = true;
             }
             else
-                _Logger.Debug($"Campaign message (campaign: {serviceEvent.CampaignId}) sent successfully to User: {userId} Inbox");
+                _Logger.Debug($"Campaign message (campaign: {campaign.Id}) sent successfully to User: {userId} Inbox");
 
             if (isSuccess)
                 DAL.NotificationDal.SetInboxMessageCampaignMapping(serviceEvent.GroupId, serviceEvent.UserId, campaign, inboxMessage.Id);

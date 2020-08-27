@@ -73,9 +73,7 @@ namespace Core.Users
 
             if (sucsses)
             {
-                var contextData = new ApiObjects.Base.ContextData(this.GroupId);
-                contextData.DomainId = this.DomainId;
-                ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(contextData, this, ApiService.DomainDevice, ApiAction.INSERT);
+                ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(GroupId, DomainId, this, ApiService.DomainDevice, ApiAction.INSERT);
             }
             
             return sucsses;
@@ -117,9 +115,7 @@ namespace Core.Users
 
                 if (result)
                 {
-                    var contextData = new ApiObjects.Base.ContextData(this.GroupId);
-                    contextData.DomainId = this.DomainId;
-                    ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(contextData, this, ApiService.DomainDevice, ApiAction.UPDATE);
+                    ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(GroupId, DomainId, this, ApiService.DomainDevice, ApiAction.UPDATE);
                 }
             }
             catch (Exception ex)
