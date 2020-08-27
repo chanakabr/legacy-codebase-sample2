@@ -11,6 +11,7 @@ namespace ApiObjects
 
     public class TriggerCampaignFilter : CampaignFilter
     {
-
+        public ApiService? Service { get; set; }
+        public ApiAction? Action { get; set; }
     }
 }

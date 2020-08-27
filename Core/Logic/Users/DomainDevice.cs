@@ -69,7 +69,16 @@ namespace Core.Users
                 log.ErrorFormat("Insert domain device - Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", this.DomainId, this.Udid, ex);
             }
 
-            return Id > 0;
+            var sucsses = Id > 0;
+
+            if (sucsses)
+            {
+                var contextData = new ApiObjects.Base.ContextData(this.GroupId);
+                contextData.DomainId = this.DomainId;
+                ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(contextData, this, ApiService.DomainDevice, ApiAction.INSERT);
+            }
+            
+            return sucsses;
         }
 
         protected override bool DoUpdate()
@@ -105,6 +114,13 @@ namespace Core.Users
                 oDomainCache.RemoveDomain(this.DomainId);
 
                 InvalidateDomainDevice();
+
+                if (result)
+                {
+                    var contextData = new ApiObjects.Base.ContextData(this.GroupId);
+                    contextData.DomainId = this.DomainId;
+                    ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(contextData, this, ApiService.DomainDevice, ApiAction.UPDATE);
+                }
             }
             catch (Exception ex)
             {

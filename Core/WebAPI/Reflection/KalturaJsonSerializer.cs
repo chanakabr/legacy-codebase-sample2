@@ -4665,13 +4665,29 @@ namespace WebAPI.Models.ConditionalAccess
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(BillingActionEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("billingActionEqual")))
+            {
+                ret.Add("billingActionEqual", "\"billingActionEqual\": " + "\"" + Enum.GetName(typeof(KalturaBillingAction), BillingActionEqual) + "\"");
+            }
+            if(BillingItemsTypeEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("billingItemsTypeEqual")))
+            {
+                ret.Add("billingItemsTypeEqual", "\"billingItemsTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaBillingItemsType), BillingItemsTypeEqual) + "\"");
+            }
             if(EndDateLessThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDateLessThanOrEqual")))
             {
                 ret.Add("endDateLessThanOrEqual", "\"endDateLessThanOrEqual\": " + EndDateLessThanOrEqual);
             }
+            if(EntitlementIdEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("entitlementIdEqual")))
+            {
+                ret.Add("entitlementIdEqual", "\"entitlementIdEqual\": " + EntitlementIdEqual);
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("entityReferenceEqual")))
             {
                 ret.Add("entityReferenceEqual", "\"entityReferenceEqual\": " + "\"" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "\"");
+            }
+            if(ExternalIdEqual != null && (retrievedProperties == null || retrievedProperties.Contains("externalIdEqual")))
+            {
+                ret.Add("externalIdEqual", "\"externalIdEqual\": " + "\"" + EscapeJson(ExternalIdEqual) + "\"");
             }
             if(StartDateGreaterThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateGreaterThanOrEqual")))
             {
@@ -4691,13 +4707,29 @@ namespace WebAPI.Models.ConditionalAccess
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(BillingActionEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("billingActionEqual")))
+            {
+                ret.Add("billingActionEqual", "<billingActionEqual>" + "" + Enum.GetName(typeof(KalturaBillingAction), BillingActionEqual) + "" + "</billingActionEqual>");
+            }
+            if(BillingItemsTypeEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("billingItemsTypeEqual")))
+            {
+                ret.Add("billingItemsTypeEqual", "<billingItemsTypeEqual>" + "" + Enum.GetName(typeof(KalturaBillingItemsType), BillingItemsTypeEqual) + "" + "</billingItemsTypeEqual>");
+            }
             if(EndDateLessThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDateLessThanOrEqual")))
             {
                 ret.Add("endDateLessThanOrEqual", "<endDateLessThanOrEqual>" + EndDateLessThanOrEqual + "</endDateLessThanOrEqual>");
             }
+            if(EntitlementIdEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("entitlementIdEqual")))
+            {
+                ret.Add("entitlementIdEqual", "<entitlementIdEqual>" + EntitlementIdEqual + "</entitlementIdEqual>");
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("entityReferenceEqual")))
             {
                 ret.Add("entityReferenceEqual", "<entityReferenceEqual>" + "" + Enum.GetName(typeof(KalturaEntityReferenceBy), EntityReferenceEqual) + "" + "</entityReferenceEqual>");
+            }
+            if(ExternalIdEqual != null && (retrievedProperties == null || retrievedProperties.Contains("externalIdEqual")))
+            {
+                ret.Add("externalIdEqual", "<externalIdEqual>" + EscapeXml(ExternalIdEqual) + "</externalIdEqual>");
             }
             if(StartDateGreaterThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateGreaterThanOrEqual")))
             {
@@ -10325,10 +10357,6 @@ namespace WebAPI.Models.Notification
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(CampaignId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("campaignId")))
-            {
-                ret.Add("campaignId", "\"campaignId\": " + CampaignId);
-            }
             if((retrievedProperties == null || retrievedProperties.Contains("createdAt")))
             {
                 ret.Add("createdAt", "\"createdAt\": " + CreatedAt);
@@ -10367,10 +10395,6 @@ namespace WebAPI.Models.Notification
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(CampaignId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("campaignId")))
-            {
-                ret.Add("campaignId", "<campaignId>" + CampaignId + "</campaignId>");
-            }
             if((retrievedProperties == null || retrievedProperties.Contains("createdAt")))
             {
                 ret.Add("createdAt", "<createdAt>" + CreatedAt + "</createdAt>");
@@ -19641,46 +19665,6 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaBatchCampaign
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(PopulationConditions != null && (retrievedProperties == null || retrievedProperties.Contains("populationConditions")))
-            {
-                propertyValue = "[" + String.Join(", ", PopulationConditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("populationConditions", "\"populationConditions\": " + propertyValue);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(PopulationConditions != null && (retrievedProperties == null || retrievedProperties.Contains("populationConditions")))
-            {
-                propertyValue = PopulationConditions.Count > 0 ? "<item>" + String.Join("</item><item>", PopulationConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("populationConditions", "<populationConditions>" + propertyValue + "</populationConditions>");
-            }
-            return ret;
-        }
-    }
     public partial class KalturaBusinessModuleCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -19892,212 +19876,6 @@ namespace WebAPI.Models.API
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
-            return ret;
-        }
-    }
-    public partial class KalturaCampaign
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
-            {
-                ret.Add("createDate", "\"createDate\": " + CreateDate);
-            }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
-            {
-                ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
-            }
-            if(DiscountConditions != null && (retrievedProperties == null || retrievedProperties.Contains("discountConditions")))
-            {
-                propertyValue = "[" + String.Join(", ", DiscountConditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("discountConditions", "\"discountConditions\": " + propertyValue);
-            }
-            if(DiscountModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountModuleId")))
-            {
-                ret.Add("discountModuleId", "\"discountModuleId\": " + DiscountModuleId);
-            }
-            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
-            {
-                propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
-                ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("endDate")))
-            {
-                ret.Add("endDate", "\"endDate\": " + EndDate);
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("id")))
-            {
-                ret.Add("id", "\"id\": " + Id);
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("isActive")))
-            {
-                ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
-            }
-            if(Message != null && (retrievedProperties == null || retrievedProperties.Contains("message")))
-            {
-                ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
-            }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
-            {
-                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("startDate")))
-            {
-                ret.Add("startDate", "\"startDate\": " + StartDate);
-            }
-            if(SystemName != null && (retrievedProperties == null || retrievedProperties.Contains("systemName")))
-            {
-                ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(SystemName) + "\"");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
-            {
-                ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
-            {
-                ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
-            }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
-            {
-                ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
-            }
-            if(DiscountConditions != null && (retrievedProperties == null || retrievedProperties.Contains("discountConditions")))
-            {
-                propertyValue = DiscountConditions.Count > 0 ? "<item>" + String.Join("</item><item>", DiscountConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("discountConditions", "<discountConditions>" + propertyValue + "</discountConditions>");
-            }
-            if(DiscountModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountModuleId")))
-            {
-                ret.Add("discountModuleId", "<discountModuleId>" + DiscountModuleId + "</discountModuleId>");
-            }
-            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
-            {
-                propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
-                ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("endDate")))
-            {
-                ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("id")))
-            {
-                ret.Add("id", "<id>" + Id + "</id>");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("isActive")))
-            {
-                ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
-            }
-            if(Message != null && (retrievedProperties == null || retrievedProperties.Contains("message")))
-            {
-                ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
-            }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
-            {
-                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("startDate")))
-            {
-                ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
-            }
-            if(SystemName != null && (retrievedProperties == null || retrievedProperties.Contains("systemName")))
-            {
-                ret.Add("systemName", "<systemName>" + EscapeXml(SystemName) + "</systemName>");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
-            {
-                ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaCampaignFilter
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(DiscountModuleIdApplied.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountModuleIdApplied")))
-            {
-                ret.Add("discountModuleIdApplied", "\"discountModuleIdApplied\": " + DiscountModuleIdApplied);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(DiscountModuleIdApplied.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountModuleIdApplied")))
-            {
-                ret.Add("discountModuleIdApplied", "<discountModuleIdApplied>" + DiscountModuleIdApplied + "</discountModuleIdApplied>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaCampaignListResponse
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
             return ret;
         }
     }
@@ -21049,36 +20827,6 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaDeviceBrandTriggerCondition
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-    }
     public partial class KalturaDeviceFamilyListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -21116,126 +20864,6 @@ namespace WebAPI.Models.API
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceFamilyTriggerCondition
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceManufacturerTriggerCondition
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceModelTriggerCondition
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceUdidTriggerCondition
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
             return ret;
         }
     }
@@ -26116,100 +25744,6 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaTriggerCampaign
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(Action != null && (retrievedProperties == null || retrievedProperties.Contains("action")))
-            {
-                ret.Add("action", "\"action\": " + "\"" + EscapeJson(Action) + "\"");
-            }
-            if(Service != null && (retrievedProperties == null || retrievedProperties.Contains("service")))
-            {
-                ret.Add("service", "\"service\": " + "\"" + EscapeJson(Service) + "\"");
-            }
-            if(TriggerConditions != null && (retrievedProperties == null || retrievedProperties.Contains("triggerConditions")))
-            {
-                propertyValue = "[" + String.Join(", ", TriggerConditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("triggerConditions", "\"triggerConditions\": " + propertyValue);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(Action != null && (retrievedProperties == null || retrievedProperties.Contains("action")))
-            {
-                ret.Add("action", "<action>" + EscapeXml(Action) + "</action>");
-            }
-            if(Service != null && (retrievedProperties == null || retrievedProperties.Contains("service")))
-            {
-                ret.Add("service", "<service>" + EscapeXml(Service) + "</service>");
-            }
-            if(TriggerConditions != null && (retrievedProperties == null || retrievedProperties.Contains("triggerConditions")))
-            {
-                propertyValue = TriggerConditions.Count > 0 ? "<item>" + String.Join("</item><item>", TriggerConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("triggerConditions", "<triggerConditions>" + propertyValue + "</triggerConditions>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaTriggerCondition<T>
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(ValueIn != null && (retrievedProperties == null || retrievedProperties.Contains("valueIn")))
-            {
-                ret.Add("valueIn", "\"valueIn\": " + "\"" + EscapeJson(ValueIn) + "\"");
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(ValueIn != null && (retrievedProperties == null || retrievedProperties.Contains("valueIn")))
-            {
-                ret.Add("valueIn", "<valueIn>" + EscapeXml(ValueIn) + "</valueIn>");
-            }
-            return ret;
-        }
-    }
     public partial class KalturaTvmDeviceRule
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -29341,11 +28875,6 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(!isOldVersion && OriginalPrice != null && (retrievedProperties == null || retrievedProperties.Contains("originalPrice")))
-            {
-                propertyValue = OriginalPrice.ToJson(currentVersion, omitObsolete);
-                ret.Add("originalPrice", "\"originalPrice\": " + propertyValue);
-            }
             if(!isOldVersion && Price != null && (retrievedProperties == null || retrievedProperties.Contains("price")))
             {
                 propertyValue = Price.ToJson(currentVersion, omitObsolete);
@@ -29385,11 +28914,6 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(!isOldVersion && OriginalPrice != null && (retrievedProperties == null || retrievedProperties.Contains("originalPrice")))
-            {
-                propertyValue = OriginalPrice.ToXml(currentVersion, omitObsolete);
-                ret.Add("originalPrice", "<originalPrice>" + propertyValue + "</originalPrice>");
-            }
             if(!isOldVersion && Price != null && (retrievedProperties == null || retrievedProperties.Contains("price")))
             {
                 propertyValue = Price.ToXml(currentVersion, omitObsolete);
@@ -32591,188 +32115,6 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("vatPercent", "<vatPercent>" + VatPercent + "</vatPercent>");
             }
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceManufacturerInformation
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceManufacturersReferenceDataFilter
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceReferenceData
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if((retrievedProperties == null || retrievedProperties.Contains("id")))
-            {
-                ret.Add("id", "\"id\": " + Id);
-            }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
-            {
-                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
-            }
-            if(Status.HasValue && (retrievedProperties == null || retrievedProperties.Contains("status")))
-            {
-                ret.Add("status", "\"status\": " + Status.ToString().ToLower());
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if((retrievedProperties == null || retrievedProperties.Contains("id")))
-            {
-                ret.Add("id", "<id>" + Id + "</id>");
-            }
-            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
-            {
-                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
-            }
-            if(Status.HasValue && (retrievedProperties == null || retrievedProperties.Contains("status")))
-            {
-                ret.Add("status", "<status>" + Status.ToString().ToLower() + "</status>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceReferenceDataFilter
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
-            {
-                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
-            {
-                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceReferenceDataListResponse
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
             return ret;
         }
     }
@@ -37462,6 +36804,10 @@ namespace WebAPI.Models.Domains
                     ret.Add("concurrent_limit", "\"concurrent_limit\": " + ConcurrentLimit);
                 }
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "\"createDate\": " + CreateDate);
+            }
             if(!omitObsolete && DefaultUsers != null && (retrievedProperties == null || retrievedProperties.Contains("defaultUsers")))
             {
                 propertyValue = "[" + String.Join(", ", DefaultUsers.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -37578,6 +36924,10 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("state", "\"state\": " + "\"" + Enum.GetName(typeof(KalturaHouseholdState), State) + "\"");
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
+            }
             if(!omitObsolete && Users != null && (retrievedProperties == null || retrievedProperties.Contains("users")))
             {
                 propertyValue = "[" + String.Join(", ", Users.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -37612,6 +36962,10 @@ namespace WebAPI.Models.Domains
                 {
                 ret.Add("concurrent_limit", "<concurrent_limit>" + ConcurrentLimit + "</concurrent_limit>");
                 }
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             }
             if(!omitObsolete && DefaultUsers != null && (retrievedProperties == null || retrievedProperties.Contains("defaultUsers")))
             {
@@ -37728,6 +37082,10 @@ namespace WebAPI.Models.Domains
             if(State.HasValue && (retrievedProperties == null || retrievedProperties.Contains("state")))
             {
                 ret.Add("state", "<state>" + "" + Enum.GetName(typeof(KalturaHouseholdState), State) + "" + "</state>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             }
             if(!omitObsolete && Users != null && (retrievedProperties == null || retrievedProperties.Contains("users")))
             {
@@ -37967,14 +37325,6 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("macAddress", "\"macAddress\": " + "\"" + EscapeJson(MacAddress) + "\"");
             }
-            if(ManufacturerId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("manufacturerId")))
-            {
-                ret.Add("manufacturerId", "\"manufacturerId\": " + ManufacturerId);
-            }
-            if(Model != null && (retrievedProperties == null || retrievedProperties.Contains("model")))
-            {
-                ret.Add("model", "\"model\": " + "\"" + EscapeJson(Model) + "\"");
-            }
             if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -38045,14 +37395,6 @@ namespace WebAPI.Models.Domains
             if(MacAddress != null && (retrievedProperties == null || retrievedProperties.Contains("macAddress")))
             {
                 ret.Add("macAddress", "<macAddress>" + EscapeXml(MacAddress) + "</macAddress>");
-            }
-            if(ManufacturerId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("manufacturerId")))
-            {
-                ret.Add("manufacturerId", "<manufacturerId>" + ManufacturerId + "</manufacturerId>");
-            }
-            if(Model != null && (retrievedProperties == null || retrievedProperties.Contains("model")))
-            {
-                ret.Add("model", "<model>" + EscapeXml(Model) + "</model>");
             }
             if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
             {
@@ -38235,6 +37577,44 @@ namespace WebAPI.Models.Domains
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaHouseholdFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(ExternalIdEqual != null && (retrievedProperties == null || retrievedProperties.Contains("externalIdEqual")))
+            {
+                ret.Add("externalIdEqual", "\"externalIdEqual\": " + "\"" + EscapeJson(ExternalIdEqual) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(ExternalIdEqual != null && (retrievedProperties == null || retrievedProperties.Contains("externalIdEqual")))
+            {
+                ret.Add("externalIdEqual", "<externalIdEqual>" + EscapeXml(ExternalIdEqual) + "</externalIdEqual>");
             }
             return ret;
         }
@@ -38468,6 +37848,36 @@ namespace WebAPI.Models.Domains
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaHouseholdListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
             return ret;
         }
     }

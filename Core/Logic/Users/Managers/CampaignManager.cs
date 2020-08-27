@@ -11,6 +11,7 @@ using DAL;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Linq;
+using ApiObjects.EventBus;
 
 namespace ApiLogic.Users.Managers
 {
@@ -72,6 +73,8 @@ namespace ApiLogic.Users.Managers
             }
 
             // TODO SHIR / MATAN - ListTriggerCampaigns WHEN ODED WILL FINISH WITH SPEC
+            //TODO SHIR FILTER by WITH INSERT ACTION AND DOMAIN DEVICE OBJECT
+
             return new GenericListResponse<TriggerCampaign>();
         }
 
@@ -277,10 +280,11 @@ namespace ApiLogic.Users.Managers
         /// <param name="campaignToUpdate"></param>
         private void FillCampaignTriggerObject(TriggerCampaign campaign, TriggerCampaign campaignToUpdate)
         {
-            if (string.IsNullOrEmpty(campaignToUpdate.Action))
-            {
-                campaignToUpdate.Action = campaign.Action;
-            }
+            // TODO MATAN
+            //if (string.IsNullOrEmpty(campaignToUpdate.Action))
+            //{
+            //    campaignToUpdate.Action = campaign.Action;
+            //}
             if (string.IsNullOrEmpty(campaignToUpdate.CoreAction))
             {
                 campaignToUpdate.CoreAction = campaign.CoreAction;
@@ -333,10 +337,10 @@ namespace ApiLogic.Users.Managers
             {
                 campaignToUpdate.StartDate = campaign.StartDate;
             }
-            if (string.IsNullOrEmpty(campaignToUpdate.Service))
-            {
-                campaignToUpdate.Service = campaign.Service;
-            }
+            //if (string.IsNullOrEmpty(campaignToUpdate.Service))
+            //{
+            //    campaignToUpdate.Service = campaign.Service;
+            //}
             if (campaignToUpdate.TriggerConditions == null)
             {
                 campaignToUpdate.TriggerConditions = campaign.TriggerConditions;
@@ -424,6 +428,34 @@ namespace ApiLogic.Users.Managers
                 log.Error($"Failed updating trigger campaign: {triggerCampaign.Id} status to: {triggerCampaign.IsActive}", ex);
             }
             return false;
+        }
+
+        public void PublishTriggerCampaign(ContextData contextData, CoreObject eventObject, ApiService apiService, ApiAction apiAction)
+        {
+            var filter = new TriggerCampaignFilter()
+            {
+                Service = apiService,
+                Action = apiAction
+            };
+
+            var triggerCampaigns = this.ListTriggerCampaigns(contextData, filter);
+            if (triggerCampaigns.HasObjects())
+            {
+                foreach (var triggerCampaign in triggerCampaigns.Objects)
+                {
+                    var serviceEvent = new CampaignTriggerEvent()
+                    {
+                        RequestId = KLogger.GetRequestId(),
+                        GroupId = contextData.GroupId,
+                        CampaignId = triggerCampaign.Id,
+                        EventObject = eventObject,
+                        DomainId = contextData.DomainId.Value
+                    };
+
+                    var publisher = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    publisher.Publish(serviceEvent);
+                }
+            }
         }
     }
 }

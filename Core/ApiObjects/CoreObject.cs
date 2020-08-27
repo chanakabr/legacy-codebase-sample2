@@ -51,8 +51,6 @@ namespace ApiObjects
                     {
                         // ?
                     }
-
-                    EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.Created, eKalturaEventTime.Campaign));
                  }
                  else
                  {
@@ -83,7 +81,6 @@ namespace ApiObjects
                 if (result)
                 {
                     EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(this.GroupId, this, previous, this.ChangedFields));
-                    EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.Changed, eKalturaEventTime.Campaign));
                 }
                 else
                 {

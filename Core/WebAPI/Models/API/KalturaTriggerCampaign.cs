@@ -32,7 +32,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "service")]
         [JsonProperty("service")]
         [XmlElement(ElementName = "service")]
-        public string Service { get; set; }
+        public KalturaApiService Service { get; set; }
 
         /// <summary>
         /// action
@@ -40,38 +40,11 @@ namespace WebAPI.Models.API
         [DataMember(Name = "action")]
         [JsonProperty("action")]
         [XmlElement(ElementName = "action")]
-        public string Action { get; set; }
+        public KalturaApiAction Action { get; set; }
 
         internal override void ValidateForAdd()
         {
             base.ValidateForAdd();
-
-            if (string.IsNullOrEmpty(this.Service))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "service");
-            }
-
-            if (string.IsNullOrEmpty(this.Action))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "action");
-            }
-
-            var methodParams = WebAPI.Reflection.DataModel.getMethodParams(this.Service, this.Action);
-            if (methodParams.Count == 0)
-            {
-                throw new BadRequestException(BadRequestException.ACTION_NOT_SPECIFIED);
-            }
-
-            if (Action != "add" && Action != "update")
-            {
-                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "Action");
-            }
-
-            var typeMap = AutoMapper.Mapper.Configuration.GetAllTypeMaps().FirstOrDefault(x => x.SourceType == methodParams.First().Value.Type);
-            if (typeMap == null || !typeMap.DestinationType.IsSubclassOf(typeof(CoreObject)))
-            {
-                throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
-            }
 
             if (this.TriggerConditions == null || this.TriggerConditions.Count == 0)
             {
@@ -131,5 +104,16 @@ namespace WebAPI.Models.API
             };
             return JsonConvert.SerializeObject(_event);
         }
+    }
+
+    public enum KalturaApiAction
+    {
+        INSERT = 0,
+        UPDATE = 1,
+    }
+
+    public enum KalturaApiService
+    {
+        HOUSEHOLD_DEVICE = 0
     }
 }

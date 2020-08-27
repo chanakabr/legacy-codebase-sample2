@@ -19,8 +19,7 @@ namespace ApiObjects
     {
         Before,
         After,
-        Failed,
-        Campaign
+        Failed
     }
 
     public class KalturaObjectActionEvent : KalturaObjectEvent

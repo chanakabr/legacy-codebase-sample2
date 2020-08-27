@@ -102,8 +102,8 @@ namespace ApiObjects
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<Rules.RuleCondition> TriggerConditions { get; set; }
 
-        public string Service { get; set; }
-        public string Action { get; set; }
+        public ApiService Service { get; set; }
+        public ApiAction Action { get; set; }
         public string CoreObject { get; set; }//TODO SHIR, INIT
         public string CoreAction { get; set; }//TODO SHIR
             
@@ -144,6 +144,17 @@ namespace ApiObjects
         //        }
         //    }
         //}
+    }
+
+    public enum ApiAction
+    {
+        INSERT = 0,
+        UPDATE = 1,
+    }
+
+    public enum ApiService
+    {
+        DomainDevice = 0
     }
 
     public class BatchCampaign : Campaign
