@@ -1847,6 +1847,8 @@ namespace DAL
             sp.AddParameter("@groupId", campaign.GroupId);
             sp.AddParameter("@id", campaign.Id);
             sp.AddParameter("@isActive", campaign.IsActive);
+            sp.AddParameter("@startDate", campaign.StartDate);
+            sp.AddParameter("@endDate", campaign.EndDate);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
             return sp.ExecuteReturnValue<int>() > 0;
