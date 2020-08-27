@@ -110,7 +110,7 @@ namespace ApiObjects
         [DBFieldMapping("campaign_json")]
         public string CampaignJson { get; set; }
         
-        public string EventNotification { get; set; }//Json
+        //public string EventNotification { get; set; }//Json
 
         public bool Evaluate(CoreObject coreObject)
         {

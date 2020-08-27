@@ -1889,12 +1889,12 @@ namespace DAL
             // TODO SHIR - UPDATE WITH VERSION CHECK
             var key = GetNotificationCampaignActionKey(contextData, campaignToAdd);
 
-            if (!string.IsNullOrEmpty(campaignToAdd.EventNotification))
-            {
-                var obj = JsonConvert.DeserializeObject<EventNotificationAction>(campaignToAdd.EventNotification);
-                //return UtilsDal.SaveObjectWithVersionCheckInCB<EventNotificationAction>(eCouchbaseBucket.OTT_APPS, key, obj, false);
-                return true;
-            }
+            //if (!string.IsNullOrEmpty(campaignToAdd.EventNotification))
+            //{
+            //    var obj = JsonConvert.DeserializeObject<EventNotificationAction>(campaignToAdd.EventNotification);
+            //    //return UtilsDal.SaveObjectWithVersionCheckInCB<EventNotificationAction>(eCouchbaseBucket.OTT_APPS, key, obj, false);
+            //    return true;
+            //}
 
             return false;
         }

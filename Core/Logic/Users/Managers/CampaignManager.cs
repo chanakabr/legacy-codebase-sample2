@@ -112,7 +112,7 @@ namespace ApiLogic.Users.Managers
                     var campaignEvent = PricingDAL.GetCampaignEventNotification(contextData, campaignToAdd);
                     if (string.IsNullOrEmpty(campaignEvent))
                     {
-                        SetCampaignIdToEvent(campaignToAdd);
+                        //SetCampaignIdToEvent(campaignToAdd);
                         if (!PricingDAL.SaveNotificationCampaignAction(contextData, campaignToAdd))
                         {
                             var message = $"Failed adding Notification Campaign Action, campaign Id: {campaignToAdd.Id}";
@@ -224,7 +224,7 @@ namespace ApiLogic.Users.Managers
         {
             tCampaign.IsActive = true;
 
-            if (SetEventStatus(tCampaign) && //Update internal json
+            if (/*SetEventStatus(tCampaign) && //Update internal json*/
                 PricingDAL.Update_Campaign(tCampaign) && //Update campaign object in db
                 PricingDAL.SaveNotificationCampaignAction(contextData, tCampaign))//Update event in CB
             {
@@ -246,22 +246,22 @@ namespace ApiLogic.Users.Managers
             //Todo - Shir or Matan
             if (campaign.IsActive)
             {
-                log.Error($"Campaign: {campaign.Id} is already active, campaign event: {campaign.EventNotification}");
+                log.Error($"Campaign: {campaign.Id} is already active, campaign event: {campaign.CampaignJson}");
                 status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} is already active");
             }
             if (campaign.EndDate <= TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))
             {
-                log.Error($"Campaign: {campaign.Id} was ended at ({campaign.EndDate}), campaign event: {campaign.EventNotification}");
+                log.Error($"Campaign: {campaign.Id} was ended at ({campaign.EndDate}), campaign event: {campaign.CampaignJson}");
                 status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} was ended");
             }
             if (campaign.TriggerConditions == null || campaign.TriggerConditions.Count == 0)
             {
-                log.Error($"Campaign: {campaign.Id} must have a t least a single trigger condition, campaign event: {campaign.EventNotification}");
+                log.Error($"Campaign: {campaign.Id} must have a t least a single trigger condition, campaign event: {campaign.CampaignJson}");
                 status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} must have a t least a single trigger condition");
             }
             if (campaign.DiscountConditions == null || campaign.DiscountConditions.Count == 0)
             {
-                log.Error($"Campaign: {campaign.Id} must have a t least a single discount condition, campaign event: {campaign.EventNotification}");
+                log.Error($"Campaign: {campaign.Id} must have a t least a single discount condition, campaign event: {campaign.CampaignJson}");
                 status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} must have a t least a single discount condition");
             }
 
@@ -313,10 +313,10 @@ namespace ApiLogic.Users.Managers
             {
                 campaignToUpdate.EndDate = campaign.EndDate;
             }
-            if (string.IsNullOrEmpty(campaignToUpdate.EventNotification))
-            {
-                campaignToUpdate.EventNotification = campaign.EventNotification;
-            }
+            //if (string.IsNullOrEmpty(campaignToUpdate.EventNotification))
+            //{
+            //    campaignToUpdate.EventNotification = campaign.EventNotification;
+            //}
             if (campaignToUpdate.IsActive == default)
             {
                 campaignToUpdate.IsActive = campaign.IsActive;
@@ -396,39 +396,39 @@ namespace ApiLogic.Users.Managers
             // TODO SHIR - SetInvalidationKeys
         }
 
-        /// <summary>
-        /// Replace json event campaignId
-        /// </summary>
-        /// <param name="triggerCampaign"></param>
-        private void SetCampaignIdToEvent(TriggerCampaign triggerCampaign)
-        {
-            var _object = JObject.Parse(triggerCampaign.EventNotification);
-            var val = _object["Actions"][0];
-            val["CampaignId"] = triggerCampaign.Id;
-            triggerCampaign.EventNotification = _object.ToString();
-        }
+        ///// <summary>
+        ///// Replace json event campaignId
+        ///// </summary>
+        ///// <param name="triggerCampaign"></param>
+        //private void SetCampaignIdToEvent(TriggerCampaign triggerCampaign)
+        //{
+        //    var _object = JObject.Parse(triggerCampaign.EventNotification);
+        //    var val = _object["Actions"][0];
+        //    val["CampaignId"] = triggerCampaign.Id;
+        //    triggerCampaign.EventNotification = _object.ToString();
+        //}
 
 
-        /// <summary>
-        /// Replace json event status
-        /// </summary>
-        /// <param name="triggerCampaign"></param>
-        private bool SetEventStatus(TriggerCampaign triggerCampaign)
-        {
-            try
-            {
-                var _object = JObject.Parse(triggerCampaign.EventNotification);
-                var val = _object["Actions"][0];
-                val["Status"] = triggerCampaign.IsActive ? 1 : 0;
-                triggerCampaign.EventNotification = _object.ToString();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Failed updating trigger campaign: {triggerCampaign.Id} status to: {triggerCampaign.IsActive}", ex);
-            }
-            return false;
-        }
+        ///// <summary>
+        ///// Replace json event status
+        ///// </summary>
+        ///// <param name="triggerCampaign"></param>
+        //private bool SetEventStatus(TriggerCampaign triggerCampaign)
+        //{
+        //    try
+        //    {
+        //        var _object = JObject.Parse(triggerCampaign.EventNotification);
+        //        var val = _object["Actions"][0];
+        //        val["Status"] = triggerCampaign.IsActive ? 1 : 0;
+        //        triggerCampaign.EventNotification = _object.ToString();
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error($"Failed updating trigger campaign: {triggerCampaign.Id} status to: {triggerCampaign.IsActive}", ex);
+        //    }
+        //    return false;
+        //}
 
         public void PublishTriggerCampaign(ContextData contextData, CoreObject eventObject, ApiService apiService, ApiAction apiAction)
         {

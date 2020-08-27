@@ -7,9 +7,6 @@ using ApiLogic.Users.Managers;
 using ApiObjects.Response;
 using ApiObjects.Base;
 using ApiObjects;
-using System.Linq;
-using System;
-using WebAPI.Managers.Models;
 
 namespace WebAPI.Models.API
 {
@@ -65,7 +62,7 @@ namespace WebAPI.Models.API
         internal override GenericResponse<Campaign> Add(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<TriggerCampaign>(this);
-            coreObject.EventNotification = GetEventNotification(contextData, coreObject);
+            //coreObject.EventNotification = GetEventNotification(contextData, coreObject);
             return CampaignManager.Instance.AddTriggerCampaign(contextData, coreObject);
         }
 
@@ -84,26 +81,7 @@ namespace WebAPI.Models.API
         {
             // TODO SHIR - WHAT NEED TO BE VALIDATE?
             base.ValidateForUpdate();
-        }
-
-        private string GetEventNotification(ContextData contextData, TriggerCampaign coreObject)
-        {
-            var _event = new EventNotification()
-            {
-                PartnerId = contextData.GroupId,
-                Actions = new List<NotificationAction>
-                {
-                    new EventNotifications.CampaignHandler
-                    {
-                        Status = 0,
-                        SystemName = coreObject.SystemName,
-                        FriendlyName = coreObject.Name,
-                        CampaignId = coreObject.Id
-                    }
-                },
-            };
-            return JsonConvert.SerializeObject(_event);
-        }
+        }        
     }
 
     public enum KalturaApiAction
