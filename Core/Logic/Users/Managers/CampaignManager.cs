@@ -33,14 +33,14 @@ namespace ApiLogic.Users.Managers
         public GenericResponse<Campaign> Get(ContextData contextData, long id)
         {
             var response = new GenericResponse<Campaign>();
-            var campaign = PricingDAL.Get_Campaign(contextData, id);//Cache?
+            var campaign = PricingDAL.Get_Campaign(contextData, id);//TODO - Shir or Matan: Get from cached list
             if (campaign == null || campaign.Id == 0)
             {
                 response.SetStatus(eResponseStatus.Error, $"Campaign not found, id: {id}");
                 return response;
             }
 
-            response.Object = JsonConvert.DeserializeObject<TriggerCampaign>(campaign.CoreObject);
+            response.Object = campaign;
             response.SetStatus(eResponseStatus.OK);
 
             return response;
@@ -108,25 +108,7 @@ namespace ApiLogic.Users.Managers
                 var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd);
                 if (insertedCampaign?.Id > 0)
                 {
-                    campaignToAdd = insertedCampaign;
-                    var campaignEvent = PricingDAL.GetCampaignEventNotification(contextData, campaignToAdd);
-                    if (string.IsNullOrEmpty(campaignEvent))
-                    {
-                        //SetCampaignIdToEvent(campaignToAdd);
-                        if (!PricingDAL.SaveNotificationCampaignAction(contextData, campaignToAdd))
-                        {
-                            var message = $"Failed adding Notification Campaign Action, campaign Id: {campaignToAdd.Id}";
-                            log.Error($"{message}, contextData: {contextData}");
-                            response.SetStatus(eResponseStatus.Error, message);
-                            return response;
-                        }
-                    }
-                    else
-                    {
-
-                    }
-
-                    response.Object = campaignToAdd;
+                    response.Object = insertedCampaign;
                     SetInvalidationKeys(contextData);
                     response.SetStatus(eResponseStatus.OK);
                 }
@@ -220,20 +202,18 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        private void Dispatch(ContextData contextData, TriggerCampaign tCampaign, GenericResponse<Campaign> response)
+        private void Dispatch(ContextData contextData, TriggerCampaign triggerCampaign, GenericResponse<Campaign> response)
         {
-            tCampaign.IsActive = true;
+            triggerCampaign.IsActive = true;
 
-            if (/*SetEventStatus(tCampaign) && //Update internal json*/
-                PricingDAL.Update_Campaign(tCampaign) && //Update campaign object in db
-                PricingDAL.SaveNotificationCampaignAction(contextData, tCampaign))//Update event in CB
+            if (PricingDAL.Update_Campaign(triggerCampaign))
             {
                 SetInvalidationKeys(contextData);
-                response.Object = Get(contextData, tCampaign.Id)?.Object;
+                response.Object = Get(contextData, triggerCampaign.Id)?.Object;
                 response.SetStatus(eResponseStatus.OK);
             }
             else
-                response.SetStatus(eResponseStatus.Error, $"Error Updating TriggerCampaign: [{tCampaign.Id}] for group: {contextData.GroupId}");
+                response.SetStatus(eResponseStatus.Error, $"Error Updating TriggerCampaign: [{triggerCampaign.Id}] for group: {contextData.GroupId}");
         }
 
         /// <summary>
@@ -313,10 +293,6 @@ namespace ApiLogic.Users.Managers
             {
                 campaignToUpdate.EndDate = campaign.EndDate;
             }
-            //if (string.IsNullOrEmpty(campaignToUpdate.EventNotification))
-            //{
-            //    campaignToUpdate.EventNotification = campaign.EventNotification;
-            //}
             if (campaignToUpdate.IsActive == default)
             {
                 campaignToUpdate.IsActive = campaign.IsActive;
@@ -395,40 +371,6 @@ namespace ApiLogic.Users.Managers
         {
             // TODO SHIR - SetInvalidationKeys
         }
-
-        ///// <summary>
-        ///// Replace json event campaignId
-        ///// </summary>
-        ///// <param name="triggerCampaign"></param>
-        //private void SetCampaignIdToEvent(TriggerCampaign triggerCampaign)
-        //{
-        //    var _object = JObject.Parse(triggerCampaign.EventNotification);
-        //    var val = _object["Actions"][0];
-        //    val["CampaignId"] = triggerCampaign.Id;
-        //    triggerCampaign.EventNotification = _object.ToString();
-        //}
-
-
-        ///// <summary>
-        ///// Replace json event status
-        ///// </summary>
-        ///// <param name="triggerCampaign"></param>
-        //private bool SetEventStatus(TriggerCampaign triggerCampaign)
-        //{
-        //    try
-        //    {
-        //        var _object = JObject.Parse(triggerCampaign.EventNotification);
-        //        var val = _object["Actions"][0];
-        //        val["Status"] = triggerCampaign.IsActive ? 1 : 0;
-        //        triggerCampaign.EventNotification = _object.ToString();
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.Error($"Failed updating trigger campaign: {triggerCampaign.Id} status to: {triggerCampaign.IsActive}", ex);
-        //    }
-        //    return false;
-        //}
 
         public void PublishTriggerCampaign(ContextData contextData, CoreObject eventObject, ApiService apiService, ApiAction apiAction)
         {

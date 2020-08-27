@@ -1883,31 +1883,5 @@ namespace DAL
 
             return sp.ExecuteDataSet().Tables[0].ToList<T>().FirstOrDefault();
         }
-
-        public static bool SaveNotificationCampaignAction(ContextData contextData, TriggerCampaign campaignToAdd)
-        {
-            // TODO SHIR - UPDATE WITH VERSION CHECK
-            var key = GetNotificationCampaignActionKey(contextData, campaignToAdd);
-
-            //if (!string.IsNullOrEmpty(campaignToAdd.EventNotification))
-            //{
-            //    var obj = JsonConvert.DeserializeObject<EventNotificationAction>(campaignToAdd.EventNotification);
-            //    //return UtilsDal.SaveObjectWithVersionCheckInCB<EventNotificationAction>(eCouchbaseBucket.OTT_APPS, key, obj, false);
-            //    return true;
-            //}
-
-            return false;
-        }
-
-        private static string GetNotificationCampaignActionKey(ContextData contextData, TriggerCampaign campaign)
-        {
-            return $"notification_{contextData.GroupId}_campaign_{campaign.CoreObject}_{campaign.Action}";
-        }
-
-        public static string GetCampaignEventNotification(ContextData contextData, TriggerCampaign campaign)
-        {
-            var key = GetNotificationCampaignActionKey(contextData, campaign);
-            return UtilsDal.GetObjectFromCB<string>(eCouchbaseBucket.OTT_APPS, key);
-        }
     }
 }
