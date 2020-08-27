@@ -158,12 +158,12 @@ namespace Core.ConditionalAccess
 
             if (BillingItemsType.HasValue)
             {
-                transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == BillingItemsType.Value).ToList();
+                transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == BillingItemsType).ToList();
             }
 
             if (BillingAction.HasValue)
             {
-                transactionsHistory = transactionsHistory.Where(t => t.m_eItemType == BillingItemsType.Value).ToList();
+                transactionsHistory = transactionsHistory.Where(t => t.m_eBillingAction == BillingAction).ToList();
             }
         }
     }
