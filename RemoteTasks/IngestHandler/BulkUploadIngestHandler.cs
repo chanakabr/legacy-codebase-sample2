@@ -291,6 +291,7 @@ namespace IngestHandler
                 .Concat(crudOperations.ItemsToUpdate)
                 .Concat(crudOperations.AffectedItems)
                 .Concat(crudOperations.RemainingItems)
+                .Where(c=>!c.IsAutoFill)
                 .OrderBy(i => i.StartDate)
                 .ToList();
 
@@ -353,6 +354,40 @@ namespace IngestHandler
                         var autofillProgram = GetDefaultAutoFillProgram(gappedProgs.Item1.EndDate, gappedProgs.Item2.StartDate, gappedProgs.Item1.ChannelId, gappedProgs.Item1.ChannelExternalId, gappedProgs.Item1.LinearMediaId);
                         autofillEpgs.Add(autofillProgram);
                     });
+                    
+
+                    var firstProgram = newEpgSchedule.OrderBy(x => x.StartDate).First(); 
+                    var lastProgram = newEpgSchedule.OrderByDescending(x => x.EndDate).First();
+
+                    var startOfDay=firstProgram.StartDate.StartOfDay();
+                    var endOfDay=firstProgram.StartDate.EndOfDay();
+
+                    //if this day is smaller than the first program fill gap between start of day to first program
+                    if (startOfDay < firstProgram.StartDate)
+                    {
+                        var warnMessage = $"Autofilling gap between start of day to first day's program {firstProgram.EpgExternalId}, {startOfDay} to  {firstProgram.StartDate}";                        
+                        TryAddWarnning(firstProgram.ChannelId, firstProgram.EpgExternalId, eResponseStatus.EPGSProgramDatesError, warnMessage);                        
+                        var autofillProgram = GetDefaultAutoFillProgram(startOfDay, 
+                                                                        firstProgram.StartDate,
+                                                                        firstProgram.ChannelId, 
+                                                                        firstProgram.ChannelExternalId, 
+                                                                        firstProgram.LinearMediaId);
+                        autofillEpgs.Add(autofillProgram);
+                    }
+
+                    //fill gaps between last program to end of day only if it ends on same day.
+                    if ( lastProgram.EndDate < endOfDay)
+                    {
+                        var warnMessage = $"Autofilling gap between last day's program {lastProgram.EpgExternalId} to end of day,  {lastProgram.EndDate} to {endOfDay} ";                        
+                        TryAddWarnning(lastProgram.ChannelId, lastProgram.EpgExternalId, eResponseStatus.EPGSProgramDatesError, warnMessage);
+                        var autofillProgram = GetDefaultAutoFillProgram(lastProgram.EndDate,
+                                                                        endOfDay,
+                                                                        lastProgram.ChannelId,
+                                                                        lastProgram.ChannelExternalId,
+                                                                        lastProgram.LinearMediaId);
+                        autofillEpgs.Add(autofillProgram);
+                    }
+
                     break;
             }
 
@@ -725,7 +760,7 @@ namespace IngestHandler
             _Logger.Debug($"CalculateCRUDOperations > currentPrograms.count:[{currentPrograms.Count}] programsToIngest.count:[{programsToIngest.Count}]");
             var crudOperations = new CRUDOperations<EpgProgramBulkUploadObject>();
 
-            crudOperations.ItemsToDelete = currentPrograms.Where(epg => epg.StartDate >= _MinStartDate && epg.EndDate <= _MaxEndDate && epg.IsAutoFill).ToList();
+            crudOperations.ItemsToDelete = currentPrograms.Where(epg => epg.StartDate >= _MinStartDate.StartOfDay() && epg.EndDate <= _MaxEndDate.EndOfDay() && epg.IsAutoFill).ToList();
 
             var currentProgramsDictionary = currentPrograms.Where(epg => !epg.IsAutoFill).ToDictionary(epg => epg.EpgExternalId);
             _Logger.Debug($"CalculateCRUDOperations > currentProgramsDictionary.Count:[{currentProgramsDictionary.Count}], programsToIngest:[{programsToIngest.Count}]");
@@ -900,7 +935,14 @@ namespace IngestHandler
         {
             var key = $"autofill_{_BulkUploadObject.GroupId}";
             _AutoFillEpgsCB = _AutoFillEpgsCB ?? _CouchbaseManager.Get<Dictionary<string, EpgCB>>(key, true);
-            
+
+            if (_AutoFillEpgsCB == null)
+            {
+                string message = $"Could not find default auto fill document under key: {key}";
+                _Logger.Error(message);
+                throw new Exception(message);
+            }
+
             var autofillDocs = new Dictionary<string, EpgCB>();
             foreach (var doc in _AutoFillEpgsCB)
             {
@@ -919,6 +961,8 @@ namespace IngestHandler
                 autofillDocs[doc.Key].EnableCDVR = 0;
                 autofillDocs[doc.Key].EnableStartOver = 0;
                 autofillDocs[doc.Key].EnableTrickPlay = 0;
+                autofillDocs[doc.Key].CreateDate = DateTime.UtcNow;
+                autofillDocs[doc.Key].UpdateDate = DateTime.UtcNow;
             }
             return autofillDocs;
         }
