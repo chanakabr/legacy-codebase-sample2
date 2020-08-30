@@ -129,6 +129,9 @@ namespace ApiObjects
         [JsonProperty("is_auto_fill")]
         public bool IsAutoFill { get; set; }
 
+        [JsonProperty("is_ingest_v2")]
+        public bool IsIngestV2 { get; set; }
+
         #endregion
 
         #region Ctor
@@ -169,6 +172,8 @@ namespace ApiObjects
 
             Crid = string.Empty;
             DocumentId = string.Empty;
+
+            IsIngestV2 = false;
         }
 
         public EpgCB(EpgCB epgCb)
@@ -224,6 +229,7 @@ namespace ApiObjects
             this.EnableStartOver = epgCb.EnableStartOver;
             this.EnableTrickPlay = epgCb.EnableTrickPlay;
             this.Crid = epgCb.Crid;
+            this.IsIngestV2 = epgCb.IsIngestV2;
         }
 
         public void Initialize(int kalturaChannelID, int groupId, int parentGroupId, string externalId, DateTime startDate, DateTime endDate,

@@ -325,6 +325,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingProvider.Test", "Cac
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Models", "..\Core\EventBus.Models\EventBus.Models.csproj", "{35279B37-2B30-4716-BBFA-A315F01C05F0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitQueueWrapper", "..\Core\RabbitQueueWrapper\RabbitQueueWrapper.csproj", "{2D132FE2-9832-4F8C-8512-2C3FDD42D267}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -924,6 +926,16 @@ Global
 		{35279B37-2B30-4716-BBFA-A315F01C05F0}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{35279B37-2B30-4716-BBFA-A315F01C05F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35279B37-2B30-4716-BBFA-A315F01C05F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D132FE2-9832-4F8C-8512-2C3FDD42D267}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{2D132FE2-9832-4F8C-8512-2C3FDD42D267}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{2D132FE2-9832-4F8C-8512-2C3FDD42D267}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D132FE2-9832-4F8C-8512-2C3FDD42D267}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D132FE2-9832-4F8C-8512-2C3FDD42D267}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{2D132FE2-9832-4F8C-8512-2C3FDD42D267}.Local|Any CPU.Build.0 = Release|Any CPU
+		{2D132FE2-9832-4F8C-8512-2C3FDD42D267}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{2D132FE2-9832-4F8C-8512-2C3FDD42D267}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
+		{2D132FE2-9832-4F8C-8512-2C3FDD42D267}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D132FE2-9832-4F8C-8512-2C3FDD42D267}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -991,9 +1003,10 @@ Global
 		{D5DDE364-F053-42B4-B528-1286AA6B9EE0} = {B73AD4B5-1AC8-4F26-BF58-CD82247DC9C4}
 		{33020BA5-84AE-4FEE-ACFF-15D0B739FAD7} = {3525F102-000F-42CC-A5D7-45A817294093}
 		{35279B37-2B30-4716-BBFA-A315F01C05F0} = {B73AD4B5-1AC8-4F26-BF58-CD82247DC9C4}
+		{2D132FE2-9832-4F8C-8512-2C3FDD42D267} = {6BFFB0D0-FC88-4A56-881B-345E07928B3F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal

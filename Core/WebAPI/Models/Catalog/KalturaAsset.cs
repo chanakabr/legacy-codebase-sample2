@@ -306,6 +306,11 @@ namespace WebAPI.Models.Catalog
                     {
                         foreach (KalturaMultilingualStringValue item in tagValues.Value.Objects)
                         {
+                            if (item.value == null)
+                            {
+                                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, $"KalturaMultilingualStringValue.value {tagValues.Key}");
+                            }
+
                             List<ApiObjects.LanguageContainer> noneDefaultLanugageContainer = item.value.GetNoneDefaultLanugageContainer();
                             if (noneDefaultLanugageContainer != null && noneDefaultLanugageContainer.Count > 0)
                             {

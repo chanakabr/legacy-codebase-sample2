@@ -9310,7 +9310,7 @@ namespace Core.Catalog
                             {
                                 foreach (var item in unFilteredRecordings)
                                 {
-                                    var recording = recordings.Recordings.First(x => x.Id.ToString().Equals(item.AssetId));
+                                    var recording = recordings.Recordings.FirstOrDefault(x => x.Id.ToString().Equals(item.AssetId));
                                     if (recording != null)
                                     {
                                         item.EpgId = recording.EpgId;

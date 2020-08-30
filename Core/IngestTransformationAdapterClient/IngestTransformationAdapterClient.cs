@@ -60,6 +60,10 @@ namespace AdapterClients.IngestTransformation
 				return (eAdapterStatus)responseObj.ResponseStatus.Code;
 
 			}
+            catch (System.Net.WebException)
+            {
+				return eAdapterStatus.Error;				
+			}
 			catch (Exception e)
 			{
 				_Logger.Error($"Error while SetConfiguration to ingest transformation adapter profileId:[{_IngestProfile.Id}], groupId:[{_IngestProfile.GroupId}]", e);
