@@ -656,11 +656,11 @@ namespace WebAPI.Reflection
                 case "KalturaDeviceBrand":
                     return new KalturaDeviceBrand(parameters);
                     
+                case "KalturaDeviceBrandCondition":
+                    return new KalturaDeviceBrandCondition(parameters);
+                    
                 case "KalturaDeviceBrandListResponse":
                     return new KalturaDeviceBrandListResponse(parameters);
-                    
-                case "KalturaDeviceBrandTriggerCondition":
-                    return new KalturaDeviceBrandTriggerCondition(parameters);
                     
                 case "KalturaDeviceFamily":
                     return new KalturaDeviceFamily(parameters);
@@ -668,11 +668,14 @@ namespace WebAPI.Reflection
                 case "KalturaDeviceFamilyBase":
                     return new KalturaDeviceFamilyBase(parameters);
                     
+                case "KalturaDeviceFamilyCondition":
+                    return new KalturaDeviceFamilyCondition(parameters);
+                    
                 case "KalturaDeviceFamilyListResponse":
                     return new KalturaDeviceFamilyListResponse(parameters);
                     
-                case "KalturaDeviceFamilyTriggerCondition":
-                    return new KalturaDeviceFamilyTriggerCondition(parameters);
+                case "KalturaDeviceManufacturerCondition":
+                    return new KalturaDeviceManufacturerCondition(parameters);
                     
                 case "KalturaDeviceManufacturerInformation":
                     return new KalturaDeviceManufacturerInformation(parameters);
@@ -680,11 +683,8 @@ namespace WebAPI.Reflection
                 case "KalturaDeviceManufacturersReferenceDataFilter":
                     return new KalturaDeviceManufacturersReferenceDataFilter(parameters);
                     
-                case "KalturaDeviceManufacturerTriggerCondition":
-                    return new KalturaDeviceManufacturerTriggerCondition(parameters);
-                    
-                case "KalturaDeviceModelTriggerCondition":
-                    return new KalturaDeviceModelTriggerCondition(parameters);
+                case "KalturaDeviceModelCondition":
+                    return new KalturaDeviceModelCondition(parameters);
                     
                 case "KalturaDevicePin":
                     return new KalturaDevicePin(parameters);
@@ -707,8 +707,8 @@ namespace WebAPI.Reflection
                 case "KalturaDeviceReportFilter":
                     return new KalturaDeviceReportFilter(parameters);
                     
-                case "KalturaDeviceUdidTriggerCondition":
-                    return new KalturaDeviceUdidTriggerCondition(parameters);
+                case "KalturaDeviceUdidCondition":
+                    return new KalturaDeviceUdidCondition(parameters);
                     
                 case "KalturaDiscount":
                     return new KalturaDiscount(parameters);
@@ -16664,6 +16664,36 @@ namespace WebAPI.Models.API
         {
         }
     }
+    public partial class KalturaDeviceBrandCondition
+    {
+        private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceBrandCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaDeviceBrandCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
+                    }
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaDeviceBrandListResponse
     {
         public KalturaDeviceBrandListResponse(Dictionary<string, object> parameters = null) : base(parameters)
@@ -16684,10 +16714,34 @@ namespace WebAPI.Models.API
             }
         }
     }
-    public partial class KalturaDeviceBrandTriggerCondition
+    public partial class KalturaDeviceFamilyCondition
     {
-        public KalturaDeviceBrandTriggerCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceFamilyCondition")
         {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaDeviceFamilyCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
+                    }
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+            }
         }
     }
     public partial class KalturaDeviceFamilyListResponse
@@ -16710,28 +16764,77 @@ namespace WebAPI.Models.API
             }
         }
     }
-    public partial class KalturaDeviceFamilyTriggerCondition
+    public partial class KalturaDeviceManufacturerCondition
     {
-        public KalturaDeviceFamilyTriggerCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceManufacturerCondition")
         {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaDeviceManufacturerCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
+                    }
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+            }
         }
     }
-    public partial class KalturaDeviceManufacturerTriggerCondition
+    public partial class KalturaDeviceModelCondition
     {
-        public KalturaDeviceManufacturerTriggerCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceModelCondition(Dictionary<string, object> parameters = null) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("regexEqual") && parameters["regexEqual"] != null)
+                {
+                    RegexEqual = (String) Convert.ChangeType(parameters["regexEqual"], typeof(String));
+                }
+            }
         }
     }
-    public partial class KalturaDeviceModelTriggerCondition
+    public partial class KalturaDeviceUdidCondition
     {
-        public KalturaDeviceModelTriggerCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        private static RuntimeSchemePropertyAttribute UdidInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceUdidCondition")
         {
-        }
-    }
-    public partial class KalturaDeviceUdidTriggerCondition
-    {
-        public KalturaDeviceUdidTriggerCondition(Dictionary<string, object> parameters = null) : base(parameters)
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaDeviceUdidCondition(Dictionary<string, object> parameters = null) : base(parameters)
         {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("udidIn") && parameters["udidIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UdidInSchemaProperty.Validate("udidIn", parameters["udidIn"]);
+                    }
+                    UdidIn = (String) Convert.ChangeType(parameters["udidIn"], typeof(String));
+                }
+            }
         }
     }
     public partial class KalturaDrmProfile

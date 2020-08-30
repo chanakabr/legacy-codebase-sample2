@@ -110,19 +110,14 @@ namespace CampaignHandler
                 Category = eMessageCategory.Campaign
             };
 
-            var isSuccess = false;
-
             if (!DAL.NotificationDal.SetCampaignInboxMessage(serviceEvent.GroupId, inboxMessage, campaign.Id,
                 NotificationSettings.GetInboxMessageTTLDays(serviceEvent.GroupId)))
             {
                 _Logger.Error($"Failed to add campaign message (campaign: {campaign.Id}) to User: {userId} Inbox");
-                isSuccess = true;
+                DAL.NotificationDal.SetInboxMessageCampaignMapping(serviceEvent.GroupId, serviceEvent.UserId, campaign, inboxMessage.Id);//update mapping
             }
             else
                 _Logger.Debug($"Campaign message (campaign: {campaign.Id}) sent successfully to User: {userId} Inbox");
-
-            if (isSuccess)
-                DAL.NotificationDal.SetInboxMessageCampaignMapping(serviceEvent.GroupId, serviceEvent.UserId, campaign, inboxMessage.Id);
         }
     }
 }

@@ -74,7 +74,7 @@ namespace WebAPI.Models.API
 
         internal GenericResponse<Campaign> Dispatch(ContextData contextData, long id)
         {
-            return CampaignManager.Instance.DispatchTriggerCampaign(contextData, id);
+            return CampaignManager.Instance.ActivateTriggerCampaign(contextData, id);
         }
 
         internal override void ValidateForUpdate()

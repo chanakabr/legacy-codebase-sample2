@@ -551,49 +551,133 @@ namespace WebAPI.Models.API
         }
     }
 
-    public partial class KalturaDeviceBrandTriggerCondition : KalturaTriggerCondition<long>, ICampaignCondition<KalturaOTTObject>
+    public partial class KalturaDeviceBrandCondition : KalturaCondition
     {
+        /// <summary>
+        /// Comma separated Device Brand IDs list
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn")]
+        [SchemeProperty(DynamicMinInt = 0)]
+        public string IdIn { get; set; }
+
         protected override void Init()
         {
             base.Init();
             this.Type = KalturaRuleConditionType.CAMPAIGN;
         }
 
-        public bool CheckValues(KalturaOTTObject objectToCheck)
+        internal override void Validate()
         {
-            throw new NotImplementedException();
-        }
-
-        void ICampaignCondition<KalturaOTTObject>.Validate()
-        {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(this.IdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceBrandCondition.idIn");
+            }
         }
     }
 
-    public partial class KalturaDeviceFamilyTriggerCondition : KalturaTriggerCondition<long>
+    public partial class KalturaDeviceFamilyCondition : KalturaCondition
     {
+        /// <summary>
+        /// Comma separated Device Family IDs list
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn")]
+        [SchemeProperty(DynamicMinInt = 0)]
+        public string IdIn { get; set; }
+
         protected override void Init()
         {
             base.Init();
             this.Type = KalturaRuleConditionType.CAMPAIGN;
         }
-    }
 
-    public partial class KalturaDeviceUdidTriggerCondition : KalturaTriggerCondition<long>
-    {
-        protected override void Init()
+        internal override void Validate()
         {
-            base.Init();
-            max_values = 500; // TODO SHIR MATAN - CHECK IF THIS VALUE IS CORRECT
+            if (string.IsNullOrEmpty(this.IdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceFamilyCondition.idIn");
+            }
         }
     }
 
-    public partial class KalturaDeviceModelTriggerCondition : KalturaTriggerCondition<long>
+    public partial class KalturaDeviceManufacturerCondition : KalturaCondition
     {
+        /// <summary>
+        /// Comma separated Device Manufacturer IDs list
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn")]
+        [SchemeProperty(DynamicMinInt = 0)]
+        public string IdIn { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.CAMPAIGN;
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.IdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceManufacturerCondition.idIn");
+            }
+        }
     }
 
-    public partial class KalturaDeviceManufacturerTriggerCondition : KalturaTriggerCondition<long>
+    public partial class KalturaDeviceModelCondition : KalturaCondition
     {
+        /// <summary>
+        /// regex of device model that is compared to
+        /// </summary>
+        [DataMember(Name = "regexEqual")]
+        [JsonProperty("regexEqual")]
+        [XmlElement(ElementName = "regexEqual")]
+        public string RegexEqual { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.CAMPAIGN;
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.RegexEqual))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceModelCondition.idIn");
+            }
+        }
+    }
+
+    public partial class KalturaDeviceUdidCondition : KalturaCondition
+    {
+        /// <summary>
+        /// Comma separated Device Udid IDs list
+        /// </summary>
+        [DataMember(Name = "udidIn")]
+        [JsonProperty("udidIn")]
+        [XmlElement(ElementName = "udidIn")]
+        [SchemeProperty(DynamicMinInt = 0)]
+        public string UdidIn { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.CAMPAIGN;
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.UdidIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceUdidCondition.udidIn");
+            }
+        }
     }
 
     /// <summary>

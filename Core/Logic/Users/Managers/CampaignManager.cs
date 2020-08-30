@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Linq;
 using ApiObjects.EventBus;
+using TVinciShared;
 
 namespace ApiLogic.Users.Managers
 {
@@ -105,7 +106,7 @@ namespace ApiLogic.Users.Managers
                     }
                 }
 
-                campaignToAdd.CreateDate = TVinciShared.DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
+                campaignToAdd.CreateDate = DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
 
                 var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd);
@@ -139,25 +140,25 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<Campaign>();
             try
             {
-                var campaign = Get(contextData, campaignToUpdate.Id)?.Object as TriggerCampaign;
+                var _response = Get(contextData, campaignToUpdate.Id);
+                if (!_response.IsOkStatusCode() || !(_response.Object is TriggerCampaign))
+                {
+                    response.SetStatus(eResponseStatus.Error, $"Couldn't update TriggerCampaign: {campaignToUpdate.Id}");
+                    return response;
+                }
 
-                //Check if trigger campaign exist
+                var campaign = response.Object as TriggerCampaign;
+
                 if (campaign == null)
                 {
                     response.SetStatus(eResponseStatus.Error, $"Couldn't update TriggerCampaign: {campaign.Id}, campaign not found");
-                    return response;
-                }
-                //Check if trigger campaign can be update (not dispatched yet)
-                if (campaign.IsActive)
-                {
-                    response.SetStatus(eResponseStatus.Error, $"Couldn't update TriggerCampaign: {campaign.Id}, campaign was dispatched");
                     return response;
                 }
 
                 ValidateParametersForUpdate(campaignToUpdate);
                 FillCampaignTriggerObject(campaign, campaignToUpdate);
 
-                campaignToUpdate.UpdateDate = TVinciShared.DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
+                campaignToUpdate.UpdateDate = DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 campaignToUpdate.GroupId = contextData.GroupId;
 
                 if (PricingDAL.Update_Campaign(campaignToUpdate))
@@ -177,7 +178,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> DispatchTriggerCampaign(ContextData contextData, long campaignId)
+        public GenericResponse<Campaign> ActivateTriggerCampaign(ContextData contextData, long campaignId)
         {
             var response = new GenericResponse<Campaign>();
             try
@@ -190,7 +191,7 @@ namespace ApiLogic.Users.Managers
                 }
 
                 var tCampaign = campaign.Object as TriggerCampaign;
-                var validated = ValidateDispatch(tCampaign);
+                var validated = ValidateActivation(tCampaign);
 
                 if (!validated.IsOkStatusCode())
                 {
@@ -198,17 +199,48 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                Dispatch(contextData, tCampaign, response);
+                Activate(contextData, tCampaign, response);
             }
             catch (Exception ex)
             {
-                log.Error($"Error while dispatching TriggerCampaign({campaignId}). contextData: {contextData}, ex: {ex}", ex);
+                log.Error($"Error while activating TriggerCampaign({campaignId}). contextData: {contextData}, ex: {ex}", ex);
             }
 
             return response;
         }
 
-        private void Dispatch(ContextData contextData, TriggerCampaign triggerCampaign, GenericResponse<Campaign> response)
+        public GenericResponse<Campaign> DeactivateTriggerCampaign(ContextData contextData, long campaignId)
+        {
+            var response = new GenericResponse<Campaign>();
+            try
+            {
+                var campaign = Get(contextData, campaignId);
+                if (!campaign.IsOkStatusCode() || !(campaign.Object is TriggerCampaign))
+                {
+                    response.SetStatus(campaign.Status);
+                    return response;
+                }
+
+                var tCampaign = campaign.Object as TriggerCampaign;
+                var validated = ValidateDeactivation(tCampaign);
+
+                if (!validated.IsOkStatusCode())
+                {
+                    response.SetStatus(validated);
+                    return response;
+                }
+
+                Deactivate(contextData, tCampaign, response);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while deactivating TriggerCampaign({campaignId}). contextData: {contextData}, ex: {ex}", ex);
+            }
+
+            return response;
+        }
+
+        private void Activate(ContextData contextData, TriggerCampaign triggerCampaign, GenericResponse<Campaign> response)
         {
             triggerCampaign.IsActive = true;
 
@@ -222,11 +254,25 @@ namespace ApiLogic.Users.Managers
                 response.SetStatus(eResponseStatus.Error, $"Error Updating TriggerCampaign: [{triggerCampaign.Id}] for group: {contextData.GroupId}");
         }
 
+        private void Deactivate(ContextData contextData, TriggerCampaign triggerCampaign, GenericResponse<Campaign> response)
+        {
+            triggerCampaign.IsActive = false;
+
+            if (PricingDAL.Update_Campaign(triggerCampaign))
+            {
+                SetInvalidationKeys(contextData);
+                response.Object = Get(contextData, triggerCampaign.Id)?.Object;
+                response.SetStatus(eResponseStatus.OK);
+            }
+            else
+                response.SetStatus(eResponseStatus.Error, $"Error Updating TriggerCampaign: [{triggerCampaign.Id}] for group: {contextData.GroupId}");
+        }
+
         /// <summary>
-        /// check if can be dispatched
+        /// check if can be activate
         /// </summary>
         /// <param name="object"></param>
-        private Status ValidateDispatch(TriggerCampaign campaign)
+        private Status ValidateActivation(TriggerCampaign campaign)
         {
             var status = Status.Ok;
             //Todo - Shir or Matan
@@ -249,6 +295,23 @@ namespace ApiLogic.Users.Managers
             {
                 log.Error($"Campaign: {campaign.Id} must have a t least a single discount condition, campaign event: {campaign.CampaignJson}");
                 status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} must have a t least a single discount condition");
+            }
+
+            return status;
+        }
+
+
+        /// <summary>
+        /// check if can be deactivate
+        /// </summary>
+        /// <param name="object"></param>
+        private Status ValidateDeactivation(TriggerCampaign campaign)
+        {
+            var status = Status.Ok;
+            if (!campaign.IsActive)
+            {
+                log.Error($"Campaign: {campaign.Id} is not active, campaign event: {campaign.CampaignJson}");
+                status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} is not active");
             }
 
             return status;

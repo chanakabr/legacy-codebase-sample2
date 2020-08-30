@@ -2076,6 +2076,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDeviceBrandCondition":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaDeviceBrandListResponse":
                     switch(property.Name)
                     {
@@ -2106,11 +2114,35 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDeviceFamilyCondition":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaDeviceFamilyListResponse":
                     switch(property.Name)
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaDeviceManufacturerCondition":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaDeviceModelCondition":
+                    switch(property.Name)
+                    {
+                        case "RegexEqual":
+                            return "regexEqual";
                     }
                     break;
                     
@@ -2183,6 +2215,14 @@ namespace WebAPI.Reflection
                     {
                         case "LastAccessDateGreaterThanOrEqual":
                             return "lastAccessDateGreaterThanOrEqual";
+                    }
+                    break;
+                    
+                case "KalturaDeviceUdidCondition":
+                    switch(property.Name)
+                    {
+                        case "UdidIn":
+                            return "udidIn";
                     }
                     break;
                     
@@ -7740,9 +7780,13 @@ namespace WebAPI.Reflection
                 case "campaign":
                     switch(action)
                     {
-                        case "dispatch":
-                            RolesManager.ValidateActionPermitted("campaign", "dispatch", false);
-                            return CampaignController.Dispatch((long) methodParams[0]);
+                        case "activate":
+                            RolesManager.ValidateActionPermitted("campaign", "activate", false);
+                            return CampaignController.Activate((long) methodParams[0]);
+                            
+                        case "deactivate":
+                            RolesManager.ValidateActionPermitted("campaign", "deactivate", false);
+                            return CampaignController.Deactivate((long) methodParams[0]);
                             
                         case "add":
                             RolesManager.ValidateActionPermitted("campaign", "add");
@@ -12906,7 +12950,14 @@ namespace WebAPI.Reflection
                 case "campaign":
                     switch(action)
                     {
-                        case "dispatch":
+                        case "activate":
+                            ret.Add("campaignId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "deactivate":
                             ret.Add("campaignId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),

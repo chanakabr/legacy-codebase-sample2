@@ -21009,6 +21009,44 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaDeviceBrandCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaDeviceBrandListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -21049,7 +21087,7 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaDeviceBrandTriggerCondition
+    public partial class KalturaDeviceFamilyCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
@@ -21062,6 +21100,10 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
             return ret;
         }
         
@@ -21076,6 +21118,10 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
             return ret;
         }
     }
@@ -21119,7 +21165,7 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaDeviceFamilyTriggerCondition
+    public partial class KalturaDeviceManufacturerCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
@@ -21132,6 +21178,10 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
             return ret;
         }
         
@@ -21146,10 +21196,14 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
             return ret;
         }
     }
-    public partial class KalturaDeviceManufacturerTriggerCondition
+    public partial class KalturaDeviceModelCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
@@ -21162,6 +21216,10 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(RegexEqual != null && (retrievedProperties == null || retrievedProperties.Contains("regexEqual")))
+            {
+                ret.Add("regexEqual", "\"regexEqual\": " + "\"" + EscapeJson(RegexEqual) + "\"");
+            }
             return ret;
         }
         
@@ -21176,10 +21234,14 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(RegexEqual != null && (retrievedProperties == null || retrievedProperties.Contains("regexEqual")))
+            {
+                ret.Add("regexEqual", "<regexEqual>" + EscapeXml(RegexEqual) + "</regexEqual>");
+            }
             return ret;
         }
     }
-    public partial class KalturaDeviceModelTriggerCondition
+    public partial class KalturaDeviceUdidCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
@@ -21192,6 +21254,10 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(UdidIn != null && (retrievedProperties == null || retrievedProperties.Contains("udidIn")))
+            {
+                ret.Add("udidIn", "\"udidIn\": " + "\"" + EscapeJson(UdidIn) + "\"");
+            }
             return ret;
         }
         
@@ -21206,36 +21272,10 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            return ret;
-        }
-    }
-    public partial class KalturaDeviceUdidTriggerCondition
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
+            if(UdidIn != null && (retrievedProperties == null || retrievedProperties.Contains("udidIn")))
             {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+                ret.Add("udidIn", "<udidIn>" + EscapeXml(UdidIn) + "</udidIn>");
             }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
             return ret;
         }
     }

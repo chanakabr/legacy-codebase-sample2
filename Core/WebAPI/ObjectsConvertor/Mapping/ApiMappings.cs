@@ -943,21 +943,76 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
                .IncludeBase<RuleCondition, KalturaCondition>();
 
-            cfg.CreateMap<KalturaDeviceBrandTriggerCondition, DeviceBrandTriggerCondition>()
+            //new - Campaign conditions
+            cfg.CreateMap<KalturaDeviceBrandCondition, DeviceBrandCondition>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
-                ;
+                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) 
+                ? src.GetItemsIn<List<int>, int>(src.IdIn, "KalturaDeviceBrandCondition.IdIn", true) : null));
+            ;
 
-            cfg.CreateMap<DeviceBrandTriggerCondition, KalturaDeviceBrandTriggerCondition>()
+            cfg.CreateMap<DeviceBrandCondition, KalturaDeviceBrandCondition>()
                 .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)))
                 ;
 
-            cfg.CreateMap<KalturaDeviceFamilyTriggerCondition, DeviceFamilyTriggerCondition>()
+            cfg.CreateMap<KalturaDeviceFamilyCondition, DeviceFamilyCondition>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
+                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) 
+                ? src.GetItemsIn<List<int>, int>(src.IdIn, "KalturaDeviceFamilyCondition.IdIn", true) : null));
+            ;
+
+            cfg.CreateMap<DeviceFamilyCondition, KalturaDeviceFamilyCondition>()
+                .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)))
                 ;
 
-            cfg.CreateMap<DeviceFamilyTriggerCondition, KalturaDeviceFamilyTriggerCondition>()
+            cfg.CreateMap<KalturaDeviceManufacturerCondition, DeviceManufacturerCondition>()
+                .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
+                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) 
+                ? src.GetItemsIn<List<int>, int>(src.IdIn, "KalturaDeviceManufacturerCondition.IdIn", true) : null));
+            ;
+
+            cfg.CreateMap<DeviceManufacturerCondition, KalturaDeviceManufacturerCondition>()
                 .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)))
                 ;
+
+            cfg.CreateMap<KalturaDeviceModelCondition, DeviceModelCondition>()
+                .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
+                .ForMember(dest => dest.RegexEqual, opt => opt.MapFrom(src => src.RegexEqual))
+                ;
+
+            cfg.CreateMap<DeviceModelCondition, KalturaDeviceModelCondition>()
+                .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.RegexEqual, opt => opt.MapFrom(src => src.RegexEqual))
+                ;
+
+            cfg.CreateMap<KalturaDeviceUdidCondition, DeviceUdidCondition>()
+                .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
+                .ForMember(dest => dest.UdidIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.UdidIn) 
+                ? src.GetItemsIn<List<int>, int>(src.UdidIn, "KalturaDeviceUdidCondition.UdidIn", true) : null));
+            ;
+
+            cfg.CreateMap<DeviceUdidCondition, KalturaDeviceUdidCondition>()
+                .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.UdidIn, opt => opt.MapFrom(src => string.Join(",", src.UdidIn)))
+                ;
+
+            //cfg.CreateMap<KalturaDeviceBrandTriggerCondition, DeviceBrandTriggerCondition>()
+            //    .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
+            //    ;
+
+            //cfg.CreateMap<DeviceBrandTriggerCondition, KalturaDeviceBrandTriggerCondition>()
+            //    .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
+            //    ;
+
+            //cfg.CreateMap<KalturaDeviceFamilyTriggerCondition, DeviceFamilyTriggerCondition>()
+            //    .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
+            //    ;
+
+            //cfg.CreateMap<DeviceFamilyTriggerCondition, KalturaDeviceFamilyTriggerCondition>()
+            //    .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
+            //    ;
 
             cfg.CreateMap<KalturaCondition, RuleBaseCondition<IUserRoleConditionScope>>()
                .IncludeBase<KalturaCondition, RuleCondition>();

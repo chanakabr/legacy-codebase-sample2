@@ -364,9 +364,11 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class DeviceBrandTriggerCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    public class DeviceBrandCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
     {
-        public DeviceBrandTriggerCondition()
+        public List<int> IdIn { get; set; }
+
+        public DeviceBrandCondition()
         {
             Type = RuleConditionType.Campaign;
         }
@@ -382,9 +384,65 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class DeviceFamilyTriggerCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    public class DeviceFamilyCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
     {
-        public DeviceFamilyTriggerCondition()
+        public List<int> IdIn { get; set; }
+
+        public DeviceFamilyCondition()
+        {
+            Type = RuleConditionType.Campaign;
+        }
+
+        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
+        {
+            if (!scope.Family.HasValue) { return false; }
+            return true;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class DeviceManufacturerCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    {
+        public List<int> IdIn { get; set; }
+
+        public DeviceManufacturerCondition()
+        {
+            Type = RuleConditionType.Campaign;
+        }
+
+        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
+        {
+            if (!scope.Family.HasValue) { return false; }
+            return true;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class DeviceModelCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    {
+        public string RegexEqual { get; set; }
+
+        public DeviceModelCondition()
+        {
+            Type = RuleConditionType.Campaign;
+        }
+
+        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
+        {
+            if (!scope.Family.HasValue) { return false; }
+            return true;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class DeviceUdidCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    {
+        public List<int> UdidIn { get; set; }
+
+        public DeviceUdidCondition()
         {
             Type = RuleConditionType.Campaign;
         }
