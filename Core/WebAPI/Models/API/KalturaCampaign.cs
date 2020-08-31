@@ -86,13 +86,22 @@ namespace WebAPI.Models.API
         public long EndDate { get; set; }
 
         /// <summary>
-        /// isActive
+        /// status
         /// </summary>
-        [DataMember(Name = "isActive")]
-        [JsonProperty("isActive")]
-        [XmlElement(ElementName = "isActive")]
+        [DataMember(Name = "status")]
+        [JsonProperty("status")]
+        [XmlElement(ElementName = "status")]
         [SchemeProperty(ReadOnly = true)]
-        public bool IsActive { get; set; }
+        public int Status { get; set; }
+
+        /// <summary>
+        /// state
+        /// </summary>
+        [DataMember(Name = "state")]
+        [JsonProperty("state")]
+        [XmlElement(ElementName = "state")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaObjectState State { get; set; }
 
         /// <summary>
         /// The discount module id that is promoted to the user
@@ -194,5 +203,12 @@ namespace WebAPI.Models.API
     public partial class KalturaCampaignListResponse : KalturaListResponse<KalturaCampaign>
     {
         public KalturaCampaignListResponse() : base() { }
+    }
+
+    public enum KalturaObjectState
+    {
+        INACTIVE = 0,
+        ACTIVE = 1,
+        ARCHIVE = 2
     }
 }

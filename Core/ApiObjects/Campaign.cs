@@ -23,9 +23,15 @@ namespace ApiObjects
         
         public string Description { get; set; }
 
-        [DBFieldMapping("is_active")]
-        public bool IsActive { get; set; }
-        
+        [DBFieldMapping("state")]
+        public ObjectState State { get; set; }
+
+        [DBFieldMapping("status")]
+        public int Status { get; set; }
+
+        [DBFieldMapping("updater_id")]
+        public long UpdaterId { get; set; }
+
         public long? DiscountModuleId { get; set; }
         
         public string Message { get; set; }
@@ -153,6 +159,13 @@ namespace ApiObjects
     public enum ApiService
     {
         DomainDevice = 0
+    }
+
+    public enum ObjectState
+    {
+        INACTIVE = 0,
+        ACTIVE = 1,
+        ARCHIVE = 2
     }
 
     public class BatchCampaign : Campaign
