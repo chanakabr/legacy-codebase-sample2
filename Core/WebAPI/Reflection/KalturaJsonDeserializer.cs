@@ -15997,7 +15997,17 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute IsActiveSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
+        private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute StateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -16085,13 +16095,26 @@ namespace WebAPI.Models.API
                 {
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
+                if (parameters.ContainsKey("status") && parameters["status"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
+                        StatusSchemaProperty.Validate("status", parameters["status"]);
                     }
-                    IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
+                    Status = (Int32) Convert.ChangeType(parameters["status"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("state") && parameters["state"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        StateSchemaProperty.Validate("state", parameters["state"]);
+                    }
+                    State = (KalturaObjectState) Enum.Parse(typeof(KalturaObjectState), parameters["state"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaObjectState), State))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", State, typeof(KalturaObjectState)));
+                    }
                 }
                 if (parameters.ContainsKey("discountModuleId__null") && parameters["discountModuleId__null"] != null)
                 {
@@ -16143,6 +16166,10 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("discountModuleIdApplied") && parameters["discountModuleIdApplied"] != null)
                 {
                     DiscountModuleIdApplied = (Int64) Convert.ChangeType(parameters["discountModuleIdApplied"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
         }

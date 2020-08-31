@@ -943,7 +943,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
                .IncludeBase<RuleCondition, KalturaCondition>();
 
-            //new - Campaign conditions
             cfg.CreateMap<KalturaDeviceBrandCondition, DeviceBrandCondition>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
                 .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn)
@@ -1397,6 +1396,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<Campaign, KalturaCampaign>()
                 .ForMember(dest => dest.DiscountConditions, opt => opt.MapFrom(src => src.DiscountConditions))
                 .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
+                ;
+
+            cfg.CreateMap<KalturaCampaignFilter, CampaignFilter>()
+                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? src.GetItemsIn<List<long>, long>(src.IdIn, "filter.idIn") : null))
+                ;
+
+            cfg.CreateMap<CampaignFilter, KalturaCampaignFilter>()
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)))
                 ;
 
             #endregion

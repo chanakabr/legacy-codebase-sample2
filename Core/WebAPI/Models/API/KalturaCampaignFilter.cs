@@ -25,13 +25,21 @@ namespace WebAPI.Models.API
     public partial class KalturaCampaignFilter : KalturaCrudFilter<KalturaCampaignOrderBy, Campaign>
     {
         /// <summary>
-        /// discount module id the campain applied on
+        /// discount module id the campaign applied on
         /// </summary>
         [DataMember(Name = "discountModuleIdApplied")]
         [JsonProperty("discountModuleIdApplied")]
         [XmlElement(ElementName = "discountModuleIdApplied", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public long? DiscountModuleIdApplied { get; set; }
+
+        /// <summary>
+        /// campaign id
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn", IsNullable = true)]
+        public string IdIn { get; set; }
 
         // TODO SHIR - CHECK PROP TO FILTER BY
 

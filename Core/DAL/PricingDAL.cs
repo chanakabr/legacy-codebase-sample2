@@ -1846,7 +1846,8 @@ namespace DAL
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", campaign.GroupId);
             sp.AddParameter("@id", campaign.Id);
-            sp.AddParameter("@isActive", campaign.IsActive);
+            sp.AddParameter("@isActive", campaign.Status);
+            //TODO - MATAN: sp.AddParameter("@State", campaign.State);
             sp.AddParameter("@startDate", campaign.StartDate);
             sp.AddParameter("@endDate", campaign.EndDate);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
@@ -1854,22 +1855,12 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        // TODO MATAN TBD: delete Get_Campaign
-        public static TriggerCampaign Get_Campaign(ContextData contextData, long campaignId)
-        {
-            var sp = new StoredProcedure("Get_Campaign");
-            sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", contextData.GroupId);
-            sp.AddParameter("@id", campaignId);
-            return sp.ExecuteDataSet().Tables[0].ToList<TriggerCampaign>().FirstOrDefault();
-        }
-
-        public static List<TriggerCampaign> List_Campaign(ContextData contextData)
+        public static List<T> List_Campaign<T>(ContextData contextData) where T : Campaign, new()
         {
             var sp = new StoredProcedure("List_Campaign");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", contextData.GroupId);
-            return sp.ExecuteDataSet().Tables[0].ToList<TriggerCampaign>();
+            return sp.ExecuteDataSet().Tables[0].ToList<T>();
         }
 
 
@@ -1881,6 +1872,9 @@ namespace DAL
             sp.AddParameter("@createDate", campaign.CreateDate);
             sp.AddParameter("@startDate", campaign.StartDate);
             sp.AddParameter("@endDate", campaign.EndDate);
+            //TODO - MATAN:
+            //sp.AddParameter("@updaterId", campaign.UpdaterId);
+            //sp.AddParameter("@status", campaign.Status);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
             return sp.ExecuteDataSet().Tables[0].ToList<T>().FirstOrDefault();

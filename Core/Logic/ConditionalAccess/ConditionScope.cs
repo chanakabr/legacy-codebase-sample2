@@ -240,7 +240,6 @@ namespace APILogic.ConditionalAccess
 
             if (campaign.IsOkStatusCode())
             {
-                //return campaign.Object.CampaignConditions.Where(c=>c.Type == RuleConditionType.Campaign).Select(c=>c.)
             }
             return null;
         }

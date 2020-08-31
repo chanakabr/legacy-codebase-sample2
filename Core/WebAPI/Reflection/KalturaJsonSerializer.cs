@@ -19938,10 +19938,6 @@ namespace WebAPI.Models.API
             {
                 ret.Add("id", "\"id\": " + Id);
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("isActive")))
-            {
-                ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
-            }
             if(Message != null && (retrievedProperties == null || retrievedProperties.Contains("message")))
             {
                 ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
@@ -19953,6 +19949,14 @@ namespace WebAPI.Models.API
             if((retrievedProperties == null || retrievedProperties.Contains("startDate")))
             {
                 ret.Add("startDate", "\"startDate\": " + StartDate);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("state")))
+            {
+                ret.Add("state", "\"state\": " + "\"" + Enum.GetName(typeof(KalturaObjectState), State) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("status")))
+            {
+                ret.Add("status", "\"status\": " + Status);
             }
             if(SystemName != null && (retrievedProperties == null || retrievedProperties.Contains("systemName")))
             {
@@ -20006,10 +20010,6 @@ namespace WebAPI.Models.API
             {
                 ret.Add("id", "<id>" + Id + "</id>");
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("isActive")))
-            {
-                ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
-            }
             if(Message != null && (retrievedProperties == null || retrievedProperties.Contains("message")))
             {
                 ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
@@ -20021,6 +20021,14 @@ namespace WebAPI.Models.API
             if((retrievedProperties == null || retrievedProperties.Contains("startDate")))
             {
                 ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("state")))
+            {
+                ret.Add("state", "<state>" + "" + Enum.GetName(typeof(KalturaObjectState), State) + "" + "</state>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("status")))
+            {
+                ret.Add("status", "<status>" + Status + "</status>");
             }
             if(SystemName != null && (retrievedProperties == null || retrievedProperties.Contains("systemName")))
             {
@@ -20050,6 +20058,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("discountModuleIdApplied", "\"discountModuleIdApplied\": " + DiscountModuleIdApplied);
             }
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
             return ret;
         }
         
@@ -20067,6 +20079,10 @@ namespace WebAPI.Models.API
             if(DiscountModuleIdApplied.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountModuleIdApplied")))
             {
                 ret.Add("discountModuleIdApplied", "<discountModuleIdApplied>" + DiscountModuleIdApplied + "</discountModuleIdApplied>");
+            }
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
             }
             return ret;
         }
@@ -29381,7 +29397,7 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(!isOldVersion && OriginalPrice != null && (retrievedProperties == null || retrievedProperties.Contains("originalPrice")))
+            if(OriginalPrice != null && (retrievedProperties == null || retrievedProperties.Contains("originalPrice")))
             {
                 propertyValue = OriginalPrice.ToJson(currentVersion, omitObsolete);
                 ret.Add("originalPrice", "\"originalPrice\": " + propertyValue);
@@ -29425,7 +29441,7 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(!isOldVersion && OriginalPrice != null && (retrievedProperties == null || retrievedProperties.Contains("originalPrice")))
+            if(OriginalPrice != null && (retrievedProperties == null || retrievedProperties.Contains("originalPrice")))
             {
                 propertyValue = OriginalPrice.ToXml(currentVersion, omitObsolete);
                 ret.Add("originalPrice", "<originalPrice>" + propertyValue + "</originalPrice>");

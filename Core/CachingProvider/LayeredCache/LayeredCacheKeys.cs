@@ -711,6 +711,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("payment_partner_config_{0}", groupId);
         }
 
+        public static string GetGroupCampaignKey(int groupId, string type)
+        {
+            return $"group_campaign_{groupId}_{type}";
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1360,6 +1365,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupIotClientConfigInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_groupIotClientConfig_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupCampaignInvalidationKey(int groupId, string type)
+        {
+            return $"invalidationKey_group_campaign_{groupId}_{type}";
         }
 
         #endregion

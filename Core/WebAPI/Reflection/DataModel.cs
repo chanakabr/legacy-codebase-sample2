@@ -1205,14 +1205,16 @@ namespace WebAPI.Reflection
                             return "endDate";
                         case "Id":
                             return "id";
-                        case "IsActive":
-                            return "isActive";
                         case "Message":
                             return "message";
                         case "Name":
                             return "name";
                         case "StartDate":
                             return "startDate";
+                        case "State":
+                            return "state";
+                        case "Status":
+                            return "status";
                         case "SystemName":
                             return "systemName";
                         case "UpdateDate":
@@ -1225,6 +1227,8 @@ namespace WebAPI.Reflection
                     {
                         case "DiscountModuleIdApplied":
                             return "discountModuleIdApplied";
+                        case "IdIn":
+                            return "idIn";
                     }
                     break;
                     

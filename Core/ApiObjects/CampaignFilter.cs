@@ -6,7 +6,7 @@ namespace ApiObjects
 {
     public class CampaignFilter : ICrudFilter
     {
-
+        public List<long> IdIn { get; set; }
     }
 
     public class TriggerCampaignFilter : CampaignFilter

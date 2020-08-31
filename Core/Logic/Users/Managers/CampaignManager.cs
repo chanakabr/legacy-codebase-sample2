@@ -13,6 +13,8 @@ using Newtonsoft.Json;
 using System.Linq;
 using ApiObjects.EventBus;
 using TVinciShared;
+using System.Collections.Generic;
+using CachingProvider.LayeredCache;
 
 namespace ApiLogic.Users.Managers
 {
@@ -34,7 +36,7 @@ namespace ApiLogic.Users.Managers
         public GenericResponse<Campaign> Get(ContextData contextData, long id)
         {
             var response = new GenericResponse<Campaign>();
-            var campaign = PricingDAL.Get_Campaign(contextData, id);//TODO - Shir or Matan: Get from cached list
+            var campaign = List(contextData, null, null)?.Objects?.Where(camp => camp.Id == id).FirstOrDefault();
             if (campaign == null || campaign.Id == 0)
             {
                 response.SetStatus(eResponseStatus.Error, $"Campaign not found, id: {id}");
@@ -53,25 +55,40 @@ namespace ApiLogic.Users.Managers
             //Get and List should be separated by inheritance type?
 
             var response = new GenericListResponse<Campaign>();
-            var campaigns = PricingDAL.List_Campaign(contextData);//Cache?
-            if (campaigns == null || campaigns.Count == 0)
-            {
-                response.SetStatus(eResponseStatus.Error, $"Campaigns not found, ContextData: {contextData}");
-                return response;
-            }
-
-            response.Objects = campaigns.Select(cmp => JsonConvert.DeserializeObject<Campaign>(cmp.CoreObject)).ToList();
-            response.SetStatus(eResponseStatus.OK);
-
             return response;
         }
 
         public GenericListResponse<TriggerCampaign> ListTriggerCampaigns(ContextData contextData, TriggerCampaignFilter filter, CorePager pager = null)
         {
+            var response = new GenericListResponse<TriggerCampaign>();
+            
             if (pager == null)
             {
                 pager = new CorePager();
             }
+
+            if (filter == null)
+            {
+                filter = new TriggerCampaignFilter();
+            }
+
+            var campaigns = GetList<TriggerCampaign>(contextData);
+            
+            if (!campaigns.IsOkStatusCode())
+            {
+                response.SetStatus(campaigns.Status);
+                return response;
+            }
+
+            if (filter.IdIn?.Count > 0)
+            {
+                campaigns.Objects = campaigns.Objects.Where(camp => filter.IdIn.Contains(camp.Id)).ToList();
+            }
+
+            response.Objects = campaigns.Objects.Select(cmp => JsonConvert.DeserializeObject<TriggerCampaign>(cmp.CoreObject)).ToList();
+            response.SetStatus(eResponseStatus.OK);
+
+            return response;
 
             // TODO SHIR / MATAN - ListTriggerCampaigns WHEN ODED WILL FINISH WITH SPEC
             //TODO SHIR FILTER by WITH INSERT ACTION AND DOMAIN DEVICE OBJECT
@@ -86,7 +103,8 @@ namespace ApiLogic.Users.Managers
             {
                 // TODO SHIR what else need to be validate??
                 campaignToAdd.GroupId = contextData.GroupId;
-                campaignToAdd.IsActive = false;
+                //campaignToAdd.IsActive = false;
+                campaignToAdd.Status = 0;
 
                 //TODO SHIR  set filter 
                 var triggerCampaignFilter = new TriggerCampaignFilter();
@@ -106,8 +124,12 @@ namespace ApiLogic.Users.Managers
                     }
                 }
 
+                //TODO - MATAN, TBD: Add init ?
                 campaignToAdd.CreateDate = DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
+                campaignToAdd.UpdaterId = contextData.UserId.Value;
+                campaignToAdd.Status = 0;
+                campaignToAdd.State = ObjectState.INACTIVE;
 
                 var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd);
                 if (insertedCampaign?.Id > 0)
@@ -242,7 +264,9 @@ namespace ApiLogic.Users.Managers
 
         private void Activate(ContextData contextData, TriggerCampaign triggerCampaign, GenericResponse<Campaign> response)
         {
-            triggerCampaign.IsActive = true;
+            //triggerCampaign.IsActive = true;
+            triggerCampaign.State = ObjectState.ACTIVE;
+            triggerCampaign.Status = 1;
 
             if (PricingDAL.Update_Campaign(triggerCampaign))
             {
@@ -256,7 +280,9 @@ namespace ApiLogic.Users.Managers
 
         private void Deactivate(ContextData contextData, TriggerCampaign triggerCampaign, GenericResponse<Campaign> response)
         {
-            triggerCampaign.IsActive = false;
+            //triggerCampaign.IsActive = false;
+            triggerCampaign.State = ObjectState.INACTIVE;
+            triggerCampaign.Status = 0;
 
             if (PricingDAL.Update_Campaign(triggerCampaign))
             {
@@ -276,7 +302,8 @@ namespace ApiLogic.Users.Managers
         {
             var status = Status.Ok;
             //Todo - Shir or Matan
-            if (campaign.IsActive)
+            //if (campaign.IsActive)
+            if (campaign.Status == 1 || campaign.State == ObjectState.ACTIVE)
             {
                 log.Error($"Campaign: {campaign.Id} is already active, campaign event: {campaign.CampaignJson}");
                 status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} is already active");
@@ -308,7 +335,8 @@ namespace ApiLogic.Users.Managers
         private Status ValidateDeactivation(TriggerCampaign campaign)
         {
             var status = Status.Ok;
-            if (!campaign.IsActive)
+            //if (!campaign.IsActive)
+            if (campaign.Status != 1)
             {
                 log.Error($"Campaign: {campaign.Id} is not active, campaign event: {campaign.CampaignJson}");
                 status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} is not active");
@@ -362,10 +390,10 @@ namespace ApiLogic.Users.Managers
             {
                 campaignToUpdate.EndDate = campaign.EndDate;
             }
-            if (campaignToUpdate.IsActive == default)
-            {
-                campaignToUpdate.IsActive = campaign.IsActive;
-            }
+            //if (campaignToUpdate.IsActive == default)
+            //{
+            //    campaignToUpdate.IsActive = campaign.IsActive;
+            //}
             if (string.IsNullOrEmpty(campaignToUpdate.Message))
             {
                 campaignToUpdate.Message = campaign.Message;
@@ -461,6 +489,54 @@ namespace ApiLogic.Users.Managers
 
             var publisher = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
             publisher.Publish(serviceEvent);
+        }
+
+        private GenericListResponse<T> GetList<T>(ContextData contextData) where T : Campaign, new()
+        {
+            var response = new GenericListResponse<T>();
+            try
+            {
+                var type = typeof(T).Name;
+                IEnumerable<T> campaigns = null;
+                var cacheResult = LayeredCache.Instance.Get(
+                    LayeredCacheKeys.GetGroupCampaignKey(contextData.GroupId, type),
+                    ref campaigns,
+                    GetCampaignsByGroupId<T>,
+                    new Dictionary<string, object>() { { "groupId", contextData.GroupId } },
+                    contextData.GroupId,
+                    LayeredCacheConfigNames.GET_GROUP_CAMPAIGNS,
+                    new List<string>() { LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, type) });
+
+                if (campaigns != null && campaigns.Count() > 0)
+                {
+                    response.Objects.AddRange(campaigns);
+                }
+
+                response.SetStatus(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"ex: {ex}", ex);
+                response.SetStatus(eResponseStatus.Error, $"Couldn't get list of campaigns for group: {contextData.GroupId}");
+            }
+
+            return response;
+        }
+
+        private static Tuple<IEnumerable<T>, bool> GetCampaignsByGroupId<T>(Dictionary<string, object> arg) where T : Campaign, new()
+        {
+            try
+            {
+                var groupId = (int)arg["groupId"];
+                var contextData = new ContextData(groupId);
+                var list = PricingDAL.List_Campaign<T>(contextData);
+                return new Tuple<IEnumerable<T>, bool>(list, true);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to get Campaign list from DB group:[{arg["groupId"]}], ex: {ex}", ex);
+                return new Tuple<IEnumerable<T>, bool>(Enumerable.Empty<T>(), false);
+            }
         }
     }
 }

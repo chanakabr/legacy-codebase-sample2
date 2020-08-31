@@ -127,6 +127,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_PAYMENT_PARTNER_CONFIG = "GetPaymentPartnerConfigDB";
         public const string GET_DEVICE_REFERENCE_DATA = "GetDeviceReferenceDataDB";
         public const string GET_GROUP_PERMISSIONS = "GetGroupPermissions";
+        public const string GET_GROUP_CAMPAIGNS = "GetGroupCampaigns";
 
         #endregion
 
