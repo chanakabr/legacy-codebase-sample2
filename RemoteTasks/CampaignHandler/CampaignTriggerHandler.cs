@@ -6,11 +6,11 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ApiObjects.Base;
 using ApiLogic.Users.Managers;
-using System.Collections.Generic;
 using domain = Core.Domains.Module;
-using Core.Notification;
 using ApiObjects.Notification;
 using ApiObjects;
+using System.Linq;
+using Core.Users;
 
 namespace CampaignHandler
 {
@@ -20,6 +20,7 @@ namespace CampaignHandler
 
         public CampaignTriggerHandler()
         {
+            _Logger.Debug("Starting 'CampaignTriggerHandler'");
         }
 
         public Task Handle(CampaignTriggerEvent serviceEvent)
@@ -32,15 +33,17 @@ namespace CampaignHandler
                     Action = (ApiAction)serviceEvent.ApiAction
                 };
 
-                var contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId };
-                var domainUsers = domain.GetDomainUserList((int)serviceEvent.DomainId, serviceEvent.GroupId);
+                var domain = new Domain((int)serviceEvent.DomainId);
 
-                if (domainUsers == null || domainUsers.Count == 0)
+                if (!domain.Initialize(serviceEvent.GroupId, (int)serviceEvent.DomainId) || domain.m_UsersIDs == null)
                 {
-                    _Logger.Error($"No domain users for domain: {contextData.DomainId}, group: {contextData.GroupId}");
+                    _Logger.Error($"No users for domain: {domain.Id}, group: {domain.GroupId}");
                     return Task.CompletedTask;
                 }
 
+                var master = domain.m_masterGUIDs.FirstOrDefault();
+
+                var contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = master };
                 var triggerCampaigns = CampaignManager.Instance.ListTriggerCampaigns(contextData, filter);
 
                 if (!triggerCampaigns.HasObjects())
@@ -59,19 +62,13 @@ namespace CampaignHandler
                         continue;
                     }
 
-                    var _filter = new List<eMessageCategory> { eMessageCategory.Campaign };
-
-                    Parallel.ForEach(domainUsers, user =>
+                    //Send to all users or only Master-user - TBD - Ask Oded? TODO - MATAN
+                    Parallel.ForEach(domain.m_UsersIDs, user =>
                     {
-                        if (!int.TryParse(user, out int userId))
+                        var _contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = user };
+                        if (CampaignManager.Instance.ValidateCampaignConditionsToUser(_contextData, _triggerCampaign))
                         {
-                            _Logger.Info($"Incorrect user: {user} was sent to CampaignTriggerHandler, campaign: {_triggerCampaign.Id}");
-                            return;
-                        }
-
-                        if (CampaignManager.Instance.ValidateCampaignConditionsToUser(contextData, _triggerCampaign))
-                        {
-                            AddMessageToInbox(serviceEvent, userId, _triggerCampaign);
+                            AddMessageToInbox(serviceEvent, user, _triggerCampaign);
                         }
                     });
                 }
@@ -96,6 +93,7 @@ namespace CampaignHandler
                 return;
             }
 
+            var ttl = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(campaign.EndDate) - DateTime.UtcNow;
             var current = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
 
             //Add to user Inbox
@@ -110,8 +108,7 @@ namespace CampaignHandler
                 Category = eMessageCategory.Campaign
             };
 
-            if (!DAL.NotificationDal.SetCampaignInboxMessage(serviceEvent.GroupId, inboxMessage, campaign.Id,
-                NotificationSettings.GetInboxMessageTTLDays(serviceEvent.GroupId)))
+            if (!DAL.NotificationDal.SetCampaignInboxMessage(serviceEvent.GroupId, inboxMessage, campaign.Id, ttl.Days))
             {
                 _Logger.Error($"Failed to add campaign message (campaign: {campaign.Id}) to User: {userId} Inbox");
                 DAL.NotificationDal.SetInboxMessageCampaignMapping(serviceEvent.GroupId, serviceEvent.UserId, campaign, inboxMessage.Id);//update mapping
