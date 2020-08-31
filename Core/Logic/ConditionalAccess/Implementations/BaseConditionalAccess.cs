@@ -70,7 +70,7 @@ namespace Core.ConditionalAccess
         internal const long DEFAULT_RECONCILIATION_FREQUENCY_SECONDS = 7200;
         internal const string ILLEGAL_CONTENT_ID = "Illegal content ID";
         internal const string CONTENT_ID_WITH_NO_RELATED_MEDIA = "Content ID with no related media";
-        internal const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
+        public const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         internal const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
         internal const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
         internal const double RECORDING_CLEANUP_INTERVAL_SEC = 86400;
@@ -1564,10 +1564,10 @@ namespace Core.ConditionalAccess
             return InAppRes.m_oBillingResponse;
         }
 
-        internal ApiObjects.Response.Status UpdateEntitlementEndDate(int groupId, long domainID, int entitlementType, Entitlement entitlement)
+        internal ApiObjects.Response.Status UpdateEntitlementEndDate(long domainID, int entitlementType, Entitlement entitlement)
         {
             var status = new ApiObjects.Response.Status();
-            var updateEndDate = EntitlementManager.UpdateEntitlementEndDate(groupId, (int)domainID, entitlement.purchaseID, entitlement.endDate, entitlementType);
+            var updateEndDate = EntitlementManager.UpdateEntitlementEndDate(this, (int)domainID, entitlement.purchaseID, entitlement.endDate, entitlementType);
             status.Set(updateEndDate.Status);
             return status;
         }

@@ -13,6 +13,7 @@ using Core.Pricing.Handlers;
 using Core.Users;
 using DAL;
 using KLogMonitor;
+using QueueWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TVinciShared;
 
 namespace Core.ConditionalAccess
 {
@@ -355,7 +357,9 @@ namespace Core.ConditionalAccess
                 // get entitelment with the current payment gateway id + current payment method id 
                 string billingGuid = string.Empty;
                 DateTime endDateFromDB = DateTime.MaxValue;
-                var subscriptionEntitlement = GetEntitlementById(cas, entitlement.purchaseID, domainID, ref billingGuid, ref endDateFromDB);
+                string userId = null;
+
+                var subscriptionEntitlement = GetEntitlementById(cas, entitlement.purchaseID, domainID, ref billingGuid, ref endDateFromDB, ref userId);
                 if (!subscriptionEntitlement.HasObject())
                 {
                     response.status.Set(subscriptionEntitlement.Status);
@@ -386,7 +390,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static GenericResponse<bool> UpdateEntitlementEndDate(int groupId, int domainId, int purchaseID, DateTime endDate, int typeId)
+        public static GenericResponse<bool> UpdateEntitlementEndDate(BaseConditionalAccess cas, int domainId, int entitlementId, DateTime endDate, int typeId)
         {
             var response = new GenericResponse<bool>();
             try
@@ -396,23 +400,88 @@ namespace Core.ConditionalAccess
                     throw new Exception("TypeId is invalid");
                 }
 
-                if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, domainId, purchaseID, endDate, typeId))
+                int groupId = cas.m_nGroupID;
+
+                if (typeId == (int)eTransactionType.Subscription)
                 {
-                    response.SetStatus(eResponseStatus.Error, "Failed to Update Entitlement EndDate");
-                    response.Object = false;
-                    return response;
+                    string billingGuid = string.Empty;
+                    DateTime endDateFromDB = DateTime.MaxValue;
+                    string userId = string.Empty;
+
+                    var entitlementResponse = GetEntitlementById(cas, entitlementId, domainId, ref billingGuid, ref endDateFromDB, ref userId, true);
+
+                    if (!entitlementResponse.HasObject())
+                    {
+                        throw new Exception(entitlementResponse.Status.Message);
+                    }
+
+                    var entitlement = entitlementResponse.Object;
+
+                    if (entitlement.UnifiedPaymentId > 0)
+                    {
+                        //error
+                    }
+
+                    if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, domainId, entitlementId, endDate, typeId))
+                    {
+                        response.SetStatus(eResponseStatus.Error, "Failed to Update Entitlement EndDate");
+                        response.Object = false;
+                        return response;
+                    }
+
+                    if (entitlement.recurringStatus)
+                    {
+                        // enqueue renew transaction
+                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                        DateTime nextRenewalDate = endDate.AddMinutes(-5);
+
+                        if (entitlement.paymentGatewayId > 0)
+                        {
+                            var paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayById(groupId, entitlement.paymentGatewayId);
+                            if (!paymentGatewayResponse.HasObject())
+                            {
+                                nextRenewalDate = endDate.AddMinutes(paymentGatewayResponse.Object.RenewalStartMinutes);
+                            }
+                        }
+
+                        var data = new RenewTransactionData(groupId, userId, entitlementId, billingGuid, DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate), nextRenewalDate);
+                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(BaseConditionalAccess.ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                        if (!enqueueSuccessful)
+                        {
+                            // log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                            //return true;
+                        }
+                        else
+                        {
+                            PurchaseManager.SendRenewalReminder(data, domainId);
+                            log.DebugFormat("New task created (upon UpdateEntitlementEndDate). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                        }
+                    }
+
+
                 }
+                else
+                {
+                    if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, domainId, entitlementId, endDate, typeId))
+                    {
+                        response.SetStatus(eResponseStatus.Error, "Failed to Update Entitlement EndDate");
+                        response.Object = false;
+                        return response;
+                    }
+                }
+
                 response.Object = true;
             }
             catch (Exception ex)
             {
-                log.Error($"Error updating Entitlement EndDate, purchaseID: {purchaseID}, type: {typeId}, ex: {ex}");
+                log.Error($"Error updating Entitlement EndDate, purchaseID: {entitlementId}, type: {typeId}, ex: {ex}");
                 response.SetStatus(eResponseStatus.Error, "Error updating EndDate");
             }
             return response;
         }
 
-        private static GenericResponse<Entitlement> GetEntitlementById(BaseConditionalAccess cas, long purchaseId, long domainId, ref string billingGuid, ref DateTime endDateFromDB)
+        private static GenericResponse<Entitlement> GetEntitlementById(BaseConditionalAccess cas, long purchaseId, long domainId, ref string billingGuid, 
+            ref DateTime endDateFromDB, ref string userId, bool includeNonRecurring = false)
         {
             var response = new GenericResponse<Entitlement>();
             DataRow dr = ConditionalAccessDAL.GetPurchaseByID((int)purchaseId);
@@ -432,16 +501,28 @@ namespace Core.ConditionalAccess
             }
 
             var subscriptionEntitlement = CreateSubscriptionEntitelment(cas, dr, false, null);
+
             if (!subscriptionEntitlement.recurringStatus)
             {
-                log.DebugFormat("GetEntitlementById - subscription for purchaseID {0} is not recurring.", purchaseId);
-                response.SetStatus(eResponseStatus.SubscriptionNotRenewable);
-                return response;
+                if (includeNonRecurring)
+                {
+                    response.Object = subscriptionEntitlement;
+                    response.SetStatus(eResponseStatus.OK);
+                }
+                else
+                {
+                    log.DebugFormat("GetEntitlementById - subscription for purchaseID {0} is not recurring.", purchaseId);
+                    response.SetStatus(eResponseStatus.SubscriptionNotRenewable);
+                }
             }
-            billingGuid = ODBCWrapper.Utils.GetSafeStr(dr, "BILLING_GUID");
-            endDateFromDB = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
-            response.Object = subscriptionEntitlement;
-            response.SetStatus(eResponseStatus.OK);
+            else
+            {
+                billingGuid = ODBCWrapper.Utils.GetSafeStr(dr, "BILLING_GUID");
+                endDateFromDB = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                userId = ODBCWrapper.Utils.GetSafeStr(dr, "SITE_USER_GUID");
+                response.Object = subscriptionEntitlement;
+                response.SetStatus(eResponseStatus.OK);
+            }
 
             return response;
         }
@@ -1144,7 +1225,9 @@ namespace Core.ConditionalAccess
                 // validate Entitlement
                 string billingGuid = string.Empty;
                 DateTime endDateFromDB = DateTime.MaxValue;
-                var entitlement = GetEntitlementById(cas, purchaseId, domainId, ref billingGuid, ref endDateFromDB);
+                string siteGuid = null;
+
+                var entitlement = GetEntitlementById(cas, purchaseId, domainId, ref billingGuid, ref endDateFromDB, ref siteGuid);
                 if (!entitlement.HasObject())
                 {
                     status.Set(entitlement.Status);

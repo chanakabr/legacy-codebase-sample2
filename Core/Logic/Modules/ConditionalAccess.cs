@@ -1631,7 +1631,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);
             if (t != null)
             {
-                response = t.UpdateEntitlementEndDate(groupId, domainID, entitlementType, entitlement);
+                response = t.UpdateEntitlementEndDate(domainID, entitlementType, entitlement);
             }
             else
             {
