@@ -11,8 +11,8 @@ namespace WebAPI.Models.General
 {
     public interface IKalturaListResponse
     {
-        string ToJson(Version currentVersion, bool omitObsolete);
-        string ToXml(Version currentVersion, bool omitObsolete);
+        string ToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false);
+        string ToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false);
     }
 
     // TODO - use it in all places and delete to old object
@@ -69,14 +69,14 @@ namespace WebAPI.Models.General
             TotalCount = 0;
         }
 
-        public string ToJson(Version currentVersion, bool omitObsolete)
+        public string ToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
-            return base.ToJson(currentVersion, omitObsolete);
+            return base.ToJson(currentVersion, omitObsolete, true);
         }
 
-        public string ToXml(Version currentVersion, bool omitObsolete)
+        public string ToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
-            return base.ToXml(currentVersion, omitObsolete);
+            return base.ToXml(currentVersion, omitObsolete, true);
         }
     }
     
@@ -91,14 +91,14 @@ namespace WebAPI.Models.General
         [ValidationException(SchemeValidationType.NULLABLE)]
         public int TotalCount { get; set; }
         
-        public string ToJson(Version currentVersion, bool omitObsolete)
+        public string ToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
-            return base.ToJson(currentVersion, omitObsolete);
+            return base.ToJson(currentVersion, omitObsolete, true);
         }
 
-        public string ToXml(Version currentVersion, bool omitObsolete)
+        public string ToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
-            return base.ToXml(currentVersion, omitObsolete);
+            return base.ToXml(currentVersion, omitObsolete, true);
         }
     }
 }

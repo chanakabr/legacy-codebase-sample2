@@ -225,7 +225,7 @@ namespace EventBus.RabbitMQ
             var consumer = (AsyncEventingBasicConsumer)sender;
             var eventName = eventArgs.RoutingKey;
             var message = Encoding.UTF8.GetString(eventArgs.Body);
-            _Logger.Debug($"Channel:[{consumer.Model.ChannelNumber}] ConsumerTag:[{consumer.ConsumerTag}] received event:[{eventName}], message:[{message}]");
+            _Logger.Debug($"Channel:[{consumer.Model.ChannelNumber}] ConsumerTag:[{consumer.ConsumerTag}] received event:[{eventName}]]");
 
             try
             {
@@ -254,7 +254,6 @@ namespace EventBus.RabbitMQ
 
         private async Task ProcessEvent(string eventName, string message)
         {
-            _Logger.Debug($"ProcessEvent > eventName:[{eventName}] with message:[{message}]");
             var subscriptions = _Handlers[eventName];
 
             _Logger.Debug($"ProcessEvent > Found following subscriptions: [{string.Join(",", subscriptions)}]");
@@ -291,6 +290,8 @@ namespace EventBus.RabbitMQ
         {
             // TODO: Arthur, Think of the bigger context picture and how should it be managed, for logging and for in memepry data store
             var eventData = (ServiceEvent)serviceEvent;
+            _Logger.Debug($"ProcessEvent > eventType:[{eventData.GetType().Name}] groupId:[{eventData.GroupId}] requestId:[{eventData.RequestId}] userId:[{eventData.UserId}]");
+
             KLogger.LogContextData[KLogMonitor.Constants.USER_ID] = eventData.UserId;
             KLogger.LogContextData[KLogMonitor.Constants.GROUP_ID] = eventData.GroupId;
             KLogger.LogContextData[KLogMonitor.Constants.REQUEST_ID_KEY] = eventData.RequestId;

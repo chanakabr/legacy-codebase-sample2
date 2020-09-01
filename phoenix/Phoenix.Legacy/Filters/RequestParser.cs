@@ -86,11 +86,6 @@ namespace WebAPI.Filters
         {
             if (actionContext.Request.Content.IsMimeMultipartContent())
             {
-                if (!Directory.Exists(fileSystemUploaderSourcePath))
-                {
-                    Directory.CreateDirectory(fileSystemUploaderSourcePath);
-                }
-
                 var ret = new Dictionary<string, object>();
 
                 byte[] requestBody = (byte[])HttpContext.Current.Items["body"];
@@ -105,7 +100,12 @@ namespace WebAPI.Filters
                     foreach (var uploadedFile in parser.Files)
                     {
                         if (ApplicationConfiguration.Current.RequestParserConfiguration.ShouldSaveAsFile.Value)
-                        {                            
+                        {
+                            if (!Directory.Exists(fileSystemUploaderSourcePath))
+                            {
+                                Directory.CreateDirectory(fileSystemUploaderSourcePath);
+                            }
+
                             var filePath = Path.Combine(fileSystemUploaderSourcePath, CreateRandomFileName(uploadedFile.FileName));
                             using (Stream tempFile = File.Create(filePath))
                             {

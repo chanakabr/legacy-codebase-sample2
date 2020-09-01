@@ -37,6 +37,11 @@ namespace ApiObjects
             AffectedItems.AddRange(crudsToAdd.AffectedItems);
         }
 
+        public override string ToString()
+        {
+            return $"ItemsToAdd:[{ItemsToAdd.Count}], ItemsToAdd:[{ItemsToDelete.Count}], ItemsToUpdate:[{ItemsToUpdate.Count}], AffectedItems:[{AffectedItems.Count}]";
+        }
+
 
         ///// <summary>
         ///// Applies the CRUD operations onto a given collection of items

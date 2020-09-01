@@ -182,7 +182,7 @@ namespace Core.Users
                         userResponseObject.m_RespStatus = ResponseStatus.UserSuspended;
                         break;
                     default:
-                        userResponseObject.m_RespStatus = ResponseStatus.UserNotActivated;
+                        userResponseObject.m_RespStatus = ResponseStatus.InternalError;
                         break;
                 }
 

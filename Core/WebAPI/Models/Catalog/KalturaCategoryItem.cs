@@ -62,6 +62,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "unifiedChannels")]
         [XmlArray(ElementName = "unifiedChannels", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true)]
         public List<KalturaUnifiedChannel> UnifiedChannels { get; set; }
 
         /// <summary>
@@ -181,6 +182,13 @@ namespace WebAPI.Models.Catalog
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDateInSeconds", "endDateInSeconds");
             }
+
+            // fill empty feilds
+            if (NullableProperties != null && NullableProperties.Contains("unifiedchannels"))
+            {
+                UnifiedChannels = new List<KalturaUnifiedChannel>();
+            }
+
         }
 
         public KalturaCategoryItem() : base() { }

@@ -842,7 +842,7 @@ namespace Tvinci.Core.DAL
             return bRes;
         }
 
-        public static List<EpgCB> GetEpgCBList(List<string> documentIds)
+        public static List<EpgCB> GetEpgCBList(List<string> documentIds, bool isNewEpgIngestEnabled = false)
         {
             var resultEpgs = new List<EpgCB>();
             var tempEpgs = UtilsDal.GetObjectListFromCB<EpgCB>(eCouchbaseBucket.EPG, documentIds, true);
@@ -875,6 +875,11 @@ namespace Tvinci.Core.DAL
 
             if (documentIds.Count > 0)
             {
+                if (isNewEpgIngestEnabled)
+                {
+                    documentIds = documentIds.Select(x => HandleKeyForRecording(x)).Distinct().ToList();
+                }
+
                 resultEpgs.AddRange(GetEpgCBRecordingsList(documentIds));
             }
 
@@ -903,6 +908,20 @@ namespace Tvinci.Core.DAL
             }
 
             return resultEpgs;
+        }
+
+        private static string HandleKeyForRecording(string key)
+        {
+            if (key.StartsWith("epg_"))
+            {
+                var tokens = key.Split('_');
+                if (tokens.Length == 4 && !tokens[2].Equals("lang")) //V2
+                {
+                    key = tokens[3];
+                }
+            }
+
+            return key;
         }
 
         public static EpgCB GetEpgCBRecording(long epgId)
