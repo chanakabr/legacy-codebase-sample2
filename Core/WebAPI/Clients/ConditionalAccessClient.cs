@@ -365,7 +365,7 @@ namespace WebAPI.Clients
             return prices;
         }
 
-        internal KalturaTransaction Purchase(ContextData contextData, double price, string currency, int contentId, int productId, KalturaTransactionType clientTransactionType, string coupon, 
+        internal KalturaTransaction Purchase(ContextData contextData, double price, string currency, int contentId, int productId, KalturaTransactionType clientTransactionType, string coupon,
                                             int paymentGatewayId, int paymentMethodId, string adapterData)
         {
             KalturaTransaction clientResponse = null;
@@ -637,7 +637,7 @@ namespace WebAPI.Clients
                 EntitlementId = filter.EntitlementIdEqual,
                 ExternalId = filter.ExternalIdEqual
             };
-            
+
             if (filter.BillingItemsTypeEqual.HasValue)
             {
                 transactionHistoryFilter.BillingItemsType = Mapper.Map<BillingItemsType>(filter.BillingItemsTypeEqual);
@@ -1879,7 +1879,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     entitlement.purchaseID = id;
-                    
+
                     // fire request                        
                     response = Core.ConditionalAccess.Module.UpdateEntitlement(groupId, (int)domainID, entitlement);
 
@@ -1910,10 +1910,7 @@ namespace WebAPI.Clients
             }
 
             // convert response
-            if (kEntitlement is KalturaSubscriptionEntitlement)
-            {
-                kalturaEntitlement = ConditionalAccessMappings.ConvertToKalturaEntitlement(response.entitelments[0]);
-            }
+            kalturaEntitlement = ConditionalAccessMappings.ConvertToKalturaEntitlement(response.entitelments[0]);
 
             return kalturaEntitlement;
         }
@@ -1934,7 +1931,7 @@ namespace WebAPI.Clients
             {
                 entitlementType = 3;
             }
-            
+
             return entitlementType;
         }
 
@@ -1969,7 +1966,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType kalturaAssetType, 
+        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType kalturaAssetType,
             KalturaPlaybackContextOptions contextDataParams, string sourceType = null, bool isPlaybackManifest = false)
         {
             KalturaPlaybackContext kalturaPlaybackContext = null;
@@ -1997,7 +1994,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, 
+                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId,
                         assetType, contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext,
                         urlType, sourceType, isPlaybackManifest, WebAPI.Utils.Utils.ConvertSerializeableDictionary(contextDataParams.AdapterData, true));
                 }
