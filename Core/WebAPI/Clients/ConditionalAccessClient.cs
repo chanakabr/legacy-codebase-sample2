@@ -1913,27 +1913,7 @@ namespace WebAPI.Clients
             kalturaEntitlement = ConditionalAccessMappings.ConvertToKalturaEntitlement(response.entitelments[0]);
 
             return kalturaEntitlement;
-        }
-
-        private int GetEntitlementType(KalturaEntitlement kEntitlement)
-        {
-            int entitlementType = -1;
-
-            if (kEntitlement is KalturaSubscriptionEntitlement)
-            {
-                entitlementType = 1;
-            }
-            else if (kEntitlement is KalturaPpvEntitlement)
-            {
-                entitlementType = 2;
-            }
-            else if (kEntitlement is KalturaCollectionEntitlement)
-            {
-                entitlementType = 3;
-            }
-
-            return entitlementType;
-        }
+        }        
 
         internal bool SwapEntitlements(int groupId, string userId, int currentProductId, int newProductId, bool history)
         {
