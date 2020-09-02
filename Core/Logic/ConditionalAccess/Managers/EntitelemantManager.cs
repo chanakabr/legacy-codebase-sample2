@@ -450,16 +450,16 @@ namespace Core.ConditionalAccess
                         }          
                     case eTransactionType.PPV:
                         {
-                            var entitlements = GetUsersEntitlementPPVItems(cas, cas.m_nGroupID, null, false, (int)domainId, true, 0, 0 , EntitlementOrderBy.PurchaseDateAsc);
+                            var entitlements = GetUsersEntitlementPPVItems(cas, cas.m_nGroupID, new List<int>(), false, (int)domainId, true, -1, 0, EntitlementOrderBy.PurchaseDateAsc);
                             if (!entitlements.status.IsOkStatusCode())
                             {
                                 response.status.Set(entitlements.status);
                                 return response;
                             }
 
-                            if (response.totalItems > 0)
+                            if (entitlements.totalItems > 0)
                             {
-                                var ppv = entitlements.entitelments.FirstOrDefault(x => x.entitlementId == entitlement.entitlementId);
+                                var ppv = entitlements.entitelments.FirstOrDefault(x => x.purchaseID == entitlement.purchaseID);
                                 if (ppv != null)
                                 {
                                     if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, (int)domainId, entitlement.purchaseID, entitlement.endDate, (int)eTransactionType.PPV))
@@ -479,16 +479,16 @@ namespace Core.ConditionalAccess
                         }
                     case eTransactionType.Collection:
                         {
-                            var entitlements = GetUsersEntitlementCollectionsItems(cas, cas.m_nGroupID, null, false, (int)domainId, true, 0, 0, EntitlementOrderBy.PurchaseDateAsc);
+                            var entitlements = GetUsersEntitlementCollectionsItems(cas, cas.m_nGroupID, new List<int>(), false, (int)domainId, true, -1, 0, EntitlementOrderBy.PurchaseDateAsc);
                             if (!entitlements.status.IsOkStatusCode())
                             {
                                 response.status.Set(entitlements.status);
                                 return response;
                             }
 
-                            if (response.totalItems > 0)
+                            if (entitlements.totalItems > 0)
                             {
-                                var collection = entitlements.entitelments.FirstOrDefault(x => x.entitlementId == entitlement.entitlementId);
+                                var collection = entitlements.entitelments.FirstOrDefault(x => x.purchaseID == entitlement.purchaseID);
                                 if (collection != null)
                                 {
                                     if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, (int)domainId, entitlement.purchaseID, entitlement.endDate, (int)eTransactionType.Collection))

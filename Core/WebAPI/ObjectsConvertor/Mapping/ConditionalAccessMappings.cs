@@ -260,6 +260,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<Entitlement, KalturaEntitlement>().ConstructUsing(ConvertToKalturaEntitlement);
 
+            cfg.CreateMap<KalturaPpvEntitlement, Entitlement>()
+                  .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.Id))
+                  .ForMember(dest => dest.type, opt => opt.MapFrom(src => eTransactionType.PPV))
+                  .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampAbsSecondsToDateTime(src.EndDate)))
+                  ;
+
+            cfg.CreateMap<KalturaCollectionEntitlement, Entitlement>()
+                  .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.Id))
+                  .ForMember(dest => dest.type, opt => opt.MapFrom(src => eTransactionType.Collection))
+                  .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampAbsSecondsToDateTime(src.EndDate)))
+                  ;
+
             // cfg.CreateMap<Entitlement, KalturaEntitlement>()
             //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
             //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
