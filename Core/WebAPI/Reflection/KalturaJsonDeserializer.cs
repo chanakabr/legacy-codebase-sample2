@@ -1716,6 +1716,15 @@ namespace WebAPI.Reflection
                 case "KalturaSlimAssetInfoWrapper":
                     return new KalturaSlimAssetInfoWrapper(parameters);
                     
+                case "KalturaSmsAdapterProfile":
+                    return new KalturaSmsAdapterProfile(parameters);
+                    
+                case "KalturaSmsAdapterProfileFilter":
+                    return new KalturaSmsAdapterProfileFilter(parameters);
+                    
+                case "KalturaSmsAdapterProfileListResponse":
+                    return new KalturaSmsAdapterProfileListResponse(parameters);
+                    
                 case "KalturaSmsDispatcher":
                     return new KalturaSmsDispatcher(parameters);
                     
@@ -10042,6 +10051,102 @@ namespace WebAPI.Models.Notification
                     EpgChannelIdEqual = (Int64) Convert.ChangeType(parameters["epgChannelIdEqual"], typeof(Int64));
                 }
             }
+        }
+    }
+    public partial class KalturaSmsAdapterProfile
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSmsAdapterProfile")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute AdapterUrlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSmsAdapterProfile")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = 256,
+            MinLength = 1,
+        };
+        private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSmsAdapterProfile")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = 256,
+            MinLength = 1,
+        };
+        public KalturaSmsAdapterProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("adapterUrl") && parameters["adapterUrl"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AdapterUrlSchemaProperty.Validate("adapterUrl", parameters["adapterUrl"]);
+                    }
+                    AdapterUrl = (String) Convert.ChangeType(parameters["adapterUrl"], typeof(String));
+                }
+                if (parameters.ContainsKey("sharedSecret") && parameters["sharedSecret"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SharedSecretSchemaProperty.Validate("sharedSecret", parameters["sharedSecret"]);
+                    }
+                    SharedSecret = (String) Convert.ChangeType(parameters["sharedSecret"], typeof(String));
+                }
+                if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
+                {
+                    IsActive = (Int32) Convert.ChangeType(parameters["isActive"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("settings") && parameters["settings"] != null)
+                {
+                    if (parameters["settings"] is JObject)
+                    {
+                        Settings = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["settings"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
+                if (parameters.ContainsKey("externalIdentifier") && parameters["externalIdentifier"] != null)
+                {
+                    ExternalIdentifier = (String) Convert.ChangeType(parameters["externalIdentifier"], typeof(String));
+                }
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaSmsAdapterProfileFilter
+    {
+        public KalturaSmsAdapterProfileFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSmsAdapterProfileListResponse
+    {
+        public KalturaSmsAdapterProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaTopic

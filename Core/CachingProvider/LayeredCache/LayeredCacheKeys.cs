@@ -583,6 +583,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("sso_adapter_by_group_{0}", groupId);
         }
 
+        public static string GetSmsAdapaterByGroupKey(int groupId)
+        {
+            return string.Format("sms_adapter_by_group_{0}", groupId);
+        }
+
         public static string GetSSOAdapaterImplementationsKey(int adapterId)
         {
             return string.Format("sso_adapter_implementations_v1_{0}", adapterId);
@@ -950,6 +955,11 @@ namespace CachingProvider.LayeredCache
         public static string GetTstvAccountSettingsInvalidationKey(int groupId)
         {
             return string.Format("InvalidationKey_TstvAccountSettings_groupId_{0}", groupId);
+        }
+
+        public static string GetSmsAdapaterInvalidationKey(int groupId)
+        {
+            return $"InvalidationKey_smsAdapter_groupId_{groupId}";
         }
 
         public static Dictionary<string, List<string>> GetAssetsInvalidationKeysMap(string assetType, List<long> ids)

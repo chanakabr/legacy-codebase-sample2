@@ -14,6 +14,8 @@ using APILogic.Notification;
 using Core.Catalog;
 using ApiObjects.EventBus;
 using ConfigurationManager;
+using ApiLogic.Notification.Managers;
+using System.Linq;
 
 namespace Core.Notification
 {
@@ -1229,12 +1231,20 @@ namespace Core.Notification
             return response;
         }
 
-        public static Status SendUserSms(int groupId, int userId, string message)
+        public static Status SendUserSms(int groupId, int userId, string message, string phoneNumber, List<ApiObjects.KeyValuePair> keyValuePair)
         {
-            Status result = new Status() { Code = (int)eResponseStatus.Error };
+            var result = new Status() { Code = (int)eResponseStatus.Error };
             try
             {
-                result = EngagementManager.SendSmsToUser(groupId, userId, message);
+                if (SmsManager.Instance.HasAdapter(groupId, out string adapterUrl))
+                {
+                    result = SmsManager.Instance.Send(groupId, userId, adapterUrl,
+                        message, phoneNumber, keyValuePair);
+                }
+                else
+                {
+                    result = EngagementManager.SendSmsToUser(groupId, userId, message, phoneNumber);
+                }
             }
             catch (Exception ex)
             {

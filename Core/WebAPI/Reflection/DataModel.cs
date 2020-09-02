@@ -6010,6 +6010,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSmsAdapterProfile":
+                    switch(property.Name)
+                    {
+                        case "AdapterUrl":
+                            return "adapterUrl";
+                        case "ExternalIdentifier":
+                            return "externalIdentifier";
+                        case "Id":
+                            return "id";
+                        case "IsActive":
+                            return "isActive";
+                        case "Name":
+                            return "name";
+                        case "Settings":
+                            return "settings";
+                        case "SharedSecret":
+                            return "sharedSecret";
+                    }
+                    break;
+                    
                 case "KalturaSocial":
                     switch(property.Name)
                     {
@@ -9068,7 +9088,7 @@ namespace WebAPI.Reflection
                             
                         case "sendsms":
                             RolesManager.ValidateActionPermitted("notification", "sendSms", false);
-                            return NotificationController.SendSms((string) methodParams[0]);
+                            return NotificationController.SendSms((string) methodParams[0], (string) methodParams[1], (SerializableDictionary<string, KalturaStringValue>) methodParams[2]);
                             
                         case "setdevicepushtoken":
                             RolesManager.ValidateActionPermitted("notification", "setDevicePushToken", false);
@@ -10199,6 +10219,37 @@ namespace WebAPI.Reflection
                         case "switchuser":
                             RolesManager.ValidateActionPermitted("session", "switchUser", false);
                             return SessionController.SwitchUser((string) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "smsadapterprofile":
+                    switch(action)
+                    {
+                        case "generatesharedsecret":
+                            RolesManager.ValidateActionPermitted("smsAdapterProfile", "generateSharedSecret", false);
+                            return SmsAdapterProfileController.GenerateSharedSecret((int) methodParams[0]);
+                            
+                        case "add":
+                            RolesManager.ValidateActionPermitted("smsadapterprofile", "add");
+                            return SmsAdapterProfileController.Add((KalturaSmsAdapterProfile) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("smsadapterprofile", "update");
+                            return SmsAdapterProfileController.Update((long) methodParams[0], (KalturaSmsAdapterProfile) methodParams[1]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("smsadapterprofile", "get");
+                            return SmsAdapterProfileController.Get((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("smsadapterprofile", "list");
+                            return SmsAdapterProfileController.List((KalturaSmsAdapterProfileFilter) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("smsadapterprofile", "delete");
+                            SmsAdapterProfileController.Delete((long) methodParams[0]);
+                            return null;
                             
                     }
                     break;
@@ -15683,6 +15734,20 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(string),
                             });
+                            ret.Add("phoneNumber", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("adapterData", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
                             return ret;
                             
                         case "setdevicepushtoken":
@@ -17944,6 +18009,61 @@ namespace WebAPI.Reflection
                             ret.Add("userIdToSwitch", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "smsadapterprofile":
+                    switch(action)
+                    {
+                        case "generatesharedsecret":
+                            ret.Add("smsAdapterId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSmsAdapterProfile),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSmsAdapterProfile),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSmsAdapterProfileFilter),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
                             });
                             return ret;
                             

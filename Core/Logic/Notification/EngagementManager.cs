@@ -1,4 +1,5 @@
-﻿using APILogic.AmazonSnsAdapter;
+﻿using ApiLogic.Notification.Managers;
+using APILogic.AmazonSnsAdapter;
 using APILogic.Notification.Adapters;
 using ApiObjects;
 using ApiObjects.Notification;
@@ -1467,7 +1468,35 @@ namespace Core.Notification
             return true;
         }
 
-        internal static Status SendSmsToUser(int groupId, int userId, string message)
+        public static GenericResponse<string> GetPhoneNumberFromUser(int groupId, int userId)
+        {
+            var result = new GenericResponse<string>();
+            bool docExists = false;
+            UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
+            if (userNotificationData == null)
+            {
+                log.DebugFormat("user notification data wasn't found. sending SMS by user data GID: {0}, userId: {2}", groupId, userId);
+                Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
+                if (response == null || response.m_RespStatus != ApiObjects.ResponseStatus.OK || response.m_user == null)
+                {
+                    log.ErrorFormat("Failed to get user data for userId = {0}", userId);
+                    result.SetStatus(eResponseStatus.Error, "Failed to get user data");
+                    return result;
+                }
+                else
+                {
+                    result.Object = response.m_user.m_oBasicData.m_sPhone;
+                }
+            }
+            else if (userNotificationData.Settings.EnableSms == true)
+            {
+                result.Object = userNotificationData.UserData.PhoneNumber;
+            }
+
+            return result;
+        }
+
+        internal static Status SendSmsToUser(int groupId, int userId, string message, string phoneNumber)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -1498,38 +1527,27 @@ namespace Core.Notification
                 return result;
             }
 
-            string phoneNumber = null;
             // get user notification data
-            bool docExists = false;
-            UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
-            if (userNotificationData == null)
+            if (string.IsNullOrEmpty(phoneNumber))
             {
-                log.DebugFormat("user notification data wasn't found. sending SMS by user data GID: {0}, userId: {2}", groupId, userId);
-                Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
-                if (response == null || response.m_RespStatus != ApiObjects.ResponseStatus.OK || response.m_user == null)
+                var _phoneNumber = GetPhoneNumberFromUser(groupId, userId);
+                if (!_phoneNumber.IsOkStatusCode())
                 {
-                    log.ErrorFormat("Failed to get user data for userId = {0}", userId);
                     result.Message = "Failed to get user data";
                     return result;
                 }
-                else
-                {
-                    phoneNumber = response.m_user.m_oBasicData.m_sPhone;
-                }
-            }
-            else if (userNotificationData.Settings.EnableSms == true)
-            {
-                phoneNumber = userNotificationData.UserData.PhoneNumber;
+                phoneNumber = _phoneNumber.Object;
             }
 
             if (!string.IsNullOrEmpty(phoneNumber))
             {
                 // send SMS                
                 var success = NotificationAdapter.SendSms(groupId, message, phoneNumber);
+
                 if (!success)
                 {
                     log.ErrorFormat("Error at SendSMS. GID: {0}, user ID: {1}, message: {2}", groupId, userId, message);
-                    result = new Status() { Code = (int)eResponseStatus.Error };
+                    result = new Status() { Code = (int)eResponseStatus.Error, Message = "Failed Sending Sms" };
                     return result;
                 }
 
