@@ -27,17 +27,31 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
         {
             var objectType = obj.GetType();
             // cache the properties agains the type for faster access.
-            var stringProperties = _MemoryCache.GetOrCreate(objectType, entry =>
+            var allProps = _MemoryCache.GetOrCreate(objectType, entry =>
             {
-                return obj.GetType().GetProperties().Where(p => p.CanRead && p.CanWrite && p.PropertyType == typeof(string)); ;
+                return obj.GetType().GetProperties().Where(p => p.CanRead && p.CanWrite); ;
             });
 
-            foreach (var strProp in stringProperties)
+
+            foreach (var prop in allProps)
             {
-                var strValue = (string)strProp.GetValue(obj);
-                if (strValue == null)
+                if (prop.PropertyType == typeof(string))
                 {
-                    strProp.SetValue(obj, "");
+                    var strValue = (string)prop.GetValue(obj);
+                    if (strValue == null)
+                    {
+                        prop.SetValue(obj, "");
+                    }
+                }
+                else
+                {
+                    if (prop.PropertyType.IsClass && !prop.PropertyType.Assembly.FullName.StartsWith("System"))
+                    {
+                        var propValue = prop.GetValue(obj);
+                        var normlizedNestedProp = NormlizeResponse(propValue);
+                        prop.SetValue(obj,propValue);
+                    }
+
                 }
             }
 
