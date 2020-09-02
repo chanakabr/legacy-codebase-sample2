@@ -1624,22 +1624,6 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public static Status UpdateEntitlementEndDate(int groupId, long domainID, int entitlementType, Entitlement entitlement)
-        {
-            var response = new Status();
-            BaseConditionalAccess t = null;
-            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
-            if (t != null)
-            {
-                response = t.UpdateEntitlementEndDate(domainID, entitlementType, entitlement);
-            }
-            else
-            {
-                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            }
-            return response;
-        }
-
         public static string GetItemLeftViewLifeCycle(int groupID, string sMediaFileID, string sSiteGUID, bool bIsCoGuid,
             string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {

@@ -1564,14 +1564,6 @@ namespace Core.ConditionalAccess
             return InAppRes.m_oBillingResponse;
         }
 
-        internal ApiObjects.Response.Status UpdateEntitlementEndDate(long domainID, int entitlementType, Entitlement entitlement)
-        {
-            var status = new ApiObjects.Response.Status();
-            var updateEndDate = EntitlementManager.UpdateEntitlementEndDate(this, (int)domainID, entitlement.purchaseID, entitlement.endDate, entitlementType);
-            status.Set(updateEndDate.Status);
-            return status;
-        }
-
         /// <summary>
         /// In App Charge User For Subscription
         /// </summary>

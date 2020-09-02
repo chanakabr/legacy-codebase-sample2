@@ -404,7 +404,7 @@ namespace Core.ConditionalAccess
 
                             if (entitlement.endDate > DateTime.MinValue)
                             {
-                                if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, (int)domainId, entitlement.purchaseID, entitlement.endDate, (int)eTransactionType.Subscription))
+                                if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, (int)domainId, entitlement.purchaseID, entitlement.endDate, "Update_SubscriptionEndDate"))
                                 {
                                     response.status.Set(eResponseStatus.Error, "Failed to Update Entitlement EndDate");
                                     return response;
@@ -462,7 +462,7 @@ namespace Core.ConditionalAccess
                                 var ppv = entitlements.entitelments.FirstOrDefault(x => x.purchaseID == entitlement.purchaseID);
                                 if (ppv != null)
                                 {
-                                    if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, (int)domainId, entitlement.purchaseID, entitlement.endDate, (int)eTransactionType.PPV))
+                                    if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, (int)domainId, entitlement.purchaseID, entitlement.endDate, "Update_PpvEndDate"))
                                     {
                                         response.status.Set(eResponseStatus.Error, "Failed to Update Entitlement EndDate");
                                         return response;
@@ -491,7 +491,7 @@ namespace Core.ConditionalAccess
                                 var collection = entitlements.entitelments.FirstOrDefault(x => x.purchaseID == entitlement.purchaseID);
                                 if (collection != null)
                                 {
-                                    if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, (int)domainId, entitlement.purchaseID, entitlement.endDate, (int)eTransactionType.Collection))
+                                    if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, (int)domainId, entitlement.purchaseID, entitlement.endDate, "Update_CollectionEndDate"))
                                     {
                                         response.status.Set(eResponseStatus.Error, "Failed to Update Entitlement EndDate");
                                         return response;
@@ -517,96 +517,16 @@ namespace Core.ConditionalAccess
                     entitlement.purchaseID, entitlement.paymentGatewayId, entitlement.paymentMethodId);
                 response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
-            return response;
-        }
 
-        public static GenericResponse<bool> UpdateEntitlementEndDate(BaseConditionalAccess cas, int domainId, int entitlementId, DateTime endDate, int typeId)
-        {
-            var response = new GenericResponse<bool>();
-            try
+            if (response.status.IsOkStatusCode())
             {
-                if (typeId < 0)
+                string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(domainId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
-                    throw new Exception("TypeId is invalid");
+                    log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
                 }
-
-                int groupId = cas.m_nGroupID;
-
-                if (typeId == (int)eTransactionType.Subscription)
-                {
-                    string billingGuid = string.Empty;
-                    DateTime endDateFromDB = DateTime.MaxValue;
-                    string userId = string.Empty;
-
-                    var entitlementResponse = GetEntitlementById(cas, entitlementId, domainId, ref billingGuid, ref endDateFromDB, ref userId, true);
-
-                    if (!entitlementResponse.HasObject())
-                    {
-                        throw new Exception(entitlementResponse.Status.Message);
-                    }
-
-                    var entitlement = entitlementResponse.Object;
-
-                    if (entitlement.UnifiedPaymentId > 0)
-                    {
-                        //error
-                    }
-
-                    if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, domainId, entitlementId, endDate, typeId))
-                    {
-                        response.SetStatus(eResponseStatus.Error, "Failed to Update Entitlement EndDate");
-                        response.Object = false;
-                        return response;
-                    }
-
-                    if (entitlement.recurringStatus)
-                    {
-                        // enqueue renew transaction
-                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                        DateTime nextRenewalDate = endDate.AddMinutes(-5);
-
-                        if (entitlement.paymentGatewayId > 0)
-                        {
-                            var paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayById(groupId, entitlement.paymentGatewayId);
-                            if (!paymentGatewayResponse.HasObject())
-                            {
-                                nextRenewalDate = endDate.AddMinutes(paymentGatewayResponse.Object.RenewalStartMinutes);
-                            }
-                        }
-
-                        var data = new RenewTransactionData(groupId, userId, entitlementId, billingGuid, DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate), nextRenewalDate);
-                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(BaseConditionalAccess.ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-                        if (!enqueueSuccessful)
-                        {
-                            // log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                            //return true;
-                        }
-                        else
-                        {
-                            PurchaseManager.SendRenewalReminder(data, domainId);
-                            log.DebugFormat("New task created (upon UpdateEntitlementEndDate). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
-                        }
-                    }
-
-
-                }
-                else
-                {
-                    if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, domainId, entitlementId, endDate, typeId))
-                    {
-                        response.SetStatus(eResponseStatus.Error, "Failed to Update Entitlement EndDate");
-                        response.Object = false;
-                        return response;
-                    }
-                }
-
-                response.Object = true;
             }
-            catch (Exception ex)
-            {
-                log.Error($"Error updating Entitlement EndDate, purchaseID: {entitlementId}, type: {typeId}, ex: {ex}");
-                response.SetStatus(eResponseStatus.Error, "Error updating EndDate");
-            }
+
             return response;
         }
 

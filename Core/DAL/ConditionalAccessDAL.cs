@@ -994,15 +994,13 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool Update_EntitlementEndDate(int groupId, int domainId, int subscriptionPurchaseID, DateTime endDate, int typeId)
+        public static bool Update_EntitlementEndDate(int groupId, int domainId, int entitlementId, DateTime endDate, string spName)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionEndDate");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure(spName);
             sp.SetConnectionKey("CA_CONNECTION_STRING");
-            sp.AddParameter("@EntitlementID", subscriptionPurchaseID);
+            sp.AddParameter("@EntitlementID", entitlementId);
             sp.AddParameter("@EndDate", endDate);
             sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@DomainId", domainId);
-            sp.AddParameter("@TypeId", typeId);
 
             return sp.ExecuteReturnValue<bool>();
         }
