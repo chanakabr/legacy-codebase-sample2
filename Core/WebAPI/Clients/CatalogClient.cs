@@ -2727,6 +2727,13 @@ namespace WebAPI.Clients
                 throw new ClientException(channelResponse.status);
             }
 
+            //BEO-8762
+            if (pageSize.HasValue && channelResponse.aggregationResults?.FirstOrDefault() != null)
+            {
+                channelResponse.aggregationResults[0].results = channelResponse.aggregationResults[0].results
+                    .Skip(pageIndex * pageSize.Value).Take(pageSize.Value).ToList();
+            }
+
             result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, isAllowedToViewInactiveAssets, false, responseProfile);
 
             return result;
