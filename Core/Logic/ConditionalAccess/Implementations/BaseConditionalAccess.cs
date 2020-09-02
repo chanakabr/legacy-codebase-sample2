@@ -17289,7 +17289,7 @@ namespace Core.ConditionalAccess
 
         public Entitlements UpdateEntitlement(long domainID, Entitlement entitlement)
         {
-            return EntitlementManager.UpdateEntitlement(this, m_nGroupID, domainID, entitlement);
+            return EntitlementManager.UpdateEntitlement(this, domainID, entitlement);
         }
 
         public ApiObjects.Response.Status SwapSubscription(string userId, int oldSubscriptionCode, int newSubscriptionCode, string ip, string udid, bool history)

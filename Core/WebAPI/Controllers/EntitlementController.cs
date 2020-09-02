@@ -488,11 +488,20 @@ namespace WebAPI.Controllers
             {
                 if (entitlement is KalturaSubscriptionEntitlement)
                 {
-                    if (((KalturaSubscriptionEntitlement)entitlement).PaymentGatewayId == null)
+                    var subscriptionEntitlement = (KalturaSubscriptionEntitlement)entitlement;
+
+                    if (subscriptionEntitlement.PaymentGatewayId == null && !subscriptionEntitlement.EndDate.HasValue)
                     {
-                        throw new ClientException((int)eResponseStatus.PaymentGatewayIdRequired, "PaymentGateway Id Required");
+                        throw new ClientException((int)eResponseStatus.Error, "PaymentGateway Id or End date Required");
                     }
                 }
+                else if (!entitlement.EndDate.HasValue)
+                {
+                    throw new ClientException((int)eResponseStatus.Error, "End date Required");
+                }
+
+
+
                 // call client
                 return ClientsManager.ConditionalAccessClient().UpdateEntitlement(groupId, domainID, id, entitlement);
             }

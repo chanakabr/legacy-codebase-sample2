@@ -1873,29 +1873,16 @@ namespace WebAPI.Clients
             Entitlements response = null;
 
             var entitlement = Mapper.Map<Entitlement>(kEntitlement);
-            
-            if (kEntitlement.EndDate.HasValue)
-            {
-                var status = Core.ConditionalAccess.Module.UpdateEntitlementEndDate(groupId, domainID, 
-                    GetEntitlementType(kEntitlement), entitlement);
-                if (!status.IsOkStatusCode())
-                {
-                    throw new ClientException(status);
-                }
-            }
-
-            // get group 
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    if (kEntitlement is KalturaSubscriptionEntitlement)
-                    {
-                        entitlement.purchaseID = id;
-                        // fire request                        
-                        response = Core.ConditionalAccess.Module.UpdateEntitlement(groupId, (int)domainID, entitlement);
-                    }
+                    entitlement.purchaseID = id;
+                    
+                    // fire request                        
+                    response = Core.ConditionalAccess.Module.UpdateEntitlement(groupId, (int)domainID, entitlement);
+
                 }
             }
             catch (Exception ex)

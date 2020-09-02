@@ -332,9 +332,11 @@ namespace Core.ConditionalAccess
             return (response);
         }
 
-        internal static Entitlements UpdateEntitlement(BaseConditionalAccess cas, int groupId, long domainID, Entitlement entitlement)
+        internal static Entitlements UpdateEntitlement(BaseConditionalAccess cas, long domainId, Entitlement entitlement)
         {
             Entitlements response = new Entitlements(new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()));
+            int groupId = cas.m_nGroupID;
+
             try
             {
                 if (entitlement == null)
@@ -344,46 +346,174 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+
                 // validate household
-                ApiObjects.Response.Status status = Utils.ValidateDomain(groupId, (int)domainID, out Domain domain);
+                ApiObjects.Response.Status status = Utils.ValidateDomain(groupId, (int)domainId, out Domain domain);
                 if (status == null || status.Code != (int)eResponseStatus.OK || domain == null)
                 {
-                    log.ErrorFormat("UpdateEntitlement ValidateUserAndDomain purchaseID = {0} status.Code = {1},  householdId = {2} ", entitlement.purchaseID, status.Code, domainID);
+                    log.ErrorFormat("UpdateEntitlement ValidateUserAndDomain purchaseID = {0} status.Code = {1},  householdId = {2} ", entitlement.purchaseID, status.Code, domainId);
                     response.status = status;
                     return response;
                 }
 
-                // get latest PaymentDetailsTransaction
-                // get entitelment with the current payment gateway id + current payment method id 
-                string billingGuid = string.Empty;
-                DateTime endDateFromDB = DateTime.MaxValue;
-                string userId = null;
-
-                var subscriptionEntitlement = GetEntitlementById(cas, entitlement.purchaseID, domainID, ref billingGuid, ref endDateFromDB, ref userId);
-                if (!subscriptionEntitlement.HasObject())
+                switch (entitlement.type)
                 {
-                    response.status.Set(subscriptionEntitlement.Status);
-                    return response;
+                    case eTransactionType.Subscription:
+                        {
+                            // get latest PaymentDetailsTransaction
+                            // get entitelment with the current payment gateway id + current payment method id 
+                            string billingGuid = string.Empty;
+                            DateTime endDateFromDB = DateTime.MaxValue;
+                            string userId = null;
+
+                            var subscriptionEntitlementResponse = GetEntitlementById(cas, entitlement.purchaseID, domainId, ref billingGuid, ref endDateFromDB, ref userId, entitlement.paymentGatewayId == 0);
+                            
+                            if (!subscriptionEntitlementResponse.HasObject())
+                            {
+                                response.status.Set(subscriptionEntitlementResponse.Status);
+                                return response;
+                            }
+
+                            var subscriptionEntitlement = subscriptionEntitlementResponse.Object;
+
+                            if (entitlement.endDate > DateTime.MinValue && subscriptionEntitlement.UnifiedPaymentId > 0)
+                            {
+                                response.status.Set(eResponseStatus.Error, "Cant update end date for unified entitlement");
+                                return response;
+                            }
+
+                            if (entitlement.paymentGatewayId > 0)
+                            {
+                                // move here to Billing WS (write all in billing)
+                                var changeStatus = Billing.Module.ChangePaymentDetails(groupId, billingGuid, domainId, entitlement.paymentGatewayId, entitlement.paymentMethodId);
+
+                                if (!changeStatus.IsOkStatusCode())
+                                {
+                                    response.status = changeStatus;
+                                    return response;
+                                }
+
+                                // complete entitlement details
+                                subscriptionEntitlement.paymentGatewayId = entitlement.paymentGatewayId;
+                                subscriptionEntitlement.paymentMethodId = entitlement.paymentMethodId;
+
+                                //unified billing cycle updates
+                                Utils.HandleUnifiedBillingCycle(groupId, domainId, entitlement.paymentGatewayId, endDateFromDB, entitlement.purchaseID, subscriptionEntitlement.UnifiedPaymentId, 0);
+
+                            }
+
+                            if (entitlement.endDate > DateTime.MinValue)
+                            {
+                                if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, (int)domainId, entitlement.purchaseID, entitlement.endDate, (int)eTransactionType.Subscription))
+                                {
+                                    response.status.Set(eResponseStatus.Error, "Failed to Update Entitlement EndDate");
+                                    return response;
+                                }
+
+                                subscriptionEntitlement.endDate = entitlement.endDate;
+                                subscriptionEntitlement.nextRenewalDate = entitlement.endDate;
+
+                                if (entitlement.recurringStatus)
+                                {
+                                    // enqueue renew transaction
+                                    RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                    DateTime nextRenewalDate = entitlement.endDate.AddMinutes(-5);
+
+                                    if (entitlement.paymentGatewayId > 0)
+                                    {
+                                        var paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayById(groupId, subscriptionEntitlement.paymentGatewayId);
+                                        if (!paymentGatewayResponse.HasObject())
+                                        {
+                                            nextRenewalDate = entitlement.endDate.AddMinutes(paymentGatewayResponse.Object.RenewalStartMinutes);
+                                        }
+                                    }
+
+                                    var data = new RenewTransactionData(groupId, userId, subscriptionEntitlement.purchaseID, billingGuid, DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate), nextRenewalDate);
+                                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(BaseConditionalAccess.ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                                    if (!enqueueSuccessful)
+                                    {
+                                        log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                    }
+                                    else
+                                    {
+                                        PurchaseManager.SendRenewalReminder(data, domainId);
+                                        log.DebugFormat("New task created (upon UpdateEntitlementEndDate). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                                    }
+                                }
+
+                            }
+
+                            response.status.Set(eResponseStatus.OK);
+                            response.entitelments.Add(subscriptionEntitlement);
+
+                            break;
+                        }          
+                    case eTransactionType.PPV:
+                        {
+                            var entitlements = GetUsersEntitlementPPVItems(cas, cas.m_nGroupID, null, false, (int)domainId, true, 0, 0 , EntitlementOrderBy.PurchaseDateAsc);
+                            if (!entitlements.status.IsOkStatusCode())
+                            {
+                                response.status.Set(entitlements.status);
+                                return response;
+                            }
+
+                            if (response.totalItems > 0)
+                            {
+                                var ppv = entitlements.entitelments.FirstOrDefault(x => x.entitlementId == entitlement.entitlementId);
+                                if (ppv != null)
+                                {
+                                    if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, (int)domainId, entitlement.purchaseID, entitlement.endDate, (int)eTransactionType.PPV))
+                                    {
+                                        response.status.Set(eResponseStatus.Error, "Failed to Update Entitlement EndDate");
+                                        return response;
+                                    }
+
+                                    ppv.endDate = entitlement.endDate;
+
+                                    response.status.Set(eResponseStatus.OK);
+                                    response.entitelments.Add(ppv);
+                                }
+                            }
+
+                            break;
+                        }
+                    case eTransactionType.Collection:
+                        {
+                            var entitlements = GetUsersEntitlementCollectionsItems(cas, cas.m_nGroupID, null, false, (int)domainId, true, 0, 0, EntitlementOrderBy.PurchaseDateAsc);
+                            if (!entitlements.status.IsOkStatusCode())
+                            {
+                                response.status.Set(entitlements.status);
+                                return response;
+                            }
+
+                            if (response.totalItems > 0)
+                            {
+                                var collection = entitlements.entitelments.FirstOrDefault(x => x.entitlementId == entitlement.entitlementId);
+                                if (collection != null)
+                                {
+                                    if (!ConditionalAccessDAL.Update_EntitlementEndDate(groupId, (int)domainId, entitlement.purchaseID, entitlement.endDate, (int)eTransactionType.Collection))
+                                    {
+                                        response.status.Set(eResponseStatus.Error, "Failed to Update Entitlement EndDate");
+                                        return response;
+                                    }
+
+                                    collection.endDate = entitlement.endDate;
+
+                                    response.status.Set(eResponseStatus.OK);
+                                    response.entitelments.Add(collection);
+                                }
+                            }
+
+                            break;
+                        }
+                    default:
+                        break;
                 }
 
-                // move here to Billing WS (write all in billing)
-                var changeStatus = Billing.Module.ChangePaymentDetails(groupId, billingGuid, domainID, entitlement.paymentGatewayId, entitlement.paymentMethodId);
-
-                // complete entitlement details
-                if (changeStatus.Code == (int)eResponseStatus.OK)
-                {
-                    subscriptionEntitlement.Object.paymentGatewayId = entitlement.paymentGatewayId;
-                    subscriptionEntitlement.Object.paymentMethodId = entitlement.paymentMethodId;
-                    response.entitelments.Add(subscriptionEntitlement.Object);
-
-                    //unified billing cycle updates
-                    Utils.HandleUnifiedBillingCycle(groupId, domainID, entitlement.paymentGatewayId, endDateFromDB, entitlement.purchaseID, subscriptionEntitlement.Object.UnifiedPaymentId, 0);
-                }
-                response.status = changeStatus;
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("UpdateEntitlement failed ex={0}, GroupID={1}, domainID={2}, purchaseID={3}, paymentGatewayId={4}, paymentMethodId={5} ", ex, groupId, domainID,
+                log.ErrorFormat("UpdateEntitlement failed ex={0}, GroupID={1}, domainID={2}, purchaseID={3}, paymentGatewayId={4}, paymentMethodId={5} ", ex, groupId, domainId,
                     entitlement.purchaseID, entitlement.paymentGatewayId, entitlement.paymentMethodId);
                 response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
