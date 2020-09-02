@@ -520,6 +520,7 @@ namespace QueueWrapper
                         }
                         else
                         {
+                            model.Dispose();
                             result = true;
                         }
                     }
