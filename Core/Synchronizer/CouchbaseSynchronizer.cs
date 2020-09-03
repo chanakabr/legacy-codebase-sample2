@@ -197,8 +197,21 @@ namespace Synchronizer
                     // Always unlock, even if exception is thrown - to avoid infinite lock
                     finally
                     {
-                        // Try to unlock
-                        bool secondSetResult = couchbaseClient.SetWithVersion(key, 0, newVersion);
+                        // Try to unlock if document didn't expire already (fix for https://kaltura.atlassian.net/browse/BEO-7462)
+                        if (couchbaseClient.GetWithVersion<int>(key, out newVersion) == 1)
+                        {
+                            bool secondSetResult;
+                            if (this.secondsInCache > 0)
+                            {
+                                secondSetResult = couchbaseClient.SetWithVersion(key, 0, newVersion, (uint)this.secondsInCache);
+                            }
+                            else
+                            {
+                                secondSetResult = couchbaseClient.SetWithVersion(key, 0, newVersion);
+                            }
+
+                            log.DebugFormat("unlocked key {0} result is {1}", key, secondSetResult);
+                        }
                     }
 
                     isLocked = 0;
