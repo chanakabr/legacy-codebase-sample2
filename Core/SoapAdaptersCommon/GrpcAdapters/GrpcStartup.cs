@@ -25,10 +25,11 @@ namespace SoapAdaptersCommon.GrpcAdapters
                 services.TryAdd(parentService);
             }
 
-            services.AddGrpc();
+            services.AddGrpc(o =>
+            {
+                o.Interceptors.Add<AdapterRequestInterceptor>();
+            });
             services.TryAddSingleton<AdapterRequestContextAccessor>();
-
-            //services.TryAddSingleton<IGRPCNormlizedSSOAdapterService, SSOAdapterGRPCResponseNormalizer>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -36,6 +37,7 @@ namespace SoapAdaptersCommon.GrpcAdapters
             app.UseRouting();
             app.UseKloggerSessionIdBuilder();
             app.UseAdapterRequestContextAccessor();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<SSOAdapterGRPCImplementation>();
