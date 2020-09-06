@@ -35,6 +35,7 @@ namespace ApiLogic.Api.Managers
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;
                 }
+
                 if (partnerConfig != null)
                 {
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -591,14 +592,14 @@ namespace ApiLogic.Api.Managers
                                                GetPlaybackPartnerConfigDB,
                                                new Dictionary<string, object>() { { "groupId", groupId } },
                                                groupId,
-                                               LayeredCacheConfigNames.GET_COMMERCE_PARTNER_CONFIG,
+                                               LayeredCacheConfigNames.GET_PLAYBACK_PARTNER_CONFIG,
                                                invalidationKey))
                 {
-                    log.Error($"Failed getting GetCommercePartnerConfig from LayeredCache, groupId: {groupId}, key: {key}");
+                    log.Error($"Failed getting PlaybackPartnerConfig from LayeredCache, groupId: {groupId}, key: {key}");
                 }
                 else
                 {
-                    if (partnerConfig == null)
+                    if (partnerConfig == null || partnerConfig.DefaultAdapters == null)
                     {
                         response.SetStatus(eResponseStatus.PartnerConfigurationDoesNotExist, "Playback partner configuration does not exist.");
                     }
@@ -933,7 +934,7 @@ namespace ApiLogic.Api.Managers
                                                           LayeredCacheConfigNames.GET_OBJECT_VIRTUAL_ASSET_PARTNER_CONFIG,
                                                           configInvalidationKey))
                 {
-                    log.ErrorFormat("Failed getting GetObjectVirtualAssetPartnerConfig from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                    log.ErrorFormat("Failed getting ObjectVirtualAssetPartnerConfig from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
                 else
                 {
@@ -945,7 +946,7 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetObjectVirtualAssetPartnerConfig for groupId: {0}", groupId), ex);
+                log.Error($"Failed GetObjectVirtualAssetPartnerConfig for groupId: {groupId}", ex);
             }
 
             return partnerConfig;
@@ -962,6 +963,15 @@ namespace ApiLogic.Api.Managers
                 if (groupId.HasValue)
                 {
                     generalPartnerConfig = ApiDAL.GetObjectVirtualAssetPartnerConfiguration(groupId.Value, out resultStatus);
+                    
+                    if (resultStatus == eResultStatus.KEY_NOT_EXIST)
+                    {
+                        // save null document
+                        if (!ApiDAL.UpdateObjectVirtualAssetPartnerConfiguration(groupId.Value, new ObjectVirtualAssetPartnerConfig()))
+                        {
+                            log.Error($"failed to save ObjectVirtualAssetPartnerConfig null document for groupId {groupId.Value}");
+                        }
+                    }
                 }
             }
 
@@ -1076,8 +1086,17 @@ namespace ApiLogic.Api.Managers
                 int? groupId = funcParams["groupId"] as int?;
                 if (groupId.HasValue)
                 {
-                    commercePartnerConfig = ApiDAL.GetCommercePartnerConfig(groupId.Value);
+                    commercePartnerConfig = ApiDAL.GetCommercePartnerConfig(groupId.Value, out eResultStatus resultStatus);
                     result = true;
+
+                    if (resultStatus == eResultStatus.KEY_NOT_EXIST)
+                    {
+                        // save null document
+                        if (!ApiDAL.SaveCommercePartnerConfig(groupId.Value, new CommercePartnerConfig()))
+                        {
+                            log.Error($"failed to save CommercePartnerConfig null document for groupId {groupId.Value}");
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -1097,9 +1116,18 @@ namespace ApiLogic.Api.Managers
             {
                 int? groupId = funcParams["groupId"] as int?;
                 if (groupId.HasValue)
-                {
-                    partnerConfig = ApiDAL.GetPlaybackPartnerConfig(groupId.Value);
+                {                    
+                    partnerConfig = ApiDAL.GetPlaybackPartnerConfig(groupId.Value, out eResultStatus resultStatus);
                     result = true;
+
+                    if (resultStatus == eResultStatus.KEY_NOT_EXIST)
+                    {
+                        // save null document
+                        if (!ApiDAL.SavePlaybackPartnerConfig(groupId.Value, new PlaybackPartnerConfig()))
+                        {
+                            log.Error($"failed to save PlaybackPartner null document for groupId {groupId.Value}");
+                        }
+                    }
                 }
             }
             catch (Exception ex)

@@ -1889,28 +1889,38 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 if (mediaAsset.Metas != null && mediaAsset.Metas.Count > 0)
-                {
+                {                 
                     if (language.IsDefault)
                     {
-                        metas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType != MetaType.DateTime.ToString()).ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue);
-                        // handle date metas
-                        List<Metas> dateMetas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType == MetaType.DateTime.ToString()).ToList();
-                        if (dateMetas != null && dateMetas.Count > 0)
-                        {
-                            foreach (Metas meta in dateMetas)
-                            {
-                                DateTime date;
-                                if (DateTime.TryParseExact(meta.m_sValue, DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out date))
-                                {
-                                    metas.Add(meta.m_oTagMeta.m_sName, date.ToString("yyyyMMddHHmmss"));
-                                }
-                            }
-                        }
+                        metas = mediaAsset.Metas.Where(x => 
+                        x.m_oTagMeta.m_sType != MetaType.DateTime.ToString() && x.m_oTagMeta.m_sType != MetaType.Bool.ToString())
+                            .ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue);                       
                     }
                     else
                     {
                         List<Metas> languageMetas = mediaAsset.Metas.Where(x => x.Value != null && x.Value.Count(y => y.m_sLanguageCode3 == language.Code) == 1).ToList();
                         metas = languageMetas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.Value.Where(y => y.m_sLanguageCode3 == language.Code).Select(y => y.m_sValue).First());
+                    }
+
+                    // handle date metas
+                    List<Metas> dateMetas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType == MetaType.DateTime.ToString()).ToList();
+                    if (dateMetas != null && dateMetas.Count > 0)
+                    {
+                        foreach (Metas meta in dateMetas)
+                        {
+                            DateTime date;
+                            if (DateTime.TryParseExact(meta.m_sValue, DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out date))
+                            {
+                                metas.Add(meta.m_oTagMeta.m_sName, date.ToString("yyyyMMddHHmmss"));
+                            }
+                        }
+                    }
+
+                    // handle boolean metas
+                    List<Metas> booleanMetas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType == MetaType.Bool.ToString()).ToList();
+                    if (booleanMetas != null && booleanMetas.Count > 0)
+                    {
+                        metas.TryAddRange(booleanMetas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue));                        
                     }
                 }
 
@@ -3269,6 +3279,20 @@ namespace Core.Catalog.CatalogManagement
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
                                 LiveAsset linearMediaAssetToUpdate = assetToUpdate as LiveAsset;
+                                if (isFromIngest)
+                                {
+                                    var oldLiveAsset = currentAsset as LiveAsset;
+                                    linearMediaAssetToUpdate.ExternalEpgIngestId = oldLiveAsset.ExternalEpgIngestId;
+                                    linearMediaAssetToUpdate.EnableCatchUpState = oldLiveAsset.EnableCatchUpState;
+                                    linearMediaAssetToUpdate.EnableCdvrState = oldLiveAsset.EnableCdvrState;
+                                    linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState = oldLiveAsset.EnableRecordingPlaybackNonEntitledChannelState;
+                                    linearMediaAssetToUpdate.EnableStartOverState = oldLiveAsset.EnableStartOverState;
+                                    linearMediaAssetToUpdate.EnableTrickPlayState = oldLiveAsset.EnableTrickPlayState;
+                                    linearMediaAssetToUpdate.BufferCatchUp = oldLiveAsset.BufferCatchUp;
+                                    linearMediaAssetToUpdate.BufferTrickPlay = oldLiveAsset.BufferTrickPlay;
+                                    linearMediaAssetToUpdate.ChannelType = oldLiveAsset.ChannelType;
+                                }
+
                                 result = UpdateLinearMediaAsset(groupId, result.Object as MediaAsset, linearMediaAssetToUpdate, userId);
                             }
                         }

@@ -30,6 +30,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                     new KalturaCustomDrmPlaybackPluginData(null) { Data = src.LicenseData, Scheme = KalturaDrmSchemeName.CUSTOM_DRM } : null))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
+                .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.m_deviceFamilyID))
                 ;
 
             cfg.CreateMap<Device, KalturaDevice>()

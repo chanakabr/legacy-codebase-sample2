@@ -1144,8 +1144,19 @@ namespace Core.Api.Managers
                             // Determine which AssetRules contains Conditions that they are typeof AssetCondition (have Ksql).
                             var assetRulesWithKsql = allAssetRules.Where(x => x.Conditions.Any(y => y is AssetCondition));
 
-                            Parallel.ForEach(assetRulesWithKsql, (currAssetRuleWithKsql) =>
+                            int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+
+                            if (maxDegreeOfParallelism == 0)
                             {
+                                maxDegreeOfParallelism = 5;
+                            }
+                            ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                            ContextData contextData = new ContextData();
+
+                            Parallel.ForEach(assetRulesWithKsql, options, (currAssetRuleWithKsql) =>
+                            {
+                                contextData.Load();
+
                                 StringBuilder ksqlFilter = new StringBuilder();
 
                                 if (eAssetTypes.EPG == slimAsset.Type)

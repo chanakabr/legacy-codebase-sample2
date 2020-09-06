@@ -6195,10 +6195,10 @@ namespace DAL
             return $"commerce_partner_config_{groupId}";
         }
 
-        public static CommercePartnerConfig GetCommercePartnerConfig(int groupId)
+        public static CommercePartnerConfig GetCommercePartnerConfig(int groupId, out eResultStatus resultStatus)
         {
             string key = GetCommercePartnerConfigKey(groupId);
-            return UtilsDal.GetObjectFromCB<CommercePartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+            return UtilsDal.GetObjectFromCB<CommercePartnerConfig>(eCouchbaseBucket.OTT_APPS, key, out resultStatus);
         }
 
         public static bool SaveCommercePartnerConfig(int groupId, CommercePartnerConfig commercePartnerConfig)
@@ -6212,10 +6212,10 @@ namespace DAL
             return $"playback_partner_config_{groupId}";
         }
 
-        public static PlaybackPartnerConfig GetPlaybackPartnerConfig(int groupId)
+        public static PlaybackPartnerConfig GetPlaybackPartnerConfig(int groupId, out eResultStatus resultStatus)
         {
             string key = GetPlaybackPartnerConfigKey(groupId);
-            return UtilsDal.GetObjectFromCB<PlaybackPartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+            return UtilsDal.GetObjectFromCB<PlaybackPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, out resultStatus);
         }
 
         public static bool SavePlaybackPartnerConfig(int groupId, PlaybackPartnerConfig partnerConfig)

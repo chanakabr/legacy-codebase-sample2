@@ -11624,6 +11624,154 @@ namespace WebAPI.Models.Notification
             return ret;
         }
     }
+    public partial class KalturaSmsAdapterProfile
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(AdapterUrl != null && (retrievedProperties == null || retrievedProperties.Contains("adapterUrl")))
+            {
+                ret.Add("adapterUrl", "\"adapterUrl\": " + "\"" + EscapeJson(AdapterUrl) + "\"");
+            }
+            if(ExternalIdentifier != null && (retrievedProperties == null || retrievedProperties.Contains("externalIdentifier")))
+            {
+                ret.Add("externalIdentifier", "\"externalIdentifier\": " + "\"" + EscapeJson(ExternalIdentifier) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
+            if(IsActive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isActive")))
+            {
+                ret.Add("isActive", "\"isActive\": " + IsActive);
+            }
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(Settings != null && (retrievedProperties == null || retrievedProperties.Contains("settings")))
+            {
+                propertyValue = "{" + String.Join(", ", Settings.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("settings", "\"settings\": " + propertyValue);
+            }
+            if(SharedSecret != null && (retrievedProperties == null || retrievedProperties.Contains("sharedSecret")))
+            {
+                ret.Add("sharedSecret", "\"sharedSecret\": " + "\"" + EscapeJson(SharedSecret) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(AdapterUrl != null && (retrievedProperties == null || retrievedProperties.Contains("adapterUrl")))
+            {
+                ret.Add("adapterUrl", "<adapterUrl>" + EscapeXml(AdapterUrl) + "</adapterUrl>");
+            }
+            if(ExternalIdentifier != null && (retrievedProperties == null || retrievedProperties.Contains("externalIdentifier")))
+            {
+                ret.Add("externalIdentifier", "<externalIdentifier>" + EscapeXml(ExternalIdentifier) + "</externalIdentifier>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
+            }
+            if(IsActive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isActive")))
+            {
+                ret.Add("isActive", "<isActive>" + IsActive + "</isActive>");
+            }
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(Settings != null && (retrievedProperties == null || retrievedProperties.Contains("settings")))
+            {
+                propertyValue = Settings.Count > 0 ? "<item>" + String.Join("</item><item>", Settings.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("settings", "<settings>" + propertyValue + "</settings>");
+            }
+            if(SharedSecret != null && (retrievedProperties == null || retrievedProperties.Contains("sharedSecret")))
+            {
+                ret.Add("sharedSecret", "<sharedSecret>" + EscapeXml(SharedSecret) + "</sharedSecret>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaSmsAdapterProfileFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
+    public partial class KalturaSmsAdapterProfileListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
     public partial class KalturaTopic
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)

@@ -5790,7 +5790,7 @@ namespace Core.Api
                 }
 
                 bool shouldUpdateEpgTagValues = parentalRuleToUpdate.epgTagValues != null;
-                if (shouldUpdateEpgTagValues && currentParentalRule.epgTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.epgTagValues))
+                if (shouldUpdateEpgTagValues && currentParentalRule.epgTagValues != null && currentParentalRule.epgTagValues.SequenceEqual(parentalRuleToUpdate.epgTagValues))
                 {
                     shouldUpdateEpgTagValues = false;
                 }

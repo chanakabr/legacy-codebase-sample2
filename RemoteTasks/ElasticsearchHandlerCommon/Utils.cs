@@ -44,11 +44,6 @@ namespace ElasticsearchTasksCommon
             return Convert.ToInt64(ts.TotalSeconds, CultureInfo.CurrentCulture);
         }
 
-        public static string GetEpgGroupAliasStr(int nGroupID)
-        {
-            return string.Format("{0}_epg", nGroupID);
-        }
-
         public static string GetMediaGroupAliasStr(int nGroupID)
         {
             return nGroupID.ToString();

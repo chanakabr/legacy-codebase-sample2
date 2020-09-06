@@ -49,82 +49,95 @@ namespace IngestHandler.Common
 
         public void Update(IList<EpgProgramBulkUploadObject> calculatedPrograms, IList<EpgProgramBulkUploadObject> programsToDelete)
         {
-            var draftIndexName = IndexManager.GetIngestDraftTargetIndexName(_GroupId, _BulkUploadId, _DateOfProgramsToIngest);
+            var dailyEpgIndex = IndexManager.GetDailyEpgIndexName(_GroupId, _DateOfProgramsToIngest);
 
             var isOpc = GroupSettingsManager.IsOpc(_GroupId);
             var metasToPad = GetMetasToPad(_GroupId, isOpc);
 
-            UpsertProgramsToDraftIndex(calculatedPrograms, draftIndexName, isOpc, metasToPad);
-            DeleteProgramsFromIndex(programsToDelete, draftIndexName);
+            UpsertProgramsToDraftIndex(calculatedPrograms, dailyEpgIndex, isOpc, metasToPad);
+            DeleteProgramsFromIndex(programsToDelete, dailyEpgIndex);
         }
 
         private void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, bool isOpc, HashSet<string> metasToPad)
         {
-            var bulkRequests = new List<ESBulkRequestObj<string>>();
-            var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
-            foreach (var program in programTranslationsToIndex)
+            var retryCount = 5;
+            var policy = RetryPolicy.Handle<Exception>()
+            .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
             {
-                program.PadMetas(metasToPad);
-                var suffix = program.Language == _DefaultLanguage.Code ? "" : program.Language;
-                var language = _Languages[program.Language];
+                _Logger.Warn($"upsert attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
+            });
 
-                // Serialize EPG object to string
-                var serializedEpg = _Serializer.SerializeEpgObject(program, suffix, isOpc);
-                var epgType = GetTanslationType(DEFAULT_INDEX_MAPPING_TYPE, language);
-
-                var totalMinutes = GetTTLMinutes(program);
-                // TODO: what should we do if someone trys to ingest something to the past ... :\
-                totalMinutes = totalMinutes < 0 ? 10 : totalMinutes;
-
-                var ttl = string.Format("{0}m", totalMinutes);
-
-                var bulkRequest = new ESBulkRequestObj<string>()
-                {
-                    docID = program.EpgID.ToString(),
-                    document = serializedEpg,
-                    index = draftIndexName,
-                    Operation = eOperation.index,
-                    routing = program.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
-                    type = epgType,
-                    ttl = ttl
-                };
-
-                bulkRequests.Add(bulkRequest);
-
-                // If we exceeded maximum size of bulk 
-                if (bulkRequests.Count >= bulkSize)
-                {
-                    // create bulk request now and clear list
-                    var invalidResults = _ElasticSearchClient.CreateBulkRequest(bulkRequests);
-
-                    if (invalidResults != null && invalidResults.Count > 0)
-                    {
-                        foreach (var item in invalidResults)
-                        {
-                            _Logger.Error($"Could not add EPG to ES index. GroupID={_GroupId} epgId={item.Key} error={item.Value}");
-                        }
-                    }
-
-                    bulkRequests.Clear();
-                }
-            }
-
-            // If we have anything left that is less than the size of the bulk
-            if (bulkRequests.Count > 0)
+            policy.Execute(() =>
             {
-                var invalidResults = _ElasticSearchClient.CreateBulkRequest(bulkRequests);
-
-                if (invalidResults != null && invalidResults.Count > 0)
+                var bulkRequests = new List<ESBulkRequestObj<string>>();
+                var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
+                foreach (var program in programTranslationsToIndex)
                 {
-                    foreach (var item in invalidResults)
+                    program.PadMetas(metasToPad);
+                    var suffix = program.Language == _DefaultLanguage.Code ? "" : program.Language;
+                    var language = _Languages[program.Language];
+
+                    // Serialize EPG object to string
+                    var serializedEpg = _Serializer.SerializeEpgObject(program, suffix, isOpc);
+                    var epgType = GetTanslationType(DEFAULT_INDEX_MAPPING_TYPE, language);
+
+                    var totalMinutes = GetTTLMinutes(program);
+                    // TODO: what should we do if someone trys to ingest something to the past ... :\
+                    totalMinutes = totalMinutes < 0 ? 10 : totalMinutes;
+
+                    var ttl = string.Format("{0}m", totalMinutes);
+
+                    var bulkRequest = new ESBulkRequestObj<string>()
                     {
-                        _Logger.Error($"Could not add EPG to ES index. GroupID={_GroupId} epgId={item.Key} error={item.Value}");
+                        docID = program.EpgID.ToString(),
+                        document = serializedEpg,
+                        index = draftIndexName,
+                        Operation = eOperation.index,
+                        routing = program.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
+                        type = epgType,
+                        ttl = ttl
+                    };
+
+                    bulkRequests.Add(bulkRequest);
+
+                    // If we exceeded maximum size of bulk 
+                    if (bulkRequests.Count >= bulkSize)
+                    {
+                        ExecuteAndValidateBulkRequests(bulkRequests);
                     }
                 }
-            }
+
+                // If we have anything left that is less than the size of the bulk
+                if (bulkRequests.Count > 0)
+                {
+                    ExecuteAndValidateBulkRequests(bulkRequests);
+                }
+            });
+
         }
 
-        private void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string index)
+        private void ExecuteAndValidateBulkRequests(List<ESBulkRequestObj<string>> bulkRequests)
+        {
+            // create bulk request now and clear list
+            var invalidResults = _ElasticSearchClient.CreateBulkRequest(bulkRequests);
+
+            if (invalidResults != null && invalidResults.Count > 0)
+            {
+                foreach (var item in invalidResults)
+                {
+                    _Logger.Error($"Could not add EPG to ES index. GroupID={_GroupId} epgId={item.Key} error={item.Value}");
+                }
+            }
+
+            if (invalidResults.Any())
+            {
+                throw new Exception($"Failed to upsert [{invalidResults.Count}] documents");
+            }
+
+            bulkRequests.Clear();
+        }
+
+        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string index)
         {
             var programIds = programsToDelete.Select(program => program.EpgId);
 

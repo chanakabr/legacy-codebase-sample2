@@ -16194,7 +16194,7 @@ namespace Core.ConditionalAccess
             {
                 List<string> epgIds = domainRecordings.Select(x => x.Value.EpgId.ToString()).ToList();
                 TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
-                List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds);
+                List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds, true);
                 if (epgs != null && epgs.Count > 0)
                 {
                     // check if epg related to series and season
@@ -16266,7 +16266,7 @@ namespace Core.ConditionalAccess
                 long domainRecordingID = 0;
                 // check that epg related to series id
                 TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
-                List<EpgCB> epgs = epgBLTvinci.GetEpgs(new List<string> { epgId.ToString() });
+                List<EpgCB> epgs = epgBLTvinci.GetEpgs(new List<string> { epgId.ToString() }, true);
                 // check if epg related to series and season
                 List<EpgCB> epgMatch = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, seriesRecording, epgs);
                 if (epgMatch != null && epgMatch.Count > 0) // epg related to series and season

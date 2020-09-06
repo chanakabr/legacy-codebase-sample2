@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Notification.Managers;
+using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Notification;
 using ApiObjects.Response;
@@ -72,9 +73,49 @@ namespace WebAPI.Clients
             }
         }
 
+        internal KalturaSmsAdapterProfile GenerateSmsAdapaterSharedSecret(int groupId, int smsAdapterId, int updaterId)
+        {
+            var response = new SmsAdapterProfile();
+            var _response = new SmsAdaptersResponse();
+            try
+            {
+                using (var km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    var sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+                    _response = SmsManager.Instance.SetSmsAdapterSharedSecret(groupId, smsAdapterId, sharedSecret, updaterId);
+                    var selected = _response.SmsAdapters?.Where(adapter => adapter.Id == smsAdapterId).FirstOrDefault();
+                    response = new SmsAdapterProfile
+                    {
+                        AdapterUrl = selected.AdapterUrl,
+                        Id = selected.Id,
+                        ExternalIdentifier = selected.ExternalIdentifier,
+                        GroupId = selected.GroupId,
+                        IsActive = selected.IsActive == 1,
+                        Name = selected.Name,
+                        Settings = selected.Settings,
+                        SharedSecret = selected.SharedSecret
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertSmsAdapter. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (_response.RespStatus.Code != (int)StatusCode.OK)
+            {
+                log.ErrorFormat("Error while InsertSmsAdapter. groupID: {0}, message: {1}", groupId, _response.RespStatus.Message);
+                throw new ClientException(_response.RespStatus);
+            }
+
+            return Mapper.Map<KalturaSmsAdapterProfile>(response);
+        }
+
         internal bool DispatchEventNotification(int groupId, KalturaEventNotificationObjectScope scope)
         {
-            Func<bool> notifyFunc = () => { 
+            Func<bool> notifyFunc = () =>
+            {
                 var eneot = Mapper.Map<EventNotificationObjectScope>(scope);
                 eneot.EventObject.GroupId = groupId;
                 return eneot.EventObject.Notify(type: eneot.EventObject.GetType().Name.ToLower());
@@ -1254,7 +1295,7 @@ namespace WebAPI.Clients
               (PushMessage pushMessage) => Core.Notification.Module.SendUserPush(groupId, userId, pushMessage);
 
             ClientUtils.GetResponseStatusFromWS<KalturaPushMessage, PushMessage>(sendPushFunc, kalturaPushMessage);
-            
+
             return true;
         }
 
@@ -1879,14 +1920,22 @@ namespace WebAPI.Clients
             return response.Value;
         }
 
-        internal bool SendSms(int groupId, int userId, string message)
+        internal bool SendSms(int groupId, int userId, string message, string phoneNumber,
+            SerializableDictionary<string, KalturaStringValue> adapterData)
         {
             Status response = new Status();
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.SendUserSms(groupId, userId, message);
+                    var keyValueList = new List<ApiObjects.KeyValuePair>();
+
+                    if (adapterData != null)
+                    {
+                        keyValueList = adapterData.Select(p => new ApiObjects.KeyValuePair { key = p.Key, value = p.Value.value }).ToList();
+                    }
+
+                    response = Core.Notification.Module.SendUserSms(groupId, userId, message, phoneNumber, keyValueList);
                 }
             }
             catch (Exception ex)
@@ -2002,7 +2051,7 @@ namespace WebAPI.Clients
 
             return result;
         }
-        
+
         internal KalturaFollowTvSeries AddKalturaFollowTvSeries(ContextData contextData, KalturaFollowTvSeries kalturaFollowTvSeriesToAdd)
         {
             Func<FollowDataTvSeries, GenericResponse<FollowDataTvSeries>> addFollowTvSeriesFunc = (FollowDataTvSeries followTvSeriesToAdd) =>

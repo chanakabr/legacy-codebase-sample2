@@ -1145,6 +1145,14 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+                //Add to Recurring Renew Details - BEO-8601
+                var recurringData = ConditionalAccessDAL.GetRecurringRenewDetails(compensation.PurchaseId);
+                if (recurringData != null && (recurringData.Compensation == null || recurringData.Compensation.Id != compensation.Id))
+                {
+                    recurringData.Compensation = compensation;
+                    ConditionalAccessDAL.SaveRecurringRenewDetails(recurringData, compensation.PurchaseId);
+                }
+
                 response.Compensation = compensation;
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }

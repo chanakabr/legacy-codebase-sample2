@@ -346,6 +346,8 @@ namespace CachingProvider.LayeredCache
             return string.Format("Asset_V1_type_{0}_id_{1}_lang_{2}", assetType, id, languageId);
         }
 
+        
+
         public static string GetGroupImageTypesKey(int groupId)
         {
             return string.Format("GroupImageTypes_groupId_{0}", groupId);
@@ -579,6 +581,11 @@ namespace CachingProvider.LayeredCache
         public static string GetSSOAdapaterByGroupKey(int groupId)
         {
             return string.Format("sso_adapter_by_group_{0}", groupId);
+        }
+
+        public static string GetSmsAdapaterByGroupKey(int groupId)
+        {
+            return string.Format("sms_adapter_by_group_{0}", groupId);
         }
 
         public static string GetSSOAdapaterImplementationsKey(int adapterId)
@@ -950,6 +957,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("InvalidationKey_TstvAccountSettings_groupId_{0}", groupId);
         }
 
+        public static string GetSmsAdapaterInvalidationKey(int groupId)
+        {
+            return $"InvalidationKey_smsAdapter_groupId_{groupId}";
+        }
+
         public static Dictionary<string, List<string>> GetAssetsInvalidationKeysMap(string assetType, List<long> ids)
         {
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
@@ -988,7 +1000,7 @@ namespace CachingProvider.LayeredCache
                 ids = ids.Distinct().ToList();
                 foreach (long id in ids)
                 {
-                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });
+                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });                    
                 }
             }
 
