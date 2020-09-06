@@ -1286,14 +1286,21 @@ namespace CachingProvider.LayeredCache
             {
                 if (layeredCacheTcmConfig != null)
                 {
+                    bool isPartner = isPartnerRequest(); //BEO-7703 - No cache for operator+ 
+
                     if (!string.IsNullOrEmpty(configurationName) && layeredCacheTcmConfig.LayeredCacheInvalidationKeySettings != null
-                        && layeredCacheTcmConfig.LayeredCacheInvalidationKeySettings.ContainsKey(configurationName))
+                        && layeredCacheTcmConfig.LayeredCacheInvalidationKeySettings.ContainsKey(configurationName) && !isPartner)
                     {
                         layeredCacheConfig = layeredCacheTcmConfig.LayeredCacheInvalidationKeySettings[configurationName];
                     }
                     else if (layeredCacheTcmConfig.InvalidationKeySettings != null && layeredCacheTcmConfig.InvalidationKeySettings.Count > 0)
                     {
                         layeredCacheConfig = layeredCacheTcmConfig.InvalidationKeySettings;
+
+                        if (isPartner)
+                        {
+                            layeredCacheConfig = layeredCacheConfig.Where(x => x.Type == LayeredCacheType.CbCache || x.Type == LayeredCacheType.CbMemCache).ToList();
+                        }
                     }
                 }
             }
@@ -1303,7 +1310,20 @@ namespace CachingProvider.LayeredCache
                 log.Error(string.Format("Failed TryGetInvalidationKeyLayeredCacheConfig for configurationName: {0}", configurationName), ex);
             }
 
-            return layeredCacheConfig != null;
+            return layeredCacheConfig?.Count > 0;
+        }
+
+        private bool isPartnerRequest()
+        {
+            bool isPartner = false;
+
+            if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items.ContainsKey(REQUEST_TAGS))
+            {
+                var tags = (HashSet<string>)HttpContext.Current.Items[REQUEST_TAGS];
+                isPartner = tags != null && tags.Contains(REQUEST_TAGS_PARTNER_ROLE);
+            }
+
+            return isPartner;
         }
 
         private Dictionary<string, string> GetVersionKeyToOriginalKeyMap(List<string> keys, int groupId, string versionToAdd = null)
