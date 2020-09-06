@@ -24,25 +24,6 @@ namespace WebAPI.Models.API
     [Serializable]
     public partial class KalturaCampaignFilter : KalturaCrudFilter<KalturaCampaignOrderBy, Campaign>
     {
-        /// <summary>
-        /// discount module id the campaign applied on
-        /// </summary>
-        [DataMember(Name = "discountModuleIdApplied")]
-        [JsonProperty("discountModuleIdApplied")]
-        [XmlElement(ElementName = "discountModuleIdApplied", IsNullable = true)]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public long? DiscountModuleIdApplied { get; set; }
-
-        /// <summary>
-        /// campaign id
-        /// </summary>
-        [DataMember(Name = "idIn")]
-        [JsonProperty("idIn")]
-        [XmlElement(ElementName = "idIn", IsNullable = true)]
-        public string IdIn { get; set; }
-
-        // TODO SHIR - CHECK PROP TO FILTER BY
-
         public KalturaCampaignFilter() : base()
         {
         }
@@ -60,7 +41,35 @@ namespace WebAPI.Models.API
 
         public override void Validate()
         {
-            // TODO SHIR
+        }
+    }
+
+    public partial class KalturaCampaignIdInFilter : KalturaCampaignFilter
+    {
+        /// <summary>
+        /// campaign identifiers
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn", IsNullable = false)]
+        public string IdIn { get; set; }
+
+        public override void Validate()
+        {
+            if (string.IsNullOrEmpty(IdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
+            }
+        }
+
+        public KalturaCampaignIdInFilter() : base()
+        {
+        }
+
+        public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
+        {
+            var coreFilter = AutoMapper.Mapper.Map<CampaignIdInFilter>(this);
+            return CampaignManager.Instance.List(contextData, coreFilter, pager);
         }
     }
 }

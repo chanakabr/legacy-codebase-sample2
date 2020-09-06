@@ -6,6 +6,10 @@ namespace ApiObjects
 {
     public class CampaignFilter : ICrudFilter
     {
+    }
+
+    public class CampaignIdInFilter : CampaignFilter
+    {
         public List<long> IdIn { get; set; }
     }
 
