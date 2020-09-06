@@ -61,7 +61,7 @@ namespace ApiLogic.Users.Managers
         public GenericListResponse<TriggerCampaign> ListTriggerCampaigns(ContextData contextData, TriggerCampaignFilter filter, CorePager pager = null)
         {
             var response = new GenericListResponse<TriggerCampaign>();
-            
+
             if (pager == null)
             {
                 pager = new CorePager();
@@ -73,7 +73,7 @@ namespace ApiLogic.Users.Managers
             }
 
             var campaigns = GetList<TriggerCampaign>(contextData);
-            
+
             if (!campaigns.IsOkStatusCode())
             {
                 response.SetStatus(campaigns.Status);
@@ -183,7 +183,7 @@ namespace ApiLogic.Users.Managers
                 campaignToUpdate.UpdateDate = DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 campaignToUpdate.GroupId = contextData.GroupId;
 
-                if (PricingDAL.Update_Campaign(campaignToUpdate))
+                if (PricingDAL.Update_Campaign(campaignToUpdate, contextData.UserId.Value))
                 {
                     response.Object = campaignToUpdate;
                     SetInvalidationKeys(contextData);
@@ -200,98 +200,85 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> ActivateTriggerCampaign(ContextData contextData, long campaignId)
+        public GenericResponse<Campaign> SetState(ContextData contextData, long id, ObjectState newState)
         {
             var response = new GenericResponse<Campaign>();
+
             try
             {
-                var campaign = Get(contextData, campaignId);
-                if (!campaign.IsOkStatusCode() || !(campaign.Object is TriggerCampaign))
+                var campaign = Get(contextData, id);
+
+                if (!campaign.IsOkStatusCode())
                 {
                     response.SetStatus(campaign.Status);
                     return response;
                 }
 
-                var tCampaign = campaign.Object as TriggerCampaign;
-                var validated = ValidateActivation(tCampaign);
+                ValidateStateChange(campaign.Object, newState);
 
-                if (!validated.IsOkStatusCode())
+                var _campaign = campaign.Object as TriggerCampaign;
+                var validated = new Status(eResponseStatus.OK);
+
+                if (newState == ObjectState.ACTIVE)
                 {
-                    response.SetStatus(validated);
-                    return response;
+                    validated = ValidateActivation(_campaign);
+                }
+                else if (newState == ObjectState.INACTIVE)
+                {
+                    validated = ValidateDeactivation(_campaign);
                 }
 
-                Activate(contextData, tCampaign, response);
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Error while activating TriggerCampaign({campaignId}). contextData: {contextData}, ex: {ex}", ex);
-            }
-
-            return response;
-        }
-
-        public GenericResponse<Campaign> DeactivateTriggerCampaign(ContextData contextData, long campaignId)
-        {
-            var response = new GenericResponse<Campaign>();
-            try
-            {
-                var campaign = Get(contextData, campaignId);
-                if (!campaign.IsOkStatusCode() || !(campaign.Object is TriggerCampaign))
+                if (!validated.IsOkStatusCode())
                 {
                     response.SetStatus(campaign.Status);
                     return response;
                 }
 
-                var tCampaign = campaign.Object as TriggerCampaign;
-                var validated = ValidateDeactivation(tCampaign);
-
-                if (!validated.IsOkStatusCode())
+                if (PricingDAL.Update_Campaign(_campaign, contextData.UserId.Value))
                 {
-                    response.SetStatus(validated);
-                    return response;
+                    SetInvalidationKeys(contextData);
+                    response.Object = Get(contextData, _campaign.Id)?.Object;
+                    response.SetStatus(eResponseStatus.OK);
                 }
+                else
+                    response.SetStatus(eResponseStatus.Error, $"Error Updating TriggerCampaign: [{id}] for group: {contextData.GroupId}");
 
-                Deactivate(contextData, tCampaign, response);
             }
             catch (Exception ex)
             {
-                log.Error($"Error while deactivating TriggerCampaign({campaignId}). contextData: {contextData}, ex: {ex}", ex);
+                log.Error($"Failed setting campaign: {id} state to: {newState}, ex: {ex}", ex);
+                response.SetStatus(eResponseStatus.Error, $"Campaign: {id} wasn't updated");
             }
 
             return response;
         }
 
-        private void Activate(ContextData contextData, TriggerCampaign triggerCampaign, GenericResponse<Campaign> response)
+        private Status ValidateStateChange(Campaign campaign, ObjectState newState)
         {
-            //triggerCampaign.IsActive = true;
-            triggerCampaign.State = ObjectState.ACTIVE;
-            triggerCampaign.Status = 1;
+            var response = new Status(eResponseStatus.OK);
 
-            if (PricingDAL.Update_Campaign(triggerCampaign))
+            if (campaign.State == ObjectState.ARCHIVE)
             {
-                SetInvalidationKeys(contextData);
-                response.Object = Get(contextData, triggerCampaign.Id)?.Object;
-                response.SetStatus(eResponseStatus.OK);
+                response.Set(eResponseStatus.Error, "Can't update archived campaign");
+                return response;
             }
-            else
-                response.SetStatus(eResponseStatus.Error, $"Error Updating TriggerCampaign: [{triggerCampaign.Id}] for group: {contextData.GroupId}");
-        }
 
-        private void Deactivate(ContextData contextData, TriggerCampaign triggerCampaign, GenericResponse<Campaign> response)
-        {
-            //triggerCampaign.IsActive = false;
-            triggerCampaign.State = ObjectState.INACTIVE;
-            triggerCampaign.Status = 0;
-
-            if (PricingDAL.Update_Campaign(triggerCampaign))
+            if (campaign.State == newState)
             {
-                SetInvalidationKeys(contextData);
-                response.Object = Get(contextData, triggerCampaign.Id)?.Object;
-                response.SetStatus(eResponseStatus.OK);
+                response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} already in state: {newState}");
+                return response;
             }
-            else
-                response.SetStatus(eResponseStatus.Error, $"Error Updating TriggerCampaign: [{triggerCampaign.Id}] for group: {contextData.GroupId}");
+
+            if (newState == ObjectState.ACTIVE 
+                && campaign.EndDate <= DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))//Check set active
+            {
+                response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} already ended");
+                return response;
+            }
+
+            campaign.State = newState;
+
+            return response;
         }
 
         /// <summary>
@@ -324,9 +311,9 @@ namespace ApiLogic.Users.Managers
                 status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} must have a t least a single discount condition");
             }
 
+            campaign.Status = status.IsOkStatusCode() ? 1 : 0;
             return status;
         }
-
 
         /// <summary>
         /// check if can be deactivate
@@ -342,6 +329,7 @@ namespace ApiLogic.Users.Managers
                 status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} is not active");
             }
 
+            campaign.Status = status.IsOkStatusCode() ? 1 : 0;
             return status;
         }
 

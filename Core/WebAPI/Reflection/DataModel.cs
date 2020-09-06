@@ -7784,13 +7784,9 @@ namespace WebAPI.Reflection
                 case "campaign":
                     switch(action)
                     {
-                        case "activate":
-                            RolesManager.ValidateActionPermitted("campaign", "activate", false);
-                            return CampaignController.Activate((long) methodParams[0]);
-                            
-                        case "deactivate":
-                            RolesManager.ValidateActionPermitted("campaign", "deactivate", false);
-                            return CampaignController.Deactivate((long) methodParams[0]);
+                        case "setstate":
+                            RolesManager.ValidateActionPermitted("campaign", "setState", false);
+                            return CampaignController.SetState((long) methodParams[0], (KalturaObjectState) methodParams[1]);
                             
                         case "add":
                             RolesManager.ValidateActionPermitted("campaign", "add");
@@ -12954,17 +12950,15 @@ namespace WebAPI.Reflection
                 case "campaign":
                     switch(action)
                     {
-                        case "activate":
+                        case "setstate":
                             ret.Add("campaignId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
                             });
-                            return ret;
-                            
-                        case "deactivate":
-                            ret.Add("campaignId", new MethodParam(){
+                            ret.Add("newState", new MethodParam(){
                                 NewName = newParamName,
-                                Type = typeof(long),
+                                IsEnum = true,
+                                Type = typeof(KalturaObjectState),
                             });
                             return ret;
                             

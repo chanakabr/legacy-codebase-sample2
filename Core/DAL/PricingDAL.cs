@@ -1840,16 +1840,18 @@ namespace DAL
         }
 
 
-        public static bool Update_Campaign<T>(T campaign) where T : Campaign, new()
+        public static bool Update_Campaign<T>(T campaign, long updaterId) where T : Campaign, new()
         {
+            campaign.UpdaterId = updaterId;
+
             var sp = new StoredProcedure("Update_Campaign");
             sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", campaign.GroupId);
             sp.AddParameter("@id", campaign.Id);
-            sp.AddParameter("@isActive", campaign.Status);
-            //TODO - MATAN: sp.AddParameter("@State", campaign.State);
+            sp.AddParameter("@groupId", campaign.GroupId);
             sp.AddParameter("@startDate", campaign.StartDate);
             sp.AddParameter("@endDate", campaign.EndDate);
+            sp.AddParameter("@isActive", campaign.Status);
+            sp.AddParameter("@state", campaign.State);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
             return sp.ExecuteReturnValue<int>() > 0;

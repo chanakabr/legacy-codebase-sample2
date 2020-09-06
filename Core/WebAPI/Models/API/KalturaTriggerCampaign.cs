@@ -72,11 +72,6 @@ namespace WebAPI.Models.API
             return CampaignManager.Instance.UpdateTriggerCampaign(contextData, coreObject);
         }
 
-        internal GenericResponse<Campaign> Dispatch(ContextData contextData, long id)
-        {
-            return CampaignManager.Instance.ActivateTriggerCampaign(contextData, id);
-        }
-
         internal override void ValidateForUpdate()
         {
             // TODO SHIR - WHAT NEED TO BE VALIDATE?
