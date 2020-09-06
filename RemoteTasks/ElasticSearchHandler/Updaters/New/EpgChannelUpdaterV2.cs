@@ -82,7 +82,7 @@ namespace ElasticSearchHandler.Updaters
                 return result;
             }
 
-            if (!esApi.IndexExists(ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId)))
+            if (!esApi.IndexExists(Core.Catalog.CatalogManagement.IndexManager.GetEpgIndexAlias(groupId)))
             {
                 log.Error("Error - " + string.Format("Index of type EPG for group {0} does not exist", groupId));
                 return result;

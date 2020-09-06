@@ -312,17 +312,17 @@ namespace Phoenix.Rest.Middleware
         private async Task<IDictionary<string, object>> ParseUploadedFiles(HttpRequest request)
         {
             var uploadedFiles = new Dictionary<string, object>();
-            if (!Directory.Exists(_FileSystemUploaderSourcePath))
-            {
-                Directory.CreateDirectory(_FileSystemUploaderSourcePath);
-            }
 
             foreach (var uploadedFile in request.Form.Files)
             {
 
                 if (ApplicationConfiguration.Current.RequestParserConfiguration.ShouldSaveAsFile.Value)
                 {
-                    
+                    if (!Directory.Exists(_FileSystemUploaderSourcePath))
+                    {
+                        Directory.CreateDirectory(_FileSystemUploaderSourcePath);
+                    }
+
                     var filePath = Path.Combine(_FileSystemUploaderSourcePath, CreateRandomFileName(uploadedFile.FileName));
                     using (Stream tempFile = File.Create(filePath))
                     {

@@ -237,7 +237,7 @@ namespace ElasticSearchHandler.Updaters
                         }
 
                         var alias = GetAlias();
-                        var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+                        bool isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
 
                         // Create dictionary by languages
                         foreach (LanguageObj language in languages)
@@ -450,12 +450,12 @@ namespace ElasticSearchHandler.Updaters
 
         protected virtual string GetAlias()
         {
-            return ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
+            return IndexManager.GetEpgIndexAlias(groupId);
         }
 
         protected virtual string GetAliasWithStartDate(int groupId, DateTime startDate)
         {
-            return IndexManager.GetIngestCurrentProgramsAliasName(groupId, startDate);
+            return IndexManager.GetDailyEpgIndexName(groupId, startDate);
         }
     }
 }

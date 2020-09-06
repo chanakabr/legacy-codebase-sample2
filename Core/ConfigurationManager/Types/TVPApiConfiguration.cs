@@ -67,10 +67,10 @@ namespace ConfigurationManager
         private void PopulateList(JToken token, BaseValue<HashSet<int>> defaultData)
         {
             HashSet<int> res = null;
-            token = token[defaultData.Key];
+            token = token?[defaultData.Key];
             if (token != null)
             {
-                string[] values = token.ToString().Split(',');
+                string[] values = token.ToString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 res = new HashSet<int>();
                 foreach (var value in values)
                 {
@@ -93,10 +93,10 @@ namespace ConfigurationManager
         private void PopulateList(JToken token, BaseValue<HashSet<string>> defaultData) 
         {
             var res  = new HashSet<string>();
-            token = token[defaultData.Key];
+            token = token?[defaultData.Key];
             if (token != null)
             {
-                string[] splitted = token.ToString().Split(',');
+                string[] splitted = token.ToString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var value in splitted)
                 {

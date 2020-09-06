@@ -160,11 +160,14 @@ namespace Core.Catalog
                 var onlyTagsWithValues = defaultEpgCB.Tags.Where(t => t.Value?.Any() == true);
                 foreach (var tag in onlyTagsWithValues)
                 {
-                    tagsToSet[tag.Key] = new List<List<LanguageContainer>>();
-                    var tagValuesDefaultLanaguage = tag.Value.Select(tagValue => new LanguageContainer(defaultEpgCB.Language, tagValue)).ToList();
-                    foreach (var tagValueDefaultLang in tagValuesDefaultLanaguage)
+                    var tagValuesDefaultLanaguage = tag.Value.Where(x => !string.IsNullOrEmpty(x)).Select(tagValue => new LanguageContainer(defaultEpgCB.Language, tagValue)).ToList();
+                    if (tagValuesDefaultLanaguage?.Count > 0)
                     {
-                        tagsToSet[tag.Key].Add(new List<LanguageContainer>() { tagValueDefaultLang });
+                        tagsToSet[tag.Key] = new List<List<LanguageContainer>>();
+                        foreach (var tagValueDefaultLang in tagValuesDefaultLanaguage)
+                        {    
+                            tagsToSet[tag.Key].Add(new List<LanguageContainer>() { tagValueDefaultLang });
+                        }
                     }
                 }
             }

@@ -40,10 +40,14 @@ namespace Core.Middleware
             builder.AppendLine($"Url: {request.GetDisplayUrl()}");
             builder.AppendLine($"Headers: {GetRequestHeadersStr(request)}");
 
-            request.EnableBuffering();
-            string bodyAsText = await TryGetRequestBodyStr(request);
+            // skip logging and buffering body if request contains file
+            if (request.HasFormContentType && request.Form?.Files?.Any() != true)
+            {
+                request.EnableBuffering();
+                string bodyAsText = await TryGetRequestBodyStr(request);
 
-            builder.AppendLine($"Body: {bodyAsText}");
+                builder.AppendLine($"Body: {bodyAsText}");
+            }
 
             return builder.ToString();
         }

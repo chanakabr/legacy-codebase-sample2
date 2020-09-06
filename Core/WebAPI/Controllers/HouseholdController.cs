@@ -39,7 +39,6 @@ namespace WebAPI.Controllers
 
             try
             {
-                // call client
                 response = ClientsManager.DomainsClient().GetDomainInfo(groupId, id.Value);
             }
             catch (ClientException ex)
@@ -721,6 +720,37 @@ namespace WebAPI.Controllers
             }
 
             return true;
+        }
+ 
+        /// <summary>
+        /// Get recently watched media for user, ordered by recently watched first.    
+        /// </summary>
+        /// <param name="filter">Filter parameters for filtering out the result</param>
+        /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
+        /// <remarks>Possible status codes: 
+        /// </remarks>
+        [Action("list")]
+        [ApiAuthorize]
+        static public KalturaHouseholdListResponse List(KalturaHouseholdFilter filter, KalturaFilterPager pager = null)
+        {
+            KalturaHouseholdListResponse response = null;
+           
+            if (pager == null)
+                pager = new KalturaFilterPager();
+            
+            filter.Validate();
+            var contextData = KS.GetContextData();
+
+            try
+            {
+                response = ClientsManager.DomainsClient().GetDomains(contextData, filter);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
     }
 }

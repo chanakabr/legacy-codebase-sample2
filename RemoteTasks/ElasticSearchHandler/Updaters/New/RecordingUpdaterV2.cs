@@ -97,6 +97,11 @@ namespace ElasticSearchHandler.Updaters
             return ElasticsearchTasksCommon.Utils.GetRecordingGroupAliasStr(this.groupId);
         }
 
+        protected override string GetAliasWithStartDate(int groupId, DateTime startDate)
+        {
+            return GetAlias();
+        }
+
         protected override string GetDocumentType()
         {
             return RECORDING;
@@ -141,11 +146,6 @@ namespace ElasticSearchHandler.Updaters
         protected override bool ShouldSetTTL()
         {
             return false;
-        }
-
-        protected override string GetAliasWithStartDate(int groupId, DateTime startDate)
-        {
-            return this.GetAlias();
         }
 
         #endregion

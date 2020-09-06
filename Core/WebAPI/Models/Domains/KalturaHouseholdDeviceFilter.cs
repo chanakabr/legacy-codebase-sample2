@@ -65,6 +65,8 @@ namespace WebAPI.Models.Domains
 
     public enum KalturaHouseholdDeviceOrderBy
     {
-        NONE                
+        NONE,
+        CREATED_DATE_ASC,
+        CREATED_DATE_DESC
     }
 }

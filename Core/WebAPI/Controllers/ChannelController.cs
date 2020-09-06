@@ -233,7 +233,9 @@ namespace WebAPI.Controllers
                 channel.ValidateForUpdate();
             }
 
-            try
+            channel.FillEmptyFeildsForUpdate();
+            
+                try
             {
                 // KalturaManualChannel or KalturaDynamicChannel                             
                 if (isManualChannelOrDynamicChannel)

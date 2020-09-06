@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Text;
 using ApiLogic.Users.Services;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using ApiObjects.Base;
 
 namespace Core.Users
 {
@@ -2279,11 +2280,10 @@ namespace Core.Users
         public virtual ApiObjects.Response.Status ShouldPurgeDomain(int domainId, out bool shouldPurge)
         {
             shouldPurge = false;
-            DataTable dt = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            var dr = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
+            if (dr != null)
             {
                 //check if domain exist and belong to partner
-                DataRow dr = dt.Rows[0];
                 int domianStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
                 int purge = ODBCWrapper.Utils.GetIntSafeVal(dr, "PURGE");
 
@@ -2314,11 +2314,10 @@ namespace Core.Users
 
         public virtual ApiObjects.Response.Status PurgeDomain(int domainId)
         {
-            DataTable dt = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            var dr = DomainDal.GetDomainDbObject(this.m_nGroupID, domainId);
+            if (dr != null)
             {
                 //check if domain exist and belong to partner
-                DataRow dr = dt.Rows[0];
                 int domianStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
                 int purge = ODBCWrapper.Utils.GetIntSafeVal(dr, "PURGE");
 
@@ -2415,6 +2414,29 @@ namespace Core.Users
                 {
                     response.Add(ODBCWrapper.Utils.GetIntSafeVal(row, "ID"));
                 }
+            }
+
+            return response;
+        }
+
+        public GenericListResponse<Domain> GetDomains(ContextData contextData, DomainFilter filter)
+        {
+            var response = new GenericListResponse<Domain>();
+
+            try
+            {
+                int domainId = DAL.DomainDal.GetDomainIDByCoGuid(filter.ExternalIdEqual, contextData.GroupId);
+                if (domainId > 0)
+                {
+                    response.Objects.Add(GetDomainInfo(domainId, contextData.GroupId));
+                }
+
+                response.SetStatus(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus(eResponseStatus.Error);
+                log.Error($"An Exception was occurred in GetDomains. filter: {filter}, contextData:{contextData}", ex);
             }
 
             return response;

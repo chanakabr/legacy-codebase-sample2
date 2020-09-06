@@ -2,6 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -28,11 +29,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "entityReferenceEqual")]
         [JsonProperty("entityReferenceEqual")]
         [XmlElement(ElementName = "entityReferenceEqual")]
-        public KalturaEntityReferenceBy EntityReferenceEqual
-        {
-            get;
-            set;
-        }
+        public KalturaEntityReferenceBy EntityReferenceEqual { get; set; }
 
         /// <summary>
         ///Filter transactions later than specific date
@@ -42,7 +39,7 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "startDateGreaterThanOrEqual", IsNullable = true)]
         public DateTime? StartDateGreaterThanOrEqual { get; set; }
 
-        
+
         /// <summary>
         ///Filter transactions earlier than specific date
         /// </summary>
@@ -50,5 +47,58 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("endDateLessThanOrEqual")]
         [XmlElement(ElementName = "endDateLessThanOrEqual", IsNullable = true)]
         public DateTime? EndDateLessThanOrEqual { get; set; }
+
+        /// <summary>
+        ///Filter transaction by entitlement id
+        /// </summary>
+        [DataMember(Name = "entitlementIdEqual")]
+        [JsonProperty("entitlementIdEqual")]
+        [XmlElement(ElementName = "entitlementIdEqual", IsNullable = true)]
+        public long? EntitlementIdEqual { get; set; }
+
+        /// <summary>
+        ///Filter transaction by external Id
+        /// </summary>
+        [DataMember(Name = "externalIdEqual")]
+        [JsonProperty("externalIdEqual")]
+        [XmlElement(ElementName = "externalIdEqual", IsNullable = true)]
+        public string ExternalIdEqual { get; set; }
+
+        /// <summary>
+        ///Filter transaction by billing item type
+        /// </summary>
+        [DataMember(Name = "billingItemsTypeEqual")]
+        [JsonProperty("billingItemsTypeEqual")]
+        [XmlElement(ElementName = "billingItemsTypeEqual", IsNullable = true)]
+        public KalturaBillingItemsType? BillingItemsTypeEqual { get; set; }
+
+        /// <summary>
+        ///Filter transaction by billing action
+        /// </summary>
+        [DataMember(Name = "billingActionEqual")]
+        [JsonProperty("billingActionEqual")]
+        [XmlElement(ElementName = "billingActionEqual", IsNullable = true)]
+        public KalturaBillingAction? BillingActionEqual { get; set; }
+
+        /*
+        /// <summary>
+        ///Filter transaction by payment gateway id
+        /// </summary>
+        [DataMember(Name = "paymentGatewayIdEqual")]
+        [JsonProperty("paymentGatewayIdEqual")]
+        [XmlElement(ElementName = "paymentGatewayIdEqual", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        public int? PaymentGatewayIdEqual { get; set; }
+
+        /// <summary>
+        ///Filter transaction by payment method id
+        /// </summary>
+        [DataMember(Name = "paymentMethodIdEqual")]
+        [JsonProperty("paymentMethodIdEqual")]
+        [XmlElement(ElementName = "paymentMethodIdEqual", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        public int? PaymentMethodIdEqual { get; set; }
+        */
+
     }
 }

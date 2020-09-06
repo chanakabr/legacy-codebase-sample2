@@ -9172,6 +9172,7 @@ namespace Core.Catalog
                         };
 
                         int elasticSearchPageSize = 0;
+                        string seriesIdExtraReturnField = "metas.seriesid";
 
                         List<string> listOfMedia = unFilteredresult.Where(x => x.AssetTypeId > 1).Select(x => x.AssetId.ToString()).ToList();
                         if (listOfMedia.Count > 0)
@@ -9181,10 +9182,26 @@ namespace Core.Catalog
                             searchDefinitions.shouldUseFinalEndDate = true;
                             searchDefinitions.shouldUseStartDateForMedia = true;
                             elasticSearchPageSize += listOfMedia.Count;
-                            if (suppress && isOPC)
+                            if (suppress)
                             {
-                                searchDefinitions.extraReturnFields.Add("metas.seriesid");
-                                searchDefinitions.extraReturnFields.Add("media_type_id");
+                                if (!isOPC)
+                                {
+                                    string episodeAssociationTagName = NotificationCache.Instance().GetEpisodeAssociationTagName(groupId);
+                                    if (!string.IsNullOrEmpty(episodeAssociationTagName))
+                                    {
+                                        seriesIdExtraReturnField = $"tags.{episodeAssociationTagName.ToLower()}";
+                                    }
+                                    else
+                                    {
+                                        suppress = false;
+                                    }
+                                }
+
+                                if (suppress)
+                                {
+                                    searchDefinitions.extraReturnFields.Add(seriesIdExtraReturnField);
+                                    searchDefinitions.extraReturnFields.Add("media_type_id");
+                                }
                             }
                         }
 
@@ -9210,7 +9227,7 @@ namespace Core.Catalog
                             ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
                             int esTotalItems = 0, to = 0;
                             var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
-                            
+
                             long episodeStructId = 0;
 
                             if (searchResults != null && searchResults.Count > 0)
@@ -9228,17 +9245,24 @@ namespace Core.Catalog
                                         if (suppress)
                                         {
                                             ExtendedSearchResult ecr = (ExtendedSearchResult)searchResult;
-                                            string seriesId = Api.api.GetStringParamFromExtendedSearchResult(ecr, "metas.seriesid");
+                                            string seriesId = Api.api.GetStringParamFromExtendedSearchResult(ecr, seriesIdExtraReturnField);
 
                                             if (!string.IsNullOrEmpty(seriesId))
                                             {
                                                 if (episodeStructId == 0)
                                                 {
-                                                    CatalogGroupCache catalogGroupCache;
-                                                    if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                                                    if (isOPC)
                                                     {
-                                                        long seriesStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.IsSeriesAssetStruct).Id;
-                                                        episodeStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId > 0 && x.ParentId == seriesStructId).Id;
+                                                        CatalogGroupCache catalogGroupCache;
+                                                        if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                                                        {
+                                                            long seriesStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.IsSeriesAssetStruct).Id;
+                                                            episodeStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId > 0 && x.ParentId == seriesStructId).Id;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        episodeStructId = NotificationCache.Instance().GetEpisodeMediaTypeId(groupId);
                                                     }
                                                 }
 
@@ -9247,7 +9271,6 @@ namespace Core.Catalog
 
                                                 if (long.TryParse(mediaTypeIdValue, out mediaTypeId) && mediaTypeId == episodeStructId)
                                                 {
-
                                                     if (!seriesMap.ContainsKey(seriesId))
                                                     {
                                                         seriesMap.Add(seriesId, watched);
@@ -9279,16 +9302,6 @@ namespace Core.Catalog
                                         activeEpg.Add(assetId);
                                         unFilteredresult.First(x => int.Parse(x.AssetId) == assetId && x.AssetTypeId == (int)eAssetTypes.EPG).UpdateDate = searchResult.m_dUpdateDate;
                                     }
-
-                                    /*
-                                    if (searchResult.AssetType == eAssetTypes.NPVR)
-                                    {
-                                        activeRecordingIds.Add(searchResult.AssetId);
-                                        var recordingResult = unFilteredresult.First(x => x.AssetId.ToString() == searchResult.AssetId &&x.AssetTypeId == (int)eAssetTypes.NPVR);
-                                        recordingResult.UpdateDate = searchResult.m_dUpdateDate;
-                                        recordingResult.EpgId = long.Parse((searchResult as RecordingSearchResult).EpgId);
-                                    }
-                                    */
                                 }
                             }
 
@@ -9304,13 +9317,13 @@ namespace Core.Catalog
                         if (unFilteredRecordings != null)
                         {
                             var recordings = Core.ConditionalAccess.Module.SearchDomainRecordings(groupId, siteGuid, domainId, new TstvRecordingStatus[] { TstvRecordingStatus.Recorded }, string.Empty,
-                                0, 0, new OrderObj() { m_eOrderBy = OrderBy.NONE, m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC } , true, null);
+                                0, 0, new OrderObj() { m_eOrderBy = OrderBy.NONE, m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC }, true, null);
 
                             if (recordings != null && recordings.Recordings?.Count > 0)
                             {
                                 foreach (var item in unFilteredRecordings)
                                 {
-                                    var recording = recordings.Recordings.First(x => x.Id.ToString().Equals(item.AssetId));
+                                    var recording = recordings.Recordings.FirstOrDefault(x => x.Id.ToString().Equals(item.AssetId));
                                     if (recording != null)
                                     {
                                         item.EpgId = recording.EpgId;

@@ -101,119 +101,17 @@ namespace TVPApiModule.CatalogLoaders
 
             if (catalogWatchHistoryResult.result != null && catalogWatchHistoryResult.result.Count > 0)
             {
+                var mediaIds = catalogWatchHistoryResult.result.Where(asset => asset.AssetType == eAssetTypes.MEDIA).Select(asset => long.Parse(asset.AssetId)).ToList();
                 List<MediaObj> medias = new List<MediaObj>();
-                List<long> missingMediaIds = new List<long>();
-
-                // get medias from cache
-                if (!GetAssetsFromCache(catalogWatchHistoryResult.result, out medias, out missingMediaIds))
-                {
-                    // Get the assets that were missing in cache 
-                    List<MediaObj> mediasFromCatalog = new List<MediaObj>();
-                    GetAssetsFromCatalog(missingMediaIds, out mediasFromCatalog);
-                    medias.AddRange(mediasFromCatalog);
-                }
+                List<ProgramObj> epgs;
+                List<ProgramObj> recordings;
+                GetAssetsFromCatalog(mediaIds, null, null, out medias, out epgs, out recordings);
 
                 // Gets one list ordered by Catalog order
                 clientResponse.Assets = BuildClientResult(catalogWatchHistoryResult.result, medias);
             }
 
             return clientResponse;
-        }
-
-        private bool GetAssetsFromCache(List<UserWatchHistory> userWatchHistory, out List<MediaObj> medias, out List<long> missingMediaIds)
-        {
-            bool result = true;
-            medias = new List<MediaObj>();
-            missingMediaIds = new List<long>();
-
-            if (userWatchHistory != null && userWatchHistory.Count > 0)
-            {
-                List<BaseObject> cacheResults = null;
-                CacheKey key = null;
-                List<CacheKey> mediaKeys = new List<CacheKey>();
-
-                // build cache keys for non NPVR
-                foreach (var watchHistory in userWatchHistory)
-                {
-                    if (watchHistory.AssetTypeId != (int)TVPApiModule.Objects.Enums.eAssetFilterTypes.NPVR)
-                    {
-                        key = new CacheKey(watchHistory.AssetId, watchHistory.m_dUpdateDate);
-                        mediaKeys.Add(key);
-                    }
-                }
-
-                // Media - Get the medias from cache, Cast the results, return false if at least one is missing
-                if (mediaKeys != null && mediaKeys.Count > 0)
-                {
-                    cacheResults = CacheManager.Cache.GetObjects(mediaKeys, string.Format(CACHE_KEY_FORMAT, MEDIA_CACHE_KEY_PREFIX, Language), out missingMediaIds);
-                    if (cacheResults != null && cacheResults.Count > 0)
-                    {
-                        medias = new List<MediaObj>();
-                        foreach (var res in cacheResults)
-                            medias.Add((MediaObj)res);
-                    }
-
-                    if (missingMediaIds != null && missingMediaIds.Count > 0)
-                        result = false;
-                }
-            }
-
-            return result;
-        }
-
-        private void GetAssetsFromCatalog(List<long> missingMediaIds, out List<MediaObj> mediasFromCatalog)
-        {
-            mediasFromCatalog = null;
-
-            if (missingMediaIds != null && missingMediaIds.Count > 0)
-            {
-                // Build AssetInfoRequest with the missing ids
-                AssetInfoRequest request = new AssetInfoRequest()
-                {
-                    mediaIds = missingMediaIds,
-                    m_nGroupID = GroupID,
-                    m_nPageIndex = PageIndex,
-                    m_nPageSize = PageSize,
-                    m_oFilter = m_oFilter,
-                    m_sSignature = m_sSignature,
-                    m_sSignString = m_sSignString,
-                    m_sSiteGuid = SiteGuid,
-                    m_sUserIP = m_sUserIP
-                };
-
-                BaseResponse response = null;
-                eProviderResult providerResult = m_oProvider.TryExecuteGetBaseResponse(request, out response);
-                if (providerResult == eProviderResult.Success && response != null)
-                {
-                    AssetInfoResponse assetInfoResponse = (AssetInfoResponse)response;
-
-                    if (assetInfoResponse.mediaList != null)
-                    {
-                        if (assetInfoResponse.mediaList.Any(m => m == null))
-                            logger.Warn("APIWatchHistoryLoader: Received response from Catalog with null media objects");
-
-                        mediasFromCatalog = assetInfoResponse.mediaList.Where(m => m != null).ToList();
-                    }
-                    else
-                        mediasFromCatalog = new List<MediaObj>();
-
-
-                    // Store in Cache the medias from Catalog
-                    int duration = ApplicationConfiguration.Current.TVPApiConfiguration.CacheLiteDurationInMinutes.Value;
-
-                    List<BaseObject> baseObjects = null;
-
-                    if (mediasFromCatalog != null && mediasFromCatalog.Count > 0)
-                    {
-                        Log("Storing Medias in Cache", mediasFromCatalog);
-
-                        baseObjects = new List<BaseObject>();
-                        mediasFromCatalog.ForEach(m => baseObjects.Add(m));
-
-                        CacheManager.Cache.StoreObjects(baseObjects, string.Format(CACHE_KEY_FORMAT, MEDIA_CACHE_KEY_PREFIX, Language), duration);
-                    }
-                }
-            }
         }
 
         private List<WatchHistoryAsset> BuildClientResult(List<UserWatchHistory> watchHistoryResult, List<MediaObj> mediasInfo)

@@ -29,14 +29,21 @@ namespace ApiLogic.Catalog.BulkUpload.Validators
             if (!ValidateTitleLang(program))
             {
                 epg.AddError(eResponseStatus.Error,
-                "Language value on title must not be empty.");
+                "Language value on title cannot be empty.");
                 result = false;
             }
 
             if (!ValidateIcon(program))
             {
                 epg.AddError(eResponseStatus.Error,
-                "Icon src must not be empty");
+                "Icon src cannot be empty");
+                result = false;
+            }
+
+            if (!ValidateExternalId(program))
+            {
+                epg.AddError(eResponseStatus.Error,
+                "External ID cannot be empty");
                 result = false;
             }
 
@@ -71,6 +78,12 @@ namespace ApiLogic.Catalog.BulkUpload.Validators
                 .All(x => !string.IsNullOrEmpty(x.lang));
         }
 
-        
+        private static bool ValidateExternalId(EpgProgramBulkUploadObject program)
+        {
+            //verify that external id is not empty
+            return !string.IsNullOrWhiteSpace(program.ParsedProgramObject.external_id);
+                
+        }
+
     }
 }

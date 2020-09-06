@@ -575,10 +575,12 @@ namespace Core.Catalog.CatalogManagement
 
                         var groupEpgPicturesSizes = ImageManager.GetGroupEpgPicturesSizes(groupId.Value);
 
+                        var isNewEpgIngestEnabled = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId.Value, GroupFeature.EPG_INGEST_V2);
+                        
                         foreach (var epgId in epgIds)
                         {
                             var docIds = GetEpgCBKeys(groupId.Value, epgId, languages);
-                            List<EpgCB> epgCbList = EpgDal.GetEpgCBList(docIds);
+                            List<EpgCB> epgCbList = EpgDal.GetEpgCBList(docIds, isNewEpgIngestEnabled);
 
                             if (epgCbList != null && epgCbList.Count > 0)
                             {

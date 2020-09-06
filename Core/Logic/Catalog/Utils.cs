@@ -307,69 +307,17 @@ namespace Core.Catalog
             if (lMediaIDs == null || lMediaIDs.Count == 0)
                 return lMediaRes;
 
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
 
-            if (searcher != null)
+            var assetsUpdateDates = wrapper.GetAssetsUpdateDate(nParentGroupID, eObjectType.Media, lMediaIDs);
+
+            Dictionary<int, SearchResult> idToSearchResult = assetsUpdateDates.ToDictionary<SearchResult, int>(item => item.assetID);
+
+            foreach (var mediaId in lMediaIDs)
             {
-                if (searcher.GetType().Equals(typeof(LuceneWrapper)))
-                {
-                    DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0);
-                    lMediaRes = GetMediaUpdateDate(lMediaIDs.Select(id => new SearchResult() { assetID = id, UpdateDate = dt }).ToList(), nParentGroupID);
-                }
-                else
-                {
-                    ConcurrentBag<SearchResult> itemList = new ConcurrentBag<SearchResult>();
-                    Dictionary<int, SearchResult> dictRes = new Dictionary<int, SearchResult>();
-                    foreach (int mediaID in lMediaIDs)
-                    {
-                        if (!dictRes.ContainsKey(mediaID))
-                            dictRes.Add(mediaID, new SearchResult());
-                    }
-
-                    try
-                    {
-                        ContextData contextData = new ContextData();
-                        Parallel.ForEach<int>(lMediaIDs, mediaID =>
-                        {
-                            contextData.Load();
-                            SearchResult res = new SearchResult()
-                            {
-                                assetID = mediaID,
-                                UpdateDate = DateTime.MinValue
-                            };
-                            try
-                            {
-                                res = searcher.GetDoc(nParentGroupID, mediaID);
-                                if (res != null)
-                                {
-                                    dictRes[mediaID] = new SearchResult()
-                                    {
-                                        assetID = res.assetID,
-                                        UpdateDate = res.UpdateDate
-                                    };
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                log.ErrorFormat("Failed getting document of media {0}. ex = {1}", mediaID, ex);
-                            }
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        log.ErrorFormat("Failed performing parallel GetMediaUpdateDate for group {0}. ex = {1}", nParentGroupID, ex);
-                    }
-                    
-                    foreach (var item in lMediaIDs)
-                    {
-                        if (dictRes[item].assetID > 0)
-                        {
-                            lMediaRes.Add(dictRes[item]);
-                        }
-                    }
-                }
+                lMediaRes.Add(idToSearchResult[mediaId]);
             }
-            
+
             return lMediaRes;
         }
 

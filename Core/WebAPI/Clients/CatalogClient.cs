@@ -274,7 +274,7 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteAssetFunc);
         }
 
-        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language, bool isAllowedToViewInactiveAssets)
+        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language, bool isAllowedToViewInactiveAssets, bool ignoreEndDate = false)
         {
             KalturaAsset result = null;
             GenericResponse<Asset> response = null;       
@@ -306,7 +306,7 @@ namespace WebAPI.Clients
                     else
                     {
                         assetListResponse = SearchAssets(groupId, siteGuid, domainId, udid, language, 0, 1,
-                            $"(and asset_type='media' media_id = '{id}')", KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false);
+                            $"(and asset_type='media' media_id = '{id}')", KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false, null, null, null, false, null, true);
                     }
 
                     if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
@@ -729,7 +729,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
-            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null)
+            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -812,7 +812,8 @@ namespace WebAPI.Clients
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
+                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                shouldIgnoreEndDate = ignoreEndDate
             };
 
             if (groupBy != null && groupBy.Count > 0)
@@ -1931,7 +1932,20 @@ namespace WebAPI.Clients
                 }).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
+
+                if (Utils.Utils.DoesGroupUsesTemplates(groupId))
+                {
+                    KalturaAssetListResponse getAssetRes = GetAssetsForOPCAccount(groupId, assetsBaseDataList, Utils.Utils.IsAllowedToViewInactiveAssets(groupId, siteGuid, true));
+                    if (getAssetRes != null)
+                    {
+                        result.Objects = getAssetRes.Objects;
+                    }
+                }
+                else
+                {
+                    result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
+                }
+
                 result.TotalCount = epgProgramResponse.m_nTotalItems;
 
                 if (result.Objects != null)
@@ -2711,6 +2725,13 @@ namespace WebAPI.Clients
             {
                 // Bad response received from WS
                 throw new ClientException(channelResponse.status);
+            }
+
+            //BEO-8762
+            if (pageSize.HasValue && channelResponse.aggregationResults?.FirstOrDefault() != null)
+            {
+                channelResponse.aggregationResults[0].results = channelResponse.aggregationResults[0].results
+                    .Skip(pageIndex * pageSize.Value).Take(pageSize.Value).ToList();
             }
 
             result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, isAllowedToViewInactiveAssets, false, responseProfile);

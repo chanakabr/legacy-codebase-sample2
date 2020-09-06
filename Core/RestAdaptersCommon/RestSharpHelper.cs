@@ -38,10 +38,17 @@ namespace RestAdaptersCommon
 					response = await client.ExecuteTaskAsync(request);
 				}
 				if (response.StatusCode != System.Net.HttpStatusCode.OK)
-				{
-					throw new Exception($"Could not complete request, reason:[{response.ResponseStatus}], status:[{response.StatusCode}], statusDesc:[{response.StatusDescription}], message:[{response.ErrorMessage}] excpetion:[{response.ErrorException}]");
+				{					
+					if (response.ErrorException.GetType() == typeof(System.Net.WebException))
+					{
+						throw response.ErrorException;
+					}
+					else
+					{
+						throw new Exception($"Could not complete request, reason:[{response.ResponseStatus}], status:[{response.StatusCode}], statusDesc:[{response.StatusDescription}], message:[{response.ErrorMessage}] excpetion:[{response.ErrorException}]");
+					}
 				}
-			}
+			}            
 			catch (Exception e)
 			{
 				_Logger.Error($"Error while making request:[{request.Resource}]", e);
@@ -97,7 +104,7 @@ namespace RestAdaptersCommon
 				errorMessage = response.ErrorMessage,
 			};
 
-			_Logger.Debug($"Response ({requestID:X4}): ({responseToLog.statusCode}) [{response.Content}]");
+			_Logger.Debug($"Response ({requestID:X4}): ({responseToLog.statusCode}) [{response.Content?.Substring(0, Math.Min(response.Content.Length,1000))}]");
 			_Logger.Debug($"Response Headers ({requestID:X4}): [{string.Join(",", response.Headers)}]");
 
 		}

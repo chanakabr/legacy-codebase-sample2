@@ -132,7 +132,7 @@ namespace ApiObjects.BulkUpload
             var warnningStatus = new Status(warnningCode, msg);
             if (warnningStatus != null)
             {
-                _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{warnningStatus.Message}]");
+                _Logger.Debug($"Adding Error to resultIndex:[{Index}], msg:[{warnningStatus.Message}]");
                 if (Warnings == null)
                 {
                     Warnings = new[] { warnningStatus };

@@ -131,6 +131,8 @@ namespace ConfigurationManager
         public IotHttpClientConfiguration IotHttpClientConfiguration = new IotHttpClientConfiguration();
         public UdidUsageConfiguration UdidUsageConfiguration = new UdidUsageConfiguration();
         public IotAdapterConfiguration IotAdapterConfiguration = new IotAdapterConfiguration();
+        public KestrelConfiguration KestrelConfiguration = new KestrelConfiguration();
+        public MemoryCacheConfiguration MemoryCacheConfiguration = new MemoryCacheConfiguration();
 
         public T GetValueByKey<T>(string key)
         {

@@ -254,8 +254,17 @@ namespace Core.Catalog.CatalogManagement
 
             if (shouldAddBaseUrl)
             {
-                res.Url = string.Concat(ODBCWrapper.Utils.GetSafeStr(dr, "BASE_URL"), res.Url);
-                res.AltStreamingCode = string.Concat(ODBCWrapper.Utils.GetSafeStr(dr, "ALT_BASE_URL"), res.AltStreamingCode);
+                var baseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "BASE_URL");
+                if (!res.Url.StartsWith(baseUrl))
+                {
+                    res.Url = string.Concat(baseUrl, res.Url);
+                }
+
+                var altBaseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_BASE_URL");
+                if (!res.AltStreamingCode.StartsWith(altBaseUrl))
+                {
+                    res.AltStreamingCode = string.Concat(altBaseUrl, res.AltStreamingCode);
+                }
             }
 
             return res;

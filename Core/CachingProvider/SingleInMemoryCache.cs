@@ -41,7 +41,20 @@ namespace CachingProvider
         {
             CacheName = GetCacheName();
             DefaultMinOffset = (double)defaultExpirationInSeconds / 60;
-            cache = new MemoryCache(CacheName);
+            var config = new System.Collections.Specialized.NameValueCollection();
+
+            if (ApplicationConfiguration.Current.MemoryCacheConfiguration.CacheMemoryLimit.Value > 0)
+            {
+                config["cacheMemoryLimitMegabytes"] = ApplicationConfiguration.Current.MemoryCacheConfiguration.CacheMemoryLimit.Value.ToString();
+            }
+            
+            if (ApplicationConfiguration.Current.MemoryCacheConfiguration.PollingIntervalSeconds.Value > 0)
+            {
+                var timeSpan = TimeSpan.FromSeconds(ApplicationConfiguration.Current.MemoryCacheConfiguration.PollingIntervalSeconds.Value);
+                config["pollingInterval"] = timeSpan.ToString();
+            }
+
+            cache = new MemoryCache(CacheName, config);
         }
 
         #endregion

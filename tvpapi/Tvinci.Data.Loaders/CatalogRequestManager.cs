@@ -7,12 +7,17 @@ using System.Configuration;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Catalog;
+using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Tvinci.Data.Loaders
 {
     [Serializable]
     public abstract class CatalogRequestManager
     {
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static string SignatureKey;
 
         protected Provider m_oProvider;
@@ -186,5 +191,117 @@ namespace Tvinci.Data.Loaders
             return retVal;
         }
 
+        /// <summary>
+        /// Gets media and epg objects according to list of Ids from search result
+        /// </summary>
+        /// <param name="cacheKey"></param>
+        /// <param name="response"></param>
+        /// <param name="medias"></param>
+        /// <param name="epgs"></param>
+        protected void GetAssets(string cacheKey, UnifiedSearchResponse response, out List<MediaObj> medias,
+                                out List<ProgramObj> epgs, out List<ProgramObj> recordings)
+        {
+            // Insert the UnifiedSearchResponse to cache for failover support
+            CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);
+
+            medias = null;
+            epgs = null;
+            recordings = null;
+            List<long> mediaIds = response.searchResults.Where(asset => asset.AssetType == eAssetTypes.MEDIA).Select(asset => long.Parse(asset.AssetId)).ToList();
+            List<long> epgIds = response.searchResults.Where(asset => asset.AssetType == eAssetTypes.EPG).Select(asset => long.Parse(asset.AssetId)).ToList(); ;
+            List<long> recordigIds = response.searchResults.Where(asset => asset.AssetType == eAssetTypes.NPVR).Select(asset => long.Parse(asset.AssetId)).ToList(); ;
+
+            GetAssetsFromCatalog(mediaIds, epgIds, recordigIds, out medias, out epgs, out recordings);
+        }
+
+        protected void GetAssetsFromCatalog(List<long> mediaIds, List<long> epgIds, List<long> recordingIds, 
+                                            out List<MediaObj> medias, out List<ProgramObj> epgs, out List<ProgramObj> recordings)
+        {
+            medias = new List<MediaObj>();
+            epgs = new List<ProgramObj>();
+            recordings = new List<ProgramObj>();
+
+            if ((mediaIds != null && mediaIds.Count > 0) || (epgIds != null && epgIds.Count > 0) || (recordingIds != null && recordingIds.Count > 0))
+            {
+                List<long> requestEpgIds = new List<long>();
+                if (epgIds != null)
+                {
+                    requestEpgIds.AddRange(epgIds);
+                }
+
+                if (recordingIds != null)
+                {
+                    requestEpgIds.AddRange(recordingIds);
+                }
+
+                // Build AssetInfoRequest with the missing ids
+                AssetInfoRequest request = new AssetInfoRequest()
+                {
+                    epgIds = requestEpgIds,
+                    mediaIds = mediaIds,
+                    m_nGroupID = GroupID,
+                    m_nPageIndex = PageIndex,
+                    m_nPageSize = PageSize,
+                    m_oFilter = m_oFilter,
+                    m_sSignature = m_sSignature,
+                    m_sSignString = m_sSignString,
+                    m_sSiteGuid = SiteGuid,
+                    m_sUserIP = m_sUserIP
+                };
+
+                BaseResponse response = null;
+                eProviderResult providerResult = m_oProvider.TryExecuteGetBaseResponse(request, out response);
+                if (providerResult == eProviderResult.Success && response != null)
+                {
+                    AssetInfoResponse assetInfoResponse = (AssetInfoResponse)response;
+
+                    if (assetInfoResponse.mediaList != null)
+                    {
+                        if (assetInfoResponse.mediaList.Any(m => m == null))
+                        {
+                            logger.Warn("CatalogRequestManager: Received response from Catalog with null media objects");
+                        }
+
+                        medias = assetInfoResponse.mediaList.Where(m => m != null).ToList();
+                    }
+                    else
+                    {
+                        medias = new List<MediaObj>();
+                    }
+
+                    if (assetInfoResponse.epgList != null)
+                    {
+                        if (assetInfoResponse.epgList.Any(m => m == null))
+                        {
+                            logger.Warn("CatalogRequestManager: Received response from Catalog with null EPG objects");
+                        }
+
+                        epgs = assetInfoResponse.epgList.Where(m => m != null).ToList();
+
+                        if (recordingIds != null && recordingIds.Count > 0)
+                        {
+                            foreach (long recordingId in recordingIds)
+                            {
+                                try
+                                {
+                                    int index = epgs.FindIndex(x => x.AssetId == recordingId.ToString());
+                                    recordings.Add(epgs[index]);
+                                    epgs.RemoveAt(index);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log($"recording with id {recordingId} wasn't found. ex = {ex}", null);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        epgs = new List<ProgramObj>();
+                        recordings = new List<ProgramObj>();
+                    }
+                }
+            }
+        }
     }
 }
