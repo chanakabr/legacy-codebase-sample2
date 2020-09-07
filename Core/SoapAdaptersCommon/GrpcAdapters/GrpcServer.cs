@@ -70,6 +70,7 @@ namespace SoapAdaptersCommon.GrpcAdapters
                 .ConfigureLogging((context, logging) =>
                 {
                     logging.ClearProviders();
+                    logging.SetMinimumLevel(LogLevel.Trace);
                     logging.AddProvider(new KLoggerProvider());
                 })
                 .UseStartup<GrpcStartup>()
