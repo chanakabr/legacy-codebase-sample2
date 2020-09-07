@@ -845,11 +845,14 @@ namespace DAL
                 {
                     if (dt.Rows[i] != null)
                     {
-                        res.Add(new DeviceReferenceData
+                        if (Utils.GetLongSafeVal(dt.Rows[i], "type") == (int)DeviceInformationType.Manufacturer)
                         {
-                            Id = Utils.GetLongSafeVal(dt.Rows[i], "id"),
-                            Name = Utils.GetSafeStr(dt.Rows[i], "name")
-                        });
+                            res.Add(new DeviceManufacturerInformation
+                            {
+                                Id = Utils.GetLongSafeVal(dt.Rows[i], "id"),
+                                Name = Utils.GetSafeStr(dt.Rows[i], "name")
+                            });
+                        }
                     }
                 }
             }
