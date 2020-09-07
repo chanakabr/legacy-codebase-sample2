@@ -15,6 +15,10 @@ namespace ApiObjects
 
     public class CampaignSearchFilter : CampaignFilter
     {
+        public long? StartDateGreaterThanOrEqual { get; set; }
+        public long? EndDateLessThanOrEqual { get; set; }
+        public ObjectState? StateEqual { get; set; }
+        public bool? ContainDiscountModel { get; set; }
     }
 
     public class TriggerCampaignFilter : CampaignSearchFilter

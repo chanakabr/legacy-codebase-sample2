@@ -306,6 +306,9 @@ namespace WebAPI.Reflection
                 case "KalturaBatchCampaign":
                     return new KalturaBatchCampaign(parameters);
                     
+                case "KalturaBatchCampaignSearchFilter":
+                    return new KalturaBatchCampaignSearchFilter(parameters);
+                    
                 case "KalturaBillingPartnerConfig":
                     return new KalturaBillingPartnerConfig(parameters);
                     
@@ -1967,6 +1970,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaTriggerCampaign":
                     return new KalturaTriggerCampaign(parameters);
+                    
+                case "KalturaTriggerCampaignSearchFilter":
+                    return new KalturaTriggerCampaignSearchFilter(parameters);
                     
                 case "KalturaTvmDeviceRule":
                     return new KalturaTvmDeviceRule(parameters);
@@ -16601,6 +16607,12 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaBatchCampaignSearchFilter
+    {
+        public KalturaBatchCampaignSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaBusinessModuleCondition
     {
         public KalturaBusinessModuleCondition(Dictionary<string, object> parameters = null) : base(parameters)
@@ -17008,13 +17020,23 @@ namespace WebAPI.Models.API
                 {
                     EndDateLessThanOrEqual = (Int64) Convert.ChangeType(parameters["endDateLessThanOrEqual"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("stateIn") && parameters["stateIn"] != null)
+                if (parameters.ContainsKey("stateEqual") && parameters["stateEqual"] != null)
                 {
-                    stateIn = (String) Convert.ChangeType(parameters["stateIn"], typeof(String));
+                    if(string.IsNullOrEmpty(parameters["stateEqual"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "stateEqual");
+                    }
+
+                    StateEqual = (KalturaObjectState) Enum.Parse(typeof(KalturaObjectState), parameters["stateEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaObjectState), StateEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", StateEqual, typeof(KalturaObjectState)));
+                    }
                 }
-                if (parameters.ContainsKey("campaignTypeEqual") && parameters["campaignTypeEqual"] != null)
+                if (parameters.ContainsKey("containDiscountModel") && parameters["containDiscountModel"] != null)
                 {
-                    CampaignTypeEqual = (String) Convert.ChangeType(parameters["campaignTypeEqual"], typeof(String));
+                    ContainDiscountModel = (Boolean) Convert.ChangeType(parameters["containDiscountModel"], typeof(Boolean));
                 }
             }
         }
@@ -21150,6 +21172,12 @@ namespace WebAPI.Models.API
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaTriggerCampaignSearchFilter
+    {
+        public KalturaTriggerCampaignSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaTvmDeviceRule

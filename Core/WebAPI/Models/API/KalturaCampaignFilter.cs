@@ -10,6 +10,7 @@ using ApiObjects.Response;
 using ApiObjects.Base;
 using System;
 using ApiLogic.Users.Managers;
+using System.Collections.Generic;
 
 namespace WebAPI.Models.API
 {
@@ -19,7 +20,7 @@ namespace WebAPI.Models.API
     }
 
     /// <summary>
-    /// Business module rule filter
+    /// Campaign filter (same as KalturaCampaignSearchFilter with no parameters)
     /// </summary>
     [Serializable]
     public partial class KalturaCampaignFilter : KalturaCrudFilter<KalturaCampaignOrderBy, Campaign>
@@ -33,14 +34,16 @@ namespace WebAPI.Models.API
             return KalturaCampaignOrderBy.NONE;
         }
 
-        public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
-        {
-            var coreFilter = AutoMapper.Mapper.Map<CampaignFilter>(this);
-            return CampaignManager.Instance.List(contextData, coreFilter, pager);
-        }
-
         public override void Validate()
         {
+        }
+
+        public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
+        {
+            // TODO SHIR - LIST ALL
+            var coreFilter = AutoMapper.Mapper.Map<CampaignFilter>(this);
+            //return CampaignManager.Instance.List(contextData, coreFilter, pager);
+            return null;
         }
     }
 
@@ -53,23 +56,25 @@ namespace WebAPI.Models.API
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = false)]
         public string IdIn { get; set; }
-
+        
         public override void Validate()
         {
             if (string.IsNullOrEmpty(IdIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "idIn");
             }
-        }
 
-        public KalturaCampaignIdInFilter() : base()
-        {
+            var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
+            if (items.Count > 500)
+            {
+                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaCampaignIdInFilter.idIn", 500);
+            }
         }
 
         public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
         {
             var coreFilter = AutoMapper.Mapper.Map<CampaignIdInFilter>(this);
-            return CampaignManager.Instance.List(contextData, coreFilter, pager);
+            return CampaignManager.Instance.ListCampaingsByIds(contextData, coreFilter);
         }
     }
 
@@ -92,19 +97,50 @@ namespace WebAPI.Models.API
         public long? EndDateLessThanOrEqual { get; set; }
 
         /// <summary>
-        /// states
+        /// state Equal
         /// </summary>
-        [DataMember(Name = "stateIn")]
-        [JsonProperty("stateIn")]
-        [XmlElement(ElementName = "stateIn", IsNullable = true)]
-        public string stateIn { get; set; }
+        [DataMember(Name = "stateEqual")]
+        [JsonProperty("stateEqual")]
+        [XmlElement(ElementName = "stateEqual", IsNullable = true)]
+        public KalturaObjectState? StateEqual { get; set; }
 
         /// <summary>
-        /// campaign Type Equal
+        /// Contain Discount Model
         /// </summary>
-        [DataMember(Name = "campaignTypeEqual")]
-        [JsonProperty("campaignTypeEqual")]
-        [XmlElement(ElementName = "campaignTypeEqual", IsNullable = true)]
-        public string CampaignTypeEqual { get; set; }
+        [DataMember(Name = "containDiscountModel")]
+        [JsonProperty("containDiscountModel")]
+        [XmlElement(ElementName = "containDiscountModel", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool? ContainDiscountModel { get; set; }
+
+        public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
+        {
+            // TODO SHIR - LIST ALL
+            var coreFilter = AutoMapper.Mapper.Map<CampaignSearchFilter>(this);
+            //return CampaignManager.Instance.List(contextData, coreFilter, pager);
+            return null;
+        }
+    }
+
+    public partial class KalturaTriggerCampaignSearchFilter : KalturaCampaignFilter
+    {
+        public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
+        {
+            // TODO SHIR - LIST TRIGGER
+            var coreFilter = AutoMapper.Mapper.Map<TriggerCampaignFilter>(this);
+            //return CampaignManager.Instance.ListTriggerCampaigns(contextData, coreFilter, pager);
+            return null;
+        }
+    }
+
+    public partial class KalturaBatchCampaignSearchFilter : KalturaCampaignFilter
+    {
+        public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
+        {
+            // TODO SHIR - LIST BATCH
+            var coreFilter = AutoMapper.Mapper.Map<BatchCampaignFilter>(this);
+            //return CampaignManager.Instance.ListBatchCampaigns(contextData, coreFilter, pager);
+            return null;
+        }
     }
 }

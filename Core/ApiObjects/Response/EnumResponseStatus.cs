@@ -540,7 +540,9 @@ namespace ApiObjects.Response
         CouponCodeAlreadyLoaded = 9024,
         CouponCodeNotInHousehold = 9025,
         ExceededHouseholdCouponLimit = 9026,
-        
+        CampaignDoesNotExist = 9027,
+        ActiveCampaignsExceededMaxSize = 9028,
+
         #endregion
 
         #region Adapters 10000-10999

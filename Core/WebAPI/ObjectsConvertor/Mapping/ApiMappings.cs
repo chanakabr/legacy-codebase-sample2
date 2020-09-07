@@ -1349,8 +1349,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<TvmRule, KalturaTvmRule>()
                 .ForMember(dest => dest.DeviceBrandIds, opt => opt.MapFrom(src => src.DeviceBrandIds != null ? string.Join(",", src.DeviceBrandIds) : null));
 
-
-
             //Campaign
             cfg.CreateMap<KalturaCampaign, Campaign>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1395,16 +1393,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DiscountConditions, opt => opt.MapFrom(src => src.DiscountConditions))
                 .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
                 ;
+            
+            cfg.CreateMap<KalturaCampaignFilter, CampaignFilter>();
+            // TODO SHIR - ASK ODED FOR ORDER BY
+            //.ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
 
             cfg.CreateMap<KalturaCampaignIdInFilter, CampaignIdInFilter>()
                 .IncludeBase<KalturaCampaignFilter, CampaignFilter>()
                 .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? src.GetItemsIn<List<long>, long>(src.IdIn, "filter.idIn") : null))
                 ;
 
-            cfg.CreateMap<CampaignIdInFilter, KalturaCampaignIdInFilter>()
-                .IncludeBase<CampaignFilter, KalturaCampaignFilter>()
-                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)))
-                ;
+            cfg.CreateMap<KalturaCampaignSearchFilter, CampaignSearchFilter>()
+                .IncludeBase<KalturaCampaignFilter, CampaignFilter>()
+                .ForMember(dest => dest.StartDateGreaterThanOrEqual, opt => opt.MapFrom(src => src.StartDateGreaterThanOrEqual))
+                .ForMember(dest => dest.EndDateLessThanOrEqual, opt => opt.MapFrom(src => src.EndDateLessThanOrEqual))
+                .ForMember(dest => dest.StateEqual, opt => opt.MapFrom(src => src.StateEqual))
+                .ForMember(dest => dest.ContainDiscountModel, opt => opt.MapFrom(src => src.ContainDiscountModel));
+
+            cfg.CreateMap<KalturaTriggerCampaignSearchFilter, TriggerCampaignFilter>()
+              .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>();
+
+            cfg.CreateMap<KalturaBatchCampaignSearchFilter, BatchCampaignFilter>()
+              .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>(); 
 
             #endregion
 

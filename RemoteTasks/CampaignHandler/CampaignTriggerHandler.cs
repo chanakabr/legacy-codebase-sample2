@@ -11,6 +11,7 @@ using ApiObjects.Notification;
 using ApiObjects;
 using System.Linq;
 using Core.Users;
+using TVinciShared;
 
 namespace CampaignHandler
 {
@@ -30,7 +31,9 @@ namespace CampaignHandler
                 var filter = new TriggerCampaignFilter()
                 {
                     Service = (ApiService)serviceEvent.ApiService,
-                    Action = (ApiAction)serviceEvent.ApiAction
+                    Action = (ApiAction)serviceEvent.ApiAction,
+                    StateEqual = ObjectState.ACTIVE,
+                    StartDateGreaterThanOrEqual = DateUtils.GetUtcUnixTimestampNow()
                 };
 
                 var domain = new Domain((int)serviceEvent.DomainId);

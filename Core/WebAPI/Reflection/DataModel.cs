@@ -1233,12 +1233,14 @@ namespace WebAPI.Reflection
                 case "KalturaCampaignSearchFilter":
                     switch(property.Name)
                     {
-                        case "CampaignTypeEqual":
-                            return "campaignTypeEqual";
+                        case "ContainDiscountModel":
+                            return "containDiscountModel";
                         case "EndDateLessThanOrEqual":
                             return "endDateLessThanOrEqual";
                         case "StartDateGreaterThanOrEqual":
                             return "startDateGreaterThanOrEqual";
+                        case "StateEqual":
+                            return "stateEqual";
                     }
                     break;
                     

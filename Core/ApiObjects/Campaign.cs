@@ -7,6 +7,9 @@ namespace ApiObjects
 {
     public abstract class Campaign : ICrudHandeledObject
     {
+        #region Data members
+
+        #endregion
         [DBFieldMapping("ID")]
         public long Id { get; set; }
         
@@ -45,6 +48,9 @@ namespace ApiObjects
         [DBFieldMapping("end_date")]
         public long EndDate { get; set; }
 
+        [DBFieldMapping("campaign_json")]
+        public string CampaignJson { get; set; }
+
         public Campaign()
         {
         }
@@ -72,33 +78,55 @@ namespace ApiObjects
             return true;
         }
 
-        ///// <summary>
-        ///// Fill current AssetRule data members with given assetRule only if they are empty\null
-        ///// </summary>
-        ///// <param name="oldRule">given assetRule to fill with</param>
-        //internal void FillEmpty(KalturaBusinessModuleRule oldRule)
-        //{
-        //    // TODO shir - WWE NEED THIS
-        //    if (oldRule != null)
-        //    {
-        //        this.CreateDate = oldRule.CreateDate;
-
-        //        if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
-        //        {
-        //            this.Name = oldRule.Name;
-        //        }
-
-        //        if (this.Description == null)
-        //        {
-        //            this.Description = oldRule.Description;
-        //        }
-
-        //        if (this.Conditions == null)
-        //        {
-        //            this.Conditions = oldRule.Conditions;
-        //        }
-        //    }
-        //}
+        /// <summary>
+        /// Fill current Campaign data members with given Campaign only if they are empty\null
+        /// </summary>
+        /// <param name="oldRule">given assetRule to fill with</param>
+        public virtual void FillEmpty(Campaign oldCampaign)
+        {
+            if (this.DaynamicData == null)
+            {
+                this.DaynamicData = oldCampaign.DaynamicData;
+            }
+            if (string.IsNullOrEmpty(this.Description))
+            {
+                this.Description = oldCampaign.Description;
+            }
+            if (this.DiscountConditions == null)
+            {
+                this.DiscountConditions = oldCampaign.DiscountConditions;
+            }
+            if (this.DiscountModuleId == null)
+            {
+                this.DiscountModuleId = oldCampaign.DiscountModuleId;
+            }
+            if (this.EndDate == default)
+            {
+                this.EndDate = oldCampaign.EndDate;
+            }
+            //if (campaignToUpdate.IsActive == default)
+            //{
+            //    campaignToUpdate.IsActive = campaign.IsActive;
+            //}
+            if (string.IsNullOrEmpty(this.Message))
+            {
+                this.Message = oldCampaign.Message;
+            }
+            if (string.IsNullOrEmpty(this.Name))
+            {
+                this.Name = oldCampaign.Name;
+            }
+            if (string.IsNullOrEmpty(this.SystemName))
+            {
+                this.SystemName = oldCampaign.SystemName;
+            }
+            if (this.StartDate == default)
+            {
+                this.StartDate = oldCampaign.StartDate;
+            }
+            
+            // TODO SHIR / MATAN FILL EMPTY IN BASE
+        }
     }
 
     public class TriggerCampaign : Campaign
@@ -111,9 +139,6 @@ namespace ApiObjects
 
         public ApiService Service { get; set; }
         public ApiAction Action { get; set; }
-            
-        [DBFieldMapping("campaign_json")]
-        public string CampaignJson { get; set; }
         
         public bool EvaluateTriggerConditions(ICampaignObject campaignObject, ContextData contextData)
         {
@@ -131,33 +156,30 @@ namespace ApiObjects
             return true;
         }
 
-        ///// <summary>
-        ///// Fill current AssetRule data members with given assetRule only if they are empty\null
-        ///// </summary>
-        ///// <param name="oldRule">given assetRule to fill with</param>
-        //internal void FillEmpty(KalturaBusinessModuleRule oldRule)
-        //{
-        //    // TODO shir - WWE NEED THIS
-        //    if (oldRule != null)
-        //    {
-        //        this.CreateDate = oldRule.CreateDate;
+        /// <summary>
+        /// Fill current TriggerCampaign data members with given TriggerCampaign only if they are empty\null
+        /// </summary>
+        /// <param name="oldRule">given assetRule to fill with</param>
+        public void FillEmpty(TriggerCampaign oldCampaign)
+        {
+            base.FillEmpty(oldCampaign);
 
-        //        if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
-        //        {
-        //            this.Name = oldRule.Name;
-        //        }
+            // TODO MATAN / shir - FILL EMPTY TriggerCampaign
+            //if (string.IsNullOrEmpty(campaignToUpdate.Action))
+            //{
+            //    campaignToUpdate.Action = campaign.Action;
+            //}
 
-        //        if (this.Description == null)
-        //        {
-        //            this.Description = oldRule.Description;
-        //        }
+            //if (string.IsNullOrEmpty(campaignToUpdate.Service))
+            //{
+            //    campaignToUpdate.Service = campaign.Service;
+            //}
 
-        //        if (this.Conditions == null)
-        //        {
-        //            this.Conditions = oldRule.Conditions;
-        //        }
-        //    }
-        //}
+            if (this.TriggerConditions == null)
+            {
+                this.TriggerConditions = oldCampaign.TriggerConditions;
+            }
+        }
     }
 
     public enum ApiAction

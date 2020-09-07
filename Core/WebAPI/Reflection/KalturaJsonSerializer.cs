@@ -19861,6 +19861,36 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaBatchCampaignSearchFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
     public partial class KalturaBusinessModuleCondition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -20332,9 +20362,9 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(CampaignTypeEqual != null && (retrievedProperties == null || retrievedProperties.Contains("campaignTypeEqual")))
+            if(ContainDiscountModel.HasValue && (retrievedProperties == null || retrievedProperties.Contains("containDiscountModel")))
             {
-                ret.Add("campaignTypeEqual", "\"campaignTypeEqual\": " + "\"" + EscapeJson(CampaignTypeEqual) + "\"");
+                ret.Add("containDiscountModel", "\"containDiscountModel\": " + ContainDiscountModel.ToString().ToLower());
             }
             if(EndDateLessThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDateLessThanOrEqual")))
             {
@@ -20344,9 +20374,9 @@ namespace WebAPI.Models.API
             {
                 ret.Add("startDateGreaterThanOrEqual", "\"startDateGreaterThanOrEqual\": " + StartDateGreaterThanOrEqual);
             }
-            if(stateIn != null && (retrievedProperties == null || retrievedProperties.Contains("stateIn")))
+            if(StateEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("stateEqual")))
             {
-                ret.Add("stateIn", "\"stateIn\": " + "\"" + EscapeJson(stateIn) + "\"");
+                ret.Add("stateEqual", "\"stateEqual\": " + "\"" + Enum.GetName(typeof(KalturaObjectState), StateEqual) + "\"");
             }
             return ret;
         }
@@ -20362,9 +20392,9 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(CampaignTypeEqual != null && (retrievedProperties == null || retrievedProperties.Contains("campaignTypeEqual")))
+            if(ContainDiscountModel.HasValue && (retrievedProperties == null || retrievedProperties.Contains("containDiscountModel")))
             {
-                ret.Add("campaignTypeEqual", "<campaignTypeEqual>" + EscapeXml(CampaignTypeEqual) + "</campaignTypeEqual>");
+                ret.Add("containDiscountModel", "<containDiscountModel>" + ContainDiscountModel.ToString().ToLower() + "</containDiscountModel>");
             }
             if(EndDateLessThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDateLessThanOrEqual")))
             {
@@ -20374,9 +20404,9 @@ namespace WebAPI.Models.API
             {
                 ret.Add("startDateGreaterThanOrEqual", "<startDateGreaterThanOrEqual>" + StartDateGreaterThanOrEqual + "</startDateGreaterThanOrEqual>");
             }
-            if(stateIn != null && (retrievedProperties == null || retrievedProperties.Contains("stateIn")))
+            if(StateEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("stateEqual")))
             {
-                ret.Add("stateIn", "<stateIn>" + EscapeXml(stateIn) + "</stateIn>");
+                ret.Add("stateEqual", "<stateEqual>" + "" + Enum.GetName(typeof(KalturaObjectState), StateEqual) + "" + "</stateEqual>");
             }
             return ret;
         }
@@ -26489,6 +26519,36 @@ namespace WebAPI.Models.API
                 propertyValue = TriggerConditions.Count > 0 ? "<item>" + String.Join("</item><item>", TriggerConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("triggerConditions", "<triggerConditions>" + propertyValue + "</triggerConditions>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaTriggerCampaignSearchFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
             return ret;
         }
     }

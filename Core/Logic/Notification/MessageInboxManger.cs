@@ -130,16 +130,19 @@ namespace Core.Notification
                     userMessages = new List<InboxMessage>();
                 }
 
-                var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.List(new ApiObjects.Base.ContextData(groupId) { UserId = userId }, null, null);
-                var campaignMessages = NotificationDal.GetCampaignInboxMessages(groupId, userId, campaigns?.Objects);
-                if (campaignMessages == null)
-                {
-                    log.DebugFormat("No campaign inbox message. {0}", logData);
-                    campaignMessages = new List<InboxMessage>();
-                }
+                // TODO SHIR / MATAN - GetInboxMessages GET ALL CAMPAIGNS
+                // --------------------------------
+                //var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(new ApiObjects.Base.ContextData(groupId) { UserId = userId }, null, null);
+                //var campaignMessages = NotificationDal.GetCampaignInboxMessages(groupId, userId, campaigns?.Objects);
+                //if (campaignMessages == null)
+                //{
+                //    log.DebugFormat("No campaign inbox message. {0}", logData);
+                //    campaignMessages = new List<InboxMessage>();
+                //}
 
                 // merge System InboxMessages To UserInbox
-                MergeSystemInboxMessagesToUserInbox(groupId, userId, logData, systemMessages, campaignMessages, ref userMessages);
+                //MergeSystemInboxMessagesToUserInbox(groupId, userId, logData, systemMessages, campaignMessages, ref userMessages);
+                // --------------------------------
 
                 // in case messageCategorys  is null, no filter. get all.
                 if (messageCategorys == null)

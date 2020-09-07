@@ -174,6 +174,4 @@ namespace WebAPI.Models.Catalog
             return CategoryItemHandler.Instance.List(contextData, coreFilter, pager);
         }
     }
-
-
 }

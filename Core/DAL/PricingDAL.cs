@@ -1850,7 +1850,7 @@ namespace DAL
             sp.AddParameter("@groupId", campaign.GroupId);
             sp.AddParameter("@startDate", campaign.StartDate);
             sp.AddParameter("@endDate", campaign.EndDate);
-            sp.AddParameter("@isActive", campaign.Status);
+            sp.AddParameter("@status", campaign.Status);
             sp.AddParameter("@state", campaign.State);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
@@ -1864,7 +1864,6 @@ namespace DAL
             sp.AddParameter("@groupId", contextData.GroupId);
             return sp.ExecuteDataSet().Tables[0].ToList<T>();
         }
-
 
         public static T AddCampaign<T>(T campaign) where T : Campaign, new()
         {
