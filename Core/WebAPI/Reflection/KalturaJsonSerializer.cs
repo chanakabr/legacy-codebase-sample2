@@ -20234,10 +20234,36 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(DiscountModuleIdApplied.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountModuleIdApplied")))
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
             {
-                ret.Add("discountModuleIdApplied", "\"discountModuleIdApplied\": " + DiscountModuleIdApplied);
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
+
+            return ret;
+        }
+    }
+    public partial class KalturaCampaignIdInFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
             if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -20256,10 +20282,6 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(DiscountModuleIdApplied.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountModuleIdApplied")))
-            {
-                ret.Add("discountModuleIdApplied", "<discountModuleIdApplied>" + DiscountModuleIdApplied + "</discountModuleIdApplied>");
-            }
             if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");

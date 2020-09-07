@@ -1222,11 +1222,9 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaCampaignFilter":
+                case "KalturaCampaignIdInFilter":
                     switch(property.Name)
                     {
-                        case "DiscountModuleIdApplied":
-                            return "discountModuleIdApplied";
                         case "IdIn":
                             return "idIn";
                     }

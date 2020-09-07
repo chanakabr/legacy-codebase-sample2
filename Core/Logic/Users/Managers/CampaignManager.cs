@@ -58,7 +58,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericListResponse<TriggerCampaign> ListTriggerCampaigns(ContextData contextData, TriggerCampaignFilter filter, CorePager pager = null)
+        public GenericListResponse<TriggerCampaign> ListTriggerCampaigns(ContextData contextData, CampaignFilter filter, CorePager pager = null)
         {
             var response = new GenericListResponse<TriggerCampaign>();
 
@@ -69,7 +69,7 @@ namespace ApiLogic.Users.Managers
 
             if (filter == null)
             {
-                filter = new TriggerCampaignFilter();
+                filter = new CampaignIdInFilter();
             }
 
             var campaigns = GetList<TriggerCampaign>(contextData);
@@ -80,12 +80,16 @@ namespace ApiLogic.Users.Managers
                 return response;
             }
 
-            if (filter.IdIn?.Count > 0)
+            if (filter is CampaignIdInFilter)
             {
-                campaigns.Objects = campaigns.Objects.Where(camp => filter.IdIn.Contains(camp.Id)).ToList();
+                var _filter = filter as CampaignIdInFilter;
+                if (_filter.IdIn?.Count > 0)
+                {
+                    campaigns.Objects = campaigns.Objects.Where(camp => _filter.IdIn.Contains(camp.Id)).ToList();
+                }
             }
 
-            response.Objects = campaigns.Objects.Select(cmp => JsonConvert.DeserializeObject<TriggerCampaign>(cmp.CoreObject)).ToList();
+            response.Objects = campaigns.Objects.Select(cmp => JsonConvert.DeserializeObject<TriggerCampaign>(cmp.CampaignJson)).ToList();
             response.SetStatus(eResponseStatus.OK);
 
             return response;
@@ -93,7 +97,6 @@ namespace ApiLogic.Users.Managers
             // TODO SHIR / MATAN - ListTriggerCampaigns WHEN ODED WILL FINISH WITH SPEC
             //TODO SHIR FILTER by WITH INSERT ACTION AND DOMAIN DEVICE OBJECT
 
-            return new GenericListResponse<TriggerCampaign>();
         }
 
         public GenericResponse<Campaign> AddTriggerCampaign(ContextData contextData, TriggerCampaign campaignToAdd)
@@ -269,7 +272,7 @@ namespace ApiLogic.Users.Managers
                 return response;
             }
 
-            if (newState == ObjectState.ACTIVE 
+            if (newState == ObjectState.ACTIVE
                 && campaign.EndDate <= DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))//Check set active
             {
                 response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} already ended");

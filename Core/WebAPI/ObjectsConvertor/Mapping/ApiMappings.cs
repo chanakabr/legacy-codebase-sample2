@@ -1398,11 +1398,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
                 ;
 
-            cfg.CreateMap<KalturaCampaignFilter, CampaignFilter>()
+            cfg.CreateMap<KalturaCampaignIdInFilter, CampaignIdInFilter>()
+                .IncludeBase<KalturaCampaignFilter, CampaignFilter>()
                 .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? src.GetItemsIn<List<long>, long>(src.IdIn, "filter.idIn") : null))
                 ;
 
-            cfg.CreateMap<CampaignFilter, KalturaCampaignFilter>()
+            cfg.CreateMap<CampaignIdInFilter, KalturaCampaignIdInFilter>()
+                .IncludeBase<CampaignFilter, KalturaCampaignFilter>()
                 .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)))
                 ;
 
