@@ -1230,6 +1230,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCampaignSearchFilter":
+                    switch(property.Name)
+                    {
+                        case "CampaignTypeEqual":
+                            return "campaignTypeEqual";
+                        case "EndDateLessThanOrEqual":
+                            return "endDateLessThanOrEqual";
+                        case "StartDateGreaterThanOrEqual":
+                            return "startDateGreaterThanOrEqual";
+                    }
+                    break;
+                    
                 case "KalturaCaptionPlaybackPluginData":
                     switch(property.Name)
                     {
@@ -6933,14 +6945,6 @@ namespace WebAPI.Reflection
                             return "service";
                         case "TriggerConditions":
                             return "triggerConditions";
-                    }
-                    break;
-                    
-                case "KalturaTriggerCondition`1":
-                    switch(property.Name)
-                    {
-                        case "ValueIn":
-                            return "valueIn";
                     }
                     break;
                     
