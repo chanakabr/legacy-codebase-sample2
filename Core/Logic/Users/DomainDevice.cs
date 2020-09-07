@@ -1,4 +1,7 @@
-﻿using ApiObjects;
+﻿using APILogic.ConditionalAccess;
+using ApiObjects;
+using ApiObjects.Base;
+using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
 using Core.Users.Cache;
 using DAL;
@@ -9,7 +12,7 @@ using System.Reflection;
 
 namespace Core.Users
 {
-    public class DomainDevice : CoreObject
+    public class DomainDevice : CoreObject, ICampaignObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -158,6 +161,19 @@ namespace Core.Users
             };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
+        }
+
+        public IConditionScope ConvertToConditionScope(ContextData contextData)
+        {
+            // TODO MATAN finish to init with all relevant data
+            var conditionScope = new ConditionScope()
+            {
+                GroupId = contextData.GroupId,
+                UserId = contextData.UserId.ToString(),
+                BrandId = this.DeviceBrandId
+            };
+
+            return conditionScope;
         }
     }
 }

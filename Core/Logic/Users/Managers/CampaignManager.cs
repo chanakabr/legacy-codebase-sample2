@@ -35,6 +35,7 @@ namespace ApiLogic.Users.Managers
 
         public GenericResponse<Campaign> Get(ContextData contextData, long id)
         {
+            // TODO SHIR - THIS "GET" WILL CALL TO LIST WITH ID_IN_FILTER AND THIS FILTER IS FROM CAHCE OF ALL CAMPAIGNS OF GROUP
             var response = new GenericResponse<Campaign>();
             var campaign = List(contextData, null, null)?.Objects?.Where(camp => camp.Id == id).FirstOrDefault();
             if (campaign == null || campaign.Id == 0)
@@ -353,14 +354,7 @@ namespace ApiLogic.Users.Managers
             //{
             //    campaignToUpdate.Action = campaign.Action;
             //}
-            if (string.IsNullOrEmpty(campaignToUpdate.CoreAction))
-            {
-                campaignToUpdate.CoreAction = campaign.CoreAction;
-            }
-            if (string.IsNullOrEmpty(campaignToUpdate.CoreObject))
-            {
-                campaignToUpdate.CoreObject = campaign.CoreObject;
-            }
+            
             if (campaignToUpdate.DaynamicData == null)
             {
                 campaignToUpdate.DaynamicData = campaign.DaynamicData;
@@ -421,46 +415,12 @@ namespace ApiLogic.Users.Managers
             throw new NotImplementedException();
         }
 
-        // TODO Shir
-        /// <summary>
-        /// Validate if user matches to CampaignConditions
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="triggerCampaign"></param>
-        /// <param name="coreObject"></param>
-        /// <returns></returns>
-        public bool ValidateCampaignConditionsToUser(ContextData contextData, Campaign campaign)
-        {
-            //TODO - Shir or Matan, build filter
-            ConditionScope filter = new ConditionScope()
-            {
-                FilterByDate = true,
-                GroupId = contextData.GroupId,
-                UserId = contextData.UserId.ToString()
-            };
-
-            return campaign.Evaluate(filter);
-        }
-
-        // TODO Shir
-        /// <summary>
-        /// Validate coreobject matches to TriggerConditions
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="triggerCampaign"></param>
-        /// <param name="coreObject"></param>
-        /// <returns></returns>
-        public bool ValidateTriggerCampaign(TriggerCampaign triggerCampaign, CoreObject coreObject)
-        {
-            return triggerCampaign.Evaluate(coreObject);
-        }
-
         private void SetInvalidationKeys(ContextData contextData)
         {
             // TODO SHIR - SetInvalidationKeys
         }
 
-        public void PublishTriggerCampaign(int groupId, int domainId, CoreObject eventObject, ApiService apiService, ApiAction apiAction)
+        public void PublishTriggerCampaign(int groupId, int domainId, ICampaignObject eventObject, ApiService apiService, ApiAction apiAction)
         {
             //TODO - Shir: Check if campaign of this type is allowed for group
             if (1 != 1)
@@ -529,5 +489,8 @@ namespace ApiLogic.Users.Managers
                 return new Tuple<IEnumerable<T>, bool>(Enumerable.Empty<T>(), false);
             }
         }
+
+        // TODO SHIR
+        // 1. list by group id -> return ALL CAMPAIGNS
     }
 }

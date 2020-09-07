@@ -375,10 +375,10 @@ namespace ApiObjects.Rules
 
         protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
         {
-            if (!scope.BrandId.HasValue) { return false; }
+            if (!scope.BrandId.HasValue) { return true; }
 
-            var brands = scope.GetCampaignBrands(scope.GroupId, scope.UserId, scope.CampaignId);
-            return brands != null && brands.Contains(scope.BrandId.Value);
+            var isExist = this.IdIn.Contains(scope.BrandId.Value);
+            return isExist;
         }
     }
 

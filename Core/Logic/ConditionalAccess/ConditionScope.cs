@@ -230,18 +230,5 @@ namespace APILogic.ConditionalAccess
             List<int> validChannelIds = Core.ConditionalAccess.Utils.ValidateMediaContainedInChannels((int)mediaId, groupId, channelsIds);
             return validChannelIds != null && validChannelIds.Count > 0;
         }
-
-        public List<long> GetCampaignBrands(int groupId, string userId, long campaignId)
-        {
-            //TODO MATAN OR SHIR
-            int.TryParse(userId, out int _userId);
-            var contextData = new ContextData(groupId) { UserId = _userId };
-            var campaign = CampaignManager.Instance.Get(contextData, campaignId);
-
-            if (campaign.IsOkStatusCode())
-            {
-            }
-            return null;
-        }
     }
 }

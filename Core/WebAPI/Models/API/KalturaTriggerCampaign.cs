@@ -48,9 +48,10 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "triggerConditions");
             }
 
-            foreach (var condition in this.DiscountConditions)
+            // TODO MATAN - VALIDATE TriggerConditions TYPE
+            foreach (var condition in this.TriggerConditions)
             {
-                if (condition.Type != KalturaRuleConditionType.OR && condition.Type != KalturaRuleConditionType.TRIGGER)
+                if (condition.Type != KalturaRuleConditionType.OR)
                 {
                     throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "triggerConditions", condition.objectType);
                 }
@@ -74,7 +75,7 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForUpdate()
         {
-            // TODO SHIR - WHAT NEED TO BE VALIDATE?
+            // TODO MATAN - WHAT NEED TO BE VALIDATE?
             base.ValidateForUpdate();
         }        
     }

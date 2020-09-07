@@ -27,8 +27,7 @@ namespace WebAPI.Models.API
         USER_SUBSCRIPTION,
         ASSET_SUBSCRIPTION,
         USER_ROLE,
-        TRIGGER,
-        CAMPAIGN
+        DEVICE_BRAND
     }
 
     /// <summary>
@@ -507,50 +506,6 @@ namespace WebAPI.Models.API
         }
     }
 
-    /// <summary>
-    /// Kaltura Trigger Condition
-    /// </summary>
-    public abstract partial class KalturaTriggerCondition<T> : KalturaCondition where T : IConvertible
-    {
-        protected int max_values = 10;
-
-        /// <summary>
-        /// Value In
-        /// </summary>
-        [DataMember(Name = "valueIn")]
-        [JsonProperty("valueIn")]
-        [XmlElement(ElementName = "valueIn")]
-        public string ValueIn { get; set; }
-
-        /// <summary>
-        /// Init
-        /// </summary>
-        protected override void Init()
-        {
-            base.Init();
-            this.Type = KalturaRuleConditionType.TRIGGER;
-        }
-
-        internal override void Validate()
-        {
-            if (string.IsNullOrEmpty(this.ValueIn))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, this.objectType + ".valueIn");
-            }
-
-            var values = GetValues();
-            if (values.Count > max_values)
-            {
-                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, this.objectType + ".valueIn", max_values);
-            }
-        }
-
-        public List<T> GetValues()
-        {
-            return GetItemsIn<List<T>, T>(this.ValueIn, "valueIn", true);
-        }
-    }
-
     public partial class KalturaDeviceBrandCondition : KalturaCondition
     {
         /// <summary>
@@ -565,7 +520,7 @@ namespace WebAPI.Models.API
         protected override void Init()
         {
             base.Init();
-            this.Type = KalturaRuleConditionType.CAMPAIGN;
+            this.Type = KalturaRuleConditionType.DEVICE_BRAND;
         }
 
         internal override void Validate()
@@ -573,6 +528,13 @@ namespace WebAPI.Models.API
             if (string.IsNullOrEmpty(this.IdIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceBrandCondition.idIn");
+            }
+
+            // todo matan - same for all conditions
+            var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
+            if (items.Count > 10)
+            {
+                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceBrandCondition.idIn", 10);
             }
         }
     }
@@ -591,7 +553,7 @@ namespace WebAPI.Models.API
         protected override void Init()
         {
             base.Init();
-            this.Type = KalturaRuleConditionType.CAMPAIGN;
+            this.Type = KalturaRuleConditionType.DEVICE_BRAND;
         }
 
         internal override void Validate()
@@ -617,7 +579,7 @@ namespace WebAPI.Models.API
         protected override void Init()
         {
             base.Init();
-            this.Type = KalturaRuleConditionType.CAMPAIGN;
+            this.Type = KalturaRuleConditionType.DEVICE_BRAND;
         }
 
         internal override void Validate()
@@ -642,7 +604,7 @@ namespace WebAPI.Models.API
         protected override void Init()
         {
             base.Init();
-            this.Type = KalturaRuleConditionType.CAMPAIGN;
+            this.Type = KalturaRuleConditionType.DEVICE_BRAND;
         }
 
         internal override void Validate()
@@ -668,7 +630,7 @@ namespace WebAPI.Models.API
         protected override void Init()
         {
             base.Init();
-            this.Type = KalturaRuleConditionType.CAMPAIGN;
+            this.Type = KalturaRuleConditionType.DEVICE_BRAND;
         }
 
         internal override void Validate()

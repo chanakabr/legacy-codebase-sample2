@@ -20319,6 +20319,68 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaCampaignSearchFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(CampaignTypeEqual != null && (retrievedProperties == null || retrievedProperties.Contains("campaignTypeEqual")))
+            {
+                ret.Add("campaignTypeEqual", "\"campaignTypeEqual\": " + "\"" + EscapeJson(CampaignTypeEqual) + "\"");
+            }
+            if(EndDateLessThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDateLessThanOrEqual")))
+            {
+                ret.Add("endDateLessThanOrEqual", "\"endDateLessThanOrEqual\": " + EndDateLessThanOrEqual);
+            }
+            if(StartDateGreaterThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateGreaterThanOrEqual")))
+            {
+                ret.Add("startDateGreaterThanOrEqual", "\"startDateGreaterThanOrEqual\": " + StartDateGreaterThanOrEqual);
+            }
+            if(stateIn != null && (retrievedProperties == null || retrievedProperties.Contains("stateIn")))
+            {
+                ret.Add("stateIn", "\"stateIn\": " + "\"" + EscapeJson(stateIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(CampaignTypeEqual != null && (retrievedProperties == null || retrievedProperties.Contains("campaignTypeEqual")))
+            {
+                ret.Add("campaignTypeEqual", "<campaignTypeEqual>" + EscapeXml(CampaignTypeEqual) + "</campaignTypeEqual>");
+            }
+            if(EndDateLessThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDateLessThanOrEqual")))
+            {
+                ret.Add("endDateLessThanOrEqual", "<endDateLessThanOrEqual>" + EndDateLessThanOrEqual + "</endDateLessThanOrEqual>");
+            }
+            if(StartDateGreaterThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateGreaterThanOrEqual")))
+            {
+                ret.Add("startDateGreaterThanOrEqual", "<startDateGreaterThanOrEqual>" + StartDateGreaterThanOrEqual + "</startDateGreaterThanOrEqual>");
+            }
+            if(stateIn != null && (retrievedProperties == null || retrievedProperties.Contains("stateIn")))
+            {
+                ret.Add("stateIn", "<stateIn>" + EscapeXml(stateIn) + "</stateIn>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaCDNAdapterProfile
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -26426,44 +26488,6 @@ namespace WebAPI.Models.API
             {
                 propertyValue = TriggerConditions.Count > 0 ? "<item>" + String.Join("</item><item>", TriggerConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("triggerConditions", "<triggerConditions>" + propertyValue + "</triggerConditions>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaTriggerCondition<T>
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(ValueIn != null && (retrievedProperties == null || retrievedProperties.Contains("valueIn")))
-            {
-                ret.Add("valueIn", "\"valueIn\": " + "\"" + EscapeJson(ValueIn) + "\"");
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if(ValueIn != null && (retrievedProperties == null || retrievedProperties.Contains("valueIn")))
-            {
-                ret.Add("valueIn", "<valueIn>" + EscapeXml(ValueIn) + "</valueIn>");
             }
             return ret;
         }

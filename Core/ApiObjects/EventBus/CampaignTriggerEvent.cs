@@ -7,6 +7,6 @@ namespace ApiObjects.EventBus
         public long DomainId { get; set; }
         public int ApiService { get; set; }
         public int ApiAction { get; set; }
-        public CoreObject EventObject { get; set; }
+        public ICampaignObject EventObject { get; set; }
     }
 }

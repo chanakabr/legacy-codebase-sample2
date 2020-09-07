@@ -636,8 +636,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                            return RuleConditionType.AssetSubscription;
                        case KalturaRuleConditionType.USER_ROLE:
                            return RuleConditionType.UserRole;
-                       case KalturaRuleConditionType.CAMPAIGN:
-                           return RuleConditionType.Campaign;
+                           //TODO MATAN
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", kalturaRuleConditionType.ToString()));
                    }
@@ -672,8 +671,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return KalturaRuleConditionType.ASSET_SUBSCRIPTION;
                         case RuleConditionType.UserRole:
                             return KalturaRuleConditionType.USER_ROLE;
-                        case RuleConditionType.Campaign:
-                            return KalturaRuleConditionType.CAMPAIGN;
+                        //TODO MATAN
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", ruleConditionType.ToString()));
                             break;

@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Base;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using ApiObjects.Rules;
 
 namespace ApiObjects
 {
@@ -54,7 +55,7 @@ namespace ApiObjects
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<Rules.RuleCondition> DiscountConditions { get; set; }
 
-        public bool Evaluate(Rules.IConditionScope scope)
+        public bool EvaluateDiscountConditions(Rules.IConditionScope scope)
         {
             if (DiscountConditions != null && DiscountConditions.Count > 0)
             {
@@ -110,14 +111,23 @@ namespace ApiObjects
 
         public ApiService Service { get; set; }
         public ApiAction Action { get; set; }
-        public string CoreObject { get; set; }//TODO SHIR, INIT
-        public string CoreAction { get; set; }//TODO SHIR
             
         [DBFieldMapping("campaign_json")]
         public string CampaignJson { get; set; }
         
-        public bool Evaluate(CoreObject coreObject)
+        public bool EvaluateTriggerConditions(ICampaignObject campaignObject, ContextData contextData)
         {
+            if (TriggerConditions != null && TriggerConditions.Count > 0)
+            {
+                var scope = campaignObject.ConvertToConditionScope(contextData);
+                foreach (var condition in TriggerConditions)
+                {
+                    if (!condition.Evaluate(scope))
+                    {
+                        return false;
+                    }
+                }
+            }
             return true;
         }
 
@@ -206,4 +216,9 @@ namespace ApiObjects
         //    }
         //}
     }
+
+    public interface ICampaignObject
+    {
+        IConditionScope ConvertToConditionScope(ContextData contextData);
+    } 
 }

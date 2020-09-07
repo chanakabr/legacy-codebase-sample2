@@ -44,6 +44,7 @@ namespace CampaignHandler
                 var master = domain.m_masterGUIDs.FirstOrDefault();
 
                 var contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = master };
+                
                 var triggerCampaigns = CampaignManager.Instance.ListTriggerCampaigns(contextData, filter);
 
                 if (!triggerCampaigns.HasObjects())
@@ -56,17 +57,15 @@ namespace CampaignHandler
 
                 foreach (var _triggerCampaign in triggerCampaigns.Objects)
                 {
-                    if (!CampaignManager.Instance.ValidateTriggerCampaign(_triggerCampaign, serviceEvent.EventObject))
-                    {
-                        _Logger.Info($"Domain: {serviceEvent.DomainId} doesn't match campaign: {_triggerCampaign.Id}, group: {serviceEvent.GroupId}");
-                        continue;
-                    }
-
                     //Send to all users or only Master-user - TBD - Ask Oded? TODO - MATAN
                     Parallel.ForEach(domain.m_UsersIDs, user =>
                     {
                         var _contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = user };
-                        if (CampaignManager.Instance.ValidateCampaignConditionsToUser(_contextData, _triggerCampaign))
+                        if (!_triggerCampaign.EvaluateTriggerConditions(serviceEvent.EventObject, _contextData))
+                        {
+                            _Logger.Info($"user: {_contextData.UserId} doesn't match campaign: {_triggerCampaign.Id}, group: {serviceEvent.GroupId}");
+                        }
+                        else
                         {
                             AddMessageToInbox(serviceEvent, user, _triggerCampaign);
                         }

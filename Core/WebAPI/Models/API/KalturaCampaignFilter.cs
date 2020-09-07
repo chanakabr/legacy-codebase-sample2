@@ -72,4 +72,39 @@ namespace WebAPI.Models.API
             return CampaignManager.Instance.List(contextData, coreFilter, pager);
         }
     }
+
+    public partial class KalturaCampaignSearchFilter : KalturaCampaignFilter
+    {
+        /// <summary>
+        /// start Date Greater Than Or Equal
+        /// </summary>
+        [DataMember(Name = "startDateGreaterThanOrEqual")]
+        [JsonProperty("startDateGreaterThanOrEqual")]
+        [XmlElement(ElementName = "startDateGreaterThanOrEqual", IsNullable = true)]
+        public long? StartDateGreaterThanOrEqual { get; set; }
+
+        /// <summary>
+        /// end Date Greater Than Or Equal
+        /// </summary>
+        [DataMember(Name = "endDateLessThanOrEqual")]
+        [JsonProperty("endDateLessThanOrEqual")]
+        [XmlElement(ElementName = "endDateLessThanOrEqual", IsNullable = true)]
+        public long? EndDateLessThanOrEqual { get; set; }
+
+        /// <summary>
+        /// states
+        /// </summary>
+        [DataMember(Name = "stateIn")]
+        [JsonProperty("stateIn")]
+        [XmlElement(ElementName = "stateIn", IsNullable = true)]
+        public string stateIn { get; set; }
+
+        /// <summary>
+        /// campaign Type Equal
+        /// </summary>
+        [DataMember(Name = "campaignTypeEqual")]
+        [JsonProperty("campaignTypeEqual")]
+        [XmlElement(ElementName = "campaignTypeEqual", IsNullable = true)]
+        public string CampaignTypeEqual { get; set; }
+    }
 }

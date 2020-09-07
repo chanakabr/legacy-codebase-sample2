@@ -78,7 +78,5 @@ namespace ApiObjects.Rules
         int? ManufacturerId { get; set; }
         string Model { get; set; }
         string Udid { get; set; }
-
-        List<long> GetCampaignBrands(int groupId, string userId, long campaignId);
     }
 }

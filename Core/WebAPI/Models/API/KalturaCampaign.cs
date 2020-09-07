@@ -151,7 +151,7 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForAdd()
         {
-            //TODO - Shir or Matan
+            //TODO Shir or Matan
             // validate start & end dates
 
             if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))

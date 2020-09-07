@@ -13,9 +13,17 @@ namespace ApiObjects
         public List<long> IdIn { get; set; }
     }
 
-    public class TriggerCampaignFilter : CampaignFilter
+    public class CampaignSearchFilter : CampaignFilter
+    {
+    }
+
+    public class TriggerCampaignFilter : CampaignSearchFilter
     {
         public ApiService? Service { get; set; }
         public ApiAction? Action { get; set; }
+    }
+
+    public class BatchCampaignFilter : CampaignSearchFilter
+    {
     }
 }

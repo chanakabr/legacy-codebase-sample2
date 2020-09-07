@@ -429,6 +429,9 @@ namespace WebAPI.Reflection
                 case "KalturaCampaignListResponse":
                     return new KalturaCampaignListResponse(parameters);
                     
+                case "KalturaCampaignSearchFilter":
+                    return new KalturaCampaignSearchFilter(parameters);
+                    
                 case "KalturaCaptionPlaybackPluginData":
                     return new KalturaCaptionPlaybackPluginData(parameters);
                     
@@ -1964,9 +1967,6 @@ namespace WebAPI.Reflection
                     
                 case "KalturaTriggerCampaign":
                     return new KalturaTriggerCampaign(parameters);
-                    
-                case "KalturaTriggerCondition":
-                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaTvmDeviceRule":
                     return new KalturaTvmDeviceRule(parameters);
@@ -16994,6 +16994,31 @@ namespace WebAPI.Models.API
         {
         }
     }
+    public partial class KalturaCampaignSearchFilter
+    {
+        public KalturaCampaignSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("startDateGreaterThanOrEqual") && parameters["startDateGreaterThanOrEqual"] != null)
+                {
+                    StartDateGreaterThanOrEqual = (Int64) Convert.ChangeType(parameters["startDateGreaterThanOrEqual"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("endDateLessThanOrEqual") && parameters["endDateLessThanOrEqual"] != null)
+                {
+                    EndDateLessThanOrEqual = (Int64) Convert.ChangeType(parameters["endDateLessThanOrEqual"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("stateIn") && parameters["stateIn"] != null)
+                {
+                    stateIn = (String) Convert.ChangeType(parameters["stateIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("campaignTypeEqual") && parameters["campaignTypeEqual"] != null)
+                {
+                    CampaignTypeEqual = (String) Convert.ChangeType(parameters["campaignTypeEqual"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaCDNAdapterProfile
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNAdapterProfile")
@@ -21123,19 +21148,6 @@ namespace WebAPI.Models.API
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Action, typeof(KalturaApiAction)));
                     }
-                }
-            }
-        }
-    }
-    public partial class KalturaTriggerCondition<T>
-    {
-        public KalturaTriggerCondition(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("valueIn") && parameters["valueIn"] != null)
-                {
-                    ValueIn = (String) Convert.ChangeType(parameters["valueIn"], typeof(String));
                 }
             }
         }
