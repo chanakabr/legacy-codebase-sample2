@@ -70,7 +70,7 @@ namespace ApiLogic.Users.Managers
                 else
                 {
                     log.Info($"Cannot Add Device Reference Data from type: {(DeviceInformationType)coreObject.GetType()}");
-                    response.SetStatus(eResponseStatus.Error, "Cannot add Device Reference Data");
+                    response.SetStatus(response.Status);
                 }
             }
             catch (Exception ex)
@@ -155,36 +155,8 @@ namespace ApiLogic.Users.Managers
 
         public GenericListResponse<DeviceReferenceData> List(ContextData contextData, DeviceReferenceDataFilter filter, CorePager pager)
         {
-            throw new NotImplementedException();
-        }
+            //Todo - Matan, fix for more generic list filter
 
-        public GenericListResponse<DeviceReferenceData> List(ContextData contextData, DeviceModelReferenceDataFilter filter, CorePager pager)
-        {
-            var response = new GenericListResponse<DeviceReferenceData>();
-
-            if (filter == null)
-            {
-                filter = new DeviceModelReferenceDataFilter();
-            }
-
-            var dbContent = GetReferenceData(contextData.GroupId);
-
-            var filtered = dbContent?.Where(rd => rd.GetType() == (int)DeviceInformationType.Model).ToList();
-
-            if (filter.DeviceReferenceDataIdsIn != null && filter.DeviceReferenceDataIdsIn.Count > 0)
-            {
-                filtered = filtered?.Where(rd => filter.DeviceReferenceDataIdsIn.Contains((int)rd.Id)).ToList();
-            }
-
-            response.Objects = filtered;
-            response.TotalItems = filtered.Count;
-            response.SetStatus(eResponseStatus.OK);
-
-            return response;
-        }
-
-        public GenericListResponse<DeviceReferenceData> List(ContextData contextData, DeviceManufacturersReferenceDataFilter filter, CorePager pager)
-        {
             var response = new GenericListResponse<DeviceReferenceData>();
 
             if (filter == null)
@@ -192,17 +164,19 @@ namespace ApiLogic.Users.Managers
                 filter = new DeviceManufacturersReferenceDataFilter();
             }
 
-            var dbContent = GetReferenceData(contextData.GroupId);
+            response.Objects = GetReferenceData(contextData.GroupId);
 
-            var filtered = dbContent?.Where(rd => rd.GetType() == (int)DeviceInformationType.Manufacturer).ToList();
+            if (filter is DeviceManufacturersReferenceDataFilter)
+            {
+                response.Objects = response.Objects?.Where(rd => rd.GetType() == (int)DeviceInformationType.Manufacturer).ToList();
+            }
 
             if (filter.DeviceReferenceDataIdsIn != null && filter.DeviceReferenceDataIdsIn.Count > 0)
             {
-                filtered = filtered?.Where(rd => filter.DeviceReferenceDataIdsIn.Contains((int)rd.Id)).ToList();
+                response.Objects = response.Objects?.Where(rd => filter.DeviceReferenceDataIdsIn.Contains((int)rd.Id)).ToList();
             }
 
-            response.Objects = filtered;
-            response.TotalItems = filtered.Count;
+            response.TotalItems = response.Objects == null ? 0 : response.Objects.Count;
             response.SetStatus(eResponseStatus.OK);
 
             return response;

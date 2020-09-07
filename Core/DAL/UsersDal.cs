@@ -820,7 +820,8 @@ namespace DAL
             }
             else if (id > 0)
             {
-                response.Object = GetDeviceReferenceData(groupId)?.Where(m => m.Id == id).FirstOrDefault();
+                coreObject.Id = id;
+                response.Object = coreObject;
                 response.SetStatus(ApiObjects.Response.eResponseStatus.OK);
             }
             else
@@ -844,7 +845,7 @@ namespace DAL
                 {
                     if (dt.Rows[i] != null)
                     {
-                        res.Add(new DeviceModelInformation
+                        res.Add(new DeviceReferenceData
                         {
                             Id = Utils.GetLongSafeVal(dt.Rows[i], "id"),
                             Name = Utils.GetSafeStr(dt.Rows[i], "name")

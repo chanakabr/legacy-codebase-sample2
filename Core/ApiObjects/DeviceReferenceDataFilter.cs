@@ -8,13 +8,7 @@ namespace ApiObjects
         public List<int> DeviceReferenceDataIdsIn { get; set; }
     }
 
-    public class DeviceModelReferenceDataFilter: DeviceReferenceDataFilter
-    {
-
-    }
-
     public class DeviceManufacturersReferenceDataFilter: DeviceReferenceDataFilter
     {
-
     }
 }

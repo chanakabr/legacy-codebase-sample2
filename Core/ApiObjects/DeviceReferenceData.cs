@@ -24,14 +24,6 @@ namespace ApiObjects
         }
     }
 
-    public class DeviceModelInformation : DeviceReferenceData
-    {
-        public override int GetType()
-        {
-            return (int)DeviceInformationType.Model;
-        }
-    }
-
     public class DeviceManufacturerInformation : DeviceReferenceData
     {
         public override int GetType()
@@ -42,6 +34,6 @@ namespace ApiObjects
 
     public enum DeviceInformationType
     {
-        Model, Manufacturer
+        Manufacturer
     }
 }

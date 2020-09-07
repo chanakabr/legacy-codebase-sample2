@@ -32086,6 +32086,188 @@ namespace WebAPI.Models.Users
             return ret;
         }
     }
+    public partial class KalturaDeviceManufacturerInformation
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
+    public partial class KalturaDeviceManufacturersReferenceDataFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
+    public partial class KalturaDeviceReferenceData
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(Status.HasValue && (retrievedProperties == null || retrievedProperties.Contains("status")))
+            {
+                ret.Add("status", "\"status\": " + Status.ToString().ToLower());
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
+            }
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(Status.HasValue && (retrievedProperties == null || retrievedProperties.Contains("status")))
+            {
+                ret.Add("status", "<status>" + Status.ToString().ToLower() + "</status>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaDeviceReferenceDataFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaDeviceReferenceDataListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
     public partial class KalturaFavorite
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -37277,6 +37459,14 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("macAddress", "\"macAddress\": " + "\"" + EscapeJson(MacAddress) + "\"");
             }
+            if(ManufacturerId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("manufacturerId")))
+            {
+                ret.Add("manufacturerId", "\"manufacturerId\": " + ManufacturerId);
+            }
+            if(Model != null && (retrievedProperties == null || retrievedProperties.Contains("model")))
+            {
+                ret.Add("model", "\"model\": " + "\"" + EscapeJson(Model) + "\"");
+            }
             if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -37347,6 +37537,14 @@ namespace WebAPI.Models.Domains
             if(MacAddress != null && (retrievedProperties == null || retrievedProperties.Contains("macAddress")))
             {
                 ret.Add("macAddress", "<macAddress>" + EscapeXml(MacAddress) + "</macAddress>");
+            }
+            if(ManufacturerId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("manufacturerId")))
+            {
+                ret.Add("manufacturerId", "<manufacturerId>" + ManufacturerId + "</manufacturerId>");
+            }
+            if(Model != null && (retrievedProperties == null || retrievedProperties.Contains("model")))
+            {
+                ret.Add("model", "<model>" + EscapeXml(Model) + "</model>");
             }
             if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
             {
