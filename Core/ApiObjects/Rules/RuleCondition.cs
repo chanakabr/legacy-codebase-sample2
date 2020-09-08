@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ApiObjects.Rules
@@ -298,7 +299,7 @@ namespace ApiObjects.Rules
             return isInHeaders;
         }
     }
-    
+
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class SubscriptionCondition<T> : RuleBaseCondition<T> where T : IConditionScope
@@ -319,7 +320,7 @@ namespace ApiObjects.Rules
         protected override bool DoEvaluate(IUserSubscriptionConditionScope scope)
         {
             if (scope.UserSubscriptions == null) { return true; }
-            
+
             return scope.UserSubscriptions.Any(x => this.SubscriptionIds.Contains(x));
         }
     }
@@ -356,7 +357,7 @@ namespace ApiObjects.Rules
         protected override bool DoEvaluate(IUserRoleConditionScope scope)
         {
             if (string.IsNullOrEmpty(scope.UserId)) { return true; }
-            
+
             var userRoleIds = scope.GetUserRoleIds(scope.GroupId, scope.UserId);
             return userRoleIds != null && userRoleIds.Any(x => RoleIds.Contains(x));
         }
@@ -370,7 +371,7 @@ namespace ApiObjects.Rules
 
         public DeviceBrandCondition()
         {
-            Type = RuleConditionType.Campaign;
+            Type = RuleConditionType.DeviceBrand;
         }
 
         protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
@@ -390,13 +391,15 @@ namespace ApiObjects.Rules
 
         public DeviceFamilyCondition()
         {
-            Type = RuleConditionType.Campaign;
+            Type = RuleConditionType.DeviceFamily;
         }
 
         protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
         {
-            if (!scope.Family.HasValue) { return false; }
-            return true;
+            if (!scope.Family.HasValue) { return true; }
+
+            var isExist = this.IdIn.Contains(scope.Family.Value);
+            return isExist;
         }
     }
 
@@ -404,17 +407,19 @@ namespace ApiObjects.Rules
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class DeviceManufacturerCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
     {
-        public List<int> IdIn { get; set; }
+        public List<long> IdIn { get; set; }
 
         public DeviceManufacturerCondition()
         {
-            Type = RuleConditionType.Campaign;
+            Type = RuleConditionType.DeviceManufacturer;
         }
 
         protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
         {
-            if (!scope.Family.HasValue) { return false; }
-            return true;
+            if (!scope.ManufacturerId.HasValue) { return true; }
+
+            var isExist = this.IdIn.Contains(scope.ManufacturerId.Value);
+            return isExist;
         }
     }
 
@@ -426,13 +431,21 @@ namespace ApiObjects.Rules
 
         public DeviceModelCondition()
         {
-            Type = RuleConditionType.Campaign;
+            Type = RuleConditionType.DeviceModel;
         }
 
         protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
         {
-            if (!scope.Family.HasValue) { return false; }
-            return true;
+            if (string.IsNullOrEmpty(scope.Model)) { return true; }
+
+            try
+            {
+                return Regex.IsMatch(scope.Model, RegexEqual, RegexOptions.IgnoreCase);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 
@@ -440,17 +453,19 @@ namespace ApiObjects.Rules
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class DeviceUdidCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
     {
-        public List<int> UdidIn { get; set; }
+        public List<string> UdidIn { get; set; }
 
         public DeviceUdidCondition()
         {
-            Type = RuleConditionType.Campaign;
+            Type = RuleConditionType.DeviceUdid;
         }
 
         protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
         {
-            if (!scope.Family.HasValue) { return false; }
-            return true;
+            if (string.IsNullOrEmpty(scope.Udid)) { return true; }
+            
+            var isExist = UdidIn.Contains(scope.Udid);
+            return isExist;
         }
     }
 }

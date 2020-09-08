@@ -636,7 +636,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                            return RuleConditionType.AssetSubscription;
                        case KalturaRuleConditionType.USER_ROLE:
                            return RuleConditionType.UserRole;
-                           //TODO MATAN
+                       case KalturaRuleConditionType.DEVICE_BRAND:
+                           return RuleConditionType.DeviceBrand;
+                       case KalturaRuleConditionType.DEVICE_FAMILY:
+                           return RuleConditionType.DeviceFamily;
+                       case KalturaRuleConditionType.DEVICE_MANUFACTURER:
+                           return RuleConditionType.DeviceManufacturer;
+                       case KalturaRuleConditionType.DEVICE_MODEL:
+                           return RuleConditionType.DeviceModel;
+                       case KalturaRuleConditionType.DEVICE_UDID:
+                           return RuleConditionType.DeviceUdid;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", kalturaRuleConditionType.ToString()));
                    }
@@ -671,7 +680,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return KalturaRuleConditionType.ASSET_SUBSCRIPTION;
                         case RuleConditionType.UserRole:
                             return KalturaRuleConditionType.USER_ROLE;
-                        //TODO MATAN
+                        case RuleConditionType.DeviceBrand:
+                            return KalturaRuleConditionType.DEVICE_BRAND;
+                        case RuleConditionType.DeviceFamily:
+                            return KalturaRuleConditionType.DEVICE_FAMILY;
+                        case RuleConditionType.DeviceManufacturer:
+                            return KalturaRuleConditionType.DEVICE_MANUFACTURER;
+                        case RuleConditionType.DeviceModel:
+                            return KalturaRuleConditionType.DEVICE_MODEL;
+                        case RuleConditionType.DeviceUdid:
+                            return KalturaRuleConditionType.DEVICE_UDID;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", ruleConditionType.ToString()));
                             break;

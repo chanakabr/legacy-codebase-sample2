@@ -142,8 +142,7 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForAdd()
         {
-            //TODO Shir or Matan - ValidateForAdd 
-            // validate start & end dates
+            var now = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
 
             if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
             {
@@ -176,6 +175,16 @@ namespace WebAPI.Models.API
                 {
                     condition.Validate();
                 }
+            }
+
+            if (EndDate <= now)
+            {
+                throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "EndDate");
+            }
+
+            if (EndDate <= StartDate)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "EndDate", "StartDate");
             }
         }
 

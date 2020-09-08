@@ -27,7 +27,11 @@ namespace WebAPI.Models.API
         USER_SUBSCRIPTION,
         ASSET_SUBSCRIPTION,
         USER_ROLE,
-        DEVICE_BRAND
+        DEVICE_BRAND,
+        DEVICE_FAMILY,
+        DEVICE_MANUFACTURER,
+        DEVICE_MODEL,
+        DEVICE_UDID
     }
 
     /// <summary>
@@ -530,7 +534,6 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceBrandCondition.idIn");
             }
 
-            // todo matan - same for all conditions
             var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
             if (items.Count > 10)
             {
@@ -562,6 +565,12 @@ namespace WebAPI.Models.API
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceFamilyCondition.idIn");
             }
+
+            var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
+            if (items.Count > 10)
+            {
+                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceFamilyCondition.idIn", 10);
+            }
         }
     }
 
@@ -587,6 +596,12 @@ namespace WebAPI.Models.API
             if (string.IsNullOrEmpty(this.IdIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceManufacturerCondition.idIn");
+            }
+
+            var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
+            if (items.Count > 10)
+            {
+                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceManufacturerCondition.idIn", 10);
             }
         }
     }
@@ -638,6 +653,12 @@ namespace WebAPI.Models.API
             if (string.IsNullOrEmpty(this.UdidIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceUdidCondition.udidIn");
+            }
+
+            var items = GetItemsIn<List<long>, long>(this.UdidIn, "udidIn", true);
+            if (items.Count > 10)
+            {
+                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceUdidCondition.idIn", 10);
             }
         }
     }

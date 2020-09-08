@@ -38,7 +38,7 @@ namespace Core.Users
 
         public long DeviceFamilyId { get; set; }
 
-        public string Model{ get; set; }
+        public string Model { get; set; }
 
         public long? ManufacturerId { get; set; }
 
@@ -78,7 +78,7 @@ namespace Core.Users
             {
                 ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(GroupId, DomainId, this, ApiService.DomainDevice, ApiAction.INSERT);
             }
-            
+
             return sucsses;
         }
 
@@ -170,7 +170,11 @@ namespace Core.Users
             {
                 GroupId = contextData.GroupId,
                 UserId = contextData.UserId.ToString(),
-                BrandId = this.DeviceBrandId
+                BrandId = this.DeviceBrandId,
+                ManufacturerId = this.ManufacturerId,
+                Model = this.Model,
+                Family = (int)this.DeviceFamilyId,
+                Udid = this.Udid
             };
 
             return conditionScope;

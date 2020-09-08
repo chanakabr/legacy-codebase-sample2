@@ -1128,7 +1128,11 @@ namespace ApiObjects
         UserSubscription,
         AssetSubscription,
         UserRole,
-        Campaign
+        DeviceBrand,
+        DeviceFamily,
+        DeviceManufacturer,
+        DeviceModel,
+        DeviceUdid
     }
 
     public enum RuleActionTaskType
