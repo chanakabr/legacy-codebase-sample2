@@ -1427,10 +1427,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ContainDiscountModel, opt => opt.MapFrom(src => src.ContainDiscountModel));
 
             cfg.CreateMap<KalturaTriggerCampaignSearchFilter, TriggerCampaignFilter>()
-              .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>();
+              .IncludeBase<KalturaCampaignFilter, CampaignFilter>();
 
             cfg.CreateMap<KalturaBatchCampaignSearchFilter, BatchCampaignFilter>()
-              .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>(); 
+              .IncludeBase<KalturaCampaignFilter, CampaignFilter>(); 
 
             #endregion
 
