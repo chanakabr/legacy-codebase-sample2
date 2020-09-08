@@ -48,13 +48,6 @@ namespace Core.Notification
                 // get user inbox message
                 var userInboxMessage = NotificationDal.GetUserInboxMessage(groupId, userId, messageId);
 
-                if (userInboxMessage == null)
-                {
-                    var campaignId = NotificationDal.GetInboxMessageCampaignMapping(groupId, userId, messageId);
-                    if (campaignId.HasValue)
-                        userInboxMessage = NotificationDal.GetCampaignInboxMessage(groupId, userId, campaignId.Value.ToString());
-                }
-
                 if (userInboxMessage != null)
                 {
                     response.InboxMessages = new List<InboxMessage>();
@@ -133,7 +126,12 @@ namespace Core.Notification
                 // TODO SHIR / MATAN - GetInboxMessages GET ALL CAMPAIGNS
                 // --------------------------------
                 //var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(new ApiObjects.Base.ContextData(groupId) { UserId = userId }, null, null);
-                //var campaignMessages = NotificationDal.GetCampaignInboxMessages(groupId, userId, campaigns?.Objects);
+                //var campaignMappings = NotificationDal.GetCampaignInboxMessageMapCB(groupId, userId);
+                //if (campaignMappings == null)
+                //{
+                //    campaignMappings = new CampaignInboxMessageMap();
+                //}
+
                 //if (campaignMessages == null)
                 //{
                 //    log.DebugFormat("No campaign inbox message. {0}", logData);
@@ -141,7 +139,7 @@ namespace Core.Notification
                 //}
 
                 // merge System InboxMessages To UserInbox
-                //MergeSystemInboxMessagesToUserInbox(groupId, userId, logData, systemMessages, campaignMessages, ref userMessages);
+                MergeSystemInboxMessagesToUserInbox(groupId, userId, logData, systemMessages, ref userMessages);
                 // --------------------------------
 
                 // in case messageCategorys  is null, no filter. get all.
@@ -173,13 +171,12 @@ namespace Core.Notification
         }
 
         private static void MergeSystemInboxMessagesToUserInbox(int groupId, int userId, string logData, List<string> systemMessages,
-        List<InboxMessage> campaignMessages, ref List<InboxMessage> userMessages)
+        ref List<InboxMessage> userMessages)
         {
             try
             {
                 //compare messageId [userMessages] not in [systemMessages]            
                 var newSystemMessage = systemMessages.Select(m => m).Except(userMessages.Select(x => x.Id)).ToList();
-                var newCampaignMessage = userMessages.Where(p => campaignMessages.All(p2 => p2.Id != p.Id));
 
                 //get newInboxSystemMessage for update and saving to user inbox
                 List<InboxMessage> newInboxSystemMessage = NotificationDal.GetSystemInboxMessages(groupId, newSystemMessage);
@@ -201,10 +198,6 @@ namespace Core.Notification
                             log.ErrorFormat("Error while saving system Message to user. {0}, messageId: {1}", logData, systemInboxMessage.Id);
                         }
                     }
-                }
-                if (newCampaignMessage != null)
-                {
-                    userMessages.AddRange(newCampaignMessage);
                 }
             }
             catch (Exception ex)
@@ -237,16 +230,6 @@ namespace Core.Notification
                 long? campaignId = null;
                 // get user inbox message
                 var userInboxMessage = NotificationDal.GetUserInboxMessage(groupId, userId, messageId);
-                if (userInboxMessage == null)
-                {
-                    //try to get campaign message
-                    campaignId = NotificationDal.GetInboxMessageCampaignMapping(groupId, userId, messageId);
-                    if (campaignId.HasValue)
-                    {
-                        userInboxMessage = NotificationDal.GetCampaignInboxMessage(groupId, userId, campaignId.Value.ToString());
-                        isCampaign = userInboxMessage != null;
-                    }
-                }
 
                 if (userInboxMessage == null)
                 {
@@ -255,9 +238,7 @@ namespace Core.Notification
                 }
 
                 //get newInboxSystemMessage for update and saving to user inbox
-                var isSet = isCampaign ?
-                    NotificationDal.UpdateCampaignInboxMessageState(groupId, userId, campaignId.Value.ToString(), status) :
-                    NotificationDal.UpdateInboxMessageState(groupId, userId, messageId, status);
+                var isSet = NotificationDal.UpdateInboxMessageState(groupId, userId, messageId, status);
 
                 if (!isSet)
                 {

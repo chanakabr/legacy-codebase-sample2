@@ -60,9 +60,9 @@ namespace DAL
             return string.Format("inbox_message:{0}:{1}:{2}", groupId, userId, messageId);
         }
 
-        private static string GetInboxMessageCampaignMappingKey(int groupId, long userId, string messageId)
+        private static string GetInboxMessageCampaignMappingKey(int groupId, long userId)
         {
-            return $"inbox_message_campaign:{groupId}:{userId}:{messageId}";
+            return $"user_inbox_campaigns:{groupId}:{userId}";
         }
 
         private static string GetUserPushKey(int groupId, long userId)
@@ -91,12 +91,6 @@ namespace DAL
         {
             return string.Format("system_inbox:{0}:{1}", groupId, messageId);
         }
-
-        public static string GetCampaignMessageKey(int groupId, int userId, string campaignId)
-        {
-            return $"inbox_message_group_id_{groupId}_campaign_id_{campaignId}_user_id_{userId}";
-        }
-
         private static string GetNotificationCleanupKey()
         {
             return "notification_cleanup";
@@ -1887,145 +1881,11 @@ namespace DAL
             return userInboxMessage;
         }
 
-        public static InboxMessage GetCampaignInboxMessage(int groupId, int userId, string campaignId)
+        public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage, double ttlDays)
         {
-            InboxMessage inboxMessage = null;
-            var status = eResultStatus.ERROR;
-
-            try
-            {
-                bool result = false;
-                int numOfTries = 0;
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
-                    inboxMessage = cbManager.Get<InboxMessage>(GetCampaignMessageKey(groupId, userId, campaignId), out status);
-                    if (inboxMessage == null)
-                    {
-                        if (status == eResultStatus.KEY_NOT_EXIST)
-                        {
-                            // key doesn't exist - don't try again
-                            log.DebugFormat("campaign inbox message wasn't found. key: {0}", GetCampaignMessageKey(groupId, userId, campaignId));
-                            break;
-                        }
-                        else
-                        {
-                            numOfTries++;
-                            log.ErrorFormat("Error while getting campaign inbox message. number of tries: {0}/{1}. key: {2}",
-                                numOfTries,
-                                NUM_OF_INSERT_TRIES,
-                                GetCampaignMessageKey(groupId, userId, campaignId));
-
-                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                        }
-                    }
-                    else
-                    {
-                        result = true;
-
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully received user inbox message. number of tries: {0}/{1}. key {2}",
-                            numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            GetCampaignMessageKey(groupId, userId, campaignId));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to get campaign inbox message. key: {0}, ex: {1}", GetCampaignMessageKey(groupId, userId, campaignId), ex);
-            }
-
-            return inboxMessage;
-        }
-
-        public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage, int ttlDays)
-        {
-            bool result = false;
-            try
-            {
-                int numOfTries = 0;
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
-                    result = cbManager.Set(GetInboxMessageKey(groupId, inboxMessage.UserId, inboxMessage.Id), inboxMessage, (uint)TimeSpan.FromDays(ttlDays).TotalSeconds);
-
-                    if (!result)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while setting inbox message. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
-                             numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            inboxMessage.UserId,
-                            JsonConvert.SerializeObject(inboxMessage));
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                    else
-                    {
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully set inbox message. number of tries: {0}/{1}. object {2}",
-                            numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            JsonConvert.SerializeObject(inboxMessage));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while setting inbox message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, inboxMessage.UserId, inboxMessage.Id, ex);
-            }
-
-            return result;
-        }
-
-        public static bool SetCampaignInboxMessage(int groupId, InboxMessage inboxMessage, long campaignId, int ttlDays)
-        {
-            bool result = false;
-            try
-            {
-                int numOfTries = 0;
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
-                    result = cbManager.Set(GetCampaignMessageKey(groupId, (int)inboxMessage.UserId, campaignId.ToString()), inboxMessage, (uint)TimeSpan.FromDays(ttlDays).TotalSeconds);
-
-                    if (!result)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while setting campaign inbox message. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
-                             numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            inboxMessage.UserId,
-                            JsonConvert.SerializeObject(inboxMessage));
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                    else
-                    {
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully set inbox message. number of tries: {0}/{1}. object {2}",
-                            numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            JsonConvert.SerializeObject(inboxMessage));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while setting inbox message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, inboxMessage.UserId, inboxMessage.Id, ex);
-            }
-
-            return result;
+            var ttl = (uint)TimeSpan.FromDays(ttlDays).TotalSeconds;
+            var key = GetInboxMessageKey(groupId, (int)inboxMessage.UserId, inboxMessage.Id);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.NOTIFICATION, key, inboxMessage, false, ttl);
         }
 
         public static bool UpdateInboxMessageState(int groupId, int userId, string messageId, eMessageState messageState)
@@ -2084,92 +1944,53 @@ namespace DAL
             return result;
         }
 
-        public static bool UpdateCampaignInboxMessageState(int groupId, int userId, string campaignId, eMessageState messageState)
+        public static bool AddToCampaignInboxMessageMapCB(Campaign campaign, int groupId, long userId, string inboxMessageId)
         {
-            bool result = false;
-            try
+            var key = GetInboxMessageCampaignMappingKey(groupId, userId);
+            var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<CampaignInboxMessageMap>(0, eCouchbaseBucket.NOTIFICATION, key, mapping =>
             {
-                var inboxMessage = GetCampaignInboxMessage(groupId, userId, campaignId);
-                if (inboxMessage == null)
+                if (mapping == null)
                 {
-                    log.ErrorFormat("couldn't update message state to {0}. Campaign wasn't found. key: {1}", messageState.ToString(), GetInboxMessageKey(groupId, userId, campaignId));
-                    return false;
+                    mapping = new CampaignInboxMessageMap();
                 }
-
-                int numOfTries = 0;
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                if (campaign is TriggerCampaign)
                 {
-                    // update message
-                    inboxMessage.State = messageState;
-
-                    // update document
-                    result = cbManager.Set(GetCampaignMessageKey(groupId, userId, campaignId), inboxMessage);
-
-                    if (!result)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while updating campaign message state to {0}. number of tries: {1}/{2}. GID: {3}, user ID: {4}. data: {5}",
-                            messageState.ToString(),
-                            numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            userId,
-                            JsonConvert.SerializeObject(inboxMessage));
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                    else
-                    {
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully updated campaign message to state {0}. number of tries: {1}/{2}. object {3}",
-                            messageState.ToString(),
-                            numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            JsonConvert.SerializeObject(inboxMessage));
-                        }
-                    }
+                    mapping.TriggerCampaigns.Add(campaign.Id, inboxMessageId);
                 }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while updating campaign message to state {0}. GID: {1}, user ID: {2}, campaign ID: {3}, ex: {4}", messageState.ToString(), groupId, userId, campaignId, ex);
-            }
+                else if (campaign is BatchCampaign)
+                {
+                    mapping.BatchCampaigns.Add(campaign.Id, inboxMessageId);
+                }
+            });
 
-            return result;
+            return isSaveSuccess;
         }
 
-        public static void SetInboxMessageCampaignMapping(int groupId, long userId, Campaign campaign, string inboxMessageId)
+        public static bool RemoveFromCampaignInboxMessageMapCB(Campaign campaign, int groupId, long userId, string inboxMessageId)
         {
-            try
+            var key = GetInboxMessageCampaignMappingKey(groupId, userId);
+            var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<CampaignInboxMessageMap>(0, eCouchbaseBucket.NOTIFICATION, key, mapping =>
             {
-                cbManager.Set(GetInboxMessageCampaignMappingKey(groupId, userId, inboxMessageId), campaign);
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Failed: SetInboxMessageCampaignMapping for campaign: {campaign.Id} and message: {inboxMessageId} for user: {userId}, group: {groupId}", ex);
-            }
+                if (mapping == null)
+                {
+                    mapping = new CampaignInboxMessageMap();
+                }
+                if (campaign is TriggerCampaign && mapping.TriggerCampaigns.ContainsKey(campaign.Id))
+                {
+                    mapping.TriggerCampaigns.Remove(campaign.Id);
+                }
+                else if (campaign is BatchCampaign && mapping.BatchCampaigns.ContainsKey(campaign.Id))
+                {
+                    mapping.BatchCampaigns.Remove(campaign.Id);
+                }
+            });
+
+            return isSaveSuccess;
         }
 
-        public static long? GetInboxMessageCampaignMapping(int groupId, long userId, string inboxMessageId)
+        public static CampaignInboxMessageMap GetCampaignInboxMessageMapCB(int groupId, long userId)
         {
-            try
-            {
-                var campaign = cbManager.Get<Campaign>(GetInboxMessageCampaignMappingKey(groupId, userId, inboxMessageId));
-                if (campaign != null)
-                {
-                    return campaign.Id;
-                }
-
-                log.Error($"Key: {GetInboxMessageCampaignMappingKey(groupId, userId, inboxMessageId)} not found");
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Failed: GetInboxMessageCampaignMapping message: {inboxMessageId} for user: {userId}, group: {groupId}", ex);
-            }
-
-            return null;
+            return cbManager.Get<CampaignInboxMessageMap>(GetInboxMessageCampaignMappingKey(groupId, userId));
         }
 
         public static List<string> GetSystemInboxMessagesView(int groupId, long fromDate)
@@ -2263,32 +2084,6 @@ namespace DAL
             }
 
             return null;
-        }
-
-        public static List<InboxMessage> GetCampaignInboxMessages(int groupId, int userId, List<Campaign> campaigns)
-        {
-            var response = new List<InboxMessage>();
-            try
-            {
-                var userCampaigns = campaigns.Select(x => x.Id.ToString()).ToList();
-
-                if (userCampaigns == null || userCampaigns.Count == 0)
-                {
-                    return null;
-                }
-
-                foreach (var campaign in userCampaigns)
-                {
-                    var requestKey = GetCampaignMessageKey(groupId, userId, campaign);
-                    response.Add(cbManager.Get<InboxMessage>(requestKey, true));
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Error while trying to get user campaign messages for user: {userId}, ex: {ex}", ex);
-            }
-
-            return response;
         }
 
         public static bool UpdateAnnouncement(int groupId, int announcementId, bool? automaticSending, DateTime? lastMessageSentDate = null, string queueName = null)

@@ -19,4 +19,17 @@ namespace ApiObjects.Notification
         public eMessageState State { get; set; }
         public long? CampaignId { get; set; }
     }
+
+    public class CampaignInboxMessageMap
+    {
+        //Key: CampaignId, Value: InboxMessageId
+        public Dictionary<long, string> TriggerCampaigns { get; set; }
+        public Dictionary<long, string> BatchCampaigns { get; set; }
+
+        public CampaignInboxMessageMap()
+        {
+            this.TriggerCampaigns = new Dictionary<long, string>();
+            this.BatchCampaigns = new Dictionary<long, string>();
+        }
+    }
 }

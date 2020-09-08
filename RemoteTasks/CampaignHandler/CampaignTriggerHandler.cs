@@ -47,7 +47,7 @@ namespace CampaignHandler
                 var master = domain.m_masterGUIDs.FirstOrDefault();
 
                 var contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = master };
-                
+
                 var triggerCampaigns = CampaignManager.Instance.ListTriggerCampaigns(contextData, filter);
 
                 if (!triggerCampaigns.HasObjects())
@@ -87,19 +87,19 @@ namespace CampaignHandler
         private void AddMessageToInbox(CampaignTriggerEvent serviceEvent, int userId, TriggerCampaign campaign)
         {
             //Check if user has this campaign in his inbox
-            var inboxMessage = DAL.NotificationDal.GetCampaignInboxMessage(serviceEvent.GroupId, userId, campaign.Id.ToString());
+            var inboxMessageMapping = DAL.NotificationDal.GetCampaignInboxMessageMapCB(serviceEvent.GroupId, userId);
 
-            if (inboxMessage != null && !string.IsNullOrEmpty(inboxMessage.Id))
+            if (inboxMessageMapping != null && inboxMessageMapping.TriggerCampaigns.ContainsKey(campaign.Id))
             {
                 _Logger.Info($"Campaign: {campaign.Id} already assigned to user: {userId}, group: {serviceEvent.GroupId}, domain: {serviceEvent.DomainId}");
                 return;
             }
 
-            var ttl = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(campaign.EndDate) - DateTime.UtcNow;
-            var current = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
+            var ttl = DateUtils.UtcUnixTimestampSecondsToDateTime(campaign.EndDate) - DateTime.UtcNow;
+            var current = DateUtils.GetUtcUnixTimestampNow();
 
             //Add to user Inbox
-            inboxMessage = new InboxMessage
+            var inboxMessage = new InboxMessage
             {
                 Id = Guid.NewGuid().ToString(),
                 Message = campaign.Message,
@@ -107,16 +107,19 @@ namespace CampaignHandler
                 CreatedAtSec = current,
                 UpdatedAtSec = current,
                 State = eMessageState.Unread,
-                Category = eMessageCategory.Campaign
+                Category = eMessageCategory.Campaign,
+                CampaignId = campaign.Id
             };
 
-            if (!DAL.NotificationDal.SetCampaignInboxMessage(serviceEvent.GroupId, inboxMessage, campaign.Id, ttl.Days))
+            if (!DAL.NotificationDal.SetUserInboxMessage(serviceEvent.GroupId, inboxMessage, ttl.TotalDays))
             {
                 _Logger.Error($"Failed to add campaign message (campaign: {campaign.Id}) to User: {userId} Inbox");
-                DAL.NotificationDal.SetInboxMessageCampaignMapping(serviceEvent.GroupId, serviceEvent.UserId, campaign, inboxMessage.Id);//update mapping
             }
             else
+            {
                 _Logger.Debug($"Campaign message (campaign: {campaign.Id}) sent successfully to User: {userId} Inbox");
+                DAL.NotificationDal.AddToCampaignInboxMessageMapCB(campaign, serviceEvent.GroupId, serviceEvent.UserId, inboxMessage.Id);//update mapping
+            }
         }
     }
 }
