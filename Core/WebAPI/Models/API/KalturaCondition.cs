@@ -650,6 +650,9 @@ namespace WebAPI.Models.API
 
         internal override void Validate()
         {
+            //TODO - Matan or Shir, fix udid list ctrl
+            throw new NotImplementedException();
+
             if (string.IsNullOrEmpty(this.UdidIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceUdidCondition.udidIn");
@@ -661,15 +664,5 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceUdidCondition.idIn", 10);
             }
         }
-    }
-
-    /// <summary>
-    /// Campaign Condition Interface
-    /// </summary>
-    /// <typeparam name="T">Type of object to check</typeparam>
-    public interface ICampaignCondition<T>
-    {
-        void Validate();
-        bool CheckValues(T objectToCheck);
     }
 }
