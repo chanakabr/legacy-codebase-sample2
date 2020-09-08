@@ -1213,8 +1213,6 @@ namespace WebAPI.Reflection
                             return "startDate";
                         case "State":
                             return "state";
-                        case "Status":
-                            return "status";
                         case "SystemName":
                             return "systemName";
                         case "UpdateDate":

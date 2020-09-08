@@ -11684,10 +11684,10 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             DynamicMinInt = 0,
             MaxLength = -1,
@@ -11695,10 +11695,10 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute MetaIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -11757,60 +11757,60 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute AssetStructIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute MetaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IngestReferencePathSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = 255,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DefaultIngestValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = 4000,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -11888,10 +11888,10 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute AssetStructIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMetaFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -11899,10 +11899,10 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute MetaIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMetaFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -11957,10 +11957,10 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBaseAssetInfo")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -12042,10 +12042,10 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBaseChannel")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -12109,40 +12109,40 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmark")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute PositionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmark")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute PositionOwnerSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmark")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IsFinishedWatchingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmark")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -12329,14 +12329,14 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBundleFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaBundleFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -12435,70 +12435,70 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ParentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UnifiedChannelsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -12617,14 +12617,14 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItemAncestorsFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaCategoryItemAncestorsFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -12693,52 +12693,52 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ChildrenSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
+            MinInteger = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute EndDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
+            MinInteger = 0,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = true,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -12847,70 +12847,70 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ImagesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute SupportSegmentBasedOrderingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetUserRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
+            RequiresPermission = 6,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 6,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute MetaDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
@@ -13121,21 +13121,21 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelExternalFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute UtcOffsetEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelExternalFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -13175,14 +13175,14 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaChannelFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -13243,10 +13243,10 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute SlidingWindowPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelOrder")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -13298,25 +13298,25 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelsFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute MediaIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelsFilter")
         {
+            RequiresPermission = 1,
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 1,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaChannelsFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -13528,82 +13528,82 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute VersionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ImageTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute ImageObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UrlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ContentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -13709,10 +13709,10 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
@@ -13785,40 +13785,40 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = 128,
             MinLength = 1,
         };
         private static RuntimeSchemePropertyAttribute SystemNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = 512,
             MinLength = 1,
         };
         private static RuntimeSchemePropertyAttribute RatioIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -13826,20 +13826,20 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute HelpTextSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = 600,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute DefaultImageIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -13914,10 +13914,10 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageTypeFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
@@ -13925,10 +13925,10 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute RatioIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageTypeFilter")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             DynamicMinInt = 1,
             MaxLength = -1,
@@ -14082,40 +14082,40 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute EnableCdvrStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 7,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute EnableCatchUpStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 7,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute EnableStartOverStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 7,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute BufferCatchUpSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 7,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -14123,10 +14123,10 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute BufferTrickPlaySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 7,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -14134,110 +14134,110 @@ namespace WebAPI.Models.Catalog
         };
         private static RuntimeSchemePropertyAttribute EnableRecordingPlaybackNonEntitledChannelStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 7,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute EnableTrickPlayStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 7,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalEpgIngestIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = 255,
             MinLength = 1,
         };
         private static RuntimeSchemePropertyAttribute ExternalCdvrIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = 255,
             MinLength = 0,
         };
         private static RuntimeSchemePropertyAttribute CdvrEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute CatchUpEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StartOverEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute SummedCatchUpBufferSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute SummedTrickPlayBufferSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute RecordingPlaybackNonEntitledChannelEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute TrickPlayEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
+            RequiresPermission = 0,
             ReadOnly = true,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -16816,16 +16816,6 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         private static RuntimeSchemePropertyAttribute StateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
             ReadOnly = true,
@@ -16913,14 +16903,6 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("status") && parameters["status"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        StatusSchemaProperty.Validate("status", parameters["status"]);
-                    }
-                    Status = (Int32) Convert.ChangeType(parameters["status"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("state") && parameters["state"] != null)
                 {
@@ -20873,6 +20855,7 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute PaddingBeforeProgramStartsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
+            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -20880,10 +20863,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute PaddingAfterProgramEndsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
+            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -20891,7 +20874,6 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute ProtectionPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -26887,10 +26869,10 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserDynamicData")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -26931,10 +26913,10 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserDynamicDataList")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -26967,40 +26949,40 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute UsernameEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 1,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 1,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 1,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute RoleIdsInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 6,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             DynamicMinInt = 0,
             MaxLength = -1,
@@ -27071,10 +27053,10 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserType")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27104,30 +27086,30 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicy")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicy")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
         };
         private static RuntimeSchemePropertyAttribute UserRoleIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicy")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             DynamicMinInt = 0,
             MaxLength = -1,
@@ -27193,10 +27175,10 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute UserRoleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicyFilter")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             DynamicMinInt = 0,
             MaxLength = -1,
@@ -27229,10 +27211,10 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute privilegesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSession")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 1,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27302,10 +27284,10 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSSOAdapterProfile")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27533,10 +27515,10 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserAssetsListItem")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27624,10 +27606,10 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserInterest")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27712,10 +27694,10 @@ namespace WebAPI.Models.Users
     {
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserLoginPin")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27820,10 +27802,10 @@ namespace WebAPI.Models.Partner
     {
         private static RuntimeSchemePropertyAttribute ThresholdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEventThreshold")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27884,10 +27866,10 @@ namespace WebAPI.Models.Partner
     {
         private static RuntimeSchemePropertyAttribute ConcurrencyThresholdInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConcurrencyPartnerConfig")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27933,10 +27915,10 @@ namespace WebAPI.Models.Partner
     {
         private static RuntimeSchemePropertyAttribute MediaAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27944,10 +27926,10 @@ namespace WebAPI.Models.Partner
         };
         private static RuntimeSchemePropertyAttribute EpgAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -27955,10 +27937,10 @@ namespace WebAPI.Models.Partner
         };
         private static RuntimeSchemePropertyAttribute RecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -28001,10 +27983,10 @@ namespace WebAPI.Models.Partner
     {
         private static RuntimeSchemePropertyAttribute FinishedPercentThresholdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -28308,10 +28290,10 @@ namespace WebAPI.Models.Partner
     {
         private static RuntimeSchemePropertyAttribute PaymentGatewayIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUnifiedBillingCycle")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -28361,100 +28343,100 @@ namespace WebAPI.Models.Upload
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute FileNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NumOfObjectsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UploadedByUserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ResultsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -28586,10 +28568,10 @@ namespace WebAPI.Models.Upload
     {
         private static RuntimeSchemePropertyAttribute TypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetData")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -28616,20 +28598,20 @@ namespace WebAPI.Models.Upload
     {
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetResult")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetResult")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -28669,10 +28651,10 @@ namespace WebAPI.Models.Upload
     {
         private static RuntimeSchemePropertyAttribute StatusInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadFilter")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             DynamicType = typeof(KalturaBulkUploadJobStatus),
             MaxLength = -1,
@@ -28711,10 +28693,10 @@ namespace WebAPI.Models.Upload
     {
         private static RuntimeSchemePropertyAttribute IngestProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadIngestJobData")
         {
-            ReadOnly = false,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -28803,30 +28785,30 @@ namespace WebAPI.Models.Upload
     {
         private static RuntimeSchemePropertyAttribute ProgramIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ProgramExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute LiveAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -28868,60 +28850,60 @@ namespace WebAPI.Models.Upload
     {
         private static RuntimeSchemePropertyAttribute ObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IndexSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute BulkUploadIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute WarningsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -29011,50 +28993,50 @@ namespace WebAPI.Models.Upload
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute FileSizeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -29126,60 +29108,60 @@ namespace WebAPI.Models.DMS
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            ReadOnly = false,
             InsertOnly = true,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = false,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute TagsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute NumberOfDevicesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ConfigurationIdentifiersSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
-            ReadOnly = true,
             InsertOnly = false,
-            WriteOnly = false,
             RequiresPermission = 0,
+            ReadOnly = true,
+            WriteOnly = false,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,

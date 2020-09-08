@@ -30,7 +30,7 @@ namespace ApiLogic.Users.Managers
 
         public Status Delete(ContextData contextData, long id)
         {
-            // TODO SHIR \ MATAN
+            // TODO SHIR \ MATAN - Delete Campaign
             throw new NotImplementedException();
         }
 
@@ -63,15 +63,14 @@ namespace ApiLogic.Users.Managers
         {
             var response = new GenericListResponse<TriggerCampaign>();
 
-            var campaignsListResponse = SearchCampaignsByType<TriggerCampaign>(contextData, filter);
+            response.Objects = ListCampaignsByType<TriggerCampaign>(contextData, filter);
 
-            if (!campaignsListResponse.IsOkStatusCode())
+            if (response.Objects == null)
             {
-                response.SetStatus(campaignsListResponse.Status);
+                response.SetStatus(eResponseStatus.Error, "error while searching trigger campaigns");
                 return response;
             }
 
-            response.Objects = campaignsListResponse.Objects;
             response.SetStatus(eResponseStatus.OK);
 
             if (filter.Service.HasValue)
@@ -83,9 +82,6 @@ namespace ApiLogic.Users.Managers
             {
                 response.Objects = response.Objects.Where(x => x.Action == filter.Action.Value).ToList();
             }
-
-            // TODO SHIR - ASK MATAN WHY WE NEED THIS HERE?
-            response.Objects = response.Objects.Select(cmp => JsonConvert.DeserializeObject<TriggerCampaign>(cmp.CampaignJson)).ToList();
 
             if (pager != null)
             {
@@ -100,19 +96,15 @@ namespace ApiLogic.Users.Managers
         {
             var response = new GenericListResponse<BatchCampaign>();
 
-            var campaignsListResponse = SearchCampaignsByType<BatchCampaign>(contextData, filter);
+            response.Objects = ListCampaignsByType<BatchCampaign>(contextData, filter);
 
-            if (!campaignsListResponse.IsOkStatusCode())
+            if (response.Objects == null)
             {
-                response.SetStatus(campaignsListResponse.Status);
+                response.SetStatus(eResponseStatus.Error, "error while searching batch campaigns");
                 return response;
             }
 
-            response.Objects = campaignsListResponse.Objects;
             response.SetStatus(eResponseStatus.OK);
-
-            // TODO SHIR - ASK MATAN WHY WE NEED THIS HERE?
-            response.Objects = response.Objects.Select(cmp => JsonConvert.DeserializeObject<BatchCampaign>(cmp.CampaignJson)).ToList();
 
             if (pager != null)
             {
@@ -125,10 +117,44 @@ namespace ApiLogic.Users.Managers
 
         public GenericListResponse<Campaign> ListCampaingsByIds(ContextData contextData, CampaignIdInFilter filter)
         {
-            // TODO SHIR
             var response = new GenericListResponse<Campaign>();
-            // get all campaigns then filter
-            response.Objects = response.Objects.Where(camp => filter.IdIn.Contains(camp.Id)).ToList();
+            response.Objects = ListCampaignByIds(contextData, filter.IdIn);
+            if (response.Objects != null)
+            {
+                response.SetStatus(eResponseStatus.OK);
+            }
+
+            return response;
+        }
+
+        public GenericListResponse<Campaign> SearchCampaigns(ContextData contextData, CampaignSearchFilter filter, CorePager pager = null)
+        {
+            var response = new GenericListResponse<Campaign>();
+
+            var triggerResponse = ListTriggerCampaigns(contextData, filter as TriggerCampaignFilter);
+            if (!triggerResponse.IsOkStatusCode())
+            {
+                response.SetStatus(triggerResponse.Status);
+                return response;
+            }
+
+            var batchResponse = ListBatchCampaigns(contextData, filter as BatchCampaignFilter);
+            if (!batchResponse.IsOkStatusCode())
+            {
+                response.SetStatus(batchResponse.Status);
+                return response;
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+            response.Objects.AddRange(triggerResponse.Objects);
+            response.Objects.AddRange(batchResponse.Objects);
+
+            if (pager != null)
+            {
+                response.TotalItems = response.Objects.Count;
+                response.Objects = pager.PageSize > 0 ? response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList() : response.Objects;
+            }
+
             return response;
         }
 
@@ -156,17 +182,15 @@ namespace ApiLogic.Users.Managers
                     }
                 }
 
-                campaignToAdd.GroupId = contextData.GroupId;
                 campaignToAdd.State = ObjectState.INACTIVE;
                 campaignToAdd.CreateDate = DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
-                campaignToAdd.UpdaterId = contextData.UserId.Value;
 
-                var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd);
+                var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd, contextData);
                 if (insertedCampaign?.Id > 0)
                 {
                     response.Object = insertedCampaign;
-                    SetInvalidationKeys(contextData);
+                    SetInvalidationKeys(contextData, insertedCampaign);
                     response.SetStatus(eResponseStatus.OK);
                 }
                 else
@@ -184,7 +208,7 @@ namespace ApiLogic.Users.Managers
 
         public GenericResponse<Campaign> AddBatchCampaign(ContextData contextData, BatchCampaign campaignToAdd)
         {
-            // TODO SHIR
+            // TODO SHIR / MATAN -AddBatchCampaign
             throw new NotImplementedException();
         }
 
@@ -211,12 +235,11 @@ namespace ApiLogic.Users.Managers
                 ValidateParametersForUpdate(campaignToUpdate);
                 campaignToUpdate.FillEmpty(campaign);
                 campaignToUpdate.UpdateDate = DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
-                campaignToUpdate.GroupId = contextData.GroupId;
 
-                if (PricingDAL.Update_Campaign(campaignToUpdate, contextData.UserId.Value))
+                if (PricingDAL.Update_Campaign(campaignToUpdate, contextData))
                 {
                     response.Object = campaignToUpdate;
-                    SetInvalidationKeys(contextData);
+                    SetInvalidationKeys(contextData, campaignToUpdate);
                     response.SetStatus(eResponseStatus.OK);
                 }
                 else
@@ -232,7 +255,7 @@ namespace ApiLogic.Users.Managers
 
         public GenericResponse<Campaign> UpdateBatchCampaign(ContextData contextData, BatchCampaign campaignToUpdate)
         {
-            // TODO SHIR
+            // TODO SHIR / MATAN - UpdateBatchCampaign
             throw new NotImplementedException();
         }
 
@@ -251,17 +274,15 @@ namespace ApiLogic.Users.Managers
                 }
 
                 ValidateStateChange(campaign.Object, newState);
-
-                var _campaign = campaign.Object as TriggerCampaign;
                 var validated = new Status(eResponseStatus.OK);
 
                 if (newState == ObjectState.ACTIVE)
                 {
-                    validated = ValidateActivation(_campaign);
+                    validated = ValidateActivation(campaign.Object);
                 }
                 else if (newState == ObjectState.INACTIVE)
                 {
-                    validated = ValidateDeactivation(_campaign);
+                    validated = ValidateDeactivation(campaign.Object);
                 }
 
                 if (!validated.IsOkStatusCode())
@@ -270,10 +291,10 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                if (PricingDAL.Update_Campaign(_campaign, contextData.UserId.Value))
+                if (PricingDAL.Update_Campaign(campaign.Object, contextData))
                 {
-                    SetInvalidationKeys(contextData);
-                    response.Object = Get(contextData, _campaign.Id)?.Object;
+                    SetInvalidationKeys(contextData, campaign.Object);
+                    response.Object = Get(contextData, campaign.Object.Id)?.Object;
                     response.SetStatus(eResponseStatus.OK);
                 }
                 else
@@ -321,12 +342,12 @@ namespace ApiLogic.Users.Managers
         /// check if can be activate
         /// </summary>
         /// <param name="object"></param>
-        private Status ValidateActivation(TriggerCampaign campaign)
+        private Status ValidateActivation(Campaign campaign)
         {
             var status = Status.Ok;
-            //Todo - Shir or Matan
+            //TODO SHIR or Matan - ValidateActivation
             //if (campaign.IsActive)
-            if (campaign.Status == 1 || campaign.State == ObjectState.ACTIVE)
+            if (campaign.State == ObjectState.ACTIVE)
             {
                 log.Error($"Campaign: {campaign.Id} is already active, campaign event: {campaign.CampaignJson}");
                 status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} is already active");
@@ -336,18 +357,7 @@ namespace ApiLogic.Users.Managers
                 log.Error($"Campaign: {campaign.Id} was ended at ({campaign.EndDate}), campaign event: {campaign.CampaignJson}");
                 status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} was ended");
             }
-            if (campaign.TriggerConditions == null || campaign.TriggerConditions.Count == 0)
-            {
-                log.Error($"Campaign: {campaign.Id} must have a t least a single trigger condition, campaign event: {campaign.CampaignJson}");
-                status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} must have a t least a single trigger condition");
-            }
-            if (campaign.DiscountConditions == null || campaign.DiscountConditions.Count == 0)
-            {
-                log.Error($"Campaign: {campaign.Id} must have a t least a single discount condition, campaign event: {campaign.CampaignJson}");
-                status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} must have a t least a single discount condition");
-            }
-
-            campaign.Status = status.IsOkStatusCode() ? 1 : 0;
+            
             return status;
         }
 
@@ -355,38 +365,34 @@ namespace ApiLogic.Users.Managers
         /// check if can be deactivate
         /// </summary>
         /// <param name="object"></param>
-        private Status ValidateDeactivation(TriggerCampaign campaign)
+        private Status ValidateDeactivation(Campaign campaign)
         {
+            // TODO SHIR / MATAN - ValidateDeactivation
             var status = Status.Ok;
             //if (!campaign.IsActive)
-            if (campaign.Status != 1)
-            {
-                log.Error($"Campaign: {campaign.Id} is not active, campaign event: {campaign.CampaignJson}");
-                status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} is not active");
-            }
+            //if (campaign.Status != 1)
+            //{
+            //    log.Error($"Campaign: {campaign.Id} is not active");
+            //    status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} is not active");
+            //}
 
-            campaign.Status = status.IsOkStatusCode() ? 1 : 0;
             return status;
         }
 
         private void ValidateParametersForUpdate(TriggerCampaign campaignToUpdate)
         {
-            //TODO - Shir
+            //TODO SHIR / MATAN - ValidateParametersForUpdate
         }
 
-        private void SetInvalidationKeys(ContextData contextData)
+        private void SetInvalidationKeys(ContextData contextData, Campaign campaign)
         {
-            // TODO SHIR - SetInvalidationKeys
+            var type = campaign.GetType().Name;
+            var invalidationKey = LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, type);
+            LayeredCache.Instance.SetInvalidationKey(invalidationKey);
         }
 
         public void PublishTriggerCampaign(int groupId, int domainId, ICampaignObject eventObject, ApiService apiService, ApiAction apiAction)
         {
-            //TODO - Shir: Check if campaign of this type is allowed for group
-            if (1 != 1)
-            {
-                return;
-            }
-
             var serviceEvent = new CampaignTriggerEvent()
             {
                 RequestId = KLogger.GetRequestId(),
@@ -401,89 +407,97 @@ namespace ApiLogic.Users.Managers
             publisher.Publish(serviceEvent);
         }
 
-        private GenericListResponse<T> SearchCampaignsByType<T>(ContextData contextData, CampaignSearchFilter filter) where T : Campaign, new()
+        private static List<T> ListCampaignsByType<T>(ContextData contextData, CampaignSearchFilter filter) where T : Campaign, new()
         {
-            var response = new GenericListResponse<T>();
+            List<T> list = null;
+
             try
             {
                 var type = typeof(T).Name;
-                IEnumerable<T> campaigns = null;
+                IEnumerable<CampaignDB> campaignsDB = null;
                 var key = LayeredCacheKeys.GetGroupCampaignKey(contextData.GroupId, type);
                 var cacheResult = LayeredCache.Instance.Get(key,
-                                                            ref campaigns,
-                                                            GetCampaignsByGroupId<T>,
+                                                            ref campaignsDB,
+                                                            ListCampaignsByGroupIdDB,
                                                             new Dictionary<string, object>() { { "groupId", contextData.GroupId } },
                                                             contextData.GroupId,
-                                                            LayeredCacheConfigNames.GET_GROUP_CAMPAIGNS,
+                                                            LayeredCacheConfigNames.LIST_CAMPAIGNS_BY_GROUP_ID,
                                                             new List<string>() { LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, type) });
 
-                if (campaigns != null && campaigns.Count() > 0)
+                if (campaignsDB != null && campaignsDB.Count() > 0)
                 {
+                    if (filter.StateEqual.HasValue)
+                    {
+                        campaignsDB = campaignsDB.Where(x => x.State <= filter.StateEqual.Value);
+                    }
+
                     if (filter.StartDateGreaterThanOrEqual.HasValue)
                     {
-                        campaigns = campaigns.Where(x => x.StartDate >= filter.StartDateGreaterThanOrEqual.Value);
+                        campaignsDB = campaignsDB.Where(x => x.StartDate >= filter.StartDateGreaterThanOrEqual.Value);
                     }
 
                     if (filter.EndDateLessThanOrEqual.HasValue)
                     {
-                        campaigns = campaigns.Where(x => x.EndDate <= filter.EndDateLessThanOrEqual.Value);
+                        campaignsDB = campaignsDB.Where(x => x.EndDate <= filter.EndDateLessThanOrEqual.Value);
                     }
 
                     if (filter.ContainDiscountModel.HasValue)
                     {
                         if (filter.ContainDiscountModel.Value)
                         {
-                            campaigns = campaigns.Where(x => x.DiscountModuleId.HasValue);
+                            campaignsDB = campaignsDB.Where(x => x.DiscountModuleId.HasValue);
                         }
                         else
                         {
-                            campaigns = campaigns.Where(x => !x.DiscountModuleId.HasValue);
+                            campaignsDB = campaignsDB.Where(x => !x.DiscountModuleId.HasValue);
                         }
                     }
 
-                    response.Objects.AddRange(campaigns);
+                    var ids = campaignsDB.Select(x => x.Id).ToList();
+                    list = PricingDAL.ListCampaignByType<T>(contextData.GroupId, ids);
                 }
-
-                response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
-                log.Error($"ex: {ex}", ex);
-                response.SetStatus(eResponseStatus.Error, $"Couldn't get list of campaigns for group: {contextData.GroupId}");
+                log.Error($"Failed to ListCampaignsByType contextData:{contextData}, ex: {ex}", ex);
             }
 
-            return response;
+            return list;
         }
 
-        private static Tuple<IEnumerable<T>, bool> GetCampaignsByGroupId<T>(Dictionary<string, object> arg) where T : Campaign, new()
+        private static List<Campaign> ListCampaignByIds(ContextData contextData, List<long> ids)
         {
+            List<Campaign> list = null;
+
+            try
+            {
+                list = PricingDAL.ListCampaignByIds(contextData.GroupId, ids);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to ListCampaignByIds contextData:{contextData}, ex: {ex}", ex);
+            }
+
+            return list;
+        }
+
+        private static Tuple<IEnumerable<CampaignDB>, bool> ListCampaignsByGroupIdDB(Dictionary<string, object> arg)
+        {
+            IEnumerable<CampaignDB> list = null;
+
             try
             {
                 var groupId = (int)arg["groupId"];
-                var contextData = new ContextData(groupId);
-                var list = PricingDAL.List_Campaign<T>(contextData);
-                return new Tuple<IEnumerable<T>, bool>(list, true);
+                list = PricingDAL.ListCampaignsByGroupId(groupId);
             }
             catch (Exception ex)
             {
-                log.Error($"Failed to get Campaign list from DB group:[{arg["groupId"]}], ex: {ex}", ex);
-                return new Tuple<IEnumerable<T>, bool>(Enumerable.Empty<T>(), false);
+                log.Error($"Failed to GetCampaignsByGroupId group:[{arg["groupId"]}], ex: {ex}", ex);
             }
+
+            return new Tuple<IEnumerable<CampaignDB>, bool>(list, list != null);
         }
 
-        // TODO SHIR
-        // 1. list by group id -> return ALL CAMPAIGNS
-        // SP:
-        //1. get all camp by group -> get all object as is from db
-
-        //cache:
-        //2.filter by state(lazy archive?) 
-        //private GenericListResponse<T> ListCampaignsByState<T>(ContextData contextData, CampaignSearchFilter filter) where T : Campaign, new()
-        //{
-
-        //}
-
-        //none cache:
-        //3. FILTER BY id - ask ira
+        // TODO SHIR -.filter by state(lazy archive?) 
     }
 }

@@ -25,25 +25,19 @@ namespace WebAPI.Models.API
     [Serializable]
     public partial class KalturaCampaignFilter : KalturaCrudFilter<KalturaCampaignOrderBy, Campaign>
     {
-        public KalturaCampaignFilter() : base()
-        {
-        }
+        public KalturaCampaignFilter() : base() { }
 
         public override KalturaCampaignOrderBy GetDefaultOrderByValue()
         {
             return KalturaCampaignOrderBy.NONE;
         }
 
-        public override void Validate()
-        {
-        }
+        public override void Validate() { }
 
         public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
         {
-            // TODO SHIR - LIST ALL
-            var coreFilter = AutoMapper.Mapper.Map<CampaignFilter>(this);
-            //return CampaignManager.Instance.List(contextData, coreFilter, pager);
-            return null;
+            var filter = new KalturaCampaignSearchFilter();
+            return filter.List(contextData, pager);
         }
     }
 
@@ -115,10 +109,8 @@ namespace WebAPI.Models.API
 
         public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
         {
-            // TODO SHIR - LIST ALL
             var coreFilter = AutoMapper.Mapper.Map<CampaignSearchFilter>(this);
-            //return CampaignManager.Instance.List(contextData, coreFilter, pager);
-            return null;
+            return CampaignManager.Instance.SearchCampaigns(contextData, coreFilter, pager);
         }
     }
 
@@ -126,10 +118,20 @@ namespace WebAPI.Models.API
     {
         public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
         {
-            // TODO SHIR - LIST TRIGGER
+            var response = new GenericListResponse<Campaign>();
             var coreFilter = AutoMapper.Mapper.Map<TriggerCampaignFilter>(this);
-            //return CampaignManager.Instance.ListTriggerCampaigns(contextData, coreFilter, pager);
-            return null;
+            var triggerCampaignResponse = CampaignManager.Instance.ListTriggerCampaigns(contextData, coreFilter, pager);
+
+            response.SetStatus(triggerCampaignResponse.Status);
+
+            if (!response.IsOkStatusCode())
+            {    
+                return response;
+            }
+
+            response.Objects.AddRange(triggerCampaignResponse.Objects);
+            response.TotalItems = triggerCampaignResponse.TotalItems;
+            return response;
         }
     }
 
@@ -137,10 +139,20 @@ namespace WebAPI.Models.API
     {
         public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
         {
-            // TODO SHIR - LIST BATCH
+            var response = new GenericListResponse<Campaign>();
             var coreFilter = AutoMapper.Mapper.Map<BatchCampaignFilter>(this);
-            //return CampaignManager.Instance.ListBatchCampaigns(contextData, coreFilter, pager);
-            return null;
+            var batchCampaignResponse = CampaignManager.Instance.ListBatchCampaigns(contextData, coreFilter, pager);
+
+            response.SetStatus(batchCampaignResponse.Status);
+
+            if (!response.IsOkStatusCode())
+            {
+                return response;
+            }
+
+            response.Objects.AddRange(batchCampaignResponse.Objects);
+            response.TotalItems = batchCampaignResponse.TotalItems;
+            return response;
         }
     }
 }

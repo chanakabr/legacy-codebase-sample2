@@ -20164,10 +20164,6 @@ namespace WebAPI.Models.API
             {
                 ret.Add("state", "\"state\": " + "\"" + Enum.GetName(typeof(KalturaObjectState), State) + "\"");
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("status")))
-            {
-                ret.Add("status", "\"status\": " + Status);
-            }
             if(SystemName != null && (retrievedProperties == null || retrievedProperties.Contains("systemName")))
             {
                 ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(SystemName) + "\"");
@@ -20235,10 +20231,6 @@ namespace WebAPI.Models.API
             if((retrievedProperties == null || retrievedProperties.Contains("state")))
             {
                 ret.Add("state", "<state>" + "" + Enum.GetName(typeof(KalturaObjectState), State) + "" + "</state>");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("status")))
-            {
-                ret.Add("status", "<status>" + Status + "</status>");
             }
             if(SystemName != null && (retrievedProperties == null || retrievedProperties.Contains("systemName")))
             {

@@ -1839,46 +1839,104 @@ namespace DAL
             return string.Format("household_coupon_wallet:{0}", householdId);
         }
 
-
-        public static bool Update_Campaign<T>(T campaign, long updaterId) where T : Campaign, new()
+        public static T AddCampaign<T>(T campaign, ContextData contextData) where T : Campaign, new()
         {
-            campaign.UpdaterId = updaterId;
+            campaign.UpdaterId = contextData.UserId.Value;
+
+            var sp = new StoredProcedure("Insert_Campaign");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", contextData.GroupId);
+            sp.AddParameter("@createDate", campaign.CreateDate);
+            sp.AddParameter("@startDate", campaign.StartDate);
+            sp.AddParameter("@endDate", campaign.EndDate);
+            sp.AddParameter("@type", (int)campaign.CampaignType);
+            sp.AddParameter("@discount_module_id", campaign.DiscountModuleId);
+            sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
+
+            return sp.ExecuteDataSet().Tables[0].ToList<T>().FirstOrDefault();
+        }
+
+        public static bool Update_Campaign(Campaign campaign, ContextData contextData)
+        {
+            campaign.UpdaterId = contextData.UserId.Value;
 
             var sp = new StoredProcedure("Update_Campaign");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@id", campaign.Id);
-            sp.AddParameter("@groupId", campaign.GroupId);
+            sp.AddParameter("@groupId", contextData.GroupId);
             sp.AddParameter("@startDate", campaign.StartDate);
             sp.AddParameter("@endDate", campaign.EndDate);
-            sp.AddParameter("@status", campaign.Status);
             sp.AddParameter("@state", campaign.State);
+            sp.AddParameter("@discount_module_id", campaign.DiscountModuleId);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static List<T> List_Campaign<T>(ContextData contextData) where T : Campaign, new()
+        public static List<CampaignDB> ListCampaignsByGroupId(int groupId)
         {
-            var sp = new StoredProcedure("List_Campaign");
+            var sp = new StoredProcedure("List_CampaignsByGroupId");
             sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", contextData.GroupId);
+            sp.AddParameter("@groupId", groupId);
+            return sp.ExecuteDataSet().Tables[0].ToList<CampaignDB>();
+        }
+
+        public static List<T> ListCampaignByType<T>(int groupId, List<long> ids) where T : Campaign, new()
+        {
+            var sp = new StoredProcedure("List_CampaignByIds");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter("@IDs", ids, "ID");
+
+            var list = new List<T>();
+            var tb = sp.ExecuteDataSet().Tables[0];
+            var CAMPAIGNS_JSON = sp.ExecuteDataSet().Tables[0].ToList<T>();
+
+            foreach (DataRow item in tb.Rows)
+            {
+                // TODO SHIR CHECK DeserializeObject
+                //campaign_json == batch
+                // T == trigger
+                // DeserializeObject -> trigger ?!!?
+                var campaign = JsonConvert.DeserializeObject<T>(ODBCWrapper.Utils.GetSafeStr(item, "campaign_json"));
+            }
+
+            //triggerCampaigns = triggerCampaigns.Select(tc => JsonConvert.DeserializeObject<T>(tc.CampaignJson)).ToList();
+
+            //var triggerCampaign = sp.ExecuteDataSet().Tables[0].ToList<DataRow>().Select(x =>  JsonConvert.DeserializeObject<T>(ODBCWrapper.Utils.GetSafeStr(x, "campaign_json")));
+            //response.Objects = response.Objects.Select(cmp => JsonConvert.DeserializeObject<TriggerCampaign>(cmp.CampaignJson)).ToList();
+
             return sp.ExecuteDataSet().Tables[0].ToList<T>();
         }
 
-        public static T AddCampaign<T>(T campaign) where T : Campaign, new()
+        public static List<Campaign> ListCampaignByIds(int groupId, List<long> ids)
         {
-            var sp = new StoredProcedure("Insert_Campaign");
+            var sp = new StoredProcedure("List_CampaignByIds");
             sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", campaign.GroupId);
-            sp.AddParameter("@createDate", campaign.CreateDate);
-            sp.AddParameter("@startDate", campaign.StartDate);
-            sp.AddParameter("@endDate", campaign.EndDate);
-            //TODO - MATAN:
-            //sp.AddParameter("@updaterId", campaign.UpdaterId);
-            //sp.AddParameter("@status", campaign.Status);
-            sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter("@IDs", ids, "ID");
 
-            return sp.ExecuteDataSet().Tables[0].ToList<T>().FirstOrDefault();
+            var list = new List<Campaign>();
+            var tb = sp.ExecuteDataSet().Tables[0];
+            if (tb != null)
+            {
+                foreach (DataRow dr in tb.Rows)
+                {
+                    var type = ODBCWrapper.Utils.GetIntSafeVal(dr, "type");
+                    if (type == (int)eCampaignType.Trigger)
+                    {
+                        var triggerCampaign = JsonConvert.DeserializeObject<TriggerCampaign>(ODBCWrapper.Utils.GetSafeStr(dr, "campaign_json"));
+                        list.Add(triggerCampaign);
+                    }
+                    else if (type == (int)eCampaignType.Batch)
+                    {
+                        var batchCampaign = JsonConvert.DeserializeObject<BatchCampaign>(ODBCWrapper.Utils.GetSafeStr(dr, "campaign_json"));
+                        list.Add(batchCampaign);
+                    }
+                }
+            }
+
+            return list;
         }
     }
 }

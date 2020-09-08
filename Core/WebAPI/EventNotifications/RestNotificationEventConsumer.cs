@@ -66,14 +66,6 @@ namespace WebAPI
             string actionString = "None";
 
             var actionEvent = objectEvent as KalturaObjectActionEvent;
-
-            //TODO? - Shir or Matan
-            if (actionEvent.Time == eKalturaEventTime.After)
-            {
-                //new campaign event
-                //add cached call to partner has campaigns - not here, if contains trigger campaign
-            }
-
             if (actionEvent != null)
             {
                 actionString = actionEvent.Action.ToString();

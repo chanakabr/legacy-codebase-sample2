@@ -5,18 +5,46 @@ using ApiObjects.Rules;
 
 namespace ApiObjects
 {
-    public abstract class Campaign : ICrudHandeledObject
+    public enum eCampaignType
+    {
+        Trigger = 1,
+        Batch = 2
+    }
+
+    public enum ObjectState
+    {
+        INACTIVE = 0,
+        ACTIVE = 1,
+        ARCHIVE = 2
+    }
+
+    public interface ICampaignObject
+    {
+        IConditionScope ConvertToConditionScope(ContextData contextData);
+    }
+
+    public class CampaignDB
+    {
+        [DBFieldMapping("ID")]
+        public long Id { get; set; }
+
+        [DBFieldMapping("state")]
+        public ObjectState State { get; set; }
+
+        [DBFieldMapping("start_date")]
+        public long StartDate { get; set; }
+
+        [DBFieldMapping("end_date")]
+        public long EndDate { get; set; }
+
+        [DBFieldMapping("discount_module_id")]
+        public long? DiscountModuleId { get; set; }
+    }
+
+    public abstract class Campaign : CampaignDB, ICrudHandeledObject
     {
         #region Data members
 
-        #endregion
-        [DBFieldMapping("ID")]
-        public long Id { get; set; }
-        
-        [DBFieldMapping("group_id")]
-        public long GroupId { get; set; }
-        
-        [DBFieldMapping("create_date")]
         public long CreateDate { get; set; }
         
         public long UpdateDate { get; set; }
@@ -27,39 +55,27 @@ namespace ApiObjects
         
         public string Description { get; set; }
 
-        [DBFieldMapping("state")]
-        public ObjectState State { get; set; }
-
-        [DBFieldMapping("status")]
-        public int Status { get; set; }
-
-        [DBFieldMapping("updater_id")]
         public long UpdaterId { get; set; }
-
-        public long? DiscountModuleId { get; set; }
         
         public string Message { get; set; }
         
         public List<KeyValuePair<string, string>> DaynamicData { get; set; }
 
-        [DBFieldMapping("start_date")]
-        public long StartDate { get; set; }
-
-        [DBFieldMapping("end_date")]
-        public long EndDate { get; set; }
-
+        // TODO SHIR - WE NEED THAT?? campaign_json
         [DBFieldMapping("campaign_json")]
         public string CampaignJson { get; set; }
-
-        public Campaign()
-        {
-        }
 
         [JsonProperty(PropertyName = "discountConditions",
                       TypeNameHandling = TypeNameHandling.Auto,
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<Rules.RuleCondition> DiscountConditions { get; set; }
+
+        #endregion
+
+        public abstract eCampaignType CampaignType { get; }
+
+        public Campaign() { }
 
         public bool EvaluateDiscountConditions(Rules.IConditionScope scope)
         {
@@ -139,7 +155,9 @@ namespace ApiObjects
 
         public ApiService Service { get; set; }
         public ApiAction Action { get; set; }
-        
+
+        public override eCampaignType CampaignType { get { return eCampaignType.Trigger; } }
+
         public bool EvaluateTriggerConditions(ICampaignObject campaignObject, ContextData contextData)
         {
             if (TriggerConditions != null && TriggerConditions.Count > 0)
@@ -159,7 +177,7 @@ namespace ApiObjects
         /// <summary>
         /// Fill current TriggerCampaign data members with given TriggerCampaign only if they are empty\null
         /// </summary>
-        /// <param name="oldRule">given assetRule to fill with</param>
+        /// <param name="oldCampaign">given TriggerCampaign to fill with</param>
         public void FillEmpty(TriggerCampaign oldCampaign)
         {
             base.FillEmpty(oldCampaign);
@@ -193,13 +211,6 @@ namespace ApiObjects
         DomainDevice = 0
     }
 
-    public enum ObjectState
-    {
-        INACTIVE = 0,
-        ACTIVE = 1,
-        ARCHIVE = 2
-    }
-
     public class BatchCampaign : Campaign
     {
         [JsonProperty(PropertyName = "PopulationConditions",
@@ -208,7 +219,9 @@ namespace ApiObjects
               ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<Rules.RuleCondition> PopulationConditions { get; set; }
 
-        // TODO SHIR BatchCampaign
+        public override eCampaignType CampaignType { get { return eCampaignType.Batch; } }
+
+        // TODO SHIR / MATAN BatchCampaign
 
         ///// <summary>
         ///// Fill current AssetRule data members with given assetRule only if they are empty\null
@@ -216,7 +229,7 @@ namespace ApiObjects
         ///// <param name="oldRule">given assetRule to fill with</param>
         //internal void FillEmpty(KalturaBusinessModuleRule oldRule)
         //{
-        //    // TODO shir - WWE NEED THIS
+        //    // TODO shir / MATAN- FillEmpty BatchCampaign
         //    if (oldRule != null)
         //    {
         //        this.CreateDate = oldRule.CreateDate;
@@ -238,9 +251,4 @@ namespace ApiObjects
         //    }
         //}
     }
-
-    public interface ICampaignObject
-    {
-        IConditionScope ConvertToConditionScope(ContextData contextData);
-    } 
 }

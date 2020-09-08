@@ -720,7 +720,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetGroupCampaignKey(int groupId, string type)
         {
-            return $"group_campaign_{groupId}_{type}";
+            return $"group_campaign_{groupId}_type_{type}";
         }
 
         #endregion

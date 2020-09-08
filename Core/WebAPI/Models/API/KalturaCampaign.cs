@@ -86,15 +86,6 @@ namespace WebAPI.Models.API
         public long EndDate { get; set; }
 
         /// <summary>
-        /// status
-        /// </summary>
-        [DataMember(Name = "status")]
-        [JsonProperty("status")]
-        [XmlElement(ElementName = "status")]
-        [SchemeProperty(ReadOnly = true)]
-        public int Status { get; set; }
-
-        /// <summary>
         /// state
         /// </summary>
         [DataMember(Name = "state")]
@@ -151,7 +142,7 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForAdd()
         {
-            //TODO Shir or Matan
+            //TODO Shir or Matan - ValidateForAdd 
             // validate start & end dates
 
             if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
