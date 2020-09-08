@@ -324,11 +324,15 @@ namespace ObjectsConvertor.Mapping
             ;
 
             cfg.CreateMap<KalturaDeviceReferenceDataFilter, DeviceReferenceDataFilter>()
-               .ForMember(dest => dest.DeviceReferenceDataIdsIn, opt => opt.MapFrom(src => src.IdIn))
-                ;
+               .ForMember(dest => dest.DeviceReferenceDataIdsIn, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.IdIn, "KalturaDeviceReferenceDataFilter.IdIn", true, false)))
+            ;
 
             cfg.CreateMap<KalturaDeviceManufacturersReferenceDataFilter, DeviceManufacturersReferenceDataFilter>()
                 .IncludeBase<KalturaDeviceReferenceDataFilter, DeviceReferenceDataFilter>()
+                ;
+
+            cfg.CreateMap<DeviceManufacturersReferenceDataFilter, KalturaDeviceManufacturersReferenceDataFilter>()
+                .IncludeBase<DeviceReferenceDataFilter, KalturaDeviceReferenceDataFilter>()
                 ;
         }
 

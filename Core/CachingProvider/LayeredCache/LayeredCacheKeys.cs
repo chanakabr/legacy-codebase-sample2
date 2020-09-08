@@ -583,7 +583,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDeviceReferenceDataByGroupKey(int groupId)
         {
-            return string.Format("device_reference_data_by_group_{0}", groupId);
+            return string.Format("device_reference_data_by_group_V1_{0}", groupId);
         }
 
         public static string GetSSOAdapaterImplementationsKey(int adapterId)
