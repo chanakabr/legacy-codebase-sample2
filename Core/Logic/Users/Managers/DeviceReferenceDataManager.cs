@@ -37,7 +37,10 @@ namespace ApiLogic.Users.Managers
                 if (delete == null || !delete.Object)
                     response.Set(eResponseStatus.Error, $"Failed to delete Device Reference Data, id: {id}");
                 else
+                {
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(contextData.GroupId));
                     response.Set(eResponseStatus.OK);
+                }
             }
 
             return response;
