@@ -68,8 +68,9 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
             response.AdapterStatusCode = (AdapterStatusCode)result.Status;
 
             var implementedMethods = result.ImplementedMethods.Select(m => (SSOMethods)m).ToList();
-
-            response.ImplementedMethods.AddRange(implementedMethods);
+            var extendedImplementedMethods = result.ImplementedMethodsExtend.Select(m=> (SSOMethods)m).ToList();
+            var allMethods = implementedMethods.Concat(extendedImplementedMethods).Distinct();
+            response.ImplementedMethods.AddRange(allMethods);
             response.SendWelcomeEmail = result.SendWelcomeEmail;
             return Task.FromResult(response);
         }
