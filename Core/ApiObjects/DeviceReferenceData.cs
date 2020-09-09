@@ -14,19 +14,6 @@ namespace ApiObjects
         {
             return -1;
         }
-
-        public bool CompareAndFill(DeviceReferenceData newObject)
-        {
-            if (newObject == null)
-            {
-                return false;
-            }
-
-            Name = newObject.Name ?? Name;
-            Status = newObject.Status ?? Status;
-
-            return true;
-        }
     }
 
     public class DeviceManufacturerInformation : DeviceReferenceData {

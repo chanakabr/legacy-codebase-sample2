@@ -816,7 +816,7 @@ namespace DAL
             if (id == -1)
             {
                 response.SetStatus(ApiObjects.Response.eResponseStatus.AlreadyExist, 
-                    $"Device Reference of type: {(DeviceInformationType)coreObject.Type} already exist with name: {coreObject.Name}");
+                    $"Device Reference already exist with name: {coreObject.Name}");
             }
             else if (id > 0)
             {
@@ -868,6 +868,7 @@ namespace DAL
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupId);
             sp.AddParameter("@id", coreObject.Id);
+            sp.AddParameter("@type", coreObject.Type);
             sp.AddParameter("@name", coreObject.Name);
             sp.AddParameter("@updaterId", updaterId);
             sp.AddParameter("@status", coreObject.Status);
