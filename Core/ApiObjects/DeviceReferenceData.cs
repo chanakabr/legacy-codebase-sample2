@@ -8,7 +8,12 @@ namespace ApiObjects
         public long Id { get; set; }
         public string Name { get; set; }
         public bool? Status { get; set; }
-        public virtual int GetType() { return -1; }
+        public int Type { get; set; }
+
+        public virtual int GetType()
+        {
+            return -1;
+        }
 
         public bool CompareAndFill(DeviceReferenceData newObject)
         {
@@ -24,8 +29,7 @@ namespace ApiObjects
         }
     }
 
-    public class DeviceManufacturerInformation : DeviceReferenceData
-    {
+    public class DeviceManufacturerInformation : DeviceReferenceData {
         public override int GetType()
         {
             return (int)DeviceInformationType.Manufacturer;
@@ -34,6 +38,6 @@ namespace ApiObjects
 
     public enum DeviceInformationType
     {
-        Manufacturer
+        Manufacturer = 1
     }
 }

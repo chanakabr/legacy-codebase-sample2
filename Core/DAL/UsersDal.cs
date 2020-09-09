@@ -816,7 +816,7 @@ namespace DAL
             if (id == -1)
             {
                 response.SetStatus(ApiObjects.Response.eResponseStatus.AlreadyExist, 
-                    $"Device Reference of type: {(DeviceInformationType)coreObject.GetType()} already exist with name: {coreObject.Name}");
+                    $"Device Reference of type: {(DeviceInformationType)coreObject.Type} already exist with name: {coreObject.Name}");
             }
             else if (id > 0)
             {
@@ -850,7 +850,8 @@ namespace DAL
                             res.Add(new DeviceManufacturerInformation
                             {
                                 Id = Utils.GetLongSafeVal(dt.Rows[i], "id"),
-                                Name = Utils.GetSafeStr(dt.Rows[i], "name")
+                                Name = Utils.GetSafeStr(dt.Rows[i], "name"),
+                                Type = (int)DeviceInformationType.Manufacturer
                             });
                         }
                     }

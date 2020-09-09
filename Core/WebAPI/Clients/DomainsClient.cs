@@ -463,7 +463,7 @@ namespace WebAPI.Clients
             var referenceData = DeviceReferenceDataManager.Instance.GetReferenceData(groupId);
             if (device.ManufacturerId.HasValue)
             {
-                var manufacturers = referenceData?.Where(manufacturer => manufacturer.GetType() == (long)DeviceInformationType.Manufacturer);
+                var manufacturers = referenceData?.Where(manufacturer => manufacturer.Type == (int)DeviceInformationType.Manufacturer);
                 if (manufacturers != null && !manufacturers.Select(manufacturer => manufacturer.Id).Contains(device.ManufacturerId.Value))
                 {
                     throw new ClientException((int)StatusCode.Error, "Manufacturer Id doesn't exists");

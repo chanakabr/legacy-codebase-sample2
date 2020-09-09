@@ -72,7 +72,7 @@ namespace ApiLogic.Users.Managers
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(groupId));
                 else
                 {
-                    log.Info($"Cannot Add Device Reference Data from type: {(DeviceInformationType)coreObject.GetType()}");
+                    log.Info($"Cannot Add Device Reference Data from type: {(DeviceInformationType)coreObject.Type}");
                     response.SetStatus(response.Status);
                 }
             }
@@ -100,7 +100,7 @@ namespace ApiLogic.Users.Managers
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(groupId));
                 else
                 {
-                    log.Info($"Cannot update device information from type: {(DeviceInformationType)coreObject.GetType()}");
+                    log.Info($"Cannot update device information from type: {(DeviceInformationType)coreObject.Type}");
                     response.SetStatus(eResponseStatus.Error, "Cannot update device information");
                 }
             }
@@ -171,7 +171,7 @@ namespace ApiLogic.Users.Managers
 
             if (filter is DeviceManufacturersReferenceDataFilter)
             {
-                response.Objects = response.Objects?.Where(rd => rd.GetType() == (int)DeviceInformationType.Manufacturer).ToList();
+                response.Objects = response.Objects?.Where(rd => rd.Type == (int)DeviceInformationType.Manufacturer).ToList();
             }
 
             if (filter.DeviceReferenceDataIdsIn != null && filter.DeviceReferenceDataIdsIn.Count > 0)
