@@ -861,9 +861,9 @@ namespace DAL
             return res;
         }
 
-        public static ApiObjects.Response.GenericResponse<DeviceReferenceData> UpdateDeviceReferenceData(int groupId, long? updaterId, DeviceReferenceData coreObject)
+        public static ApiObjects.Response.Status UpdateDeviceReferenceData(int groupId, long? updaterId, DeviceReferenceData coreObject)
         {
-            var response = new ApiObjects.Response.GenericResponse<DeviceReferenceData>();
+            var response = new ApiObjects.Response.Status(ApiObjects.Response.eResponseStatus.Error);
             var sp = new StoredProcedure("Update_DeviceReferenceData");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupId);
@@ -875,12 +875,9 @@ namespace DAL
             var id = sp.ExecuteReturnValue<int>();
 
             if (id > 0)
-            {
-                response.Object = GetDeviceReferenceData(groupId)?.Where(m => m.Id == id).FirstOrDefault();
-                response.SetStatus(ApiObjects.Response.eResponseStatus.OK);
-            }
+                response = new ApiObjects.Response.Status(ApiObjects.Response.eResponseStatus.OK);
             else
-                response.SetStatus(ApiObjects.Response.eResponseStatus.Error, $"Failed updating {coreObject.Name}");
+                response = new ApiObjects.Response.Status(ApiObjects.Response.eResponseStatus.Error, $"Failed updating {coreObject.Name}");
 
             return response;
         }

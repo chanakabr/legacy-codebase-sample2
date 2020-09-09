@@ -93,11 +93,16 @@ namespace ApiLogic.Users.Managers
             var updaterId = contextData.UserId;
             try
             {
-                response = UsersDal.UpdateDeviceReferenceData
+                var _response = UsersDal.UpdateDeviceReferenceData
                         (groupId, updaterId, coreObject);
 
-                if (response.IsOkStatusCode())
+                if (_response.IsOkStatusCode())
+                {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(groupId));
+                    var list = GetReferenceData(groupId);
+                    response.Object = list?.Where(refObj => refObj.Id == coreObject.Id).FirstOrDefault();
+                    response.SetStatus(eResponseStatus.OK);
+                }
                 else
                 {
                     log.Info($"Cannot update device information from type: {(DeviceInformationType)coreObject.Type}");
