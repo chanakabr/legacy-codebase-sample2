@@ -868,7 +868,6 @@ namespace DAL
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupId);
             sp.AddParameter("@id", coreObject.Id);
-            sp.AddParameter("@type", coreObject.Type);
             sp.AddParameter("@name", coreObject.Name);
             sp.AddParameter("@updaterId", updaterId);
             sp.AddParameter("@status", coreObject.Status);
