@@ -114,17 +114,27 @@ namespace Core.Notification
                     systemMessages = new List<string>();
                 }
 
-                var userMessages = NotificationDal.GetUserMessagesView(groupId, userId, false, CreatedAtGreaterThanOrEqual);
-                if (userMessages == null)
-                {
-                    log.DebugFormat("No user inbox message. {0}", logData);
-
-                    // user has empty inbox.
-                    userMessages = new List<InboxMessage>();
-                }
-
-                // TODO SHIR / MATAN - GetInboxMessages GET ALL CAMPAIGNS
                 // --------------------------------
+                // TODO SHIR / MATAN - GetInboxMessages GET ALL CAMPAIGNS
+                //get all valid batch campaigns(by dates and status = active).
+
+                var batchFilter = new BatchCampaignFilter()
+                {
+                    StartDateGreaterThanOrEqual = 0,
+                    StateEqual = ObjectState.ACTIVE
+                };
+
+                 //get all existing user’s batch campaigns(all existing user’s campaign messages).
+
+                //remove shared campaigns from all campaigns list(In order to "reduce the cost" of finding the campaigns that are suitable for the user).
+
+                //filter relevant campaigns by populationConditions.
+
+                //add all relevant campaigns to user’s inbox message with TTL by the end date of the campaign.
+                
+
+
+
                 //var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(new ApiObjects.Base.ContextData(groupId) { UserId = userId }, null, null);
                 //var campaignMappings = NotificationDal.GetCampaignInboxMessageMapCB(groupId, userId);
                 //if (campaignMappings == null)
@@ -138,9 +148,19 @@ namespace Core.Notification
                 //    campaignMessages = new List<InboxMessage>();
                 //}
 
+                // --------------------------------
+
+                var userMessages = NotificationDal.GetUserMessagesView(groupId, userId, false, CreatedAtGreaterThanOrEqual);
+                if (userMessages == null)
+                {
+                    log.DebugFormat("No user inbox message. {0}", logData);
+
+                    // user has empty inbox.
+                    userMessages = new List<InboxMessage>();
+                }
+
                 // merge System InboxMessages To UserInbox
                 MergeSystemInboxMessagesToUserInbox(groupId, userId, logData, systemMessages, ref userMessages);
-                // --------------------------------
 
                 // in case messageCategorys  is null, no filter. get all.
                 if (messageCategorys == null)

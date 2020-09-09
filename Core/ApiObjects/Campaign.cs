@@ -28,17 +28,20 @@ namespace ApiObjects
         [DBFieldMapping("ID")]
         public long Id { get; set; }
 
-        [DBFieldMapping("state")]
-        public ObjectState State { get; set; }
-
         [DBFieldMapping("start_date")]
         public long StartDate { get; set; }
 
         [DBFieldMapping("end_date")]
         public long EndDate { get; set; }
 
-        [DBFieldMapping("discount_module_id")]
-        public long? DiscountModuleId { get; set; }
+        [DBFieldMapping("has_promotion")]
+        public bool HasPromotion { get; set; }
+
+        [DBFieldMapping("state")]
+        public ObjectState State { get; set; }
+
+        [DBFieldMapping("type")]
+        public int type { get; set; }
     }
 
     public abstract class Campaign : CampaignDB, ICrudHandeledObject
@@ -59,17 +62,13 @@ namespace ApiObjects
         
         public string Message { get; set; }
         
-        public List<KeyValuePair<string, string>> DaynamicData { get; set; }
+        public List<long> CollectionIds { get; set; }
 
         // TODO SHIR - WE NEED THAT?? campaign_json
         [DBFieldMapping("campaign_json")]
         public string CampaignJson { get; set; }
 
-        [JsonProperty(PropertyName = "discountConditions",
-                      TypeNameHandling = TypeNameHandling.Auto,
-                      ItemTypeNameHandling = TypeNameHandling.Auto,
-                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<Rules.RuleCondition> DiscountConditions { get; set; }
+        public Promotion Promotion { get; set; }
 
         #endregion
 
@@ -77,44 +76,23 @@ namespace ApiObjects
 
         public Campaign() { }
 
-        public bool EvaluateDiscountConditions(Rules.IConditionScope scope)
-        {
-            if (DiscountConditions != null && DiscountConditions.Count > 0)
-            {
-                foreach (var condition in DiscountConditions)
-                {
-                    scope.RuleId = this.Id;
-
-                    if (!condition.Evaluate(scope))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
         /// <summary>
         /// Fill current Campaign data members with given Campaign only if they are empty\null
         /// </summary>
         /// <param name="oldRule">given assetRule to fill with</param>
         public virtual void FillEmpty(Campaign oldCampaign)
         {
-            if (this.DaynamicData == null)
+            if (this.CollectionIds == null)
             {
-                this.DaynamicData = oldCampaign.DaynamicData;
+                this.CollectionIds = oldCampaign.CollectionIds;
             }
             if (string.IsNullOrEmpty(this.Description))
             {
                 this.Description = oldCampaign.Description;
             }
-            if (this.DiscountConditions == null)
+            if (this.Promotion == null)
             {
-                this.DiscountConditions = oldCampaign.DiscountConditions;
-            }
-            if (this.DiscountModuleId == null)
-            {
-                this.DiscountModuleId = oldCampaign.DiscountModuleId;
+                this.Promotion = oldCampaign.Promotion;
             }
             if (this.EndDate == default)
             {
@@ -182,17 +160,6 @@ namespace ApiObjects
         {
             base.FillEmpty(oldCampaign);
 
-            // TODO MATAN / shir - FILL EMPTY TriggerCampaign
-            //if (string.IsNullOrEmpty(campaignToUpdate.Action))
-            //{
-            //    campaignToUpdate.Action = campaign.Action;
-            //}
-
-            //if (string.IsNullOrEmpty(campaignToUpdate.Service))
-            //{
-            //    campaignToUpdate.Service = campaign.Service;
-            //}
-
             if (this.TriggerConditions == null)
             {
                 this.TriggerConditions = oldCampaign.TriggerConditions;
@@ -221,34 +188,33 @@ namespace ApiObjects
 
         public override eCampaignType CampaignType { get { return eCampaignType.Batch; } }
 
-        // TODO SHIR / MATAN BatchCampaign
+        public bool EvaluatePopulationConditions(IConditionScope scope)
+        {
+            if (PopulationConditions != null && PopulationConditions.Count > 0)
+            {
+                foreach (var condition in PopulationConditions)
+                {
+                    if (!condition.Evaluate(scope))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
 
-        ///// <summary>
-        ///// Fill current AssetRule data members with given assetRule only if they are empty\null
-        ///// </summary>
-        ///// <param name="oldRule">given assetRule to fill with</param>
-        //internal void FillEmpty(KalturaBusinessModuleRule oldRule)
-        //{
-        //    // TODO shir / MATAN- FillEmpty BatchCampaign
-        //    if (oldRule != null)
-        //    {
-        //        this.CreateDate = oldRule.CreateDate;
+        /// <summary>
+        /// Fill current BatchCampaign data members with given BatchCampaign only if they are empty\null
+        /// </summary>
+        /// <param name="oldCampaign">given BatchCampaign to fill with</param>
+        public void FillEmpty(BatchCampaign oldCampaign)
+        {
+            base.FillEmpty(oldCampaign);
 
-        //        if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
-        //        {
-        //            this.Name = oldRule.Name;
-        //        }
-
-        //        if (this.Description == null)
-        //        {
-        //            this.Description = oldRule.Description;
-        //        }
-
-        //        if (this.Conditions == null)
-        //        {
-        //            this.Conditions = oldRule.Conditions;
-        //        }
-        //    }
-        //}
+            if (this.PopulationConditions == null)
+            {
+                this.PopulationConditions = oldCampaign.PopulationConditions;
+            }
+        }
     }
 }

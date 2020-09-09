@@ -15,13 +15,16 @@ namespace WebAPI.Models.API
     /// </summary>
     public partial class KalturaTriggerCampaign : KalturaCampaign
     {
-        /// <summary>
-        /// List of conditions for the trigger (conditions on the object)
-        /// </summary>
-        [DataMember(Name = "triggerConditions")]
-        [JsonProperty("triggerConditions")]
-        [XmlElement(ElementName = "triggerConditions")]
-        public List<KalturaCondition> TriggerConditions { get; set; }
+        private static readonly HashSet<KalturaRuleConditionType> VALID_TRIGGER_CONDITIONS = new HashSet<KalturaRuleConditionType>()
+        {
+            KalturaRuleConditionType.OR,
+            KalturaRuleConditionType.DEVICE_BRAND,
+            KalturaRuleConditionType.DEVICE_FAMILY,
+            KalturaRuleConditionType.DEVICE_UDID,
+            KalturaRuleConditionType.DEVICE_MODEL,
+            KalturaRuleConditionType.DEVICE_MANUFACTURER,
+            KalturaRuleConditionType.SEGMENTS
+        };
 
         /// <summary>
         /// service
@@ -39,6 +42,14 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "action")]
         public KalturaApiAction Action { get; set; }
 
+        /// <summary>
+        /// List of conditions for the trigger (conditions on the object)
+        /// </summary>
+        [DataMember(Name = "triggerConditions")]
+        [JsonProperty("triggerConditions")]
+        [XmlElement(ElementName = "triggerConditions")]
+        public List<KalturaCondition> TriggerConditions { get; set; }
+
         internal override void ValidateForAdd()
         {
             base.ValidateForAdd();
@@ -48,16 +59,7 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "triggerConditions");
             }
 
-            // TODO MATAN - VALIDATE TriggerConditions TYPE
-            foreach (var condition in this.TriggerConditions)
-            {
-                if (condition.Type != KalturaRuleConditionType.OR)
-                {
-                    throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "triggerConditions", condition.objectType);
-                }
-
-                condition.Validate();
-            }
+            ValidateConditions();
         }
 
         internal override GenericResponse<Campaign> Add(ContextData contextData)
@@ -75,9 +77,31 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForUpdate()
         {
-            // TODO MATAN - WHAT NEED TO BE VALIDATE?
             base.ValidateForUpdate();
+
+            if (this.TriggerConditions != null)
+            {
+                ValidateConditions();
+            }
         }        
+
+        private void ValidateConditions()
+        {
+            if (TriggerConditions.Count > 50)
+            {
+                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "triggerConditions", 50);
+            }
+
+            foreach (var condition in this.TriggerConditions)
+            {
+                if (!VALID_TRIGGER_CONDITIONS.Contains(condition.Type))
+                {
+                    throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "triggerConditions", condition.objectType);
+                }
+
+                condition.Validate();
+            }
+        }
     }
 
     public enum KalturaApiAction

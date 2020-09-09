@@ -1839,6 +1839,8 @@ namespace DAL
             return string.Format("household_coupon_wallet:{0}", householdId);
         }
 
+        #region Campaign
+
         public static T AddCampaign<T>(T campaign, ContextData contextData) where T : Campaign, new()
         {
             campaign.UpdaterId = contextData.UserId.Value;
@@ -1846,11 +1848,10 @@ namespace DAL
             var sp = new StoredProcedure("Insert_Campaign");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", contextData.GroupId);
-            sp.AddParameter("@createDate", campaign.CreateDate);
             sp.AddParameter("@startDate", campaign.StartDate);
             sp.AddParameter("@endDate", campaign.EndDate);
+            sp.AddParameter("@has_promotion", campaign.Promotion != null ? 1 : 0);
             sp.AddParameter("@type", (int)campaign.CampaignType);
-            sp.AddParameter("@discount_module_id", campaign.DiscountModuleId);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
             return sp.ExecuteDataSet().Tables[0].ToList<T>().FirstOrDefault();
@@ -1866,9 +1867,19 @@ namespace DAL
             sp.AddParameter("@groupId", contextData.GroupId);
             sp.AddParameter("@startDate", campaign.StartDate);
             sp.AddParameter("@endDate", campaign.EndDate);
+            sp.AddParameter("@has_promotion", campaign.Promotion != null ? 1 : 0);
             sp.AddParameter("@state", campaign.State);
-            sp.AddParameter("@discount_module_id", campaign.DiscountModuleId);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool DeleteCampaign(long groupId, long campaignId)
+        {
+            var sp = new StoredProcedure("Delete_Campaign");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@id", campaignId);
+            sp.AddParameter("@groupId", groupId);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
@@ -1938,5 +1949,7 @@ namespace DAL
 
             return list;
         }
+
+        #endregion 
     }
 }

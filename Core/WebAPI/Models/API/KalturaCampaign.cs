@@ -27,6 +27,42 @@ namespace WebAPI.Models.API
         public long Id { get; set; }
 
         /// <summary>
+        /// Create date of the rule
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty(PropertyName = "createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Update date of the rule
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty(PropertyName = "updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
+        /// <summary>
+        /// Start date of the rule
+        /// </summary>
+        [DataMember(Name = "startDate")]
+        [JsonProperty(PropertyName = "startDate")]
+        [XmlElement(ElementName = "startDate")]
+        [SchemeProperty(MinLong = 1)]
+        public long StartDate { get; set; }
+
+        /// <summary>
+        /// End date of the rule
+        /// </summary>
+        [DataMember(Name = "endDate")]
+        [JsonProperty(PropertyName = "endDate")]
+        [XmlElement(ElementName = "endDate")]
+        [SchemeProperty(MinLong = 2)]
+        public long EndDate { get; set; }
+
+        /// <summary>
         /// Name
         /// </summary>
         [DataMember(Name = "name")]
@@ -52,40 +88,6 @@ namespace WebAPI.Models.API
         public string Description { get; set; }
 
         /// <summary>
-        /// Create date of the rule
-        /// </summary>
-        [DataMember(Name = "createDate")]
-        [JsonProperty(PropertyName = "createDate")]
-        [XmlElement(ElementName = "createDate")]
-        [SchemeProperty(ReadOnly = true)]
-        public long CreateDate { get; set; }
-
-        /// <summary>
-        /// Update date of the rule
-        /// </summary>
-        [DataMember(Name = "updateDate")]
-        [JsonProperty(PropertyName = "updateDate")]
-        [XmlElement(ElementName = "updateDate")]
-        [SchemeProperty(ReadOnly = true)]
-        public long UpdateDate { get; set; }
-
-        /// <summary>
-        /// Start date of the rule
-        /// </summary>
-        [DataMember(Name = "startDate")]
-        [JsonProperty(PropertyName = "startDate")]
-        [XmlElement(ElementName = "startDate")]
-        public long StartDate { get; set; }
-
-        /// <summary>
-        /// End date of the rule
-        /// </summary>
-        [DataMember(Name = "endDate")]
-        [JsonProperty(PropertyName = "endDate")]
-        [XmlElement(ElementName = "endDate")]
-        public long EndDate { get; set; }
-
-        /// <summary>
         /// state
         /// </summary>
         [DataMember(Name = "state")]
@@ -95,29 +97,13 @@ namespace WebAPI.Models.API
         public KalturaObjectState State { get; set; }
 
         /// <summary>
-        /// The discount module id that is promoted to the user
+        /// The Promotion that is promoted to the user
         /// </summary>
-        [DataMember(Name = "discountModuleId")]
-        [JsonProperty("discountModuleId")]
-        [XmlElement(ElementName = "discountModuleId")]
+        [DataMember(Name = "promotion")]
+        [JsonProperty("promotion")]
+        [XmlElement(ElementName = "promotion")]
         [SchemeProperty(IsNullable = true)]
-        public long? DiscountModuleId { get; set; }
-
-        /// <summary>
-        /// These conditions define the discount that apply one the campaign
-        /// </summary>
-        [DataMember(Name = "discountConditions")]
-        [JsonProperty("discountConditions")]
-        [XmlElement(ElementName = "discountConditions")]
-        public List<KalturaCondition> DiscountConditions { get; set; }
-
-        /// <summary>
-        /// list of free strings to the user that gives information about the campaign.
-        /// </summary>
-        [DataMember(Name = "dynamicData")]
-        [JsonProperty("dynamicData")]
-        [XmlElement(ElementName = "dynamicData")]
-        public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
+        public KalturaPromotion Promotion { get; set; }
 
         /// <summary>
         /// Free text message to the user that gives information about the campaign.
@@ -128,10 +114,19 @@ namespace WebAPI.Models.API
         [SchemeProperty(MaxLength = 1200)]
         public string Message { get; set; }
 
+        /// <summary>
+        /// Comma separated collection IDs list
+        /// </summary>
+        [DataMember(Name = "collectionIdIn")]
+        [JsonProperty("collectionIdIn")]
+        [XmlElement(ElementName = "collectionIdIn")]
+        public string CollectionIdIn { get; set; }
+
         public KalturaCampaign()
         {
 
         }
+        
         internal override ICrudHandler<Campaign, long> Handler
         {
             get
@@ -142,7 +137,7 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForAdd()
         {
-            var now = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
+            ValidateDates();
 
             if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
             {
@@ -159,32 +154,9 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "message");
             }
 
-            if (this.DiscountModuleId.HasValue && (this.DiscountConditions == null || this.DiscountConditions.Count == 0))
+            if (Promotion != null)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "discountConditions");
-            }
-
-            if (this.DiscountConditions != null && this.DiscountConditions.Count > 0)
-            {
-                if (!this.DiscountModuleId.HasValue)
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "discountModuleId");
-                }
-
-                foreach (var condition in this.DiscountConditions)
-                {
-                    condition.Validate();
-                }
-            }
-
-            if (EndDate <= now)
-            {
-                throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "EndDate");
-            }
-
-            if (EndDate <= StartDate)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "EndDate", "StartDate");
+                Promotion.Validate();
             }
         }
 
@@ -195,8 +167,31 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForUpdate()
         {
-            // TODO SHIR - WHAT NEED TO BE VALIDATE?
-            //get list count of all, if has active 500 and activating the 501 return error
+            ValidateDates();
+
+            if (Promotion != null)
+            {
+                Promotion.Validate();
+            }
+        }
+
+        private void ValidateDates()
+        {
+            var now = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
+            if (EndDate <= now)
+            {
+                throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "EndDate");
+            }
+
+            if (StartDate < now)
+            {
+                throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "StartDate");
+            }
+
+            if (EndDate <= StartDate)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "EndDate", "StartDate");
+            }
         }
     }
 

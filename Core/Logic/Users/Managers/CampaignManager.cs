@@ -30,8 +30,37 @@ namespace ApiLogic.Users.Managers
 
         public Status Delete(ContextData contextData, long id)
         {
-            // TODO SHIR \ MATAN - Delete Campaign
-            throw new NotImplementedException();
+            var response = Status.Error;
+
+            try
+            {
+                var campaignToDeleteResponse = Get(contextData, id);
+                if (!campaignToDeleteResponse.HasObject())
+                {
+                    response.Set(campaignToDeleteResponse.Status);
+                    return response;
+                }
+
+                if (campaignToDeleteResponse.Object.State != ObjectState.INACTIVE)
+                {
+                    response.Set(eResponseStatus.CanDeleteOnlyInactiveCampaign, "Can delete only inactive campaign");
+                }
+
+                if (!PricingDAL.DeleteCampaign(contextData.GroupId, id))
+                {
+                    response.Set(eResponseStatus.Error, "Error while deleting Campaign");
+                    return response;
+                }
+
+                SetInvalidationKeys(contextData, campaignToDeleteResponse.Object);
+                response.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while delete Campaign. contextData: {contextData}, ex: {ex}", ex);
+            }
+
+            return response;
         }
 
         public GenericResponse<Campaign> Get(ContextData contextData, long id)
@@ -172,14 +201,11 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                if (campaignToAdd.DiscountModuleId.HasValue)
+                var validateStatus = ValidateCampaign(contextData, campaignToAdd);
+                if (!validateStatus.IsOkStatusCode())
                 {
-                    var discounts = Core.Pricing.Module.GetValidDiscounts(contextData.GroupId);
-                    if (!discounts.HasObjects() || !discounts.Objects.Any(x => x.Id == campaignToAdd.DiscountModuleId.Value))
-                    {
-                        response.SetStatus(eResponseStatus.DiscountCodeNotExist);
-                        return response;
-                    }
+                    response.SetStatus(validateStatus);
+                    return response;
                 }
 
                 campaignToAdd.State = ObjectState.INACTIVE;
@@ -232,7 +258,13 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                ValidateParametersForUpdate(campaignToUpdate);
+                var validateStatus = ValidateCampaign(contextData, campaignToUpdate);
+                if (!validateStatus.IsOkStatusCode())
+                {
+                    response.SetStatus(validateStatus);
+                    return response;
+                }
+
                 campaignToUpdate.FillEmpty(campaign);
                 campaignToUpdate.UpdateDate = DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
@@ -379,9 +411,22 @@ namespace ApiLogic.Users.Managers
             return status;
         }
 
-        private void ValidateParametersForUpdate(TriggerCampaign campaignToUpdate)
+        private Status ValidateCampaign(ContextData contextData, Campaign campaignToUpdate)
         {
             //TODO SHIR / MATAN - ValidateParametersForUpdate
+            var status = Status.Error;
+            if (campaignToUpdate.Promotion != null)
+            {
+                var discounts = Core.Pricing.Module.GetValidDiscounts(contextData.GroupId);
+                if (!discounts.HasObjects() || !discounts.Objects.Any(x => x.Id == campaignToUpdate.Promotion.DiscountModuleId))
+                {
+                    status.Set(eResponseStatus.DiscountCodeNotExist);
+                    return status;
+                }
+            }
+
+            status.Set(eResponseStatus.OK);
+            return status;
         }
 
         private void SetInvalidationKeys(ContextData contextData, Campaign campaign)
@@ -441,15 +486,15 @@ namespace ApiLogic.Users.Managers
                         campaignsDB = campaignsDB.Where(x => x.EndDate <= filter.EndDateLessThanOrEqual.Value);
                     }
 
-                    if (filter.ContainDiscountModel.HasValue)
+                    if (filter.HasPromotion.HasValue)
                     {
-                        if (filter.ContainDiscountModel.Value)
+                        if (filter.HasPromotion.Value)
                         {
-                            campaignsDB = campaignsDB.Where(x => x.DiscountModuleId.HasValue);
+                            campaignsDB = campaignsDB.Where(x => x.HasPromotion);
                         }
                         else
                         {
-                            campaignsDB = campaignsDB.Where(x => !x.DiscountModuleId.HasValue);
+                            campaignsDB = campaignsDB.Where(x => !x.HasPromotion);
                         }
                     }
 

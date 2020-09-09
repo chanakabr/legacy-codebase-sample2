@@ -99,13 +99,13 @@ namespace WebAPI.Models.API
         public KalturaObjectState? StateEqual { get; set; }
 
         /// <summary>
-        /// Contain Discount Model
+        /// has Promotion
         /// </summary>
-        [DataMember(Name = "containDiscountModel")]
-        [JsonProperty("containDiscountModel")]
-        [XmlElement(ElementName = "containDiscountModel", IsNullable = true)]
+        [DataMember(Name = "hasPromotion")]
+        [JsonProperty("hasPromotion")]
+        [XmlElement(ElementName = "hasPromotion", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public bool? ContainDiscountModel { get; set; }
+        public bool? HasPromotion { get; set; }
 
         public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
         {
@@ -114,7 +114,7 @@ namespace WebAPI.Models.API
         }
     }
 
-    public partial class KalturaTriggerCampaignSearchFilter : KalturaCampaignFilter
+    public partial class KalturaTriggerCampaignSearchFilter : KalturaCampaignSearchFilter
     {
         public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
         {
@@ -135,7 +135,7 @@ namespace WebAPI.Models.API
         }
     }
 
-    public partial class KalturaBatchCampaignSearchFilter : KalturaCampaignFilter
+    public partial class KalturaBatchCampaignSearchFilter : KalturaCampaignSearchFilter
     {
         public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
         {

@@ -67,6 +67,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "campaignId")]
         [JsonProperty("campaignId")]
         [XmlElement(ElementName = "campaignId")]
+        [SchemeProperty(ReadOnly = true)]
         public long? CampaignId { get; set; }
     }
 }

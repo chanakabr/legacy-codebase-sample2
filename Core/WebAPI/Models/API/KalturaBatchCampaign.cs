@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 
 namespace WebAPI.Models.API
 {
@@ -24,8 +25,14 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForAdd()
         {
-            // TODO SHIR - WHAT NEED TO BE VALIDATE?
             base.ValidateForAdd();
+
+            if (this.PopulationConditions == null || this.PopulationConditions.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "populationConditions");
+            }
+
+            ValidateConditions();
         }
 
         internal override GenericResponse<Campaign> Add(ContextData contextData)
@@ -36,14 +43,31 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForUpdate()
         {
-            // TODO SHIR - WHAT NEED TO BE VALIDATE?
             base.ValidateForUpdate();
+
+            if (this.PopulationConditions != null)
+            {
+                ValidateConditions();
+            }
         }
 
         internal override GenericResponse<Campaign> Update(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<BatchCampaign>(this);
             return CampaignManager.Instance.UpdateBatchCampaign(contextData, coreObject);
+        }
+
+        private void ValidateConditions()
+        {
+            if (PopulationConditions.Count > 50)
+            {
+                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "populationConditions", 50);
+            }
+
+            foreach (var condition in this.PopulationConditions)
+            {
+                condition.Validate();
+            }
         }
     }
 }

@@ -20118,6 +20118,10 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(CollectionIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("collectionIdIn")))
+            {
+                ret.Add("collectionIdIn", "\"collectionIdIn\": " + "\"" + EscapeJson(CollectionIdIn) + "\"");
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
                 ret.Add("createDate", "\"createDate\": " + CreateDate);
@@ -20125,20 +20129,6 @@ namespace WebAPI.Models.API
             if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
-            }
-            if(DiscountConditions != null && (retrievedProperties == null || retrievedProperties.Contains("discountConditions")))
-            {
-                propertyValue = "[" + String.Join(", ", DiscountConditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("discountConditions", "\"discountConditions\": " + propertyValue);
-            }
-            if(DiscountModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountModuleId")))
-            {
-                ret.Add("discountModuleId", "\"discountModuleId\": " + DiscountModuleId);
-            }
-            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
-            {
-                propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
-                ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
             }
             if((retrievedProperties == null || retrievedProperties.Contains("endDate")))
             {
@@ -20155,6 +20145,11 @@ namespace WebAPI.Models.API
             if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(Promotion != null && (retrievedProperties == null || retrievedProperties.Contains("promotion")))
+            {
+                propertyValue = Promotion.ToJson(currentVersion, omitObsolete);
+                ret.Add("promotion", "\"promotion\": " + propertyValue);
             }
             if((retrievedProperties == null || retrievedProperties.Contains("startDate")))
             {
@@ -20186,6 +20181,10 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(CollectionIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("collectionIdIn")))
+            {
+                ret.Add("collectionIdIn", "<collectionIdIn>" + EscapeXml(CollectionIdIn) + "</collectionIdIn>");
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
                 ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
@@ -20193,20 +20192,6 @@ namespace WebAPI.Models.API
             if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
-            }
-            if(DiscountConditions != null && (retrievedProperties == null || retrievedProperties.Contains("discountConditions")))
-            {
-                propertyValue = DiscountConditions.Count > 0 ? "<item>" + String.Join("</item><item>", DiscountConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("discountConditions", "<discountConditions>" + propertyValue + "</discountConditions>");
-            }
-            if(DiscountModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountModuleId")))
-            {
-                ret.Add("discountModuleId", "<discountModuleId>" + DiscountModuleId + "</discountModuleId>");
-            }
-            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
-            {
-                propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
-                ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("endDate")))
             {
@@ -20223,6 +20208,11 @@ namespace WebAPI.Models.API
             if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(Promotion != null && (retrievedProperties == null || retrievedProperties.Contains("promotion")))
+            {
+                propertyValue = Promotion.ToXml(currentVersion, omitObsolete);
+                ret.Add("promotion", "<promotion>" + propertyValue + "</promotion>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("startDate")))
             {
@@ -20354,13 +20344,13 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(ContainDiscountModel.HasValue && (retrievedProperties == null || retrievedProperties.Contains("containDiscountModel")))
-            {
-                ret.Add("containDiscountModel", "\"containDiscountModel\": " + ContainDiscountModel.ToString().ToLower());
-            }
             if(EndDateLessThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDateLessThanOrEqual")))
             {
                 ret.Add("endDateLessThanOrEqual", "\"endDateLessThanOrEqual\": " + EndDateLessThanOrEqual);
+            }
+            if(HasPromotion.HasValue && (retrievedProperties == null || retrievedProperties.Contains("hasPromotion")))
+            {
+                ret.Add("hasPromotion", "\"hasPromotion\": " + HasPromotion.ToString().ToLower());
             }
             if(StartDateGreaterThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateGreaterThanOrEqual")))
             {
@@ -20384,13 +20374,13 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(ContainDiscountModel.HasValue && (retrievedProperties == null || retrievedProperties.Contains("containDiscountModel")))
-            {
-                ret.Add("containDiscountModel", "<containDiscountModel>" + ContainDiscountModel.ToString().ToLower() + "</containDiscountModel>");
-            }
             if(EndDateLessThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDateLessThanOrEqual")))
             {
                 ret.Add("endDateLessThanOrEqual", "<endDateLessThanOrEqual>" + EndDateLessThanOrEqual + "</endDateLessThanOrEqual>");
+            }
+            if(HasPromotion.HasValue && (retrievedProperties == null || retrievedProperties.Contains("hasPromotion")))
+            {
+                ret.Add("hasPromotion", "<hasPromotion>" + HasPromotion.ToString().ToLower() + "</hasPromotion>");
             }
             if(StartDateGreaterThanOrEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateGreaterThanOrEqual")))
             {
@@ -25270,6 +25260,62 @@ namespace WebAPI.Models.API
             {
                 propertyValue = PlaybackProfiles.Count > 0 ? "<item>" + String.Join("</item><item>", PlaybackProfiles.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPromotion
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Conditions != null && (retrievedProperties == null || retrievedProperties.Contains("conditions")))
+            {
+                propertyValue = "[" + String.Join(", ", Conditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("conditions", "\"conditions\": " + propertyValue);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("discountModuleId")))
+            {
+                ret.Add("discountModuleId", "\"discountModuleId\": " + DiscountModuleId);
+            }
+            if(NumberOfRecurring.HasValue && (retrievedProperties == null || retrievedProperties.Contains("numberOfRecurring")))
+            {
+                ret.Add("numberOfRecurring", "\"numberOfRecurring\": " + NumberOfRecurring);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Conditions != null && (retrievedProperties == null || retrievedProperties.Contains("conditions")))
+            {
+                propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("conditions", "<conditions>" + propertyValue + "</conditions>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("discountModuleId")))
+            {
+                ret.Add("discountModuleId", "<discountModuleId>" + DiscountModuleId + "</discountModuleId>");
+            }
+            if(NumberOfRecurring.HasValue && (retrievedProperties == null || retrievedProperties.Contains("numberOfRecurring")))
+            {
+                ret.Add("numberOfRecurring", "<numberOfRecurring>" + NumberOfRecurring + "</numberOfRecurring>");
             }
             return ret;
         }

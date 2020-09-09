@@ -1191,16 +1191,12 @@ namespace WebAPI.Reflection
                 case "KalturaCampaign":
                     switch(property.Name)
                     {
+                        case "CollectionIdIn":
+                            return "collectionIdIn";
                         case "CreateDate":
                             return "createDate";
                         case "Description":
                             return "description";
-                        case "DiscountConditions":
-                            return "discountConditions";
-                        case "DiscountModuleId":
-                            return "discountModuleId";
-                        case "DynamicData":
-                            return "dynamicData";
                         case "EndDate":
                             return "endDate";
                         case "Id":
@@ -1209,6 +1205,8 @@ namespace WebAPI.Reflection
                             return "message";
                         case "Name":
                             return "name";
+                        case "Promotion":
+                            return "promotion";
                         case "StartDate":
                             return "startDate";
                         case "State":
@@ -1231,10 +1229,10 @@ namespace WebAPI.Reflection
                 case "KalturaCampaignSearchFilter":
                     switch(property.Name)
                     {
-                        case "ContainDiscountModel":
-                            return "containDiscountModel";
                         case "EndDateLessThanOrEqual":
                             return "endDateLessThanOrEqual";
+                        case "HasPromotion":
+                            return "hasPromotion";
                         case "StartDateGreaterThanOrEqual":
                             return "startDateGreaterThanOrEqual";
                         case "StateEqual":
@@ -5363,6 +5361,18 @@ namespace WebAPI.Reflection
                             return "enableStartOver";
                         case "TrickPlayEnabled":
                             return "enableTrickPlay";
+                    }
+                    break;
+                    
+                case "KalturaPromotion":
+                    switch(property.Name)
+                    {
+                        case "Conditions":
+                            return "conditions";
+                        case "DiscountModuleId":
+                            return "discountModuleId";
+                        case "NumberOfRecurring":
+                            return "numberOfRecurring";
                     }
                     break;
                     
