@@ -88,9 +88,9 @@ namespace WebAPI.Models.Users
         internal void ValidateName()
         {
             //Numeric, words, underscore and spaces
-            if (!string.IsNullOrEmpty(Name) && !Regex.IsMatch(Name, @"^[a-zA-Z0-9_ ]*", RegexOptions.IgnoreCase))
+            if (!string.IsNullOrEmpty(Name) && !Regex.IsMatch(Name, @"^\w+$", RegexOptions.IgnoreCase))
             {
-                throw new ClientException((int)StatusCode.Error, "Field [Name] didn't passed validation");
+                throw new ClientException((int)StatusCode.Error, $"Field [Name] ({Name}) didn't passed validation");
             }
         }
     }

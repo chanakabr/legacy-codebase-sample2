@@ -455,9 +455,9 @@ namespace WebAPI.Clients
                 return;
             }
 
-            if (!string.IsNullOrEmpty(device.Model) && !Regex.IsMatch(device.Model, @"^[a-zA-Z0-9\_ ]+$", RegexOptions.IgnoreCase))
+            if (!string.IsNullOrEmpty(device.Model) && !Regex.IsMatch(device.Model, @"^\w+$", RegexOptions.IgnoreCase))
             {
-                throw new ClientException((int)StatusCode.Error, $"Model: {device.Name} didn't passed validation");
+                throw new ClientException((int)StatusCode.Error, $"Model: [{device.Model}] didn't passed validation");
             }
 
             var referenceData = DeviceReferenceDataManager.Instance.GetReferenceData(groupId);
