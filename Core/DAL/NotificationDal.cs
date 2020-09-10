@@ -1982,17 +1982,19 @@ namespace DAL
                 {
                     mapping = new CampaignInboxMessageMap();
                 }
-
-                var triggerIdsToDelete = mapping.TriggerCampaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
-                foreach (int triggerId in triggerIdsToDelete)
+                else
                 {
-                    mapping.TriggerCampaigns.Remove(triggerId);
-                }
+                    var triggerIdsToDelete = mapping.TriggerCampaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
+                    foreach (int triggerId in triggerIdsToDelete)
+                    {
+                        mapping.TriggerCampaigns.Remove(triggerId);
+                    }
 
-                var batchIdsToDelete = mapping.BatchCampaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
-                foreach (int batchId in batchIdsToDelete)
-                {
-                    mapping.BatchCampaigns.Remove(batchId);
+                    var batchIdsToDelete = mapping.BatchCampaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
+                    foreach (int batchId in batchIdsToDelete)
+                    {
+                        mapping.BatchCampaigns.Remove(batchId);
+                    }
                 }
             });
 

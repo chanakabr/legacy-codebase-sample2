@@ -248,10 +248,10 @@ namespace Core.Notification
             //get all valid batch campaigns(by dates and status = active).
             var utcNow = DateUtils.GetUtcUnixTimestampNow();
             var contextData = new ContextData(groupId) { UserId = userId };
+
             var batchFilter = new BatchCampaignFilter()
             {
-                StartDateGreaterThanOrEqual = utcNow,
-                EndDateGreaterThanOrEqual = utcNow,
+                IsActiveNow = true,
                 StateEqual = ObjectState.ACTIVE
             };
             var batchCampaignsResponse = ApiLogic.Users.Managers.CampaignManager.Instance.ListBatchCampaigns(contextData, batchFilter);

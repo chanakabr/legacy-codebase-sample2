@@ -505,9 +505,10 @@ namespace ApiLogic.Users.Managers
                         campaignsDB = campaignsDB.Where(x => x.EndDate <= filter.EndDateLessThanOrEqual.Value);
                     }
 
-                    if (filter.EndDateGreaterThanOrEqual.HasValue)
+                    if (filter.IsActiveNow)
                     {
-                        campaignsDB = campaignsDB.Where(x => x.EndDate >= filter.EndDateLessThanOrEqual.Value);
+                        var utcNow = DateUtils.GetUtcUnixTimestampNow();
+                        campaignsDB = campaignsDB.Where(x => x.StartDate <= utcNow && x.EndDate >= utcNow);
                     }
 
                     if (filter.HasPromotion.HasValue)
