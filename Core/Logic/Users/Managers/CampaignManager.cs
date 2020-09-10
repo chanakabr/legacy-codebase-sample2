@@ -384,7 +384,12 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                ValidateStateChange(campaign.Object, newState);
+                var validationStatus = ValidateStateChange(campaign.Object, newState);
+                if (!validationStatus.IsOkStatusCode())
+                {
+                    response.SetStatus(validationStatus);
+                    return response;
+                }
 
                 if (PricingDAL.Update_Campaign(campaign.Object, contextData))
                 {

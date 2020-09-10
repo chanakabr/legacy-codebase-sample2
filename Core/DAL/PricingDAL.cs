@@ -1931,15 +1931,17 @@ namespace DAL
             {
                 foreach (DataRow dr in tb.Rows)
                 {
-                    var type = ODBCWrapper.Utils.GetIntSafeVal(dr, "type");
+                    var type = Utils.GetIntSafeVal(dr, "type");
                     if (type == (int)eCampaignType.Trigger)
                     {
-                        var triggerCampaign = JsonConvert.DeserializeObject<TriggerCampaign>(ODBCWrapper.Utils.GetSafeStr(dr, "campaign_json"));
+                        var triggerCampaign = JsonConvert.DeserializeObject<TriggerCampaign>(Utils.GetSafeStr(dr, "campaign_json"));
+                        triggerCampaign.Id = Utils.GetLongSafeVal(dr, "id");
                         list.Add(triggerCampaign);
                     }
                     else if (type == (int)eCampaignType.Batch)
                     {
-                        var batchCampaign = JsonConvert.DeserializeObject<BatchCampaign>(ODBCWrapper.Utils.GetSafeStr(dr, "campaign_json"));
+                        var batchCampaign = JsonConvert.DeserializeObject<BatchCampaign>(Utils.GetSafeStr(dr, "campaign_json"));
+                        batchCampaign.Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
                         list.Add(batchCampaign);
                     }
                 }
