@@ -1852,9 +1852,15 @@ namespace DAL
             sp.AddParameter("@endDate", campaign.EndDate);
             sp.AddParameter("@has_promotion", campaign.Promotion != null ? 1 : 0);
             sp.AddParameter("@type", (int)campaign.CampaignType);
+            sp.AddParameter("@state", (int)campaign.State);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
-            return sp.ExecuteDataSet().Tables[0].ToList<T>().FirstOrDefault();
+            var response = sp.ExecuteDataSet().Tables[0].ToList<T>().FirstOrDefault();
+            if (response?.Id > 0)
+            {
+                response.State = campaign.State;
+            }
+            return response;
         }
 
         public static bool Update_Campaign(Campaign campaign, ContextData contextData)
@@ -1899,23 +1905,15 @@ namespace DAL
             sp.AddParameter("@groupId", groupId);
             sp.AddIDListParameter("@IDs", ids, "ID");
 
+            //TODO - Shir, select preferred method I guess
             var list = new List<T>();
             var tb = sp.ExecuteDataSet().Tables[0];
             var CAMPAIGNS_JSON = sp.ExecuteDataSet().Tables[0].ToList<T>();
 
             foreach (DataRow item in tb.Rows)
             {
-                // TODO SHIR CHECK DeserializeObject
-                //campaign_json == batch
-                // T == trigger
-                // DeserializeObject -> trigger ?!!?
                 var campaign = JsonConvert.DeserializeObject<T>(ODBCWrapper.Utils.GetSafeStr(item, "campaign_json"));
             }
-
-            //triggerCampaigns = triggerCampaigns.Select(tc => JsonConvert.DeserializeObject<T>(tc.CampaignJson)).ToList();
-
-            //var triggerCampaign = sp.ExecuteDataSet().Tables[0].ToList<DataRow>().Select(x =>  JsonConvert.DeserializeObject<T>(ODBCWrapper.Utils.GetSafeStr(x, "campaign_json")));
-            //response.Objects = response.Objects.Select(cmp => JsonConvert.DeserializeObject<TriggerCampaign>(cmp.CampaignJson)).ToList();
 
             return sp.ExecuteDataSet().Tables[0].ToList<T>();
         }

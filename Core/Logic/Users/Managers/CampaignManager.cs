@@ -208,7 +208,7 @@ namespace ApiLogic.Users.Managers
                 }
 
                 campaignToAdd.State = ObjectState.INACTIVE;
-                campaignToAdd.CreateDate = DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
+                campaignToAdd.CreateDate = DateUtils.GetUtcUnixTimestampNow();
                 campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
 
                 var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd, contextData);

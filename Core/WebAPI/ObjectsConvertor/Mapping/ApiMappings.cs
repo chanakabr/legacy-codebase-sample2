@@ -1368,7 +1368,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DeviceBrandIds, opt => opt.MapFrom(src => src.DeviceBrandIds != null ? string.Join(",", src.DeviceBrandIds) : null));
 
             //Campaign
-
             cfg.CreateMap<KalturaCampaign, Campaign>()
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
@@ -1377,6 +1376,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.Promotion, opt => opt.MapFrom(src => src.Promotion))
                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+               .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertObjectState(src.State)))
                .ForMember(dest => dest.CollectionIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.CollectionIdIn) ? src.GetItemsIn<List<long>, long>(src.CollectionIdIn, "collectionIdIn") : null))
                ;
 
@@ -1389,56 +1389,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-               .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State))
+               .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertObjectState(src.State)))
                .ForMember(dest => dest.Promotion, opt => opt.MapFrom(src => src.Promotion))
                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                .ForMember(dest => dest.CollectionIdIn, opt => opt.MapFrom(src => src.CollectionIds != null ? string.Join(",", src.CollectionIds) : null))
-                ;
-
-            cfg.CreateMap<KalturaObjectState, ObjectState>()
-                .ConvertUsing(objectState =>
-                {
-                    switch (objectState)
-                    {
-                        case KalturaObjectState.INACTIVE:
-                            return ObjectState.INACTIVE;
-                        case KalturaObjectState.ACTIVE:
-                            return ObjectState.ACTIVE;
-                        case KalturaObjectState.ARCHIVE:
-                            return ObjectState.ARCHIVE;
-                        default:
-                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaObjectState value: {objectState}.");
-                    }
-                });
-
-            cfg.CreateMap<ObjectState, KalturaObjectState>()
-               .ConvertUsing(objectState =>
-               {
-                   switch (objectState)
-                   {
-                       case ObjectState.INACTIVE:
-                           return KalturaObjectState.INACTIVE;
-                       case ObjectState.ACTIVE:
-                           return KalturaObjectState.ACTIVE;
-                       case ObjectState.ARCHIVE:
-                           return KalturaObjectState.ARCHIVE;
-                       default:
-                           throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown ObjectState value: {objectState}.");
-                   }
-               });
-
-            cfg.CreateMap<KalturaTriggerCampaign, TriggerCampaign>()
-                .IncludeBase<KalturaCampaign, Campaign>()
-                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
-                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
-                .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
-                ;
-
-            cfg.CreateMap<TriggerCampaign, KalturaTriggerCampaign>()
-                .IncludeBase<Campaign, KalturaCampaign>()
-                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
-                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
-                .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
                 ;
 
             cfg.CreateMap<KalturaApiService, ApiService>()
@@ -1503,6 +1457,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PopulationConditions, opt => opt.MapFrom(src => src.PopulationConditions))
                 ;
 
+            cfg.CreateMap<KalturaTriggerCampaign, TriggerCampaign>()
+                .IncludeBase<KalturaCampaign, Campaign>()
+                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
+                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+                .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
+                ;
+
+            cfg.CreateMap<TriggerCampaign, KalturaTriggerCampaign>()
+                .IncludeBase<Campaign, KalturaCampaign>()
+                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
+                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+                .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
+                ;
+
             cfg.CreateMap<KalturaCampaignFilter, CampaignFilter>();
             // TODO SHIR - ASK ODED FOR ORDER BY
             //.ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
@@ -1520,10 +1488,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.HasPromotion, opt => opt.MapFrom(src => src.HasPromotion));
 
             cfg.CreateMap<KalturaTriggerCampaignSearchFilter, TriggerCampaignFilter>()
-              .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>();
+              .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>()
+              ;
 
             cfg.CreateMap<KalturaBatchCampaignSearchFilter, BatchCampaignFilter>()
-              .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>();
+              .IncludeBase<KalturaCampaignSearchFilter, CampaignSearchFilter>()
+              ;
 
             #endregion
 
@@ -2073,6 +2043,37 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
         #region Private Convertors
+        private static KalturaObjectState ConvertObjectState(ObjectState? state)
+        {
+            switch (state)
+            {
+                case ObjectState.ACTIVE:
+                    return KalturaObjectState.ACTIVE;
+                case ObjectState.ARCHIVE:
+                    return KalturaObjectState.ARCHIVE;
+                case ObjectState.INACTIVE:
+                    return KalturaObjectState.INACTIVE;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Object State");
+
+            }
+        }
+
+        private static ObjectState ConvertObjectState(KalturaObjectState? state)
+        {
+            switch (state)
+            {
+                case KalturaObjectState.ACTIVE:
+                    return ObjectState.ACTIVE;
+                case KalturaObjectState.ARCHIVE:
+                    return ObjectState.ARCHIVE;
+                case KalturaObjectState.INACTIVE:
+                    return ObjectState.INACTIVE;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Object State");
+
+            }
+        }
 
         internal static StatsType ConvertAssetTypeToStatsType(AssetType type)
         {
