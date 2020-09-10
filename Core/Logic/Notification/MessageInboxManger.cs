@@ -283,7 +283,7 @@ namespace Core.Notification
                     //filter relevant campaigns by populationConditions.
                     foreach (var campaign in missingBatchCampaigns)
                     {
-                        var isValid = campaign.EvaluatePopulationConditions(scope);
+                        var isValid = campaign.EvaluateConditions(scope);
                         if (isValid)
                         {
                             //add all relevant campaigns to user’s inbox message with TTL by the end date of the campaign.

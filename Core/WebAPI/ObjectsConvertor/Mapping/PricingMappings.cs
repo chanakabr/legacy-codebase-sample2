@@ -127,6 +127,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
                .ForMember(dest => dest.PurchaseStatus, opt => opt.ResolveUsing(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
+               .ForMember(dest => dest.OriginalPrice, opt => opt.MapFrom(src => src.OriginalPrice))
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
                .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => KalturaTransactionType.subscription))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.endDate.HasValue ? src.endDate.Value : 0))

@@ -121,6 +121,9 @@ namespace ApiObjects
             
             // TODO SHIR / MATAN FILL EMPTY IN BASE
         }
+
+        public abstract bool EvaluateConditions(IConditionScope scope);
+
     }
 
     public class TriggerCampaign : Campaign
@@ -135,6 +138,11 @@ namespace ApiObjects
         public ApiAction Action { get; set; }
 
         public override eCampaignType CampaignType { get { return eCampaignType.Trigger; } }
+
+        public override bool EvaluateConditions(IConditionScope scope)
+        {
+            throw new System.NotImplementedException();
+        }
 
         public bool EvaluateTriggerConditions(ICampaignObject campaignObject, ContextData contextData)
         {
@@ -151,6 +159,8 @@ namespace ApiObjects
             }
             return true;
         }
+
+
 
         /// <summary>
         /// Fill current TriggerCampaign data members with given TriggerCampaign only if they are empty\null
@@ -188,7 +198,7 @@ namespace ApiObjects
 
         public override eCampaignType CampaignType { get { return eCampaignType.Batch; } }
 
-        public bool EvaluatePopulationConditions(IConditionScope scope)
+        public override bool EvaluateConditions(IConditionScope scope)
         {
             if (PopulationConditions != null && PopulationConditions.Count > 0)
             {

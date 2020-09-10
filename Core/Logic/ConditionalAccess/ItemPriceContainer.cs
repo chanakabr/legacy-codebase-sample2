@@ -40,18 +40,22 @@ namespace Core.ConditionalAccess
     {
         public string m_sSubscriptionCode;
         public Price m_oPrice;
+        public Price OriginalPrice;
         public PriceReason m_PriceReason;
         public long? endDate;
+
+        public long? CampaignId;
 
         public SubscriptionsPricesContainer()
         { }
 
-        public void Initialize(string sSubscriptionCode, Price oPrice, PriceReason ePriceReason, long? endDate = null)
+        public void Initialize(string sSubscriptionCode, Price oPrice, PriceReason ePriceReason, Price originalPrice, long? endDate = null)
         {
             m_sSubscriptionCode = sSubscriptionCode;
             m_oPrice = oPrice;
             m_PriceReason = ePriceReason;
             this.endDate = endDate;
+            OriginalPrice = originalPrice;
         }
 
     }

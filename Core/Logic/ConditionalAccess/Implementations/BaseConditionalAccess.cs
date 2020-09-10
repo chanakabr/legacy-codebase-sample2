@@ -6342,8 +6342,10 @@ namespace Core.ConditionalAccess
                         double couponRemainder = 0;
                         Subscription s = null;
                         SubscriptionCycle subscriptionCycle = null;
+                        Price originalPrice = null;
+
                         Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, ref coupon, ref theReason, ref s, string.Empty, languageCode, udid, ip,
-                                                                      ref subscriptionCycle, out couponRemainder, currencyCode, false, blockEntitlement);
+                                                                      ref subscriptionCycle, out couponRemainder, out originalPrice, currencyCode, false, blockEntitlement);
 
                         if (price != null)
                         {
@@ -6353,7 +6355,7 @@ namespace Core.ConditionalAccess
                             {
                                 endDate = subscriptionCycle.UnifiedBillingCycle.endDate;
                             }
-                            cont.Initialize(subscriptionCode, price, theReason, endDate);
+                            cont.Initialize(subscriptionCode, price, theReason, originalPrice, endDate);
                             resp.Add(cont);
                         }
                     }

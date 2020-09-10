@@ -1054,9 +1054,11 @@ namespace Core.ConditionalAccess
                 bool isGiftCard = false;
                 Price priceResponse = null;
                 double couponRemainder = 0;
+                Price originalPrice = null;
                 var subscriptionCycle = new SubscriptionCycle(); // there is a unified billingCycle for this subscription cycle
+
                 priceResponse = Utils.GetSubscriptionFinalPrice(contextData.GroupId, productId.ToString(), userId, ref couponCode, ref priceReason, ref subscription, country, string.Empty,
-                                                                contextData.Udid, contextData.UserIp, ref subscriptionCycle, out couponRemainder, currency, isSubscriptionSetModifySubscription);
+                                                                contextData.Udid, contextData.UserIp, ref subscriptionCycle, out couponRemainder, out originalPrice, currency, isSubscriptionSetModifySubscription);
 
                 if (subscription == null)
                 {

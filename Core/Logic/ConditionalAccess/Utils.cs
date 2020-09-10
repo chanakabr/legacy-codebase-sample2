@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Api.Managers;
+using ApiLogic.Users.Managers;
 using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using APILogic.ConditionalAccess.Managers;
@@ -1275,9 +1276,10 @@ namespace Core.ConditionalAccess
             string ip = string.Empty;
             SubscriptionCycle subscriptionCycle = null;
             double couponRemainder = 0;
+            Price originalPrice = null;
 
             return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref subscription, countryCode, languageCode, udid, ip,
-                                             ref subscriptionCycle, out couponRemainder);
+                                             ref subscriptionCycle, out couponRemainder, out originalPrice);
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription subscription,
@@ -1285,18 +1287,21 @@ namespace Core.ConditionalAccess
         {
             SubscriptionCycle subscriptionCycle = null;
             double couponRemainder = 0;
+            Price originalPrice = null;
+
             return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref subscription, countryCode, languageCode, udid, ip, ref subscriptionCycle,
-                                            out couponRemainder, currencyCode, isSubscriptionSetModifySubscription);
+                                            out couponRemainder, out originalPrice, currencyCode, isSubscriptionSetModifySubscription);
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, ref string couponCode, ref PriceReason theReason, ref Subscription subscription,
                                                         string countryCode, string languageCode, string udid, string ip, ref SubscriptionCycle subscriptionCycle,
-                                                        out double couponRemainder, string currencyCode = null, bool isSubscriptionSetModifySubscription = false,
+                                                        out double couponRemainder, out Price originalPrice, string currencyCode = null, bool isSubscriptionSetModifySubscription = false,
                                                         BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
             //create web service pricing insatance
             Price finalPrice = null;
             couponRemainder = 0;
+            originalPrice = null;
 
             try
             {
@@ -1341,8 +1346,11 @@ namespace Core.ConditionalAccess
 
                 DiscountModule externalDiscount;
                 PriceCode priceCode = subscription.m_oSubscriptionPriceCode;
-                finalPrice = HandlePriceCodeAndExternalDiscount(blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION, ref theReason, groupId, ref currencyCode, ip, userId,
+                originalPrice = HandlePriceCodeAndExternalDiscount(blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION, ref theReason, groupId, ref currencyCode, ip, userId,
                                                            ref countryCode, subscription.m_oExtDisountModule, out externalDiscount, ref priceCode);
+
+                finalPrice = CopyPrice(originalPrice);
+
                 subscription.m_oSubscriptionPriceCode = priceCode;
                 if (theReason != PriceReason.ForPurchase)
                 {
@@ -1394,7 +1402,6 @@ namespace Core.ConditionalAccess
                         discountPrice = GetPriceAfterDiscount(finalPrice, externalDiscount, 0);
                     }
 
-                    var originalPrice = CopyPrice(finalPrice);
                     finalPrice = GetLowestPrice(groupId, finalPrice, domainId, discountPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode),
                                                 countryCode, ref couponCode, subscription.m_oCouponsGroup, subscription.CouponsGroups, null);
 
@@ -1639,6 +1646,16 @@ namespace Core.ConditionalAccess
         {
             Price lowestPrice = discountPrice ?? currentPrice;
 
+            if (transactionType == eTransactionType.Subscription)
+            {
+                var campaign = GetValidCampaign(groupId, domainId, allUserIdsInDomain, currentPrice, lowestPrice, transactionType, currencyCode, businessModuleId, countryCode);
+
+                if (campaign != null)
+                {
+                    return lowestPrice;
+                }
+            }
+
             if (BusinessModuleRuleManager.IsActionTypeRuleExists(groupId, RuleActionType.ApplyDiscountModuleRule))
             {
                 if (allUserIdsInDomain == null || allUserIdsInDomain.Count == 0)
@@ -1647,34 +1664,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // get all segments in domain
-                List<long> segmentIds = new List<long>();
-
-                if (allUserIdsInDomain?.Count > 0)
-                {
-                    //BEO-8004
-                    string key = $"usersSegmentIds_{domainId}";
-                    if (!LayeredCache.Instance.TryGetKeyFromCurrentRequest<List<long>>(key, ref segmentIds)) 
-                    {
-                        segmentIds = new List<long>();
-                        foreach (var userInDomain in allUserIdsInDomain)
-                        {
-                            var userSegments = Api.Module.GetUserSegments(groupId, userInDomain, null, 0, 0);
-                            if (userSegments != null && userSegments.HasObjects())
-                            {
-                                segmentIds.AddRange(userSegments.Objects.Select(x => x.SegmentId));
-                            }
-                        }
-
-                        if (segmentIds.Count > 0)
-                        {
-                            segmentIds = segmentIds.Distinct().ToList();
-                        }
-
-                        Dictionary<string, List<long>> resultsToAdd = new Dictionary<string, List<long>>();
-                        resultsToAdd.Add(key, segmentIds);
-                        LayeredCache.Instance.InsertResultsToCurrentRequest<List<long>>(resultsToAdd, null);
-                    }
-                }
+                List<long> segmentIds = GetDomainSegments(groupId, domainId, allUserIdsInDomain);
                 
                 // calc lowest price
                 ConditionScope filter = new ConditionScope()
@@ -1708,10 +1698,7 @@ namespace Core.ConditionalAccess
                         }
                     }
                 }
-
-                // TODO SHIR - calc lowest price by campaign only for subscription
             }
-
 
             if (lowestPrice.IsFree() || transactionType == eTransactionType.PPV || string.IsNullOrEmpty(couponCode)) { return lowestPrice; }
 
@@ -1734,6 +1721,140 @@ namespace Core.ConditionalAccess
             }
 
             return lowestPrice;
+        }
+
+        private static List<long> GetDomainSegments(int groupId, long domainId, List<string> userIds)
+        {
+            List<long> segmentIds = new List<long>();
+            if (userIds?.Count > 0)
+            {
+                //BEO-8004
+                string key = $"usersSegmentIds_{domainId}";
+                if (!LayeredCache.Instance.TryGetKeyFromCurrentRequest<List<long>>(key, ref segmentIds))
+                {
+                    segmentIds = new List<long>();
+                    foreach (var userId in userIds)
+                    {
+                        var userSegments = Api.Module.GetUserSegments(groupId, userId, null, 0, 0);
+                        if (userSegments != null && userSegments.HasObjects())
+                        {
+                            segmentIds.AddRange(userSegments.Objects.Select(x => x.SegmentId));
+                        }
+                    }
+
+                    int totalCount = 0;
+                    var householdSegment = ApiObjects.Segmentation.HouseholdSegment.List(groupId, domainId, out totalCount);
+                    if (totalCount > 0)
+                    {
+                        segmentIds.AddRange(householdSegment.Select(x => x.SegmentId));
+                    }
+
+                    if (segmentIds.Count > 0)
+                    {
+                        segmentIds = segmentIds.Distinct().ToList();
+                    }
+
+                    Dictionary<string, List<long>> resultsToAdd = new Dictionary<string, List<long>>();
+                    resultsToAdd.Add(key, segmentIds);
+                    LayeredCache.Instance.InsertResultsToCurrentRequest<List<long>>(resultsToAdd, null);
+                }
+            }
+
+            return segmentIds;
+        }
+
+        private static ApiObjects.Campaign GetValidCampaign(int groupId, int domainId, List<string> allUserIdsInDomain, 
+            Price currentPrice, Price lowestPrice, eTransactionType transactionType, string currencyCode, long businessModuleId, string countryCode)
+        {
+            ApiObjects.Campaign campaign = null;
+
+            CampaignSearchFilter campaignFilter = new CampaignSearchFilter()
+            {
+                HasPromotion = true,
+                StateEqual = ObjectState.ACTIVE,
+                IsActiveNow = true
+            };
+
+            ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(groupId)
+            {
+                DomainId = domainId
+            };
+
+            var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.SearchCampaigns(contextData, campaignFilter);
+
+            if (campaigns.HasObjects())
+            {
+                ConditionScope filter = new ConditionScope()
+                {
+                    BusinessModuleId = businessModuleId,
+                    BusinessModuleType = transactionType,
+                    FilterByDate = true,
+                    GroupId = contextData.GroupId,
+                };
+
+                var valid = campaigns.Objects.Where(x => x.Promotion.EvaluateConditions(filter)).ToList();
+
+                if (valid?.Count > 0)
+                {
+                    var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
+                    long userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
+
+                    if (allUserIdsInDomain == null || allUserIdsInDomain.Count == 0)
+                    {
+                        allUserIdsInDomain = Domains.Module.GetDomainUserList(contextData.GroupId, (int)contextData.DomainId);
+                    }
+
+                    //get user map
+                    HashSet<long> userCampaignIds = new HashSet<long>();
+
+                    var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, userId);
+                    if (userCampaigns != null)
+                    {
+                        if (userCampaigns.TriggerCampaigns?.Count > 0)
+                        {
+                            foreach (var item in userCampaigns.TriggerCampaigns)
+                            {
+                                userCampaignIds.Add(item.Key);
+                            }
+                        }
+
+                        if (userCampaigns.BatchCampaigns?.Count > 0)
+                        {
+                            foreach (var item in userCampaigns.BatchCampaigns)
+                            {
+                                userCampaignIds.Add(item.Key);
+                            }
+                        }
+                    }
+
+                    var scope = new ConditionScope()
+                    {
+                        GroupId = contextData.GroupId,
+                        UserId = userId.ToString(),
+                        FilterBySegments = true,
+                        SegmentIds = GetDomainSegments(contextData.GroupId, contextData.DomainId.Value, allUserIdsInDomain)
+                    };
+
+                    foreach (var item in valid)
+                    {
+                        if (userCampaignIds.Contains(item.Id) || (item.CampaignType == eCampaignType.Batch && item.EvaluateConditions(scope)))
+                        {
+                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(item.Promotion.DiscountModuleId), countryCode, currencyCode);
+                            if (discountModule != null)
+                            {
+                                var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
+                                if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
+                                {
+                                    lowestPrice = tempPrice;
+                                    campaign = item;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return campaign;
         }
 
         internal static void GetMultiSubscriptionUsageModule(List<RenewDetails> rsDetails, string userIp, Dictionary<long, Subscription> subscriptions, BaseConditionalAccess cas,
