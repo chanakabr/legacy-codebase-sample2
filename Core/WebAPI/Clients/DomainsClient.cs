@@ -455,6 +455,11 @@ namespace WebAPI.Clients
                 return;
             }
 
+            if (!string.IsNullOrEmpty(device.Model) && !device.ManufacturerId.HasValue)
+            {
+                throw new ClientException((int)StatusCode.Error, $"Can't add device with model but without manufacturer Id");
+            }
+
             if (!string.IsNullOrEmpty(device.Model) && !Regex.IsMatch(device.Model, @"^\w+$", RegexOptions.IgnoreCase))
             {
                 throw new ClientException((int)StatusCode.Error, $"Model: [{device.Model}] didn't passed validation");
