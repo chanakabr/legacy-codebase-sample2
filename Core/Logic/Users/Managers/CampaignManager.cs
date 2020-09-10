@@ -5,11 +5,8 @@ using ApiObjects.Response;
 using KLogMonitor;
 using System;
 using System.Reflection;
-using APILogic.ConditionalAccess;
 using Campaign = ApiObjects.Campaign;
 using DAL;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using System.Linq;
 using ApiObjects.EventBus;
 using TVinciShared;
@@ -146,8 +143,10 @@ namespace ApiLogic.Users.Managers
 
         public GenericListResponse<Campaign> ListCampaingsByIds(ContextData contextData, CampaignIdInFilter filter)
         {
-            var response = new GenericListResponse<Campaign>();
-            response.Objects = ListCampaignByIds(contextData, filter.IdIn);
+            var response = new GenericListResponse<Campaign>
+            {
+                Objects = ListCampaignByIds(contextData, filter.IdIn)
+            };
             if (response.Objects != null)
             {
                 response.SetStatus(eResponseStatus.OK);
@@ -234,8 +233,47 @@ namespace ApiLogic.Users.Managers
 
         public GenericResponse<Campaign> AddBatchCampaign(ContextData contextData, BatchCampaign campaignToAdd)
         {
-            // TODO SHIR / MATAN -AddBatchCampaign
-            throw new NotImplementedException();
+            var response = new GenericResponse<Campaign>();
+
+            try
+            {
+                var campaignFilter = new BatchCampaignFilter() { StateEqual = ObjectState.ACTIVE };
+                var campaigns = ListBatchCampaigns(contextData, campaignFilter);
+                if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_BATCH_CAMPAIGNS)
+                {
+                    response.SetStatus(eResponseStatus.ActiveCampaignsExceededMaxSize, "Active batch campaigns Exceeded Max Size");
+                    return response;
+                }
+
+                var validateStatus = ValidateCampaign(contextData, campaignToAdd);
+                if (!validateStatus.IsOkStatusCode())
+                {
+                    response.SetStatus(validateStatus);
+                    return response;
+                }
+
+                campaignToAdd.State = ObjectState.INACTIVE;
+                campaignToAdd.CreateDate = DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
+                campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
+
+                var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd, contextData);
+                if (insertedCampaign?.Id > 0)
+                {
+                    response.Object = insertedCampaign;
+                    SetInvalidationKeys(contextData, insertedCampaign);
+                    response.SetStatus(eResponseStatus.OK);
+                }
+                else
+                {
+                    response.SetStatus(eResponseStatus.Error, $"Error while saving BatchCampaign");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while adding new BatchCampaign. contextData: {contextData}, ex: {ex}", ex);
+            }
+
+            return response;
         }
 
         public GenericResponse<Campaign> UpdateTriggerCampaign(ContextData contextData, TriggerCampaign campaignToUpdate)
@@ -266,7 +304,7 @@ namespace ApiLogic.Users.Managers
                 }
 
                 campaignToUpdate.FillEmpty(campaign);
-                campaignToUpdate.UpdateDate = DateUtils.ToUtcUnixTimestampSeconds(DateTime.UtcNow);
+                campaignToUpdate.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
 
                 if (PricingDAL.Update_Campaign(campaignToUpdate, contextData))
                 {
@@ -287,8 +325,49 @@ namespace ApiLogic.Users.Managers
 
         public GenericResponse<Campaign> UpdateBatchCampaign(ContextData contextData, BatchCampaign campaignToUpdate)
         {
-            // TODO SHIR / MATAN - UpdateBatchCampaign
-            throw new NotImplementedException();
+            var response = new GenericResponse<Campaign>();
+            try
+            {
+                var _response = Get(contextData, campaignToUpdate.Id);
+                if (!_response.IsOkStatusCode() || !(_response.Object is TriggerCampaign))
+                {
+                    response.SetStatus(eResponseStatus.Error, $"Couldn't update BatchCampaign: {campaignToUpdate.Id}");
+                    return response;
+                }
+
+                var campaign = response.Object as TriggerCampaign;
+
+                if (campaign == null)
+                {
+                    response.SetStatus(eResponseStatus.Error, $"Couldn't update BatchCampaign: {campaign.Id}, campaign not found");
+                    return response;
+                }
+
+                var validateStatus = ValidateCampaign(contextData, campaignToUpdate);
+                if (!validateStatus.IsOkStatusCode())
+                {
+                    response.SetStatus(validateStatus);
+                    return response;
+                }
+
+                campaignToUpdate.FillEmpty(campaign);
+                campaignToUpdate.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
+
+                if (PricingDAL.Update_Campaign(campaignToUpdate, contextData))
+                {
+                    response.Object = campaignToUpdate;
+                    SetInvalidationKeys(contextData, campaignToUpdate);
+                    response.SetStatus(eResponseStatus.OK);
+                }
+                else
+                    response.SetStatus(eResponseStatus.Error, $"Error Updating BatchCampaign: [{campaignToUpdate.Id}] for group: {contextData.GroupId}");
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while updating new BatchCampaign({campaignToUpdate.Id}). contextData: {contextData}, ex: {ex}", ex);
+            }
+
+            return response;
         }
 
         public GenericResponse<Campaign> SetState(ContextData contextData, long id, ObjectState newState)
@@ -306,22 +385,6 @@ namespace ApiLogic.Users.Managers
                 }
 
                 ValidateStateChange(campaign.Object, newState);
-                var validated = new Status(eResponseStatus.OK);
-
-                if (newState == ObjectState.ACTIVE)
-                {
-                    validated = ValidateActivation(campaign.Object);
-                }
-                else if (newState == ObjectState.INACTIVE)
-                {
-                    validated = ValidateDeactivation(campaign.Object);
-                }
-
-                if (!validated.IsOkStatusCode())
-                {
-                    response.SetStatus(campaign.Status);
-                    return response;
-                }
 
                 if (PricingDAL.Update_Campaign(campaign.Object, contextData))
                 {
@@ -330,7 +393,7 @@ namespace ApiLogic.Users.Managers
                     response.SetStatus(eResponseStatus.OK);
                 }
                 else
-                    response.SetStatus(eResponseStatus.Error, $"Error Updating TriggerCampaign: [{id}] for group: {contextData.GroupId}");
+                    response.SetStatus(eResponseStatus.Error, $"Error Updating Campaign: [{id}] for group: {contextData.GroupId}");
 
             }
             catch (Exception ex)
@@ -351,64 +414,20 @@ namespace ApiLogic.Users.Managers
                 response.Set(eResponseStatus.Error, "Can't update archived campaign");
                 return response;
             }
-
             if (campaign.State == newState)
             {
                 response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} already in state: {newState}");
                 return response;
             }
-
-            if (newState == ObjectState.ACTIVE
-                && campaign.EndDate <= DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))//Check set active
+            if (newState == ObjectState.ACTIVE && campaign.EndDate <= DateUtils.GetUtcUnixTimestampNow())
             {
-                response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} already ended");
+                response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} was ended");
                 return response;
             }
 
             campaign.State = newState;
 
             return response;
-        }
-
-        /// <summary>
-        /// check if can be activate
-        /// </summary>
-        /// <param name="object"></param>
-        private Status ValidateActivation(Campaign campaign)
-        {
-            var status = Status.Ok;
-            //TODO SHIR or Matan - ValidateActivation
-            //if (campaign.IsActive)
-            if (campaign.State == ObjectState.ACTIVE)
-            {
-                log.Error($"Campaign: {campaign.Id} is already active, campaign event: {campaign.CampaignJson}");
-                status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} is already active");
-            }
-            if (campaign.EndDate <= TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))
-            {
-                log.Error($"Campaign: {campaign.Id} was ended at ({campaign.EndDate}), campaign event: {campaign.CampaignJson}");
-                status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} was ended");
-            }
-            
-            return status;
-        }
-
-        /// <summary>
-        /// check if can be deactivate
-        /// </summary>
-        /// <param name="object"></param>
-        private Status ValidateDeactivation(Campaign campaign)
-        {
-            // TODO SHIR / MATAN - ValidateDeactivation
-            var status = Status.Ok;
-            //if (!campaign.IsActive)
-            //if (campaign.Status != 1)
-            //{
-            //    log.Error($"Campaign: {campaign.Id} is not active");
-            //    status.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} is not active");
-            //}
-
-            return status;
         }
 
         private Status ValidateCampaign(ContextData contextData, Campaign campaignToUpdate)
@@ -537,7 +556,7 @@ namespace ApiLogic.Users.Managers
             }
             catch (Exception ex)
             {
-                log.Error($"Failed to GetCampaignsByGroupId group:[{arg["groupId"]}], ex: {ex}", ex);
+                log.Error($"Failed ListCampaignsByGroupId group:[{arg["groupId"]}], ex: {ex}", ex);
             }
 
             return new Tuple<IEnumerable<CampaignDB>, bool>(list, list != null);

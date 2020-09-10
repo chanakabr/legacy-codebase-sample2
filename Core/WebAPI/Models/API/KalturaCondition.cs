@@ -556,7 +556,7 @@ namespace WebAPI.Models.API
         protected override void Init()
         {
             base.Init();
-            this.Type = KalturaRuleConditionType.DEVICE_BRAND;
+            this.Type = KalturaRuleConditionType.DEVICE_FAMILY;
         }
 
         internal override void Validate()
@@ -588,7 +588,7 @@ namespace WebAPI.Models.API
         protected override void Init()
         {
             base.Init();
-            this.Type = KalturaRuleConditionType.DEVICE_BRAND;
+            this.Type = KalturaRuleConditionType.DEVICE_MANUFACTURER;
         }
 
         internal override void Validate()
@@ -619,7 +619,7 @@ namespace WebAPI.Models.API
         protected override void Init()
         {
             base.Init();
-            this.Type = KalturaRuleConditionType.DEVICE_BRAND;
+            this.Type = KalturaRuleConditionType.DEVICE_MODEL;
         }
 
         internal override void Validate()
@@ -645,7 +645,7 @@ namespace WebAPI.Models.API
         protected override void Init()
         {
             base.Init();
-            this.Type = KalturaRuleConditionType.DEVICE_BRAND;
+            this.Type = KalturaRuleConditionType.DEVICE_UDID;
         }
 
         internal override void Validate()
