@@ -42,7 +42,6 @@ namespace APILogic.ConditionalAccess
         public int GroupId { get; set; }
         public string UserId { get; set; }
         public List<int> UserSubscriptions { get; set; }
-        public long CampaignId { get; set; }
         public int? BrandId { get; set; }
         public int? Family { get; set; }
         public long? ManufacturerId { get; set; }

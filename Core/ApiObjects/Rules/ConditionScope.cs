@@ -72,7 +72,6 @@ namespace ApiObjects.Rules
     {
         int GroupId { get; set; }
         string UserId { get; set; }
-        long CampaignId { get; set; }
         int? BrandId { get; set; }
         int? Family { get; set; }
         long? ManufacturerId { get; set; }

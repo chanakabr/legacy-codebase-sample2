@@ -505,6 +505,11 @@ namespace ApiLogic.Users.Managers
                         campaignsDB = campaignsDB.Where(x => x.EndDate <= filter.EndDateLessThanOrEqual.Value);
                     }
 
+                    if (filter.EndDateGreaterThanOrEqual.HasValue)
+                    {
+                        campaignsDB = campaignsDB.Where(x => x.EndDate >= filter.EndDateLessThanOrEqual.Value);
+                    }
+
                     if (filter.HasPromotion.HasValue)
                     {
                         if (filter.HasPromotion.Value)

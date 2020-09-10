@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using DAL;
@@ -7,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TVinciShared;
+using APILogic.ConditionalAccess;
+using ApiObjects.Segmentation;
 
 namespace Core.Notification
 {
@@ -114,42 +118,8 @@ namespace Core.Notification
                     systemMessages = new List<string>();
                 }
 
-                // --------------------------------
-                // TODO SHIR / MATAN - GetInboxMessages GET ALL CAMPAIGNS
-                //get all valid batch campaigns(by dates and status = active).
-
-                var batchFilter = new BatchCampaignFilter()
-                {
-                    StartDateGreaterThanOrEqual = 0,
-                    StateEqual = ObjectState.ACTIVE
-                };
-
-                 //get all existing user’s batch campaigns(all existing user’s campaign messages).
-
-                //remove shared campaigns from all campaigns list(In order to "reduce the cost" of finding the campaigns that are suitable for the user).
-
-                //filter relevant campaigns by populationConditions.
-
-                //add all relevant campaigns to user’s inbox message with TTL by the end date of the campaign.
+                SetBatchCampaignsToUser(groupId, userId);
                 
-
-
-
-                //var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(new ApiObjects.Base.ContextData(groupId) { UserId = userId }, null, null);
-                //var campaignMappings = NotificationDal.GetCampaignInboxMessageMapCB(groupId, userId);
-                //if (campaignMappings == null)
-                //{
-                //    campaignMappings = new CampaignInboxMessageMap();
-                //}
-
-                //if (campaignMessages == null)
-                //{
-                //    log.DebugFormat("No campaign inbox message. {0}", logData);
-                //    campaignMessages = new List<InboxMessage>();
-                //}
-
-                // --------------------------------
-
                 var userMessages = NotificationDal.GetUserMessagesView(groupId, userId, false, CreatedAtGreaterThanOrEqual);
                 if (userMessages == null)
                 {
@@ -246,8 +216,6 @@ namespace Core.Notification
                     return new Status() { Code = (int)eResponseStatus.MessageIdentifierRequired, Message = MESSAGE_IDENTIFIER_REQUIRED };
                 }
 
-                var isCampaign = false;
-                long? campaignId = null;
                 // get user inbox message
                 var userInboxMessage = NotificationDal.GetUserInboxMessage(groupId, userId, messageId);
 
@@ -273,6 +241,87 @@ namespace Core.Notification
             }
 
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()); ;
+        }
+
+        private static void SetBatchCampaignsToUser(int groupId, int userId)
+        {
+            //get all valid batch campaigns(by dates and status = active).
+            var utcNow = DateUtils.GetUtcUnixTimestampNow();
+            var contextData = new ContextData(groupId) { UserId = userId };
+            var batchFilter = new BatchCampaignFilter()
+            {
+                StartDateGreaterThanOrEqual = utcNow,
+                EndDateGreaterThanOrEqual = utcNow,
+                StateEqual = ObjectState.ACTIVE
+            };
+            var batchCampaignsResponse = ApiLogic.Users.Managers.CampaignManager.Instance.ListBatchCampaigns(contextData, batchFilter);
+            List<BatchCampaign> batchCampaigns = batchCampaignsResponse.HasObjects() ? batchCampaignsResponse.Objects : null;
+
+            NotificationDal.RemoveOldCampaignsFromInboxMessageMapCB(groupId, userId, utcNow);
+
+            //get all existing user’s batch campaigns(all existing user’s campaign messages).
+            var userCampaignsMap = NotificationDal.GetCampaignInboxMessageMapCB(groupId, userId);
+            var userBatchCampaignsMap = userCampaignsMap != null ? userCampaignsMap.BatchCampaigns : new Dictionary<long, InboxMessageWithExpiration>();
+
+            // add new batch campaigns to user
+            if (batchCampaigns != null)
+            {
+                //remove shared campaigns from all campaigns list(In order to "reduce the cost" of finding the campaigns that are suitable for the user).
+                var missingBatchCampaigns = batchCampaigns.Where(x => !userBatchCampaignsMap.ContainsKey(x.Id)).ToList();
+                
+                if (missingBatchCampaigns.Count > 0)
+                {
+                    var userSegments = UserSegment.List(groupId, userId.ToString(), out int totalCount);
+                    var scope = new ConditionScope()
+                    {
+                        GroupId = groupId,
+                        UserId = contextData.UserId.ToString(),
+                        FilterBySegments = true,
+                        SegmentIds = userSegments != null ? userSegments.Select(x => x.SegmentId).ToList() : null
+                    };
+
+                    //filter relevant campaigns by populationConditions.
+                    foreach (var campaign in missingBatchCampaigns)
+                    {
+                        var isValid = campaign.EvaluatePopulationConditions(scope);
+                        if (isValid)
+                        {
+                            //add all relevant campaigns to user’s inbox message with TTL by the end date of the campaign.
+                            AddCampaignMessage(campaign, groupId, userId);
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void AddCampaignMessage(Campaign campaign, int groupId, long userId)
+        {
+            var ttl = DateUtils.UtcUnixTimestampSecondsToDateTime(campaign.EndDate) - DateTime.UtcNow;
+            var current = DateUtils.GetUtcUnixTimestampNow();
+
+            //Add to user Inbox
+            var inboxMessage = new InboxMessage
+            {
+                Id = Guid.NewGuid().ToString(),
+                Message = campaign.Message,
+                UserId = userId,
+                CreatedAtSec = current,
+                UpdatedAtSec = current,
+                State = eMessageState.Unread,
+                Category = eMessageCategory.Campaign,
+                CampaignId = campaign.Id
+            };
+
+            if (!DAL.NotificationDal.SetUserInboxMessage(groupId, inboxMessage, ttl.TotalDays))
+            {
+                log.Error($"Failed to add campaign message (campaign: {campaign.Id}) to User: {userId} Inbox");
+            }
+            else
+            {
+                log.Debug($"Campaign message (campaign: {campaign.Id}) sent successfully to User: {userId} Inbox");
+                var inboxMessageExpiration = new InboxMessageWithExpiration() { MessageId = inboxMessage.Id, ExpiredAt = campaign.EndDate };
+                DAL.NotificationDal.AddToCampaignInboxMessageMapCB(campaign, groupId, userId, inboxMessageExpiration);//update mapping
+            }
         }
     }
 }

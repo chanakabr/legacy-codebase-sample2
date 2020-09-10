@@ -16,7 +16,7 @@ namespace ApiObjects
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<Rules.RuleCondition> Conditions { get; set; }
 
-        public bool EvaluateDiscountConditions(Rules.IConditionScope scope)
+        public bool EvaluateConditions(Rules.IConditionScope scope)
         {
             if (Conditions != null && Conditions.Count > 0)
             {

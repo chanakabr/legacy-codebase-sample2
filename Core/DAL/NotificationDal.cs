@@ -1881,6 +1881,12 @@ namespace DAL
             return userInboxMessage;
         }
 
+        public static List<InboxMessage> GetUserInboxMessagesByIds(int groupId, long userId, List<string> messagesIds)
+        {
+            var keys = messagesIds.Select(x => GetInboxMessageKey(groupId, userId, x)).ToList();
+            return UtilsDal.GetObjectListFromCB<InboxMessage>(eCouchbaseBucket.NOTIFICATION, keys);
+        }
+
         public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage, double ttlDays)
         {
             var ttl = (uint)TimeSpan.FromDays(ttlDays).TotalSeconds;
@@ -1944,7 +1950,7 @@ namespace DAL
             return result;
         }
 
-        public static bool AddToCampaignInboxMessageMapCB(Campaign campaign, int groupId, long userId, string inboxMessageId)
+        public static bool AddToCampaignInboxMessageMapCB(Campaign campaign, int groupId, long userId, InboxMessageWithExpiration inboxMessage)
         {
             var key = GetInboxMessageCampaignMappingKey(groupId, userId);
             var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<CampaignInboxMessageMap>(0, eCouchbaseBucket.NOTIFICATION, key, mapping =>
@@ -1953,20 +1959,21 @@ namespace DAL
                 {
                     mapping = new CampaignInboxMessageMap();
                 }
-                if (campaign is TriggerCampaign)
+
+                if (campaign.CampaignType == eCampaignType.Trigger && !mapping.TriggerCampaigns.ContainsKey(campaign.Id))
                 {
-                    mapping.TriggerCampaigns.Add(campaign.Id, inboxMessageId);
+                    mapping.TriggerCampaigns.Add(campaign.Id, inboxMessage);
                 }
-                else if (campaign is BatchCampaign)
+                else if (campaign.CampaignType == eCampaignType.Batch && !mapping.BatchCampaigns.ContainsKey(campaign.Id))
                 {
-                    mapping.BatchCampaigns.Add(campaign.Id, inboxMessageId);
+                    mapping.BatchCampaigns.Add(campaign.Id, inboxMessage);
                 }
             });
 
             return isSaveSuccess;
         }
 
-        public static bool RemoveFromCampaignInboxMessageMapCB(Campaign campaign, int groupId, long userId, string inboxMessageId)
+        public static bool RemoveOldCampaignsFromInboxMessageMapCB(int groupId, long userId, long utcNow)
         {
             var key = GetInboxMessageCampaignMappingKey(groupId, userId);
             var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<CampaignInboxMessageMap>(0, eCouchbaseBucket.NOTIFICATION, key, mapping =>
@@ -1975,13 +1982,17 @@ namespace DAL
                 {
                     mapping = new CampaignInboxMessageMap();
                 }
-                if (campaign is TriggerCampaign && mapping.TriggerCampaigns.ContainsKey(campaign.Id))
+
+                var triggerIdsToDelete = mapping.TriggerCampaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
+                foreach (int triggerId in triggerIdsToDelete)
                 {
-                    mapping.TriggerCampaigns.Remove(campaign.Id);
+                    mapping.TriggerCampaigns.Remove(triggerId);
                 }
-                else if (campaign is BatchCampaign && mapping.BatchCampaigns.ContainsKey(campaign.Id))
+
+                var batchIdsToDelete = mapping.BatchCampaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
+                foreach (int batchId in batchIdsToDelete)
                 {
-                    mapping.BatchCampaigns.Remove(campaign.Id);
+                    mapping.BatchCampaigns.Remove(batchId);
                 }
             });
 

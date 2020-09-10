@@ -66,6 +66,11 @@ namespace WebAPI.Models.API
 
             foreach (var condition in this.PopulationConditions)
             {
+                if (condition.Type != KalturaRuleConditionType.OR && condition.Type != KalturaRuleConditionType.SEGMENTS)
+                {
+                    throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "populationConditions", condition.objectType);
+                }
+
                 condition.Validate();
             }
         }

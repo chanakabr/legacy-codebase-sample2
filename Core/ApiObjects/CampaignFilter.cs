@@ -17,6 +17,7 @@ namespace ApiObjects
     {
         public long? StartDateGreaterThanOrEqual { get; set; }
         public long? EndDateLessThanOrEqual { get; set; }
+        public long? EndDateGreaterThanOrEqual { get; set; }
         public ObjectState? StateEqual { get; set; }
         public bool? HasPromotion { get; set; }
     }
