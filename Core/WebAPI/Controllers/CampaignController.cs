@@ -29,6 +29,7 @@ namespace WebAPI.Controllers
         public static GenericResponse<KalturaCampaign> SetState(long campaignId, KalturaObjectState newState)
         {
             var response = new GenericResponse<KalturaCampaign>();
+            response.SetStatus(eResponseStatus.OK);
             var contextData = Managers.Models.KS.GetContextData();
 
             try

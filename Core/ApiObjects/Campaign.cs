@@ -64,7 +64,6 @@ namespace ApiObjects
         
         public List<long> CollectionIds { get; set; }
 
-        // TODO SHIR - WE NEED THAT?? campaign_json
         [DBFieldMapping("campaign_json")]
         public string CampaignJson { get; set; }
 
@@ -98,10 +97,6 @@ namespace ApiObjects
             {
                 this.EndDate = oldCampaign.EndDate;
             }
-            //if (campaignToUpdate.IsActive == default)
-            //{
-            //    campaignToUpdate.IsActive = campaign.IsActive;
-            //}
             if (string.IsNullOrEmpty(this.Message))
             {
                 this.Message = oldCampaign.Message;
@@ -118,8 +113,6 @@ namespace ApiObjects
             {
                 this.StartDate = oldCampaign.StartDate;
             }
-            
-            // TODO SHIR / MATAN FILL EMPTY IN BASE
         }
     }
 
