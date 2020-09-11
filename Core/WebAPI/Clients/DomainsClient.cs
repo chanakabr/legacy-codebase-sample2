@@ -448,7 +448,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal void ValidateDeviceReferences(int groupId, KalturaHouseholdDevice device)
+        internal void ValidateDeviceReferencesForAdd(int groupId, KalturaHouseholdDevice device)
         {
             if (device == null)
             {
@@ -473,6 +473,19 @@ namespace WebAPI.Clients
                 {
                     throw new ClientException((int)StatusCode.Error, "Manufacturer Id doesn't exists");
                 }
+            }
+        }
+
+        internal void ValidateDeviceReferencesForUpdate(int groupId, KalturaHouseholdDevice device)
+        {
+            if (device == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(device.Model) || device.ManufacturerId.HasValue)
+            {
+                throw new ClientException((int)StatusCode.Error, $"Can't update Model or Manufacturer Id after device creation for group: {groupId}");
             }
         }
 
