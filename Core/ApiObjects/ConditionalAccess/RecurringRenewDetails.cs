@@ -14,12 +14,15 @@ namespace ApiObjects.ConditionalAccess
         public bool IsPurchasedWithPreviewModule { get; set; }
         public bool IsCouponGiftCard { get; set; }
         public bool IsCouponHasEndlessRecurring { get; set; }
-    }
+        public RecurringCampaignDetails CampaignDetails { get; set; }
+}
 
     public class RecurringCampaignDetails
     {
         public long Id { get; set; }
         public double Remainder { get; set; }
         public int LeftRecurring { get; set; }
+        public bool IsUseRemainder { get; set; }
+
     }
 }

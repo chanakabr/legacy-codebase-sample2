@@ -1049,16 +1049,17 @@ namespace Core.ConditionalAccess
                 }
 
                 // validate price
-                PriceReason priceReason = PriceReason.UnKnown;
                 Subscription subscription = null;
                 bool isGiftCard = false;
-                Price priceResponse = null;
-                double couponRemainder = 0;
-                Price originalPrice = null;
-                var subscriptionCycle = new SubscriptionCycle(); // there is a unified billingCycle for this subscription cycle
 
-                priceResponse = Utils.GetSubscriptionFinalPrice(contextData.GroupId, productId.ToString(), userId, ref couponCode, ref priceReason, ref subscription, country, string.Empty,
-                                                                contextData.Udid, contextData.UserIp, ref subscriptionCycle, out couponRemainder, out originalPrice, currency, isSubscriptionSetModifySubscription);
+                var fullPrice = Utils.GetSubscriptionFullPrice(contextData.GroupId, productId.ToString(), userId, couponCode, ref subscription, country, string.Empty,
+                                                                contextData.Udid, contextData.UserIp, currency, isSubscriptionSetModifySubscription);
+
+                var subscriptionCycle = fullPrice.SubscriptionCycle;
+                double couponRemainder = fullPrice.CouponRemainder;
+                couponCode = fullPrice.CouponCode;
+                Price finalPrice = fullPrice.FinalPrice;
+                PriceReason priceReason = fullPrice.PriceReason;
 
                 if (subscription == null)
                 {
@@ -1066,10 +1067,10 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                if (priceResponse != null && priceReason == PriceReason.SubscriptionPurchased && priceResponse.m_dPrice == -1)
+                if (fullPrice != null && fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice == -1)
                 {
                     // item not for purchase
-                    response.Status = Utils.SetResponseStatus(priceReason);
+                    response.Status = Utils.SetResponseStatus(fullPrice.PriceReason);
                     return response;
                 }
 
@@ -1173,7 +1174,7 @@ namespace Core.ConditionalAccess
                      subscription.CouponsGroups.Count(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode) > 0)))
                 {
                     isGiftCard = true;
-                    priceResponse = new Price()
+                    finalPrice = new Price()
                     {
                         m_dPrice = 0.0,
                         m_oCurrency = new Currency()
@@ -1209,7 +1210,7 @@ namespace Core.ConditionalAccess
                 {
                     // item is for purchase
                     if (isSubscriptionSetModifySubscription ||
-                        (priceResponse != null && priceResponse.m_dPrice == price && priceResponse.m_oCurrency.m_sCurrencyCD3 == currency) ||
+                        (finalPrice != null && finalPrice.m_dPrice == price && finalPrice.m_oCurrency.m_sCurrencyCD3 == currency) ||
                         (paymentGateway != null && paymentGateway.ExternalVerification))
                     {
                         // price is validated, create custom data
@@ -1323,22 +1324,6 @@ namespace Core.ConditionalAccess
                                     cas.WriteToUserLog(userId, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
                                         productId, purchaseID, response.TransactionID));
 
-                                    var recurringRenewDetails = new RecurringRenewDetails()
-                                    {
-                                        CouponCode = couponCode,
-                                        CouponRemainder = couponRemainder,
-                                        IsCouponGiftCard = isGiftCard,
-                                        IsPurchasedWithPreviewModule = entitleToPreview,
-                                        LeftCouponRecurring = coupon != null ? coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon : 0,
-                                        TotalNumOfRenews = 0,
-                                        IsCouponHasEndlessRecurring = coupon != null && coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon == 0
-                                    };
-
-                                    if (!ConditionalAccessDAL.SaveRecurringRenewDetails(recurringRenewDetails, purchaseID))
-                                    {
-                                        log.ErrorFormat("Error to Insert RecurringRenewDetails to CB, purchaseId:{0}.", purchaseID);
-                                    }
-
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0 && !IsDoublePurchase)
                                     {
@@ -1355,6 +1340,27 @@ namespace Core.ConditionalAccess
                                     // If the subscription if recurring, put a message for renewal and all that...
                                     if (subscription.m_bIsRecurring && !subscription.PreSaleDate.HasValue)
                                     {
+                                        var recurringRenewDetails = new RecurringRenewDetails()
+                                        {
+                                            CouponCode = couponCode,
+                                            CouponRemainder = couponRemainder,
+                                            IsCouponGiftCard = isGiftCard,
+                                            IsPurchasedWithPreviewModule = entitleToPreview,
+                                            LeftCouponRecurring = coupon != null ? coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon : 0,
+                                            TotalNumOfRenews = 0,
+                                            IsCouponHasEndlessRecurring = coupon != null && coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon == 0,
+                                        };
+
+                                        if (fullPrice.CampaignDetails != null)
+                                        {
+                                            recurringRenewDetails.CampaignDetails = fullPrice.CampaignDetails;
+                                        }
+
+                                        if (!ConditionalAccessDAL.SaveRecurringRenewDetails(recurringRenewDetails, purchaseID))
+                                        {
+                                            log.ErrorFormat("Error to Insert RecurringRenewDetails to CB, purchaseId:{0}.", purchaseID);
+                                        }
+
                                         DateTime nextRenewalDate = endDate.Value;
 
                                         if (!isGiftCard)
