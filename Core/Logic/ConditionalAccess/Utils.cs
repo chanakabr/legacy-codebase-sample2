@@ -1419,7 +1419,8 @@ namespace Core.ConditionalAccess
                             fullPrice.CampaignDetails = new RecurringCampaignDetails()
                             {
                                 Id = campaign.Id,
-                                LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0
+                                LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0,
+                                Used = new HashSet<long>() { campaign.Id }
                             };
 
                             CalcPriceAndCampaignRemainderByUnifiedBillingCycle(groupId, subscription, false, domainId, ref fullPrice);
@@ -1868,7 +1869,7 @@ namespace Core.ConditionalAccess
         }
 
         public static ApiObjects.Campaign GetValidCampaign(int groupId, int domainId, Price currentPrice, ref Price lowestPrice, eTransactionType transactionType, 
-            string currencyCode, long businessModuleId, string countryCode, bool withNumberOfRecurring = false)
+            string currencyCode, long businessModuleId, string countryCode, bool recurringOnly = false, List<long> used = null)
         {
             ApiObjects.Campaign campaign = null;
 
@@ -1896,7 +1897,9 @@ namespace Core.ConditionalAccess
                     GroupId = contextData.GroupId,
                 };
 
-                var valid = campaigns.Objects.Where(x => x.Promotion.EvaluateConditions(filter) && (!withNumberOfRecurring || (x.Promotion.NumberOfRecurring.HasValue && x.Promotion.NumberOfRecurring.Value > 0))).ToList();
+                var valid = campaigns.Objects.Where(x => x.Promotion.EvaluateConditions(filter) 
+                                                    && (!recurringOnly || (x.Promotion.NumberOfRecurring.HasValue && x.Promotion.NumberOfRecurring.Value > 0))
+                                                    && (used == null || !used.Contains(x.Id))).ToList();
 
                 if (valid?.Count > 0)
                 {
@@ -1927,13 +1930,14 @@ namespace Core.ConditionalAccess
                             }
                         }
                     }
+                    var segmentids = GetDomainSegments(contextData.GroupId, contextData.DomainId.Value, allUserIdsInDomain);
 
                     var scope = new ConditionScope()
                     {
                         GroupId = contextData.GroupId,
                         UserId = userId.ToString(),
                         FilterBySegments = true,
-                        SegmentIds = GetDomainSegments(contextData.GroupId, contextData.DomainId.Value, allUserIdsInDomain)
+                        SegmentIds = segmentids
                     };
 
                     foreach (var item in valid)

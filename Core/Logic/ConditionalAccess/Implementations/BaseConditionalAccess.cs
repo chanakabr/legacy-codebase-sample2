@@ -2720,7 +2720,10 @@ namespace Core.ConditionalAccess
                 bool recurringCouponFirstExceeded = false;
                 var originalPrice = renewDetails.Price;
 
-                bool used = HandleRecurringCampaign(renewDetails, subscription, oCurrency);
+                if (string.IsNullOrEmpty(renewDetails.RecurringData.CouponCode))
+                {
+                    bool used = HandleRecurringCampaign(renewDetails, subscription, oCurrency);
+                }
 
                 HandleRecurringCoupon(renewDetails, subscription, oCurrency, out recurringCouponFirstExceeded);
 
@@ -3439,7 +3442,7 @@ namespace Core.ConditionalAccess
             bool use = false;
             try
             {
-                if (renewDetails.RecurringData.CampaignDetails == null)
+                if (renewDetails.RecurringData.CampaignDetails == null || renewDetails.RecurringData.CampaignDetails.Id == 0)
                 {
                     Price originalPrice = new Price
                     {
@@ -3458,11 +3461,13 @@ namespace Core.ConditionalAccess
 
                     if (campaign != null)
                     {
-                        renewDetails.RecurringData.CampaignDetails = new RecurringCampaignDetails()
+                        if (renewDetails.RecurringData.CampaignDetails == null)
                         {
-                            Id = campaign.Id,
-                            LeftRecurring = campaign.Promotion.NumberOfRecurring ?? 0
-                        };
+                            renewDetails.RecurringData.CampaignDetails = new RecurringCampaignDetails();
+                        }
+
+                        renewDetails.RecurringData.CampaignDetails.Id = campaign.Id;
+                        renewDetails.RecurringData.CampaignDetails.LeftRecurring = campaign.Promotion.NumberOfRecurring ?? 0;                        
 
                         renewDetails.Price = finalPrice.m_dPrice;
                         
@@ -8026,7 +8031,7 @@ namespace Core.ConditionalAccess
         /// </summary>
         protected internal virtual string GetCustomDataForSubscription(Subscription theSub, Core.Pricing.Campaign campaign, string sSubscriptionCode, string sCampaignCode, string sSiteGUID,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID,
-            bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false, int? context = null, bool isPartialPrice = false)
+            bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false, int? context = null, bool isPartialPrice = false, long campaignId = 0)
         {
             bool bIsRecurring = theSub.m_bIsRecurring;
 
@@ -8120,6 +8125,10 @@ namespace Core.ConditionalAccess
             if (isPartialPrice && !previewEntitled && string.IsNullOrEmpty(sCouponCode)) // add to custom data isPartial price - only if it is parcial 
             {
                 sb.Append(string.Format("<partialPrice>{0}</partialPrice>", isPartialPrice));
+            }
+            if (campaignId > 0)
+            {
+                sb.Append($"<campaign>{campaignId}</campaign>");
             }
             sb.Append("</customdata>");
             return sb.ToString();
@@ -9348,6 +9357,11 @@ namespace Core.ConditionalAccess
             if (isPartialPrice) // add to custom data isPartial price - only if it is parcial 
             {
                 sb.Append(string.Format("<partialPrice>{0}</partialPrice>", isPartialPrice));
+            }
+
+            if (renewSubscriptionDetails.RecurringData.CampaignDetails?.Id > 0) // add to custom data CampaignDetails
+            {
+                sb.Append($"<campaign>{renewSubscriptionDetails.RecurringData.CampaignDetails.Id}</campaign>");
             }
 
             sb.Append("</customdata>");
