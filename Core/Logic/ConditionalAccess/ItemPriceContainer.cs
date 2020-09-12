@@ -44,7 +44,7 @@ namespace Core.ConditionalAccess
         public PriceReason m_PriceReason;
         public long? endDate;
         
-        public Promotion? promotion;
+        public Promotion promotion;
 
         public SubscriptionsPricesContainer()
         { }
