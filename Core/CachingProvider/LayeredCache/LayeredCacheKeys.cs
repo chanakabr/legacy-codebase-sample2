@@ -723,6 +723,10 @@ namespace CachingProvider.LayeredCache
             return $"group_campaign_{groupId}_type_{type}";
         }
 
+        public static string GetCampaignKey(int groupId, long campaignId)
+        {
+            return $"group_campaign_{groupId}_id_{campaignId}";
+        }
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1382,6 +1386,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupCampaignInvalidationKey(int groupId, string type)
         {
             return $"invalidationKey_group_campaign_{groupId}_{type}";
+        }
+
+        public static string GetCampaignInvalidationKey(int groupId, long campaignId)
+        {
+            return $"invalidationKey_group_{groupId}_campaign_{campaignId}";
         }
 
         #endregion
