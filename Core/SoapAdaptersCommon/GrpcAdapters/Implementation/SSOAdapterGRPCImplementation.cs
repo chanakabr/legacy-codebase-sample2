@@ -48,8 +48,11 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
                     if (prop.PropertyType.IsClass && !prop.PropertyType.Assembly.FullName.StartsWith("System"))
                     {
                         var propValue = prop.GetValue(obj);
-                        var normlizedNestedProp = NormlizeResponse(propValue);
-                        prop.SetValue(obj,propValue);
+                        if (propValue != null)
+                        {
+                            var normlizedNestedProp = NormlizeResponse(propValue);
+                            prop.SetValue(obj, propValue);
+                        }
                     }
 
                 }
@@ -65,8 +68,9 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
             response.AdapterStatusCode = (AdapterStatusCode)result.Status;
 
             var implementedMethods = result.ImplementedMethods.Select(m => (SSOMethods)m).ToList();
-
-            response.ImplementedMethods.AddRange(implementedMethods);
+            var extendedImplementedMethods = result.ImplementedMethodsExtend.Select(m=> (SSOMethods)m).ToList();
+            var allMethods = implementedMethods.Concat(extendedImplementedMethods).Distinct();
+            response.ImplementedMethods.AddRange(allMethods);
             response.SendWelcomeEmail = result.SendWelcomeEmail;
             return Task.FromResult(response);
         }
