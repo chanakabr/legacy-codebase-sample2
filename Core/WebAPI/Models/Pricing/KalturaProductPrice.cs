@@ -40,7 +40,6 @@ namespace WebAPI.Models.Pricing
         [OnlyNewStandard]
         public KalturaPrice Price { get; set; }
 
-        // TODO SHIR \ MATAN - SET ONLY IF THERE IS CAMPAIGN DISCOUNT + map
         /// <summary>
         /// Original price of the product
         /// </summary>

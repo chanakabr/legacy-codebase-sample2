@@ -1910,9 +1910,9 @@ namespace Core.ConditionalAccess
                     GroupId = contextData.GroupId,
                 };
 
-                var valid = campaigns.Objects.Where(x => x.Promotion.EvaluateConditions(filter)).ToList();
+                var validCampaigns = campaigns.Objects.Where(x => x.Promotion.EvaluateConditions(filter)).ToList();
 
-                if (valid?.Count > 0)
+                if (validCampaigns?.Count > 0)
                 {
                     var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
                     long userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
@@ -1951,11 +1951,11 @@ namespace Core.ConditionalAccess
                         SegmentIds = segmentids
                     };
 
-                    foreach (var item in valid)
+                    foreach (var promotedCampaign in validCampaigns)
                     {
-                        if (userCampaignIds.Contains(item.Id) || (item.CampaignType == eCampaignType.Batch && item.EvaluateConditions(scope)))
+                        if (userCampaignIds.Contains(promotedCampaign.Id) || (promotedCampaign.CampaignType == eCampaignType.Batch && promotedCampaign.EvaluateConditions(scope)))
                         {
-                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(item.Promotion.DiscountModuleId), countryCode, currencyCode);
+                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(promotedCampaign.Promotion.DiscountModuleId), countryCode, currencyCode);
                             if (discountModule != null)
                             {
                                 var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
@@ -1965,20 +1965,20 @@ namespace Core.ConditionalAccess
                                     if (tempPrice.m_dPrice < lowestPrice.m_dPrice)
                                     {
                                         lowestPrice = tempPrice;
-                                        campaign = item;
+                                        campaign = promotedCampaign;
                                     }
                                     else if (tempPrice.m_dPrice == lowestPrice.m_dPrice)
                                     {
                                         int numberOfRecurring = campaign.Promotion.NumberOfRecurring ?? -1;
-                                        int newNumberOfRecurring = item.Promotion.NumberOfRecurring ?? -1;
+                                        int newNumberOfRecurring = promotedCampaign.Promotion.NumberOfRecurring ?? -1;
 
                                         if (newNumberOfRecurring > numberOfRecurring)
                                         {
-                                            campaign = item;
+                                            campaign = promotedCampaign;
                                         }
-                                        else if (newNumberOfRecurring == numberOfRecurring && item.EndDate > campaign.EndDate)
+                                        else if (newNumberOfRecurring == numberOfRecurring && promotedCampaign.EndDate > campaign.EndDate)
                                         {
-                                            campaign = item;
+                                            campaign = promotedCampaign;
                                         }
                                     }
                                 }
