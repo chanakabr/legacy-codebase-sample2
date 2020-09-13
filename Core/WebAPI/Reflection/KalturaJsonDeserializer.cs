@@ -16606,12 +16606,32 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaBatchCampaign
     {
+        private static RuntimeSchemePropertyAttribute PopulationConditionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBatchCampaign")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaBatchCampaign(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("populationConditions__null") && parameters["populationConditions__null"] != null)
+                {
+                    AddNullableProperty("populationConditions");
+                }
                 if (parameters.ContainsKey("populationConditions") && parameters["populationConditions"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        PopulationConditionsSchemaProperty.Validate("populationConditions", parameters["populationConditions"]);
+                    }
                     if (parameters["populationConditions"] is JArray)
                     {
                         PopulationConditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["populationConditions"]);
@@ -16885,6 +16905,16 @@ namespace WebAPI.Models.API
             MaxLength = 1200,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute CollectionIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaCampaign(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -16996,8 +17026,16 @@ namespace WebAPI.Models.API
                     }
                     Message = (String) Convert.ChangeType(parameters["message"], typeof(String));
                 }
+                if (parameters.ContainsKey("collectionIdIn__null") && parameters["collectionIdIn__null"] != null)
+                {
+                    AddNullableProperty("collectionIdIn");
+                }
                 if (parameters.ContainsKey("collectionIdIn") && parameters["collectionIdIn"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        CollectionIdInSchemaProperty.Validate("collectionIdIn", parameters["collectionIdIn"]);
+                    }
                     CollectionIdIn = (String) Convert.ChangeType(parameters["collectionIdIn"], typeof(String));
                 }
             }
@@ -21195,10 +21233,22 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaTriggerCampaign
     {
+        private static RuntimeSchemePropertyAttribute TriggerConditionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTriggerCampaign")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaTriggerCampaign(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("service") && parameters["service"] != null)
                 {
                     if(string.IsNullOrEmpty(parameters["service"].ToString()))
@@ -21227,8 +21277,16 @@ namespace WebAPI.Models.API
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Action, typeof(KalturaApiAction)));
                     }
                 }
+                if (parameters.ContainsKey("triggerConditions__null") && parameters["triggerConditions__null"] != null)
+                {
+                    AddNullableProperty("triggerConditions");
+                }
                 if (parameters.ContainsKey("triggerConditions") && parameters["triggerConditions"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        TriggerConditionsSchemaProperty.Validate("triggerConditions", parameters["triggerConditions"]);
+                    }
                     if (parameters["triggerConditions"] is JArray)
                     {
                         TriggerConditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["triggerConditions"]);

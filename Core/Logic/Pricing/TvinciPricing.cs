@@ -1961,7 +1961,6 @@ namespace Core.Pricing
             return new Tuple<List<DiscountDetails>, bool>(discountDetails, res);
         }
 
-        // TODO SHIR\MATAN - GET VALID DISCOUNTS
         public override GenericListResponse<DiscountDetails> GetValidDiscounts()
         {
             GenericListResponse<DiscountDetails> response = new GenericListResponse<DiscountDetails>();

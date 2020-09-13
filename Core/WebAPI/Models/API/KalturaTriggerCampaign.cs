@@ -7,6 +7,7 @@ using ApiLogic.Users.Managers;
 using ApiObjects.Response;
 using ApiObjects.Base;
 using ApiObjects;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.API
 {
@@ -42,13 +43,13 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "action")]
         public KalturaApiAction Action { get; set; }
 
-        // TODO SHIR \ MATAN - if we put null in update it map it with string empty
         /// <summary>
         /// List of conditions for the trigger (conditions on the object)
         /// </summary>
         [DataMember(Name = "triggerConditions")]
         [JsonProperty("triggerConditions")]
         [XmlElement(ElementName = "triggerConditions")]
+        [SchemeProperty(IsNullable = true)]
         public List<KalturaCondition> TriggerConditions { get; set; }
 
         internal override void ValidateForAdd()

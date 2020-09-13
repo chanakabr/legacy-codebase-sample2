@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.API
 {
@@ -15,13 +16,13 @@ namespace WebAPI.Models.API
     /// </summary>
     public partial class KalturaBatchCampaign : KalturaCampaign
     {
-        // TODO SHIR \ MATAN - if we put null in update it map it with string empty
         /// <summary>
         /// These conditions define the population that apply one the campaign
         /// </summary>
         [DataMember(Name = "populationConditions")]
         [JsonProperty("populationConditions")]
         [XmlElement(ElementName = "populationConditions")]
+        [SchemeProperty(IsNullable = true)]
         public List<KalturaCondition> PopulationConditions { get; set; }
 
         internal override void ValidateForAdd()

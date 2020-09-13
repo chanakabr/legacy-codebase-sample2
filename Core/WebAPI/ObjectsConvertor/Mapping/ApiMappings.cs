@@ -1378,7 +1378,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertObjectState(src.State)))
                .ForMember(dest => dest.CollectionIds, opt => opt.ResolveUsing(src => src.GetCollectionIds()))
-               ;
+               .AfterMap((src, dest) => dest.CollectionIds = dest.CollectionIds != null && dest.CollectionIds.Any() ? dest.CollectionIds : null);
+                ;
 
             cfg.CreateMap<Campaign, KalturaCampaign>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1450,19 +1451,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaBatchCampaign, BatchCampaign>()
                 .IncludeBase<KalturaCampaign, Campaign>()
                 .ForMember(dest => dest.PopulationConditions, opt => opt.MapFrom(src => src.PopulationConditions))
-                ;
+                .AfterMap((src, dest) => dest.PopulationConditions = dest.PopulationConditions != null && dest.PopulationConditions.Any() ? dest.PopulationConditions : null);
+            ;
 
             cfg.CreateMap<BatchCampaign, KalturaBatchCampaign>()
                 .IncludeBase<Campaign, KalturaCampaign>()
                 .ForMember(dest => dest.PopulationConditions, opt => opt.MapFrom(src => src.PopulationConditions))
-                ;
+            ;
 
             cfg.CreateMap<KalturaTriggerCampaign, TriggerCampaign>()
                 .IncludeBase<KalturaCampaign, Campaign>()
                 .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                 .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
-                ;
+                .AfterMap((src, dest) => dest.TriggerConditions = dest.TriggerConditions != null && dest.TriggerConditions.Any() ? dest.TriggerConditions : null);
+            ;
 
             cfg.CreateMap<TriggerCampaign, KalturaTriggerCampaign>()
                 .IncludeBase<Campaign, KalturaCampaign>()

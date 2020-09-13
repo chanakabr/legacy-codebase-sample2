@@ -114,14 +114,13 @@ namespace WebAPI.Models.API
         [SchemeProperty(MaxLength = 1200)]
         public string Message { get; set; }
 
-        // TODO SHIR \ MATAN - if we put null in update it map it with string empty
-
         /// <summary>
         /// Comma separated collection IDs list
         /// </summary>
         [DataMember(Name = "collectionIdIn")]
         [JsonProperty("collectionIdIn")]
         [XmlElement(ElementName = "collectionIdIn")]
+        [SchemeProperty(IsNullable = true)]
         public string CollectionIdIn { get; set; }
 
         public KalturaCampaign()
