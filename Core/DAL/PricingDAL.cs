@@ -1852,15 +1852,23 @@ namespace DAL
             sp.AddParameter("@endDate", campaign.EndDate);
             sp.AddParameter("@has_promotion", campaign.Promotion != null ? 1 : 0);
             sp.AddParameter("@type", (int)campaign.CampaignType);
-            sp.AddParameter("@state", (int)campaign.State);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
-            var response = sp.ExecuteDataSet().Tables[0].ToList<T>().FirstOrDefault();
-            if (response?.Id > 0)
+            var ds = sp.ExecuteDataSet();
+            if (ds?.Tables?.Count > 0 && ds.Tables[0].Rows?.Count > 0)
             {
-                response.State = campaign.State;
+                var dr = ds.Tables[0].Rows[0];
+                var response = JsonConvert.DeserializeObject<T>(Utils.GetSafeStr(dr, "campaign_json"));
+                if (response != null)
+                {
+                    response.Id = Utils.GetLongSafeVal(dr, "ID");
+                }
+
+                return response;
             }
-            return response;
+
+            return null;
+            
         }
 
         public static bool Update_Campaign(Campaign campaign, ContextData contextData)
