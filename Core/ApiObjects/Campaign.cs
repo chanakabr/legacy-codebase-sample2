@@ -81,37 +81,44 @@ namespace ApiObjects
         /// <param name="oldRule">given assetRule to fill with</param>
         public virtual void FillEmpty(Campaign oldCampaign)
         {
-            if (this.CollectionIds == null)
+            if (this.StartDate == 0)
             {
-                this.CollectionIds = oldCampaign.CollectionIds;
+                this.StartDate = oldCampaign.StartDate;
             }
-            if (string.IsNullOrEmpty(this.Description))
-            {
-                this.Description = oldCampaign.Description;
-            }
-            if (this.Promotion == null)
-            {
-                this.Promotion = oldCampaign.Promotion;
-            }
-            if (this.EndDate == default)
+
+            if (this.EndDate == 0)
             {
                 this.EndDate = oldCampaign.EndDate;
             }
-            if (string.IsNullOrEmpty(this.Message))
-            {
-                this.Message = oldCampaign.Message;
-            }
+
             if (string.IsNullOrEmpty(this.Name))
             {
                 this.Name = oldCampaign.Name;
             }
+
             if (string.IsNullOrEmpty(this.SystemName))
             {
                 this.SystemName = oldCampaign.SystemName;
             }
-            if (this.StartDate == default)
+
+            if (string.IsNullOrEmpty(this.Description))
             {
-                this.StartDate = oldCampaign.StartDate;
+                this.Description = oldCampaign.Description;
+            }
+
+            if (string.IsNullOrEmpty(this.Message))
+            {
+                this.Message = oldCampaign.Message;
+            }
+
+            if (this.CollectionIds == null)
+            {
+                this.CollectionIds = oldCampaign.CollectionIds;
+            }
+
+            if (this.Promotion == null)
+            {
+                this.Promotion = oldCampaign.Promotion;
             }
         }
 

@@ -435,14 +435,13 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        private Status ValidateCampaign(ContextData contextData, Campaign campaignToUpdate)
+        private Status ValidateCampaign(ContextData contextData, Campaign campaign)
         {
-            //TODO SHIR / MATAN - ValidateParametersForUpdate
             var status = Status.Error;
-            if (campaignToUpdate.Promotion != null)
+            if (campaign.Promotion != null)
             {
                 var discounts = Core.Pricing.Module.GetValidDiscounts(contextData.GroupId);
-                if (!discounts.HasObjects() || !discounts.Objects.Any(x => x.Id == campaignToUpdate.Promotion.DiscountModuleId))
+                if (!discounts.HasObjects() || !discounts.Objects.Any(x => x.Id == campaign.Promotion.DiscountModuleId))
                 {
                     status.Set(eResponseStatus.DiscountCodeNotExist);
                     return status;
@@ -493,7 +492,7 @@ namespace ApiLogic.Users.Managers
                                                             LayeredCacheConfigNames.LIST_CAMPAIGNS_BY_GROUP_ID,
                                                             new List<string>() { LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, type) });
 
-                if (campaignsDB != null && campaignsDB.Count() > 0)
+                if (campaignsDB != null)
                 {
                     if (filter.StateEqual.HasValue)
                     {
