@@ -1349,12 +1349,8 @@ namespace Core.ConditionalAccess
                                             LeftCouponRecurring = coupon != null ? coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon : 0,
                                             TotalNumOfRenews = 0,
                                             IsCouponHasEndlessRecurring = coupon != null && coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon == 0,
+                                            CampaignDetails = fullPrice.CampaignDetails ?? null
                                         };
-
-                                        if (fullPrice.CampaignDetails != null)
-                                        {
-                                            recurringRenewDetails.CampaignDetails = fullPrice.CampaignDetails;
-                                        }
 
                                         if (!ConditionalAccessDAL.SaveRecurringRenewDetails(recurringRenewDetails, purchaseID))
                                         {
