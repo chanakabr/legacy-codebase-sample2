@@ -81,6 +81,10 @@ namespace ApiObjects
         /// <param name="oldRule">given assetRule to fill with</param>
         public virtual void FillEmpty(Campaign oldCampaign)
         {
+            this.CreateDate = oldCampaign.CreateDate;
+            this.UpdateDate = oldCampaign.UpdateDate;
+            this.UpdaterId = oldCampaign.UpdaterId;
+
             if (this.StartDate == 0)
             {
                 this.StartDate = oldCampaign.StartDate;
@@ -91,22 +95,22 @@ namespace ApiObjects
                 this.EndDate = oldCampaign.EndDate;
             }
 
-            if (string.IsNullOrEmpty(this.Name))
+            if (this.Name == null)
             {
                 this.Name = oldCampaign.Name;
             }
 
-            if (string.IsNullOrEmpty(this.SystemName))
+            if (this.SystemName == null)
             {
                 this.SystemName = oldCampaign.SystemName;
             }
 
-            if (string.IsNullOrEmpty(this.Description))
+            if (this.Description == null)
             {
                 this.Description = oldCampaign.Description;
             }
 
-            if (string.IsNullOrEmpty(this.Message))
+            if (this.Message == null)
             {
                 this.Message = oldCampaign.Message;
             }
@@ -159,8 +163,6 @@ namespace ApiObjects
             }
             return true;
         }
-
-
 
         /// <summary>
         /// Fill current TriggerCampaign data members with given TriggerCampaign only if they are empty\null

@@ -42,6 +42,7 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "action")]
         public KalturaApiAction Action { get; set; }
 
+        // TODO SHIR \ MATAN - if we put null in update it map it with string empty
         /// <summary>
         /// List of conditions for the trigger (conditions on the object)
         /// </summary>

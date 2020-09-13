@@ -344,18 +344,17 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<Campaign>();
             try
             {
-                var _response = Get(contextData, campaignToUpdate.Id);
-                if (!_response.IsOkStatusCode() || !(_response.Object is TriggerCampaign))
+                var oldBatchCampaignResponse = Get(contextData, campaignToUpdate.Id);
+                if (!oldBatchCampaignResponse.IsOkStatusCode() || oldBatchCampaignResponse.Object is TriggerCampaign)
                 {
-                    response.SetStatus(eResponseStatus.Error, $"Couldn't update BatchCampaign: {campaignToUpdate.Id}");
+                    response.SetStatus(oldBatchCampaignResponse.Status);
                     return response;
                 }
 
-                var campaign = response.Object as TriggerCampaign;
-
-                if (campaign == null)
+                var oldBatchcampaign = oldBatchCampaignResponse.Object as BatchCampaign;
+                if (oldBatchcampaign == null)
                 {
-                    response.SetStatus(eResponseStatus.Error, $"Couldn't update BatchCampaign: {campaign.Id}, campaign not found");
+                    response.SetStatus(eResponseStatus.Error, $"Couldn't update BatchCampaign: {oldBatchcampaign.Id}, campaign not found");
                     return response;
                 }
 
@@ -366,7 +365,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                campaignToUpdate.FillEmpty(campaign);
+                campaignToUpdate.FillEmpty(oldBatchcampaign);
                 campaignToUpdate.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
 
                 if (PricingDAL.Update_Campaign(campaignToUpdate, contextData))

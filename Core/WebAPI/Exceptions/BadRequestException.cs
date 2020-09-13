@@ -45,7 +45,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType ARGUMENTS_VALUES_CONFLICT_EACH_OTHER = new ApiExceptionType(StatusCode.ArgumentsConflictEachOther, StatusCode.BadRequest, "Argument [@argument1@] value conflicts Argument [@argument2@] value", "argument1", "argument2");
         public static ApiExceptionType ARGUMENTS_VALUES_DUPLICATED = new ApiExceptionType(StatusCode.ArgumentsDuplicate, StatusCode.BadRequest, "Argument [@argument@] can not appear twice", "argument");
         public static ApiExceptionType INVALID_AGRUMENT_VALUE = new ApiExceptionType(StatusCode.InvalidArgumentValue, StatusCode.BadRequest, "Argument [@argument@] value must be of type [@value@]", "argument", "value");
-        public static ApiExceptionType BOTH_ARGUMENTS_MUST_HAVE_VALUE = new ApiExceptionType(StatusCode.OneOfArgumentsCannotBeEmpty, StatusCode.BadRequest, "Argument [@argument1@] cannot be empty if [argument2@] not empty", "argument1", "vargument2");
+        public static ApiExceptionType BOTH_ARGUMENTS_MUST_HAVE_VALUE = new ApiExceptionType(StatusCode.OneOfArgumentsCannotBeEmpty, StatusCode.BadRequest, "Argument [@argument1@] cannot be empty if [@argument2@] not empty", "argument1", "argument2");
         public static ApiExceptionType TYPE_NOT_SUPPORTED = new ApiExceptionType(StatusCode.TypeNotSupported, StatusCode.BadRequest, "Type [@value@] is not supported for argument [@argument@]", "argument", "value");
         public static ApiExceptionType FORMAT_NOT_SUPPORTED = new ApiExceptionType(StatusCode.FormatNotSupported, StatusCode.BadRequest, "Format @formatName@(@format@) is not supported.", "formatName", "format");
 

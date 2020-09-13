@@ -114,6 +114,8 @@ namespace WebAPI.Models.API
         [SchemeProperty(MaxLength = 1200)]
         public string Message { get; set; }
 
+        // TODO SHIR \ MATAN - if we put null in update it map it with string empty
+
         /// <summary>
         /// Comma separated collection IDs list
         /// </summary>
@@ -137,7 +139,7 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForAdd()
         {
-            ValidateDates();
+            ValidateDates(false);
 
             if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
             {
@@ -167,7 +169,7 @@ namespace WebAPI.Models.API
 
         internal override void ValidateForUpdate()
         {
-            ValidateDates();
+            ValidateDates(true);
 
             if (Promotion != null)
             {
@@ -175,23 +177,39 @@ namespace WebAPI.Models.API
             }
         }
 
-        private void ValidateDates()
+        private void ValidateDates(bool isUpdate)
         {
+            if (StartDate == 0 && EndDate != 0)
+            {
+                throw new BadRequestException(BadRequestException.BOTH_ARGUMENTS_MUST_HAVE_VALUE, "StartDate", "EndDate");
+            }
+
+            if (StartDate != 0 && EndDate == 0)
+            {
+                throw new BadRequestException(BadRequestException.BOTH_ARGUMENTS_MUST_HAVE_VALUE, "EndDate", "StartDate");
+            }
+
             var now = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
-            if (EndDate <= now)
+            if (EndDate <= now && (!isUpdate || this.EndDate != 0))
             {
                 throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "EndDate");
             }
 
-            if (StartDate < now)
+            if (StartDate < now && (!isUpdate || this.StartDate != 0))
             {
                 throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "StartDate");
             }
 
-            if (EndDate <= StartDate)
+            if (EndDate <= StartDate && StartDate != 0 && EndDate != 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "EndDate", "StartDate");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "StartDate", "EndDate");
             }
+        }
+
+        public List<long> GetCollectionIds()
+        {
+            if (this.CollectionIdIn == null) { return null; }
+            return this.GetItemsIn<List<long>, long>(this.CollectionIdIn, "collectionIdIn");
         }
     }
 

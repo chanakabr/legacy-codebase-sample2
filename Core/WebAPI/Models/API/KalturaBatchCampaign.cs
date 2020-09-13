@@ -15,6 +15,7 @@ namespace WebAPI.Models.API
     /// </summary>
     public partial class KalturaBatchCampaign : KalturaCampaign
     {
+        // TODO SHIR \ MATAN - if we put null in update it map it with string empty
         /// <summary>
         /// These conditions define the population that apply one the campaign
         /// </summary>

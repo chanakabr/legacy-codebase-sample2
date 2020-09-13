@@ -1376,8 +1376,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.Promotion, opt => opt.MapFrom(src => src.Promotion))
                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
-               .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertObjectState(src.State)))
-               .ForMember(dest => dest.CollectionIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.CollectionIdIn) ? src.GetItemsIn<List<long>, long>(src.CollectionIdIn, "collectionIdIn") : null))
+               .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertObjectState(src.State)))
+               .ForMember(dest => dest.CollectionIds, opt => opt.ResolveUsing(src => src.GetCollectionIds()))
                ;
 
             cfg.CreateMap<Campaign, KalturaCampaign>()
