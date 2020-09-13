@@ -529,7 +529,7 @@ namespace ApiLogic.Users.Managers
                     }
 
                     var ids = campaignsDB.Select(x => x.Id).ToList();
-                    list = PricingDAL.ListCampaignByType<T>(contextData.GroupId, ids);
+                    list = PricingDAL.GetCampaignByType<T>(contextData.GroupId, ids);
                 }
             }
             catch (Exception ex)
@@ -546,7 +546,7 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                list = PricingDAL.ListCampaignByIds(contextData.GroupId, ids);
+                list = PricingDAL.GetCampaignByIds(contextData.GroupId, ids);
             }
             catch (Exception ex)
             {
@@ -563,7 +563,7 @@ namespace ApiLogic.Users.Managers
             try
             {
                 var groupId = (int)arg["groupId"];
-                list = PricingDAL.ListCampaignsByGroupId(groupId);
+                list = PricingDAL.GetCampaignsByGroupId(groupId);
             }
             catch (Exception ex)
             {

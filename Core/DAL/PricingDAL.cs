@@ -1890,17 +1890,17 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static List<CampaignDB> ListCampaignsByGroupId(int groupId)
+        public static List<CampaignDB> GetCampaignsByGroupId(int groupId)
         {
-            var sp = new StoredProcedure("List_CampaignsByGroupId");
+            var sp = new StoredProcedure("Get_CampaignsByGroupId");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
             return sp.ExecuteDataSet().Tables[0].ToList<CampaignDB>();
         }
 
-        public static List<T> ListCampaignByType<T>(int groupId, List<long> ids) where T : Campaign, new()
+        public static List<T> GetCampaignByType<T>(int groupId, List<long> ids) where T : Campaign, new()
         {
-            var sp = new StoredProcedure("List_CampaignByIds");
+            var sp = new StoredProcedure("Get_CampaignByIds");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
             sp.AddIDListParameter("@IDs", ids, "ID");
@@ -1918,9 +1918,9 @@ namespace DAL
             return sp.ExecuteDataSet().Tables[0].ToList<T>();
         }
 
-        public static List<Campaign> ListCampaignByIds(int groupId, List<long> ids)
+        public static List<Campaign> GetCampaignByIds(int groupId, List<long> ids)
         {
-            var sp = new StoredProcedure("List_CampaignByIds");
+            var sp = new StoredProcedure("Get_CampaignByIds");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
             sp.AddIDListParameter("@IDs", ids, "ID");
