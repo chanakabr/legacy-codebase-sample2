@@ -1533,6 +1533,9 @@ namespace WebAPI.Reflection
                 case "KalturaPromotion":
                     return new KalturaPromotion(parameters);
                     
+                case "KalturaPromotionInfo":
+                    return new KalturaPromotionInfo(parameters);
+                    
                 case "KalturaPropertySkipCondition":
                     return new KalturaPropertySkipCondition(parameters);
                     
@@ -9361,6 +9364,7 @@ namespace WebAPI.Models.Notification
     {
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowTvSeries")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -9368,7 +9372,6 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaFollowTvSeries(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -9751,6 +9754,7 @@ namespace WebAPI.Models.Notification
     {
         private static RuntimeSchemePropertyAttribute PushStartHourSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotificationsPartnerSettings")
         {
+            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -9759,10 +9763,10 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 24,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute PushEndHourSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotificationsPartnerSettings")
         {
+            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -9771,10 +9775,10 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 24,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute MessageTTLDaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotificationsPartnerSettings")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -9783,10 +9787,10 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 90,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute ReminderOffsetSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotificationsPartnerSettings")
         {
+            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -9795,7 +9799,6 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 3600,
-            MinInteger = 0,
         };
         public KalturaNotificationsPartnerSettings(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -10703,6 +10706,7 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetComment")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -10710,7 +10714,6 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaAssetComment(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -10755,6 +10758,7 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute AssetIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetCommentFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -10762,7 +10766,6 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaAssetCommentFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -16150,6 +16153,7 @@ namespace WebAPI.Models.Catalog
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUnifiedChannel")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -16157,7 +16161,6 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaUnifiedChannel(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -17199,6 +17202,7 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute DefaultAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNPartnerSettings")
         {
+            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -17206,10 +17210,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute DefaultRecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNPartnerSettings")
         {
+            MinInteger = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -17217,7 +17221,6 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 0,
         };
         public KalturaCDNPartnerSettings(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -17896,6 +17899,7 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute ObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotification")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -17903,7 +17907,6 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotification")
         {
@@ -17992,6 +17995,7 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute ObjectIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotificationFilter")
         {
+            MinInteger = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -17999,7 +18003,6 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaEventNotificationFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -23105,17 +23108,6 @@ namespace WebAPI.Models.Pricing
                 {
                     IsSubscriptionOnly = (Boolean) Convert.ChangeType(parameters["isSubscriptionOnly"], typeof(Boolean));
                 }
-                if (parameters.ContainsKey("fullPrice") && parameters["fullPrice"] != null)
-                {
-                    if (parameters["fullPrice"] is JObject)
-                    {
-                        FullPrice = (KalturaPrice) Deserializer.deserialize(typeof(KalturaPrice), ((JObject) parameters["fullPrice"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["fullPrice"] is IDictionary)
-                    {
-                        FullPrice = (KalturaPrice) Deserializer.deserialize(typeof(KalturaPrice), (Dictionary<string, object>) parameters["fullPrice"]);
-                    }
-                }
                 if (parameters.ContainsKey("subscriptionId") && parameters["subscriptionId"] != null)
                 {
                     SubscriptionId = (String) Convert.ChangeType(parameters["subscriptionId"], typeof(String));
@@ -23626,6 +23618,26 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaProductPrice
     {
+        private static RuntimeSchemePropertyAttribute FullPriceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProductPrice")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute PromotionInfoSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProductPrice")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaProductPrice(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -23679,15 +23691,19 @@ namespace WebAPI.Models.Pricing
                         Price = (KalturaPrice) Deserializer.deserialize(typeof(KalturaPrice), (Dictionary<string, object>) parameters["price"]);
                     }
                 }
-                if (parameters.ContainsKey("originalPrice") && parameters["originalPrice"] != null)
+                if (parameters.ContainsKey("fullPrice") && parameters["fullPrice"] != null)
                 {
-                    if (parameters["originalPrice"] is JObject)
+                    if(!isOldVersion)
                     {
-                        OriginalPrice = (KalturaPrice) Deserializer.deserialize(typeof(KalturaPrice), ((JObject) parameters["originalPrice"]).ToObject<Dictionary<string, object>>());
+                        FullPriceSchemaProperty.Validate("fullPrice", parameters["fullPrice"]);
                     }
-                    else if (parameters["originalPrice"] is IDictionary)
+                    if (parameters["fullPrice"] is JObject)
                     {
-                        OriginalPrice = (KalturaPrice) Deserializer.deserialize(typeof(KalturaPrice), (Dictionary<string, object>) parameters["originalPrice"]);
+                        FullPrice = (KalturaPrice) Deserializer.deserialize(typeof(KalturaPrice), ((JObject) parameters["fullPrice"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["fullPrice"] is IDictionary)
+                    {
+                        FullPrice = (KalturaPrice) Deserializer.deserialize(typeof(KalturaPrice), (Dictionary<string, object>) parameters["fullPrice"]);
                     }
                 }
                 if (parameters.ContainsKey("purchaseStatus") && parameters["purchaseStatus"] != null)
@@ -23702,6 +23718,21 @@ namespace WebAPI.Models.Pricing
                     if (!Enum.IsDefined(typeof(KalturaPurchaseStatus), PurchaseStatus))
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", PurchaseStatus, typeof(KalturaPurchaseStatus)));
+                    }
+                }
+                if (parameters.ContainsKey("promotionInfo") && parameters["promotionInfo"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        PromotionInfoSchemaProperty.Validate("promotionInfo", parameters["promotionInfo"]);
+                    }
+                    if (parameters["promotionInfo"] is JObject)
+                    {
+                        PromotionInfo = (KalturaPromotionInfo) Deserializer.deserialize(typeof(KalturaPromotionInfo), ((JObject) parameters["promotionInfo"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["promotionInfo"] is IDictionary)
+                    {
+                        PromotionInfo = (KalturaPromotionInfo) Deserializer.deserialize(typeof(KalturaPromotionInfo), (Dictionary<string, object>) parameters["promotionInfo"]);
                     }
                 }
             }
@@ -23743,6 +23774,19 @@ namespace WebAPI.Models.Pricing
                     {
                         ProductsPrices = buildList(typeof(KalturaProductPrice), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaPromotionInfo
+    {
+        public KalturaPromotionInfo(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("campaignId") && parameters["campaignId"] != null)
+                {
+                    CampaignId = (Int64) Convert.ChangeType(parameters["campaignId"], typeof(Int64));
                 }
             }
         }

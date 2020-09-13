@@ -5145,8 +5145,6 @@ namespace WebAPI.Reflection
                             return "fileId";
                         case "FirstDeviceName":
                             return "firstDeviceName";
-                        case "FullPrice":
-                            return "fullPrice";
                         case "IsInCancelationPeriod":
                             return "isInCancelationPeriod";
                         case "IsSubscriptionOnly":
@@ -5297,14 +5295,16 @@ namespace WebAPI.Reflection
                 case "KalturaProductPrice":
                     switch(property.Name)
                     {
-                        case "OriginalPrice":
-                            return "originalPrice";
+                        case "FullPrice":
+                            return "fullPrice";
                         case "Price":
                             return "price";
                         case "ProductId":
                             return "productId";
                         case "ProductType":
                             return "productType";
+                        case "PromotionInfo":
+                            return "promotionInfo";
                         case "PurchaseStatus":
                             return "purchaseStatus";
                     }
@@ -5373,6 +5373,14 @@ namespace WebAPI.Reflection
                             return "discountModuleId";
                         case "NumberOfRecurring":
                             return "numberOfRecurring";
+                    }
+                    break;
+                    
+                case "KalturaPromotionInfo":
+                    switch(property.Name)
+                    {
+                        case "CampaignId":
+                            return "campaignId";
                     }
                     break;
                     

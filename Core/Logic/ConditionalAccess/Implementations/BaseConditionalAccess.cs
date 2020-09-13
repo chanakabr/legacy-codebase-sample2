@@ -6459,7 +6459,7 @@ namespace Core.ConditionalAccess
 
                             if (price.CampaignDetails != null)
                             {
-                                cont.promotion = new Promotion()
+                                cont.PromotionInfo = new PromotionInfo()
                                 {
                                     CampaignId = price.CampaignDetails.Id
                                 };
