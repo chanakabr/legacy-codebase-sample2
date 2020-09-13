@@ -41,6 +41,7 @@ namespace ApiLogic.Users.Managers
                 if (campaignToDeleteResponse.Object.State != ObjectState.INACTIVE)
                 {
                     response.Set(eResponseStatus.CanDeleteOnlyInactiveCampaign, "Can delete only inactive campaign");
+                    return response;
                 }
 
                 if (!PricingDAL.DeleteCampaign(contextData.GroupId, id))
