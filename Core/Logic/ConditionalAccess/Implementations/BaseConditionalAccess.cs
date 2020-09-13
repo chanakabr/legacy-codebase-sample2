@@ -2657,7 +2657,8 @@ namespace Core.ConditionalAccess
         }
 
         protected internal bool GetMultiSubscriptionUsageModule(RenewDetails renewDetails, string userIp, ref int recPeriods, ref bool isMPPRecurringInfinitely,
-                                                                Subscription subscription, ref SubscriptionCycle subscriptionCycle, int groupId = 0, bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
+                                                                Subscription subscription, ref SubscriptionCycle subscriptionCycle, int groupId = 0, 
+                                                                bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
         {
             bool isSuccess = false;
             if (subscription == null) { return isSuccess; }
@@ -2718,6 +2719,12 @@ namespace Core.ConditionalAccess
 
                 bool recurringCouponFirstExceeded = false;
                 var originalPrice = renewDetails.Price;
+
+                if (string.IsNullOrEmpty(renewDetails.RecurringData.CouponCode))
+                {
+                    bool used = HandleRecurringCampaign(renewDetails, subscription, oCurrency);
+                }
+
                 HandleRecurringCoupon(renewDetails, subscription, oCurrency, out recurringCouponFirstExceeded);
 
                 if (renewDetails.RecurringData.Compensation != null)
@@ -3428,6 +3435,98 @@ namespace Core.ConditionalAccess
             {
                 log.Error("HandleRecurringCoupon error - , PurchaseID: " + renewDetails.PurchaseId.ToString() + ",Exception:" + ex.ToString(), ex);
             }
+        }
+
+        private bool HandleRecurringCampaign(RenewDetails renewDetails, Subscription theSub, Currency oCurrency)
+        {
+            bool use = false;
+            try
+            {
+                if (renewDetails.RecurringData.CampaignDetails == null || renewDetails.RecurringData.CampaignDetails.Id == 0)
+                {
+                    return use;
+                    #region recurring - not for now
+                    /*
+                    Price originalPrice = new Price
+                    {
+                        m_dPrice = renewDetails.Price,
+                        m_oCurrency = oCurrency
+                    };
+
+                    Price finalPrice = new Price
+                    {
+                        m_dPrice = renewDetails.Price,
+                        m_oCurrency = oCurrency
+                    };
+
+                    var campaign = Utils.GetValidCampaign(renewDetails.GroupId, (int)renewDetails.DomainId, originalPrice, ref finalPrice,
+                        eTransactionType.Subscription, oCurrency.m_sCurrencyCD3, long.Parse(theSub.m_SubscriptionCode), string.Empty, true);
+
+                    if (campaign != null)
+                    {
+                        if (renewDetails.RecurringData.CampaignDetails == null)
+                        {
+                            renewDetails.RecurringData.CampaignDetails = new RecurringCampaignDetails();
+                        }
+
+                        renewDetails.RecurringData.CampaignDetails.Id = campaign.Id;
+                        renewDetails.RecurringData.CampaignDetails.LeftRecurring = campaign.Promotion.NumberOfRecurring ?? 0;                        
+
+                        renewDetails.Price = finalPrice.m_dPrice;
+                        
+                        use = true;
+                    }
+
+                    return use;
+                    */
+                    #endregion
+                }
+                else
+                {
+                    var campaignDetails = renewDetails.RecurringData.CampaignDetails;
+
+                    if (campaignDetails.LeftRecurring > 0)
+                    {
+                        CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
+                        {
+                            IdIn = new List<long>() { campaignDetails.Id }
+                        };
+
+                        ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(m_nGroupID);
+
+                        var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
+
+                        if (campaigns.HasObjects())
+                        {
+                            Price priceBeforeCouponDiscount = new Price
+                            {
+                                m_dPrice = renewDetails.Price,
+                                m_oCurrency = oCurrency
+                            };
+
+                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, (int)(campaigns.Objects[0].Promotion.DiscountModuleId), string.Empty, oCurrency.m_sCurrencyCD3);
+
+                            Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, discountModule, 0);
+
+                            renewDetails.Price = priceResult.m_dPrice;
+                            use = true;
+                        }
+                    }
+                    else if (campaignDetails.Remainder > 0)
+                    {
+                        renewDetails.RecurringData.CampaignDetails.IsUseRemainder = true;
+                        renewDetails.Price = Math.Max(renewDetails.Price - campaignDetails.Remainder, 0);
+
+                        use = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("HandleRecurringCoupon error - , PurchaseID: " + renewDetails.PurchaseId.ToString() + ",Exception:" + ex.ToString(), ex);
+            }
+
+            return use;
         }
 
         protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, ref Domain userDomain)
@@ -6337,25 +6436,35 @@ namespace Core.ConditionalAccess
                     {
                         string coupon = couponCode;
                         string subscriptionCode = subscriptions[i];
-                        PriceReason theReason = PriceReason.UnKnown;
 
-                        double couponRemainder = 0;
+                        
                         Subscription s = null;
-                        SubscriptionCycle subscriptionCycle = null;
-                        Price originalPrice = null;
 
-                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, ref coupon, ref theReason, ref s, string.Empty, languageCode, udid, ip,
-                                                                      ref subscriptionCycle, out couponRemainder, out originalPrice, currencyCode, false, blockEntitlement);
+                        var price = Utils.GetSubscriptionFullPrice(m_nGroupID, subscriptionCode, userId, coupon, ref s, string.Empty, languageCode, udid, ip,
+                                                                      currencyCode, false, blockEntitlement);
 
-                        if (price != null)
+                        coupon = price.CouponCode;
+                        double couponRemainder = price.CouponRemainder;
+                        var subscriptionCycle = price.SubscriptionCycle;
+
+                        if (price.FinalPrice != null)
                         {
                             SubscriptionsPricesContainer cont = new SubscriptionsPricesContainer();
                             long? endDate = null;
-                            if (subscriptionCycle != null && subscriptionCycle.UnifiedBillingCycle != null && theReason != PriceReason.EntitledToPreviewModule && string.IsNullOrEmpty(coupon))
+                            if (subscriptionCycle != null && subscriptionCycle.UnifiedBillingCycle != null && price.PriceReason != PriceReason.EntitledToPreviewModule && string.IsNullOrEmpty(coupon))
                             {
                                 endDate = subscriptionCycle.UnifiedBillingCycle.endDate;
                             }
-                            cont.Initialize(subscriptionCode, price, theReason, originalPrice, endDate);
+                            cont.Initialize(subscriptionCode, price.FinalPrice, price.PriceReason, price.OriginalPrice, endDate);
+
+                            if (price.CampaignDetails != null)
+                            {
+                                cont.promotion = new Promotion()
+                                {
+                                    CampaignId = price.CampaignDetails.Id
+                                };
+                            }
+
                             resp.Add(cont);
                         }
                     }
@@ -7927,7 +8036,7 @@ namespace Core.ConditionalAccess
         /// </summary>
         protected internal virtual string GetCustomDataForSubscription(Subscription theSub, Core.Pricing.Campaign campaign, string sSubscriptionCode, string sCampaignCode, string sSiteGUID,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID,
-            bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false, int? context = null, bool isPartialPrice = false)
+            bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false, int? context = null, bool isPartialPrice = false, long campaignId = 0)
         {
             bool bIsRecurring = theSub.m_bIsRecurring;
 
@@ -8021,6 +8130,10 @@ namespace Core.ConditionalAccess
             if (isPartialPrice && !previewEntitled && string.IsNullOrEmpty(sCouponCode)) // add to custom data isPartial price - only if it is parcial 
             {
                 sb.Append(string.Format("<partialPrice>{0}</partialPrice>", isPartialPrice));
+            }
+            if (campaignId > 0)
+            {
+                sb.Append($"<campaign>{campaignId}</campaign>");
             }
             sb.Append("</customdata>");
             return sb.ToString();
@@ -9249,6 +9362,11 @@ namespace Core.ConditionalAccess
             if (isPartialPrice) // add to custom data isPartial price - only if it is parcial 
             {
                 sb.Append(string.Format("<partialPrice>{0}</partialPrice>", isPartialPrice));
+            }
+
+            if (renewSubscriptionDetails.RecurringData.CampaignDetails?.Id > 0) // add to custom data CampaignDetails
+            {
+                sb.Append($"<campaign>{renewSubscriptionDetails.RecurringData.CampaignDetails.Id}</campaign>");
             }
 
             sb.Append("</customdata>");

@@ -43,8 +43,8 @@ namespace Core.ConditionalAccess
         public Price OriginalPrice;
         public PriceReason m_PriceReason;
         public long? endDate;
-
-        public long? CampaignId;
+        
+        public Promotion promotion;
 
         public SubscriptionsPricesContainer()
         { }
@@ -172,5 +172,10 @@ namespace Core.ConditionalAccess
             m_sProductCode = productCode;
             m_dtDiscountEndDate = dtDiscountEndDate;
         }
+    }
+
+    public class Promotion
+    {
+        public long? CampaignId;
     }
 }
