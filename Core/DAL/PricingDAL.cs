@@ -1868,7 +1868,6 @@ namespace DAL
             }
 
             return null;
-            
         }
 
         public static bool Update_Campaign(Campaign campaign, ContextData contextData)
@@ -1906,56 +1905,35 @@ namespace DAL
             return sp.ExecuteDataSet().Tables[0].ToList<CampaignDB>();
         }
 
-        public static List<T> GetCampaignByType<T>(int groupId, List<long> ids) where T : Campaign, new()
+        public static Campaign GetCampaignById(int groupId, long id)
         {
-            var sp = new StoredProcedure("Get_CampaignByIds");
+            var sp = new StoredProcedure("Get_CampaignById");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
-            sp.AddIDListParameter("@IDs", ids, "ID");
+            sp.AddParameter("@ID", id);
 
-            //TODO - Shir, select preferred method I guess
-            var list = new List<T>();
+            Campaign response = null;
+
             var tb = sp.ExecuteDataSet().Tables[0];
-            var CAMPAIGNS_JSON = sp.ExecuteDataSet().Tables[0].ToList<T>();
-
-            foreach (DataRow item in tb.Rows)
+            if (tb?.Rows != null && tb.Rows.Count > 0 && tb.Rows[0] != null)
             {
-                var campaign = JsonConvert.DeserializeObject<T>(ODBCWrapper.Utils.GetSafeStr(item, "campaign_json"));
-            }
-
-            return sp.ExecuteDataSet().Tables[0].ToList<T>();
-        }
-
-        public static List<Campaign> GetCampaignByIds(int groupId, List<long> ids)
-        {
-            var sp = new StoredProcedure("Get_CampaignByIds");
-            sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddIDListParameter("@IDs", ids, "ID");
-
-            var list = new List<Campaign>();
-            var tb = sp.ExecuteDataSet().Tables[0];
-            if (tb != null)
-            {
-                foreach (DataRow dr in tb.Rows)
+                var dr = tb.Rows[0];
+                var type = Utils.GetIntSafeVal(dr, "type");
+                if (type == (int)eCampaignType.Trigger)
                 {
-                    var type = Utils.GetIntSafeVal(dr, "type");
-                    if (type == (int)eCampaignType.Trigger)
-                    {
-                        var triggerCampaign = JsonConvert.DeserializeObject<TriggerCampaign>(Utils.GetSafeStr(dr, "campaign_json"));
-                        triggerCampaign.Id = Utils.GetLongSafeVal(dr, "id");
-                        list.Add(triggerCampaign);
-                    }
-                    else if (type == (int)eCampaignType.Batch)
-                    {
-                        var batchCampaign = JsonConvert.DeserializeObject<BatchCampaign>(Utils.GetSafeStr(dr, "campaign_json"));
-                        batchCampaign.Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
-                        list.Add(batchCampaign);
-                    }
+                    var triggerCampaign = JsonConvert.DeserializeObject<TriggerCampaign>(Utils.GetSafeStr(dr, "campaign_json"));
+                    triggerCampaign.Id = Utils.GetLongSafeVal(dr, "id");
+                    response = triggerCampaign;
+                }
+                else if (type == (int)eCampaignType.Batch)
+                {
+                    var batchCampaign = JsonConvert.DeserializeObject<BatchCampaign>(Utils.GetSafeStr(dr, "campaign_json"));
+                    batchCampaign.Id = Utils.GetLongSafeVal(dr, "id");
+                    response = batchCampaign;
                 }
             }
 
-            return list;
+            return response;
         }
 
         #endregion 
