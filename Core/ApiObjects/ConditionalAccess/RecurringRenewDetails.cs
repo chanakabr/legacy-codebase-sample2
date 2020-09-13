@@ -25,6 +25,5 @@ namespace ApiObjects.ConditionalAccess
         public double Remainder { get; set; }
         public int LeftRecurring { get; set; }
         public bool IsUseRemainder { get; set; }
-        public HashSet<long> Used { get; set; }
     }
 }

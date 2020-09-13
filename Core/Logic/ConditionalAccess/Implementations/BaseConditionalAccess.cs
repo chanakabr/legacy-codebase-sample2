@@ -3444,6 +3444,9 @@ namespace Core.ConditionalAccess
             {
                 if (renewDetails.RecurringData.CampaignDetails == null || renewDetails.RecurringData.CampaignDetails.Id == 0)
                 {
+                    return use;
+                    #region recurring - not for now
+                    /*
                     Price originalPrice = new Price
                     {
                         m_dPrice = renewDetails.Price,
@@ -3475,6 +3478,8 @@ namespace Core.ConditionalAccess
                     }
 
                     return use;
+                    */
+                    #endregion
                 }
                 else
                 {

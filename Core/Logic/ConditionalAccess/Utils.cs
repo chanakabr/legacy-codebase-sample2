@@ -1399,6 +1399,20 @@ namespace Core.ConditionalAccess
                     {
                         fullPrice.FinalPrice = finalPrice;
                         fullPrice.SubscriptionCycle = CalcSubscriptionCycle(groupId, subscription, domainId);
+
+                        //search for campaign
+                        Price lowestPrice = CopyPrice(fullPrice.OriginalPrice);
+                        var campaign = GetValidCampaign(groupId, domainId, fullPrice.OriginalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode);
+
+                        if (campaign != null)
+                        {
+                            fullPrice.CampaignDetails = new RecurringCampaignDetails()
+                            {
+                                Id = campaign.Id,
+                                LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0,
+                            };
+                        }
+
                         return fullPrice;
                     }
 
@@ -1410,7 +1424,7 @@ namespace Core.ConditionalAccess
 
                     if (domainId > 0)
                     {
-                        Price lowestPrice = discountPrice ?? fullPrice.FinalPrice;
+                        Price lowestPrice = CopyPrice(discountPrice) ?? CopyPrice(fullPrice.FinalPrice);
                         var campaign = GetValidCampaign(groupId, domainId, fullPrice.FinalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode);
 
                         if (campaign != null)
@@ -1420,7 +1434,6 @@ namespace Core.ConditionalAccess
                             {
                                 Id = campaign.Id,
                                 LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0,
-                                Used = new HashSet<long>() { campaign.Id }
                             };
 
                             CalcPriceAndCampaignRemainderByUnifiedBillingCycle(groupId, subscription, false, domainId, ref fullPrice);
@@ -1869,7 +1882,7 @@ namespace Core.ConditionalAccess
         }
 
         public static ApiObjects.Campaign GetValidCampaign(int groupId, int domainId, Price currentPrice, ref Price lowestPrice, eTransactionType transactionType, 
-            string currencyCode, long businessModuleId, string countryCode, bool recurringOnly = false, List<long> used = null)
+            string currencyCode, long businessModuleId, string countryCode)
         {
             ApiObjects.Campaign campaign = null;
 
@@ -1897,9 +1910,7 @@ namespace Core.ConditionalAccess
                     GroupId = contextData.GroupId,
                 };
 
-                var valid = campaigns.Objects.Where(x => x.Promotion.EvaluateConditions(filter) 
-                                                    && (!recurringOnly || (x.Promotion.NumberOfRecurring.HasValue && x.Promotion.NumberOfRecurring.Value > 0))
-                                                    && (used == null || !used.Contains(x.Id))).ToList();
+                var valid = campaigns.Objects.Where(x => x.Promotion.EvaluateConditions(filter)).ToList();
 
                 if (valid?.Count > 0)
                 {
