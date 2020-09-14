@@ -1401,16 +1401,19 @@ namespace Core.ConditionalAccess
                         fullPrice.SubscriptionCycle = CalcSubscriptionCycle(groupId, subscription, domainId);
 
                         //search for campaign
-                        Price lowestPrice = CopyPrice(fullPrice.OriginalPrice);
-                        var campaign = GetValidCampaign(groupId, domainId, fullPrice.OriginalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode);
-
-                        if (campaign != null)
+                        if (string.IsNullOrEmpty(couponCode))
                         {
-                            fullPrice.CampaignDetails = new RecurringCampaignDetails()
+                            Price lowestPrice = CopyPrice(fullPrice.OriginalPrice);
+                            var campaign = GetValidCampaign(groupId, domainId, fullPrice.OriginalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode);
+
+                            if (campaign != null)
                             {
-                                Id = campaign.Id,
-                                LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0,
-                            };
+                                fullPrice.CampaignDetails = new RecurringCampaignDetails()
+                                {
+                                    Id = campaign.Id,
+                                    LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0,
+                                };
+                            }
                         }
 
                         return fullPrice;
@@ -1422,7 +1425,7 @@ namespace Core.ConditionalAccess
                         discountPrice = GetPriceAfterDiscount(finalPrice, externalDiscount, 0);
                     }
 
-                    if (domainId > 0)
+                    if (string.IsNullOrEmpty(couponCode) && domainId > 0)
                     {
                         Price lowestPrice = CopyPrice(discountPrice) ?? CopyPrice(fullPrice.FinalPrice);
                         var campaign = GetValidCampaign(groupId, domainId, fullPrice.FinalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode);
