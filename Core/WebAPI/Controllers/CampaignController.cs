@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InternalConnectionIssue)]
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public static GenericResponse<KalturaCampaign> SetState(long campaignId, KalturaObjectState newState)
+        public static void SetState(long campaignId, KalturaObjectState newState)
         {
             var response = new GenericResponse<KalturaCampaign>();
             response.SetStatus(eResponseStatus.OK);
@@ -35,22 +35,13 @@ namespace WebAPI.Controllers
             try
             {
                 var _newState = AutoMapper.Mapper.Map<ObjectState>(newState);
-                Func<GenericResponse<Campaign>> coreFunc = () =>
-                    CampaignManager.Instance.SetState(contextData, campaignId, _newState);
-
-                response.Object = Clients.ClientUtils.GetResponseFromWS<KalturaCampaign, Campaign>(coreFunc);
-
-                if (response.Object != null && response.Status.IsOkStatusCode())
-                {
-                    response.SetStatus(eResponseStatus.OK);
-                }
+                Func<Status> coreFunc = () => CampaignManager.Instance.SetState(contextData, campaignId, _newState);
+                Clients.ClientUtils.GetResponseStatusFromWS(coreFunc);
             }
             catch (Exceptions.ClientException ex)
             {
                 Utils.ErrorUtils.HandleClientException(ex);
             }
-
-            return response;
         }
     }
 }

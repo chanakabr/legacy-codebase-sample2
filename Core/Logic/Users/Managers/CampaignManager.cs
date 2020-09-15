@@ -158,16 +158,14 @@ namespace ApiLogic.Users.Managers
 
         public GenericListResponse<Campaign> ListCampaingsByIds(ContextData contextData, CampaignIdInFilter filter)
         {
-            var response = new GenericListResponse<Campaign>
+            var response = new GenericListResponse<Campaign>();
+            if (filter.IdIn?.Count > 0)
             {
-                Objects = ListCampaignByIds(contextData, filter.IdIn)
-            };
-
-            if (response.Objects != null)
-            {
-                response.SetStatus(eResponseStatus.OK);
+                response.Objects = filter.IdIn.Select(id => Get(contextData, id)?.Object).ToList();
             }
-
+            
+            response.SetStatus(eResponseStatus.OK);
+            
             return response;
         }
 
@@ -385,9 +383,9 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> SetState(ContextData contextData, long id, ObjectState newState)
+        public Status SetState(ContextData contextData, long id, ObjectState newState)
         {
-            var response = new GenericResponse<Campaign>();
+            var response = Status.Error;
 
             try
             {
@@ -395,31 +393,30 @@ namespace ApiLogic.Users.Managers
 
                 if (!campaign.IsOkStatusCode())
                 {
-                    response.SetStatus(campaign.Status);
+                    response.Set(campaign.Status);
                     return response;
                 }
 
                 var validationStatus = ValidateStateChange(campaign.Object, newState);
                 if (!validationStatus.IsOkStatusCode())
                 {
-                    response.SetStatus(validationStatus);
+                    response.Set(validationStatus);
                     return response;
                 }
 
                 if (PricingDAL.Update_Campaign(campaign.Object, contextData))
                 {
                     SetInvalidationKeys(contextData, campaign.Object);
-                    response.Object = Get(contextData, campaign.Object.Id)?.Object;
-                    response.SetStatus(eResponseStatus.OK);
+                    response.Set(eResponseStatus.OK);
                 }
                 else
-                    response.SetStatus(eResponseStatus.Error, $"Error Updating Campaign: [{id}] for group: {contextData.GroupId}");
+                    response.Set(eResponseStatus.Error, $"Error Updating Campaign: [{id}] for group: {contextData.GroupId}");
 
             }
             catch (Exception ex)
             {
                 log.Error($"Failed setting campaign: {id} state to: {newState}, ex: {ex}", ex);
-                response.SetStatus(eResponseStatus.Error, $"Campaign: {id} wasn't updated");
+                response.Set(eResponseStatus.Error, $"Campaign: {id} wasn't updated");
             }
 
             return response;
@@ -462,6 +459,8 @@ namespace ApiLogic.Users.Managers
                     return status;
                 }
             }
+
+            // TODO SHIR - validate collection exists
 
             status.Set(eResponseStatus.OK);
             return status;
@@ -556,27 +555,6 @@ namespace ApiLogic.Users.Managers
             catch (Exception ex)
             {
                 log.Error($"Failed to ListCampaignsByType contextData:{contextData}, ex: {ex}", ex);
-            }
-
-            return list;
-        }
-
-        private List<Campaign> ListCampaignByIds(ContextData contextData, List<long> ids)
-        {
-            List<Campaign> list = null;
-
-            if (ids == null || ids.Count == 0)
-            {
-                return null;
-            }
-
-            try
-            {
-                list = ids.Select(id => Get(contextData, id)?.Object).ToList();
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Failed to ListCampaignByIds contextData:{contextData}, ex: {ex}", ex);
             }
 
             return list;

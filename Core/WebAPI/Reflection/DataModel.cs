@@ -2348,6 +2348,36 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDynamicList":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaDynamicListIdInFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaDynamicListSearchFilter":
+                    switch(property.Name)
+                    {
+                        case "ValueIn":
+                            return "valueIn";
+                    }
+                    break;
+                    
                 case "KalturaDynamicOrderBy":
                     switch(property.Name)
                     {
@@ -7846,7 +7876,8 @@ namespace WebAPI.Reflection
                     {
                         case "setstate":
                             RolesManager.ValidateActionPermitted("campaign", "setState", false);
-                            return CampaignController.SetState((long) methodParams[0], (KalturaObjectState) methodParams[1]);
+                            CampaignController.SetState((long) methodParams[0], (KalturaObjectState) methodParams[1]);
+                            return null;
                             
                         case "add":
                             RolesManager.ValidateActionPermitted("campaign", "add");
@@ -8304,6 +8335,29 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("drmProfile", "list", false);
                             return DrmProfileController.List();
+                            
+                    }
+                    break;
+                    
+                case "dynamiclist":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("dynamiclist", "add");
+                            return DynamicListController.Add((KalturaDynamicList) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("dynamiclist", "update");
+                            return DynamicListController.Update((long) methodParams[0], (KalturaDynamicList) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("dynamiclist", "delete");
+                            DynamicListController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("dynamiclist", "list");
+                            return DynamicListController.List((KalturaDynamicListFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -13870,6 +13924,54 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "list":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "dynamiclist":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaDynamicList),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaDynamicList),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaDynamicListFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
                             return ret;
                             
                     }
