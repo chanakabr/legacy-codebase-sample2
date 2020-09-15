@@ -1865,7 +1865,7 @@ namespace Core.Users
             this.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
             this.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
             var nGroupConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_CONCURRENT_MAX_LIMIT");
-            int suspendStatInt = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_7SUSPENDED");
+            int suspendStatInt = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_SUSPENDED");
 
             if (Enum.IsDefined(typeof(DomainSuspentionStatus), suspendStatInt))
             {
