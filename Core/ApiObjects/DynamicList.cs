@@ -24,9 +24,6 @@ namespace ApiObjects
         public long UpdaterId { get; set; }
         public DynamicListType Type { get; protected set; }
 
-        //public abstract U GetValues<U>() where U: List<IConvertible>;
-        //public abstract void SetValues<T>(List<T> valuesToSet);
-
         public Dictionary<string, object> GetExcelValues(int groupId)
         {
             throw new NotImplementedException();
@@ -35,6 +32,14 @@ namespace ApiObjects
         public void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructureManager structureManager)
         {
             throw new NotImplementedException();
+        }
+
+        public void FillEmpty(DynamicList oldDynamicList)
+        {
+            if (string.IsNullOrEmpty(this.Name))
+            {
+                this.Name = oldDynamicList.Name;
+            }
         }
     }
 
@@ -46,15 +51,5 @@ namespace ApiObjects
         {
             this.Type = DynamicListType.UDID;
         }
-
-        //public override List<string> GetValues()
-        //{
-        //    return Values;
-        //}
-
-        //public override U GetValues<U>()
-        //{
-        //    return Values;
-        //}
     }
 }

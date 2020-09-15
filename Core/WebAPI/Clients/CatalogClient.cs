@@ -4054,7 +4054,7 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, long userId,  string objectTypeName, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData, KalturaOTTFile fileData)
+        internal KalturaBulkUpload AddBulkUpload(int groupId, long userId,  string objectTypeName, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData, KalturaOTTFile fileData)
         {
             var bulkUploadJobData = Mapper.Map<BulkUploadJobData>(jobData);
             var bulkUploadObjectData = Mapper.Map<BulkUploadObjectData>(objectData);

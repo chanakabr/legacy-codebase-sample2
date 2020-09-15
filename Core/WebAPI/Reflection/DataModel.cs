@@ -8342,6 +8342,10 @@ namespace WebAPI.Reflection
                 case "dynamiclist":
                     switch(action)
                     {
+                        case "addfrombulkupload":
+                            RolesManager.ValidateActionPermitted("dynamicList", "addFromBulkUpload", false);
+                            return DynamicListController.AddFromBulkUpload((KalturaOTTFile) methodParams[0], (KalturaBulkUploadExcelJobData) methodParams[1], (KalturaBulkUploadAssetData) methodParams[2]);
+                            
                         case "add":
                             RolesManager.ValidateActionPermitted("dynamiclist", "add");
                             return DynamicListController.Add((KalturaDynamicList) methodParams[0]);
@@ -13932,6 +13936,23 @@ namespace WebAPI.Reflection
                 case "dynamiclist":
                     switch(action)
                     {
+                        case "addfrombulkupload":
+                            ret.Add("fileData", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(KalturaOTTFile),
+                            });
+                            ret.Add("jobData", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBulkUploadExcelJobData),
+                            });
+                            ret.Add("bulkUploadAssetData", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaBulkUploadAssetData),
+                            });
+                            return ret;
+                            
                         case "add":
                             ret.Add("objectToAdd", new MethodParam(){
                                 NewName = newParamName,

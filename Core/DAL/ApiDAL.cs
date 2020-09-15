@@ -6255,5 +6255,34 @@ namespace DAL
 
             return null;
         }
+
+        #region DynamicList
+
+        //TODO SHIR - use map with group (like dr)
+
+        private static string GetDynamicListKey(long dynamicListId)
+        {
+            return string.Format("dynamic_list_{0}", dynamicListId);
+        }
+
+        public static DynamicList GetDynamicList(long dynamicListId)
+        {
+            var key = GetDynamicListKey(dynamicListId);
+            return UtilsDal.GetObjectFromCB<DynamicList>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SaveDynamicList(DynamicList dynamicList)
+        {
+            string key = GetDynamicListKey(dynamicList.Id);
+            return UtilsDal.SaveObjectInCB<DynamicList>(eCouchbaseBucket.OTT_APPS, key, dynamicList);
+        }
+
+        public static bool DeleteDynamicList(int groupId, long dynamicListId)
+        {
+            string key = GetDynamicListKey(dynamicListId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        #endregion
     }
 }

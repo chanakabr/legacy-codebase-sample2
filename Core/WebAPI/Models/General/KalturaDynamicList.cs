@@ -5,6 +5,10 @@ using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
+using System.Collections.Generic;
+using WebAPI.Exceptions;
+using ApiObjects.Response;
+using ApiObjects.Base;
 
 namespace WebAPI.Models.General
 {
@@ -53,6 +57,14 @@ namespace WebAPI.Models.General
         }
 
         public KalturaDynamicList() { }
+
+        internal override void ValidateForAdd()
+        {
+            if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            }
+        }
     }
 
     public partial class KalturaDynamicListListResponse : KalturaListResponse<KalturaDynamicList>
@@ -62,6 +74,16 @@ namespace WebAPI.Models.General
 
     public partial class KalturaUdidDynamicList : KalturaDynamicList
     {
-       
+        internal override GenericResponse<DynamicList> Add(ContextData contextData)
+        {
+            var coreObject = AutoMapper.Mapper.Map<UdidDynamicList>(this);
+            return DynamicListManager.Instance.AddDynamicList(contextData, coreObject);
+        }
+
+        internal override GenericResponse<DynamicList> Update(ContextData contextData)
+        {
+            var coreObject = AutoMapper.Mapper.Map<UdidDynamicList>(this);
+            return DynamicListManager.Instance.UpdateDynamicList(contextData, coreObject);
+        }
     }
 }
