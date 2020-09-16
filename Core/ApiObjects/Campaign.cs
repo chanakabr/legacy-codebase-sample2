@@ -171,6 +171,9 @@ namespace ApiObjects
         public void FillEmpty(TriggerCampaign oldCampaign)
         {
             base.FillEmpty(oldCampaign);
+            
+            this.Service = oldCampaign.Service;
+            this.Action = oldCampaign.Action;
 
             if (this.TriggerConditions == null)
             {

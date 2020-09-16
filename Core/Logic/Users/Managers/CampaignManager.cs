@@ -291,18 +291,23 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<Campaign>();
             try
             {
-                var _response = Get(contextData, campaignToUpdate.Id);
-                if (!_response.IsOkStatusCode() || !(_response.Object is TriggerCampaign))
+                var oldTriggerCampaignResponse = Get(contextData, campaignToUpdate.Id);
+                if (!oldTriggerCampaignResponse.HasObject())
                 {
-                    response.SetStatus(eResponseStatus.Error, $"Couldn't update TriggerCampaign: {campaignToUpdate.Id}");
+                    response.SetStatus(oldTriggerCampaignResponse.Status);
                     return response;
                 }
 
-                var campaign = response.Object as TriggerCampaign;
-
-                if (campaign == null)
+                if (oldTriggerCampaignResponse.Object.CampaignType != eCampaignType.Trigger)
                 {
-                    response.SetStatus(eResponseStatus.Error, $"Couldn't update TriggerCampaign: {campaign.Id}, campaign not found");
+                    response.SetStatus(eResponseStatus.Error, $"invalid campaign type for update");
+                    return response;
+                }
+
+                var oldTriggercampaign = oldTriggerCampaignResponse.Object as TriggerCampaign;
+                if (oldTriggercampaign == null)
+                {
+                    response.SetStatus(eResponseStatus.CampaignDoesNotExist, $"TriggerCampaign: {campaignToUpdate.Id} not found");
                     return response;
                 }
 
@@ -313,7 +318,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                campaignToUpdate.FillEmpty(campaign);
+                campaignToUpdate.FillEmpty(oldTriggercampaign);
                 campaignToUpdate.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
 
                 if (PricingDAL.Update_Campaign(campaignToUpdate, contextData))
@@ -323,11 +328,11 @@ namespace ApiLogic.Users.Managers
                     response.SetStatus(eResponseStatus.OK);
                 }
                 else
-                    response.SetStatus(eResponseStatus.Error, $"Error Updating TriggerCampaign: [{campaignToUpdate.Id}] for group: {contextData.GroupId}");
+                    response.SetStatus(eResponseStatus.Error, $"Error Updating TriggerCampaign: [{campaignToUpdate.Id}]");
             }
             catch (Exception ex)
             {
-                log.Error($"Error while updating new TriggerCampaign({campaignToUpdate.Id}). contextData: {contextData}, ex: {ex}", ex);
+                log.Error($"Error while updating TriggerCampaign({campaignToUpdate.Id}). contextData: {contextData}, ex: {ex}", ex);
             }
 
             return response;
@@ -339,16 +344,22 @@ namespace ApiLogic.Users.Managers
             try
             {
                 var oldBatchCampaignResponse = Get(contextData, campaignToUpdate.Id);
-                if (!oldBatchCampaignResponse.IsOkStatusCode() || oldBatchCampaignResponse.Object is TriggerCampaign)
+                if (!oldBatchCampaignResponse.HasObject())
                 {
                     response.SetStatus(oldBatchCampaignResponse.Status);
+                    return response;
+                }
+
+                if (oldBatchCampaignResponse.Object.CampaignType != eCampaignType.Batch)
+                {
+                    response.SetStatus(eResponseStatus.Error, $"invalid campaign type for update");
                     return response;
                 }
 
                 var oldBatchcampaign = oldBatchCampaignResponse.Object as BatchCampaign;
                 if (oldBatchcampaign == null)
                 {
-                    response.SetStatus(eResponseStatus.Error, $"Couldn't update BatchCampaign: {oldBatchcampaign.Id}, campaign not found");
+                    response.SetStatus(eResponseStatus.CampaignDoesNotExist, $"BatchCampaign: {campaignToUpdate.Id} not found");
                     return response;
                 }
 
@@ -369,11 +380,11 @@ namespace ApiLogic.Users.Managers
                     response.SetStatus(eResponseStatus.OK);
                 }
                 else
-                    response.SetStatus(eResponseStatus.Error, $"Error Updating BatchCampaign: [{campaignToUpdate.Id}] for group: {contextData.GroupId}");
+                    response.SetStatus(eResponseStatus.Error, $"Error Updating BatchCampaign: [{campaignToUpdate.Id}]");
             }
             catch (Exception ex)
             {
-                log.Error($"Error while updating new BatchCampaign({campaignToUpdate.Id}). contextData: {contextData}, ex: {ex}", ex);
+                log.Error($"Error while updating BatchCampaign({campaignToUpdate.Id}). contextData: {contextData}, ex: {ex}", ex);
             }
 
             return response;
@@ -547,7 +558,9 @@ namespace ApiLogic.Users.Managers
 
                     if (campaignsDB.Count() > 0)
                     {
-                        list = campaignsDB.Select(x => Get(contextData, x.Id)?.Object).Where(campaign => campaign is T).Select(camp => (T)camp).ToList();
+                        list = campaignsDB.Select(x => Get(contextData, x.Id))
+                            .Where(campaignResponse => campaignResponse.HasObject() && campaignResponse.Object.CampaignType == campaignType)
+                            .Select(camp => (T)camp.Object).ToList();
                     }
                     else
                     {
