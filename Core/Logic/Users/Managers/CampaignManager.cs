@@ -161,7 +161,7 @@ namespace ApiLogic.Users.Managers
             var response = new GenericListResponse<Campaign>();
             if (filter.IdIn?.Count > 0)
             {
-                response.Objects = filter.IdIn.Select(id => Get(contextData, id)?.Object).ToList();
+                response.Objects = filter.IdIn.Select(id => Get(contextData, id)).Where(campaignResponse => campaignResponse.HasObject()).Select(x => x.Object).ToList();
             }
             
             response.SetStatus(eResponseStatus.OK);
