@@ -163,9 +163,9 @@ namespace ApiLogic.Users.Managers
             {
                 response.Objects = filter.IdIn.Select(id => Get(contextData, id)).Where(campaignResponse => campaignResponse.HasObject()).Select(x => x.Object).ToList();
             }
-            
+
             response.SetStatus(eResponseStatus.OK);
-            
+
             return response;
         }
 
@@ -178,7 +178,7 @@ namespace ApiLogic.Users.Managers
             {
                 response.Objects.AddRange(triggerCampaigns);
             }
-            
+
             var batchCampaigns = ListCampaignsByType<BatchCampaign>(contextData, filter, eCampaignType.Batch);
             if (batchCampaigns?.Count > 0)
             {
@@ -186,7 +186,7 @@ namespace ApiLogic.Users.Managers
             }
 
             response.SetStatus(eResponseStatus.OK);
-            
+
             if (pager != null)
             {
                 response.TotalItems = response.Objects.Count;
@@ -202,14 +202,6 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                var triggerCampaignFilter = new TriggerCampaignFilter() { StateEqual = ObjectState.ACTIVE };
-                var triggerCampaigns = ListTriggerCampaigns(contextData, triggerCampaignFilter);
-                if (triggerCampaigns.HasObjects() && triggerCampaigns.Objects.Count >= MAX_TRIGGER_CAMPAIGNS)
-                {
-                    response.SetStatus(eResponseStatus.ActiveCampaignsExceededMaxSize, "Active trigger campaigns Exceeded Max Size");
-                    return response;
-                }
-
                 var validateStatus = ValidateCampaign(contextData, campaignToAdd);
                 if (!validateStatus.IsOkStatusCode())
                 {
@@ -404,7 +396,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                var validationStatus = ValidateStateChange(campaign.Object, newState);
+                var validationStatus = ValidateStateChange(contextData, campaign.Object, newState);
                 if (!validationStatus.IsOkStatusCode())
                 {
                     response.Set(validationStatus);
@@ -429,7 +421,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        private Status ValidateStateChange(Campaign campaign, ObjectState newState)
+        private Status ValidateStateChange(ContextData contextData, Campaign campaign, ObjectState newState)
         {
             var response = new Status(eResponseStatus.OK);
 
@@ -442,6 +434,29 @@ namespace ApiLogic.Users.Managers
             {
                 response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} already in state: {newState}");
                 return response;
+            }
+            if (newState == ObjectState.ACTIVE)
+            {
+                if (campaign.type == (int)eCampaignType.Trigger)
+                {
+                    var campaignFilter = new TriggerCampaignFilter() { StateEqual = ObjectState.ACTIVE };
+                    var campaigns = ListTriggerCampaigns(contextData, campaignFilter);
+                    if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_TRIGGER_CAMPAIGNS)
+                    {
+                        response.Set(eResponseStatus.ActiveCampaignsExceededMaxSize, "Active trigger campaigns Exceeded Max Size");
+                        return response;
+                    }
+                }
+                else if (campaign.type == (int)eCampaignType.Batch)
+                {
+                    var campaignFilter = new BatchCampaignFilter() { StateEqual = ObjectState.ACTIVE };
+                    var campaigns = ListBatchCampaigns(contextData, campaignFilter);
+                    if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_BATCH_CAMPAIGNS)
+                    {
+                        response.Set(eResponseStatus.ActiveCampaignsExceededMaxSize, "Active batch campaigns Exceeded Max Size");
+                        return response;
+                    }
+                }
             }
             if (newState == ObjectState.ACTIVE && campaign.EndDate <= DateUtils.GetUtcUnixTimestampNow())
             {
@@ -513,7 +528,7 @@ namespace ApiLogic.Users.Managers
                 var cacheResult = LayeredCache.Instance.Get(key,
                                                             ref campaignsDB,
                                                             ListCampaignsByGroupIdDB,
-                                                            new Dictionary<string, object>() { 
+                                                            new Dictionary<string, object>() {
                                                                 { "groupId", contextData.GroupId },
                                                                 { "campaignType", campaignType }
                                                             },
