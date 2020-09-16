@@ -198,6 +198,7 @@ namespace ApiObjects.Response
         NetworkRuleBlock = 3080,
         SubscriptionDoesNotExist = 3081,
         OtherCouponIsAlreadyAppliedForSubscription = 3082,
+        CampaignIsAlreadyAppliedForSubscription = 3083,
 
         #endregion
 
