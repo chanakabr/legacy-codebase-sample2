@@ -718,9 +718,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("payment_partner_config_{0}", groupId);
         }
 
-        public static string GetGroupCampaignKey(int groupId, string type)
+        public static string GetGroupCampaignKey(int groupId, int campaignType)
         {
-            return $"group_campaign_{groupId}_type_{type}";
+            return $"group_campaign_{groupId}_type_{campaignType}";
         }
 
         public static string GetCampaignKey(int groupId, long campaignId)
@@ -1383,14 +1383,14 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_groupIotClientConfig_groupId_{0}", groupId);
         }
 
-        public static string GetGroupCampaignInvalidationKey(int groupId, string type)
+        public static string GetGroupCampaignInvalidationKey(int groupId, int type)
         {
-            return $"invalidationKey_group_campaign_{groupId}_{type}";
+            return $"invalidationKey_{GetGroupCampaignKey(groupId, type)}";
         }
 
         public static string GetCampaignInvalidationKey(int groupId, long campaignId)
         {
-            return $"invalidationKey_group_{groupId}_campaign_{campaignId}";
+            return $"invalidationKey_{GetCampaignKey(groupId, campaignId)}";
         }
 
         #endregion

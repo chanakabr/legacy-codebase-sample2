@@ -1897,11 +1897,12 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static List<CampaignDB> GetCampaignsByGroupId(int groupId)
+        public static List<CampaignDB> GetCampaignsByGroupId(int groupId, eCampaignType campaignType)
         {
             var sp = new StoredProcedure("Get_CampaignsByGroupId");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@campaignType", (int)campaignType);
             return sp.ExecuteDataSet().Tables[0].ToList<CampaignDB>();
         }
 

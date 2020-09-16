@@ -94,7 +94,7 @@ namespace ApiLogic.Users.Managers
             }
             else
             {
-                response.SetStatus(eResponseStatus.Error, $"Campaign: {id} not found");
+                response.SetStatus(eResponseStatus.CampaignDoesNotExist, $"Campaign: {id} not found");
             }
 
             return response;
@@ -104,7 +104,7 @@ namespace ApiLogic.Users.Managers
         {
             var response = new GenericListResponse<TriggerCampaign>();
 
-            response.Objects = ListCampaignsByType<TriggerCampaign>(contextData, filter);
+            response.Objects = ListCampaignsByType<TriggerCampaign>(contextData, filter, eCampaignType.Trigger);
 
             if (response.Objects == null)
             {
@@ -137,7 +137,7 @@ namespace ApiLogic.Users.Managers
         {
             var response = new GenericListResponse<BatchCampaign>();
 
-            response.Objects = ListCampaignsByType<BatchCampaign>(contextData, filter);
+            response.Objects = ListCampaignsByType<BatchCampaign>(contextData, filter, eCampaignType.Batch);
 
             if (response.Objects == null)
             {
@@ -173,24 +173,20 @@ namespace ApiLogic.Users.Managers
         {
             var response = new GenericListResponse<Campaign>();
 
-            var triggerResponse = ListTriggerCampaigns(contextData, filter as TriggerCampaignFilter);
-            if (!triggerResponse.IsOkStatusCode())
+            var triggerCampaigns = ListCampaignsByType<TriggerCampaign>(contextData, filter, eCampaignType.Trigger);
+            if (triggerCampaigns?.Count > 0)
             {
-                response.SetStatus(triggerResponse.Status);
-                return response;
+                response.Objects.AddRange(triggerCampaigns);
             }
-
-            var batchResponse = ListBatchCampaigns(contextData, filter as BatchCampaignFilter);
-            if (!batchResponse.IsOkStatusCode())
+            
+            var batchCampaigns = ListCampaignsByType<BatchCampaign>(contextData, filter, eCampaignType.Batch);
+            if (batchCampaigns?.Count > 0)
             {
-                response.SetStatus(batchResponse.Status);
-                return response;
+                response.Objects.AddRange(batchCampaigns);
             }
 
             response.SetStatus(eResponseStatus.OK);
-            response.Objects.AddRange(triggerResponse.Objects);
-            response.Objects.AddRange(batchResponse.Objects);
-
+            
             if (pager != null)
             {
                 response.TotalItems = response.Objects.Count;
@@ -468,8 +464,7 @@ namespace ApiLogic.Users.Managers
 
         private void SetInvalidationKeys(ContextData contextData, Campaign campaign)
         {
-            var type = campaign.GetType().Name;
-            var invalidationKey = LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, type);
+            var invalidationKey = LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, (int)campaign.CampaignType);
             SetCampaignInvalidationKey(contextData, campaign.Id);
             LayeredCache.Instance.SetInvalidationKey(invalidationKey);
         }
@@ -496,22 +491,24 @@ namespace ApiLogic.Users.Managers
             publisher.Publish(serviceEvent);
         }
 
-        private List<T> ListCampaignsByType<T>(ContextData contextData, CampaignSearchFilter filter) where T : Campaign, new()
+        private List<T> ListCampaignsByType<T>(ContextData contextData, CampaignSearchFilter filter, eCampaignType campaignType) where T : Campaign, new()
         {
             List<T> list = null;
 
             try
             {
-                var type = typeof(T).Name;
                 IEnumerable<CampaignDB> campaignsDB = null;
-                var key = LayeredCacheKeys.GetGroupCampaignKey(contextData.GroupId, type);
+                var key = LayeredCacheKeys.GetGroupCampaignKey(contextData.GroupId, (int)campaignType);
                 var cacheResult = LayeredCache.Instance.Get(key,
                                                             ref campaignsDB,
                                                             ListCampaignsByGroupIdDB,
-                                                            new Dictionary<string, object>() { { "groupId", contextData.GroupId } },
+                                                            new Dictionary<string, object>() { 
+                                                                { "groupId", contextData.GroupId },
+                                                                { "campaignType", campaignType }
+                                                            },
                                                             contextData.GroupId,
                                                             LayeredCacheConfigNames.LIST_CAMPAIGNS_BY_GROUP_ID,
-                                                            new List<string>() { LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, type) });
+                                                            new List<string>() { LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, (int)campaignType) });
 
                 if (campaignsDB != null)
                 {
@@ -548,8 +545,14 @@ namespace ApiLogic.Users.Managers
                         }
                     }
 
-                    var ids = campaignsDB.Select(x => x.Id).ToList();
-                    list = ids.Select(id => Get(contextData, id)?.Object).Where(id => id is T).Select(camp => (T)camp).ToList();
+                    if (campaignsDB.Count() > 0)
+                    {
+                        list = campaignsDB.Select(x => Get(contextData, x.Id)?.Object).Where(campaign => campaign is T).Select(camp => (T)camp).ToList();
+                    }
+                    else
+                    {
+                        list = new List<T>();
+                    }
                 }
             }
             catch (Exception ex)
@@ -567,7 +570,8 @@ namespace ApiLogic.Users.Managers
             try
             {
                 var groupId = (int)arg["groupId"];
-                list = PricingDAL.GetCampaignsByGroupId(groupId);
+                var campaignType = (eCampaignType)arg["campaignType"];
+                list = PricingDAL.GetCampaignsByGroupId(groupId, campaignType);
             }
             catch (Exception ex)
             {
