@@ -184,8 +184,7 @@ namespace ApiObjects
 
     public enum ApiAction
     {
-        INSERT = 0,
-        UPDATE = 1,
+        Insert = 0
     }
 
     public enum ApiService

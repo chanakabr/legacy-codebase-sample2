@@ -1425,10 +1425,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     switch (apiAction)
                     {
-                        case KalturaApiAction.INSERT:
-                            return ApiAction.INSERT;
-                        case KalturaApiAction.UPDATE:
-                            return ApiAction.UPDATE;
+                        case KalturaApiAction.ADD:
+                            return ApiAction.Insert;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaApiAction value: {apiAction}.");
                     }
@@ -1439,10 +1437,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     switch (apiAction)
                     {
-                        case ApiAction.INSERT:
-                            return KalturaApiAction.INSERT;
-                        case ApiAction.UPDATE:
-                            return KalturaApiAction.UPDATE;
+                        case ApiAction.Insert:
+                            return KalturaApiAction.ADD;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown ApiAction value: {apiAction}.");
                     }

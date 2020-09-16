@@ -76,7 +76,7 @@ namespace Core.Users
 
             if (sucsses)
             {
-                ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(GroupId, DomainId, this, ApiService.DomainDevice, ApiAction.INSERT);
+                ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(GroupId, DomainId, this, ApiService.DomainDevice, ApiAction.Insert);
             }
 
             return sucsses;
@@ -115,11 +115,6 @@ namespace Core.Users
                 oDomainCache.RemoveDomain(this.DomainId);
 
                 InvalidateDomainDevice();
-
-                if (result)
-                {
-                    ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(GroupId, DomainId, this, ApiService.DomainDevice, ApiAction.UPDATE);
-                }
             }
             catch (Exception ex)
             {

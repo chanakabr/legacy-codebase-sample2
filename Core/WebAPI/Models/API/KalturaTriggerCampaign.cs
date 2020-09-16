@@ -107,8 +107,7 @@ namespace WebAPI.Models.API
 
     public enum KalturaApiAction
     {
-        INSERT = 0,
-        UPDATE = 1,
+        ADD = 0
     }
 
     public enum KalturaApiService
