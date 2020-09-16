@@ -610,6 +610,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.CouponNotValid)]
         [Throws(eResponseStatus.OtherCouponIsAlreadyAppliedForSubscription)]
+        [Throws(eResponseStatus.CampaignIsAlreadyAppliedForSubscription)]
         static public void ApplyCoupon(long purchaseId, string couponCode)
         {
             var groupId = KS.GetFromRequest().GroupId;
