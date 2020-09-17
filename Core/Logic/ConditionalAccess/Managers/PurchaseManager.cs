@@ -1330,6 +1330,11 @@ namespace Core.ConditionalAccess
                                         cas.UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
                                     }
 
+                                    if (fullPrice.CampaignDetails != null && fullPrice.CampaignDetails.Id > 0)
+                                    {
+                                        //TODO SHIR BEO-8607 add to campaign uses table.
+                                    }
+
                                     long endDateUnix = 0;
 
                                     if (endDate.HasValue)
@@ -1349,7 +1354,7 @@ namespace Core.ConditionalAccess
                                             LeftCouponRecurring = coupon != null ? coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon : 0,
                                             TotalNumOfRenews = 0,
                                             IsCouponHasEndlessRecurring = coupon != null && coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon == 0,
-                                            CampaignDetails = fullPrice.CampaignDetails ?? null
+                                            CampaignDetails = fullPrice.CampaignDetails
                                         };
 
                                         if (!ConditionalAccessDAL.SaveRecurringRenewDetails(recurringRenewDetails, purchaseID))
