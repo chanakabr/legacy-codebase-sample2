@@ -537,7 +537,10 @@ namespace TvinciImporter
                     string[] splited1 = sTime.Split(':');
                     nHour = int.Parse(splited1[0].ToString());
                     nMin = int.Parse(splited1[1].ToString());
-                    nSec = int.Parse(splited1[2].ToString());
+                    if (splited1.Length == 3)
+                    {
+                        nSec = int.Parse(splited1[2].ToString());
+                    }
                 }
 
                 date = new DateTime(nYear, nMounth, nDay, nHour, nMin, nSec);
@@ -5651,28 +5654,28 @@ namespace TvinciImporter
         {
             bool isUpdateChannelIndexSucceeded = false;
 
-                try
+            try
+            {
+                int nParentGroupID = UtilsDal.GetParentGroupID(nGroupId);
+                if (lChannelIds != null && lChannelIds.Count > 0 && nParentGroupID > 0)
                 {
-                    int nParentGroupID = UtilsDal.GetParentGroupID(nGroupId);
-                    if (lChannelIds != null && lChannelIds.Count > 0 && nParentGroupID > 0)
-                    {
-                        isUpdateChannelIndexSucceeded = Core.Catalog.Module.UpdateChannelIndex(lChannelIds, nParentGroupID, eAction);
+                    isUpdateChannelIndexSucceeded = Core.Catalog.Module.UpdateChannelIndex(lChannelIds, nParentGroupID, eAction);
 
-                        string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
+                    string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
 
-                        string channelIds = string.Join(",", lChannelIds);
-                        log.DebugFormat("Channels: {1} Update channel index {0} in catalog", sInfo, channelIds);
+                    string channelIds = string.Join(",", lChannelIds);
+                    log.DebugFormat("Channels: {1} Update channel index {0} in catalog", sInfo, channelIds);
 
-                    }
                 }
-                catch (Exception ex)
-                {
-                    log.Error("process failed", ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("process failed", ex);
+            }
 
             return isUpdateChannelIndexSucceeded;
         }
-    
+
         public static bool UpdateEpg(List<ulong> epgIds, int groupId, eAction action, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds, bool datesUpdates = true, bool isCalledFromTvm = false)
         {
             bool isUpdateIndexSucceeded = false;
@@ -5926,4 +5929,3 @@ namespace TvinciImporter
 
     }
 }
-

@@ -90,7 +90,7 @@ public partial class adm_media_new : System.Web.UI.Page
         bool bValid;
         DateTime dateTimeVal = DateTime.MinValue;
         for (int i = 0; i < coll.Count; i++)
-	    {
+        {
             bool ignore = coll[i.ToString() + "_ignore"] != null ? coll[i.ToString() + "_ignore"].ToLower() == "true" : false;
             if (ignore)
             {
@@ -113,9 +113,9 @@ public partial class adm_media_new : System.Web.UI.Page
                     if (sValMin == "")
                         sValMin = "0";
                     dateTimeVal = tTime.AddHours(int.Parse(sValHour.ToString()));
-                    dateTimeVal = tTime.AddMinutes(int.Parse(sValMin.ToString()));
+                    dateTimeVal = dateTimeVal.AddMinutes(int.Parse(sValMin.ToString()));
                 }
-                dateMetaXml.AppendFormat("<meta name=\"{0}\">{1}</meta>", name, dateTimeVal.ToString("dd/MM/yyyy hh:mm:ss"));
+                dateMetaXml.AppendFormat("<meta name=\"{0}\">{1}</meta>", name, dateTimeVal.ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture));
             }
         }
         dateMetaXml.AppendFormat("</root>");
@@ -123,7 +123,7 @@ public partial class adm_media_new : System.Web.UI.Page
         doc.LoadXml(dateMetaXml.ToString());
         XmlNodeList datesXml = doc.SelectNodes("//meta");
 
-        TvinciImporter.ImporterImpl.UpdateDatesData(groupId, mediaId, ref datesXml, ref error); 
+        TvinciImporter.ImporterImpl.UpdateDatesData(groupId, mediaId, ref datesXml, ref error);
     }
 
     protected string GetLangMenu(Int32 nGroupID)
@@ -506,13 +506,13 @@ public partial class adm_media_new : System.Web.UI.Page
         }
         selectQuery += " where gdm.status=1 and ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
-        
+
         if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").Rows.Count;
             if (nCount > 0)
             {
-                foreach(DataRow row in selectQuery.Table("query").Rows)
+                foreach (DataRow row in selectQuery.Table("query").Rows)
                 {
                     string name = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
                     DateTime value;
@@ -520,7 +520,7 @@ public partial class adm_media_new : System.Web.UI.Page
                     {
                         DataRecordDateTimeField dr_date = new DataRecordDateTimeField(true);
                         dr_date.SetIgnore(true);
-                        dr_date.Initialize(name, "adm_table_header_nbg", "FormInput", "", value.ToString("dd/MM/yyyy HH:mm"), false);
+                        dr_date.Initialize(name, "adm_table_header_nbg", "FormInput", "", value.ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture), false);
                         theRecord.AddRecord(dr_date);
                     }
                 }
