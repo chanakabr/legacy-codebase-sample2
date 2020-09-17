@@ -62,14 +62,13 @@ namespace ApiLogic.Users.Managers
         public GenericResponse<DeviceReferenceData> Add<T>(ContextData contextData, T coreObject) where T : DeviceReferenceData
         {
             var response = new GenericResponse<DeviceReferenceData>();
-            var groupId = contextData.GroupId;
-            var updaterId = contextData.UserId;
+
             try
             {
-                response = UsersDal.InsertDeviceReferenceData(groupId, updaterId, coreObject);
+                response = UsersDal.InsertDeviceReferenceData(contextData, coreObject);
 
                 if (response.IsOkStatusCode())
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(groupId));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(contextData.GroupId));
                 else
                 {
                     log.Info($"Cannot Add Device Reference Data from type: {(DeviceInformationType)coreObject.Type}");
@@ -89,17 +88,15 @@ namespace ApiLogic.Users.Managers
         public GenericResponse<DeviceReferenceData> Update<T>(ContextData contextData, T coreObject) where T : DeviceReferenceData
         {
             var response = new GenericResponse<DeviceReferenceData>();
-            var groupId = contextData.GroupId;
-            var updaterId = contextData.UserId;
+
             try
             {
-                var _response = UsersDal.UpdateDeviceReferenceData
-                        (groupId, updaterId, coreObject);
+                var _response = UsersDal.UpdateDeviceReferenceData(contextData, coreObject);
 
                 if (_response.IsOkStatusCode())
                 {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(groupId));
-                    var list = GetReferenceData(groupId);
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(contextData.GroupId));
+                    var list = GetReferenceData(contextData.GroupId);
                     response.Object = list?.Where(refObj => refObj.Id == coreObject.Id).FirstOrDefault();
                     response.SetStatus(eResponseStatus.OK);
                 }
@@ -177,11 +174,21 @@ namespace ApiLogic.Users.Managers
             if (filter is DeviceManufacturersReferenceDataFilter)
             {
                 response.Objects = response.Objects?.Where(rd => rd.Type == (int)DeviceInformationType.Manufacturer).ToList();
+                var _filter = (DeviceManufacturersReferenceDataFilter)filter;
+                if (!string.IsNullOrEmpty(_filter.NameEqual))
+                {
+                    response.Objects = response.Objects?.Where(rd => rd.Name.ToUpper() == _filter.NameEqual.Trim().ToUpper()).ToList();
+                }
             }
 
-            if (filter.DeviceReferenceDataIdsIn != null && filter.DeviceReferenceDataIdsIn.Count > 0)
+            if (filter.IdsIn != null && filter.IdsIn.Count > 0)
             {
-                response.Objects = response.Objects?.Where(rd => filter.DeviceReferenceDataIdsIn.Contains((int)rd.Id)).ToList();
+                response.Objects = response.Objects?.Where(rd => filter.IdsIn.Contains((int)rd.Id)).ToList();
+            }
+
+            if (pager != null)
+            {
+                response.Objects = response.Objects?.Skip(pager.PageIndex * pager.PageSize)?.Take(pager.PageSize).ToList();
             }
 
             response.TotalItems = response.Objects == null ? 0 : response.Objects.Count;

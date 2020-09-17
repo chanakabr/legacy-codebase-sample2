@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects.Base;
+using ApiObjects.Response;
 using System;
 using System.Linq;
 using TVinciShared;
@@ -112,10 +113,12 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string userId = KS.GetFromRequest().UserId;
+            int.TryParse(userId, out int _userId);
+            var contextData = new ContextData(groupId) { UserId = _userId };
 
             try
             {
-                ClientsManager.DomainsClient().ValidateDeviceReferencesForAdd(groupId, device);
+                ClientsManager.DomainsClient().ValidateDeviceReferencesForAdd(contextData, device);
 
                 if (HouseholdUtils.IsUserMaster())
                 {

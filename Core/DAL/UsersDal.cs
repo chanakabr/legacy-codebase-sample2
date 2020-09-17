@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.SSOAdapter;
 using ConfigurationManager;
 using CouchbaseManager;
@@ -801,15 +802,15 @@ namespace DAL
             return res;
         }
 
-        public static ApiObjects.Response.GenericResponse<DeviceReferenceData> InsertDeviceReferenceData(int groupId, long? updaterId, DeviceReferenceData coreObject)
+        public static ApiObjects.Response.GenericResponse<DeviceReferenceData> InsertDeviceReferenceData(ContextData contextData, DeviceReferenceData coreObject)
         {
             var response = new ApiObjects.Response.GenericResponse<DeviceReferenceData>();
             var sp = new StoredProcedure("Insert_DeviceReferenceData");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddParameter("@groupID", groupId);
-            sp.AddParameter("@updaterID", updaterId);
-            sp.AddParameter("@name", coreObject.Name);
-            sp.AddParameter("@type", coreObject.GetType());
+            sp.AddParameter("@groupID", contextData.GroupId);
+            sp.AddParameter("@updaterID", contextData.UserId);
+            sp.AddParameter("@name", coreObject.Name.Trim().ToUpper());
+            sp.AddParameter("@type", coreObject.GetReferenceType());
 
             var id = sp.ExecuteReturnValue<int>();
 
@@ -861,15 +862,15 @@ namespace DAL
             return res;
         }
 
-        public static ApiObjects.Response.Status UpdateDeviceReferenceData(int groupId, long? updaterId, DeviceReferenceData coreObject)
+        public static ApiObjects.Response.Status UpdateDeviceReferenceData(ContextData contextData, DeviceReferenceData coreObject)
         {
             var response = new ApiObjects.Response.Status(ApiObjects.Response.eResponseStatus.Error);
             var sp = new StoredProcedure("Update_DeviceReferenceData");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddParameter("@groupID", groupId);
+            sp.AddParameter("@groupID", contextData.GroupId);
             sp.AddParameter("@id", coreObject.Id);
             sp.AddParameter("@name", coreObject.Name);
-            sp.AddParameter("@updaterId", updaterId);
+            sp.AddParameter("@updaterId", contextData.UserId);
             sp.AddParameter("@status", coreObject.Status);
 
             var id = sp.ExecuteReturnValue<int>();

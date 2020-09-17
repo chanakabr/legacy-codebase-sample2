@@ -10,14 +10,14 @@ namespace ApiObjects
         public bool? Status { get; set; }
         public int Type { get; set; }
 
-        public virtual int GetType()
+        public virtual int GetReferenceType()
         {
             return -1;
         }
     }
 
     public class DeviceManufacturerInformation : DeviceReferenceData {
-        public override int GetType()
+        public override int GetReferenceType()
         {
             return (int)DeviceInformationType.Manufacturer;
         }

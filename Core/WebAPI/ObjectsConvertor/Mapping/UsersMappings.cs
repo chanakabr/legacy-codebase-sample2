@@ -320,19 +320,21 @@ namespace ObjectsConvertor.Mapping
                 ;
 
             cfg.CreateMap<DeviceReferenceDataFilter, KalturaDeviceReferenceDataFilter> ()
-                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.DeviceReferenceDataIdsIn)))
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdsIn)))
             ;
 
             cfg.CreateMap<KalturaDeviceReferenceDataFilter, DeviceReferenceDataFilter>()
-               .ForMember(dest => dest.DeviceReferenceDataIdsIn, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.IdIn, "KalturaDeviceReferenceDataFilter.IdIn", true, false)))
+               .ForMember(dest => dest.IdsIn, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.IdIn, "KalturaDeviceReferenceDataFilter.IdIn", true, false)))
             ;
 
             cfg.CreateMap<KalturaDeviceManufacturersReferenceDataFilter, DeviceManufacturersReferenceDataFilter>()
                 .IncludeBase<KalturaDeviceReferenceDataFilter, DeviceReferenceDataFilter>()
+                .ForMember(dest => dest.NameEqual, opt => opt.MapFrom(src => src.NameEqual))
                 ;
 
             cfg.CreateMap<DeviceManufacturersReferenceDataFilter, KalturaDeviceManufacturersReferenceDataFilter>()
                 .IncludeBase<DeviceReferenceDataFilter, KalturaDeviceReferenceDataFilter>()
+                .ForMember(dest => dest.NameEqual, opt => opt.MapFrom(src => src.NameEqual))
                 ;
         }
 

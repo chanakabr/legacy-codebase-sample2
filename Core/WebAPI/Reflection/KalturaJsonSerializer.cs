@@ -32129,6 +32129,10 @@ namespace WebAPI.Models.Users
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(NameEqual != null && (retrievedProperties == null || retrievedProperties.Contains("nameEqual")))
+            {
+                ret.Add("nameEqual", "\"nameEqual\": " + "\"" + EscapeJson(NameEqual) + "\"");
+            }
             return ret;
         }
         
@@ -32143,6 +32147,10 @@ namespace WebAPI.Models.Users
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(NameEqual != null && (retrievedProperties == null || retrievedProperties.Contains("nameEqual")))
+            {
+                ret.Add("nameEqual", "<nameEqual>" + EscapeXml(NameEqual) + "</nameEqual>");
+            }
             return ret;
         }
     }
@@ -37459,6 +37467,10 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("macAddress", "\"macAddress\": " + "\"" + EscapeJson(MacAddress) + "\"");
             }
+            if(Manufacturer != null && (retrievedProperties == null || retrievedProperties.Contains("manufacturer")))
+            {
+                ret.Add("manufacturer", "\"manufacturer\": " + "\"" + EscapeJson(Manufacturer) + "\"");
+            }
             if(ManufacturerId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("manufacturerId")))
             {
                 ret.Add("manufacturerId", "\"manufacturerId\": " + ManufacturerId);
@@ -37537,6 +37549,10 @@ namespace WebAPI.Models.Domains
             if(MacAddress != null && (retrievedProperties == null || retrievedProperties.Contains("macAddress")))
             {
                 ret.Add("macAddress", "<macAddress>" + EscapeXml(MacAddress) + "</macAddress>");
+            }
+            if(Manufacturer != null && (retrievedProperties == null || retrievedProperties.Contains("manufacturer")))
+            {
+                ret.Add("manufacturer", "<manufacturer>" + EscapeXml(Manufacturer) + "</manufacturer>");
             }
             if(ManufacturerId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("manufacturerId")))
             {

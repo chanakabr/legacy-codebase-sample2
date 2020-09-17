@@ -134,15 +134,32 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// manufacturer
         /// </summary>
+        [DataMember(Name = "manufacturer")]
+        [JsonProperty("manufacturer")]
+        [XmlElement(ElementName = "manufacturer", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public string Manufacturer { get; set; }
+
+        /// <summary>
+        /// manufacturer Id, read only
+        /// </summary>
         [DataMember(Name = "manufacturerId")]
         [JsonProperty("manufacturerId")]
         [XmlElement(ElementName = "manufacturerId", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, ReadOnly = true)]
         public long? ManufacturerId { get; set; }
 
         internal int getBrandId()
         {
             return BrandId.HasValue ? (int)BrandId : 0;
+        }
+
+        public void SetManufacturerId(long? id)
+        {
+            if (id.HasValue)
+            {
+                ManufacturerId = id.Value;
+            }
         }
     }
 

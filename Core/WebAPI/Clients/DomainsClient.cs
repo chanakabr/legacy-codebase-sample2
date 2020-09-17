@@ -17,6 +17,7 @@ using ApiObjects.Response;
 using WebAPI.Models.General;
 using ApiLogic.Users.Managers;
 using System.Text.RegularExpressions;
+using ApiObjects.Base;
 
 namespace WebAPI.Clients
 {
@@ -448,30 +449,49 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal void ValidateDeviceReferencesForAdd(int groupId, KalturaHouseholdDevice device)
+        internal void ValidateDeviceReferencesForAdd(ContextData contextData, KalturaHouseholdDevice device)
         {
             if (device == null)
             {
                 return;
             }
 
-            if (!string.IsNullOrEmpty(device.Model) && !device.ManufacturerId.HasValue)
+            var regex_phrase = @"^\w+$";
+
+            if (!string.IsNullOrEmpty(device.Model) && string.IsNullOrEmpty(device.Manufacturer))
             {
-                throw new ClientException((int)StatusCode.Error, $"Can't add device with model but without manufacturer Id");
+                throw new ClientException((int)StatusCode.Error, $"Can't add device with model and without a manufacturer");
             }
 
-            if (!string.IsNullOrEmpty(device.Model) && !Regex.IsMatch(device.Model, @"^\w+$", RegexOptions.IgnoreCase))
+            if (!string.IsNullOrEmpty(device.Model) && !Regex.IsMatch(device.Model, regex_phrase, RegexOptions.IgnoreCase))
             {
                 throw new ClientException((int)StatusCode.Error, $"Model: [{device.Model}] didn't passed validation");
             }
 
-            var referenceData = DeviceReferenceDataManager.Instance.GetReferenceData(groupId);
-            if (device.ManufacturerId.HasValue)
+            if (!string.IsNullOrEmpty(device.Manufacturer) && !Regex.IsMatch(device.Manufacturer, regex_phrase, RegexOptions.IgnoreCase))
             {
-                var manufacturers = referenceData?.Where(manufacturer => manufacturer.Type == (int)DeviceInformationType.Manufacturer);
-                if (manufacturers != null && !manufacturers.Select(manufacturer => manufacturer.Id).Contains(device.ManufacturerId.Value))
+                throw new ClientException((int)StatusCode.Error, $"Manufacturer: [{device.Manufacturer}] didn't passed validation");
+            }
+
+            if (!string.IsNullOrEmpty(device.Manufacturer))
+            {
+                var searchManufacturer = device.Manufacturer.Trim().ToUpper();
+                var filter = new DeviceManufacturersReferenceDataFilter { NameEqual = searchManufacturer };
+                var referenceData = DeviceReferenceDataManager.Instance.List(contextData, filter, null);
+                if (!referenceData.HasObjects())
                 {
-                    throw new ClientException((int)StatusCode.Error, "Manufacturer Id doesn't exists");
+                    var request = new DeviceManufacturerInformation { Name = searchManufacturer };
+                    var newManufacturer = DeviceReferenceDataManager.Instance.Add(contextData, request);
+                    if (!newManufacturer.IsOkStatusCode())
+                    {
+                        throw new ClientException(newManufacturer.Status);
+                    }
+                    device.SetManufacturerId(newManufacturer.Object?.Id);
+                }
+                else
+                {
+                    var existingId = referenceData.Objects.Select(x => x.Id).FirstOrDefault();
+                    device.SetManufacturerId(existingId);
                 }
             }
         }
@@ -483,9 +503,9 @@ namespace WebAPI.Clients
                 return;
             }
 
-            if (!string.IsNullOrEmpty(device.Model) || device.ManufacturerId.HasValue)
+            if (!string.IsNullOrEmpty(device.Model) || !string.IsNullOrEmpty(device.Manufacturer))
             {
-                throw new ClientException((int)StatusCode.Error, $"Can't update Model or Manufacturer Id after device creation for group: {groupId}");
+                throw new ClientException((int)StatusCode.Error, $"Can't update Model or Manufacturer after device creation for group: {groupId}");
             }
         }
 
@@ -1095,7 +1115,8 @@ namespace WebAPI.Clients
                 ExternalId = device.ExternalId,
                 MacAddress = device.MacAddress,
                 Model = device.Model,
-                ManufacturerId = device.ManufacturerId
+                ManufacturerId = device.ManufacturerId,
+                Manufacturer = device.Manufacturer
             };
         }
 

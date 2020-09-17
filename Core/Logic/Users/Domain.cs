@@ -2273,7 +2273,11 @@ namespace Core.Users
                 Name = device.m_deviceName,
                 Udid = sDeviceUdid,
                 GroupId = m_nGroupID,
-                DeviceFamilyId = device.m_deviceFamilyID
+                DeviceFamilyId = device.m_deviceFamilyID,
+                MacAddress = device.MacAddress,
+                ExternalId = device.ExternalId,
+                Model = device.Model,
+                ManufacturerId = device.ManufacturerId
             };
 
             bool domainDeviceInsertSuccess = domainDevice.Insert();

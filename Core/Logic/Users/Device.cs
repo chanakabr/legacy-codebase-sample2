@@ -55,6 +55,8 @@ namespace Core.Users
 
         public long? ManufacturerId;
 
+        public string Manufacturer { get; set; }
+
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
         {
             int nFamilyID = 0;

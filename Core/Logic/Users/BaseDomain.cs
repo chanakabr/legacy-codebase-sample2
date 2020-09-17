@@ -1962,6 +1962,8 @@ namespace Core.Users
                 device.Model = dDevice.Model;
             if (dDevice.ManufacturerId.HasValue)
                 device.ManufacturerId = dDevice.ManufacturerId.Value;
+            if (!string.IsNullOrEmpty(dDevice.Manufacturer))
+                device.Manufacturer = dDevice.Manufacturer;
 
             DomainResponseStatus domainResponseStatus;
             int userId = 0;

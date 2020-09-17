@@ -2066,6 +2066,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDeviceManufacturersReferenceDataFilter":
+                    switch(property.Name)
+                    {
+                        case "NameEqual":
+                            return "nameEqual";
+                    }
+                    break;
+                    
                 case "KalturaDevicePin":
                     switch(property.Name)
                     {
@@ -3005,6 +3013,8 @@ namespace WebAPI.Reflection
                             return "householdId";
                         case "MacAddress":
                             return "macAddress";
+                        case "Manufacturer":
+                            return "manufacturer";
                         case "ManufacturerId":
                             return "manufacturerId";
                         case "Model":

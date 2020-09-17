@@ -45,6 +45,14 @@ namespace WebAPI.Models.Users
 
     public partial class KalturaDeviceManufacturersReferenceDataFilter : KalturaDeviceReferenceDataFilter
     {
+        /// <summary>
+        /// name equal
+        /// </summary>
+        [DataMember(Name = "nameEqual")]
+        [JsonProperty("nameEqual")]
+        [XmlElement(ElementName = "nameEqual")]
+        public string NameEqual { get; set; }
+
         public override GenericListResponse<DeviceReferenceData> List(ContextData contextData, CorePager pager)
         {
             var coreFilter = AutoMapper.Mapper.Map<DeviceManufacturersReferenceDataFilter>(this);
