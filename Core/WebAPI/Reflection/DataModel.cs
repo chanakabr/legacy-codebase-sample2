@@ -5529,6 +5529,8 @@ namespace WebAPI.Reflection
                 case "KalturaRegionFilter":
                     switch(property.Name)
                     {
+                        case "ExclusiveLcn":
+                            return "exclusiveLcn";
                         case "ExternalIdIn":
                             return "externalIdIn";
                         case "IdIn":

@@ -25099,6 +25099,10 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if((retrievedProperties == null || retrievedProperties.Contains("exclusiveLcn")))
+            {
+                ret.Add("exclusiveLcn", "\"exclusiveLcn\": " + ExclusiveLcn.ToString().ToLower());
+            }
             if(ExternalIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("externalIdIn")))
             {
                 ret.Add("externalIdIn", "\"externalIdIn\": " + "\"" + EscapeJson(ExternalIdIn) + "\"");
@@ -25133,6 +25137,10 @@ namespace WebAPI.Models.API
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if((retrievedProperties == null || retrievedProperties.Contains("exclusiveLcn")))
+            {
+                ret.Add("exclusiveLcn", "<exclusiveLcn>" + ExclusiveLcn.ToString().ToLower() + "</exclusiveLcn>");
+            }
             if(ExternalIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("externalIdIn")))
             {
                 ret.Add("externalIdIn", "<externalIdIn>" + EscapeXml(ExternalIdIn) + "</externalIdIn>");

@@ -19,5 +19,7 @@ namespace ApiObjects
         public RegionOrderBy orderBy { get; set; }
         
         public bool ParentOnly { get; set; }
+
+        public bool ExclusiveLcn { get; set; }
     }
 }

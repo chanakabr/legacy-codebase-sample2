@@ -65,6 +65,14 @@ namespace WebAPI.Models.API
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public bool ParentOnly { get; set; }
 
+        /// <summary>
+        /// Retrieves only the channels belonging specifically to the child region
+        /// </summary>
+        [DataMember(Name = "exclusiveLcn")]
+        [JsonProperty("exclusiveLcn")]
+        [XmlElement(ElementName = "exclusiveLcn")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool ExclusiveLcn { get; set; }
 
         internal override void Validate()
         {

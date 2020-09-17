@@ -376,6 +376,9 @@ namespace ApiObjects.Response
         PermissionPermissionItemNotFound = 5073,
         PermissionPermissionItemAlreadyExists = 5074,
         RoleReadOnly = 5075,
+        DuplicateRegionChannel = 5076,
+        ParentAlreadyContainsChannel = 5077,
+        InputFormatIsInvalid = 5078,
 
         #endregion
 

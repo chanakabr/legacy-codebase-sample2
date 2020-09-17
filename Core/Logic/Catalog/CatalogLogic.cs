@@ -2092,7 +2092,11 @@ namespace Core.Catalog
                         Region region = ApiLogic.Api.Managers.RegionManager.GetRegion(groupId, regionId);
                         if (region != null)
                         {
-                            regionIds = new List<int> { region.parentId == 0 ? regionId : region.parentId };
+                            regionIds = new List<int> { regionId };
+                            if (region.parentId > 0)
+                            {
+                                regionIds.Add(region.parentId);
+                            }
                         }
                     }
                 }
