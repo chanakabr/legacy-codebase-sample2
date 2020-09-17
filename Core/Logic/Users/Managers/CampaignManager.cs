@@ -296,6 +296,12 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
+                if (oldTriggerCampaignResponse.Object.State == ObjectState.ACTIVE)
+                {
+                    response.SetStatus(eResponseStatus.Error, $"Can't update an Active campaign");
+                    return response;
+                }
+
                 var oldTriggercampaign = oldTriggerCampaignResponse.Object as TriggerCampaign;
                 if (oldTriggercampaign == null)
                 {
@@ -433,6 +439,11 @@ namespace ApiLogic.Users.Managers
             if (campaign.State == newState)
             {
                 response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} already in state: {newState}");
+                return response;
+            }
+            if (campaign.State == ObjectState.ACTIVE && newState == ObjectState.INACTIVE)
+            {
+                response.Set(eResponseStatus.ActiveCampaignsExceededMaxSize, "Can't inactivate an active campaign");
                 return response;
             }
             if (newState == ObjectState.ACTIVE)
