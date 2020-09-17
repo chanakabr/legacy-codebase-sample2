@@ -717,9 +717,6 @@ namespace WebAPI.Reflection
                 case "KalturaDeviceReportFilter":
                     return new KalturaDeviceReportFilter(parameters);
                     
-                case "KalturaDeviceUdidCondition":
-                    return new KalturaDeviceUdidCondition(parameters);
-                    
                 case "KalturaDiscount":
                     return new KalturaDiscount(parameters);
                     
@@ -2015,6 +2012,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaUdidDynamicList":
                     return new KalturaUdidDynamicList(parameters);
+                    
+                case "KalturaUdidDynamicListCondition":
+                    return new KalturaUdidDynamicListCondition(parameters);
                     
                 case "KalturaUdidDynamicListSearchFilter":
                     return new KalturaUdidDynamicListSearchFilter(parameters);
@@ -17950,36 +17950,6 @@ namespace WebAPI.Models.API
             }
         }
     }
-    public partial class KalturaDeviceUdidCondition
-    {
-        private static RuntimeSchemePropertyAttribute UdidInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceUdidCondition")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            DynamicMinInt = 0,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        public KalturaDeviceUdidCondition(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("udidIn") && parameters["udidIn"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        UdidInSchemaProperty.Validate("udidIn", parameters["udidIn"]);
-                    }
-                    UdidIn = (String) Convert.ChangeType(parameters["udidIn"], typeof(String));
-                }
-            }
-        }
-    }
     public partial class KalturaDrmProfile
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDrmProfile")
@@ -21626,6 +21596,36 @@ namespace WebAPI.Models.API
                     {
                         Objects = buildList(typeof(KalturaTvmRule), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaUdidDynamicListCondition
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUdidDynamicListCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicMinInt = 1,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaUdidDynamicListCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
             }
         }

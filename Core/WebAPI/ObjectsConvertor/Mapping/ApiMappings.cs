@@ -644,8 +644,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                            return RuleConditionType.DeviceManufacturer;
                        case KalturaRuleConditionType.DEVICE_MODEL:
                            return RuleConditionType.DeviceModel;
-                       case KalturaRuleConditionType.DEVICE_UDID:
-                           return RuleConditionType.DeviceUdid;
+                       case KalturaRuleConditionType.DEVICE_UDID_DYNAMIC_LIST:
+                           return RuleConditionType.DeviceUdidDynamicList;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", kalturaRuleConditionType.ToString()));
                    }
@@ -688,8 +688,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return KalturaRuleConditionType.DEVICE_MANUFACTURER;
                         case RuleConditionType.DeviceModel:
                             return KalturaRuleConditionType.DEVICE_MODEL;
-                        case RuleConditionType.DeviceUdid:
-                            return KalturaRuleConditionType.DEVICE_UDID;
+                        case RuleConditionType.DeviceUdidDynamicList:
+                            return KalturaRuleConditionType.DEVICE_UDID_DYNAMIC_LIST;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", ruleConditionType.ToString()));
                             break;
@@ -1002,15 +1002,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RegexEqual, opt => opt.MapFrom(src => src.RegexEqual))
                 ;
 
-            cfg.CreateMap<KalturaDeviceUdidCondition, DeviceUdidCondition>()
+            cfg.CreateMap<KalturaUdidDynamicListCondition, UdidDynamicListCondition>()
                 .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
-                .ForMember(dest => dest.UdidIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.UdidIn)
-                ? src.GetItemsIn<List<int>, int>(src.UdidIn, "KalturaDeviceUdidCondition.UdidIn", true) : null));
-            ;
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                ;
 
-            cfg.CreateMap<DeviceUdidCondition, KalturaDeviceUdidCondition>()
+            cfg.CreateMap<UdidDynamicListCondition, KalturaUdidDynamicListCondition>()
                 .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
-                .ForMember(dest => dest.UdidIn, opt => opt.MapFrom(src => string.Join(",", src.UdidIn)))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 ;
 
             cfg.CreateMap<KalturaCondition, RuleBaseCondition<IUserRoleConditionScope>>()

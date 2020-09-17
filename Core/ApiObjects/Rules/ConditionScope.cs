@@ -77,5 +77,7 @@ namespace ApiObjects.Rules
         long? ManufacturerId { get; set; }
         string Model { get; set; }
         string Udid { get; set; }
+
+        bool CheckDynamicList(long id);
     }
 }

@@ -1132,7 +1132,7 @@ namespace ApiObjects
         DeviceFamily,
         DeviceManufacturer,
         DeviceModel,
-        DeviceUdid
+        DeviceUdidDynamicList
     }
 
     public enum RuleActionTaskType

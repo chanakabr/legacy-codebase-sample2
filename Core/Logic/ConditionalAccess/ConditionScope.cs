@@ -47,6 +47,7 @@ namespace APILogic.ConditionalAccess
         public long? ManufacturerId { get; set; }
         public string Model { get; set; }
         public string Udid { get; set; }
+        public long? UdidDynamicListId { get; set; }
 
         public override string ToString()
         {
@@ -228,6 +229,13 @@ namespace APILogic.ConditionalAccess
 
             List<int> validChannelIds = Core.ConditionalAccess.Utils.ValidateMediaContainedInChannels((int)mediaId, groupId, channelsIds);
             return validChannelIds != null && validChannelIds.Count > 0;
+        }
+
+        public bool CheckDynamicList(long id)
+        {
+            var contextData = new ContextData(this.GroupId);
+            var dynamicListItem = ApiLogic.Api.Managers.DynamicListManager.Instance.Get(contextData, id);
+            return dynamicListItem.HasObject();
         }
     }
 }
