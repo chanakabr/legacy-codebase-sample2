@@ -54,7 +54,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("ip_{0}", ip);
         }
-        
+
         public static string GetKeyForCountryName(string countryName)
         {
             return string.Format("countryName_{0}", countryName);
@@ -346,7 +346,7 @@ namespace CachingProvider.LayeredCache
             return string.Format("Asset_V1_type_{0}_id_{1}_lang_{2}", assetType, id, languageId);
         }
 
-        
+
 
         public static string GetGroupImageTypesKey(int groupId)
         {
@@ -452,7 +452,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("TstvAccountSettingsExists_groupId_{0}", groupId);
         }
-        
+
         public static string GetDeviceRulesByBrandIdKey(int groupId, int brandId)
         {
             return string.Format("deviceRules_groupId_{0}_brandId_{1}", groupId, brandId);
@@ -582,7 +582,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("sso_adapter_by_group_{0}", groupId);
         }
-        
+
         public static string GetDeviceReferenceDataByGroupKey(int groupId)
         {
             return string.Format("device_reference_data_by_group_{0}", groupId);
@@ -636,8 +636,8 @@ namespace CachingProvider.LayeredCache
         public static string GetDomainRecordingsKey(long domainId)
         {
             return string.Format("DomainRecordings_domainId_{0}", domainId);
-		}
-		
+        }
+
         public static string GetMediaStatsKey(int assetId)
         {
             return string.Format("MediaStats_{0}", assetId);
@@ -727,6 +727,12 @@ namespace CachingProvider.LayeredCache
         {
             return $"group_campaign_{groupId}_id_{campaignId}";
         }
+
+        public static string GetDynamicListKey(int groupId, long id)
+        {
+            return $"group_DynamicList_{groupId}_id_{id}";
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1014,12 +1020,12 @@ namespace CachingProvider.LayeredCache
                 ids = ids.Distinct().ToList();
                 foreach (long id in ids)
                 {
-                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });                    
+                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });
                 }
             }
 
             return result;
-        }        
+        }
 
         public static string GetUserParentalRuleInvalidationKey(string siteGuid)
         {
@@ -1135,7 +1141,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKey_device_reference_data_{0}", groupId);
         }
-        
+
         public static string GetSSOAdapaterImplementationsInvalidationKey(int adapaterId)
         {
             return string.Format("invalidationKey_sso_adapater_implementations_{0}", adapaterId);
@@ -1315,7 +1321,7 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupCategoriesInvalidationKey(int groupId)
         {
             return $"invalidationKey_groupCategoriesKey_groupId_{groupId}";
-        }      
+        }
 
         public static string GetCategoryIdInvalidationKey(long categoryId)
         {
@@ -1391,6 +1397,11 @@ namespace CachingProvider.LayeredCache
         public static string GetCampaignInvalidationKey(int groupId, long campaignId)
         {
             return $"invalidationKey_{GetCampaignKey(groupId, campaignId)}";
+        }
+
+        public static string GetDynamicListInvalidationKey(int groupId, long id)
+        {
+            return $"invalidationKey_{GetDynamicListKey(groupId, id)}";
         }
 
         #endregion
