@@ -28,7 +28,7 @@ namespace WebAPI.Models.API
             throw new NotImplementedException();
         }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
             throw new NotImplementedException();
         }

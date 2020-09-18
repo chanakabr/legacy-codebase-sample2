@@ -89,6 +89,7 @@ namespace ApiLogic.Users.Managers
 
             if (_campaign != null)
             {
+                // TODO SHIR - LAZY UPDATE FOR STATE
                 response.Object = _campaign;
                 response.SetStatus(eResponseStatus.OK);
             }
@@ -162,6 +163,10 @@ namespace ApiLogic.Users.Managers
             if (filter.IdIn?.Count > 0)
             {
                 response.Objects = filter.IdIn.Select(id => Get(contextData, id)).Where(campaignResponse => campaignResponse.HasObject()).Select(x => x.Object).ToList();
+                if (!filter.IsAllowedToViewInactiveCampaigns)
+                {
+                    response.Objects = response.Objects.Where(x => x.State != ObjectState.INACTIVE).ToList();
+                }
             }
             
             response.SetStatus(eResponseStatus.OK);
@@ -523,9 +528,10 @@ namespace ApiLogic.Users.Managers
 
                 if (campaignsDB != null)
                 {
+                    // TODO SHIR - CHECK ALSO DATES
                     if (filter.StateEqual.HasValue)
                     {
-                        campaignsDB = campaignsDB.Where(x => x.State <= filter.StateEqual.Value);
+                        campaignsDB = campaignsDB.Where(x => x.State == filter.StateEqual.Value);
                     }
 
                     if (filter.StartDateGreaterThanOrEqual.HasValue)

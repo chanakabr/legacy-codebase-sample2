@@ -11,6 +11,7 @@ namespace ApiObjects
     public class CampaignIdInFilter : CampaignFilter
     {
         public List<long> IdIn { get; set; }
+        public bool IsAllowedToViewInactiveCampaigns { get; set; }
     }
 
     public class CampaignSearchFilter : CampaignFilter

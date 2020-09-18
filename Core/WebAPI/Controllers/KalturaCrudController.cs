@@ -139,13 +139,14 @@ namespace WebAPI.Controllers
 
             try
             {
+                var contextData = KS.GetContextData();
                 if (filter == null)
                 {
                     filter = new KalturaFilterT();
                 }
                 else
                 {
-                    filter.Validate();
+                    filter.Validate(contextData);
                 }
 
                 if (pager == null)
@@ -153,7 +154,6 @@ namespace WebAPI.Controllers
                     pager = new KalturaFilterPager();
                 }
 
-                var contextData = KS.GetContextData();
                 response = GetResponseListFromCore(contextData, filter, pager);
 
                 var responseProfile = Utils.Utils.GetResponseProfileFromRequest();

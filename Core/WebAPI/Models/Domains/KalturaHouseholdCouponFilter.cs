@@ -75,7 +75,7 @@ namespace WebAPI.Models.Domains
             return KalturaHouseholdCouponOrderBy.NONE;
         }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
             if (BusinessModuleIdEqual == 0 && string.IsNullOrEmpty(CouponCode) && Status == null)
             {

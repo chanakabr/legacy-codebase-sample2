@@ -9,6 +9,7 @@ using System.Text;
 using ApiObjects;
 using DAL;
 using TVinciShared;
+using ApiObjects.BulkUpload;
 
 namespace ApiLogic.Api.Managers
 {

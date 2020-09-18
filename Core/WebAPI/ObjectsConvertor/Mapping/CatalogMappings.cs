@@ -1147,6 +1147,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
 
+            cfg.CreateMap<KalturaBulkUploadDynamicListData, BulkUploadDynamicListData>()
+               .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>()
+               .ForMember(dest => dest.DynamicListId, opt => opt.MapFrom(src => src.DynamicListId));
+
+            cfg.CreateMap<KalturaBulkUploadUdidDynamicListData, BulkUploadUdidDynamicListData>()
+               .IncludeBase<KalturaBulkUploadDynamicListData, BulkUploadDynamicListData>();
+
             #endregion
 
             #region CategoryItem

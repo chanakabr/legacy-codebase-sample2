@@ -59,7 +59,7 @@ namespace WebAPI.Models.API
             return KalturaEventNotificationOrderBy.NONE;
         }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
             if( !string.IsNullOrEmpty(IdEqual) && ObjectIdEqual.HasValue)
             {
