@@ -1104,6 +1104,7 @@ namespace Core.ConditionalAccess
 
         internal static Price CopyPrice(Price toCopy)
         {
+            if (toCopy == null) return null;
             Price ret = new Price
             {
                 m_dPrice = toCopy.m_dPrice,
