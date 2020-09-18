@@ -6740,10 +6740,8 @@ namespace Core.Catalog
             {
                 assetIDs = ChannelRequest.OrderMediaBySlidingWindow(groupId, channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC,
                                                                     pageSize, pageIndex, assetIDs, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
-                totalItems = 0;
                 if (assetIDs != null && assetIDs.Count > 0)
                 {
-                    totalItems = assetIDs.Count;
                     Dictionary<string, UnifiedSearchResult> assetDictionary = searchResults.ToDictionary(item => item.AssetId);
 
                     searchResults.Clear();
@@ -6759,6 +6757,7 @@ namespace Core.Catalog
                 else
                 {
                     searchResults.Clear();
+                    totalItems = 0;
                 }
             }
 
