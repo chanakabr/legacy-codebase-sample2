@@ -2238,14 +2238,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaDeviceUdidCondition":
-                    switch(property.Name)
-                    {
-                        case "UdidIn":
-                            return "udidIn";
-                    }
-                    break;
-                    
                 case "KalturaDiscount":
                     switch(property.Name)
                     {
@@ -7055,6 +7047,14 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaUdidDynamicListCondition":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
                     }
                     break;
                     

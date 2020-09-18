@@ -130,6 +130,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_PERMISSIONS = "GetGroupPermissions";
         public const string LIST_CAMPAIGNS_BY_GROUP_ID = "ListCampaignsByGroupIdDB";
         public const string GET_CAMPAIGN_BY_ID = "GetCampaignByIdDB";
+        public const string GET_DYNAMIC_LIST_BY_ID = "GetDynamicListByIdDB";
 
         #endregion
 

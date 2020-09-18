@@ -3,13 +3,14 @@ using ApiObjects.Base;
 using ApiObjects.Response;
 using KLogMonitor;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using ApiObjects;
 using DAL;
 using TVinciShared;
 using ApiObjects.BulkUpload;
+using System.Linq;
+using CachingProvider.LayeredCache;
+using System.Collections.Generic;
 
 namespace ApiLogic.Api.Managers
 {
@@ -40,7 +41,7 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
 
-                SetInvalidationKeys(contextData.GroupId, dynamicListResponse.Object.Type);
+                SetInvalidationKeys(contextData, id, dynamicListResponse.Object.Type);
                 response.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -53,14 +54,55 @@ namespace ApiLogic.Api.Managers
 
         public GenericResponse<DynamicList> Get(ContextData contextData, long id)
         {
-            // TODO SHIR - get ID
-            throw new NotImplementedException();
+            var response = new GenericResponse<DynamicList>();
+
+            DynamicList _dynamicList = null;
+
+            try
+            {
+                var key = LayeredCacheKeys.GetDynamicListKey(contextData.GroupId, id);
+                var cacheResult = LayeredCache.Instance.Get(key,
+                                                            ref _dynamicList,
+                                                            Get_DynamicListByIdDB,
+                                                            new Dictionary<string, object>()
+                                                            {
+                                                                    { "groupId", contextData.GroupId },
+                                                                    { "id", id }
+                                                            },
+                                                            contextData.GroupId,
+                                                            LayeredCacheConfigNames.GET_DYNAMIC_LIST_BY_ID,
+                                                            new List<string>() { LayeredCacheKeys.GetDynamicListInvalidationKey(contextData.GroupId, id) });
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to Get DynamicList contextData: {contextData}, id: {id} ex: {ex}", ex);
+            }
+
+            if (_dynamicList != null)
+            {
+                response.Object = _dynamicList;
+                response.SetStatus(eResponseStatus.OK);
+            }
+            else
+            {
+                response.SetStatus(eResponseStatus.DynamicListDoesNotExist, $"DynamicList: {id} not found");
+            }
+
+            return response;
         }
 
         public GenericListResponse<DynamicList> GetDynamicListsByIds(ContextData contextData, DynamicListnIdInFilter filter)
         {
-            // TODO SHIR - GET BY IDS
-            throw new NotImplementedException();
+            var response = new GenericListResponse<DynamicList>
+            {
+                Objects = filter.IdIn?.Select(id => Get(contextData, id)?.Object).ToList()
+            };
+
+            if (response.Objects.Count > 0)
+            {
+                response.SetStatus(eResponseStatus.OK);
+            }
+            return response;
         }
 
         public GenericListResponse<DynamicList> SearchDynamicLists(ContextData contextData, DynamicListSearchFilter filter, CorePager pager = null)
@@ -86,14 +128,14 @@ namespace ApiLogic.Api.Managers
                 dynamicList.CreateDate = DateUtils.GetUtcUnixTimestampNow();
                 dynamicList.UpdateDate = dynamicList.CreateDate;
                 dynamicList.UpdaterId = contextData.UserId.Value;
-                
+
                 if (!ApiDAL.SaveDynamicList(dynamicList))
                 {
                     log.ErrorFormat($"Error while saving DynamicList");
                     return response;
                 }
 
-                SetInvalidationKeys(contextData.GroupId, dynamicList.Type);
+                SetInvalidationKeys(contextData, dynamicList.Id, dynamicList.Type);
 
                 response.Object = dynamicList;
                 response.SetStatus(eResponseStatus.OK);
@@ -130,7 +172,7 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
 
-                SetInvalidationKeys(contextData.GroupId, dynamicList.Type);
+                SetInvalidationKeys(contextData, dynamicList.Id, dynamicList.Type);
                 response.Object = dynamicList;
                 response.SetStatus(eResponseStatus.OK);
             }
@@ -143,9 +185,28 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
-        private void SetInvalidationKeys(int groupId, DynamicListType type)
+        private void SetInvalidationKeys(ContextData contextData, long id, DynamicListType type)
         {
-            throw new NotImplementedException();
+            var invalidationKey = LayeredCacheKeys.GetDynamicListInvalidationKey(contextData.GroupId, id);
+            LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+        }
+
+        private static Tuple<DynamicList, bool> Get_DynamicListByIdDB(Dictionary<string, object> arg)
+        {
+            DynamicList _dynamicList = null;
+
+            try
+            {
+                var groupId = (int)arg["groupId"];
+                var id = (long)arg["id"];
+                _dynamicList = ApiDAL.GetDynamicList(id);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed GetDynamicList group:[{arg["groupId"]}], ex: {ex}", ex);
+            }
+
+            return new Tuple<DynamicList, bool>(_dynamicList, _dynamicList != null);
         }
     }
 }

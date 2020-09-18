@@ -1917,6 +1917,8 @@ namespace Core.ConditionalAccess
 
                 if (validCampaigns?.Count > 0)
                 {
+                    //TODO SHIR BEO-8607 get used campaign from campaign uses table
+
                     var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
                     long userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
                     

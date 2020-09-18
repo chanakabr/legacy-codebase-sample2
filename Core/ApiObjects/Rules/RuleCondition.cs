@@ -451,20 +451,20 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class DeviceUdidCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    public class UdidDynamicListCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
     {
-        public List<string> UdidIn { get; set; }
+        public long Id { get; set; }
 
-        public DeviceUdidCondition()
+        public UdidDynamicListCondition()
         {
-            Type = RuleConditionType.DeviceUdid;
+            Type = RuleConditionType.DeviceUdidDynamicList;
         }
 
         protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
         {
             if (string.IsNullOrEmpty(scope.Udid)) { return true; }
             
-            var isExist = UdidIn.Contains(scope.Udid);
+            var isExist = scope.CheckDynamicList(Id);
             return isExist;
         }
     }

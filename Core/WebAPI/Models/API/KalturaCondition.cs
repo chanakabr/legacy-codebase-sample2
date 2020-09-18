@@ -31,7 +31,7 @@ namespace WebAPI.Models.API
         DEVICE_FAMILY,
         DEVICE_MANUFACTURER,
         DEVICE_MODEL,
-        DEVICE_UDID
+        DEVICE_UDID_DYNAMIC_LIST
     }
 
     /// <summary>
@@ -631,37 +631,28 @@ namespace WebAPI.Models.API
         }
     }
 
-    public partial class KalturaDeviceUdidCondition : KalturaCondition
+    public partial class KalturaUdidDynamicListCondition : KalturaCondition
     {
         /// <summary>
-        /// Comma separated Device Udid IDs list
+        /// KalturaUdidDynamicList.id
         /// </summary>
-        [DataMember(Name = "udidIn")]
-        [JsonProperty("udidIn")]
-        [XmlElement(ElementName = "udidIn")]
-        [SchemeProperty(DynamicMinInt = 0)]
-        public string UdidIn { get; set; }
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(DynamicMinInt = 1)]
+        public long Id { get; set; }
 
         protected override void Init()
         {
             base.Init();
-            this.Type = KalturaRuleConditionType.DEVICE_UDID;
+            this.Type = KalturaRuleConditionType.DEVICE_UDID_DYNAMIC_LIST;
         }
 
         internal override void Validate()
         {
-            //TODO - Matan or Shir, fix udid list ctrl
-            throw new NotImplementedException();
-
-            if (string.IsNullOrEmpty(this.UdidIn))
+            if (Id < 1)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceUdidCondition.udidIn");
-            }
-
-            var items = GetItemsIn<List<long>, long>(this.UdidIn, "udidIn", true);
-            if (items.Count > 10)
-            {
-                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceUdidCondition.idIn", 10);
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaUdidDynamicListCondition.id");
             }
         }
     }

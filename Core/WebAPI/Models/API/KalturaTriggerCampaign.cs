@@ -21,7 +21,7 @@ namespace WebAPI.Models.API
             KalturaRuleConditionType.OR,
             KalturaRuleConditionType.DEVICE_BRAND,
             KalturaRuleConditionType.DEVICE_FAMILY,
-            KalturaRuleConditionType.DEVICE_UDID,
+            KalturaRuleConditionType.DEVICE_UDID_DYNAMIC_LIST,
             KalturaRuleConditionType.DEVICE_MODEL,
             KalturaRuleConditionType.DEVICE_MANUFACTURER,
             KalturaRuleConditionType.SEGMENTS
