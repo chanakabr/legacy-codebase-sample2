@@ -965,7 +965,7 @@ namespace ElasticSearch.Common
         /// <returns></returns>
         public bool CreateBulkRequests<T>(List<ESBulkRequestObj<T>> bulkRequests, out List<ESBulkRequestObj<T>> invalidRecords)
         {
-            bool success = true;
+            bool success = false;
             log.Debug("Start Elastic Search Bulk requests");
             StringBuilder requestString = new StringBuilder();
             invalidRecords = new List<ESBulkRequestObj<T>>();
@@ -1013,8 +1013,6 @@ namespace ElasticSearch.Common
 
             string response = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, bodyRequest, true);
 
-            // docId_documentType
-            string keyFormat = "{0}_{1}";
             // Find out if there are errors
             try
             {
@@ -1024,9 +1022,11 @@ namespace ElasticSearch.Common
 
                     if (json != null)
                     {
+                        // mark success only if we successfully parsed JSON response
+                        success = true;
+
                         var errors = json["errors"];
 
-                        //json["items"][0].First.First.ToString()
                         // If there are errors, report it
                         if (errors != null && Convert.ToBoolean(errors))
                         {
@@ -1511,11 +1511,8 @@ namespace ElasticSearch.Common
             }
             catch (Exception ex)
             {
-                log.Error("Error in SendPostHttpReq Exception", ex);
+                log.Error($"Error in SendPostHttpReq. url = {url}, body = {parameters}. Exception", ex);
             }
-
-            //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
-
 
             return result;
         }

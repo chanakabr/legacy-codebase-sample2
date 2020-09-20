@@ -3478,11 +3478,11 @@ namespace DAL
             return rowCount;
         }
 
-        public static int UpdateImageState(int groupId, long rowId, int version, eTableStatus status, int? updaterId, string contentId = null)
+        public static int UpdateImageState(int groupId, long rowId, int version, eTableStatus status, int? updaterId, string contentId = null, bool isForMigration = false)
         {
             int result = -1;
 
-            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("pics");
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(isForMigration ? "mig_pics" : "pics");
             try
             {
                 if (status == eTableStatus.OK)

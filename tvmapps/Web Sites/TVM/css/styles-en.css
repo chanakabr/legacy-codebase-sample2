@@ -917,7 +917,7 @@ div#menu {
 		background: url(../Images/folder.svg) top center no-repeat;
 		width: 35px;
 		height: 16px;
-		float:left;
+		float: left;
 	}
 
 	#menu > ul:first-child:not(.nested) > li {
@@ -959,10 +959,10 @@ ul.nested {
 	float: left;
 }
 
-.nested .caret.caret-down {
+	.nested .caret.caret-down {
 		background: url(../Images/minus.svg) top center no-repeat;
-		float:left;
-}
+		float: left;
+	}
 
 li.no-children:before {
 	content: "";
@@ -973,15 +973,16 @@ li.no-children:before {
 	margin-left: 7px;
 	margin-right: 10px;
 }
+
 li.selected {
 	background: #3499ff;
 	color: #fff;
 	display: inline-block;
 }
 
-li.selected:before {
+	li.selected:before {
 		background: #fff;
-}
+	}
 
 ul li {
 	font-weight: normal;
@@ -993,4 +994,3 @@ ul li {
 
 li:hover {
 	color: #e0a854;
-}

@@ -162,5 +162,63 @@ namespace OPC_Migration
             return result;
         }
 
+        public static void TrimEndSpaceFromGroup(GroupsCacheManager.Group group)
+        {
+            List<KeyValuePair<int, string>> tagsToRemoveSpaces = group.m_oGroupTags.Where(x => x.Value.EndsWith(" ")).ToList();
+            if (tagsToRemoveSpaces?.Count > 0)
+            {
+                foreach (KeyValuePair<int, string> tagToUpdate in tagsToRemoveSpaces)
+                {
+                    group.m_oGroupTags[tagToUpdate.Key] = tagToUpdate.Value.TrimEnd();
+                }
+            }
+
+            Dictionary<int, Dictionary<string, string>> metasToRemoveSpaces = new Dictionary<int, Dictionary<string, string>>();
+            foreach (KeyValuePair<int, Dictionary<string, string>> groupMetas in group.m_oMetasValuesByGroupId)
+            {
+                List<KeyValuePair<string, string>> groupMetasToRemoveSpaces = groupMetas.Value.Where(x => x.Value.EndsWith(" ")).ToList();
+                if (groupMetasToRemoveSpaces?.Count > 0)
+                {
+                    metasToRemoveSpaces.Add(groupMetas.Key, new Dictionary<string, string>());
+                    foreach (KeyValuePair<string, string> metaToUpdate in groupMetasToRemoveSpaces)
+                    {
+                        string trimmedValue = metaToUpdate.Value.TrimEnd();
+                        metasToRemoveSpaces[groupMetas.Key][metaToUpdate.Key] = trimmedValue;
+                    }
+                }
+            }
+
+            if (metasToRemoveSpaces?.Count > 0)
+            {
+                foreach (KeyValuePair<int, Dictionary<string, string>> valuesToUpdate in metasToRemoveSpaces)
+                {
+                    foreach (KeyValuePair<string, string> metasToUpdate in valuesToUpdate.Value)
+                    {
+                        group.m_oMetasValuesByGroupId[valuesToUpdate.Key][metasToUpdate.Key] = metasToUpdate.Value;
+                    }
+                }
+            }
+
+            List<string> epgsMetas = group.m_oEpgGroupSettings.MetasDisplayName.Where(x => x.EndsWith(" ")).ToList();
+            if (epgsMetas?.Count > 0)
+            {
+                foreach (string epgsMetasToUpdate in epgsMetas)
+                {
+                    group.m_oEpgGroupSettings.MetasDisplayName.Remove(epgsMetasToUpdate);
+                    group.m_oEpgGroupSettings.MetasDisplayName.Add(epgsMetasToUpdate.TrimEnd());
+                }
+            }
+
+            List<string> epgsTags = group.m_oEpgGroupSettings.TagsDisplayName.Where(x => x.EndsWith(" ")).ToList();
+            if (epgsTags?.Count > 0)
+            {
+                foreach (string epgsTagsToUpdate in epgsTags)
+                {
+                    group.m_oEpgGroupSettings.TagsDisplayName.Remove(epgsTagsToUpdate);
+                    group.m_oEpgGroupSettings.TagsDisplayName.Add(epgsTagsToUpdate.TrimEnd());
+                }
+            }
+        }
+
     }
 }

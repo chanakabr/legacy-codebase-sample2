@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -26,7 +27,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #region Data Members
 
-        private long epgCbBulkSize = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.EpgPageSize.Value;
+        private int epgCbBulkSize = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.EpgPageSize.Value;
         protected int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
         protected int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
         protected bool shouldAddRouting = true;
@@ -106,12 +107,6 @@ namespace ElasticSearchHandler.IndexBuilders
             #endregion
 
             PopulateIndex(newIndexName, group);
-
-            #region insert channel queries
-
-            InsertChannelsQueries(groupManager, group, newIndexName, doesGroupUsesTemplates);
-
-            #endregion
 
             #region Switch Index
 
@@ -327,7 +322,11 @@ namespace ElasticSearchHandler.IndexBuilders
                 // Get EPG objects from CB
                 programs = GetEpgPrograms(groupId, date, epgCbBulkSize);
 
-                AddEPGsToIndex(index, type, programs, group, doesGroupUsesTemplates, catalogGroupCache);
+                if (programs != null && programs.Count > 0)
+                {
+                    log.DebugFormat($"found {programs.Count} epgs for day {date}");
+                    AddEPGsToIndex(index, type, programs, group, doesGroupUsesTemplates, catalogGroupCache);
+                }
             }
             catch (Exception ex)
             {
@@ -450,12 +449,21 @@ namespace ElasticSearchHandler.IndexBuilders
                         }
                     }
                 }
+                
+                int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+                if (maxDegreeOfParallelism == 0)
+                {
+                    maxDegreeOfParallelism = 5;
+                }
 
+                ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                ContextData contextData = new ContextData();
                 System.Net.ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
                 System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<ulong>>> failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<ulong>>>();
                 // Send request to elastic search in a different thread
-                System.Threading.Tasks.Parallel.ForEach(bulkRequests, (bulkRequest, state) =>
+                Parallel.ForEach(bulkRequests, options,(bulkRequest, state) =>
                 {
+                    contextData.Load();
                     List<ESBulkRequestObj<ulong>> invalidResults;
                     bool bulkResult = api.CreateBulkRequests(bulkRequest.Value, out invalidResults);
 

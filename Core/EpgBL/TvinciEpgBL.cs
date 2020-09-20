@@ -524,6 +524,36 @@ namespace EpgBL
             return lRes;
         }
 
+        public List<EpgCB> GetGroupEpgsWithBulkSize(DateTime? dfromDate, DateTime? dToDate, bool falseStaleState, int bulkSize)
+        {
+            List<EpgCB> epgs = new List<EpgCB>();
+            int pageSize = 0, startIndex = 0;
+            if (bulkSize > 0)
+            {
+                pageSize = bulkSize;
+            }
+
+            bool shouldGetNextPage = true;
+            while (shouldGetNextPage)
+            {
+                List<EpgCB> page = GetGroupEpgs(pageSize, startIndex, dfromDate, dToDate, falseStaleState, bulkSize);
+                if (page?.Count > 0)
+                {
+                    epgs.AddRange(page);
+                    page = null;
+                }
+                else
+                {
+                    shouldGetNextPage = false;
+                }
+
+                startIndex += pageSize;
+            }
+
+
+            return epgs;
+        }
+
         public List<EpgCB> GetChannelPrograms(int nPageSize, int nStartIndex, int nChannelID, DateTime? fromUTCDay, DateTime? toUTCDay)
         {
             List<EpgCB> lRes = null;
