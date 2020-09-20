@@ -938,22 +938,20 @@ namespace CachingProvider.LayeredCache
 
                     if (!result)
                     {
-                        log.DebugFormat("fillObjectsMethod returned false for keys: {0}, with MethodName: {1}, and funcParameters: {2}.",
+                        log.DebugFormat("fillObjectsMethod returned false for keys: {0}, with MethodName: {1}",
                                         // take only 20 first keys - to avoid flood of log
-                                        string.Join(",", KeyToOriginalValueMap.Keys).Take(20),
-                                        fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
-                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys) : "No_Func_Parameters");
+                                        string.Join(",", KeyToOriginalValueMap.Keys.Take(20)),
+                                        fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name");
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed TryGetValuesFromCacheByConfig with keys {0}, LayeredCacheTypes {1}, MethodName {2} and funcParameters {3}",
+                log.Error(string.Format("Failed TryGetValuesFromCacheByConfig with keys {0}, LayeredCacheTypes {1}, MethodName {2}",
                         // take only 20 first keys - to avoid flood of log
-                        string.Join(",", KeyToOriginalValueMap.Keys).Take(20),
+                        string.Join(",", KeyToOriginalValueMap.Keys.Take(20)),
                         GetLayeredCacheConfigTypesForLog(layeredCacheConfig),
-                        fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
-                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
+                        fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name"), ex);
             }
 
             return result;

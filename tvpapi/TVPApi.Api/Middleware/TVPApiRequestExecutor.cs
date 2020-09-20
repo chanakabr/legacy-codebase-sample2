@@ -100,6 +100,7 @@ namespace TVPApi.Web.Middleware
                 // Exception was thrown - write log
                 if (error is Exception)
                 {
+                    log.Error("HandleResponse, exception was thrown during the request execution", error as Exception);
                     sError = "Unknown error ";
                 }
                 // Error occurred - write log
@@ -120,6 +121,9 @@ namespace TVPApi.Web.Middleware
                     string json = Newtonsoft.Json.JsonConvert.SerializeObject(new { Error = sError });
                     response = json;
                 }
+
+                // clear error
+                System.Web.HttpContext.Current.Items.Remove("Error");
             }
 
             // Check for Status code
