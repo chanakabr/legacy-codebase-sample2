@@ -87,6 +87,7 @@ namespace TCMClient
         private string m_AppID;
         private string m_AppSecret;
         private bool m_VerifySSL;
+        private string m_LocalPath;
 
         public static bool IsInitilized { get; set; }
 
@@ -105,9 +106,14 @@ namespace TCMClient
         /// Initializes settings with data from local / remote source according to config
         /// </summary>
         /// <param name="fromLocal">determines the source</param>
-        public void Init()
+        public void Init(bool? fromLocal = null)
         {
             TCMConfiguration config = (TCMConfiguration)ConfigurationManager.GetSection("TCMConfig");
+            if (fromLocal.HasValue)
+            {
+                config.FromLocal = fromLocal.Value;
+            }
+
             Init(config);
         }
 
@@ -118,8 +124,18 @@ namespace TCMClient
         public void Init(TCMConfiguration config)
         {
             config.OverrideEnvironmentVariable();
-            //Populate settings from remote
-            Init(config.URL, config.Application, config.Host, config.Environment, config.AppID, config.AppSecret, config.VerifySSL);
+            if (config.FromLocal)
+            {
+                m_LocalPath = config.LocalPath;
+
+                //Populate settings from local
+                PopulateSettings(true);
+            }
+            else
+            {
+                //Populate settings from remote
+                Init(config.URL, config.Application, config.Host, config.Environment, config.AppID, config.AppSecret, config.VerifySSL, config.LocalPath);
+            }
         }
 
         /// <summary>
@@ -133,7 +149,7 @@ namespace TCMClient
         /// <param name="appSecret">App Secret</param>
         /// <param name="localPath">Local Path</param>
         [Obsolete]
-        public void Init(string url, string application, string host, string environment, string appID, string appSecret)
+        public void Init(string url, string application, string host, string environment, string appID, string appSecret, string localPath = null)
         {
             m_URL = url;
             m_Application = application;
@@ -141,8 +157,9 @@ namespace TCMClient
             m_Environment = environment;
             m_AppID = appID;
             m_AppSecret = appSecret;
+            m_LocalPath = localPath;
 
-            PopulateSettings();
+            PopulateSettings(false);
         }
 
         /// <summary>
@@ -156,7 +173,7 @@ namespace TCMClient
         /// <param name="appSecret">App Secret</param>
         /// <param name="verifySSL">App Secret</param>
         /// <param name="localPath">Local Path</param>
-        public void Init(string url, string application, string host, string environment, string appID, string appSecret, bool verifySSL)
+        public void Init(string url, string application, string host, string environment, string appID, string appSecret, bool verifySSL, string localPath = null)
         {
             m_URL = url;
             m_Application = application;
@@ -164,9 +181,9 @@ namespace TCMClient
             m_Environment = environment;
             m_AppID = appID;
             m_AppSecret = appSecret;
-            m_VerifySSL = verifySSL;
+            m_LocalPath = localPath;
 
-            PopulateSettings();
+            PopulateSettings(false);
         }
 
         /// <summary>
@@ -291,16 +308,67 @@ namespace TCMClient
             return settings;
         }
 
-        private void PopulateSettings()
+        private string getSettingsFromLocal()
+        {
+            string settings = null;
+            string pathToLocalFile = getPathToLocalFile();
+            _Logger.Info($"Getting TCM from local file:[{pathToLocalFile}]");
+            if (File.Exists(pathToLocalFile))
+            {
+                using (StreamReader sr = new StreamReader(pathToLocalFile))
+                {
+                    YamlDotNet.Serialization.Deserializer yamlDeserializer = new YamlDotNet.Serialization.Deserializer();
+                    YamlDotNet.Serialization.DeserializerBuilder ds = new YamlDotNet.Serialization.DeserializerBuilder();
+                    var yaml = yamlDeserializer.Deserialize(sr);
+                    JsonSerializer jsonSerializer = new Newtonsoft.Json.JsonSerializer();
+                    using (var writer = new StringWriter())
+                    {
+                        jsonSerializer.Serialize(writer, yaml);
+                        settings = writer.ToString();
+                    }
+
+                    yamlDeserializer = null;
+                    jsonSerializer = null;
+                    yaml = null;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(settings))
+            {
+                _Logger.Debug($"local settings are {settings}");
+            }
+
+            return settings;
+        }
+
+        private string getSettings(bool fromLocal)
+        {
+            string settings = null;
+
+            if (fromLocal)
+            {
+                settings = getSettingsFromLocal();
+            }
+
+            //if no data from local or we don't want to get from local, try to take data from server
+            if (string.IsNullOrEmpty(settings))
+            {
+                settings = getSettingsFromServer();
+            }
+
+            return settings;
+        }
+
+        private void PopulateSettings(bool fromLocal)
         {
             if (IsInitilized)
             {
-                _Logger.Warn($"TCM Client does not support multiple initializations, leaving settings as they are loaded previouslly, ignoting init call.");
+                _Logger.Warn($"TCM Client does not support multiple initializations, leaving settings as they are loaded previously, ignoring init call.");
                 return;
             }
 
             IsInitilized = true;
-            string settings = getSettingsFromServer();
+            string settings = getSettings(fromLocal);
 
             if (!string.IsNullOrEmpty(settings) && !settings.ToLower().Equals("null"))
             {
@@ -375,6 +443,21 @@ namespace TCMClient
             return retJObject;
         }
 
+        private string getPathToLocalFile()
+        {
+            string pathToLocalFile = null;
+
+            if (string.IsNullOrEmpty(m_LocalPath))
+            {
+                pathToLocalFile = AppDomain.CurrentDomain.BaseDirectory + "config.yaml";
+            }
+            else
+            {
+                pathToLocalFile = m_LocalPath + "/config.yaml";
+            }
+
+            return pathToLocalFile;
+        }
 
         #endregion
     }

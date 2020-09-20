@@ -19,6 +19,10 @@ namespace TCMClient
 
         private bool? m_VerifySSL = null;
 
+        private bool? m_FromLocal = null;
+
+        private string m_LocalPath = null;
+
         public void OverrideEnvironmentVariable()
         {
             string application = System.Environment.GetEnvironmentVariable("TCM_APP");
@@ -28,6 +32,7 @@ namespace TCMClient
             string appID = System.Environment.GetEnvironmentVariable("TCM_APP_ID");
             string appSecret = System.Environment.GetEnvironmentVariable("TCM_APP_SECRET");
             string verifySSL = System.Environment.GetEnvironmentVariable("TCM_VERIFY_SSL");
+            string fromLocal = System.Environment.GetEnvironmentVariable("TCM_FROM_LOCAL");
 
             if (application != null)
             {
@@ -66,6 +71,12 @@ namespace TCMClient
             else
             {
                 VerifySSL = false;
+            }
+
+            bool fromLocalParsed;
+            if (fromLocal != null && bool.TryParse(fromLocal, out fromLocalParsed))
+            {
+                FromLocal = fromLocalParsed;
             }
         }
 
@@ -167,6 +178,36 @@ namespace TCMClient
             set
             {
                 m_VerifySSL = value;
+            }
+        }
+
+        [ConfigurationProperty("FromLocal", DefaultValue = "false", IsRequired = false)]
+        public Boolean FromLocal
+        {
+
+            get
+            {
+                return m_FromLocal.HasValue ? m_FromLocal.Value : (Boolean)this["FromLocal"];
+            }
+
+            set
+            {
+                m_FromLocal = value;
+            }
+        }
+
+        [ConfigurationProperty("LocalPath", IsRequired = false)]
+        public string LocalPath
+        {
+
+            get
+            {
+                return m_LocalPath != null ? m_LocalPath : this["LocalPath"] as string;
+            }
+
+            set
+            {
+                m_LocalPath = value;
             }
         }
 
