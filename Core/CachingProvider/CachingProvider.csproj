@@ -24,6 +24,7 @@
     <ProjectReference Include="..\EventBus.Kafka\EventBus.Kafka.csproj" />
     <ProjectReference Include="..\EventBus.Models\EventBus.Models.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\RedisManager\RedisManager.csproj" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">

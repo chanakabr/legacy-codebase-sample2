@@ -962,7 +962,7 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
-                ICachingService cache = cacheConfig.GetICachingService();
+                ILayeredCacheService cache = cacheConfig.GetILayeredCachingService();
                 if (cache != null)
                 {
                     Dictionary<string, string> keysMapping = GetVersionKeyToOriginalKeyMap(new List<string>() { key }, groupId);
@@ -994,22 +994,14 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
-                ICachingService cache = cacheConfig.GetICachingService();
+                ILayeredCacheService cache = cacheConfig.GetILayeredCachingService();
                 if (cache != null)
                 {
                     Dictionary<string, string> keysMapping = GetVersionKeyToOriginalKeyMap(keys, groupId);
                     if (keysMapping != null && keysMapping.Count > 0)
                     {
                         IDictionary<string, Tuple<T, long>> getResults = null;
-                        if (shouldUseAutoNameTypeHandling)
-                        {
-                            res = cache.GetValues<Tuple<T, long>>(keysMapping.Keys.ToList(), ref getResults, jsonSerializerSettings, true);
-                        }
-                        else
-                        {
-                            res = cache.GetValues<Tuple<T, long>>(keysMapping.Keys.ToList(), ref getResults, true);
-                        }
-
+                        res = cache.GetValues<Tuple<T, long>>(keysMapping.Keys.ToList(), ref getResults, shouldUseAutoNameTypeHandling ? jsonSerializerSettings : null, true);
                         if (getResults != null)
                         {
                             tupleResultsMap = getResults.ToDictionary(x => keysMapping[x.Key], x => x.Value);
@@ -1062,14 +1054,14 @@ namespace CachingProvider.LayeredCache
                     Dictionary<LayeredCacheConfig, List<string>> insertToCacheConfig = new Dictionary<LayeredCacheConfig, List<string>>();
                     foreach (LayeredCacheConfig cacheConfig in invalidationKeyCacheConfig)
                     {
-                        ICachingService cache = cacheConfig.GetICachingService();
+                        ILayeredCacheService cache = cacheConfig.GetILayeredCachingService();
                         if (cache != null)
                         {
                             IDictionary<string, long> resultMap = null;                            
-                            bool getSuccess = cache.GetValues<long>(keysToGet.ToList(), ref resultMap, true);
+                            bool getSuccess = cache.GetValues<long>(keysToGet.ToList(), ref resultMap, null, true);
                             if (getSuccess && resultMap?.Count > 0)
                             {
-                                bool shouldSearchKeyInResult = cacheConfig.Type == LayeredCacheType.CbCache || cacheConfig.Type == LayeredCacheType.CbMemCache;
+                                bool shouldSearchKeyInResult = cacheConfig.Type == LayeredCacheType.CbCache || cacheConfig.Type == LayeredCacheType.CbMemCache || cacheConfig.Type == LayeredCacheType.Redis;
                                 foreach (string keyToGet in keys)
                                 {
                                     bool keyExistsInResult = resultMap.ContainsKey(keyToGet);
@@ -1225,7 +1217,7 @@ namespace CachingProvider.LayeredCache
 
                 foreach (LayeredCacheConfig cacheConfig in GroupCacheSettings)
                 {
-                    ICachingService cache = cacheConfig.GetICachingService();
+                    ILayeredCacheService cache = cacheConfig.GetILayeredCachingService();
                     if (cache != null)
                     {
                         if (cache.Get<LayeredCacheGroupConfig>(key, ref groupConfig) && groupConfig != null)
@@ -1462,17 +1454,10 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
-                ICachingService cache = cacheConfig.GetICachingService();
+                ILayeredCacheService cache = cacheConfig.GetILayeredCachingService();
                 if (cache != null)
                 {
-                    if (shouldUseAutoNameTypeHandling)
-                    {
-                        res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, 0, cacheConfig.TTL, jsonSerializerSettings);
-                    }
-                    else
-                    {
-                        res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, 0, cacheConfig.TTL);
-                    }
+                    res = cache.Set<Tuple<T, long>>(key, tuple, cacheConfig.TTL, shouldUseAutoNameTypeHandling ? jsonSerializerSettings : null);
                 }
             }
 
@@ -1505,7 +1490,7 @@ namespace CachingProvider.LayeredCache
                 }
 
                 LayeredCacheConfig invalidationKeyCacheConfig = layeredCacheTcmConfig.InvalidationKeySettings
-                    .FirstOrDefault(x => x.Type == LayeredCacheType.CbCache || x.Type == LayeredCacheType.CbMemCache);
+                    .FirstOrDefault(x => x.Type == LayeredCacheType.CbCache || x.Type == LayeredCacheType.CbMemCache || x.Type == LayeredCacheType.Redis);
 
                 if (invalidationKeyCacheConfig == null)
                 {
@@ -1549,10 +1534,10 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
-                ICachingService cache = invalidationKeyCacheConfig.GetICachingService();
+                ILayeredCacheService cache = invalidationKeyCacheConfig.GetILayeredCachingService();
                 if (cache != null)
                 {
-                    res = cache.SetWithVersion<long>(key, valueToUpdate, 0, invalidationKeyCacheConfig.TTL);
+                    res = cache.Set<long>(key, valueToUpdate, invalidationKeyCacheConfig.TTL);
                 }
             }
             catch (Exception ex)
@@ -1583,10 +1568,10 @@ namespace CachingProvider.LayeredCache
                 bool insertResult = true;
                 foreach (LayeredCacheConfig cacheConfig in GroupCacheSettings)
                 {
-                    ICachingService cache = cacheConfig.GetICachingService();
+                    ILayeredCacheService cache = cacheConfig.GetILayeredCachingService();
                     if (cache != null)
                     {
-                        insertResult = insertResult && cache.SetWithVersion<LayeredCacheGroupConfig>(key, groupConfig, 0, cacheConfig.TTL);
+                        insertResult = insertResult && cache.Set<LayeredCacheGroupConfig>(key, groupConfig, cacheConfig.TTL);
                     }
                     else
                     {
@@ -1643,7 +1628,7 @@ namespace CachingProvider.LayeredCache
                     var tags = (HashSet<string>)HttpContext.Current.Items[REQUEST_TAGS];
                     if (tags != null && tags.Contains(REQUEST_TAGS_PARTNER_ROLE))
                     {
-                        layeredCacheConfig = layeredCacheConfig.Where(x => x.Type == LayeredCacheType.CbCache || x.Type == LayeredCacheType.CbMemCache).ToList();
+                        layeredCacheConfig = layeredCacheConfig.Where(x => x.Type == LayeredCacheType.CbCache || x.Type == LayeredCacheType.CbMemCache || x.Type == LayeredCacheType.Redis).ToList();
                         res = layeredCacheConfig != null && layeredCacheConfig.Count > 0;
                     }
                 }

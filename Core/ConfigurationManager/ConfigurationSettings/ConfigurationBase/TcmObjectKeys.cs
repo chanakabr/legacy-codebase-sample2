@@ -74,7 +74,9 @@
         public const string HealthCheckConfiguration = "health_check";
         public const string IotConfiguration = "iot_configuration";
         public const string UdidUsageConfiguration = "udid_usage";
+        public const string RedisClientConfiguration = "redis_client_configuration";
         public const string MemoryCacheConfiguration = "memory_cache_configuration";
+		
     }    
 }
 

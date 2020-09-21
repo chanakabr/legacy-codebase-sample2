@@ -32,9 +32,9 @@ namespace CachingProvider.LayeredCache
             this.Bucket = bucket;
         }
 
-        public override ICachingService GetICachingService()
+        public override ILayeredCacheService GetILayeredCachingService()
         {
-            ICachingService cache = null;
+            ILayeredCacheService cache = null;
             try
             {
                 cache =  CouchBaseCache<object>.GetInstance(string.IsNullOrEmpty(this.Bucket) ? LayeredCache.GetBucketFromLayeredCacheConfig(this.Type) : this.Bucket);

@@ -19,6 +19,7 @@ namespace SoapAdaptersCommon.Middleware
 {
     public static class SoapAdapterMiddlewarExtentions
     {
+        private const string ENABLE_RESPONSE_RECORDING_KEY = "ENABLE_RESPONSE_RECORDING";
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly BasicHttpBinding DEFAULT_SOAP_ADAPTER_BINDING = new BasicHttpBinding()
         {
@@ -39,7 +40,7 @@ namespace SoapAdaptersCommon.Middleware
         /// </summary>
         public static IServiceCollection ConfigureSoapAdapaters(this IServiceCollection services, Action<SoapAdapatersOptions> configure = null)
         {
-            
+
             services.AddHttpContextAccessor();
             services.AddStaticHttpContextAccessor();
             services.AddMvc(x => x.EnableEndpointRouting = false);
@@ -59,7 +60,17 @@ namespace SoapAdaptersCommon.Middleware
             }
 
             _Logger.Info("Trying to configure GRPC Endpoint");
-            services.AddHostedService(c=> new GrpcServer(services));
+            services.AddHostedService(c => new GrpcServer(services));
+
+            var isResponseRecorderEnabled = Environment.GetEnvironmentVariable(ENABLE_RESPONSE_RECORDING_KEY);
+            if (!string.IsNullOrEmpty(isResponseRecorderEnabled))
+            {
+                if (isResponseRecorderEnabled == "1" || isResponseRecorderEnabled.Equals("true", StringComparison.OrdinalIgnoreCase))
+                {
+                    _Logger.Info($"ENABLE_RESPONSE_RECORDING is set to:[{isResponseRecorderEnabled}], enabling recording..");
+                    services.TryAddSingleton<IOperationInvoker, AdapterOperationInvoker>();
+                }
+            }
 
             return services;
         }

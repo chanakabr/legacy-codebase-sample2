@@ -41,6 +41,9 @@ namespace HealthCheck
                     case HealthCheckType.RabbitMQ:
                         healthCheckBuilder = healthCheckBuilder.AddCheck<RabbitHealthCheck>("rabbitmq");
                         break;
+                    case HealthCheckType.Redis:
+                        healthCheckBuilder = healthCheckBuilder.AddCheck<RedisHealthCheck>("redis");
+                        break;
                     case HealthCheckType.ThirdParty:
                         if (definition.Args.Length > 1 && definition.Args[0] != null && definition.Args[1] != null)
                         {
