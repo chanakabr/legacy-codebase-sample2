@@ -10,6 +10,7 @@ using TVinciShared;
 using System.Linq;
 using CachingProvider.LayeredCache;
 using System.Collections.Generic;
+using Tvinci.Core.DAL;
 
 namespace ApiLogic.Api.Managers
 {
@@ -34,7 +35,7 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
 
-                if (!ApiDAL.DeleteDynamicList(contextData.GroupId, id))
+                if (!ApiDAL.DeleteDynamicList(contextData, id))
                 {
                     response.Set(eResponseStatus.Error, "Error while deleting DynamicList");
                     return response;
@@ -106,8 +107,36 @@ namespace ApiLogic.Api.Managers
 
         public GenericListResponse<DynamicList> SearchDynamicLists(ContextData contextData, DynamicListSearchFilter filter, CorePager pager = null)
         {
+            var response = new GenericListResponse<DynamicList>();
             // TODO SHIR - SEARCH 
-            throw new NotImplementedException();
+            var groupDynamicLists = ApiDAL.GetDynamicListGroupMapping(contextData);
+            if (groupDynamicLists == null || groupDynamicLists.Count == 0)
+            {
+                response.SetStatus(eResponseStatus.Error, $"No Dynamic list for group: {contextData.GroupId}");
+            }
+
+            response.Objects = groupDynamicLists.Select(id => Get(contextData, id)?.Object).ToList();
+
+            if (filter.ValueIn != null && filter.ValueIn.Count > 0)
+            {
+                response.Objects = response.Objects?.Where(x => filter.ValueIn.Contains(x.Name)).ToList();
+            }
+            if (filter.TypeEqual.HasValue)
+            {
+                response.Objects = response.Objects?.Where(x => x.Type == filter.TypeEqual.Value).ToList();
+            }
+
+            if (pager != null)
+            {
+                response.Objects = response.Objects?.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList();
+            }
+
+            if (response.Objects?.Count > 0)
+            {
+                response.SetStatus(eResponseStatus.OK);
+            }
+
+            return response;
         }
 
         public GenericResponse<DynamicList> AddDynamicList(ContextData contextData, DynamicList dynamicList)
@@ -128,7 +157,7 @@ namespace ApiLogic.Api.Managers
                 dynamicList.UpdateDate = dynamicList.CreateDate;
                 dynamicList.UpdaterId = contextData.UserId.Value;
 
-                if (!ApiDAL.SaveDynamicList(dynamicList))
+                if (!ApiDAL.SaveDynamicList(contextData, dynamicList))
                 {
                     log.ErrorFormat($"Error while saving DynamicList");
                     return response;
@@ -164,7 +193,7 @@ namespace ApiLogic.Api.Managers
                 dynamicList.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
                 dynamicList.UpdaterId = contextData.UserId.Value;
 
-                if (!ApiDAL.SaveDynamicList(dynamicList))
+                if (!ApiDAL.SaveDynamicList(contextData, dynamicList))
                 {
                     log.ErrorFormat($"Error while saving DynamicList");
                     response.SetStatus(eResponseStatus.Error, $"Error Updating DynamicList, ID:[{dynamicList.Id}].");
@@ -187,7 +216,11 @@ namespace ApiLogic.Api.Managers
         private void SetInvalidationKeys(ContextData contextData, long id, DynamicListType type)
         {
             var invalidationKey = LayeredCacheKeys.GetDynamicListInvalidationKey(contextData.GroupId, id);
-            LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+            if (LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+            {
+                var mapKey = LayeredCacheKeys.GetDynamicListGroupMappingInvalidationKey(contextData.GroupId, (int)type);
+                LayeredCache.Instance.SetInvalidationKey(mapKey);
+            }
         }
 
         private static Tuple<DynamicList, bool> Get_DynamicListByIdDB(Dictionary<string, object> arg)

@@ -733,6 +733,11 @@ namespace CachingProvider.LayeredCache
             return $"group_DynamicList_{groupId}_id_{id}";
         }
 
+        public static string GetDynamicListGroupMappingKey(int groupId, int type)
+        {
+            return $"group_DynamicList_Mapping_{groupId}_type_{type}";
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1402,6 +1407,11 @@ namespace CachingProvider.LayeredCache
         public static string GetDynamicListInvalidationKey(int groupId, long id)
         {
             return $"invalidationKey_{GetDynamicListKey(groupId, id)}";
+        }
+
+        public static string GetDynamicListGroupMappingInvalidationKey(int groupId, int type)
+        {
+            return $"invalidationKey_{GetDynamicListGroupMappingKey(groupId, type)}";
         }
 
         #endregion

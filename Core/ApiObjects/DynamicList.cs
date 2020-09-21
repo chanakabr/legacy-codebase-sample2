@@ -6,10 +6,6 @@ using System.Text;
 
 namespace ApiObjects
 {
-    public class DynamicListMap
-    {
-    }
-
     public enum DynamicListType
     {
         UDID = 1

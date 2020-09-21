@@ -239,14 +239,6 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                var campaignFilter = new BatchCampaignFilter() { StateEqual = ObjectState.ACTIVE };
-                var campaigns = ListBatchCampaigns(contextData, campaignFilter);
-                if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_BATCH_CAMPAIGNS)
-                {
-                    response.SetStatus(eResponseStatus.ActiveCampaignsExceededMaxSize, "Active batch campaigns Exceeded Max Size");
-                    return response;
-                }
-
                 var validateStatus = ValidateCampaign(contextData, campaignToAdd);
                 if (!validateStatus.IsOkStatusCode())
                 {
