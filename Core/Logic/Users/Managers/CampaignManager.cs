@@ -293,9 +293,9 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                if (oldTriggerCampaignResponse.Object.State == ObjectState.ACTIVE)
+                if (oldTriggerCampaignResponse.Object.State != ObjectState.INACTIVE)
                 {
-                    response.SetStatus(eResponseStatus.Error, $"Can't update an Active campaign");
+                    response.SetStatus(eResponseStatus.Error, $"Can't update this campaign due to current state: [{oldTriggerCampaignResponse.Object.State}]");
                     return response;
                 }
 
@@ -348,6 +348,12 @@ namespace ApiLogic.Users.Managers
                 if (oldBatchCampaignResponse.Object.CampaignType != eCampaignType.Batch)
                 {
                     response.SetStatus(eResponseStatus.Error, $"invalid campaign type for update");
+                    return response;
+                }
+
+                if (oldBatchCampaignResponse.Object.State != ObjectState.INACTIVE)
+                {
+                    response.SetStatus(eResponseStatus.Error, $"Can't update this campaign due to current state: [{oldBatchCampaignResponse.Object.State}]");
                     return response;
                 }
 
@@ -498,15 +504,17 @@ namespace ApiLogic.Users.Managers
 
         private void SetInvalidationKeys(ContextData contextData, Campaign campaign)
         {
-            var invalidationKey = LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, (int)campaign.CampaignType);
-            SetCampaignInvalidationKey(contextData, campaign.Id);
-            LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+            if (SetCampaignInvalidationKey(contextData, campaign.Id))
+            {
+                var invalidationKey = LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, (int)campaign.CampaignType);
+                LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+            }
         }
 
-        private void SetCampaignInvalidationKey(ContextData contextData, long campaignId)
+        private bool SetCampaignInvalidationKey(ContextData contextData, long campaignId)
         {
             var invalidationKey = LayeredCacheKeys.GetCampaignInvalidationKey(contextData.GroupId, campaignId);
-            LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+            return LayeredCache.Instance.SetInvalidationKey(invalidationKey);
         }
 
         public void PublishTriggerCampaign(int groupId, int domainId, ICampaignObject eventObject, ApiService apiService, ApiAction apiAction)
