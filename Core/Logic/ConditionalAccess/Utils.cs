@@ -1104,6 +1104,7 @@ namespace Core.ConditionalAccess
 
         internal static Price CopyPrice(Price toCopy)
         {
+            if (toCopy == null) return null;
             Price ret = new Price
             {
                 m_dPrice = toCopy.m_dPrice,
@@ -1355,9 +1356,10 @@ namespace Core.ConditionalAccess
                 fullPrice.FinalPrice = CopyPrice(fullPrice.OriginalPrice);
 
                 subscription.m_oSubscriptionPriceCode = priceCode;
-                if (theReason != PriceReason.ForPurchase)
+                fullPrice.PriceReason = theReason;
+
+                if (fullPrice.PriceReason != PriceReason.ForPurchase)
                 {
-                    fullPrice.PriceReason = theReason;
                     return fullPrice;
                 }
 
@@ -1398,6 +1400,7 @@ namespace Core.ConditionalAccess
                         IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref finalPrice, ref theReason, domainId))
                     {
                         fullPrice.FinalPrice = finalPrice;
+                        fullPrice.PriceReason = theReason;
                         fullPrice.SubscriptionCycle = CalcSubscriptionCycle(groupId, subscription, domainId);
 
                         //search for campaign

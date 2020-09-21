@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="fileData">fileData</param>
         /// <param name="jobData">jobData</param>
-        /// <param name="bulkUploadAssetData">bulkUploadAssetData</param>
+        /// <param name="bulkUploadData">bulkUploadData</param>
         /// <returns></returns>
         [Action("addFromBulkUpload")]
         [ApiAuthorize]
@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
 
-        public static KalturaBulkUpload AddFromBulkUpload(KalturaOTTFile fileData, KalturaBulkUploadExcelJobData jobData, KalturaBulkUploadAssetData bulkUploadAssetData)
+        public static KalturaBulkUpload AddFromBulkUpload(KalturaOTTFile fileData, KalturaBulkUploadExcelJobData jobData, KalturaBulkUploadDynamicListData bulkUploadData)
         {
             KalturaBulkUpload bulkUpload = null;
 
@@ -65,18 +65,18 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "jobData");
                 }
 
-                if (bulkUploadAssetData == null)
+                if (bulkUploadData == null)
                 {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkUploadAssetData");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bulkUploadData");
                 }
 
                 jobData.Validate(fileData);
-                bulkUploadAssetData.Validate(groupId);
+                bulkUploadData.Validate(groupId);
 
-                var assetType = bulkUploadAssetData.GetBulkUploadObjectType();
+                var dynamicListType = bulkUploadData.GetBulkUploadObjectType();
 
                 bulkUpload =
-                    ClientsManager.CatalogClient().AddBulkUpload(groupId, userId, assetType, jobData, bulkUploadAssetData, fileData);
+                    ClientsManager.CatalogClient().AddBulkUpload(groupId, userId, dynamicListType, jobData, bulkUploadData, fileData);
             }
             catch (ClientException ex)
             {

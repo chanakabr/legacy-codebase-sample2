@@ -2038,8 +2038,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EventObject, opt => opt.MapFrom(src => src.EventObject));
 
             #endregion
-        }
 
+            cfg.CreateMap<KalturaDynamicList, DynamicList>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            cfg.CreateMap<DynamicList, KalturaDynamicList>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            cfg.CreateMap<KalturaUdidDynamicList, UdidDynamicList>()
+                .IncludeBase<KalturaDynamicList, DynamicList>();
+
+            cfg.CreateMap<UdidDynamicList, KalturaUdidDynamicList>()
+                .IncludeBase<DynamicList, KalturaDynamicList>();
+        }
+        
         #region Private Convertors
         private static KalturaObjectState ConvertObjectState(ObjectState? state)
         {

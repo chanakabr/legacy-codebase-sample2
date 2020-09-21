@@ -30,7 +30,7 @@ namespace WebAPI.Models.General
             return KalturaDynamicListOrderBy.NONE;
         }
 
-        public override void Validate() { }
+        public override void Validate(ContextData contextData) { }
 
         public override GenericListResponse<DynamicList> List(ContextData contextData, CorePager pager)
         {
@@ -53,7 +53,7 @@ namespace WebAPI.Models.General
         [SchemeProperty(IsNullable = true)]
         public string IdIn { get; set; }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
             if (string.IsNullOrEmpty(IdIn))
             {

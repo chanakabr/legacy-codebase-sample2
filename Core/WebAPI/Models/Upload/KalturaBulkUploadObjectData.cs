@@ -1,4 +1,6 @@
-﻿using Core.Catalog.CatalogManagement;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects.Base;
+using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -99,5 +101,46 @@ namespace WebAPI.Models.Upload
         }
     }
 
-    // TODO SHIR -BULKDATA FOR UDID
+    /// <summary>
+    /// indicates the DynamicList object type in the bulk file
+    /// </summary>
+    public abstract partial class KalturaBulkUploadDynamicListData : KalturaBulkUploadObjectData
+    {
+        /// <summary>
+        /// Identifies the dynamicList Id
+        /// </summary>
+        [DataMember(Name = "dynamicListId")]
+        [JsonProperty(PropertyName = "dynamicListId")]
+        [XmlElement(ElementName = "dynamicListId")]
+        [SchemeProperty(MinLong = 1)]
+        public long DynamicListId { get; set; }
+    }
+
+    /// <summary>
+    /// indicates the UDID DynamicList object type in the bulk file
+    /// </summary>
+    public partial class KalturaBulkUploadUdidDynamicListData : KalturaBulkUploadDynamicListData
+    {
+        private static readonly string bulkUploadObjectType = typeof(KalturaUdidDynamicList).Name;
+
+        internal override string GetBulkUploadObjectType()
+        {
+            return bulkUploadObjectType;
+        }
+
+        internal override void Validate(int groupId) 
+        {
+            var contextData = new ContextData(groupId);
+            var dynamicListResponse = DynamicListManager.Instance.Get(contextData, this.DynamicListId);
+            if (!dynamicListResponse.HasObject())
+            {
+                throw new ClientException(dynamicListResponse.Status);
+            }
+
+            if (dynamicListResponse.Object.Type != ApiObjects.DynamicListType.UDID)
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "dynamicListId");
+            }
+        }
+    }
 }

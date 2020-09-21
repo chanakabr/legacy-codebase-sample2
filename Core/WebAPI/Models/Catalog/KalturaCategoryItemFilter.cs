@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
             return KalturaCategoryItemOrderBy.CREATE_DATE_ASC;
         }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
         }
 
@@ -53,7 +53,7 @@ namespace WebAPI.Models.Catalog
             return KalturaCategoryItemOrderBy.NONE;
         }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
             if (string.IsNullOrEmpty(IdIn))
             {
@@ -112,7 +112,7 @@ namespace WebAPI.Models.Catalog
             return KalturaCategoryItemOrderBy.CREATE_DATE_ASC;
         }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
         }
 
@@ -155,7 +155,7 @@ namespace WebAPI.Models.Catalog
             return KalturaCategoryItemOrderBy.NONE;
         }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
             var orderBy = GetDefaultOrderByValue();
             if (OrderBy != orderBy)

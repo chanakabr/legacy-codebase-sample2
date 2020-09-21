@@ -1048,6 +1048,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBulkUploadDynamicListData":
+                    switch(property.Name)
+                    {
+                        case "DynamicListId":
+                            return "dynamicListId";
+                    }
+                    break;
+                    
                 case "KalturaBulkUploadFilter":
                     switch(property.Name)
                     {
@@ -8344,7 +8352,7 @@ namespace WebAPI.Reflection
                     {
                         case "addfrombulkupload":
                             RolesManager.ValidateActionPermitted("dynamicList", "addFromBulkUpload", false);
-                            return DynamicListController.AddFromBulkUpload((KalturaOTTFile) methodParams[0], (KalturaBulkUploadExcelJobData) methodParams[1], (KalturaBulkUploadAssetData) methodParams[2]);
+                            return DynamicListController.AddFromBulkUpload((KalturaOTTFile) methodParams[0], (KalturaBulkUploadExcelJobData) methodParams[1], (KalturaBulkUploadDynamicListData) methodParams[2]);
                             
                         case "add":
                             RolesManager.ValidateActionPermitted("dynamiclist", "add");
@@ -13946,10 +13954,10 @@ namespace WebAPI.Reflection
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaBulkUploadExcelJobData),
                             });
-                            ret.Add("bulkUploadAssetData", new MethodParam(){
+                            ret.Add("bulkUploadData", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaBulkUploadAssetData),
+                                Type = typeof(KalturaBulkUploadDynamicListData),
                             });
                             return ret;
                             

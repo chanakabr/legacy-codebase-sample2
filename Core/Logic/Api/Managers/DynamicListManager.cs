@@ -7,6 +7,7 @@ using System.Reflection;
 using ApiObjects;
 using DAL;
 using TVinciShared;
+using ApiObjects.BulkUpload;
 using System.Linq;
 using CachingProvider.LayeredCache;
 using System.Collections.Generic;

@@ -32,7 +32,14 @@ namespace WebAPI.Models.API
             return KalturaCampaignOrderBy.NONE;
         }
 
-        public override void Validate() { }
+        public override void Validate(ContextData contextData) 
+        {
+            bool isAllowedToViewInactiveCampaigns = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.ToString(), true);
+            if (!isAllowedToViewInactiveCampaigns)
+            {
+                throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
+            }
+        }
 
         public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
         {
@@ -51,7 +58,7 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "idIn", IsNullable = false)]
         public string IdIn { get; set; }
         
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
             if (string.IsNullOrEmpty(IdIn))
             {
@@ -68,6 +75,7 @@ namespace WebAPI.Models.API
         public override GenericListResponse<Campaign> List(ContextData contextData, CorePager pager)
         {
             var coreFilter = AutoMapper.Mapper.Map<CampaignIdInFilter>(this);
+            coreFilter.IsAllowedToViewInactiveCampaigns = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.ToString(), true);
             return CampaignManager.Instance.ListCampaingsByIds(contextData, coreFilter);
         }
     }

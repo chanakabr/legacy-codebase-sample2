@@ -357,6 +357,9 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadAssetResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
+                case "KalturaBulkUploadDynamicListData":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaBulkUploadExcelJobData":
                     return new KalturaBulkUploadExcelJobData(parameters);
                     
@@ -395,6 +398,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBulkUploadResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaBulkUploadUdidDynamicListData":
+                    return new KalturaBulkUploadUdidDynamicListData(parameters);
                     
                 case "KalturaBumpersPlaybackPluginData":
                     return new KalturaBumpersPlaybackPluginData(parameters);
@@ -29000,6 +29006,36 @@ namespace WebAPI.Models.Upload
             }
         }
     }
+    public partial class KalturaBulkUploadDynamicListData
+    {
+        private static RuntimeSchemePropertyAttribute DynamicListIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadDynamicListData")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+        };
+        public KalturaBulkUploadDynamicListData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("dynamicListId") && parameters["dynamicListId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DynamicListIdSchemaProperty.Validate("dynamicListId", parameters["dynamicListId"]);
+                    }
+                    DynamicListId = (Int64) Convert.ChangeType(parameters["dynamicListId"], typeof(Int64));
+                }
+            }
+        }
+    }
     public partial class KalturaBulkUploadExcelJobData
     {
         public KalturaBulkUploadExcelJobData(Dictionary<string, object> parameters = null) : base(parameters)
@@ -29346,6 +29382,12 @@ namespace WebAPI.Models.Upload
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaBulkUploadUdidDynamicListData
+    {
+        public KalturaBulkUploadUdidDynamicListData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaUploadToken
