@@ -434,21 +434,22 @@ namespace ApiLogic.Users.Managers
         {
             var response = new Status(eResponseStatus.OK);
 
-            if (campaign.State == ObjectState.ARCHIVE)
-            {
-                response.Set(eResponseStatus.Error, "Can't update archived campaign");
-                return response;
-            }
             if (campaign.State == newState)
             {
                 response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} already in state: {newState}");
                 return response;
             }
-            if (campaign.State == ObjectState.ACTIVE && newState == ObjectState.INACTIVE)
+            else if ((campaign.State == ObjectState.INACTIVE && newState == ObjectState.ACTIVE)
+                || campaign.State == ObjectState.ACTIVE && newState == ObjectState.ARCHIVE)
             {
-                response.Set(eResponseStatus.ActiveCampaignsExceededMaxSize, "Can't inactivate an active campaign");
+                log.Info($"Updating campaign: {campaign.Id} to state: {newState}");
+            }
+            else
+            {
+                response.Set(eResponseStatus.Error, $"Set state error, from: {campaign.State} to {newState} is not allowed");
                 return response;
             }
+
             if (newState == ObjectState.ACTIVE)
             {
                 if (campaign.type == (int)eCampaignType.Trigger)
