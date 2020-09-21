@@ -125,11 +125,6 @@ namespace ApiLogic.Users.Managers
                 response.Objects = response.Objects.Where(x => x.Action == filter.Action.Value).ToList();
             }
 
-            if (filter.StateEqual.HasValue)
-            {
-                response.Objects = response.Objects.Where(x => x.State == filter.StateEqual.Value).ToList();
-            }
-
             if (pager != null)
             {
                 response.TotalItems = response.Objects.Count;
@@ -149,11 +144,6 @@ namespace ApiLogic.Users.Managers
             {
                 response.SetStatus(eResponseStatus.Error, "error while searching batch campaigns");
                 return response;
-            }
-
-            if (filter.StateEqual.HasValue)
-            {
-                response.Objects = response.Objects.Where(x => x.State == filter.StateEqual.Value).ToList();
             }
 
             response.SetStatus(eResponseStatus.OK);

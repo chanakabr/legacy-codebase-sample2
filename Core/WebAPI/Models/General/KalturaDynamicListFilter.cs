@@ -102,12 +102,12 @@ namespace WebAPI.Models.General
         {
             if (this.IdEqual.HasValue && string.IsNullOrEmpty(this.ValueEqual))
             {
-                throw new BadRequestException(BadRequestException.BOTH_ARGUMENTS_MUST_HAVE_VALUE, "idEqual", "valueEqual");
+                throw new BadRequestException(BadRequestException.BOTH_ARGUMENTS_MUST_HAVE_VALUE, "valueEqual", "idEqual");
             }
 
             if (!string.IsNullOrEmpty(this.ValueEqual) && !this.IdEqual.HasValue)
             {
-                throw new BadRequestException(BadRequestException.BOTH_ARGUMENTS_MUST_HAVE_VALUE, "valueEqual", "idEqual");
+                throw new BadRequestException(BadRequestException.BOTH_ARGUMENTS_MUST_HAVE_VALUE, "idEqual", "valueEqual");
             }
         }
     }
