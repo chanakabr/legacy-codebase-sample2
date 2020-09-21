@@ -772,7 +772,7 @@ namespace WebAPI.Reflection
                     return new KalturaDynamicListListResponse(parameters);
                     
                 case "KalturaDynamicListSearchFilter":
-                    return new KalturaDynamicListSearchFilter(parameters);
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaDynamicOrderBy":
                     return new KalturaDynamicOrderBy(parameters);
@@ -7659,7 +7659,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaDynamicListSearchFilter
     {
-        private static RuntimeSchemePropertyAttribute ValueInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDynamicListSearchFilter")
+        private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDynamicListSearchFilter")
         {
             ReadOnly = false,
             InsertOnly = false,
@@ -7668,6 +7668,17 @@ namespace WebAPI.Models.General
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
+        };
+        private static RuntimeSchemePropertyAttribute ValueEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDynamicListSearchFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = 1,
         };
         public KalturaDynamicListSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -7675,13 +7686,21 @@ namespace WebAPI.Models.General
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-                if (parameters.ContainsKey("valueIn") && parameters["valueIn"] != null)
+                if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        ValueInSchemaProperty.Validate("valueIn", parameters["valueIn"]);
+                        IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
                     }
-                    ValueIn = (String) Convert.ChangeType(parameters["valueIn"], typeof(String));
+                    IdEqual = (Int64) Convert.ChangeType(parameters["idEqual"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("valueEqual") && parameters["valueEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ValueEqualSchemaProperty.Validate("valueEqual", parameters["valueEqual"]);
+                    }
+                    ValueEqual = (String) Convert.ChangeType(parameters["valueEqual"], typeof(String));
                 }
             }
         }

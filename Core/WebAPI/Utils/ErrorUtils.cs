@@ -45,6 +45,11 @@ namespace WebAPI.Utils
                 return ex as ClientException;
             }
 
+            if (ex is NotImplementedException)
+            {
+                throw new ClientException((int)StatusCode.NotImplemented, "Not implemented");
+            }
+
             Exception last = ex.InnerException;
             while (last != null)
             {

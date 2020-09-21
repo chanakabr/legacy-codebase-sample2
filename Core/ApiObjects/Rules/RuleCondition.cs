@@ -464,7 +464,7 @@ namespace ApiObjects.Rules
         {
             if (string.IsNullOrEmpty(scope.Udid)) { return true; }
             
-            var isExist = scope.CheckDynamicList(Id);
+            var isExist = scope.CheckDynamicList(this.Id);
             return isExist;
         }
     }

@@ -30,12 +30,13 @@ namespace WebAPI.Models.General
             return KalturaDynamicListOrderBy.NONE;
         }
 
-        public override void Validate(ContextData contextData) { }
-
         public override GenericListResponse<DynamicList> List(ContextData contextData, CorePager pager)
         {
-            var filter = new KalturaDynamicListSearchFilter();
-            return filter.List(contextData, pager);
+            throw new NotImplementedException();
+        }
+
+        public override void Validate(ContextData contextData)
+        {
         }
     }
 
@@ -77,32 +78,49 @@ namespace WebAPI.Models.General
     /// <summary>
     /// DynamicListSearchFilter
     /// </summary>
-    public partial class KalturaDynamicListSearchFilter : KalturaDynamicListFilter
+    public abstract partial class KalturaDynamicListSearchFilter : KalturaDynamicListFilter
     {
         /// <summary>
-        /// Comma-separated String which represent List of objects that is in the dynamicList.
+        /// DynamicList id to search by
         /// </summary>
-        [DataMember(Name = "valueIn")]
-        [JsonProperty("valueIn")]
-        [XmlElement(ElementName = "valueIn", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
-        public string ValueIn { get; set; }
+        [DataMember(Name = "idEqual")]
+        [JsonProperty("idEqual")]
+        [XmlElement(ElementName = "idEqual", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MinLong = 1)]
+        public long? IdEqual { get; set; }
 
-        public override GenericListResponse<DynamicList> List(ContextData contextData, CorePager pager)
+        /// <summary>
+        /// udid value that should be in the DynamicList
+        /// </summary>
+        [DataMember(Name = "valueEqual")]
+        [JsonProperty("valueEqual")]
+        [XmlElement(ElementName = "valueEqual", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MinLength = 1)]
+        public string ValueEqual { get; set; }
+
+        public override void Validate(ContextData contextData)
         {
-            var coreFilter = AutoMapper.Mapper.Map<DynamicListSearchFilter>(this);
-            return DynamicListManager.Instance.SearchDynamicLists(contextData, coreFilter, pager);
+            if (this.IdEqual.HasValue && string.IsNullOrEmpty(this.ValueEqual))
+            {
+                throw new BadRequestException(BadRequestException.BOTH_ARGUMENTS_MUST_HAVE_VALUE, "idEqual", "valueEqual");
+            }
+
+            if (!string.IsNullOrEmpty(this.ValueEqual) && !this.IdEqual.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.BOTH_ARGUMENTS_MUST_HAVE_VALUE, "valueEqual", "idEqual");
+            }
         }
     }
 
     /// <summary>
     /// UdidDynamicListSearchFilter
     /// </summary>
-    public partial class KalturaUdidDynamicListSearchFilter : KalturaDynamicListFilter
+    public partial class KalturaUdidDynamicListSearchFilter : KalturaDynamicListSearchFilter
     {
         public override GenericListResponse<DynamicList> List(ContextData contextData, CorePager pager)
         {
             var coreFilter = AutoMapper.Mapper.Map<DynamicListSearchFilter>(this);
+            coreFilter.TypeEqual = DynamicListType.UDID;
             return DynamicListManager.Instance.SearchDynamicLists(contextData, coreFilter, pager);
         }
     }

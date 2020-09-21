@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Base;
 using ApiObjects.BulkUpload;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,17 +13,31 @@ namespace ApiObjects
         UDID = 1
     }
 
+    [Serializable]
     public class DynamicList : ICrudHandeledObject
     {
+        [JsonProperty("Id")]
         public long Id { get; set; }
+
+        [JsonProperty("CreateDate")]
         public long CreateDate { get; set; }
+
+        [JsonProperty("UpdateDate")]
         public long UpdateDate { get; set; }
+
+        [JsonProperty("Name")]
         public string Name { get; set; }
+
+        [JsonProperty("UpdaterId")]
         public long UpdaterId { get; set; }
+
+        [JsonProperty("Type")]
         public DynamicListType Type { get; protected set; }
 
         public void FillEmpty(DynamicList oldDynamicList)
         {
+            this.CreateDate = oldDynamicList.CreateDate;
+
             if (string.IsNullOrEmpty(this.Name))
             {
                 this.Name = oldDynamicList.Name;
@@ -35,8 +50,9 @@ namespace ApiObjects
         public const string UDID_COLUMN = "Udid";
 
         [ExcelColumn(ExcelColumnType.Basic, UDID_COLUMN, IsMandatory = true)]
+        [JsonIgnore]
         public List<string> Values { get; set; }
-        
+
         public UdidDynamicList()
         {
             this.Type = DynamicListType.UDID;

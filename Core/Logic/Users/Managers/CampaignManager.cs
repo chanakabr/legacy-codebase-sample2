@@ -458,7 +458,7 @@ namespace ApiLogic.Users.Managers
                     var campaigns = ListTriggerCampaigns(contextData, campaignFilter);
                     if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_TRIGGER_CAMPAIGNS)
                     {
-                        response.Set(eResponseStatus.ActiveCampaignsExceededMaxSize, "Active trigger campaigns Exceeded Max Size");
+                        response.Set(eResponseStatus.ExceededMaxCapacity, "Active trigger campaigns Exceeded Max Size");
                         return response;
                     }
                 }
@@ -468,7 +468,7 @@ namespace ApiLogic.Users.Managers
                     var campaigns = ListBatchCampaigns(contextData, campaignFilter);
                     if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_BATCH_CAMPAIGNS)
                     {
-                        response.Set(eResponseStatus.ActiveCampaignsExceededMaxSize, "Active batch campaigns Exceeded Max Size");
+                        response.Set(eResponseStatus.ExceededMaxCapacity, "Active batch campaigns Exceeded Max Size");
                         return response;
                     }
                 }
@@ -555,7 +555,7 @@ namespace ApiLogic.Users.Managers
 
                 if (campaignsDB != null)
                 {
-                    // TODO SHIR - CHECK ALSO DATES
+                    // TODO SHIR - CHECK ALSO DATES and update state
                     if (filter.StateEqual.HasValue)
                     {
                         campaignsDB = campaignsDB.Where(x => x.State == filter.StateEqual.Value);

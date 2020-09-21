@@ -14,7 +14,7 @@ using ApiObjects.BulkUpload;
 
 namespace WebAPI.Models.General
 {
-    public partial class KalturaDynamicList : KalturaCrudObject<DynamicList, long>, IKalturaExcelStructureManager
+    public partial class KalturaDynamicList : KalturaCrudObject<DynamicList, long>
     {
         /// <summary>
         /// ID
@@ -67,11 +67,6 @@ namespace WebAPI.Models.General
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
             }
         }
-
-        public ExcelStructure GetExcelStructure(int groupId)
-        {
-            throw new System.NotImplementedException();
-        }
     }
 
     public partial class KalturaDynamicListListResponse : KalturaListResponse<KalturaDynamicList>
@@ -91,12 +86,6 @@ namespace WebAPI.Models.General
         {
             var coreObject = AutoMapper.Mapper.Map<UdidDynamicList>(this);
             return DynamicListManager.Instance.UpdateDynamicList(contextData, coreObject);
-        }
-
-        public new ExcelStructure GetExcelStructure(int groupId)
-        {
-            var excelStructure = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelStructure(groupId, this);
-            return excelStructure;
         }
     }
 }

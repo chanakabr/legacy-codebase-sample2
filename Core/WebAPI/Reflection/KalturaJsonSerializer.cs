@@ -7361,9 +7361,13 @@ namespace WebAPI.Models.General
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(ValueIn != null && (retrievedProperties == null || retrievedProperties.Contains("valueIn")))
+            if(IdEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("idEqual")))
             {
-                ret.Add("valueIn", "\"valueIn\": " + "\"" + EscapeJson(ValueIn) + "\"");
+                ret.Add("idEqual", "\"idEqual\": " + IdEqual);
+            }
+            if(ValueEqual != null && (retrievedProperties == null || retrievedProperties.Contains("valueEqual")))
+            {
+                ret.Add("valueEqual", "\"valueEqual\": " + "\"" + EscapeJson(ValueEqual) + "\"");
             }
             return ret;
         }
@@ -7379,9 +7383,13 @@ namespace WebAPI.Models.General
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(ValueIn != null && (retrievedProperties == null || retrievedProperties.Contains("valueIn")))
+            if(IdEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("idEqual")))
             {
-                ret.Add("valueIn", "<valueIn>" + EscapeXml(ValueIn) + "</valueIn>");
+                ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
+            }
+            if(ValueEqual != null && (retrievedProperties == null || retrievedProperties.Contains("valueEqual")))
+            {
+                ret.Add("valueEqual", "<valueEqual>" + EscapeXml(ValueEqual) + "</valueEqual>");
             }
             return ret;
         }

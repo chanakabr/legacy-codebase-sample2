@@ -14,9 +14,10 @@ namespace ApiObjects
         public List<long> IdIn { get; set; }
     }
 
-    public class DynamicListSearchFilter : DynamicListFilter
+    public class DynamicListSearchFilter: DynamicListFilter
     {
-        public DynamicListType? TypeEqual  { get; set; }
-        public List<string> ValueIn { get; set; }
+        public DynamicListType TypeEqual  { get; set; }
+        public long? IdEqual { get; set; }
+        public string ValueEqual { get; set; }
     }
 }

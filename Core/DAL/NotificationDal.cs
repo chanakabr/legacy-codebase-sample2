@@ -1955,11 +1955,6 @@ namespace DAL
             var key = GetInboxMessageCampaignMappingKey(groupId, userId);
             var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<CampaignInboxMessageMap>(0, eCouchbaseBucket.NOTIFICATION, key, mapping =>
             {
-                if (mapping == null)
-                {
-                    mapping = new CampaignInboxMessageMap();
-                }
-
                 if (campaign.CampaignType == eCampaignType.Trigger && !mapping.TriggerCampaigns.ContainsKey(campaign.Id))
                 {
                     mapping.TriggerCampaigns.Add(campaign.Id, inboxMessage);
@@ -1968,7 +1963,7 @@ namespace DAL
                 {
                     mapping.BatchCampaigns.Add(campaign.Id, inboxMessage);
                 }
-            });
+            }, true);
 
             return isSaveSuccess;
         }
@@ -1978,25 +1973,18 @@ namespace DAL
             var key = GetInboxMessageCampaignMappingKey(groupId, userId);
             var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<CampaignInboxMessageMap>(0, eCouchbaseBucket.NOTIFICATION, key, mapping =>
             {
-                if (mapping == null)
+                var triggerIdsToDelete = mapping.TriggerCampaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
+                foreach (int triggerId in triggerIdsToDelete)
                 {
-                    mapping = new CampaignInboxMessageMap();
+                    mapping.TriggerCampaigns.Remove(triggerId);
                 }
-                else
-                {
-                    var triggerIdsToDelete = mapping.TriggerCampaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
-                    foreach (int triggerId in triggerIdsToDelete)
-                    {
-                        mapping.TriggerCampaigns.Remove(triggerId);
-                    }
 
-                    var batchIdsToDelete = mapping.BatchCampaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
-                    foreach (int batchId in batchIdsToDelete)
-                    {
-                        mapping.BatchCampaigns.Remove(batchId);
-                    }
+                var batchIdsToDelete = mapping.BatchCampaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
+                foreach (int batchId in batchIdsToDelete)
+                {
+                    mapping.BatchCampaigns.Remove(batchId);
                 }
-            });
+            }, true);
 
             return isSaveSuccess;
         }

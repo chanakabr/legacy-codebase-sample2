@@ -542,7 +542,7 @@ namespace ApiObjects.Response
         CouponCodeNotInHousehold = 9025,
         ExceededHouseholdCouponLimit = 9026,
         CampaignDoesNotExist = 9027,
-        ActiveCampaignsExceededMaxSize = 9028,
+        ExceededMaxCapacity = 9028,
         CanDeleteOnlyInactiveCampaign = 9029,
         DynamicListDoesNotExist = 9030,
 

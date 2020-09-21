@@ -2056,6 +2056,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<UdidDynamicList, KalturaUdidDynamicList>()
                 .IncludeBase<DynamicList, KalturaDynamicList>();
+
+            cfg.CreateMap<KalturaDynamicListFilter, DynamicListFilter>();
+
+            cfg.CreateMap<KalturaDynamicListIdInFilter, DynamicListnIdInFilter>()
+                .IncludeBase<KalturaDynamicListFilter, DynamicListFilter>()
+                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn) ? src.GetItemsIn<List<long>, long>(src.IdIn, "filter.idIn") : null));
+
+            cfg.CreateMap<KalturaDynamicListSearchFilter, DynamicListSearchFilter>()
+                .IncludeBase<KalturaDynamicListFilter, DynamicListFilter>()
+                .ForMember(dest => dest.IdEqual, opt => opt.MapFrom(src => src.IdEqual))
+                .ForMember(dest => dest.ValueEqual, opt => opt.MapFrom(src => src.ValueEqual));
         }
         
         #region Private Convertors

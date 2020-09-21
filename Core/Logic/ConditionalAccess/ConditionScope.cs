@@ -42,12 +42,12 @@ namespace APILogic.ConditionalAccess
         public int GroupId { get; set; }
         public string UserId { get; set; }
         public List<int> UserSubscriptions { get; set; }
+
         public int? BrandId { get; set; }
         public int? Family { get; set; }
         public long? ManufacturerId { get; set; }
         public string Model { get; set; }
         public string Udid { get; set; }
-        public long? UdidDynamicListId { get; set; }
 
         public override string ToString()
         {
@@ -234,8 +234,15 @@ namespace APILogic.ConditionalAccess
         public bool CheckDynamicList(long id)
         {
             var contextData = new ContextData(this.GroupId);
-            var dynamicListItem = ApiLogic.Api.Managers.DynamicListManager.Instance.Get(contextData, id);
-            return dynamicListItem.HasObject();
+            var filter = new DynamicListSearchFilter()
+            {
+                TypeEqual = DynamicListType.UDID,
+                IdEqual = id,
+                ValueEqual = this.Udid
+            };
+
+            var dynamicListResponse = ApiLogic.Api.Managers.DynamicListManager.Instance.SearchDynamicLists(contextData, filter);
+            return dynamicListResponse.HasObjects();
         }
     }
 }

@@ -2373,8 +2373,10 @@ namespace WebAPI.Reflection
                 case "KalturaDynamicListSearchFilter":
                     switch(property.Name)
                     {
-                        case "ValueIn":
-                            return "valueIn";
+                        case "IdEqual":
+                            return "idEqual";
+                        case "ValueEqual":
+                            return "valueEqual";
                     }
                     break;
                     
