@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CachingProvider.LayeredCache
 {
@@ -30,7 +26,7 @@ namespace CachingProvider.LayeredCache
             this.TTL = ttl;
         }
 
-        public abstract ICachingService GetICachingService();
+        public abstract ILayeredCacheService GetILayeredCachingService();
 
     }
 }

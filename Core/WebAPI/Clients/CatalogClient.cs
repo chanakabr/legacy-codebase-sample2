@@ -115,7 +115,7 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }        
+        }
 
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
@@ -277,7 +277,7 @@ namespace WebAPI.Clients
         public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, string language, bool isAllowedToViewInactiveAssets, bool ignoreEndDate = false)
         {
             KalturaAsset result = null;
-            GenericResponse<Asset> response = null;       
+            GenericResponse<Asset> response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -428,7 +428,7 @@ namespace WebAPI.Clients
                 else if (assetListResponse != null && assetListResponse.Status != null)
                 {
                     throw new ClientException(assetListResponse.Status);
-                }               
+                }
             }
 
             return result;
@@ -1054,7 +1054,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetHistoryListResponse getAssetHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, 
+        public KalturaAssetHistoryListResponse getAssetHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize,
             KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<string> assetIds, bool suppress, List<KalturaCatalogWith> withList = null)
         {
             KalturaAssetHistoryListResponse finalResults = new KalturaAssetHistoryListResponse();
@@ -2030,7 +2030,7 @@ namespace WebAPI.Clients
 
             ChannelObjResponse response = null;
             if (CatalogUtils.GetBaseResponse(request, out response))
-            {                
+            {
                 Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
                 if (requestVersion.CompareTo(opcMergeVersion) > 0)
                 {
@@ -2719,6 +2719,13 @@ namespace WebAPI.Clients
             {
                 // general error
                 throw new ClientException(StatusCode.Error);
+            }
+
+            //BEO-8762
+            if (pageSize.HasValue && channelResponse.aggregationResults?.FirstOrDefault() != null)
+            {
+                channelResponse.aggregationResults[0].results  = channelResponse.aggregationResults[0].results
+                    .Skip(pageIndex * pageSize.Value).Take(pageSize.Value).ToList();
             }
 
             if (channelResponse.status.Code != (int)StatusCode.OK)
@@ -3611,7 +3618,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, specificChannelIds, 
+                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, specificChannelIds,
                         pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets, userId);
                 }
             }
@@ -3649,7 +3656,7 @@ namespace WebAPI.Clients
         internal KalturaChannel GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
         {
             GenericResponse<GroupsCacheManager.Channel> response = null;
-            KalturaChannel result = null;            
+            KalturaChannel result = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -3926,7 +3933,7 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteChannelFunc); ;
         }
 
-        internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize, 
+        internal KalturaChannelListResponse GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize,
             KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets, long userId)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
@@ -3976,7 +3983,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize, 
+                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize,
                         orderBy, orderDirection, isAllowedToViewInactiveAssets, userId);
                 }
             }
@@ -4054,12 +4061,12 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, long userId,  string objectTypeName, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData, KalturaOTTFile fileData)
+        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, long userId, string objectTypeName, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData, KalturaOTTFile fileData)
         {
             var bulkUploadJobData = Mapper.Map<BulkUploadJobData>(jobData);
             var bulkUploadObjectData = Mapper.Map<BulkUploadObjectData>(objectData);
-            OTTBasicFile file= fileData.ConvertToOttFileType();            
-            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, userId ,objectTypeName, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData, file);
+            OTTBasicFile file = fileData.ConvertToOttFileType();
+            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, userId, objectTypeName, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData, file);
             KalturaBulkUpload result = ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(addBulkUploadFunc);
             return result;
         }
@@ -4231,7 +4238,7 @@ namespace WebAPI.Clients
             {
                 ConvertChannelsByType(response.Objects, ref result);
             }
-            
+
             return result;
         }
 

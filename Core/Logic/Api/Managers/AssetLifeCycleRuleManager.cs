@@ -8,12 +8,15 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
 using KLogMonitor;
+using KlogMonitorHelper;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
@@ -109,153 +112,34 @@ namespace Core.Api.Managers
             {
                 // Get all rules of this group
                 Dictionary<int, List<AssetLifeCycleRule>> allRules = GetLifeCycleRules(groupId, rulesIds);
-                
+
                 foreach (KeyValuePair<int, List<AssetLifeCycleRule>> pair in allRules)
                 {
                     groupId = pair.Key;
                     List<AssetLifeCycleRule> rules = pair.Value;
-                    Task<int>[] tasks = new Task<int>[rules.Count];
 
-                    for (int ruleIndex = 0; ruleIndex < rules.Count; ruleIndex++)
+                    int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+                    if (maxDegreeOfParallelism == 0)
                     {
-                        tasks[ruleIndex] = new Task<int>(
-                            (obj) =>
-                            {
-                                long ruleId = -1;
-
-                                try
-                                {
-                                    var rule = rules[(int)obj];
-                                    ruleId = rule.Id;
-
-                                    #region UnifiedSearchRequest
-
-                                    // Initialize unified search request:
-                                    // SignString/Signature (basic catalog parameters)
-                                    string sSignString = Guid.NewGuid().ToString();
-                                    string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
-                                    string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
-
-                                    // page size should be max_results so it will return everything
-                                    int pageSize = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
-
-                                    UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
-                                    {
-                                        m_sSignature = sSignature,
-                                        m_sSignString = sSignString,
-                                        m_nGroupID = groupId,
-                                        m_oFilter = new Core.Catalog.Filter()
-                                        {
-                                            m_bOnlyActiveMedia = true
-                                        },
-                                        m_nPageIndex = 0,
-                                        m_nPageSize = pageSize,
-                                        shouldIgnoreDeviceRuleID = true,
-                                        shouldDateSearchesApplyToAllTypes = true,
-                                        order = new ApiObjects.SearchObjects.OrderObj()
-                                        {
-                                            m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
-                                            m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
-                                        },
-                                        filterQuery = rule.KsqlFilter
-                                    };
-
-                                    #endregion
-
-                                    // Call catalog
-                                    var response = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
-                                    List<int> assetIds = new List<int>();
-                                    if (response != null)
-                                    {
-                                        bool isSearchSuccessfull = response.status.Code == (int)eResponseStatus.OK;
-                                        bool? isAppliedSuccessfully = null;
-                                        if (isSearchSuccessfull && response.searchResults != null && response.searchResults.Count > 0)
-                                        {
-                                            // Remember count, first and last result - to verify that action was successful
-                                            int count = response.m_nTotalItems;
-                                            string firstAssetId = response.searchResults.FirstOrDefault().AssetId;
-                                            string lastAssetId = response.searchResults.LastOrDefault().AssetId;
-
-                                            assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
-
-                                            // Apply rule on assets that returned from search
-                                            isAppliedSuccessfully = ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule);
-                                            if (isAppliedSuccessfully.Value)
-                                            {
-                                                log.InfoFormat("Successfully applied rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
-                                            }
-                                            else
-                                            {
-
-                                                log.InfoFormat("Failed to apply rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
-                                            }
-
-                                            //
-                                            //
-                                            // TODO: Only save the results in CB, and on next run perform verification search
-                                            //
-                                            //
-                                            //
-                                            //
-                                            //
-                                            //
-
-                                            var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
-
-                                            if (verificationResponse != null && verificationResponse.status.Code == (int)eResponseStatus.OK &&
-                                                verificationResponse.searchResults != null && verificationResponse.searchResults.Count > 0)
-                                            {
-                                                int verificationCount = verificationResponse.m_nTotalItems;
-                                                string verificationFirstAssetId = response.searchResults.FirstOrDefault().AssetId;
-                                                string verificationLastAssetId = response.searchResults.LastOrDefault().AssetId;
-
-                                                // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
-                                                if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
-                                                {
-                                                    //this.DisableRule(groupId, rule);
-                                                }
-                                            }
-                                        }
-
-                                        if (isSearchSuccessfull && (!isAppliedSuccessfully.HasValue || isAppliedSuccessfully.Value))                                        
-                                        {
-                                            // init result for DoActionByRuleIds
-                                            result = 0;
-                                            if ((rule.IsAssetRule && !ApiDAL.UpdateAssetRulesLastRunDate(groupId, new List<long>() { rule.Id })) || 
-                                                (!rule.IsAssetRule && !ApiDAL.UpdateAssetLifeCycleLastRunDate(rule.Id)))
-                                            {
-                                                log.WarnFormat("failed to update asset life cycle last run date for groupId: {0}, rule: {1}", groupId, rule);
-                                            }
-                                        }
-                                    }
-
-                                    return assetIds.Count;
-                                }
-                                catch (Exception ex)
-                                {
-                                    log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
-                                    return result;
-                                }
-                            }, ruleIndex);
-
-                        tasks[ruleIndex].Start();
+                        maxDegreeOfParallelism = 5;
                     }
 
-                    #region Finish tasks
-
-                    Task.WaitAll(tasks);
-
-                    foreach (var task in tasks)
+                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                    ContextData contextData = new ContextData();
+                    Parallel.ForEach(rules, options, (rule) =>
                     {
-                        if (task != null)
+                        contextData.Load();
+                        try
                         {
-                            result += task.Result;
-                            task.Dispose();
+                            Interlocked.Add(ref result, DoActionOnRule(rule, groupId));
                         }
-                    }
-                }
-
-                #endregion
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, rule.Id, ex);
+                        }
+                    });
+                   
+                }           
             }
             catch (Exception ex)
             {
@@ -264,6 +148,122 @@ namespace Core.Api.Managers
 
             return result;
         }
+
+        public static int DoActionOnRule(AssetLifeCycleRule rule, int groupId)
+        {
+            int result = 0;
+            try
+            {
+
+                #region UnifiedSearchRequest
+
+                // Initialize unified search request:
+                // SignString/Signature (basic catalog parameters)
+                string sSignString = Guid.NewGuid().ToString();
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
+                string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
+
+                // page size should be max_results so it will return everything
+                int pageSize = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
+
+                UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
+                {
+                    m_sSignature = sSignature,
+                    m_sSignString = sSignString,
+                    m_nGroupID = groupId,
+                    m_oFilter = new Core.Catalog.Filter()
+                    {
+                        m_bOnlyActiveMedia = true
+                    },
+                    m_nPageIndex = 0,
+                    m_nPageSize = pageSize,
+                    shouldIgnoreDeviceRuleID = true,
+                    shouldDateSearchesApplyToAllTypes = true,
+                    order = new ApiObjects.SearchObjects.OrderObj()
+                    {
+                        m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
+                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                    },
+                    filterQuery = rule.KsqlFilter
+                };
+
+                #endregion
+
+                // Call catalog
+                var response = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+                List<int> assetIds = new List<int>();
+                if (response != null)
+                {
+                    bool isSearchSuccessfull = response.status.Code == (int)eResponseStatus.OK;
+                    bool? isAppliedSuccessfully = null;
+                    if (isSearchSuccessfull && response.searchResults != null && response.searchResults.Count > 0)
+                    {
+                        // Remember count, first and last result - to verify that action was successful
+                        int count = response.m_nTotalItems;
+                        string firstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                        string lastAssetId = response.searchResults.LastOrDefault().AssetId;
+
+                        assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
+
+                        // Apply rule on assets that returned from search
+                        isAppliedSuccessfully = ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule);
+                        if (isAppliedSuccessfully.Value)
+                        {
+                            log.InfoFormat("Successfully applied rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
+                        }
+                        else
+                        {
+
+                            log.InfoFormat("Failed to apply rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
+                        }
+
+                        //
+                        //
+                        // TODO: Only save the results in CB, and on next run perform verification search
+                        //
+                        //
+                        //
+                        //
+                        //
+                        //
+
+                        var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+
+                        if (verificationResponse != null && verificationResponse.status.Code == (int)eResponseStatus.OK &&
+                            verificationResponse.searchResults != null && verificationResponse.searchResults.Count > 0)
+                        {
+                            int verificationCount = verificationResponse.m_nTotalItems;
+                            string verificationFirstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                            string verificationLastAssetId = response.searchResults.LastOrDefault().AssetId;
+
+                            // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
+                            if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
+                            {
+                                //this.DisableRule(groupId, rule);
+                            }
+                        }
+                    }
+
+                    if (isSearchSuccessfull && (!isAppliedSuccessfully.HasValue || isAppliedSuccessfully.Value))
+                    {
+                        // init result for DoActionByRuleIds
+                        result = 0;
+                        if ((rule.IsAssetRule && !ApiDAL.UpdateAssetRulesLastRunDate(groupId, new List<long>() { rule.Id })) ||
+                            (!rule.IsAssetRule && !ApiDAL.UpdateAssetLifeCycleLastRunDate(rule.Id)))
+                        {
+                            log.WarnFormat("failed to update asset life cycle last run date for groupId: {0}, rule: {1}", groupId, rule);
+                        }
+                    }
+                }
+
+                return assetIds.Count;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, rule.Id, ex);
+                return result;
+            }
+}
 
         public static List<int> GetTagIdsByTagNames(int groupId, string filterTagTypeName, List<string> tagNames)
         {

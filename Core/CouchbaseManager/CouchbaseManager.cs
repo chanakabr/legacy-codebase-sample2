@@ -871,6 +871,75 @@ namespace CouchbaseManager
             return result;
         }
 
+        public bool Set<T>(string key, T value, uint expiration)
+        {
+            bool result = false;
+
+            var bucket = ClusterHelper.GetBucket(bucketName);
+            IOperationResult setResult;
+            expiration = FixExpirationTime(expiration);
+
+            string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
+            {
+                setResult = bucket.Upsert(key, value, expiration);
+            }
+
+            if (setResult != null)
+            {
+                if (setResult.Exception != null)
+                {
+                    if (!(setResult.Exception is CasMismatchException))
+                        HandleException(key, setResult);
+                }
+
+                if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    result = setResult.Success;
+                else
+                {
+                    eResultStatus status = eResultStatus.ERROR;
+                    HandleStatusCode(setResult, ref status, key);
+                }
+            }
+
+            return result;
+        }
+
+        public bool Set<T>(string key, T value, uint expiration, JsonSerializerSettings jsonSerializerSettings)
+        {
+            bool result = false;
+
+            var bucket = ClusterHelper.GetBucket(bucketName);
+            IOperationResult setResult;
+            expiration = FixExpirationTime(expiration);
+
+            string cbDescription = string.Format("bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
+            {
+                string serializedValue = ObjectToJson(value, jsonSerializerSettings);
+                setResult = bucket.Upsert(key, serializedValue, expiration);
+            }
+
+            if (setResult != null)
+            {
+                if (setResult.Exception != null)
+                {
+                    if (!(setResult.Exception is CasMismatchException))
+                        HandleException(key, setResult);
+                }
+
+                if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    result = setResult.Success;
+                else
+                {
+                    eResultStatus status = eResultStatus.ERROR;
+                    HandleStatusCode(setResult, ref status, key);
+                }
+            }
+
+            return result;
+        }
+
         public bool Set<T>(string key, T value, bool unlock, out ulong outCas, uint expiration = 0, ulong cas = 0)
         {
             bool result = false;
@@ -1193,14 +1262,21 @@ namespace CouchbaseManager
             return res;
         }
 
-        public bool Get<T>(string key, ref T result, JsonSerializerSettings jsonSerializerSettings)
+        public bool Get<T>(string key, ref T result, JsonSerializerSettings jsonSerializerSettings = null)
         {
             bool res = false;
             eResultStatus status = eResultStatus.ERROR;
 
             try
             {
-                result = Get<T>(key, out status, jsonSerializerSettings);
+                if (jsonSerializerSettings != null)
+                {
+                    result = Get<T>(key, out status, jsonSerializerSettings);
+                }
+                else
+                {
+                    result = Get<T>(key, out status);
+                }
                 res = status == eResultStatus.SUCCESS;
             }
             catch (Exception ex)
@@ -2193,13 +2269,20 @@ namespace CouchbaseManager
             return result;
         }
 
-        public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, JsonSerializerSettings jsonSerializerSettings, bool shouldAllowPartialQuery = false)
+        public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, JsonSerializerSettings jsonSerializerSettings = null, bool shouldAllowPartialQuery = false)
         {
             bool result = false;
 
             try
             {
-                results = GetValues<T>(keys, jsonSerializerSettings, shouldAllowPartialQuery);
+                if (jsonSerializerSettings != null)
+                {
+                    results = GetValues<T>(keys, jsonSerializerSettings, shouldAllowPartialQuery);
+                }
+                else
+                {
+                    results = GetValues<T>(keys, shouldAllowPartialQuery);
+                }
 
                 if (results != null)
                 {

@@ -25,7 +25,7 @@ namespace CachingProvider.LayeredCache
         public InMemoryLayeredCacheConfig(LayeredCacheType type, uint ttl)
             : base(type, ttl) { }        
 
-        public override ICachingService GetICachingService()
+        public override ILayeredCacheService GetILayeredCachingService()
         {      
             try
             {

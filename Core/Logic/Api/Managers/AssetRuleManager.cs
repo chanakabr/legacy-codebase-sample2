@@ -1,7 +1,6 @@
 ﻿using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using ApiObjects;
-using ApiObjects.EventBus;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
@@ -10,7 +9,6 @@ using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
-using CouchbaseManager;
 using DAL;
 using GroupsCacheManager;
 using KLogMonitor;
@@ -18,6 +16,7 @@ using KlogMonitorHelper;
 using Newtonsoft.Json;
 using QueueWrapper;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -46,13 +45,12 @@ namespace Core.Api.Managers
         public static int DoActionRules()
         {
             int groupId = 0;
-            List<long> rulesIds = null;
-            List<int> result = new List<int>();
+            int result = 0;
 
             try
             {
-                // Get all rules of this group
-                Dictionary<int, List<AssetRule>> allRules = GetRules(groupId, rulesIds);
+                // Get all rules of this group                
+                Dictionary<int, List<AssetRule>> allRules = GetRules(groupId);
                 foreach (KeyValuePair<int, List<AssetRule>> pair in allRules)
                 {
                     groupId = pair.Key;
@@ -65,7 +63,7 @@ namespace Core.Api.Managers
                         if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                         {
                             log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DoActionRules", groupId);
-                            return result.Count;
+                            return result;
                         }
                     }
                     else
@@ -77,46 +75,36 @@ namespace Core.Api.Managers
 
                     if (isGeoAvailabilityWindowingEnabled)
                     {
-                        List<AssetRule> rules = pair.Value;
-                        Task<List<int>>[] tasks = new Task<List<int>>[rules.Count];
-
+                        List<AssetRule> rules = pair.Value;                        
                         log.DebugFormat("Starting to do action on {0} asset rules for groupId = {1}", rules.Count, groupId);
+                        
+                        int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+                        if (maxDegreeOfParallelism == 0)
+                        {
+                            maxDegreeOfParallelism = 5;
+                        }
 
+                        ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
                         ContextData contextData = new ContextData();
-
-                        for (int ruleIndex = 0; ruleIndex < rules.Count; ruleIndex++)
+                        ConcurrentBag<int> assetIds = new ConcurrentBag<int>();
+                        Parallel.ForEach(rules, options, (rule) =>
                         {
-                            tasks[ruleIndex] = new Task<List<int>>((obj) =>
-                            {
-                                contextData.Load();
-                                return DoActionOnRule(rules[(int)obj], groupId);
-                            }, ruleIndex);
+                            contextData.Load();
+                            assetIds.AddRange(DoActionOnRule(rule, groupId));                            
 
-                            tasks[ruleIndex].Start();
-                        }
-
-                        #region Finish tasks
-
-                        Task.WaitAll(tasks);
-
-                        foreach (var task in tasks)
-                        {
-                            if (task != null)
-                            {
-                                result.AddRange(task.Result);
-                                task.Dispose();
-                            }
-                        }
-
-                        result = result.Distinct().ToList();
-                        if (result.Count > 0)
-                        {
-                            log.DebugFormat("going to update index for {0} assets", result.Count);
+                        });
+                        
+                        if (assetIds?.Count > 0)
+                        {                                                        
+                            List<int> distinctAssetIds = assetIds.Distinct().ToList();
+                            int numberOfDistinctAssetIds = distinctAssetIds.Count;
+                            assetIds = null;
+                            log.DebugFormat("going to update index for {0} assets", numberOfDistinctAssetIds);
 
                             int bulkSize = 10000;
-                            for (int i = 0; i < result.Count; i = i + bulkSize)
+                            for (int i = 0; i < numberOfDistinctAssetIds; i = i + bulkSize)
                             {
-                                var pageMediaIds = result.Skip(i).Take(bulkSize).ToList();
+                                var pageMediaIds = distinctAssetIds.Skip(i).Take(bulkSize).ToList();
                                 RebuildIndexForMedias(groupId, doesGroupUsesTemplates, pageMediaIds);
                             }
 
@@ -125,9 +113,11 @@ namespace Core.Api.Managers
                             {
                                 log.ErrorFormat("Failed to update asset rule last run date, rule IDs = {0}", string.Join(", ", ranRules));
                             }
+
+                            distinctAssetIds = null;
+                            result += numberOfDistinctAssetIds;
                         }
                     }
-                    #endregion
                 }
             }
             catch (Exception ex)
@@ -135,7 +125,7 @@ namespace Core.Api.Managers
                 log.ErrorFormat("Error in DoActionRules", ex);
             }
 
-            return result.Count;
+            return result;
         }
 
         public static bool UpdateMedia(int groupId, long mediaId, bool checkGeoAvailabilityEnabled = false)
@@ -441,7 +431,7 @@ namespace Core.Api.Managers
             return tzi.GetUtcOffset(DateTime.UtcNow).TotalSeconds;
         }
 
-        private static Dictionary<int, List<AssetRule>> GetRules(int groupId, List<long> rulesIds)
+        private static Dictionary<int, List<AssetRule>> GetRules(int groupId)
         {
             Dictionary<int, List<AssetRule>> rules = new Dictionary<int, List<AssetRule>>();
 
@@ -1150,13 +1140,14 @@ namespace Core.Api.Managers
                             {
                                 maxDegreeOfParallelism = 5;
                             }
+
                             ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
                             ContextData contextData = new ContextData();
+                            ConcurrentBag<AssetRule> assetRules = new ConcurrentBag<AssetRule>();
 
                             Parallel.ForEach(assetRulesWithKsql, options, (currAssetRuleWithKsql) =>
                             {
                                 contextData.Load();
-
                                 StringBuilder ksqlFilter = new StringBuilder();
 
                                 if (eAssetTypes.EPG == slimAsset.Type)
@@ -1188,9 +1179,15 @@ namespace Core.Api.Managers
                                 // If there is a match, add rule to list
                                 if (assets != null && assets.Count() > 0)
                                 {
-                                    assetRulesByAsset.Add(currAssetRuleWithKsql);
+                                    assetRules.Add(currAssetRuleWithKsql);                                    
                                 }
                             });
+
+                            if (assetRules?.Count > 0)
+                            {
+                                assetRulesByAsset = assetRules.ToList();
+                                assetRules = null;
+                            }
 
                             log.Debug("GetAssetRulesByAsset - success");
                         }
@@ -1200,7 +1197,7 @@ namespace Core.Api.Managers
             catch (Exception ex)
             {
                 assetRulesByAsset = null;
-                log.Error(string.Format("GetAssetRulesByAsset faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error(string.Format("GetAssetRulesByAsset failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
             return new Tuple<List<AssetRule>, bool>(assetRulesByAsset, assetRulesByAsset != null);

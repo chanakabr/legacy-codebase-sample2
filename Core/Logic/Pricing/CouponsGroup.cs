@@ -28,17 +28,6 @@ namespace Core.Pricing
             m_sGroupCode = string.Empty;
         }
 
-        public CouponsStatus GetCouponStatusCode(Int32 nUseCount)
-        {
-            if (m_nMaxUseCountForCoupon <= nUseCount)
-                return CouponsStatus.AllreadyUsed;
-            if (m_dEndDate != null && m_dEndDate <= DateTime.UtcNow)
-                return CouponsStatus.Expired;
-            if (m_dStartDate >= DateTime.UtcNow)
-                return CouponsStatus.NotActive;
-            return CouponsStatus.Valid;
-        }
-
         public bool Initialize(string sGroupName , string sGroupCode , DiscountModule oDiscountCode, LanguageContainer[] sDescription,
             DateTime dStartDate, DateTime dEndDate, Int32 nMaxUseCountForCoupon, Int32 nFinancilaEntityID, Int32 nMaxRecurringUsesCountForCoupon, int maxDomainUses,
              string discountCode, CouponGroupType couponType = CouponGroupType.Coupon)
@@ -197,5 +186,13 @@ namespace Core.Pricing
             return new Tuple<CouponsGroup, bool>(couponsGroup, result);
         }
 
-    }    
+    }
+
+    public static class CouponGroupExtensions
+    {
+        public static bool HasDomainLimitation(this CouponsGroup couponsGroup)
+        {
+            return couponsGroup.maxDomainUses > 0;
+        }
+    }
 }

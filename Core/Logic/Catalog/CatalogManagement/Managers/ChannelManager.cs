@@ -1142,13 +1142,13 @@ namespace Core.Catalog.CatalogManagement
                 if (response.Object != null && response.Object.m_nChannelID > 0)
                 {
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    if (!isFromAsset)
-                    {
-                        UpdateVirtualAsset(groupId, userId, response.Object);
-                    }
-
                     if (!isForMigration)
                     {
+                        if (!isFromAsset)
+                        {
+                            UpdateVirtualAsset(groupId, userId, response.Object);
+                        }
+
                         bool updateResult = IndexManager.UpsertChannel(groupId, response.Object.m_nChannelID, response.Object, userId);
                         if (!updateResult)
                         {

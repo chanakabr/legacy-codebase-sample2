@@ -1,57 +1,38 @@
-﻿using ApiObjects.Pricing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
+using ApiObjects.Pricing;
 
 namespace Core.Pricing
 {
     [Serializable]
     public class CouponData
     {
-        public CouponsStatus m_CouponStatus;
-        public CouponsGroup m_oCouponGroup;
-        public CouponType m_CouponType;
-        public long m_campID;
-        public long m_ownerGUID;
-        public long m_ownerMedia;
-        public string id;
-        public int? leftUses;
-        public int? totalUses;
+        public CouponsStatus m_CouponStatus { get; private set; }
+        public CouponsGroup m_oCouponGroup { get; }
+        public CouponType m_CouponType { get; private set; }
+        public long m_campID { get; }
+        public long m_ownerGUID { get; }
+        public long m_ownerMedia { get; }
+        public string id { get; }
+        public int? leftUses { get; }
+        public int? totalUses { get; }
 
-        public CouponData() 
+        public CouponData(string couponCode, CouponsGroup group, CouponsStatus status, CouponType couponType,
+            long campaignId, long ownerGuid, long mediaId, int? leftUses, int? totalUses)
         {
-            m_CouponStatus = CouponsStatus.NotExists;
-            m_oCouponGroup = null;
-            m_CouponType = CouponType.Coupon;
-            m_campID = 0;
-            m_ownerGUID = 0;
-            m_ownerMedia = 0;
-            leftUses = 0;
-            totalUses = 0;
-        }
-
-        public void Initialize(CouponsGroup theGroup, CouponsStatus theStatus, CouponType couponType, long campaignID, long ownerGUID, long mediaID, int? leftUses, int? totalUses)
-        {
-            m_CouponStatus = theStatus;
-            m_oCouponGroup = theGroup;
+            id = couponCode;
+            m_CouponStatus = status;
+            m_oCouponGroup = group;
             m_CouponType = couponType;
-            m_campID = campaignID;
-            m_ownerGUID = ownerGUID;
-            m_ownerMedia = mediaID;
+            m_campID = campaignId;
+            m_ownerGUID = ownerGuid;
+            m_ownerMedia = mediaId;
             this.leftUses = leftUses;
             this.totalUses = totalUses;
         }
 
-        public void Initialize(string couponCode, CouponsGroup group, CouponsStatus status, CouponType couponType, long campaignID, long ownerGUID, long mediaID, int? leftUses, int? totalUses)
-        {
-            this.Initialize(group, status, couponType, campaignID, ownerGUID, mediaID, leftUses, totalUses);
-            id = couponCode;
-        }
+        public static CouponData NotExist => new CouponData
+            {m_CouponStatus = CouponsStatus.NotExists, m_CouponType = CouponType.Coupon};
 
-        public void Initialize(CouponsGroup theGroup, CouponsStatus theStatus)
-        {
-            Initialize(theGroup, theStatus, CouponType.Coupon, 0, 0, 0, 0, 0);
-        }
+        private CouponData() { }
     }
 }

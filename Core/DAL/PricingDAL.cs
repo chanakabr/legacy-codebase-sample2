@@ -9,6 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
+using static ODBCWrapper.Parameter;
 
 namespace DAL
 {
@@ -1609,6 +1610,40 @@ namespace DAL
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@couponCode", couponCode);
             return sp.Execute();
+        }
+
+        // possible duplicate with Insert_NewCouponUse
+        public static void SetCouponUsed(int couponId, int nGroupID, string sSiteGUID, int nCollectionCode,
+            int nMediaFileID, int nSubCode, int nPrePaidCode, long domainId)
+        {
+            DirectQuery directQuery = null;
+            InsertQuery insertQuery = null;
+            try
+            {
+                directQuery = new DirectQuery();
+                directQuery.SetConnectionKey("pricing_connection");
+                directQuery += "update coupons set USE_COUNT=USE_COUNT+1, LAST_USED_DATE=getdate() where ";
+                directQuery += NEW_PARAM("ID", "=", couponId);
+                directQuery.Execute();
+
+
+                insertQuery = new InsertQuery("coupon_uses");
+                insertQuery.SetConnectionKey("pricing_connection");
+                insertQuery += NEW_PARAM("SITE_GUID", "=", sSiteGUID);
+                insertQuery += NEW_PARAM("COUPON_ID", "=", couponId);
+                insertQuery += NEW_PARAM("group_id", "=", nGroupID);
+                insertQuery += NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
+                insertQuery += NEW_PARAM("SUBSCRIPTION_CODE", "=", nSubCode);
+                insertQuery += NEW_PARAM("PRE_PAID_CODE", "=", nPrePaidCode);
+                insertQuery += NEW_PARAM("COLLECTION_CODE", "=", nCollectionCode);
+                insertQuery += NEW_PARAM("DOMAIN_ID", "=", domainId);
+                insertQuery.Execute();
+            }
+            finally
+            {
+                directQuery?.Finish();
+                insertQuery?.Finish();
+            }
         }
 
         public static DataTable GetCouponsGroup(int groupId, long couponsGroupId)

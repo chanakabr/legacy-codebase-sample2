@@ -524,6 +524,7 @@ namespace Core.Catalog.Handlers
                         response.SetStatus(eResponseStatus.Error);
                         return response;
                     }
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(root.ParentId.Value));
                 }
 
                 response = GetCategoryTree(groupId, newTreeMap[id]);
