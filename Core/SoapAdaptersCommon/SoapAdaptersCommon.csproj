@@ -41,6 +41,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\RedisManager\RedisManager.csproj" />
     
   </ItemGroup>
 
