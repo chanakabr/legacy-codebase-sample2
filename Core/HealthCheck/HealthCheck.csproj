@@ -21,6 +21,7 @@
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
     <ProjectReference Include="..\RabbitQueueWrapper\RabbitQueueWrapper.csproj" />
+    <ProjectReference Include="..\RedisManager\RedisManager.csproj" />
   </ItemGroup>
 
 </Project>

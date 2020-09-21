@@ -11,6 +11,7 @@ namespace CachingProvider.LayeredCache
         None = 0,
         InMemoryCache = 1,
         CbCache = 2,
-        CbMemCache = 3
+        CbMemCache = 3,
+        Redis = 4
     }  
 }
