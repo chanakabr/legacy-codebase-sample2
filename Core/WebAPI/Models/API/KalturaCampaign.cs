@@ -84,7 +84,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "description")]
         [JsonProperty("description")]
         [XmlElement(ElementName = "description", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MaxLength = 1024)]
         public string Description { get; set; }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "message")]
         [JsonProperty("message")]
         [XmlElement(ElementName = "message")]
-        [SchemeProperty(MaxLength = 1200)]
+        [SchemeProperty(MaxLength = 1024)]
         public string Message { get; set; }
 
         /// <summary>

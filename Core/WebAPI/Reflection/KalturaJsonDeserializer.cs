@@ -17072,7 +17072,7 @@ namespace WebAPI.Models.API
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
-            MaxLength = -1,
+            MaxLength = 1024,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute StateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
@@ -17102,7 +17102,7 @@ namespace WebAPI.Models.API
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
-            MaxLength = 1200,
+            MaxLength = 1024,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute CollectionIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
