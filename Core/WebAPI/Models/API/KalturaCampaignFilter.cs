@@ -16,7 +16,7 @@ namespace WebAPI.Models.API
 {
     public enum KalturaCampaignOrderBy
     {
-        NONE
+        START_DATE_DESC
     }
 
     /// <summary>
@@ -29,7 +29,7 @@ namespace WebAPI.Models.API
 
         public override KalturaCampaignOrderBy GetDefaultOrderByValue()
         {
-            return KalturaCampaignOrderBy.NONE;
+            return KalturaCampaignOrderBy.START_DATE_DESC;
         }
 
         public override void Validate(ContextData contextData) 

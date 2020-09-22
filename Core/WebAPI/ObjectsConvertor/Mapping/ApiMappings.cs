@@ -1469,9 +1469,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.TriggerConditions, opt => opt.MapFrom(src => src.TriggerConditions))
                 ;
 
-            cfg.CreateMap<KalturaCampaignFilter, CampaignFilter>();
-            // TODO SHIR - ASK ODED FOR ORDER BY
-            //.ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
+            cfg.CreateMap<KalturaCampaignFilter, CampaignFilter>()
+                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertCampaignOrder(src.OrderBy)))
+                ;
+
+            cfg.CreateMap<CampaignFilter, KalturaCampaignFilter>()
+                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => ConvertCampaignOrder(src.OrderBy)))
+                ;
 
             cfg.CreateMap<KalturaCampaignIdInFilter, CampaignIdInFilter>()
                 .IncludeBase<KalturaCampaignFilter, CampaignFilter>()
@@ -2068,8 +2072,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IdEqual, opt => opt.MapFrom(src => src.IdEqual))
                 .ForMember(dest => dest.ValueEqual, opt => opt.MapFrom(src => src.ValueEqual));
         }
-        
+
         #region Private Convertors
+        private static KalturaCampaignOrderBy ConvertCampaignOrder(CampaignOrderBy? order)
+        {
+            switch (order)
+            {
+                case CampaignOrderBy.StartDateDesc:
+                    return KalturaCampaignOrderBy.START_DATE_DESC;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Campaign Order By");
+            }
+        }
+
+        private static CampaignOrderBy ConvertCampaignOrder(KalturaCampaignOrderBy? order)
+        {
+            switch (order)
+            {
+                case KalturaCampaignOrderBy.START_DATE_DESC:
+                    return CampaignOrderBy.StartDateDesc;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Campaign Order By");
+            }
+        }
+
         private static KalturaObjectState ConvertObjectState(ObjectState? state)
         {
             switch (state)

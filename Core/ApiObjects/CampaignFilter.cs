@@ -6,6 +6,7 @@ namespace ApiObjects
 {
     public class CampaignFilter : ICrudFilter
     {
+        public CampaignOrderBy? OrderBy { get; set; }
     }
 
     public class CampaignIdInFilter : CampaignFilter
@@ -31,5 +32,10 @@ namespace ApiObjects
 
     public class BatchCampaignFilter : CampaignSearchFilter
     {
+    }
+
+    public enum CampaignOrderBy
+    {
+        StartDateDesc
     }
 }

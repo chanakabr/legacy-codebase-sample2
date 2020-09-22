@@ -126,11 +126,8 @@ namespace ApiLogic.Users.Managers
                 response.Objects = response.Objects.Where(x => x.Action == filter.Action.Value).ToList();
             }
 
-            if (pager?.PageSize > 0)
-            {
-                response.TotalItems = response.Objects.Count;
-                response.Objects = response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList();
-            }
+            ManagePagination(pager, response);
+            ManageOrderBy(filter, response);
 
             return response;
         }
@@ -149,13 +146,19 @@ namespace ApiLogic.Users.Managers
 
             response.SetStatus(eResponseStatus.OK);
 
-            if (pager != null)
-            {
-                response.TotalItems = response.Objects.Count;
-                response.Objects = pager.PageSize > 0 ? response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList() : response.Objects;
-            }
+            ManagePagination(pager, response);
+            ManageOrderBy(filter, response);
 
             return response;
+        }
+
+        private static void ManagePagination<T>(CorePager pager, GenericListResponse<T> response) where T : Campaign
+        {
+            if (pager?.PageSize > 0)
+            {
+                response.TotalItems = response.Objects.Count;
+                response.Objects = response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList();
+            }
         }
 
         public GenericListResponse<Campaign> ListCampaingsByIds(ContextData contextData, CampaignIdInFilter filter)
@@ -170,9 +173,19 @@ namespace ApiLogic.Users.Managers
                 }
             }
 
+            ManageOrderBy(filter, response);
+
             response.SetStatus(eResponseStatus.OK);
 
             return response;
+        }
+
+        private static void ManageOrderBy<T>(CampaignFilter filter, GenericListResponse<T> response) where T : Campaign
+        {
+            if (filter.OrderBy.HasValue && filter.OrderBy.Value == CampaignOrderBy.StartDateDesc)
+            {
+                response.Objects = response.Objects.OrderByDescending(camp => camp.StartDate).ToList();
+            }
         }
 
         public GenericListResponse<Campaign> SearchCampaigns(ContextData contextData, CampaignSearchFilter filter, CorePager pager = null)
@@ -193,11 +206,8 @@ namespace ApiLogic.Users.Managers
 
             response.SetStatus(eResponseStatus.OK);
 
-            if (pager != null)
-            {
-                response.TotalItems = response.Objects.Count;
-                response.Objects = pager.PageSize > 0 ? response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList() : response.Objects;
-            }
+            ManagePagination(pager, response);
+            ManageOrderBy(filter, response);
 
             return response;
         }
@@ -500,11 +510,17 @@ namespace ApiLogic.Users.Managers
 
             if (campaign.CollectionIds?.Count > 0)
             {
-                var activaChannels = campaign.CollectionIds
-                    .Select(id => ChannelManager.GetChannelById(contextData.GroupId, (int)id, true, (int)contextData.UserId))
-                    .Where(channel=> channel.HasObject()).ToList();
-
-                if (activaChannels == null || activaChannels.Count() != campaign.CollectionIds.Count)
+                var channels = new List<GroupsCacheManager.Channel>();
+                foreach (var channelId in campaign.CollectionIds)
+                {
+                    var channel = ChannelManager.GetChannelById(contextData.GroupId, (int)channelId, true, (int)contextData.UserId);
+                    if (channel?.Object != null && channel.HasObject())
+                    {
+                        channels.Add(channel.Object);
+                    }
+                }
+                
+                if (channels.Count() != campaign.CollectionIds.Count)
                 {
                     status.Set(eResponseStatus.NotExist, "One or more collection Ids are invalid or not found");
                     return status;
