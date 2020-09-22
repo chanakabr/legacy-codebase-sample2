@@ -12,6 +12,7 @@ using ApiObjects.EventBus;
 using TVinciShared;
 using System.Collections.Generic;
 using CachingProvider.LayeredCache;
+using Core.Catalog.CatalogManagement;
 
 namespace ApiLogic.Users.Managers
 {
@@ -499,9 +500,11 @@ namespace ApiLogic.Users.Managers
 
             if (campaign.CollectionIds?.Count > 0)
             {
-                var collections = Core.Pricing.Module.GetCollectionsData(contextData.GroupId, campaign.CollectionIds.Select(id => id.ToString()).ToArray(),
-                    null, null, null);
-                if (collections == null || collections.Collections == null || collections.Collections.Count() != campaign.CollectionIds.Count)
+                var activaChannels = campaign.CollectionIds
+                    .Select(id => ChannelManager.GetChannelById(contextData.GroupId, (int)id, true, (int)contextData.UserId))
+                    .Where(channel=> channel.HasObject()).ToList();
+
+                if (activaChannels == null || activaChannels.Count() != campaign.CollectionIds.Count)
                 {
                     status.Set(eResponseStatus.NotExist, "One or more collection Ids are invalid or not found");
                     return status;
