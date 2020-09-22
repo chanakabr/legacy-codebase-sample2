@@ -142,7 +142,7 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
-        public GenericResponse<DynamicList> AddDynamicList(ContextData contextData, DynamicList dynamicList)
+        public GenericResponse<DynamicList> AddDynamicList(ContextData contextData, UdidDynamicList dynamicList)
         {
             var response = new GenericResponse<DynamicList>();
 
@@ -264,7 +264,7 @@ namespace ApiLogic.Api.Managers
             {
                 var groupId = (int)arg["groupId"];
                 var id = (long)arg["id"];
-                _dynamicList = ApiDAL.GetDynamicList(id);
+                _dynamicList = ApiDAL.GetDynamicList(groupId, id);
             }
             catch (Exception ex)
             {

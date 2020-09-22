@@ -6258,9 +6258,9 @@ namespace DAL
 
         #region DynamicList
 
-        private static string GetDynamicListKey(long dynamicListId)
+        private static string GetDynamicListKey(long groupId, long dynamicListId)
         {
-            return string.Format("dynamic_list_{0}", dynamicListId);
+            return $"dynamic_list_group_{groupId}_id_{dynamicListId}";
         }
 
         private static string GetDynamicListGroupMappingKey(int groupId, DynamicListType dynamicListType)
@@ -6268,16 +6268,17 @@ namespace DAL
             return $"dynamic_list_map_{groupId}_type_{(int)dynamicListType}";
         }
 
-        public static DynamicList GetDynamicList(long dynamicListId)
+        public static DynamicList GetDynamicList(long groupId, long dynamicListId)
         {
-            var key = GetDynamicListKey(dynamicListId);
-            return UtilsDal.GetObjectFromCB<DynamicList>(eCouchbaseBucket.OTT_APPS, key);
+            var key = GetDynamicListKey(groupId, dynamicListId);
+            // currently we have only UDID type
+            return UtilsDal.GetObjectFromCB<UdidDynamicList>(eCouchbaseBucket.OTT_APPS, key);
         }
 
-        public static bool SaveDynamicList(int groupId, DynamicList dynamicList)
+        public static bool SaveDynamicList<T>(int groupId, T dynamicList) where T : DynamicList, new()
         {
-            string key = GetDynamicListKey(dynamicList.Id);
-            var status = UtilsDal.SaveObjectInCB<DynamicList>(eCouchbaseBucket.OTT_APPS, key, dynamicList);
+            string key = GetDynamicListKey(groupId, dynamicList.Id);
+            var status = UtilsDal.SaveObjectInCB<T>(eCouchbaseBucket.OTT_APPS, key, dynamicList);
             if (status)
             {
                 var mapKey = GetDynamicListGroupMappingKey(groupId, dynamicList.Type);
@@ -6300,7 +6301,7 @@ namespace DAL
 
         public static bool DeleteDynamicList(int groupId, DynamicList dynamicList)
         {
-            string key = GetDynamicListKey(dynamicList.Id);
+            string key = GetDynamicListKey(groupId, dynamicList.Id);
             var status = UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
             if (status)
             {

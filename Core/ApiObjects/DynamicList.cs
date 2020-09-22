@@ -14,6 +14,7 @@ namespace ApiObjects
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class DynamicList : ICrudHandeledObject
     {
         [JsonProperty("Id")]
@@ -45,6 +46,8 @@ namespace ApiObjects
         }
     }
 
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class UdidDynamicList : DynamicList, IExcelStructureManager, IExcelObject
     {
         public const string UDID_COLUMN = "Udid";

@@ -173,10 +173,8 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                GenericResponse<string> saveFileResponse;
                 // save the bulkUpload file to server (cut it from iis) and set fileURL                                
-                saveFileResponse = fileData.SaveFile(response.Object.Id,"KalturaBulkUpload");
-
+                GenericResponse<string> saveFileResponse = fileData.SaveFile(response.Object.Id,"KalturaBulkUpload");
                 if (!saveFileResponse.HasObject())
                 {
                     log.ErrorFormat("Error while saving BulkUpload File to file server. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);

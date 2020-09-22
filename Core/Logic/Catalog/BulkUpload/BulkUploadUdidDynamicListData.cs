@@ -25,8 +25,8 @@ namespace Core.Catalog
     {
         private UdidDynamicList structureManager { get; set; }
 
-        public override string DistributedTask => throw new NotImplementedException();
-        public override string RoutingKey => throw new NotImplementedException();
+        public override string DistributedTask { get { return "disterbuted task not supported for udid dynamicList, use event bus instead"; } }
+        public override string RoutingKey { get { return "disterbuted task not supported for udid dynamicList, use event bus instead"; } }
 
         private static readonly Type bulkUploadObjectType = typeof(UdidDynamicList);
         public override Type GetObjectType()
