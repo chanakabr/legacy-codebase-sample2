@@ -754,7 +754,7 @@ namespace ApiLogic.Api.Managers
                     return result;
                 }
             }
-            else
+            else if (region.id > 0)
             {
                 //get region children
                 RegionFilter filterParent = new RegionFilter() { ParentId = region.id, ExclusiveLcn = true };
