@@ -13,9 +13,7 @@ namespace ApiObjects
         UDID = 1
     }
 
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class DynamicList : ICrudHandeledObject
+    public abstract class DynamicList : ICrudHandeledObject
     {
         [JsonProperty("Id")]
         public long Id { get; set; }
@@ -46,15 +44,13 @@ namespace ApiObjects
         }
     }
 
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class UdidDynamicList : DynamicList, IExcelStructureManager, IExcelObject
     {
         public const string UDID_COLUMN = "Udid";
 
         [ExcelColumn(ExcelColumnType.Basic, UDID_COLUMN, IsMandatory = true)]
         [JsonIgnore]
-        public List<string> Values { get; set; }
+        public string SingileUdidValue { get; set; }
 
         public UdidDynamicList()
         {
@@ -67,10 +63,23 @@ namespace ApiObjects
             throw new NotImplementedException();
         }
 
-        // TODO SHIR - UdidDynamicList.SetExcelValues
         public void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructureManager structureManager)
         {
-            throw new NotImplementedException();
+            UdidDynamicList udidDynamicList = structureManager as UdidDynamicList;
+            this.Id = udidDynamicList.Id;
+            var colName = ExcelColumn.GetFullColumnName(UDID_COLUMN, null, null, true);
+            if (columnNamesToValues?.Count > 0 && columnNamesToValues.ContainsKey(colName))
+            {
+                try
+                {
+                    this.SingileUdidValue = columnNamesToValues[colName].ToString();
+                }
+                catch (Exception ex)
+                {
+                    var excelParserException = new ExcelParserException(ex, colName, columnNamesToValues[colName]);
+                    throw excelParserException;
+                }
+            }
         }
 
         public ExcelStructure GetExcelStructure(int groupId, Type objectType = null)

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects.Base;
+using Core.Catalog.CatalogManagement;
 
 namespace Core.Catalog
 {
@@ -49,34 +50,34 @@ namespace Core.Catalog
             return structureManager;
         }
 
-        // TODO SHIR - BulkUploadUdidDynamicListData.EnqueueObjects
-        // directly set in db and not send to rabbit again..
+        // directly set in db and not send to rabbit again
         public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> results)
         {
-            var list = new List<int>();
+            var goodResults = results.Where(x => x.Status != BulkUploadResultStatus.Error).Select(x => x as BulkUploadUdidDynamicListResult);
+            if(DAL.ApiDAL.SaveUdidDynamicList(this.GroupId, this.DynamicListId, goodResults.Select(x => x.Udid).ToList()))
+            {    
+                foreach (var udidResult in goodResults)
+                {
+                    var resultStatus = BulkUploadManager.UpdateBulkUploadResult(this.GroupId, bulkUpload.Id, udidResult.Index, null, udidResult.ObjectId);
+                    if (!resultStatus.IsOkStatusCode())
+                    {
+                        var errorMassage = $"fail to update BulkUploadUdidDynamicListResult BulkUploadId:{bulkUpload.Id}, ResultIndex:{udidResult.Index}, error: {resultStatus}.";
+                        log.Error(errorMassage);
+                    }
+                }
+            }
 
-            //var udidList = results.Select(x => x.Object as )
-
-            //-------------------------
-
-            //for (var i = 0; i < results.Count; i++)
-            //{
-            //    var mediaAsset = results[i].Object as MediaAsset;
-            //    if (results[i].Status != BulkUploadResultStatus.Error && mediaAsset != null)
-            //    {
-            //        // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
-            //        var queue = new GenericCeleryQueue();
-            //        var data = new BulkUploadItemData<MediaAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, i, mediaAsset);
-            //        if (queue.Enqueue(data, string.Format(this.RoutingKey, bulkUpload.GroupId)))
-            //        {
-            //            log.DebugFormat("Success enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUpload.Id, i);
-            //        }
-            //        else
-            //        {
-            //            log.DebugFormat("Failed enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUpload.Id, i);
-            //        }
-            //    }
-            //}
+            var badResults = results.Where(x => x.Status == BulkUploadResultStatus.Error).Select(x => x as BulkUploadUdidDynamicListResult);
+            foreach (var udidResult in badResults)
+            {
+                var error = Status.Error;// TODO SHIR - SET ERROR udidResult.Errors  
+                var resultStatus = BulkUploadManager.UpdateBulkUploadResult(this.GroupId, bulkUpload.Id, udidResult.Index, error, udidResult.ObjectId);
+                if (!resultStatus.IsOkStatusCode())
+                {
+                    var errorMassage = $"fail to update BulkUploadUdidDynamicListResult BulkUploadId:{bulkUpload.Id}, ResultIndex:{udidResult.Index}, error: {resultStatus}.";
+                    log.Error(errorMassage);
+                }
+            }
         }
 
         public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, List<Status> errorStatusDetails)
@@ -84,13 +85,13 @@ namespace Core.Catalog
             // We know for sure this should be a UdidDynamicList if not we want an exception here
             var udidDynamicList = (UdidDynamicList)bulkUploadObject;
 
-            var result = new BulkUploadDynamicListResult()
+            var result = new BulkUploadUdidDynamicListResult()
             {
                 Index = index,
                 ObjectId = udidDynamicList.Id > 0 ? udidDynamicList.Id : (long?)null,
                 BulkUploadId = bulkUploadId,
                 Status = BulkUploadResultStatus.InProgress,
-                Object = bulkUploadObject
+                Udid = udidDynamicList.SingileUdidValue
             };
 
             if (errorStatusDetails != null)
