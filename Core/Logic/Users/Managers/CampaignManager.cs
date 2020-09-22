@@ -126,10 +126,10 @@ namespace ApiLogic.Users.Managers
                 response.Objects = response.Objects.Where(x => x.Action == filter.Action.Value).ToList();
             }
 
-            if (pager != null)
+            if (pager?.PageSize > 0)
             {
                 response.TotalItems = response.Objects.Count;
-                response.Objects = pager.PageSize > 0 ? response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList() : response.Objects;
+                response.Objects = response.Objects.Skip(pager.PageIndex * pager.PageSize).Take(pager.PageSize).ToList();
             }
 
             return response;
