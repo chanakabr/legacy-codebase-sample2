@@ -497,7 +497,16 @@ namespace ApiLogic.Users.Managers
                 }
             }
 
-            // TODO SHIR - validate collection exists
+            if (campaign.CollectionIds?.Count > 0)
+            {
+                var collections = Core.Pricing.Module.GetCollectionsData(contextData.GroupId, campaign.CollectionIds.Select(id => id.ToString()).ToArray(),
+                    null, null, null);
+                if (collections == null || collections.Collections == null || collections.Collections.Count() != campaign.CollectionIds.Count)
+                {
+                    status.Set(eResponseStatus.NotExist, "One or more collection Ids are invalid or not found");
+                    return status;
+                }
+            }
 
             status.Set(eResponseStatus.OK);
             return status;
