@@ -126,8 +126,8 @@ namespace ApiLogic.Users.Managers
                 response.Objects = response.Objects.Where(x => x.Action == filter.Action.Value).ToList();
             }
 
-            ManagePagination(pager, response);
             ManageOrderBy(filter, response);
+            ManagePagination(pager, response);
 
             return response;
         }
@@ -146,8 +146,8 @@ namespace ApiLogic.Users.Managers
 
             response.SetStatus(eResponseStatus.OK);
 
-            ManagePagination(pager, response);
             ManageOrderBy(filter, response);
+            ManagePagination(pager, response);
 
             return response;
         }
@@ -206,8 +206,8 @@ namespace ApiLogic.Users.Managers
 
             response.SetStatus(eResponseStatus.OK);
 
-            ManagePagination(pager, response);
             ManageOrderBy(filter, response);
+            ManagePagination(pager, response);
 
             return response;
         }
