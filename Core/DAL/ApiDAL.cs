@@ -6275,10 +6275,10 @@ namespace DAL
             return UtilsDal.GetObjectFromCB<UdidDynamicList>(eCouchbaseBucket.OTT_APPS, key);
         }
 
-        public static bool SaveDynamicList<T>(int groupId, T dynamicList) where T : DynamicList, new()
+        public static bool SaveDynamicList(int groupId, DynamicList dynamicList)
         {
             string key = GetDynamicListKey(groupId, dynamicList.Id);
-            var status = UtilsDal.SaveObjectInCB<T>(eCouchbaseBucket.OTT_APPS, key, dynamicList);
+            var status = UtilsDal.SaveObjectInCB<DynamicList>(eCouchbaseBucket.OTT_APPS, key, dynamicList);
             if (status)
             {
                 var mapKey = GetDynamicListGroupMappingKey(groupId, dynamicList.Type);

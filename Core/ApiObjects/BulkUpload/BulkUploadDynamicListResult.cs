@@ -7,7 +7,16 @@ namespace ApiObjects.BulkUpload
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUploadDynamicListResult : BulkUploadResult
+    public abstract class BulkUploadDynamicListResult : BulkUploadResult
     {
     }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class BulkUploadUdidDynamicListResult : BulkUploadDynamicListResult
+    {
+        [JsonProperty("Udid")]
+        public string Udid { get; set; }
+    }
+
 }

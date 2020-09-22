@@ -1116,6 +1116,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBulkUploadUdidDynamicListResult":
+                    switch(property.Name)
+                    {
+                        case "Udid":
+                            return "udid";
+                    }
+                    break;
+                    
                 case "KalturaBumpersPlaybackPluginData":
                     switch(property.Name)
                     {

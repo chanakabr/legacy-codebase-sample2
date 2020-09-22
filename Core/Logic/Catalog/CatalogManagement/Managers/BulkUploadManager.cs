@@ -517,7 +517,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("UpdateBulkUploadStatusWithVersionCheck > Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
                 }
                 log.Debug($"UpdateBulkUploadStatusWithVersionCheck > status by results is:[{updatedStatus}], status to set:[{newStatus}]");
-                response.Object.Status = newStatus;
+                response.Object.Status = updatedStatus;
 
                 UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
 

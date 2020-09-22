@@ -1115,6 +1115,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ProgramExternalId, opt => opt.MapFrom(src => src.ProgramExternalId))
               .ForMember(dest => dest.LiveAssetId, opt => opt.MapFrom(src => src.LiveAssetId));
 
+            cfg.CreateMap<BulkUploadDynamicListResult, KalturaBulkUploadDynamicListResult>()
+               .IncludeBase<BulkUploadResult, KalturaBulkUploadResult>();
+
+            cfg.CreateMap<BulkUploadUdidDynamicListResult, KalturaBulkUploadUdidDynamicListResult>()
+              .IncludeBase<BulkUploadDynamicListResult, KalturaBulkUploadDynamicListResult>()
+              .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid));
+
             cfg.CreateMap<KalturaBulkUploadJobData, BulkUploadJobData>();
 
             cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()

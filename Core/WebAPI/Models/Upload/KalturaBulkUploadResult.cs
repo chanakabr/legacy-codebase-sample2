@@ -142,4 +142,22 @@ namespace WebAPI.Models.Upload
         public int LiveAssetId { get; set; }
 
     }
+
+    [Serializable]
+    public abstract partial class KalturaBulkUploadDynamicListResult : KalturaBulkUploadResult
+    {
+    }
+
+    [Serializable]
+    public partial class KalturaBulkUploadUdidDynamicListResult : KalturaBulkUploadDynamicListResult
+    {
+        /// <summary>
+        /// The udid from the excel to add to DynamicLis values
+        /// </summary>
+        [DataMember(Name = "udid")]
+        [JsonProperty(PropertyName = "udid")]
+        [XmlElement(ElementName = "udid")]
+        [SchemeProperty(ReadOnly = true)]
+        public string Udid { get; set; }
+    }
 }
