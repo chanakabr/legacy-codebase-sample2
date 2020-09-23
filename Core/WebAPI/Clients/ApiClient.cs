@@ -2457,8 +2457,6 @@ namespace WebAPI.Clients
 
         public List<KalturaUserRole> GetRoles(int groupId, List<long> roleIds = null)
         {
-
-            List<KalturaUserRole> roles = new List<KalturaUserRole>();
             RolesResponse response = null;
 
             try
@@ -2484,7 +2482,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status);
             }
 
-            roles = AutoMapper.Mapper.Map<List<KalturaUserRole>>(response.Roles);
+            var roles = Mapper.Map<List<KalturaUserRole>>(response.Roles);
 
             return roles;
         }
