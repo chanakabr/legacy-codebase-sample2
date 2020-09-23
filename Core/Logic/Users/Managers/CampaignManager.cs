@@ -546,9 +546,9 @@ namespace ApiLogic.Users.Managers
             return LayeredCache.Instance.SetInvalidationKey(invalidationKey);
         }
 
-        public void PublishTriggerCampaign(int groupId, int domainId, ICampaignObject eventObject, ApiService apiService, ApiAction apiAction)
+        public void PublishTriggerCampaign(int groupId, int domainId, Core.Users.DomainDevice eventObject, ApiService apiService, ApiAction apiAction)
         {
-            var serviceEvent = new CampaignTriggerEvent()
+            var serviceEvent = new ApiObjects.EventBus.CampaignTriggerEvent()
             {
                 RequestId = KLogger.GetRequestId(),
                 GroupId = groupId,

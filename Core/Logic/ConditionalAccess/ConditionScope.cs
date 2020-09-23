@@ -25,8 +25,7 @@ namespace APILogic.ConditionalAccess
                                   IAssetConditionScope,
                                   IUserRoleConditionScope,
                                   IUserSubscriptionConditionScope,
-                                  IAssetSubscriptionConditionScope,
-                                  ITriggerCampaignConditionScope
+                                  IAssetSubscriptionConditionScope
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -42,12 +41,6 @@ namespace APILogic.ConditionalAccess
         public int GroupId { get; set; }
         public string UserId { get; set; }
         public List<int> UserSubscriptions { get; set; }
-
-        public int? BrandId { get; set; }
-        public int? Family { get; set; }
-        public long? ManufacturerId { get; set; }
-        public string Model { get; set; }
-        public string Udid { get; set; }
 
         public override string ToString()
         {
@@ -230,6 +223,17 @@ namespace APILogic.ConditionalAccess
             List<int> validChannelIds = Core.ConditionalAccess.Utils.ValidateMediaContainedInChannels((int)mediaId, groupId, channelsIds);
             return validChannelIds != null && validChannelIds.Count > 0;
         }
+    }
+    public class TriggerCampaignConditionScope : ITriggerCampaignConditionScope
+    {
+        public int? BrandId { get; set; }
+        public int? Family { get; set; }
+        public long? ManufacturerId { get; set; }
+        public string Model { get; set; }
+        public string Udid { get; set; }
+        public long RuleId { get; set; }
+        public int GroupId { get; set; }
+        public string UserId { get; set; }
 
         public bool CheckDynamicList(long id)
         {

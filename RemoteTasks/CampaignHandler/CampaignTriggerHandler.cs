@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using ApiObjects.Base;
 using ApiLogic.Users.Managers;
 using domain = Core.Domains.Module;
-using ApiObjects.Notification;
 using ApiObjects;
 using System.Linq;
 using Core.Users;
@@ -15,7 +14,7 @@ using TVinciShared;
 
 namespace CampaignHandler
 {
-    public class CampaignTriggerHandler : IServiceEventHandler<CampaignTriggerEvent>
+    public class CampaignTriggerHandler : IServiceEventHandler<ApiObjects.EventBus.CampaignTriggerEvent>
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -24,7 +23,7 @@ namespace CampaignHandler
             _Logger.Debug("Starting 'CampaignTriggerHandler'");
         }
 
-        public Task Handle(CampaignTriggerEvent serviceEvent)
+        public Task Handle(ApiObjects.EventBus.CampaignTriggerEvent serviceEvent)
         {
             try
             {

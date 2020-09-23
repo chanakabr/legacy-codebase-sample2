@@ -1,9 +1,5 @@
-﻿using ApiObjects.Response;
-using System;
+﻿using ApiObjects.Base;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.Rules
 {
@@ -79,5 +75,5 @@ namespace ApiObjects.Rules
         string Udid { get; set; }
 
         bool CheckDynamicList(long id);
-    }
+    }   
 }

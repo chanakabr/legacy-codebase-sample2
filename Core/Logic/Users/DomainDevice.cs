@@ -161,7 +161,7 @@ namespace Core.Users
         public IConditionScope ConvertToConditionScope(ContextData contextData)
         {
             // TODO MATAN finish to init with all relevant data
-            var conditionScope = new ConditionScope()
+            var conditionScope = new TriggerCampaignConditionScope()
             {
                 GroupId = contextData.GroupId,
                 UserId = contextData.UserId.ToString(),
