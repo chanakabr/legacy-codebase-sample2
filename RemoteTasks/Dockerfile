@@ -15,6 +15,7 @@ RUN dotnet publish -c Release "./IngestTransformationHandler/IngestTransformatio
 RUN dotnet publish -c Release "./IngestValidtionHandler/IngestValidtionHandler.csproj" -o /src/published/IngestValidtionHandler
 RUN dotnet publish -c Release "./CampaignHandler/CampaignHandler.csproj" -o /src/published/CampaignHandler
 
+
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
 # Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
