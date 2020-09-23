@@ -32,6 +32,13 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
+                var domainResponse = Core.Domains.Module.GetDomainInfo(contextData.GroupId, (int)objectToAdd.HouseholdId);
+                if (!domainResponse.Status.IsOkStatusCode() || domainResponse.Domain == null)
+                {
+                    response.SetStatus(domainResponse.Status);
+                    return response;
+                }
+
                 objectToAdd.GroupId = contextData.GroupId;
                 var assetSearchDefinition = new AssetSearchDefinition() { UserId = contextData.UserId.Value };
 
