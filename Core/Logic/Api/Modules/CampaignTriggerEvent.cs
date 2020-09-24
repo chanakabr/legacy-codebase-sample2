@@ -1,6 +1,6 @@
 ﻿using EventBus.Abstraction;
 
-namespace ApiObjects.EventBus
+namespace Core.Api.Modules
 {
     public class CampaignTriggerEvent : ServiceEvent
     {

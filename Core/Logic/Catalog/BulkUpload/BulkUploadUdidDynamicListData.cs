@@ -70,7 +70,7 @@ namespace Core.Catalog
             var badResults = results.Where(x => x.Status == BulkUploadResultStatus.Error).Select(x => x as BulkUploadUdidDynamicListResult);
             foreach (var udidResult in badResults)
             {
-                var error = Status.Error;// TODO SHIR - SET ERROR udidResult.Errors  
+                var error = udidResult.Errors?.Count() > 0 ? udidResult.Errors[0] : Status.Error;
                 var resultStatus = BulkUploadManager.UpdateBulkUploadResult(this.GroupId, bulkUpload.Id, udidResult.Index, error, udidResult.ObjectId);
                 if (!resultStatus.IsOkStatusCode())
                 {

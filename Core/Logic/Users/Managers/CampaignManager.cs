@@ -565,7 +565,7 @@ namespace ApiLogic.Users.Managers
 
         public void PublishTriggerCampaign(int groupId, int domainId, Core.Users.DomainDevice eventObject, ApiService apiService, ApiAction apiAction)
         {
-            var serviceEvent = new ApiObjects.EventBus.CampaignTriggerEvent()
+            var serviceEvent = new Core.Api.Modules.CampaignTriggerEvent()
             {
                 RequestId = KLogger.GetRequestId(),
                 GroupId = groupId,

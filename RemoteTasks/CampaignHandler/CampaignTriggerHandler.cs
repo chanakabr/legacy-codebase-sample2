@@ -1,20 +1,19 @@
-﻿using ApiObjects.EventBus;
+﻿using ApiLogic.Users.Managers;
+using ApiObjects;
+using ApiObjects.Base;
+using Core.Users;
 using EventBus.Abstraction;
 using KLogMonitor;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using ApiObjects.Base;
-using ApiLogic.Users.Managers;
-using domain = Core.Domains.Module;
-using ApiObjects;
-using System.Linq;
-using Core.Users;
 using TVinciShared;
+using domain = Core.Domains.Module;
 
 namespace CampaignHandler
 {
-    public class CampaignTriggerHandler : IServiceEventHandler<ApiObjects.EventBus.CampaignTriggerEvent>
+    public class CampaignTriggerHandler : IServiceEventHandler<Core.Api.Modules.CampaignTriggerEvent>
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -23,7 +22,7 @@ namespace CampaignHandler
             _Logger.Debug("Starting 'CampaignTriggerHandler'");
         }
 
-        public Task Handle(ApiObjects.EventBus.CampaignTriggerEvent serviceEvent)
+        public Task Handle(Core.Api.Modules.CampaignTriggerEvent serviceEvent)
         {
             try
             {

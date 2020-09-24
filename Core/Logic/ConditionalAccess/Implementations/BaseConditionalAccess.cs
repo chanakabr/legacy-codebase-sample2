@@ -3504,7 +3504,7 @@ namespace Core.ConditionalAccess
                                 m_oCurrency = oCurrency
                             };
 
-                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, (int)(campaigns.Objects[0].Promotion.DiscountModuleId), string.Empty, oCurrency.m_sCurrencyCD3);
+                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, (int)(campaigns.Objects[0].Promotion.DiscountModuleId), renewDetails.CountryCode, oCurrency.m_sCurrencyCD3);
 
                             Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, discountModule, 0);
 
