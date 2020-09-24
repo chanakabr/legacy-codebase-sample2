@@ -1,23 +1,25 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.DRM;
-using ApiObjects.EventBus;
 using ApiObjects.Notification;
 using ApiObjects.Response;
+using ChannelsSchema;
 using ConfigurationManager;
+using Core.Catalog.Cache;
 using DAL;
+using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
 using QueueWrapper;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
-using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading;
 using System.Web;
@@ -294,6 +296,19 @@ namespace TvinciImporter
             {
                 ClearMediaFiles(nMediaID);
                 ClearImages(nGroupID, nMediaID);
+            }
+
+            GroupManager groupManager = new GroupManager();
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int parentGroupId = catalogCache.GetParentGroup((int)nGroupID);
+            Group group = groupManager.GetGroup(parentGroupId);
+
+            if(group.isTagsSingleTranslation)
+            {
+                if (!CatalogDAL.DeleteMediaTagsTranslations(nMediaID))
+                {
+                    log.Error($"Error while delete MediaTagsTranslations CB. groupId: {nGroupID}, mediaId:{nMediaID}");
+                }
             }
         }
 
@@ -668,7 +683,7 @@ namespace TvinciImporter
 
         }
 
-        static protected void ClearMediaTags(Int32 nMediaID, Int32 nMediaTagType)
+        static protected void ClearMediaTags(Int32 mediaId, Int32 nMediaTagType, bool singleTranslate)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_tags");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 2);
@@ -677,10 +692,28 @@ namespace TvinciImporter
             //{
             updateQuery += " tag_id in (select id from tags where TAG_TYPE_ID=" + nMediaTagType.ToString() + ") and ";
             //}
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", nMediaID);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", mediaId);
             updateQuery.Execute();
             updateQuery.Finish();
             updateQuery = null;
+
+            if (singleTranslate)
+            {
+                var mediaTagsTranslations = CatalogDAL.GetMediaTagsTranslations(mediaId);
+                if (mediaTagsTranslations != null && mediaTagsTranslations.Translations != null)
+                {
+                    var toRemove = mediaTagsTranslations.Translations.Where(x => x.TagTypeId == nMediaTagType).ToList();
+                    if (toRemove?.Count > 0)
+                    {
+                        foreach (var item in toRemove)
+                        {
+                            mediaTagsTranslations.Translations.Remove(item);
+                        }
+
+                        CatalogDAL.SaveMediaTagsTranslationCB(mediaId, mediaTagsTranslations);
+                    }
+                }
+            }
         }
 
         static protected void ClearMediaDates(int mediaId)
@@ -4624,6 +4657,14 @@ namespace TvinciImporter
 
         static protected bool UpdateMetas(Int32 nGroupID, Int32 nMediaID, string sMainLang, ref XmlNodeList theMetas, ref string sError)
         {
+            GroupManager groupManager = new GroupManager();
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int parentGroupId = catalogCache.GetParentGroup(nGroupID);
+            Group group = groupManager.GetGroup(parentGroupId);
+
+            bool singleTranslate = group.isTagsSingleTranslation;
+            MediaTagsTranslations mtt = singleTranslate ? new MediaTagsTranslations() { mediaId = nMediaID, Translations = new List<TagTranslations>() } : null;
+
             Int32 nCount = theMetas.Count;
             for (int i = 0; i < nCount; i++)
             {
@@ -4658,6 +4699,7 @@ namespace TvinciImporter
                         AddError(ref sError, "meta :" + sName + " - no main language value");
                         continue;
                     }
+
                     metaHolder.AddLanguageString(sMainLang, sVal, j.ToString(), true);  ///i->j
                     if (sMLHandling.Trim().ToLower() == "duplicate")
                     {
@@ -4668,15 +4710,57 @@ namespace TvinciImporter
                         GetSubLangMetaData(nGroupID, sMainLang, ref metaHolder, ref theContainer, j.ToString());  ///i->j
                     }
                 }
-
-
-                ClearMediaTags(nMediaID, tagTypeID);
+                
+                ClearMediaTags(nMediaID, tagTypeID, singleTranslate);
+                
                 if (nCount1 > 0)
                 {
                     if (tagTypeID != 0 || sName.ToLower().Trim() == "free")
-                        IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", tagTypeID.ToString(), "int", "ID", "tags", "media_tags", "media_id", "tag_id", "true",
-                            sMainLang, metaHolder, nGroupID, nMediaID);
+                    {
+                        if (singleTranslate)
+                        {
+                            for (int index = 0; index < metaHolder.m_theTable.Count; index++)
+                            {
+                                var tag = (Hashtable)metaHolder.m_theTable[index.ToString()];
+                                if (tag != null)
+                                {
+                                    Int32 nTagID = IngestionUtils.GetTagID(((LanguageString)tag[sMainLang]).m_sVal, nGroupID, tagTypeID, "true");
 
+                                    //add tag to media_tags in db
+                                    if (!CatalogDAL.InsertMediaTag(nGroupID, nMediaID, nTagID))
+                                    {
+                                        AddError(ref sError, $"Failed InsertMediaTag mediaId: {nMediaID}, tagId: {nTagID}");
+                                    }
+                                    else
+                                    {
+                                        foreach (var lang in group.GetLangauges())
+                                        {
+                                            if (!lang.IsDefault && tag.ContainsKey(lang.Code))
+                                            {
+                                                var value = ((LanguageString)tag[lang.Code]).m_sVal;
+
+                                                mtt.Translations.Add(new TagTranslations()
+                                                {
+                                                    TagId = nTagID,
+                                                    TagTypeId = tagTypeID,
+                                                    Value = value,
+                                                    LanguageId = lang.ID
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            CatalogDAL.SaveMediaTagsTranslationCB(nMediaID, mtt);
+                        }
+                        else
+                        {
+                            IngestionUtils.M2MHandling("ID", "TAG_TYPE_ID", tagTypeID.ToString(), "int", "ID", "tags", "media_tags", "media_id", "tag_id", "true",
+                            sMainLang, metaHolder, nGroupID, nMediaID);
+                        }
+                    }
+                        
                 }
             }
             return true;

@@ -1,21 +1,17 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
+using ConfigurationManager;
+using GroupsCacheManager;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GroupsCacheManager;
-using KLogMonitor;
 using System.Reflection;
-using ApiObjects.Response;
+using System.Threading.Tasks;
 using Tvinci.Core.DAL;
-using Core.Catalog.Request;
-using Core.Catalog;
-using ConfigurationManager;
-using Core.Api.Managers;
 
 namespace ElasticsearchTasksCommon
 {
@@ -506,12 +502,14 @@ namespace ElasticsearchTasksCommon
                 tDS.Wait();
                 DataSet dataSet = tDS.Result;
 
+                Dictionary<long, MediaTagsTranslations> mediaTranslations = null;
+
                 if (dataSet != null && dataSet.Tables.Count > 0)
                 {
                     bool hasEpgIdentifier = dataSet.Tables[0].Columns.Contains("epg_identifier");
 
                     if (dataSet.Tables[0].Rows.Count > 0)
-                    {
+                    {                     
                         foreach (DataRow row in dataSet.Tables[0].Rows)
                         {
                             Media media = new Media();
@@ -613,7 +611,7 @@ namespace ElasticsearchTasksCommon
                                 }
                             }
                             medias.Add(media.m_nMediaID, media);
-                                #endregion
+                            #endregion                          
                         }
 
                         #region - get all the media files types for each mediaId that have been selected.
@@ -675,8 +673,14 @@ namespace ElasticsearchTasksCommon
                         #endregion
 
                         #region - get all media tags
+                        
                         if (dataSet.Tables[2].Columns != null && dataSet.Tables[2].Rows != null && dataSet.Tables[2].Rows.Count > 0)
                         {
+                            if (group.isTagsSingleTranslation)
+                            {
+                                mediaTranslations = new Dictionary<long, MediaTagsTranslations>();
+                            }
+
                             foreach (DataRow row in dataSet.Tables[2].Rows)
                             {
                                 int nTagMediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
@@ -692,6 +696,14 @@ namespace ElasticsearchTasksCommon
 
                                         if (!string.IsNullOrEmpty(sTagName))
                                         {
+                                            if (mediaTranslations != null)
+                                            {
+                                                if (!mediaTranslations.ContainsKey(nTagMediaID))
+                                                {
+                                                    mediaTranslations.Add(nTagMediaID, null);
+                                                }
+                                            }
+
                                             if (!medias[nTagMediaID].m_dTagValues.ContainsKey(sTagName))
                                             {
                                                 medias[nTagMediaID].m_dTagValues.Add(sTagName, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
@@ -709,6 +721,11 @@ namespace ElasticsearchTasksCommon
                                     log.Error(string.Format("Caught exception when trying to add media to group tags. TagMediaId={0}; TagTypeID={1}; TagID={2}; TagValue={3}",
                                         nTagMediaID, mttn, tagID, val));
                                 }
+                            }
+
+                            if (mediaTranslations != null)
+                            {
+                                CatalogDAL.GetMediaTagsTranslations(mediaTranslations);
                             }
                         }
                         #endregion
@@ -812,6 +829,24 @@ namespace ElasticsearchTasksCommon
                         #endregion
 
                         #region - get all translated media tags
+
+                        HashSet<long> translated = new HashSet<long>();
+                        if (mediaTranslations != null)
+                        {
+                            foreach (var item in mediaTranslations)
+                            {
+                                if (item.Value != null)
+                                {
+                                    translated.Add(item.Key);
+                                    
+                                    foreach (var translation in item.Value.Translations)
+                                    {
+                                        Core.Catalog.Utils.GetTranslatedMediaTags(group, translation.TagTypeId, translation.Value, (int)item.Key, translation.LanguageId, ref dMediaTrans);
+                                    }
+                                }
+                            }
+                        }
+                        
                         if (dataSet.Tables[4].Columns != null && dataSet.Tables[4].Rows != null && dataSet.Tables[4].Rows.Count > 0)
                         {
                             foreach (DataRow row in dataSet.Tables[4].Rows)
@@ -822,25 +857,9 @@ namespace ElasticsearchTasksCommon
                                 int nLangID = ODBCWrapper.Utils.GetIntSafeVal(row, "language_id");
                                 long tagID = ODBCWrapper.Utils.GetLongSafeVal(row, "tag_id");
 
-                                if (group.m_oGroupTags.ContainsKey(mttn) && !string.IsNullOrEmpty(val))
+                                if (!translated.Contains(nTagMediaID))
                                 {
-                                    Media oMedia;
-
-                                    if (dMediaTrans.ContainsKey(nTagMediaID) && dMediaTrans[nTagMediaID].ContainsKey(nLangID))
-                                    {
-                                        oMedia = dMediaTrans[nTagMediaID][nLangID];
-                                        string sTagTypeName = group.m_oGroupTags[mttn];
-
-                                        if (!oMedia.m_dTagValues.ContainsKey(sTagTypeName))
-                                        {
-                                            oMedia.m_dTagValues.Add(sTagTypeName, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
-                                        }
-
-                                        if (!oMedia.m_dTagValues[sTagTypeName].Contains(val))
-                                        {
-                                            oMedia.m_dTagValues[sTagTypeName].Add(val);
-                                        }
-                                    }
+                                    Core.Catalog.Utils.GetTranslatedMediaTags(group, mttn, val, nTagMediaID, nLangID, ref dMediaTrans);
                                 }
                             }
                         }

@@ -90,7 +90,7 @@ namespace WebAPI.Clients
 
             return roles;
 
-        }
+        }       
 
         #region Parental Rules
 
@@ -4530,6 +4530,21 @@ namespace WebAPI.Clients
 
             KalturaGenericListResponse<KalturaPaymentPartnerConfig> response =
                 ClientUtils.GetResponseListFromWS<KalturaPaymentPartnerConfig, PaymentPartnerConfig>(getPartnerConfigListFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+            return result;
+        }
+
+        internal KalturaPartnerConfigurationListResponse GetCatalogConfiguration(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<CatalogPartnerConfig>> getPartnerConfigListFunc = () =>
+                PartnerConfigurationManager.GetCatalogConfigList(groupId);
+
+            KalturaGenericListResponse<KalturaCatalogPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaCatalogPartnerConfig, CatalogPartnerConfig>(getPartnerConfigListFunc);
 
             result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
             result.TotalCount = response.TotalCount;

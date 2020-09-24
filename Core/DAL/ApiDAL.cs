@@ -42,7 +42,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }        
+        }
 
         public static DataTable Get_GeoBlockRuleForMediaAndCountries(int nGroupID, int nMediaID)
         {
@@ -54,7 +54,7 @@ namespace DAL
 
             return dt != null ? dt : new DataTable();
         }
-        
+
         public static DataSet Get_Operators_Info(int nGroupID, List<int> operatorIds)
         {
             ODBCWrapper.StoredProcedure spGet_Operators_Info = new ODBCWrapper.StoredProcedure("Get_Operators_Info");
@@ -84,7 +84,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-        
+
         public static DataTable Get_UserSocialActionID(int nMediaID, string sSiteGuid, int nGroupID, int nSocialPlatform, int nSocialAction)
         {
             ODBCWrapper.StoredProcedure spUserSocialActionID = new ODBCWrapper.StoredProcedure("Get_UserSocialActionID");
@@ -101,7 +101,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }        
+        }
 
         public static DataSet Get_MediaDetailsForEmail(int nMediaID, int nGroupID)
         {
@@ -115,7 +115,7 @@ namespace DAL
             if (ds != null)
                 return ds;
             return null;
-        }        
+        }
 
         public static DataTable Get_GroupRules(int nGroupID)
         {
@@ -129,7 +129,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-        
+
         public static DataTable Get_LuceneUrl(int nGroupID)
         {
             ODBCWrapper.StoredProcedure spLuceneUr = new ODBCWrapper.StoredProcedure("Get_LuceneUrl");
@@ -246,7 +246,7 @@ namespace DAL
             return ret;
         }
 
-       
+
         public static string[] GetDomainGroupRule(int nGroupID, int nDomainID, int nRuleID)
         {
             try
@@ -310,7 +310,7 @@ namespace DAL
 
             return false;
         }
-        
+
         public static bool DeleteRole(int groupId, long id)
         {
             try
@@ -362,7 +362,7 @@ namespace DAL
 
             return sPIN;
         }
-        
+
         public static DataTable Get_CodeForParentalPIN(string sSiteGuid, int RuleID)
         {
             ODBCWrapper.StoredProcedure spCodeForParentalPIN = new ODBCWrapper.StoredProcedure("Get_CodeForParentalPIN");
@@ -376,7 +376,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-        
+
         public static DataTable Get_GroupOperatorsDetails(int nGroupID)
         {
             ODBCWrapper.StoredProcedure spGroupOperatorsDetails = new ODBCWrapper.StoredProcedure("Get_GroupOperatorsDetails");
@@ -389,7 +389,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-        
+
         public static DataTable Get_UserGroupRules(string sSiteGuid)
         {
             ODBCWrapper.StoredProcedure spUserGroupRules = new ODBCWrapper.StoredProcedure("Get_UserGroupRules");
@@ -402,7 +402,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-        
+
         public static DataTable GetDomainGroupRules(int nDomainID)
         {
             try
@@ -529,7 +529,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-        
+
         public static DataTable Get_MapMediaFiles(List<int> nMediaFileIDs)
         {
             ODBCWrapper.StoredProcedure spMapMediaFiles = new ODBCWrapper.StoredProcedure("Get_MapMediaFiles");
@@ -1018,7 +1018,7 @@ namespace DAL
                 if (mediaMarkLogsDictionary != null)
                 {
                     var mediaMarkLogs = mediaMarkLogsDictionary.Values;
-                    
+
                     List<MediaMarkLog> sortedMediaMarksList =
                         mediaMarkLogs.OrderByDescending(x => x.LastMark.CreatedAt).ToList();
 
@@ -1341,7 +1341,7 @@ namespace DAL
             return res;
         }
 
-        
+
         public static DataTable Get_LastBillingTransactions(int nGroupID, List<long> nSubscriptionPurchasesIDs, List<int> mBillingProvidersList)
         {
             ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Get_LastBillingTransactions");
@@ -1605,7 +1605,7 @@ namespace DAL
         /// </summary>
         /// <param name="dataSet"></param>
         /// <returns></returns>
-        public  static List<ParentalRule> CreateParentalRulesFromDataSet(DataSet dataSet)
+        public static List<ParentalRule> CreateParentalRulesFromDataSet(DataSet dataSet)
         {
             List<ParentalRule> result = null;
 
@@ -3013,7 +3013,7 @@ namespace DAL
 
             return messageQueues;
         }
-        
+
         public static List<Role> GetRoles(int groupId, List<long> roleIds)
         {
             List<Role> roles = new List<Role>();
@@ -3128,7 +3128,7 @@ namespace DAL
                                 Id = ODBCWrapper.Utils.GetLongSafeVal(rolesRow, "ID"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(rolesRow, "NAME"),
                             };
-                            
+
                             // add permissions for role if exists
                             if (rolesPermissions != null && rolesPermissions.ContainsKey(role.Id) && rolesPermissions[role.Id] != null)
                             {
@@ -3352,7 +3352,7 @@ namespace DAL
             return response;
 
         }
-        
+
         //public static Permission InsertPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
         //{
         //    Permission permission = new Permission();
@@ -4549,7 +4549,7 @@ namespace DAL
 
             return rules;
         }
-        
+
         public static bool InsertMediaCountry(int groupId, List<int> assetIds, int countryId, bool isAllowed, long ruleId)
         {
             try
@@ -4736,7 +4736,7 @@ namespace DAL
 
             return false;
         }
-        
+
         public static DataTable GetAssetRulesDB()
         {
             StoredProcedure sp = new StoredProcedure("Get_AssetRules");
@@ -4912,7 +4912,7 @@ namespace DAL
             storedProcedure.AddParameter("@name", name);
 
             result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
-            
+
             return result;
         }
 
@@ -4931,10 +4931,10 @@ namespace DAL
 
             result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
-            return result;            
+            return result;
         }
 
-        public static bool UpdatePermission(int id, string name, int type, string usersGroup,string friendlyName, string dependsOnPermissionNames)
+        public static bool UpdatePermission(int id, string name, int type, string usersGroup, string friendlyName, string dependsOnPermissionNames)
         {
             bool result = false;
 
@@ -4987,7 +4987,7 @@ namespace DAL
             storedProcedure.AddParameter("@isExcluded", isExcluded);
 
             result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
-            
+
             return result;
         }
 
@@ -5042,7 +5042,7 @@ namespace DAL
             storedProcedure.AddParameter("@parameter", parameter);
 
             result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
-            
+
             return result;
         }
 
@@ -5100,7 +5100,7 @@ namespace DAL
             storedProcedure.AddParameter("@isExcluded", isExcluded);
 
             result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
-            
+
             return result;
         }
 
@@ -5144,13 +5144,13 @@ namespace DAL
         #endregion
 
         #region AssetUserRule
-        
+
         public static AssetUserRule GetAssetUserRuleCB(long assetUserRuleId)
         {
             string key = UtilsDal.GetAssetUserRuleKey(assetUserRuleId);
             return UtilsDal.GetObjectFromCB<AssetUserRule>(eCouchbaseBucket.OTT_APPS, key, true);
         }
-        
+
         public static bool SaveAssetUserRuleCB(AssetUserRule assetUserRuleToSave)
         {
             string key = UtilsDal.GetAssetUserRuleKey(assetUserRuleToSave.Id);
@@ -5204,7 +5204,7 @@ namespace DAL
 
             return UtilsDal.Execute("Insert_UserToAssetUserRule", parameters);
         }
-        
+
         public static bool DeleteAssetUserRuleFromUser(long userId, long ruleId)
         {
             var parameters = new Dictionary<string, object>()
@@ -5213,7 +5213,7 @@ namespace DAL
                 { "@ruleId", ruleId }
             };
 
-            return UtilsDal.ExecuteReturnValue<int>("Delete_UserToAssetUserRule", parameters) > 0 ;
+            return UtilsDal.ExecuteReturnValue<int>("Delete_UserToAssetUserRule", parameters) > 0;
         }
 
         #endregion
@@ -5478,7 +5478,7 @@ namespace DAL
                 res = new List<PlaybackProfile>();
             }
             return res;
-        }       
+        }
 
         public static long AddPlaybackAdapter(int groupId, string userId, PlaybackProfile adapter)
         {
@@ -5490,7 +5490,7 @@ namespace DAL
                 sp.AddParameter("@adapterUrl", adapter.AdapterUrl);
                 sp.AddParameter("@externalIdentifier", adapter.ExternalIdentifier);
                 sp.AddParameter("@sharedSecret", adapter.SharedSecret);
-                sp.AddParameter("@isActive", adapter.IsActive);                
+                sp.AddParameter("@isActive", adapter.IsActive);
                 sp.AddParameter("@settings", adapter.Settings);
                 sp.AddParameter("@updaterId", userId);
                 return sp.ExecuteReturnValue<long>();
@@ -5525,7 +5525,7 @@ namespace DAL
                 sp.AddParameter("@name", adapter.Name);
                 sp.AddParameter("@adapterUrl", adapter.AdapterUrl);
                 sp.AddParameter("@externalIdentifier", adapter.ExternalIdentifier);
-                sp.AddParameter("@isActive", adapter.IsActive);                
+                sp.AddParameter("@isActive", adapter.IsActive);
                 sp.AddParameter("@settings", adapter.Settings);
                 sp.AddParameter("@updaterId", userId);
                 DataTable dt = sp.Execute();
@@ -5589,10 +5589,10 @@ namespace DAL
             if (partnerConfig.DowngradePolicy.HasValue)
                 sp.AddParameter("@downgradePolicy", partnerConfig.DowngradePolicy.Value);
             sp.AddParameter("@mailSettings", partnerConfig.MailSettings);
-            sp.AddParameter("@dateFormat", partnerConfig.DateFormat);            
+            sp.AddParameter("@dateFormat", partnerConfig.DateFormat);
             if (partnerConfig.HouseholdLimitationModule.HasValue)
                 sp.AddParameter("@domainLimitionModule", partnerConfig.HouseholdLimitationModule);
-            sp.AddParameter("@shouldDeleteSecondaryLanguages", partnerConfig.SecondaryLanguages?.Count > 0 ? 0: 1);
+            sp.AddParameter("@shouldDeleteSecondaryLanguages", partnerConfig.SecondaryLanguages?.Count > 0 ? 0 : 1);
             sp.AddParameter("@shouldDeleteSecondaryCurrencies", partnerConfig.SecondaryCurrencies?.Count > 0 ? 0 : 1);
 
             if (partnerConfig.EnableRegionFiltering.HasValue)
@@ -5607,12 +5607,12 @@ namespace DAL
 
             var rollingDeviceRemovalPolicy = partnerConfig.RollingDeviceRemovalData?.RollingDeviceRemovalPolicy ?? RollingDevicePolicy.NONE;
 
-            sp.AddParameter("@rollingDeviceRemovalPolicy",rollingDeviceRemovalPolicy);
+            sp.AddParameter("@rollingDeviceRemovalPolicy", rollingDeviceRemovalPolicy);
 
             if (partnerConfig != null && partnerConfig.RollingDeviceRemovalData != null)
             {
-                sp.AddParameter("@rollingDeviceRemovalFamilyIds", 
-                    string.Join(",",partnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds));
+                sp.AddParameter("@rollingDeviceRemovalFamilyIds",
+                    string.Join(",", partnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds));
             }
 
             if (partnerConfig.FinishedPercentThreshold.HasValue)
@@ -5741,7 +5741,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, profileId: {1}, ex:{2} ", groupId, profileId , ex);
+                log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, profileId: {1}, ex:{2} ", groupId, profileId, ex);
                 throw;
             }
         }
@@ -5916,8 +5916,8 @@ namespace DAL
                                     ParameterPermissionItemAction actionEnum = (ParameterPermissionItemAction)actionNumeric;
                                     switch (actionEnum)
                                     {
-                                        case ParameterPermissionItemAction.READ:                                            
-                                        case ParameterPermissionItemAction.INSERT:                                            
+                                        case ParameterPermissionItemAction.READ:
+                                        case ParameterPermissionItemAction.INSERT:
                                         case ParameterPermissionItemAction.UPDATE:
                                             key = string.Format("{0}_{1}_{2}", objectName, parameter, actionEnum).ToLower();
                                             AddToPermissionItemsToFeatures(ref result, key, dopn);
@@ -5966,7 +5966,7 @@ namespace DAL
             return result;
         }
 
-        public static void AddToPermissionItemsToFeatures(ref Dictionary<string, List<string>> result, 
+        public static void AddToPermissionItemsToFeatures(ref Dictionary<string, List<string>> result,
             string key, string dependsOnPermissionNames)
         {
             if (!string.IsNullOrEmpty(dependsOnPermissionNames))
@@ -6003,7 +6003,7 @@ namespace DAL
                             Id = Utils.GetLongSafeVal(dr, "ID"),
                             Name = Utils.GetSafeStr(dr, "NAME"),
                             FriendlyName = Utils.GetSafeStr(dr, "FRIENDLY_NAME"),
-                            GroupId = groupId,                            
+                            GroupId = groupId,
                             Type = (ePermissionType)Utils.GetIntSafeVal(dr, "TYPE"),
                             DependsOnPermissionNames = Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES")
                         };
@@ -6055,7 +6055,7 @@ namespace DAL
                 var sp = new StoredProcedure("Insert_linearChannelsRegions");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-                sp.AddParameter("@groupId", groupId);                
+                sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@parentId", region.parentId);
                 sp.AddParameter("@name", region.name);
                 sp.AddParameter("@externalId", region.externalId);
@@ -6084,8 +6084,8 @@ namespace DAL
                 sp.AddParameter("@name", region.name);
                 sp.AddParameter("@externalId", region.externalId);
                 sp.AddParameter("@linearChannelsExist", region.linearChannels != null);
-                sp.AddKeyValueListParameter<string, string>("@linearChannels", 
-                    region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string,string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
+                sp.AddKeyValueListParameter<string, string>("@linearChannels",
+                    region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string, string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
                 sp.AddParameter("@updaterId", userId);
 
                 return sp.ExecuteReturnValue<int>() > 0;
@@ -6145,7 +6145,7 @@ namespace DAL
             return null;
         }
 
-        public static List<string> GetEventNotificationActionCB(int groupId,string objectType, long objectId)
+        public static List<string> GetEventNotificationActionCB(int groupId, string objectType, long objectId)
         {
             string key = GetEventNotificationActionTypeIdKey(groupId, objectType, objectId);
             return UtilsDal.GetObjectFromCB<List<string>>(EVENT_NOTIFICATION_ACTION_BUCKET, key, true);
@@ -6254,6 +6254,23 @@ namespace DAL
             }
 
             return null;
+        }
+
+        private static string GetCatalogPartnerConfigKey(int groupId)
+        {
+            return $"catalog_partner_config_{groupId}";
+        }
+
+        public static CatalogPartnerConfig GetCatalogPartnerConfig(int groupId)
+        {
+            string key = GetCatalogPartnerConfigKey(groupId);
+            return UtilsDal.GetObjectFromCB<CatalogPartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SaveCatalogPartnerConfig(int groupId, CatalogPartnerConfig partnerConfig)
+        {
+            string key = GetCatalogPartnerConfigKey(groupId);
+            return UtilsDal.SaveObjectInCB<CatalogPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, partnerConfig);
         }
     }
 }

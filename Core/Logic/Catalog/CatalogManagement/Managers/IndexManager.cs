@@ -261,7 +261,7 @@ namespace Core.Catalog.CatalogManagement
                 storedProcedure.AddParameter("@MediaID", mediaId);
 
                 DataSet dataSet = storedProcedure.ExecuteDataSet();
-                Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet);
+                Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet, (int)mediaId);
 
                 // get media update dates
                 DataTable updateDates = CatalogDAL.Get_MediaUpdateDate(new List<int>() { (int)mediaId });

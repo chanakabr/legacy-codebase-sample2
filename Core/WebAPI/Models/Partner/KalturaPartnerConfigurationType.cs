@@ -16,7 +16,8 @@ namespace WebAPI.Models.Partner
         ObjectVirtualAsset,
         Commerce,
         Playback,
-        Payment
+        Payment,
+        Catalog
     }
 
     /// <summary>

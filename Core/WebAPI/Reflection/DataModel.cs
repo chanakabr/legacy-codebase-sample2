@@ -1194,6 +1194,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCatalogPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "SingleMultilingualMode":
+                            return "singleMultilingualMode";
+                    }
+                    break;
+                    
                 case "KalturaCategoryItem":
                     switch(property.Name)
                     {

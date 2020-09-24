@@ -127,6 +127,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_PAYMENT_PARTNER_CONFIG = "GetPaymentPartnerConfigDB";
         public const string GET_SMS_ADAPATER_BY_GROUP_ID_CACHE_CONFIG_NAME = "GetSMSAdapaterByGroupId";
         public const string GET_GROUP_PERMISSIONS = "GetGroupPermissions";
+        public const string GET_CATALOG_PARTNER_CONFIG = "GetCatalogPartnerConfigDB";
 
         #endregion
 
