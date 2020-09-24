@@ -608,12 +608,12 @@ namespace ApiLogic.Users.Managers
 
                     if (filter.StartDateGreaterThanOrEqual.HasValue)
                     {
-                        campaignsDB = campaignsDB.Where(x => x.StartDate >= filter.StartDateGreaterThanOrEqual.Value);
+                        campaignsDB = campaignsDB.Where(x => x.StartDate <= filter.StartDateGreaterThanOrEqual.Value);
                     }
 
                     if (filter.EndDateLessThanOrEqual.HasValue)
                     {
-                        campaignsDB = campaignsDB.Where(x => x.EndDate <= filter.EndDateLessThanOrEqual.Value);
+                        campaignsDB = campaignsDB.Where(x => x.EndDate >= filter.EndDateLessThanOrEqual.Value);
                     }
 
                     if (filter.IsActiveNow)
