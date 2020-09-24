@@ -13,6 +13,8 @@ using TVinciShared;
 using System.Collections.Generic;
 using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
+using GroupsCacheManager;
+using Core.Catalog;
 
 namespace ApiLogic.Users.Managers
 {
@@ -511,19 +513,34 @@ namespace ApiLogic.Users.Managers
             if (campaign.CollectionIds?.Count > 0)
             {
                 var channels = new List<GroupsCacheManager.Channel>();
-                foreach (var channelId in campaign.CollectionIds)
+
+                if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(contextData.GroupId))
                 {
-                    var channel = ChannelManager.GetChannelById(contextData.GroupId, (int)channelId, true, (int)contextData.UserId);
-                    if (channel?.Object != null && channel.HasObject())
+                    var result = ChannelManager.GetChannelsListResponseByChannelIds(contextData.GroupId, campaign.CollectionIds.Select(x => (int)x).ToList(), true, null);
+
+                    if (!result.Status.IsOkStatusCode() || result.Objects.Count != campaign.CollectionIds.Count)
                     {
-                        channels.Add(channel.Object);
+                        status.Set(eResponseStatus.NotExist, "One or more collection Ids are invalid or not found");
+                        return status;
                     }
                 }
-                
-                if (channels.Count() != campaign.CollectionIds.Count)
+                else
                 {
-                    status.Set(eResponseStatus.NotExist, "One or more collection Ids are invalid or not found");
-                    return status;
+                    Group group = null;
+                    GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                    GroupsCacheManager.Channel channel = null;
+
+                    foreach (var channelId in campaign.CollectionIds)
+                    {
+                        groupManager.GetGroupAndChannel((int)channelId, contextData.GroupId, ref group, ref channel);
+
+                        if (channel == null)
+                        {
+                            status.Set(eResponseStatus.NotExist, "One or more collection Ids are invalid or not found");
+                            return status;
+                        }
+
+                    }
                 }
             }
 
