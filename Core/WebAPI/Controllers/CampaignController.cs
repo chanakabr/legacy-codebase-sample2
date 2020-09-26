@@ -11,7 +11,7 @@ namespace WebAPI.Controllers
     [AddAction(ClientThrows = new eResponseStatus[] { })]
     [UpdateAction(ClientThrows = new eResponseStatus[] { })]
     [DeleteAction(ClientThrows = new eResponseStatus[] { })]
-    [ListAction(ClientThrows = new eResponseStatus[] { })]
+    [ListAction(IsFilterOptional = false, IsPagerOptional = true, ClientThrows = new eResponseStatus[] { })]
     public class CampaignController : KalturaCrudController<KalturaCampaign, KalturaCampaignListResponse, Campaign, long, KalturaCampaignFilter>
     {
         /// <summary>
