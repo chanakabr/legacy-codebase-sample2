@@ -31,7 +31,7 @@ namespace CampaignHandler
                     Service = (ApiService)serviceEvent.ApiService,
                     Action = (ApiAction)serviceEvent.ApiAction,
                     StateEqual = ObjectState.ACTIVE,
-                    StartDateGreaterThanOrEqual = DateUtils.GetUtcUnixTimestampNow()
+                    IsActiveNow = true
                 };
 
                 var domain = new Domain((int)serviceEvent.DomainId);
@@ -50,7 +50,8 @@ namespace CampaignHandler
 
                 if (!triggerCampaigns.HasObjects())
                 {
-                    _Logger.Error($"Error finding CampaignTriggerEvent for object: {serviceEvent.EventObject}");
+                    _Logger.Debug($"Couldn't find any CampaignTriggerEvent for ContextData: {contextData}, " +
+                        $"requestId: [{serviceEvent.RequestId}], Service: [{filter.Service.ToString()}]");
                     return Task.CompletedTask;
                 }
 
