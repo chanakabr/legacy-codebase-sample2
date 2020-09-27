@@ -1332,7 +1332,6 @@ namespace Core.ConditionalAccess
 
                                     if (fullPrice.CampaignDetails != null && fullPrice.CampaignDetails.Id > 0)
                                     {
-                                        //TODO SHIR BEO-8607 add to campaign uses table.
                                         //Update campaign message details
                                         int.TryParse(userId, out int _userId);
                                         var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, _userId);
@@ -1341,7 +1340,7 @@ namespace Core.ConditionalAccess
                                         {
                                             var campaignDetails = userCampaigns.Campaigns[fullPrice.CampaignDetails.Id];
                                             campaignDetails.ProductId = productId;
-                                            campaignDetails.ProductType = eTransactionType.Subscription; //TODO Shir or Matan: get product type
+                                            campaignDetails.ProductType = eTransactionType.Subscription; 
                                             campaignDetails.CreateDate = DateUtils.GetUtcUnixTimestampNow();
                                             if (!DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(fullPrice.CampaignDetails.Id, contextData.GroupId, _userId, campaignDetails))
                                             {
