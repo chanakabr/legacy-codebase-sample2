@@ -320,8 +320,8 @@ namespace Core.Notification
             else
             {
                 log.Debug($"Campaign message (campaign: {campaign.Id}) sent successfully to User: {userId} Inbox");
-                var inboxMessageExpiration = new CampaignMessageDetails() { MessageId = inboxMessage.Id, ExpiredAt = campaign.EndDate };
-                DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(campaign.Id, groupId, userId, inboxMessageExpiration);//update mapping
+                var campaignMessageDetails = new CampaignMessageDetails() { MessageId = inboxMessage.Id, ExpiredAt = campaign.EndDate, CreateDate = current, Type = campaign.CampaignType };
+                DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(campaign.Id, groupId, userId, campaignMessageDetails);//update mapping
             }
         }
     }

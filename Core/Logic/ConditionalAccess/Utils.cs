@@ -1919,27 +1919,13 @@ namespace Core.ConditionalAccess
 
                 if (validCampaigns?.Count > 0)
                 {
-                    //TODO SHIR BEO-8607 get used campaign from campaign uses table
-
                     var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
                     long userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
 
                     List<string> allUserIdsInDomain = Domains.Module.GetDomainUserList(contextData.GroupId, (int)contextData.DomainId);
 
                     //get user map
-                    HashSet<long> userCampaignIds = new HashSet<long>();
-
                     var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, userId);
-                    if (userCampaigns != null)
-                    {
-                        if (userCampaigns.Campaigns?.Count > 0)
-                        {
-                            foreach (var item in userCampaigns.Campaigns)
-                            {
-                                userCampaignIds.Add(item.Key);
-                            }
-                        }
-                    }
                     var segmentids = GetDomainSegments(contextData.GroupId, contextData.DomainId.Value, allUserIdsInDomain);
 
                     var scope = new ConditionScope()
@@ -1952,19 +1938,20 @@ namespace Core.ConditionalAccess
 
                     foreach (var promotedCampaign in validCampaigns)
                     {
-                        if (userCampaignIds.Contains(promotedCampaign.Id) || (promotedCampaign.CampaignType == eCampaignType.Batch && promotedCampaign.EvaluateConditions(scope)))
+                        if ((userCampaigns.Campaigns != null && userCampaigns.Campaigns.ContainsKey(promotedCampaign.Id)) || 
+                            (promotedCampaign.CampaignType == eCampaignType.Batch && promotedCampaign.EvaluateConditions(scope)))
                         {
                             var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(promotedCampaign.Promotion.DiscountModuleId), countryCode, currencyCode);
                             if (discountModule != null)
                             {
                                 var userCampaignMap = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, userId);
                                 var contains = userCampaignMap?.Campaigns?.ContainsKey(promotedCampaign.Id);
-                                
-                                //TODO - Shir or Matan - add logic if campaign was used
-                                //if (contains.HasValue && contains.Value && userCampaignMap.Campaigns[promotedCampaign.Id].ProductId == ?)
-                                //{
-                                //    //Don't allow campaign usage
-                                //}
+
+                                if (contains.HasValue && contains.Value && userCampaignMap.Campaigns[promotedCampaign.Id].ProductId.HasValue)
+                                {
+                                    //Don't allow campaign usage
+                                    continue;
+                                }
 
                                 var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 0);
 
