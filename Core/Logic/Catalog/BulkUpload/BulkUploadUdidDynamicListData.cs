@@ -24,6 +24,7 @@ namespace Core.Catalog
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadUdidDynamicListData : BulkUploadDynamicListData
     {
+        private const int MAX_UDIDS = 5000;
         private UdidDynamicList structureManager { get; set; }
 
         public override string DistributedTask { get { return "disterbuted task not supported for udid dynamicList, use event bus instead"; } }
@@ -53,6 +54,13 @@ namespace Core.Catalog
         // directly set in db and not send to rabbit again
         public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> results)
         {
+            if (results.Count > MAX_UDIDS)
+            {
+                bulkUpload.AddError(eResponseStatus.ExceededMaxCapacity, $"udids numer in dynamic list exceeded Max capacity (more than ${MAX_UDIDS})");
+                BulkUploadManager.UpdateBulkUpload(bulkUpload, BulkUploadJobStatus.Failed);
+                return;
+            }
+
             var goodResults = results.Where(x => x.Status != BulkUploadResultStatus.Error).Select(x => x as BulkUploadUdidDynamicListResult);
             if(DAL.ApiDAL.SaveUdidDynamicList(this.GroupId, this.DynamicListId, goodResults.Select(x => x.Udid).ToList()))
             {    
