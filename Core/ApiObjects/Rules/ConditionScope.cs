@@ -64,12 +64,12 @@ namespace ApiObjects.Rules
         List<long> GetUserRoleIds(int groupId, string userId);
     }
 
-    public interface ITriggerCampaignConditionScope : IConditionScope
+    public interface ITriggerCampaignConditionScope : IConditionScope, ISegmentsConditionScope
     {
         int GroupId { get; set; }
         string UserId { get; set; }
         int? BrandId { get; set; }
-        int? Family { get; set; }
+        int? FamilyId { get; set; }
         long? ManufacturerId { get; set; }
         string Model { get; set; }
         string Udid { get; set; }

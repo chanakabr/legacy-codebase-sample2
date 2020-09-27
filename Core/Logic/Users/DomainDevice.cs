@@ -8,6 +8,7 @@ using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Core.Users
@@ -160,7 +161,8 @@ namespace Core.Users
 
         public IConditionScope ConvertToConditionScope(ContextData contextData)
         {
-            // TODO MATAN finish to init with all relevant data
+            var userSegments = ApiObjects.Segmentation.UserSegment.List(contextData.GroupId, contextData.UserId.ToString(), out int totalCount);
+
             var conditionScope = new TriggerCampaignConditionScope()
             {
                 GroupId = contextData.GroupId,
@@ -168,8 +170,10 @@ namespace Core.Users
                 BrandId = this.DeviceBrandId,
                 ManufacturerId = this.ManufacturerId,
                 Model = this.Model,
-                Family = (int)this.DeviceFamilyId,
-                Udid = this.Udid
+                FamilyId = (int)this.DeviceFamilyId,
+                Udid = this.Udid,
+                FilterBySegments = true,
+                SegmentIds = userSegments?.Select(x => x.SegmentId).ToList()
             };
 
             return conditionScope;

@@ -227,13 +227,15 @@ namespace APILogic.ConditionalAccess
     public class TriggerCampaignConditionScope : ITriggerCampaignConditionScope
     {
         public int? BrandId { get; set; }
-        public int? Family { get; set; }
+        public int? FamilyId { get; set; }
         public long? ManufacturerId { get; set; }
         public string Model { get; set; }
         public string Udid { get; set; }
         public long RuleId { get; set; }
         public int GroupId { get; set; }
         public string UserId { get; set; }
+        public List<long> SegmentIds { get; set; }
+        public bool FilterBySegments { get; set; }
 
         public bool CheckDynamicList(long id)
         {

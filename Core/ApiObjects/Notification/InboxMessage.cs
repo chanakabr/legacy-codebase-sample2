@@ -19,19 +19,22 @@ namespace ApiObjects.Notification
     public class CampaignInboxMessageMap
     {
         //Key: CampaignId, Value: InboxMessageTTL
-        public Dictionary<long, InboxMessageWithExpiration> TriggerCampaigns { get; set; }
-        public Dictionary<long, InboxMessageWithExpiration> BatchCampaigns { get; set; }
+        public Dictionary<long, CampaignMessageDetails> Campaigns { get; set; }
 
         public CampaignInboxMessageMap()
         {
-            this.TriggerCampaigns = new Dictionary<long, InboxMessageWithExpiration>();
-            this.BatchCampaigns = new Dictionary<long, InboxMessageWithExpiration>();
+            this.Campaigns = new Dictionary<long, CampaignMessageDetails>();
         }
     }
 
-    public class InboxMessageWithExpiration
+    public class CampaignMessageDetails
     {
         public string MessageId { get; set; }
         public long ExpiredAt { get; set; }
+        public eCampaignType Type { get; set; }
+        public long? ProductId { get; set; }
+        public eTransactionType? ProductType { get; set; }
+        public long? CreateDate { get; set; }
+
     }
 }

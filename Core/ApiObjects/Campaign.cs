@@ -44,7 +44,7 @@ namespace ApiObjects
         public int type { get; set; }
     }
 
-    public abstract class Campaign : CampaignDB, ICrudHandeledObject
+    public class Campaign : CampaignDB, ICrudHandeledObject
     {
         #region Data members
 
@@ -71,7 +71,7 @@ namespace ApiObjects
 
         #endregion
 
-        public abstract eCampaignType CampaignType { get; }
+        public virtual eCampaignType CampaignType { get; }
 
         public Campaign() { }
 
@@ -126,7 +126,10 @@ namespace ApiObjects
             }
         }
 
-        public abstract bool EvaluateConditions(IConditionScope scope);
+        public virtual bool EvaluateConditions(IConditionScope scope)
+        {
+            throw new System.NotImplementedException();
+        }
 
     }
 

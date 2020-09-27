@@ -396,9 +396,9 @@ namespace ApiObjects.Rules
 
         protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
         {
-            if (!scope.Family.HasValue) { return true; }
+            if (!scope.FamilyId.HasValue) { return true; }
 
-            var isExist = this.IdIn.Contains(scope.Family.Value);
+            var isExist = this.IdIn.Contains(scope.FamilyId.Value);
             return isExist;
         }
     }

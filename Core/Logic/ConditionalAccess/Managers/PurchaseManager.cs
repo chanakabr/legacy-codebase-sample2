@@ -763,7 +763,7 @@ namespace Core.ConditionalAccess
         /// Purchase
         /// </summary>
         public static TransactionResponse Purchase(BaseConditionalAccess cas, ContextData contextData, double price,
-            string currency, int contentId, int productId, eTransactionType transactionType, string coupon, 
+            string currency, int contentId, int productId, eTransactionType transactionType, string coupon,
             int paymentGwId, int paymentMethodId, string adapterData, bool shouldIgnoreSubscriptionSetValidation = false)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -853,7 +853,7 @@ namespace Core.ConditionalAccess
                 {
                     paymentGatewayResponse = Core.Billing.Module.GetPaymentGateway(contextData.GroupId, contextData.DomainId.Value, paymentGwId, contextData.UserIp);
                 }
-                
+
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
@@ -913,7 +913,7 @@ namespace Core.ConditionalAccess
                 {
                     country = Utils.GetIP2CountryName(contextData.GroupId, contextData.UserIp);
                 }
-                
+
                 // validate price
                 PriceReason priceReason = PriceReason.UnKnown;
                 Price priceResponse = null;
@@ -1021,7 +1021,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private static TransactionResponse PurchaseSubscription(BaseConditionalAccess cas, ContextData contextData, double price, string currency, int productId, CouponData coupon, 
+        private static TransactionResponse PurchaseSubscription(BaseConditionalAccess cas, ContextData contextData, double price, string currency, int productId, CouponData coupon,
                                                                 int paymentGwId, int paymentMethodId, string adapterData, bool isSubscriptionSetModifySubscription, Users.User user)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -1112,7 +1112,7 @@ namespace Core.ConditionalAccess
                     subscriptionCycle.PaymentGatewayId = paymentGwId;
                 }
 
-                var paymentGateway = Billing.Module.GetPaymentGateway(contextData.GroupId, contextData.DomainId.Value, paymentGwId, contextData.UserIp).PaymentGateway;                
+                var paymentGateway = Billing.Module.GetPaymentGateway(contextData.GroupId, contextData.DomainId.Value, paymentGwId, contextData.UserIp).PaymentGateway;
                 if (paymentGateway != null)
                 {
                     paymentGwId = paymentGateway.ID;
@@ -1278,10 +1278,10 @@ namespace Core.ConditionalAccess
 
                                     //create process id only for subscription that equal the cycle and are NOT preview module or purchase with coupon
                                     if (!paymentGateway.ExternalVerification &&
-                                        subscription != null && 
-                                        !subscription.PreSaleDate.HasValue && 
-                                        subscription.m_bIsRecurring && 
-                                        subscription.m_MultiSubscriptionUsageModule != null && 
+                                        subscription != null &&
+                                        !subscription.PreSaleDate.HasValue &&
+                                        subscription.m_bIsRecurring &&
+                                        subscription.m_MultiSubscriptionUsageModule != null &&
                                         subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/ &&
                                         subscriptionCycle.HasCycle)
                                     // group define with billing cycle
@@ -1333,13 +1333,29 @@ namespace Core.ConditionalAccess
                                     if (fullPrice.CampaignDetails != null && fullPrice.CampaignDetails.Id > 0)
                                     {
                                         //TODO SHIR BEO-8607 add to campaign uses table.
+                                        //Update campaign message details
+                                        int.TryParse(userId, out int _userId);
+                                        var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, _userId);
+
+                                        if (userCampaigns.Campaigns.ContainsKey(fullPrice.CampaignDetails.Id))
+                                        {
+                                            var campaignDetails = userCampaigns.Campaigns[fullPrice.CampaignDetails.Id];
+                                            campaignDetails.ProductId = productId;
+                                            campaignDetails.ProductType = eTransactionType.Subscription; //TODO Shir or Matan: get product type
+                                            campaignDetails.CreateDate = DateUtils.GetUtcUnixTimestampNow();
+                                            if (!DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(fullPrice.CampaignDetails.Id, contextData.GroupId, _userId, campaignDetails))
+                                            {
+                                                log.Error($"Failed InsertCampaignUsage with campaign: {fullPrice.CampaignDetails.Id}, " +
+                                                    $"hh: {householdId}, group: {contextData.GroupId}");
+                                            }
+                                        }
                                     }
 
                                     long endDateUnix = 0;
 
                                     if (endDate.HasValue)
                                     {
-                                        endDateUnix = DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)endDate);
+                                        endDateUnix = DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value);
                                     }
 
                                     // If the subscription if recurring, put a message for renewal and all that...
@@ -1841,7 +1857,7 @@ namespace Core.ConditionalAccess
                         {
                             country = Utils.GetIP2CountryName(contextData.GroupId, contextData.UserIp);
                         }
-                        
+
                         // create custom data
                         string customData = cas.GetCustomData(relevantSub, ppvModule, null, siteguid, price, currency,
                                                           contentId, mediaID, productId.ToString(), string.Empty, couponCode,

@@ -33,16 +33,8 @@ namespace CampaignHandler
                     StateEqual = ObjectState.ACTIVE
                 };
 
-                var domain = new Domain((int)serviceEvent.DomainId);
-
-                if (!domain.Initialize(serviceEvent.GroupId, (int)serviceEvent.DomainId) || domain.m_UsersIDs == null)
-                {
-                    _Logger.Error($"No users for domain: {domain.Id}, group: {domain.GroupId}");
-                    return Task.CompletedTask;
-                }
-
+                var domain = Core.ConditionalAccess.Utils.GetDomainInfo((int)serviceEvent.DomainId, serviceEvent.GroupId);
                 var master = domain.m_masterGUIDs.FirstOrDefault();
-
                 var contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = master };
 
                 var triggerCampaigns = CampaignManager.Instance.ListTriggerCampaigns(contextData, filter);
@@ -50,23 +42,24 @@ namespace CampaignHandler
                 if (!triggerCampaigns.HasObjects())
                 {
                     _Logger.Debug($"Couldn't find any CampaignTriggerEvent for ContextData: {contextData}, " +
-                        $"requestId: [{serviceEvent.RequestId}], Service: [{filter.Service.ToString()}]");
+                        $"requestId: [{serviceEvent.RequestId}], Service: [{filter.Service}]");
                     return Task.CompletedTask;
                 }
 
-                _Logger.Debug($"Starting CampaignTriggerHandler requestId:[{serviceEvent.RequestId}], Service: [{filter.Service.ToString()}]");
+                _Logger.Debug($"Starting CampaignTriggerHandler requestId:[{serviceEvent.RequestId}], Service: [{filter.Service}]");
+
+                var existingCampaigns = DAL.NotificationDal.GetCampaignInboxMessageMapCB(serviceEvent.GroupId, master);
 
                 foreach (var _triggerCampaign in triggerCampaigns.Objects)
                 {
-                    //Send to all users or only Master-user - TBD - Ask Oded? TODO - MATAN
-                    Parallel.ForEach(domain.m_UsersIDs, user =>
+                    var isExists = existingCampaigns?.Campaigns?.ContainsKey(_triggerCampaign.Id);
+                    if (isExists.HasValue && isExists.Value)
+                        continue;
+
+                    Parallel.ForEach(domain.m_masterGUIDs, user =>
                     {
                         var _contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = user };
-                        if (!_triggerCampaign.EvaluateTriggerConditions(serviceEvent.EventObject, _contextData))
-                        {
-                            _Logger.Info($"user: {_contextData.UserId} doesn't match campaign: {_triggerCampaign.Id}, group: {serviceEvent.GroupId}");
-                        }
-                        else
+                        if (_triggerCampaign.EvaluateTriggerConditions(serviceEvent.EventObject, _contextData))
                         {
                             Core.Notification.MessageInboxManger.AddCampaignMessage(_triggerCampaign, serviceEvent.GroupId, serviceEvent.UserId);
                         }

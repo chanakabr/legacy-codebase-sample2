@@ -260,7 +260,9 @@ namespace Core.Notification
 
             //get all existing user’s batch campaigns(all existing user’s campaign messages).
             var userCampaignsMap = NotificationDal.GetCampaignInboxMessageMapCB(groupId, userId);
-            var userBatchCampaignsMap = userCampaignsMap != null ? userCampaignsMap.BatchCampaigns : new Dictionary<long, InboxMessageWithExpiration>();
+            var userBatchCampaignsMap = userCampaignsMap != null ?
+                userCampaignsMap.Campaigns?.Where(x => x.Value?.Type == eCampaignType.Batch).ToDictionary(x => x.Key, x => x.Value)
+                : new Dictionary<long, CampaignMessageDetails>();
 
             // add new batch campaigns to user
             if (batchCampaigns != null)
@@ -318,8 +320,8 @@ namespace Core.Notification
             else
             {
                 log.Debug($"Campaign message (campaign: {campaign.Id}) sent successfully to User: {userId} Inbox");
-                var inboxMessageExpiration = new InboxMessageWithExpiration() { MessageId = inboxMessage.Id, ExpiredAt = campaign.EndDate };
-                DAL.NotificationDal.AddToCampaignInboxMessageMapCB(campaign, groupId, userId, inboxMessageExpiration);//update mapping
+                var inboxMessageExpiration = new CampaignMessageDetails() { MessageId = inboxMessage.Id, ExpiredAt = campaign.EndDate };
+                DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(campaign.Id, groupId, userId, inboxMessageExpiration);//update mapping
             }
         }
     }
