@@ -22,7 +22,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "populationConditions")]
         [JsonProperty("populationConditions")]
         [XmlElement(ElementName = "populationConditions")]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, RequiresPermission = (int)RequestType.READ)]
         public List<KalturaCondition> PopulationConditions { get; set; }
 
         internal override void ValidateForAdd()

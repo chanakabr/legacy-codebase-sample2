@@ -32,7 +32,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "createDate")]
         [JsonProperty(PropertyName = "createDate")]
         [XmlElement(ElementName = "createDate")]
-        [SchemeProperty(ReadOnly = true)]
+        [SchemeProperty(ReadOnly = true, RequiresPermission = (int)RequestType.READ)]
         public long CreateDate { get; set; }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "updateDate")]
         [JsonProperty(PropertyName = "updateDate")]
         [XmlElement(ElementName = "updateDate")]
-        [SchemeProperty(ReadOnly = true)]
+        [SchemeProperty(ReadOnly = true, RequiresPermission = (int)RequestType.READ)]
         public long UpdateDate { get; set; }
 
         /// <summary>
@@ -76,6 +76,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "systemName")]
         [JsonProperty("systemName")]
         [XmlElement(ElementName = "systemName")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public string SystemName { get; set; }
 
         /// <summary>
@@ -84,7 +85,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "description")]
         [JsonProperty("description")]
         [XmlElement(ElementName = "description", IsNullable = true)]
-        [SchemeProperty(IsNullable = true, MaxLength = 1024)]
+        [SchemeProperty(IsNullable = true, MaxLength = 1024, RequiresPermission = (int)RequestType.READ)]
         public string Description { get; set; }
 
         /// <summary>
@@ -93,7 +94,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "state")]
         [JsonProperty("state")]
         [XmlElement(ElementName = "state")]
-        [SchemeProperty(ReadOnly = true)]
+        [SchemeProperty(ReadOnly = true, RequiresPermission = (int)RequestType.READ)]
         public KalturaObjectState State { get; set; }
 
         /// <summary>

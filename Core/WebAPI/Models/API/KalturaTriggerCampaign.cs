@@ -49,7 +49,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "triggerConditions")]
         [JsonProperty("triggerConditions")]
         [XmlElement(ElementName = "triggerConditions")]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, RequiresPermission = (int)RequestType.READ)]
         public List<KalturaCondition> TriggerConditions { get; set; }
 
         internal override void ValidateForAdd()
