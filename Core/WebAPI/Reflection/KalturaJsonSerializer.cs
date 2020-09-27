@@ -20099,8 +20099,9 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
-            if(PopulationConditions != null && (retrievedProperties == null || retrievedProperties.Contains("populationConditions")))
+            if(PopulationConditions != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaBatchCampaign", "PopulationConditions", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("populationConditions")))
             {
                 propertyValue = "[" + String.Join(", ", PopulationConditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("populationConditions", "\"populationConditions\": " + propertyValue);
@@ -20118,8 +20119,9 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
-            if(PopulationConditions != null && (retrievedProperties == null || retrievedProperties.Contains("populationConditions")))
+            if(PopulationConditions != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaBatchCampaign", "PopulationConditions", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("populationConditions")))
             {
                 propertyValue = PopulationConditions.Count > 0 ? "<item>" + String.Join("</item><item>", PopulationConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("populationConditions", "<populationConditions>" + propertyValue + "</populationConditions>");
@@ -20383,16 +20385,17 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(CollectionIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("collectionIdIn")))
             {
                 ret.Add("collectionIdIn", "\"collectionIdIn\": " + "\"" + EscapeJson(CollectionIdIn) + "\"");
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCampaign", "CreateDate", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
                 ret.Add("createDate", "\"createDate\": " + CreateDate);
             }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            if(Description != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCampaign", "Description", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("description")))
             {
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
             }
@@ -20421,15 +20424,15 @@ namespace WebAPI.Models.API
             {
                 ret.Add("startDate", "\"startDate\": " + StartDate);
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("state")))
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCampaign", "State", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("state")))
             {
                 ret.Add("state", "\"state\": " + "\"" + Enum.GetName(typeof(KalturaObjectState), State) + "\"");
             }
-            if(SystemName != null && (retrievedProperties == null || retrievedProperties.Contains("systemName")))
+            if(SystemName != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCampaign", "SystemName", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("systemName")))
             {
                 ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(SystemName) + "\"");
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCampaign", "UpdateDate", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             }
@@ -20446,16 +20449,17 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(CollectionIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("collectionIdIn")))
             {
                 ret.Add("collectionIdIn", "<collectionIdIn>" + EscapeXml(CollectionIdIn) + "</collectionIdIn>");
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCampaign", "CreateDate", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
                 ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             }
-            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            if(Description != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCampaign", "Description", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("description")))
             {
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
             }
@@ -20484,15 +20488,15 @@ namespace WebAPI.Models.API
             {
                 ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("state")))
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCampaign", "State", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("state")))
             {
                 ret.Add("state", "<state>" + "" + Enum.GetName(typeof(KalturaObjectState), State) + "" + "</state>");
             }
-            if(SystemName != null && (retrievedProperties == null || retrievedProperties.Contains("systemName")))
+            if(SystemName != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCampaign", "SystemName", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("systemName")))
             {
                 ret.Add("systemName", "<systemName>" + EscapeXml(SystemName) + "</systemName>");
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCampaign", "UpdateDate", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             }
@@ -26744,6 +26748,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("action")))
             {
@@ -26753,7 +26758,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("service", "\"service\": " + "\"" + Enum.GetName(typeof(KalturaApiService), Service) + "\"");
             }
-            if(TriggerConditions != null && (retrievedProperties == null || retrievedProperties.Contains("triggerConditions")))
+            if(TriggerConditions != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaTriggerCampaign", "TriggerConditions", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("triggerConditions")))
             {
                 propertyValue = "[" + String.Join(", ", TriggerConditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("triggerConditions", "\"triggerConditions\": " + propertyValue);
@@ -26771,6 +26776,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("action")))
             {
@@ -26780,7 +26786,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("service", "<service>" + "" + Enum.GetName(typeof(KalturaApiService), Service) + "" + "</service>");
             }
-            if(TriggerConditions != null && (retrievedProperties == null || retrievedProperties.Contains("triggerConditions")))
+            if(TriggerConditions != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaTriggerCampaign", "TriggerConditions", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("triggerConditions")))
             {
                 propertyValue = TriggerConditions.Count > 0 ? "<item>" + String.Join("</item><item>", TriggerConditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("triggerConditions", "<triggerConditions>" + propertyValue + "</triggerConditions>");
