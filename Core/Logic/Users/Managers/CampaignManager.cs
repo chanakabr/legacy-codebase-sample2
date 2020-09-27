@@ -15,6 +15,7 @@ using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
 using GroupsCacheManager;
 using Core.Catalog;
+using System.Threading.Tasks;
 
 namespace ApiLogic.Users.Managers
 {
@@ -92,7 +93,21 @@ namespace ApiLogic.Users.Managers
 
             if (_campaign != null)
             {
-                // TODO SHIR - LAZY UPDATE FOR STATE
+                // lazy update for state
+                var now = DateUtils.GetUtcUnixTimestampNow();
+                if (_campaign.State == ObjectState.ACTIVE && _campaign.EndDate > now)
+                {
+                    _campaign.State = ObjectState.ARCHIVE;
+                    
+                    Task.Run(() => SetState(contextData, id, ObjectState.ARCHIVE)).ContinueWith(result =>
+                    {
+                        if (result.Result != null && !result.Result.IsOkStatusCode())
+                        {
+                            log.Error($"error while set campaign:[${id}] state to archive, error:[{result.Result}]");
+                        }
+                    });
+                }
+
                 response.Object = _campaign;
                 response.SetStatus(eResponseStatus.OK);
             }
@@ -600,10 +615,21 @@ namespace ApiLogic.Users.Managers
 
                 if (campaignsDB != null)
                 {
-                    // TODO SHIR - CHECK ALSO DATES and update state
+                    var utcNow = DateUtils.GetUtcUnixTimestampNow();
                     if (filter.StateEqual.HasValue)
                     {
-                        campaignsDB = campaignsDB.Where(x => x.State == filter.StateEqual.Value);
+                        if (filter.StateEqual == ObjectState.ACTIVE)
+                        {
+                            campaignsDB = campaignsDB.Where(x => x.StartDate <= utcNow && x.EndDate >= utcNow && x.State == ObjectState.ACTIVE);
+                        }
+                        else if (filter.StateEqual == ObjectState.ARCHIVE)
+                        {
+                            campaignsDB = campaignsDB.Where(x => (x.State == filter.StateEqual.Value) || (x.EndDate < utcNow && x.State == ObjectState.ACTIVE));
+                        }
+                        else if (filter.StateEqual == ObjectState.INACTIVE)
+                        {
+                            campaignsDB = campaignsDB.Where(x => x.State == filter.StateEqual.Value);
+                        }
                     }
 
                     if (filter.StartDateGreaterThanOrEqual.HasValue)
@@ -614,12 +640,6 @@ namespace ApiLogic.Users.Managers
                     if (filter.EndDateLessThanOrEqual.HasValue)
                     {
                         campaignsDB = campaignsDB.Where(x => x.EndDate <= filter.EndDateLessThanOrEqual.Value);
-                    }
-
-                    if (filter.IsActiveNow)
-                    {
-                        var utcNow = DateUtils.GetUtcUnixTimestampNow();
-                        campaignsDB = campaignsDB.Where(x => x.StartDate <= utcNow && x.EndDate >= utcNow);
                     }
 
                     if (filter.HasPromotion.HasValue)

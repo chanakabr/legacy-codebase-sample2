@@ -21,7 +21,6 @@ namespace ApiObjects
         public long? EndDateLessThanOrEqual { get; set; }
         public ObjectState? StateEqual { get; set; }
         public bool? HasPromotion { get; set; }
-        public bool IsActiveNow { get; set; }
     }
 
     public class TriggerCampaignFilter : CampaignSearchFilter

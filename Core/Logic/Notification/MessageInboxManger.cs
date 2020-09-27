@@ -251,7 +251,6 @@ namespace Core.Notification
 
             var batchFilter = new BatchCampaignFilter()
             {
-                IsActiveNow = true,
                 StateEqual = ObjectState.ACTIVE
             };
             var batchCampaignsResponse = ApiLogic.Users.Managers.CampaignManager.Instance.ListBatchCampaigns(contextData, batchFilter);

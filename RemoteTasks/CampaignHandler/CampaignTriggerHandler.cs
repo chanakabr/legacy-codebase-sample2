@@ -30,8 +30,7 @@ namespace CampaignHandler
                 {
                     Service = (ApiService)serviceEvent.ApiService,
                     Action = (ApiAction)serviceEvent.ApiAction,
-                    StateEqual = ObjectState.ACTIVE,
-                    IsActiveNow = true
+                    StateEqual = ObjectState.ACTIVE
                 };
 
                 var domain = new Domain((int)serviceEvent.DomainId);
