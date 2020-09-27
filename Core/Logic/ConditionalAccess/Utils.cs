@@ -1965,7 +1965,7 @@ namespace Core.ConditionalAccess
                             var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(promotedCampaign.Promotion.DiscountModuleId), countryCode, currencyCode);
                             if (discountModule != null)
                             {
-                                var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
+                                var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 0);
 
                                 if (tempPrice != null)
                                 {
