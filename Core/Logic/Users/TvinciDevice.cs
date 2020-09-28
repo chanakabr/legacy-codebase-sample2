@@ -16,11 +16,30 @@ namespace Core.Users
         {
         }
 
+        /// <summary>
+        /// Generate a PIN code (Unique per account)
+        /// Insert a new device to devices table with the new PIN code
+        /// Return the new PIN
+        /// </summary>
+        /// <returns>New PIN</returns>
         public override string GetPINForDevice(int nGroupID, string sDeviceUDID, int nBrandID)
         {
             Device device = new Device(sDeviceUDID, nBrandID, nGroupID);
             device.Initialize(sDeviceUDID);
-            return device.GetPINForDevice();
+
+            // Device already exists
+            if (device.m_pin != string.Empty)
+            {
+                return device.m_pin;
+            }
+
+            // New Device            
+            string sNewDevicePIN = DeviceRepository.GenerateNewPIN(nGroupID);
+            device.m_pin = sNewDevicePIN;
+
+            var nDeviceID = device.Save(0, 1); // Returns device ID, 0 otherwise
+
+            return nDeviceID != 0 ? sNewDevicePIN : string.Empty;
         }
 
         [Obsolete]
@@ -82,7 +101,7 @@ namespace Core.Users
             }
 
             //Check if external id already exists
-            var device_Id = Device.GetDeviceIDByExternalId(nGroupID, externalId);
+            var device_Id = DeviceRepository.GetDeviceIdByExternalId(nGroupID, externalId);
 
             //already exists
             if (!string.IsNullOrEmpty(device_Id) && device.m_id != device_Id)

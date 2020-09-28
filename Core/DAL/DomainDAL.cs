@@ -206,12 +206,6 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-
-        public static int DoesDeviceExistInDomain(int nDomainID, int nGroupID, string deviceUdid, ref int isActive, ref int nDeviceID)
-        {
-            return Get_IsDeviceExistInDomain(nDomainID, nGroupID, deviceUdid, ref isActive, ref nDeviceID);
-        }
-
         public static int GetDeviceDomainData(int nGroupID, string sDeviceUdid, ref int nDeviceID, ref int nIsActive, ref int nStatus, ref int nDbDomainDeviceID)
         {
             int nDomainID = 0;
@@ -1715,7 +1709,7 @@ namespace DAL
             return null;
         }
 
-        public static int Get_IsDeviceExistInDomain(int nDomainID, int nGroupID, string sDeviceUDID, ref int isActive, ref int nDeviceID)
+        public static int DoesDeviceExistInDomain(int nDomainID, int nGroupID, string sDeviceUDID, ref int isActive, ref int nDeviceID)
         {
             int res = 0;
             StoredProcedure sp = new StoredProcedure("Get_IsDeviceExistInDomain");

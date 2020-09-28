@@ -739,8 +739,6 @@ namespace Core.Users
 
                 bool domainDeviceInsertSuccess = domainDevice.Insert();
 
-                //int domainDeviceRecordID = DomainDal.InsertDeviceToDomain(deviceID, m_nDomainID, m_nGroupID, 1, 1);
-
                 if (domainDeviceInsertSuccess && domainDevice.Id > 0)
                 {
                     device.m_state = DeviceState.Activated;
@@ -1554,7 +1552,7 @@ namespace Core.Users
                     if (String.IsNullOrEmpty(device.m_id))
                     {
                         // check if the device exists by UDID
-                        if (Device.GetDeviceIDByUDID(device.m_deviceUDID, m_nGroupID) > 0)
+                        if (DeviceDal.GetDeviceIdByUDID(device.m_deviceUDID, m_nGroupID) > 0)
                         {
                             deviceAlreadyExistsInOtherDomain = true;
                         }

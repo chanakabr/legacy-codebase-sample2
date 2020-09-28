@@ -1148,7 +1148,7 @@ namespace WebAPI.Clients
         {
             if (household == null)
             {
-                var deviceId = Device.GetDeviceIDByExternalId(groupId, externalId);
+                var deviceId = DeviceRepository.GetDeviceIdByExternalId(groupId, externalId);
                 int.TryParse(deviceId, out int _deviceId);
                 var device = new Device(groupId);
                 device.Initialize(_deviceId);

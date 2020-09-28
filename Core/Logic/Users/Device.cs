@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text;
 using KLogMonitor;
 using System.Reflection;
@@ -52,8 +51,7 @@ namespace Core.Users
         public string MacAddress;
 
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
-        {
-            int nFamilyID = 0;
+        {            
             m_id = string.Empty;
             m_deviceUDID = sUDID;
 
@@ -62,7 +60,8 @@ namespace Core.Users
                 if (nDeviceBrandID > 0)
                 {
                     m_deviceBrandID = nDeviceBrandID;
-                    m_deviceFamily = GetDeviceFamily(nDeviceBrandID, ref nFamilyID);
+                    int nFamilyID = 0;
+                    m_deviceFamily = DeviceDal.Get_DeviceFamilyIDAndName(nDeviceBrandID, ref nFamilyID);
                     m_deviceFamilyID = nFamilyID;
                 }
                 else
@@ -84,17 +83,17 @@ namespace Core.Users
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string sDeviceName, int nDomainID, int nDeviceID, int nDeviceFamilyID,
             string sDeviceFamilyName, string sPin, DateTime dtActivationDate, DeviceState eState)
         {
-            this.m_deviceUDID = sUDID;
-            this.m_deviceBrandID = nDeviceBrandID;
-            this.m_groupID = nGroupID;
-            this.m_deviceName = sDeviceName;
-            this.m_domainID = nDomainID;
-            this.m_id = nDeviceID + "";
-            this.m_deviceFamilyID = nDeviceFamilyID;
-            this.m_deviceFamily = sDeviceFamilyName;
-            this.m_pin = sPin;
-            this.m_activationDate = dtActivationDate;
-            this.m_state = eState;
+            m_deviceUDID = sUDID;
+            m_deviceBrandID = nDeviceBrandID;
+            m_groupID = nGroupID;
+            m_deviceName = sDeviceName;
+            m_domainID = nDomainID;
+            m_id = nDeviceID.ToString();
+            m_deviceFamilyID = nDeviceFamilyID;
+            m_deviceFamily = sDeviceFamilyName;
+            m_pin = sPin;
+            m_activationDate = dtActivationDate;
+            m_state = eState;
 
             if (nDeviceBrandID > 0)
             {
@@ -105,25 +104,10 @@ namespace Core.Users
 
         private void PopulateDeviceStreamTypeAndProfile()
         {
-            /*
-            * 4.12.14. Used only by Vodafone. It is used when VodafoneConditionalAccess calculates NPVR Licensed Link against ALU.
-            * When NPVR is extended for Harmonic, and other provider, find a way to abstract those fields, and save it in DB, rather in config.
-            * 
-            * 
-            */
-            m_sStreamType = TVinciShared.WS_Utils.GetTcmConfigValue(GetStreamTypeConfigKey(m_groupID, m_deviceBrandID));
-            m_sProfile = TVinciShared.WS_Utils.GetTcmConfigValue(GetProfileConfigKey(m_groupID, m_deviceBrandID));
-
-        }
-
-        private string GetStreamTypeConfigKey(int groupID, int deviceBrandID)
-        {
-            return String.Concat("DEVICE_STREAM_TYPE_", groupID, "_", deviceBrandID);
-        }
-
-        private string GetProfileConfigKey(int groupID, int deviceBrandID)
-        {
-            return String.Concat("DEVICE_PROFILE_", groupID, "_", deviceBrandID);
+            // 4.12.14. Used only by Vodafone. It is used when VodafoneConditionalAccess calculates NPVR Licensed Link against ALU.
+            // When NPVR is extended for Harmonic, and other provider, find a way to abstract those fields, and save it in DB, rather in config.
+            m_sStreamType = TVinciShared.WS_Utils.GetTcmConfigValue($"DEVICE_STREAM_TYPE_{m_groupID}_{m_deviceBrandID}");
+            m_sProfile = TVinciShared.WS_Utils.GetTcmConfigValue($"DEVICE_PROFILE_{m_groupID}_{m_deviceBrandID}");
         }
 
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string sDeviceName)
@@ -161,109 +145,14 @@ namespace Core.Users
             return result;
         }
 
-        public bool Initialize(int nDeviceID, int nDomainID)
-        {
-            m_id = nDeviceID.ToString();
-
-            string sDbState = string.Empty;
-
-            bool res = DeviceDal.InitDeviceInDb(nDeviceID, nDomainID,
-                                                ref m_groupID, ref m_deviceUDID, ref m_deviceBrandID, ref m_deviceName, ref m_deviceFamilyID, ref m_pin, ref m_activationDate, ref sDbState);
-
-
-            var stateDict = new Dictionary<string, DeviceState> {
-                { "UnKnown", DeviceState.UnKnown },
-                { "Error", DeviceState.Error },
-                { "NotExists", DeviceState.NotExists },
-                { "Pending", DeviceState.Pending },
-                { "Activated", DeviceState.Activated },
-                { "UnActivated", DeviceState.UnActivated }
-            };
-
-            m_state = stateDict[sDbState];
-
-            return res;
-
-        }
-
-        public bool Initialize(string sDeviceUDID, int nDomainID)
-        {
-
-            int nID = 0;
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
-            try
-            {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                selectQuery += "select id from devices with (nolock) where status=1";
-                selectQuery += "and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", sDeviceUDID);
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_groupID);
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    int count = selectQuery.Table("query").DefaultView.Count;
-                    if (count > 0)
-                    {
-                        nID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "id", 0);
-                    }
-                    else
-                    {
-                        m_state = DeviceState.NotExists;
-                    }
-                }
-                else
-                {
-                    m_state = DeviceState.Error;
-                }
-            }
-            finally
-            {
-                if (selectQuery != null)
-                {
-                    selectQuery.Finish();
-                }
-            }
-
-            if (nID > 0)
-            {
-                return (Initialize(nID, nDomainID));
-            }
-
-            return false;
-        }
-
-        public bool Initialize(string sUDID, string sDeviceName)
-        {
-            if (Initialize(sUDID))
-            {
-                m_deviceName = sDeviceName.Trim();
-                return true;
-            }
-
-            return false;
-        }
-
-        private string GetDeviceFamily(int deviceBrand, ref int familyID)
-        {
-            return DeviceDal.Get_DeviceFamilyIDAndName(deviceBrand, ref familyID);
-        }
-
         public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = ""
             , bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
-            int retVal = 0;
+            int retVal = (nDeviceID.HasValue && nDeviceID.Value > 0)
+                ? nDeviceID.Value
+                : DeviceDal.GetDeviceID(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, nStatus);
 
-            bool deviceFound = (nDeviceID.HasValue && nDeviceID.Value > 0);
-            if (!deviceFound)
-            {
-                retVal = DeviceDal.GetDeviceID(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, nStatus);
-                deviceFound = retVal > 0;
-            }
-            else
-            {
-                retVal = nDeviceID.Value;
-            }
+            bool deviceFound = retVal > 0;
 
             if (!deviceFound) // New Device
             {
@@ -271,147 +160,25 @@ namespace Core.Users
             }
             else // Update Device
             {
-                ODBCWrapper.UpdateQuery updateQuery = null;
-                try
+                bool bUpdateRetVal = DeviceDal.UpdateDevice(retVal, m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_groupID,
+                    m_deviceName, nIsActive, nStatus, externalId, macAddress, allowNullExternalId, allowNullMacAddress);
+                if (!bUpdateRetVal)
                 {
-                    updateQuery = new ODBCWrapper.UpdateQuery("devices");
-                    updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", m_deviceName);
-
-                    if (nIsActive != -1)
-                    {
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", nIsActive);
-                    }
-                    if (nStatus != -1)
-                    {
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
-                    }
-
-                    if (!string.IsNullOrEmpty(externalId) || allowNullExternalId)
-                    {
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("external_Id", "=", externalId);
-                    }
-
-                    if (!string.IsNullOrEmpty(macAddress) || allowNullMacAddress)
-                    {
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("mac_address", "=", macAddress);
-                    }
-
-                    updateQuery += "where";
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", m_deviceUDID);
-                    updateQuery += "and ";
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_brand_id", "=", m_deviceBrandID);
-                    updateQuery += "and ";
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_family_id", "=", m_deviceFamilyID);
-                    updateQuery += "and ";
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_groupID);
-                    updateQuery += "and ";
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", retVal);
-                    bool bUpdateRetVal = updateQuery.Execute();
-
-                    if (!bUpdateRetVal)
-                    {
-                        retVal = 0;
-                    }
-                }
-                finally
-                {
-                    if (updateQuery != null)
-                    {
-                        updateQuery.Finish();
-                    }
+                    retVal = 0;
                 }
             }
 
             m_id = retVal.ToString();
 
-            this.InvalidateDomainDevice();
+            InvalidateDomainDevice();
 
             if (retVal > 0)
             {
-                this.ExternalId = externalId;
-                this.MacAddress = macAddress;
+                ExternalId = externalId;
+                MacAddress = macAddress;
             }
 
             return retVal;
-        }
-
-        /// <summary>
-        /// Generate a PIN code (Unique per account)
-        /// Insert a new device to devices table with the new PIN code
-        /// Return the new PIN
-        /// </summary>
-        /// <returns>New PIN</returns>
-        public string GetPINForDevice()
-        {
-            int nDeviceID = 0;
-
-            // Device already exists
-            if (m_pin != string.Empty)
-            {
-                return m_pin;
-            }
-            // New Device
-            else
-            {
-                string sNewDevicePIN = GenerateNewPIN();
-                m_pin = sNewDevicePIN;
-
-                nDeviceID = Save(0, 1); // Returns device ID, 0 otherwise
-
-                if (nDeviceID != 0)
-                {
-                    return sNewDevicePIN;
-                }
-                else
-                {
-                    return string.Empty;
-                }
-            }
-        }
-
-        private string GenerateNewPIN()
-        {
-            string sNewPIN = string.Empty;
-
-            bool flag = true;
-
-            while (flag)
-            {
-                // Create new PIN
-                ODBCWrapper.DataSetSelectQuery selectQuery = null;
-                try
-                {
-                    sNewPIN = Guid.NewGuid().ToString().Substring(0, 5); ;
-
-                    //Search for new PIN in devices table - if found, regenerate, else, return new PIN
-                    selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                    selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                    selectQuery += "select id from devices with (nolock) where status=1 and";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_groupID);
-                    selectQuery += "and";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PIN", "=", sNewPIN);
-
-                    if (selectQuery.Execute("query", true) != null)
-                    {
-                        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                        if (nCount == 0)
-                        {
-                            flag = false; // Found unique PIN
-                        }
-                    }
-
-                }
-                finally
-                {
-                    if (selectQuery != null)
-                    {
-                        selectQuery.Finish();
-                    }
-                }
-            }
-
-            return sNewPIN;
         }
 
         public bool SetDeviceInfo(string sDeviceName, string macAddress, string externalId, 
@@ -436,26 +203,6 @@ namespace Core.Users
             return res;
         }
 
-        public static int GetDeviceIDByUDID(string sUDID, int nGroupID)
-        {
-            return (int)DeviceDal.Get_IDInDevicesByDeviceUDID(sUDID, nGroupID);
-        }
-
-        public static string GetDeviceIDByExternalId(int nGroupID, string externalId, string columnNmae = "id")
-        {
-            if (string.IsNullOrEmpty(externalId))
-                return string.Empty;
-
-            var dtDeviceInfo = DeviceDal.Get_DeviceInfoByExternalId(nGroupID, externalId);
-            var exists = dtDeviceInfo.Rows.Count > 0;
-            if (exists)
-            {
-                DataRow dr = dtDeviceInfo.Rows[0];
-                return ODBCWrapper.Utils.ExtractValue<string>(dr, columnNmae);
-            }
-
-            return string.Empty;
-        }
 
         private bool InitDeviceInfo(string sID, bool isUDID)
         {
@@ -581,7 +328,7 @@ namespace Core.Users
             return sb.ToString();
         }
 
-        public void InvalidateDomainDevice()
+        private void InvalidateDomainDevice()
         {
             List<string> invalidationKeys = new List<string>()
             {
@@ -589,6 +336,122 @@ namespace Core.Users
             };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
+        }
+    }
+
+    public class DeviceRepository
+    {
+        private static readonly Dictionary<string, DeviceState> stateDict = new Dictionary<string, DeviceState> {
+                { "UnKnown", DeviceState.UnKnown },
+                { "Error", DeviceState.Error },
+                { "NotExists", DeviceState.NotExists },
+                { "Pending", DeviceState.Pending },
+                { "Activated", DeviceState.Activated },
+                { "UnActivated", DeviceState.UnActivated }
+            };
+
+        public static Device Get(string udid, int domainId, int groupId)
+        {
+            var device = new Device(groupId);
+            var deviceId = DeviceDal.GetDeviceIdByUDID(udid, groupId);
+            if (deviceId <= 0)
+            {
+                device.m_state = DeviceState.NotExists;
+                return device;
+            }
+            
+            device.m_id = deviceId.ToString();
+
+            string sDbState = string.Empty;
+
+            DeviceDal.InitDeviceInDb(
+                deviceId,
+                domainId,
+                groupId,
+                ref device.m_deviceUDID,
+                ref device.m_deviceBrandID,
+                ref device.m_deviceName, 
+                ref device.m_deviceFamilyID,
+                ref device.m_pin,
+                ref device.m_activationDate,
+                ref sDbState);            
+
+            device.m_state = stateDict[sDbState];
+
+            return device;
+        }
+
+        // not used for now, should be instead of initialize
+        public static bool TryGet(string udid, int groupId, out Device device)
+        {
+            return TryGet(udid, true, groupId, out device);
+        }
+
+        public static bool TryGet(int deviceId, int groupId, out Device device)
+        {
+            return TryGet(deviceId.ToString(), false, groupId, out device);
+        }
+
+        private static bool TryGet(string sID, bool isUDID, int m_groupID, out Device device)
+        {
+            if (string.IsNullOrEmpty(sID))
+            {
+                device = null;
+                return false;
+            }
+
+            string dbState = string.Empty;
+            int m_id = 0;
+            string m_deviceUDID = string.Empty;
+            int m_deviceBrandID = 0;
+            string m_deviceName = string.Empty;
+            int m_deviceFamilyID = 0;
+            string m_deviceFamily = string.Empty;
+            string m_pin = string.Empty;
+            string externalId = null;
+            string macAddress = null;
+            int m_domainID = 0;
+            DateTime m_activationDate = DateTime.UtcNow;
+
+            var success = DeviceDal.InitDeviceInfo(sID, isUDID, m_groupID,
+                ref dbState,
+                ref m_id,
+                ref m_deviceUDID,
+                ref m_deviceBrandID,
+                ref m_deviceName,
+                ref m_deviceFamilyID,
+                ref m_pin,
+                ref externalId,
+                ref macAddress,
+                ref m_domainID,
+                ref m_activationDate);
+
+            var m_state = stateDict[dbState];
+
+            if (success && m_deviceBrandID > 0)
+            {
+                int notUsed = 0;
+                m_deviceFamily = DeviceDal.Get_DeviceFamilyIDAndName(m_deviceBrandID, ref notUsed);
+            }
+
+            device = new Device(m_deviceUDID, m_deviceBrandID, m_groupID, m_deviceName, m_domainID, m_id,
+                m_deviceFamilyID, m_deviceFamily, m_pin, m_activationDate, m_state)                
+            {
+                ExternalId = externalId,
+                MacAddress = macAddress
+            };
+
+            return true;
+        }
+
+        public static string GetDeviceIdByExternalId(int nGroupID, string externalId)
+        {
+            return DeviceDal.GetDeviceIdByExternalId(nGroupID, externalId);
+        }
+
+        public static string GenerateNewPIN(int groupId)
+        {
+            return DeviceDal.GenerateNewPIN(groupId);
         }
     }
 }
