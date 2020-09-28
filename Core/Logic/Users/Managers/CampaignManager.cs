@@ -35,7 +35,7 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                var campaignToDeleteResponse = Get(contextData, id);
+                var campaignToDeleteResponse = Get(contextData, id, true);
                 if (!campaignToDeleteResponse.HasObject())
                 {
                     response.Set(campaignToDeleteResponse.Status);
@@ -67,6 +67,11 @@ namespace ApiLogic.Users.Managers
 
         public GenericResponse<Campaign> Get(ContextData contextData, long id)
         {
+            return Get(contextData, id, true);
+        }
+
+        public GenericResponse<Campaign> Get(ContextData contextData, long id, bool lazySetState)
+        {
             var response = new GenericResponse<Campaign>();
 
             Campaign _campaign = null;
@@ -95,7 +100,7 @@ namespace ApiLogic.Users.Managers
             {
                 // lazy update for state
                 var now = DateUtils.GetUtcUnixTimestampNow();
-                if (_campaign.State == ObjectState.ACTIVE && _campaign.EndDate > now)
+                if (lazySetState && _campaign.State == ObjectState.ACTIVE && _campaign.EndDate > now)
                 {
                     _campaign.State = ObjectState.ARCHIVE;
                     
@@ -183,7 +188,7 @@ namespace ApiLogic.Users.Managers
             var response = new GenericListResponse<Campaign>();
             if (filter.IdIn?.Count > 0)
             {
-                response.Objects = filter.IdIn.Select(id => Get(contextData, id)).Where(campaignResponse => campaignResponse.HasObject()).Select(x => x.Object).ToList();
+                response.Objects = filter.IdIn.Select(id => Get(contextData, id, true)).Where(campaignResponse => campaignResponse.HasObject()).Select(x => x.Object).ToList();
                 if (!filter.IsAllowedToViewInactiveCampaigns)
                 {
                     response.Objects = response.Objects.Where(x => x.State != ObjectState.INACTIVE).ToList();
@@ -308,7 +313,7 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<Campaign>();
             try
             {
-                var oldTriggerCampaignResponse = Get(contextData, campaignToUpdate.Id);
+                var oldTriggerCampaignResponse = Get(contextData, campaignToUpdate.Id, true);
                 if (!oldTriggerCampaignResponse.HasObject())
                 {
                     response.SetStatus(oldTriggerCampaignResponse.Status);
@@ -366,7 +371,7 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<Campaign>();
             try
             {
-                var oldBatchCampaignResponse = Get(contextData, campaignToUpdate.Id);
+                var oldBatchCampaignResponse = Get(contextData, campaignToUpdate.Id, true);
                 if (!oldBatchCampaignResponse.HasObject())
                 {
                     response.SetStatus(oldBatchCampaignResponse.Status);
@@ -425,7 +430,7 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                var campaign = Get(contextData, id);
+                var campaign = Get(contextData, id, false);
 
                 if (!campaign.IsOkStatusCode())
                 {
@@ -656,7 +661,7 @@ namespace ApiLogic.Users.Managers
 
                     if (campaignsDB.Count() > 0)
                     {
-                        list = campaignsDB.Select(x => Get(contextData, x.Id))
+                        list = campaignsDB.Select(x => Get(contextData, x.Id, true))
                             .Where(campaignResponse => campaignResponse.HasObject() && campaignResponse.Object.CampaignType == campaignType)
                             .Select(camp => (T)camp.Object).ToList();
                     }
