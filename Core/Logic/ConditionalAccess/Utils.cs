@@ -1938,21 +1938,21 @@ namespace Core.ConditionalAccess
 
                     foreach (var promotedCampaign in validCampaigns)
                     {
-                        if ((userCampaigns.Campaigns != null && userCampaigns.Campaigns.ContainsKey(promotedCampaign.Id)) || 
+                        var contains = userCampaigns != null && userCampaigns.Campaigns != null && userCampaigns.Campaigns.ContainsKey(promotedCampaign.Id);
+
+                        if (contains && userCampaigns.Campaigns[promotedCampaign.Id].ProductId.HasValue)
+                        {
+                            //Don't allow campaign usage
+                            continue;
+                        }
+
+                        if (contains || 
                             (promotedCampaign.CampaignType == eCampaignType.Batch && promotedCampaign.EvaluateConditions(scope)))
                         {
+
                             var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(promotedCampaign.Promotion.DiscountModuleId), countryCode, currencyCode);
                             if (discountModule != null)
                             {
-                                var userCampaignMap = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, userId);
-                                var contains = userCampaignMap?.Campaigns?.ContainsKey(promotedCampaign.Id);
-
-                                if (contains.HasValue && contains.Value && userCampaignMap.Campaigns[promotedCampaign.Id].ProductId.HasValue)
-                                {
-                                    //Don't allow campaign usage
-                                    continue;
-                                }
-
                                 var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 0);
 
                                 if (tempPrice != null)

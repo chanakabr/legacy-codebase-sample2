@@ -1985,7 +1985,9 @@ namespace DAL
 
         public static CampaignInboxMessageMap GetCampaignInboxMessageMapCB(int groupId, long userId)
         {
-            return cbManager.Get<CampaignInboxMessageMap>(GetInboxMessageCampaignMappingKey(groupId, userId));
+            CampaignInboxMessageMap campaignInboxMessageMap = cbManager.Get<CampaignInboxMessageMap>(GetInboxMessageCampaignMappingKey(groupId, userId));
+
+            return campaignInboxMessageMap ?? new CampaignInboxMessageMap();
         }
 
         public static List<string> GetSystemInboxMessagesView(int groupId, long fromDate)
