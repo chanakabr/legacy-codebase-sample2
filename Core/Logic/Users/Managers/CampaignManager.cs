@@ -100,7 +100,7 @@ namespace ApiLogic.Users.Managers
             {
                 // lazy update for state
                 var now = DateUtils.GetUtcUnixTimestampNow();
-                if (lazySetState && _campaign.State == CampaignState.ACTIVE && _campaign.EndDate > now)
+                if (lazySetState && _campaign.State == CampaignState.ACTIVE && _campaign.EndDate < now)
                 {
                     _campaign.State = CampaignState.ARCHIVE;
                     
