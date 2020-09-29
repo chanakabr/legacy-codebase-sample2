@@ -1895,7 +1895,8 @@ namespace Core.ConditionalAccess
             CampaignSearchFilter campaignFilter = new CampaignSearchFilter()
             {
                 HasPromotion = true,
-                StateEqual = ObjectState.ACTIVE
+                StateEqual = CampaignState.ACTIVE,
+                StartDateGreaterThanOrEqual = DateUtils.GetUtcUnixTimestampNow()
             };
 
             ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(groupId)

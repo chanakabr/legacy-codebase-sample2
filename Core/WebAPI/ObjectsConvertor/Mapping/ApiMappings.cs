@@ -2096,15 +2096,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static KalturaObjectState ConvertObjectState(ObjectState? state)
+        private static KalturaObjectState ConvertObjectState(CampaignState? state)
         {
             switch (state)
             {
-                case ObjectState.ACTIVE:
+                case CampaignState.ACTIVE:
                     return KalturaObjectState.ACTIVE;
-                case ObjectState.ARCHIVE:
+                case CampaignState.ARCHIVE:
                     return KalturaObjectState.ARCHIVE;
-                case ObjectState.INACTIVE:
+                case CampaignState.INACTIVE:
                     return KalturaObjectState.INACTIVE;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown Object State");
@@ -2112,16 +2112,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static ObjectState ConvertObjectState(KalturaObjectState? state)
+        private static CampaignState ConvertObjectState(KalturaObjectState? state)
         {
             switch (state)
             {
                 case KalturaObjectState.ACTIVE:
-                    return ObjectState.ACTIVE;
+                    return CampaignState.ACTIVE;
                 case KalturaObjectState.ARCHIVE:
-                    return ObjectState.ARCHIVE;
+                    return CampaignState.ARCHIVE;
                 case KalturaObjectState.INACTIVE:
-                    return ObjectState.INACTIVE;
+                    return CampaignState.INACTIVE;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown Object State");
 

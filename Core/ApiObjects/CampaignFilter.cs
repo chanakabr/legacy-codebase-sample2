@@ -19,7 +19,7 @@ namespace ApiObjects
     {
         public long? StartDateGreaterThanOrEqual { get; set; }
         public long? EndDateLessThanOrEqual { get; set; }
-        public ObjectState? StateEqual { get; set; }
+        public CampaignState? StateEqual { get; set; }
         public bool? HasPromotion { get; set; }
     }
 

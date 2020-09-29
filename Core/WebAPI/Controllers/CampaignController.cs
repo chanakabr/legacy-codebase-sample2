@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                var _newState = AutoMapper.Mapper.Map<ObjectState>(newState);
+                var _newState = AutoMapper.Mapper.Map<CampaignState>(newState);
                 Func<Status> coreFunc = () => CampaignManager.Instance.SetState(contextData, campaignId, _newState);
                 Clients.ClientUtils.GetResponseStatusFromWS(coreFunc);
             }

@@ -42,7 +42,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                if (campaignToDeleteResponse.Object.State != ObjectState.INACTIVE)
+                if (campaignToDeleteResponse.Object.State != CampaignState.INACTIVE)
                 {
                     response.Set(eResponseStatus.CanDeleteOnlyInactiveCampaign, "Can delete only inactive campaign");
                     return response;
@@ -100,11 +100,11 @@ namespace ApiLogic.Users.Managers
             {
                 // lazy update for state
                 var now = DateUtils.GetUtcUnixTimestampNow();
-                if (lazySetState && _campaign.State == ObjectState.ACTIVE && _campaign.EndDate > now)
+                if (lazySetState && _campaign.State == CampaignState.ACTIVE && _campaign.EndDate > now)
                 {
-                    _campaign.State = ObjectState.ARCHIVE;
+                    _campaign.State = CampaignState.ARCHIVE;
                     
-                    Task.Run(() => SetState(contextData, id, ObjectState.ARCHIVE)).ContinueWith(result =>
+                    Task.Run(() => SetState(contextData, id, CampaignState.ARCHIVE)).ContinueWith(result =>
                     {
                         if (result.Result != null && !result.Result.IsOkStatusCode())
                         {
@@ -191,7 +191,7 @@ namespace ApiLogic.Users.Managers
                 response.Objects = filter.IdIn.Select(id => Get(contextData, id, true)).Where(campaignResponse => campaignResponse.HasObject()).Select(x => x.Object).ToList();
                 if (!filter.IsAllowedToViewInactiveCampaigns)
                 {
-                    response.Objects = response.Objects.Where(x => x.State != ObjectState.INACTIVE).ToList();
+                    response.Objects = response.Objects.Where(x => x.State != CampaignState.INACTIVE).ToList();
                 }
             }
 
@@ -247,7 +247,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                campaignToAdd.State = ObjectState.INACTIVE;
+                campaignToAdd.State = CampaignState.INACTIVE;
                 campaignToAdd.CreateDate = DateUtils.GetUtcUnixTimestampNow();
                 campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
 
@@ -284,7 +284,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                campaignToAdd.State = ObjectState.INACTIVE;
+                campaignToAdd.State = CampaignState.INACTIVE;
                 campaignToAdd.CreateDate = DateUtils.GetUtcUnixTimestampNow();
                 campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
 
@@ -326,7 +326,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                if (oldTriggerCampaignResponse.Object.State != ObjectState.INACTIVE)
+                if (oldTriggerCampaignResponse.Object.State != CampaignState.INACTIVE)
                 {
                     response.SetStatus(eResponseStatus.Error, $"Can't update this campaign due to current state: [{oldTriggerCampaignResponse.Object.State}]");
                     return response;
@@ -384,7 +384,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                if (oldBatchCampaignResponse.Object.State != ObjectState.INACTIVE)
+                if (oldBatchCampaignResponse.Object.State != CampaignState.INACTIVE)
                 {
                     response.SetStatus(eResponseStatus.Error, $"Can't update this campaign due to current state: [{oldBatchCampaignResponse.Object.State}]");
                     return response;
@@ -424,7 +424,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public Status SetState(ContextData contextData, long id, ObjectState newState)
+        public Status SetState(ContextData contextData, long id, CampaignState newState)
         {
             var response = Status.Error;
 
@@ -463,7 +463,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        private Status ValidateStateChange(ContextData contextData, Campaign campaign, ObjectState newState)
+        private Status ValidateStateChange(ContextData contextData, Campaign campaign, CampaignState newState)
         {
             var response = new Status(eResponseStatus.OK);
 
@@ -472,8 +472,8 @@ namespace ApiLogic.Users.Managers
                 response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} already in state: {newState}");
                 return response;
             }
-            else if ((campaign.State == ObjectState.INACTIVE && newState == ObjectState.ACTIVE)
-                || campaign.State == ObjectState.ACTIVE && newState == ObjectState.ARCHIVE)
+            else if ((campaign.State == CampaignState.INACTIVE && newState == CampaignState.ACTIVE)
+                || campaign.State == CampaignState.ACTIVE && newState == CampaignState.ARCHIVE)
             {
                 log.Info($"Updating campaign: {campaign.Id} to state: {newState}");
             }
@@ -483,11 +483,11 @@ namespace ApiLogic.Users.Managers
                 return response;
             }
 
-            if (newState == ObjectState.ACTIVE)
+            if (newState == CampaignState.ACTIVE)
             {
                 if (campaign.type == (int)eCampaignType.Trigger)
                 {
-                    var campaignFilter = new TriggerCampaignFilter() { StateEqual = ObjectState.ACTIVE };
+                    var campaignFilter = new TriggerCampaignFilter() { StateEqual = CampaignState.ACTIVE };
                     var campaigns = ListTriggerCampaigns(contextData, campaignFilter);
                     if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_TRIGGER_CAMPAIGNS)
                     {
@@ -497,7 +497,7 @@ namespace ApiLogic.Users.Managers
                 }
                 else if (campaign.type == (int)eCampaignType.Batch)
                 {
-                    var campaignFilter = new BatchCampaignFilter() { StateEqual = ObjectState.ACTIVE };
+                    var campaignFilter = new BatchCampaignFilter() { StateEqual = CampaignState.ACTIVE };
                     var campaigns = ListBatchCampaigns(contextData, campaignFilter);
                     if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_BATCH_CAMPAIGNS)
                     {
@@ -506,7 +506,7 @@ namespace ApiLogic.Users.Managers
                     }
                 }
             }
-            if (newState == ObjectState.ACTIVE && campaign.EndDate <= DateUtils.GetUtcUnixTimestampNow())
+            if (newState == CampaignState.ACTIVE && campaign.EndDate <= DateUtils.GetUtcUnixTimestampNow())
             {
                 response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} was ended");
                 return response;
@@ -623,15 +623,15 @@ namespace ApiLogic.Users.Managers
                     var utcNow = DateUtils.GetUtcUnixTimestampNow();
                     if (filter.StateEqual.HasValue)
                     {
-                        if (filter.StateEqual == ObjectState.ACTIVE)
+                        if (filter.StateEqual == CampaignState.ACTIVE)
                         {
-                            campaignsDB = campaignsDB.Where(x => x.StartDate <= utcNow && x.EndDate >= utcNow && x.State == ObjectState.ACTIVE);
+                            campaignsDB = campaignsDB.Where(x => x.EndDate >= utcNow && x.State == CampaignState.ACTIVE);
                         }
-                        else if (filter.StateEqual == ObjectState.ARCHIVE)
+                        else if (filter.StateEqual == CampaignState.ARCHIVE)
                         {
-                            campaignsDB = campaignsDB.Where(x => (x.State == filter.StateEqual.Value) || (x.EndDate < utcNow && x.State == ObjectState.ACTIVE));
+                            campaignsDB = campaignsDB.Where(x => (x.State == filter.StateEqual.Value) || (x.EndDate < utcNow && x.State == CampaignState.ACTIVE));
                         }
-                        else if (filter.StateEqual == ObjectState.INACTIVE)
+                        else if (filter.StateEqual == CampaignState.INACTIVE)
                         {
                             campaignsDB = campaignsDB.Where(x => x.State == filter.StateEqual.Value);
                         }

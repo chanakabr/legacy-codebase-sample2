@@ -11,7 +11,7 @@ namespace ApiObjects
         Batch = 2
     }
 
-    public enum ObjectState
+    public enum CampaignState
     {
         INACTIVE = 0,
         ACTIVE = 1,
@@ -38,7 +38,7 @@ namespace ApiObjects
         public bool HasPromotion { get; set; }
 
         [DBFieldMapping("state")]
-        public ObjectState State { get; set; }
+        public CampaignState State { get; set; }
 
         [DBFieldMapping("type")]
         public int type { get; set; }
