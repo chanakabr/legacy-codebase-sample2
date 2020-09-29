@@ -1896,7 +1896,7 @@ namespace Core.ConditionalAccess
             {
                 HasPromotion = true,
                 StateEqual = CampaignState.ACTIVE,
-                StartDateGreaterThanOrEqual = DateUtils.GetUtcUnixTimestampNow()
+                IsActiveNow = true
             };
 
             ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(groupId)

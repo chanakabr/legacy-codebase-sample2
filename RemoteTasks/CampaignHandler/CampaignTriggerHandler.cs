@@ -31,7 +31,7 @@ namespace CampaignHandler
                     Service = (ApiService)serviceEvent.ApiService,
                     Action = (ApiAction)serviceEvent.ApiAction,
                     StateEqual = CampaignState.ACTIVE,
-                    StartDateGreaterThanOrEqual = DateUtils.GetUtcUnixTimestampNow()
+                    IsActiveNow = true
                 };
 
                 var domain = Core.ConditionalAccess.Utils.GetDomainInfo((int)serviceEvent.DomainId, serviceEvent.GroupId);

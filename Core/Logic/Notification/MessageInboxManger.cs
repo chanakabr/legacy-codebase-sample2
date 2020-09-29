@@ -252,7 +252,7 @@ namespace Core.Notification
             var batchFilter = new BatchCampaignFilter()
             {
                 StateEqual = CampaignState.ACTIVE,
-                StartDateGreaterThanOrEqual = DateUtils.GetUtcUnixTimestampNow()
+                IsActiveNow = true
             };
 
             var batchCampaignsResponse = ApiLogic.Users.Managers.CampaignManager.Instance.ListBatchCampaigns(contextData, batchFilter);

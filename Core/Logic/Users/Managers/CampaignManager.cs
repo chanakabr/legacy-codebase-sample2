@@ -632,6 +632,10 @@ namespace ApiLogic.Users.Managers
                         if (filter.StateEqual == CampaignState.ACTIVE)
                         {
                             campaignsDB = campaignsDB.Where(x => x.EndDate >= utcNow && x.State == CampaignState.ACTIVE);
+                            if (filter.IsActiveNow)
+                            {
+                                campaignsDB = campaignsDB.Where(x => x.StartDate <= utcNow);
+                            }
                         }
                         else if (filter.StateEqual == CampaignState.ARCHIVE)
                         {
