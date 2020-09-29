@@ -50,6 +50,8 @@ namespace Core.Users
 
         public string MacAddress;
 
+        public Dictionary<string, string> DynamicData;
+
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
         {            
             m_id = string.Empty;
@@ -145,8 +147,8 @@ namespace Core.Users
             return result;
         }
 
-        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = ""
-            , bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = "", Dictionary<string, string> dynamicData = null,
+            bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
         {
             int retVal = (nDeviceID.HasValue && nDeviceID.Value > 0)
                 ? nDeviceID.Value
@@ -156,12 +158,12 @@ namespace Core.Users
 
             if (!deviceFound) // New Device
             {
-                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, nIsActive, nStatus, m_pin, externalId, macAddress);
+                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, nIsActive, nStatus, m_pin, externalId, macAddress, dynamicData);
             }
             else // Update Device
             {
                 bool bUpdateRetVal = DeviceDal.UpdateDevice(retVal, m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_groupID,
-                    m_deviceName, nIsActive, nStatus, externalId, macAddress, allowNullExternalId, allowNullMacAddress);
+                    m_deviceName, nIsActive, nStatus, externalId, macAddress, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
                 if (!bUpdateRetVal)
                 {
                     retVal = 0;
@@ -176,20 +178,21 @@ namespace Core.Users
             {
                 ExternalId = externalId;
                 MacAddress = macAddress;
+                DynamicData = dynamicData;
             }
 
             return retVal;
         }
 
-        public bool SetDeviceInfo(string sDeviceName, string macAddress, string externalId, 
-            bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        public bool SetDeviceInfo(string sDeviceName, string macAddress, string externalId, Dictionary<string, string> dynamicData,
+            bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
         {
             bool res = false;
             m_deviceName = sDeviceName;
 
             if (m_state >= DeviceState.Pending)
             {
-                int nDeviceID = Save(-1, 1, null, macAddress, externalId, allowNullExternalId, allowNullMacAddress); // Returns device ID, 0 otherwise
+                int nDeviceID = Save(-1, 1, null, macAddress, externalId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData); // Returns device ID, 0 otherwise
                 if (nDeviceID != 0)
                 {
                     res = true;
@@ -243,6 +246,7 @@ namespace Core.Users
                 m_pin = ODBCWrapper.Utils.GetSafeStr(dr["pin"]);
                 ExternalId = ODBCWrapper.Utils.GetSafeStr(dr["external_id"]);
                 MacAddress = ODBCWrapper.Utils.GetSafeStr(dr["mac_address"]);
+                DynamicData = DeviceDal.ToDynamicData(ODBCWrapper.Utils.GetSafeStr(dr["dynamic_data"]));
 
                 PopulateDeviceStreamTypeAndProfile();
 
@@ -410,6 +414,7 @@ namespace Core.Users
             string m_pin = string.Empty;
             string externalId = null;
             string macAddress = null;
+            Dictionary<string, string> dynamicData = null;
             int m_domainID = 0;
             DateTime m_activationDate = DateTime.UtcNow;
 
@@ -423,6 +428,7 @@ namespace Core.Users
                 ref m_pin,
                 ref externalId,
                 ref macAddress,
+                ref dynamicData,
                 ref m_domainID,
                 ref m_activationDate);
 
@@ -438,7 +444,8 @@ namespace Core.Users
                 m_deviceFamilyID, m_deviceFamily, m_pin, m_activationDate, m_state)                
             {
                 ExternalId = externalId,
-                MacAddress = macAddress
+                MacAddress = macAddress,
+                DynamicData = dynamicData
             };
 
             return true;

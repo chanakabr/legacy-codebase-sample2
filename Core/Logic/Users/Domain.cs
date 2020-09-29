@@ -688,7 +688,7 @@ namespace Core.Users
                             bRemove = true;
                             device.m_domainID = nDomainID;
                             device.m_state = DeviceState.Activated;
-                            int deviceID = device.Save(1, 1, tempDeviceID, device.MacAddress, device.ExternalId);
+                            int deviceID = device.Save(1, 1, tempDeviceID, device.MacAddress, device.ExternalId, device.DynamicData);
                             GetDeviceList();
 
                             return eRetVal;
@@ -721,7 +721,7 @@ namespace Core.Users
             {
                 // Get row id from devices table (not udid)
                 device.m_domainID = nDomainID;
-                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId);
+                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.DynamicData);
                 DomainDevice domainDevice = new DomainDevice()
                 {
                     Id = nDbDomainDeviceID,
@@ -1893,6 +1893,7 @@ namespace Core.Users
                 DeviceState eState = DeviceState.UnKnown;
                 int nDeviceID = 0;
                 string externalId = string.Empty;
+                Dictionary<string, string> dynamicData = null;
 
                 Dictionary<string, int> domainDevices = new Dictionary<string, int>();
 
@@ -1909,6 +1910,7 @@ namespace Core.Users
                     dtActivationDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["last_activation_date"]);
                     nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["device_id"]);
                     externalId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "external_id");
+                    dynamicData = DeviceDal.ToDynamicData(ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["dynamic_data"]));
 
                     Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, sDeviceName, m_nDomainID, nDeviceID, nDeviceFamilyID, string.Empty, sPin,
                         dtActivationDate, eState);
@@ -1917,6 +1919,7 @@ namespace Core.Users
                     {
                         device.ExternalId = externalId;
                     }
+                    if (dynamicData != null) device.DynamicData = dynamicData;
 
                     if (AddDeviceToContainer(device))
                     {
@@ -2212,7 +2215,7 @@ namespace Core.Users
 
             // Get row id from devices table (not udid)
             device.m_domainID = this.m_nDomainID;
-            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId);
+            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId, device.DynamicData);
             bRemoveDomain = true;
 
             string sActivationToken = Guid.NewGuid().ToString();

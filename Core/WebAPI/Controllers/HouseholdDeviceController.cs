@@ -109,23 +109,26 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoUsersInDomain)]
         static public KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
         {
+            device.Validate();
+
             int groupId = KS.GetFromRequest().GroupId;
             int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string userId = KS.GetFromRequest().UserId;
+            var dynamicData = Utils.Utils.ConvertSerializeableDictionary(device.DynamicData, true);
 
             try
             {
                 if (HouseholdUtils.IsUserMaster())
                 {
-                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId, device.MacAddress);
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId, device.MacAddress, dynamicData);
                 }
                 else if (device.HouseholdId != 0)
                 {
-                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId, device.MacAddress);
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId, device.MacAddress, dynamicData);
                 }
                 else
                 {
-                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device.Udid, device.Name, device.getBrandId(), device.ExternalId, device.MacAddress);
+                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device.Udid, device.Name, device.getBrandId(), device.ExternalId, device.MacAddress, dynamicData);
                 }
             }
             catch (ClientException ex)
@@ -189,7 +192,7 @@ namespace WebAPI.Controllers
         {
             KalturaHouseholdDevice device = null;
 
-            KS ks = KS.GetFromRequest();
+            KS ks = KS.GetFromRequest();            
 
             int householdId = 0;
             if (udid.IsNullOrEmptyOrWhiteSpace())
@@ -295,7 +298,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotExists)]
         static public KalturaHouseholdDevice Update(string udid, KalturaHouseholdDevice device)
         {
+            device.Validate();
+
             int groupId = KS.GetFromRequest().GroupId;
+            var dynamicData = Utils.Utils.ConvertSerializeableDictionary(device.DynamicData, true);
 
             try
             {
@@ -308,9 +314,11 @@ namespace WebAPI.Controllers
 
                 var allowNullExternalId = device.NullableProperties != null && device.NullableProperties.Contains("externalid");
                 var allowNullMacAddress = device.NullableProperties != null && device.NullableProperties.Contains("macaddress");
+                var allowNullDynamicData = device.NullableProperties != null && device.NullableProperties.Contains("dynamicdata");
 
                 // call client
-                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.MacAddress, device.ExternalId, allowNullExternalId, allowNullMacAddress);
+                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, 
+                    device.MacAddress, device.ExternalId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
             }
             catch (ClientException ex)
             {
@@ -345,7 +353,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid, string.Empty, string.Empty);
+                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid, string.Empty, string.Empty, null);
             }
             catch (ClientException ex)
             {

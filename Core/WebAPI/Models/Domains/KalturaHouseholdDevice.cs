@@ -2,9 +2,12 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
+using static WebAPI.Exceptions.BadRequestException;
 
 namespace WebAPI.Models.Domains
 {
@@ -122,14 +125,35 @@ namespace WebAPI.Models.Domains
         [SchemeProperty(IsNullable = true, MaxLength = 255)]
         public string MacAddress { get; set; }
 
+        /// <summary>
+        /// Dynamic data
+        /// </summary>
+        [DataMember(Name = "dynamicData")]
+        [JsonProperty("dynamicData")]
+        [XmlElement(ElementName = "dynamicData", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
+
         internal int getBrandId()
         {
-            return BrandId.HasValue ? (int)BrandId : 0;
+            return BrandId ?? 0;
         }
     }
 
     [Obsolete]
     public partial class KalturaDevice : KalturaHouseholdDevice
     {
+    }
+
+    public static class KalturaHouseholdDeviceValidator
+    {
+        private static readonly int MAX_KEY_VALUES = 5; // numbers from BEO-8671
+        private static readonly int MAX_VALUE_LENGTH = 128;
+
+        public static void Validate(this KalturaHouseholdDevice device)
+        {
+            if (device.Udid.IsNullOrEmptyOrWhiteSpace()) throw new BadRequestException(ARGUMENT_CANNOT_BE_EMPTY, "udid");
+            device.DynamicData.Validate(MAX_KEY_VALUES, MAX_VALUE_LENGTH);
+        }
     }
 }

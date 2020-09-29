@@ -48,7 +48,7 @@ namespace Core.Users
             ApiObjects.Response.Status status = null;
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
             device.Initialize(sDeviceUDID);
-            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, "", "");
+            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, string.Empty, string.Empty, null);
 
             // in case set device Succeeded
             // domain should be remove from the cache 
@@ -87,8 +87,16 @@ namespace Core.Users
             return status;
         }
 
-        public override DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string macAddress, 
-            string externalId, bool allowNullExternalId, bool allowNullMacAddress = false)
+        public override DeviceResponseObject SetDevice(
+            int nGroupID,
+            string sDeviceUDID,
+            string sDeviceName,
+            string macAddress,
+            string externalId,
+            Dictionary<string, string> dynamicData,
+            bool allowNullExternalId,
+            bool allowNullMacAddress = false,
+            bool allowNullDynamicData = false)
         {
             DeviceResponseObject ret = new DeviceResponseObject();
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
@@ -112,7 +120,7 @@ namespace Core.Users
             }
 
             var _deviceName = !string.IsNullOrEmpty(sDeviceName) ? sDeviceName : device.m_deviceName;
-            bool isSetSucceeded = device.SetDeviceInfo(_deviceName, macAddress, externalId, allowNullExternalId, allowNullMacAddress);
+            bool isSetSucceeded = device.SetDeviceInfo(_deviceName, macAddress, externalId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
 
             // in case set device Succeeded
             // domain should be remove from the cache 

@@ -2,7 +2,8 @@
 using System.Data;
 using Tvinci.Core.DAL;
 using ODBCWrapper;
-
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace DAL
 {
@@ -112,6 +113,7 @@ namespace DAL
             return res;
         }
 
+        // not used for now
         public static bool InitDeviceInfo(string sID, bool isUDID, int m_groupID,
             ref string m_state,
             ref int m_id,
@@ -122,6 +124,7 @@ namespace DAL
             ref string m_pin,
             ref string externalId,
             ref string macAddress,
+            ref Dictionary<string, string> dynamicData,
             ref int m_domainID,
             ref DateTime m_activationDate)
         {
@@ -161,6 +164,7 @@ namespace DAL
                 m_pin = ODBCWrapper.Utils.GetSafeStr(dr["pin"]);
                 externalId = ODBCWrapper.Utils.GetSafeStr(dr["external_id"]);
                 macAddress = ODBCWrapper.Utils.GetSafeStr(dr["mac_address"]);
+                dynamicData = ToDynamicData(ODBCWrapper.Utils.GetSafeStr(dr["dynamic_data"]));
 
                 //PopulateDeviceStreamTypeAndProfile();
 
@@ -209,7 +213,7 @@ namespace DAL
                 }
             }
 
-        }
+        }        
 
         public static DataTable Get_DeviceInfo(string sID, bool isUDID, int nGroupID)
         {
@@ -359,7 +363,18 @@ namespace DAL
             return retVal;
         }
 
-        public static int InsertNewDevice(string sDeviceUDID, int nDeviceBrandID, int nDeviceFamilyID, string sDeviceName, int nGroupID, int nIsActive, int nStatus, string sPin, string externalId, string macAddress = "")
+        public static int InsertNewDevice(
+            string sDeviceUDID,
+            int nDeviceBrandID,
+            int nDeviceFamilyID,
+            string sDeviceName,
+            int nGroupID,
+            int nIsActive,
+            int nStatus,
+            string sPin,
+            string externalId,
+            string macAddress = "",
+            Dictionary<string, string> dynamicData = null)
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewDevice");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -377,12 +392,29 @@ namespace DAL
             {
                 sp.AddParameter("@MacAddress", macAddress);
             }
+            if (dynamicData != null)
+            {
+                sp.AddParameter("@DynamicData", FromDynamicData(dynamicData));
+            }
 
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static bool UpdateDevice(int deviceId, string deviceUDID, int deviceBrandID, int deviceFamilyID, int groupID, 
-            string deviceName, int isActive, int status, string externalId, string macAddress = "", bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        public static bool UpdateDevice(
+            int deviceId,
+            string deviceUDID,
+            int deviceBrandID,
+            int deviceFamilyID,
+            int groupID,
+            string deviceName,
+            int isActive,
+            int status,
+            string externalId,
+            string macAddress,
+            Dictionary<string, string> dynamicData,
+            bool allowNullExternalId,
+            bool allowNullMacAddress,
+            bool allowNullDynamicData)
         {
             UpdateQuery updateQuery = null;
             try
@@ -408,6 +440,11 @@ namespace DAL
                 if (!string.IsNullOrEmpty(macAddress) || allowNullMacAddress)
                 {
                     updateQuery += Parameter.NEW_PARAM("mac_address", "=", macAddress);
+                }
+
+                if (dynamicData != null || allowNullDynamicData)
+                {
+                    updateQuery += Parameter.NEW_PARAM("dynamic_data", "=", FromDynamicData(dynamicData));
                 }
 
                 updateQuery += "where";
@@ -495,6 +532,20 @@ namespace DAL
             }
 
             return sNewPIN;
+        }
+
+        public static Dictionary<string, string> ToDynamicData(string dynamicDataString)
+        {
+            return dynamicDataString == null
+                    ? null
+                    : JsonConvert.DeserializeObject<Dictionary<string, string>>(dynamicDataString);
+        }
+
+        private static string FromDynamicData(Dictionary<string, string> dynamicData)
+        {
+            return dynamicData == null
+                ? null
+                : JsonConvert.SerializeObject(dynamicData);
         }
     }
 }

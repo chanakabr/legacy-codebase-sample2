@@ -333,7 +333,7 @@ namespace Core.Users
             return oDomainResponseObject;
         }
 
-        public virtual DeviceResponse AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId, string externalId, string macAddress)
+        public virtual DeviceResponse AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId, string externalId, string macAddress, Dictionary<string, string> dynamicData)
         {
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -381,6 +381,8 @@ namespace Core.Users
                 {
                     device.MacAddress = macAddress;
                 }
+
+                if (dynamicData != null) device.DynamicData = dynamicData;
 
                 // add device to domain
                 domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, udid, deviceName, brandId, ref device);
@@ -1935,7 +1937,7 @@ namespace Core.Users
         }
 
         public virtual DeviceResponse SubmitAddDeviceToDomain(int groupID, int domainID, string userID, string deviceUdid, string deviceName, 
-            int brandID, string externalId, string macAddress)
+            int brandID, string externalId, string macAddress, Dictionary<string, string> dynamicData)
         {
             DeviceResponse response = new DeviceResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -1971,6 +1973,8 @@ namespace Core.Users
             {
                 device.MacAddress = macAddress;
             }
+
+            if (dynamicData != null) device.DynamicData = dynamicData;
 
             DomainResponseStatus domainResponseStatus;
             int userId = 0;
