@@ -1881,7 +1881,7 @@ namespace DAL
             sp.AddParameter("@startDate", campaign.StartDate);
             sp.AddParameter("@endDate", campaign.EndDate);
             sp.AddParameter("@has_promotion", campaign.Promotion != null ? 1 : 0);
-            sp.AddParameter("@state", campaign.State);
+            sp.AddParameter("@state", (int)campaign.State);
             sp.AddParameter("@campaign_json", JsonConvert.SerializeObject(campaign));
 
             return sp.ExecuteReturnValue<int>() > 0;

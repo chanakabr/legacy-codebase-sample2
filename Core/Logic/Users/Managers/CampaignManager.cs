@@ -70,7 +70,7 @@ namespace ApiLogic.Users.Managers
             return Get(contextData, id, true);
         }
 
-        public GenericResponse<Campaign> Get(ContextData contextData, long id, bool lazySetState)
+        private GenericResponse<Campaign> Get(ContextData contextData, long id, bool lazySetState)
         {
             var response = new GenericResponse<Campaign>();
 
@@ -103,12 +103,17 @@ namespace ApiLogic.Users.Managers
                 if (lazySetState && _campaign.State == CampaignState.ACTIVE && _campaign.EndDate < now)
                 {
                     _campaign.State = CampaignState.ARCHIVE;
-                    
-                    Task.Run(() => SetState(contextData, id, CampaignState.ARCHIVE)).ContinueWith(result =>
-                    {
-                        if (result.Result != null && !result.Result.IsOkStatusCode())
+
+                    Task.Run(() => {
+                        _campaign.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
+                        if (PricingDAL.Update_Campaign(_campaign, contextData))
                         {
-                            log.Error($"error while set campaign:[${id}] state to archive, error:[{result.Result}]");
+                            SetInvalidationKeys(contextData, _campaign);
+                            log.Debug($"success to set campaign:[${id}] state to archive.");
+                        }
+                        else
+                        {
+                            log.Error($"error while set campaign:[${id}] state to archive.");
                         }
                     });
                 }
@@ -445,13 +450,14 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
+                campaign.Object.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
                 if (PricingDAL.Update_Campaign(campaign.Object, contextData))
                 {
                     SetInvalidationKeys(contextData, campaign.Object);
                     response.Set(eResponseStatus.OK);
                 }
                 else
-                    response.Set(eResponseStatus.Error, $"Error Updating Campaign: [{id}] for group: {contextData.GroupId}");
+                    response.Set(eResponseStatus.Error, $"Error Updating Campaign state: [{id}] for group: {contextData.GroupId}");
 
             }
             catch (Exception ex)
