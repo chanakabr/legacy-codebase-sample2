@@ -545,6 +545,7 @@ namespace ApiObjects.Response
         ExceededMaxCapacity = 9028,
         CanDeleteOnlyInactiveCampaign = 9029,
         DynamicListDoesNotExist = 9030,
+        ExceededMaxLength = 9031,
 
         #endregion
 

@@ -25,6 +25,7 @@ namespace Core.Catalog
     public class BulkUploadUdidDynamicListData : BulkUploadDynamicListData
     {
         private const int MAX_UDIDS = 5000;
+        private const int MAX_LENGTH = 70;
         private UdidDynamicList structureManager { get; set; }
 
         public override string DistributedTask { get { return "disterbuted task not supported for udid dynamicList, use event bus instead"; } }
@@ -56,13 +57,13 @@ namespace Core.Catalog
         {
             if (results.Count > MAX_UDIDS)
             {
-                bulkUpload.AddError(eResponseStatus.ExceededMaxCapacity, $"udids numer in dynamic list exceeded Max capacity (more than ${MAX_UDIDS})");
+                bulkUpload.AddError(eResponseStatus.ExceededMaxCapacity, $"udids numer in dynamic list exceeded Max capacity (more than {MAX_UDIDS})");
                 BulkUploadManager.UpdateBulkUpload(bulkUpload, BulkUploadJobStatus.Failed);
                 return;
             }
 
             var goodResults = results.Where(x => x.Status != BulkUploadResultStatus.Error).Select(x => x as BulkUploadUdidDynamicListResult);
-            if(DAL.ApiDAL.SaveUdidDynamicList(this.GroupId, this.DynamicListId, goodResults.Select(x => x.Udid).ToList()))
+            if(DAL.ApiDAL.SaveUdidDynamicList(this.GroupId, this.DynamicListId, goodResults.Where(x => x.Udid.Length <= MAX_LENGTH).Select(x => x.Udid).ToList()))
             {    
                 foreach (var udidResult in goodResults)
                 {
@@ -75,17 +76,37 @@ namespace Core.Catalog
                 }
             }
 
-            var badResults = results.Where(x => x.Status == BulkUploadResultStatus.Error).Select(x => x as BulkUploadUdidDynamicListResult);
-            foreach (var udidResult in badResults)
+            var lengthErrors = goodResults.Where(x => x.Udid.Length > MAX_LENGTH);
+            if (lengthErrors != null)
             {
-                var error = udidResult.Errors?.Count() > 0 ? udidResult.Errors[0] : Status.Error;
-                var resultStatus = BulkUploadManager.UpdateBulkUploadResult(this.GroupId, bulkUpload.Id, udidResult.Index, error, udidResult.ObjectId);
-                if (!resultStatus.IsOkStatusCode())
+                var error = new Status(eResponseStatus.ExceededMaxLength, $"maximum length for UDID is {MAX_LENGTH}.");
+
+                foreach (var resultLengthError in lengthErrors)
                 {
-                    var errorMassage = $"fail to update BulkUploadUdidDynamicListResult BulkUploadId:{bulkUpload.Id}, ResultIndex:{udidResult.Index}, error: {resultStatus}.";
-                    log.Error(errorMassage);
+                    var resultStatus = BulkUploadManager.UpdateBulkUploadResult(this.GroupId, bulkUpload.Id, resultLengthError.Index, error, resultLengthError.ObjectId);
+                    if (!resultStatus.IsOkStatusCode())
+                    {
+                        var errorMassage = $"fail to update BulkUploadUdidDynamicListResult BulkUploadId:{bulkUpload.Id}, ResultIndex:{resultLengthError.Index}, error: {resultStatus}.";
+                        log.Error(errorMassage);
+                    }
                 }
             }
+
+            var badResults = results.Where(x => x.Status == BulkUploadResultStatus.Error).Select(x => x as BulkUploadUdidDynamicListResult);
+            if (badResults != null)
+            {
+                foreach (var udidResult in badResults)
+                {
+                    var error = udidResult.Errors?.Count() > 0 ? udidResult.Errors[0] : Status.Error;
+                    var resultStatus = BulkUploadManager.UpdateBulkUploadResult(this.GroupId, bulkUpload.Id, udidResult.Index, error, udidResult.ObjectId);
+                    if (!resultStatus.IsOkStatusCode())
+                    {
+                        var errorMassage = $"fail to update BulkUploadUdidDynamicListResult BulkUploadId:{bulkUpload.Id}, ResultIndex:{udidResult.Index}, error: {resultStatus}.";
+                        log.Error(errorMassage);
+                    }
+                }
+            }
+            
         }
 
         public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, List<Status> errorStatusDetails)
