@@ -372,8 +372,8 @@ namespace Core.Users
                     device.MacAddress = dDevice.MacAddress;
                 if (!string.IsNullOrEmpty(dDevice.Model))
                     device.Model = dDevice.Model;
-                if (!string.IsNullOrEmpty(dDevice.Manufacturer))
-                    device.Manufacturer = dDevice.Manufacturer;
+                if (dDevice.ManufacturerId.HasValue)
+                    device.ManufacturerId = dDevice.ManufacturerId;
 
                 // add device to domain
                 domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, dDevice.Udid, dDevice.Name, dDevice.DeviceBrandId, ref device);
@@ -1962,8 +1962,8 @@ namespace Core.Users
                 device.Model = dDevice.Model;
             if (!string.IsNullOrEmpty(dDevice.Manufacturer))
                 device.Manufacturer = dDevice.Manufacturer;
-            if (!string.IsNullOrEmpty(dDevice.Manufacturer))
-                device.Manufacturer = dDevice.Manufacturer;
+            if (dDevice.ManufacturerId.HasValue)
+                device.ManufacturerId = dDevice.ManufacturerId;
 
             DomainResponseStatus domainResponseStatus;
             int userId = 0;

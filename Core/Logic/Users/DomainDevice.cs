@@ -37,6 +37,8 @@ namespace Core.Users
 
         public string Manufacturer { get; set; }
 
+        public long? ManufacturerId { get; set; }
+
         public long DeviceFamilyId
         {
             get;

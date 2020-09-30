@@ -464,12 +464,13 @@ namespace WebAPI.Clients
 
             if (!string.IsNullOrEmpty(device.Manufacturer))
             {
-                Task.Run(() => AddNewManufacturer(contextData, device.Manufacturer).ConfigureAwait(false));
+                device.ManufacturerId = AddNewManufacturer(contextData, device.Manufacturer);
             }
         }
 
-        internal async Task AddNewManufacturer(ContextData contextData, string manufacturer)
+        internal long? AddNewManufacturer(ContextData contextData, string manufacturer)
         {
+            long? response = null;
             var searchManufacturer = manufacturer.Trim().ToUpper();
             var filter = new DeviceManufacturersReferenceDataFilter { NameEqual = searchManufacturer };
             var referenceData = DeviceReferenceDataManager.Instance.List(contextData, filter, null);
@@ -477,11 +478,17 @@ namespace WebAPI.Clients
             {
                 var request = new DeviceManufacturerInformation { Name = searchManufacturer };
                 var newManufacturer = DeviceReferenceDataManager.Instance.Add(contextData, request);
-                if (!newManufacturer.IsOkStatusCode())
+                if (newManufacturer == null || !newManufacturer.IsOkStatusCode())
                 {
                     throw new ClientException(newManufacturer.Status);
                 }
+                response = newManufacturer.Object.Id;
             }
+            else
+            {
+                response = referenceData.Objects?.FirstOrDefault()?.Id;
+            }
+            return response;
         }
 
         internal KalturaHouseholdDevice AddDevice(int groupId, int domainId, KalturaHouseholdDevice device)
@@ -1090,7 +1097,8 @@ namespace WebAPI.Clients
                 ExternalId = device.ExternalId,
                 MacAddress = device.MacAddress,
                 Model = device.Model,
-                Manufacturer = device.Manufacturer
+                Manufacturer = device.Manufacturer,
+                ManufacturerId = device.ManufacturerId
             };
         }
 

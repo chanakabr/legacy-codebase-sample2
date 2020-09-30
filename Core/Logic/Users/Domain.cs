@@ -724,7 +724,7 @@ namespace Core.Users
             {
                 // Get row id from devices table (not udid)
                 device.m_domainID = nDomainID;
-                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.Model, device.Manufacturer);
+                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId);
                 DomainDevice domainDevice = new DomainDevice()
                 {
                     Id = nDbDomainDeviceID,
@@ -1931,7 +1931,7 @@ namespace Core.Users
                 string externalId = string.Empty;
                 string macAddress = string.Empty;
                 string model = string.Empty;
-                string manufacturer = string.Empty;
+                long? manufacturerId = null;
 
                 Dictionary<string, int> domainDevices = new Dictionary<string, int>();
 
@@ -1950,7 +1950,7 @@ namespace Core.Users
                     externalId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "external_id");
                     macAddress = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "mac_address");
                     model = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "model");
-                    manufacturer = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "manufacturer");
+                    manufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "manufacturer_id");
 
                     Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, sDeviceName, m_nDomainID, nDeviceID, nDeviceFamilyID, string.Empty, sPin,
                         dtActivationDate, eState);
@@ -1961,8 +1961,8 @@ namespace Core.Users
                         device.MacAddress = macAddress;
                     if (!string.IsNullOrEmpty(model))
                         device.Model = model;
-                    if (!string.IsNullOrEmpty(manufacturer))
-                        device.Manufacturer = manufacturer;
+                    if (manufacturerId.HasValue)
+                        device.ManufacturerId = manufacturerId.Value;
 
                     if (AddDeviceToContainer(device))
                     {
@@ -2258,7 +2258,7 @@ namespace Core.Users
 
             // Get row id from devices table (not udid)
             device.m_domainID = this.m_nDomainID;
-            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId, device.Model, device.Manufacturer);
+            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId);
             bRemoveDomain = true;
 
             string sActivationToken = Guid.NewGuid().ToString();
