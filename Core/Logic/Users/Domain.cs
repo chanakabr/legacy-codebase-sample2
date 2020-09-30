@@ -740,7 +740,8 @@ namespace Core.Users
                     ExternalId = device.ExternalId,
                     MacAddress = device.MacAddress,
                     Model = device.Model,
-                    Manufacturer = device.Manufacturer
+                    Manufacturer = device.Manufacturer,
+                    ManufacturerId = device.ManufacturerId
                 };
 
                 bool domainDeviceInsertSuccess = domainDevice.Insert();
@@ -779,7 +780,8 @@ namespace Core.Users
                         DeviceFamilyId = device.m_deviceFamilyID,
                         MacAddress = device.MacAddress,
                         Model = device.Model,
-                        Manufacturer = device.Manufacturer
+                        Manufacturer = device.Manufacturer,
+                        ManufacturerId = device.ManufacturerId
                     };
 
                     bool updated = domainDevice.Update();
