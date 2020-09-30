@@ -125,7 +125,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_IOT_CLIENT_CONFIGURATION = "GetIotClientConfiguration";
         public const string GET_PLAYBACK_PARTNER_CONFIG = "GetPlaybackPartnerConfigDB";
         public const string GET_PAYMENT_PARTNER_CONFIG = "GetPaymentPartnerConfigDB";
-        public const string GET_DEVICE_REFERENCE_DATA = "GetDeviceReferenceDataDB";
+        public const string GET_DEVICE_REFERENCE_DATA = "GetDeviceReferenceData";
         public const string GET_GROUP_PERMISSIONS = "GetGroupPermissions";
 
         #endregion
