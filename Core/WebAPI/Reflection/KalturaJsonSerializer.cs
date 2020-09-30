@@ -37471,10 +37471,6 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("manufacturer", "\"manufacturer\": " + "\"" + EscapeJson(Manufacturer) + "\"");
             }
-            if(ManufacturerId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("manufacturerId")))
-            {
-                ret.Add("manufacturerId", "\"manufacturerId\": " + ManufacturerId);
-            }
             if(Model != null && (retrievedProperties == null || retrievedProperties.Contains("model")))
             {
                 ret.Add("model", "\"model\": " + "\"" + EscapeJson(Model) + "\"");
@@ -37553,10 +37549,6 @@ namespace WebAPI.Models.Domains
             if(Manufacturer != null && (retrievedProperties == null || retrievedProperties.Contains("manufacturer")))
             {
                 ret.Add("manufacturer", "<manufacturer>" + EscapeXml(Manufacturer) + "</manufacturer>");
-            }
-            if(ManufacturerId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("manufacturerId")))
-            {
-                ret.Add("manufacturerId", "<manufacturerId>" + ManufacturerId + "</manufacturerId>");
             }
             if(Model != null && (retrievedProperties == null || retrievedProperties.Contains("model")))
             {

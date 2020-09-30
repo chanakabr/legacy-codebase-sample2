@@ -681,7 +681,7 @@ namespace Core.Users
                             ExternalId = device.ExternalId,
                             MacAddress = device.MacAddress,
                             Model = device.Model,
-                            ManufacturerId = device.ManufacturerId
+                            Manufacturer = device.Manufacturer
                         };
 
                         bool updated = domainDevice.Update();
@@ -724,7 +724,7 @@ namespace Core.Users
             {
                 // Get row id from devices table (not udid)
                 device.m_domainID = nDomainID;
-                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId);
+                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.Model, device.Manufacturer);
                 DomainDevice domainDevice = new DomainDevice()
                 {
                     Id = nDbDomainDeviceID,
@@ -740,7 +740,7 @@ namespace Core.Users
                     ExternalId = device.ExternalId,
                     MacAddress = device.MacAddress,
                     Model = device.Model,
-                    ManufacturerId = device.ManufacturerId
+                    Manufacturer = device.Manufacturer
                 };
 
                 bool domainDeviceInsertSuccess = domainDevice.Insert();
@@ -779,7 +779,7 @@ namespace Core.Users
                         DeviceFamilyId = device.m_deviceFamilyID,
                         MacAddress = device.MacAddress,
                         Model = device.Model,
-                        ManufacturerId = device.ManufacturerId
+                        Manufacturer = device.Manufacturer
                     };
 
                     bool updated = domainDevice.Update();
@@ -1931,7 +1931,7 @@ namespace Core.Users
                 string externalId = string.Empty;
                 string macAddress = string.Empty;
                 string model = string.Empty;
-                long? manufacturerId = null;
+                string manufacturer = string.Empty;
 
                 Dictionary<string, int> domainDevices = new Dictionary<string, int>();
 
@@ -1950,7 +1950,7 @@ namespace Core.Users
                     externalId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "external_id");
                     macAddress = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "mac_address");
                     model = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "model");
-                    manufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "manufacturer_id");
+                    manufacturer = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "manufacturer");
 
                     Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, sDeviceName, m_nDomainID, nDeviceID, nDeviceFamilyID, string.Empty, sPin,
                         dtActivationDate, eState);
@@ -1961,8 +1961,8 @@ namespace Core.Users
                         device.MacAddress = macAddress;
                     if (!string.IsNullOrEmpty(model))
                         device.Model = model;
-                    if (manufacturerId.HasValue)
-                        device.ManufacturerId = manufacturerId.Value;
+                    if (!string.IsNullOrEmpty(manufacturer))
+                        device.Manufacturer = manufacturer;
 
                     if (AddDeviceToContainer(device))
                     {
@@ -2258,7 +2258,7 @@ namespace Core.Users
 
             // Get row id from devices table (not udid)
             device.m_domainID = this.m_nDomainID;
-            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId);
+            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId, device.Model, device.Manufacturer);
             bRemoveDomain = true;
 
             string sActivationToken = Guid.NewGuid().ToString();
@@ -2277,7 +2277,7 @@ namespace Core.Users
                 MacAddress = device.MacAddress,
                 ExternalId = device.ExternalId,
                 Model = device.Model,
-                ManufacturerId = device.ManufacturerId
+                Manufacturer = device.Manufacturer
             };
 
             bool domainDeviceInsertSuccess = domainDevice.Insert();

@@ -31,7 +31,6 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
                 .ForMember(dest => dest.Model, opt => opt.MapFrom(src => src.Model))
-                .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
                 .ForMember(dest => dest.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))
                 ;
 
@@ -121,7 +120,6 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
                 .ForMember(dest => dest.Model, opt => opt.MapFrom(src => src.Model))
-                .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
                 .ForMember(dest => dest.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))
             ;
 

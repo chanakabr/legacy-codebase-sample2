@@ -262,7 +262,7 @@ namespace DAL
 
         public static int InsertNewDevice(string sDeviceUDID, int nDeviceBrandID, int nDeviceFamilyID,
             string sDeviceName, int nGroupID, int nIsActive, int nStatus, string sPin, string externalId,
-            string macAddress = "", string model = "", long? manufacturerId = null)
+            string macAddress = "", string model = "", string manufacturer = "")
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewDevice");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -280,8 +280,8 @@ namespace DAL
                 sp.AddParameter("@MacAddress", macAddress);
             if (!string.IsNullOrEmpty(model))
                 sp.AddParameter("@Model", model);
-            if (manufacturerId.HasValue)
-                sp.AddParameter("@ManufacturerId", manufacturerId.Value);
+            if (!string.IsNullOrEmpty(manufacturer))
+                sp.AddParameter("@Manufacturer", manufacturer);
 
             return sp.ExecuteReturnValue<int>();
         }

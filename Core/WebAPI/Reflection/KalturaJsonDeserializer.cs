@@ -28705,16 +28705,6 @@ namespace WebAPI.Models.Domains
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute ManufacturerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         public KalturaHouseholdDevice(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -28857,18 +28847,6 @@ namespace WebAPI.Models.Domains
                         ManufacturerSchemaProperty.Validate("manufacturer", parameters["manufacturer"]);
                     }
                     Manufacturer = (String) Convert.ChangeType(parameters["manufacturer"], typeof(String));
-                }
-                if (parameters.ContainsKey("manufacturerId__null") && parameters["manufacturerId__null"] != null)
-                {
-                    AddNullableProperty("manufacturerId");
-                }
-                if (parameters.ContainsKey("manufacturerId") && parameters["manufacturerId"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        ManufacturerIdSchemaProperty.Validate("manufacturerId", parameters["manufacturerId"]);
-                    }
-                    ManufacturerId = (Int64) Convert.ChangeType(parameters["manufacturerId"], typeof(Int64));
                 }
             }
         }

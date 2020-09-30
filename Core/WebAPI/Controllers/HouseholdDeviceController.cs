@@ -118,7 +118,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                ClientsManager.DomainsClient().ValidateDeviceReferencesForAdd(contextData, device);
+                ClientsManager.DomainsClient().ValidateDeviceReferencesData(contextData, device);
 
                 if (HouseholdUtils.IsUserMaster())
                 {
@@ -304,7 +304,11 @@ namespace WebAPI.Controllers
 
             try
             {
-                ClientsManager.DomainsClient().ValidateDeviceReferencesForUpdate(groupId, device);
+                string userId = KS.GetFromRequest().UserId;
+                int.TryParse(userId, out int _userId);
+                var contextData = new ContextData(groupId) { UserId = _userId };
+
+                ClientsManager.DomainsClient().ValidateDeviceReferencesData(contextData, device);
 
                 // check device registration status - return forbidden if device not in domain        
                 var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
