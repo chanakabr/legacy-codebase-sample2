@@ -614,6 +614,7 @@ namespace TVPApiServices
                 }
                 catch (Exception ex)
                 {
+                    logger.Error($"Error when doing GetLastWatchedMedias for user {initObj.SiteGuid} on partner {groupID}. ex = {ex}", ex);
                     HttpContext.Current.Items["Error"] = ex;
                 }
             }

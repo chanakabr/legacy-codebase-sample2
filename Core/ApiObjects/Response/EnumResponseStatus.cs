@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace ApiObjects.Response
 {
     public enum eResponseStatus
@@ -377,6 +372,9 @@ namespace ApiObjects.Response
         PermissionPermissionItemNotFound = 5073,
         PermissionPermissionItemAlreadyExists = 5074,
         RoleReadOnly = 5075,
+        DuplicateRegionChannel = 5076,
+        ParentAlreadyContainsChannel = 5077,
+        InputFormatIsInvalid = 5078,
 
         #endregion
 
@@ -567,6 +565,7 @@ namespace ApiObjects.Response
         EPGSProgramDatesError = 11003,
         EPGLanguageNotFound = 11004,
         EPGProgramOverlapFixed = 11005,
+
         #endregion
 
         #region DMS  12000-12999

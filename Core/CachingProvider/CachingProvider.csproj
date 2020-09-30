@@ -14,7 +14,7 @@
  
   
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
   </ItemGroup>
   
@@ -24,6 +24,7 @@
     <ProjectReference Include="..\EventBus.Kafka\EventBus.Kafka.csproj" />
     <ProjectReference Include="..\EventBus.Models\EventBus.Models.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\RedisManager\RedisManager.csproj" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">

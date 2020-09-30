@@ -433,6 +433,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ViolationRule, opt => opt.MapFrom(src => src.ViolationRule))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
+            cfg.CreateMap<ConcurrencyViolation, KalturaConcurrencyViolation>()
+                .IncludeBase<CoreObject, KalturaOTTObject>()
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
+                .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                .ForMember(dest => dest.UDID, opt => opt.MapFrom(src => src.UDID))
+                .ForMember(dest => dest.ViolationRule, opt => opt.MapFrom(src => src.ViolationRule))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+
             cfg.CreateMap<KalturaBookmarkEvent, BookmarkEvent>()
                 .IncludeBase<KalturaOTTObject, CoreObject>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))

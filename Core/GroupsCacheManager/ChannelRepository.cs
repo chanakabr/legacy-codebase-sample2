@@ -54,10 +54,12 @@ namespace GroupsCacheManager
 
                 //get all PermittedWatchRules by groupID
                 SetPermittedWatchRules(ref newGroup);
+
+                SetCatalogConfiguration(ref newGroup);
             }
 
             return newGroup;
-        }
+        }        
 
         /// <summary>
         /// Regions, Recommendation Engine...
@@ -957,6 +959,15 @@ namespace GroupsCacheManager
             }
 
             return newMediaTypes;
+        }
+
+        private static void SetCatalogConfiguration(ref Group newGroup)
+        {
+            var cpc = DAL.ApiDAL.GetCatalogPartnerConfig(newGroup.m_nParentGroupID);
+            if(cpc != null)
+            {
+                newGroup.isTagsSingleTranslation = cpc.SingleMultilingualMode.HasValue ? cpc.SingleMultilingualMode.Value : false;
+            }
         }
     }
 }

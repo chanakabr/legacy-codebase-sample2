@@ -9,10 +9,12 @@ using System.Security.AccessControl;
 using KLogMonitor;
 using System.Reflection;
 using ConfigurationManager;
+using CachingProvider.LayeredCache;
+using Newtonsoft.Json;
 
 namespace CachingProvider
 {
-    public class SingleInMemoryCache : ICachingService, IDisposable
+    public class SingleInMemoryCache : ICachingService, IDisposable, ILayeredCacheService
     {
         /*
          * Pay attention !
@@ -380,6 +382,24 @@ namespace CachingProvider
             return GetValues(keys, ref results, shouldAllowPartialQuery);
         }
 
+        public bool Set<T>(string key, T value, uint ttlInSeconds, JsonSerializerSettings jsonSerializerSettings = null)
+        {
+            bool bRes = false;
+            try
+            {
+                DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes((double)ttlInSeconds / 60);
+                cache.Set(key, value, dtExpiresAt);
+                bRes = true;
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("SetWithVersion<T>", ex);
+                return false;
+            }
+
+            return bRes;
+        }
     }
 
 }

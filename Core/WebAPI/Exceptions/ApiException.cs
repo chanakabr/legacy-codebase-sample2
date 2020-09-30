@@ -260,6 +260,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CANNOT_DELETE_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.CannotDeleteAssetStruct, "", "Cannot delete asset struct");
         public static ClientExceptionType CATEGORY_TYPE_NOT_EXIST = new ClientExceptionType(eResponseStatus.CategoryTypeNotExist, "", "Category type does not exist");
         public static ClientExceptionType EXTENDED_TYPE_VALUE_CANNOT_BE_CHANGED = new ClientExceptionType(eResponseStatus.ExtendedTypeValueCannotBeChanged, "", "ExtendedType value cannot be changed");
+        public static ClientExceptionType INPUT_FORMAT_IS_INVALID = new ClientExceptionType(eResponseStatus.InputFormatIsInvalid, "", "The input format is invalid");
+        public static ClientExceptionType DUPLICATE_REGION_CHANNEL = new ClientExceptionType(eResponseStatus.DuplicateRegionChannel, "", "The channel already in region channels list");
+        public static ClientExceptionType PARENT_ALREADY_CONTAINS_CHANNEL = new ClientExceptionType(eResponseStatus.ParentAlreadyContainsChannel, "", "Parent region already contains channel");
 
         #endregion
 

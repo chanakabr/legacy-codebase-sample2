@@ -90,7 +90,7 @@ namespace WebAPI.Clients
 
             return roles;
 
-        }
+        }       
 
         #region Parental Rules
 
@@ -2457,8 +2457,6 @@ namespace WebAPI.Clients
 
         public List<KalturaUserRole> GetRoles(int groupId, List<long> roleIds = null)
         {
-
-            List<KalturaUserRole> roles = new List<KalturaUserRole>();
             RolesResponse response = null;
 
             try
@@ -2484,7 +2482,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status);
             }
 
-            roles = AutoMapper.Mapper.Map<List<KalturaUserRole>>(response.Roles);
+            var roles = Mapper.Map<List<KalturaUserRole>>(response.Roles);
 
             return roles;
         }
@@ -4532,6 +4530,21 @@ namespace WebAPI.Clients
 
             KalturaGenericListResponse<KalturaPaymentPartnerConfig> response =
                 ClientUtils.GetResponseListFromWS<KalturaPaymentPartnerConfig, PaymentPartnerConfig>(getPartnerConfigListFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+            return result;
+        }
+
+        internal KalturaPartnerConfigurationListResponse GetCatalogConfiguration(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<CatalogPartnerConfig>> getPartnerConfigListFunc = () =>
+                PartnerConfigurationManager.GetCatalogConfigList(groupId);
+
+            KalturaGenericListResponse<KalturaCatalogPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaCatalogPartnerConfig, CatalogPartnerConfig>(getPartnerConfigListFunc);
 
             result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
             result.TotalCount = response.TotalCount;

@@ -1246,4 +1246,4 @@ function validateGenericForm()
 function expand(element) {
     element.parentElement.querySelector(".nested").classList.toggle("active");
     element.classList.toggle("caret-down");
-}   
+}

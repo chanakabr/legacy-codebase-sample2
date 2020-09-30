@@ -17,7 +17,6 @@ using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
-using Core.ConditionalAccess;
 using Core.Notification;
 using Core.Users;
 using DAL;
@@ -390,8 +389,6 @@ namespace Core.Catalog
         private static MediaObj GetMediaDetails(int nMedia, int groupId, Filter filter, bool bIsMainLang, List<int> lSubGroup, bool managementData = false)
         {
             bool result = true;
-            GroupManager groupManager = new GroupManager();
-            Group group = groupManager.GetGroup(groupId);
 
             try
             {
@@ -399,7 +396,9 @@ namespace Core.Catalog
                 {
                     return CatalogManagement.AssetManager.GetMediaObj(groupId, nMedia);
                 }
-
+                
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(groupId);
                 MediaObj oMediaObj = new MediaObj();
 
                 string sEndDate = string.Empty;
@@ -491,7 +490,7 @@ namespace Core.Catalog
                         {
                             return null;
                         }
-                        oMediaObj.m_lTags = GetTagsDetails(ds.Tables[6], ds.Tables[4], bIsMainLang, group, ref result);
+                        oMediaObj.m_lTags = GetTagsDetails(ds.Tables[6], ds.Tables[4], bIsMainLang, group, ref result, nMedia);
                         if (!result)
                         {
                             return null;
@@ -599,7 +598,7 @@ namespace Core.Catalog
         }
 
         /*Insert all tags that return from the "CompleteDetailsForMediaResponse" into List<Tags>*/
-        private static List<Tags> GetTagsDetails(DataTable tagLangs, DataTable dtTags, bool bIsMainLang, Group group, ref bool result)
+        private static List<Tags> GetTagsDetails(DataTable tagLangs, DataTable dtTags, bool bIsMainLang, Group group, ref bool result, int mediaId)
         {
             try
             {
@@ -620,6 +619,13 @@ namespace Core.Catalog
                 {
                     tagTypeNameAndValues = new Dictionary<string, List<KeyValuePair<int, string>>>();
                     dicTagIdLanguageContainers = new Dictionary<string, List<KeyValuePair<int, List<LanguageContainer>>>>();
+                    MediaTagsTranslations mediaTagsTranslations = null;
+                    
+                    if (group.isTagsSingleTranslation)
+                    {
+                        //GET asset tags translations
+                        mediaTagsTranslations = CatalogDAL.GetMediaTagsTranslations(mediaId);
+                    }
 
                     for (int rowIndex = 0; rowIndex < dtTags.Rows.Count; rowIndex++)
                     {
@@ -646,7 +652,16 @@ namespace Core.Catalog
                             if (language != null)
                                 tagLangContainerList.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = tagValue });
 
-                            if (tagLangs != null && tagLangs.Rows.Count > 0)
+                            if (group.isTagsSingleTranslation && mediaTagsTranslations != null && mediaTagsTranslations.Translations?.Count > 0)
+                            {
+                                    var tagsTranslations = mediaTagsTranslations.Translations.Where(x => x.TagId == tagId).ToList();
+                                    if (tagsTranslations?.Count > 0)
+                                    {
+                                        //get translate values for tag_id + add to tagLangContainerList
+                                        tagLangContainerList.AddRange(GetTagsLanguageContainer(tagsTranslations, group.GetLangauges()));
+                                    }
+                            }
+                            else if (tagLangs != null && tagLangs.Rows.Count > 0)
                             {
                                 // check for translated tags according to tag id
                                 DataRow[] translationRows = tagLangs.Select(string.Format("tag_id = {0}", tagId));
@@ -1171,7 +1186,7 @@ namespace Core.Catalog
                     value = Utils.GetStrSafeVal(row, "value");
                     if (!string.IsNullOrEmpty(value) && langId > 0)
                     {
-                        language = groupLanguages.Where(x => x.ID == langId).FirstOrDefault();
+                        language = groupLanguages.FirstOrDefault(x => x.ID == langId);
                         if (language != null)
                             langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
                     }
@@ -2092,7 +2107,11 @@ namespace Core.Catalog
                         Region region = ApiLogic.Api.Managers.RegionManager.GetRegion(groupId, regionId);
                         if (region != null)
                         {
-                            regionIds = new List<int> { region.parentId == 0 ? regionId : region.parentId };
+                            regionIds = new List<int> { regionId };
+                            if (region.parentId > 0)
+                            {
+                                regionIds.Add(region.parentId);
+                            }
                         }
                     }
                 }
@@ -6740,10 +6759,8 @@ namespace Core.Catalog
             {
                 assetIDs = ChannelRequest.OrderMediaBySlidingWindow(groupId, channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC,
                                                                     pageSize, pageIndex, assetIDs, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
-                totalItems = 0;
                 if (assetIDs != null && assetIDs.Count > 0)
                 {
-                    totalItems = assetIDs.Count;
                     Dictionary<string, UnifiedSearchResult> assetDictionary = searchResults.ToDictionary(item => item.AssetId);
 
                     searchResults.Clear();
@@ -6759,6 +6776,7 @@ namespace Core.Catalog
                 else
                 {
                     searchResults.Clear();
+                    totalItems = 0;
                 }
             }
 
@@ -9955,6 +9973,31 @@ namespace Core.Catalog
             topicsToIgnore.UnionWith(reservedUnifiedDateFields);
 
             return topicsToIgnore;
+        }
+
+        private static List<LanguageContainer> GetTagsLanguageContainer(List<TagTranslations> translatedTags, List<LanguageObj> groupLanguages)
+        {
+            List<LanguageContainer> langContainers = new List<LanguageContainer>();
+            LanguageObj language = null;
+
+            if (translatedTags?.Count > 0)
+            {
+                string value = string.Empty;
+                int langId = 0;
+
+                foreach (var item in translatedTags)
+                {
+                    langId = item.LanguageId;
+                    value = item.Value;
+                    if (!string.IsNullOrEmpty(value) && langId > 0)
+                    {
+                        language = groupLanguages.FirstOrDefault(x => x.ID == langId);
+                        if (language != null)
+                            langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
+                    }
+                }                
+            }
+            return langContainers;
         }
     }
 }

@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
             try
             {
 
-                if (filter != null && filter.CurrentUserRoleIdsContains.HasValue && filter.CurrentUserRoleIdsContains.Value)
+                if (filter.CurrentUserRoleIdsContains.HasValue && filter.CurrentUserRoleIdsContains.Value)
                 {                    
                     list = ClientsManager.ApiClient().GetUserRoles(groupId, KS.GetFromRequest().UserId);
                 }

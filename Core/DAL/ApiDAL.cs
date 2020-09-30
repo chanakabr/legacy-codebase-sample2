@@ -3478,11 +3478,11 @@ namespace DAL
             return rowCount;
         }
 
-        public static int UpdateImageState(int groupId, long rowId, int version, eTableStatus status, int? updaterId, string contentId = null)
+        public static int UpdateImageState(int groupId, long rowId, int version, eTableStatus status, int? updaterId, string contentId = null, bool isForMigration = false)
         {
             int result = -1;
 
-            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("pics");
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(isForMigration ? "mig_pics" : "pics");
             try
             {
                 if (status == eTableStatus.OK)
@@ -6254,6 +6254,23 @@ namespace DAL
             }
 
             return null;
+        }
+
+        private static string GetCatalogPartnerConfigKey(int groupId)
+        {
+            return $"catalog_partner_config_{groupId}";
+        }
+
+        public static CatalogPartnerConfig GetCatalogPartnerConfig(int groupId)
+        {
+            string key = GetCatalogPartnerConfigKey(groupId);
+            return UtilsDal.GetObjectFromCB<CatalogPartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SaveCatalogPartnerConfig(int groupId, CatalogPartnerConfig partnerConfig)
+        {
+            string key = GetCatalogPartnerConfigKey(groupId);
+            return UtilsDal.SaveObjectInCB<CatalogPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, partnerConfig);
         }
 
         #region DynamicList

@@ -32,8 +32,7 @@ pipeline {
             }
         }
         stage('Build Docker Images'){
-            steps{
-                
+            steps{                
                 buildDockerAndPushToEcr("phoenix","Phoenix.Dockerfile")
                 buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
                 buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")

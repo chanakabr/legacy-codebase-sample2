@@ -132,6 +132,7 @@ namespace ConfigurationManager
         public UdidUsageConfiguration UdidUsageConfiguration = new UdidUsageConfiguration();
         public IotAdapterConfiguration IotAdapterConfiguration = new IotAdapterConfiguration();
         public KestrelConfiguration KestrelConfiguration = new KestrelConfiguration();
+        public RedisClientConfiguration RedisClientConfiguration = new RedisClientConfiguration();
         public MemoryCacheConfiguration MemoryCacheConfiguration = new MemoryCacheConfiguration();
 
         public T GetValueByKey<T>(string key)

@@ -450,6 +450,9 @@ namespace WebAPI.Reflection
                 case "KalturaCaptionPlaybackPluginData":
                     return new KalturaCaptionPlaybackPluginData(parameters);
                     
+                case "KalturaCatalogPartnerConfig":
+                    return new KalturaCatalogPartnerConfig(parameters);
+                    
                 case "KalturaCatalogWithHolder":
                     return new KalturaCatalogWithHolder(parameters);
                     
@@ -20686,6 +20689,17 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute ParentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRegion")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+        };
         public KalturaRegion(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -20733,6 +20747,10 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        ParentIdSchemaProperty.Validate("parentId", parameters["parentId"]);
+                    }
                     ParentId = (Int64) Convert.ChangeType(parameters["parentId"], typeof(Int64));
                 }
             }
@@ -20780,6 +20798,10 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("parentOnly") && parameters["parentOnly"] != null)
                 {
                     ParentOnly = (Boolean) Convert.ChangeType(parameters["parentOnly"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("exclusiveLcn") && parameters["exclusiveLcn"] != null)
+                {
+                    ExclusiveLcn = (Boolean) Convert.ChangeType(parameters["exclusiveLcn"], typeof(Boolean));
                 }
             }
         }
@@ -28242,6 +28264,19 @@ namespace WebAPI.Models.Partner
                         ThresholdSchemaProperty.Validate("threshold", parameters["threshold"]);
                     }
                     Threshold = (Int32) Convert.ChangeType(parameters["threshold"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaCatalogPartnerConfig
+    {
+        public KalturaCatalogPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("singleMultilingualMode") && parameters["singleMultilingualMode"] != null)
+                {
+                    SingleMultilingualMode = (Boolean) Convert.ChangeType(parameters["singleMultilingualMode"], typeof(Boolean));
                 }
             }
         }

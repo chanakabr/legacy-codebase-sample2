@@ -718,6 +718,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("payment_partner_config_{0}", groupId);
         }
 
+        public static string GetCatalogPartnerConfigKey(int groupId)
+        {
+            return string.Format("catalog_partner_config_{0}", groupId);
+        }
+
         public static string GetGroupCampaignKey(int groupId, int campaignType)
         {
             return $"group_campaign_{groupId}_type_{campaignType}";
@@ -1287,6 +1292,11 @@ namespace CachingProvider.LayeredCache
         public static string GetDomainDeviceInvalidationKey(int domainId, string deviceId)
         {
             return $"invalidationKey_domain_{domainId}_device_{deviceId}";
+        }
+
+        public static string GetCatalogPartnerConfigInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_{0}", GetCatalogPartnerConfigKey(groupId));
         }
 
         #endregion

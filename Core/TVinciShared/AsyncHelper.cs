@@ -20,5 +20,22 @@ namespace TVinciShared
         {
             Task.Run(()=> taskToRun).ConfigureAwait(false).GetAwaiter().GetResult();
         }
+
+        public static void AddRange<T>(this System.Collections.Concurrent.ConcurrentBag<T> @this, IEnumerable<T> toAdd)
+        {
+            if (toAdd?.Count() > 0)
+            {
+                if (@this == null)
+                {
+                    @this = new System.Collections.Concurrent.ConcurrentBag<T>();
+                }
+
+                foreach (var element in toAdd)
+                {
+                    @this.Add(element);
+                }
+            }
+        }
+
     }
 }

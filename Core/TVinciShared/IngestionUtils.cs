@@ -167,7 +167,7 @@ namespace TVinciShared
         }
 
 
-        static protected Int32 GetTagID(string sVal, Int32 nGroupID, Int32 nTagTypeID, string sAddExtra)
+        static public Int32 GetTagID(string sVal, Int32 nGroupID, Int32 nTagTypeID, string sAddExtra)
         {
             Int32 nRet = 0;
             string sGroups = PageUtils.GetParentsGroupsStr(nGroupID);

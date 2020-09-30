@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
-using TVPApi.ODBCWrapper;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;

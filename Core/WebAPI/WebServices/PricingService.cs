@@ -1048,8 +1048,7 @@ namespace WebAPI.WebServices
                 if (nGroupID == 0)
                     HttpContext.Current.Response.StatusCode = 404;
 
-                response.Coupon = new CouponData();
-                response.Coupon.Initialize(null, CouponsStatus.NotExists);
+                response.Coupon = CouponData.NotExist;
                 response.Status = new Status((int)eResponseStatus.Error, "Error");
             }
             return response;

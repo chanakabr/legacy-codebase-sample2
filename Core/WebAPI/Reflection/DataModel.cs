@@ -1270,6 +1270,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCatalogPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "SingleMultilingualMode":
+                            return "singleMultilingualMode";
+                    }
+                    break;
+                    
                 case "KalturaCategoryItem":
                     switch(property.Name)
                     {
@@ -5717,6 +5725,8 @@ namespace WebAPI.Reflection
                 case "KalturaRegionFilter":
                     switch(property.Name)
                     {
+                        case "ExclusiveLcn":
+                            return "exclusiveLcn";
                         case "ExternalIdIn":
                             return "externalIdIn";
                         case "IdIn":

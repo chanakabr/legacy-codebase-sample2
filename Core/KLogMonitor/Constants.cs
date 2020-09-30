@@ -41,6 +41,8 @@ namespace KLogMonitor
         public const string EVENT_CONNTOOK = "conn";
         public const string EVENT_DUMPFILE = "file";
         public const string EVENT_WS = "ws";
+        public const string EVENT_KAFKA = "kafka";
+        public const string EVENT_REDIS = "redis";
 
         // http context
         public const string PRIVILIGES = "priviliges";

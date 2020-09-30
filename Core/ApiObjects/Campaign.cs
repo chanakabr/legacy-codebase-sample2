@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using ApiObjects.Rules;
+using System;
 
 namespace ApiObjects
 {
@@ -44,6 +45,8 @@ namespace ApiObjects
         public int type { get; set; }
     }
 
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class Campaign : CampaignDB, ICrudHandeledObject
     {
         #region Data members
@@ -133,6 +136,8 @@ namespace ApiObjects
 
     }
 
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class TriggerCampaign : Campaign
     {
         [JsonProperty(PropertyName = "triggerConditions",
@@ -195,6 +200,8 @@ namespace ApiObjects
         DomainDevice = 0
     }
 
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BatchCampaign : Campaign
     {
         [JsonProperty(PropertyName = "PopulationConditions",

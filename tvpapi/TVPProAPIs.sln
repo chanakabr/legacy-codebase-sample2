@@ -171,6 +171,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Kafka", "..\Core\E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Models", "..\Core\EventBus.Models\EventBus.Models.csproj", "{E3C7A531-81C1-471D-8A88-DDA7DF81DAD1}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedisManager", "..\Core\RedisManager\RedisManager.csproj", "{B999E28E-EF70-42DA-A50E-ACC2BD710C65}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		AllClients|Any CPU = AllClients|Any CPU
@@ -1134,6 +1136,20 @@ Global
 		{E3C7A531-81C1-471D-8A88-DDA7DF81DAD1}.test|Any CPU.Build.0 = Release|Any CPU
 		{E3C7A531-81C1-471D-8A88-DDA7DF81DAD1}.Yes|Any CPU.ActiveCfg = Release|Any CPU
 		{E3C7A531-81C1-471D-8A88-DDA7DF81DAD1}.Yes|Any CPU.Build.0 = Release|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.AllClients|Any CPU.ActiveCfg = Release|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.AllClients|Any CPU.Build.0 = Release|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.debug32|Any CPU.Build.0 = Debug|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.Local|Any CPU.Build.0 = Release|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.test|Any CPU.ActiveCfg = Release|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.test|Any CPU.Build.0 = Release|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.Yes|Any CPU.ActiveCfg = Release|Any CPU
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65}.Yes|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1213,9 +1229,10 @@ Global
 		{C02477CD-FE0B-459B-B760-281948BF3931} = {470ABA49-ACF5-4698-B8A6-8EE9ABE07803}
 		{76DCEFBC-7486-425C-BD49-4E49EC3CBB2F} = {1DA53641-8E7E-4FF5-BA7D-2A467BCEB42F}
 		{E3C7A531-81C1-471D-8A88-DDA7DF81DAD1} = {1DA53641-8E7E-4FF5-BA7D-2A467BCEB42F}
+		{B999E28E-EF70-42DA-A50E-ACC2BD710C65} = {8986F8B1-7C12-4AEE-A0DB-1A613A8E9F40}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {5604D01E-691A-49EC-9DF9-EECBFAFD1E19}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {5604D01E-691A-49EC-9DF9-EECBFAFD1E19}
 	EndGlobalSection
 EndGlobal

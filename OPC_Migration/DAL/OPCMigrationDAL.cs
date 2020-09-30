@@ -357,7 +357,7 @@ namespace OPC_Migration
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        internal static bool UpdateMediaFilesTableWithMediaTypeId(int groupId, List<KeyValuePair<int, long>> mediaTypeIdToMediaFileTypeId, long updaterId, long sequenceId)
+        internal static bool UpdateMediaFilesTableWithMediaTypeId(int groupId, List<KeyValuePair<int, long>> mediaTypeIdToMediaFileTypeId, long updaterId, long sequenceId, bool shouldBackup)
         {
             StoredProcedure sp = new StoredProcedure("UpdateMediaFilesTableWithMediaTypeId");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -366,6 +366,7 @@ namespace OPC_Migration
             sp.AddKeyValueListParameter<int, long>("@MediaTypeIdToMediaFileTypeId", mediaTypeIdToMediaFileTypeId, "key", "value");
             sp.AddParameter("@UpdaterId", updaterId);
             sp.AddParameter("@SequenceId", sequenceId);
+            sp.AddParameter("@ShouldBackup", shouldBackup ? 1 : 0);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
@@ -409,7 +410,7 @@ namespace OPC_Migration
             return sp.Execute(true);
         }
 
-        internal static bool UpdateParentalRulesTableWithTopicIds(int groupId, List<KeyValuePair<long, long>> tagTypeIdToTopicIdMap, bool isEpg, long updaterId, long sequenceId)
+        internal static bool UpdateParentalRulesTableWithTopicIds(int groupId, List<KeyValuePair<long, long>> tagTypeIdToTopicIdMap, bool isEpg, long updaterId, long sequenceId, bool shouldBackup)
         {
             StoredProcedure sp = new StoredProcedure("UpdateParentalRulesTableWithTopicIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -419,6 +420,7 @@ namespace OPC_Migration
             sp.AddParameter("@IsEpg", isEpg ? 1 : 0);
             sp.AddParameter("@UpdaterId", updaterId);
             sp.AddParameter("@SequenceId", sequenceId);
+            sp.AddParameter("@ShouldBackup", sequenceId);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }

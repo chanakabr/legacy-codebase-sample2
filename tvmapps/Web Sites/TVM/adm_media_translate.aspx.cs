@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Configuration;
+﻿using ApiObjects.Catalog;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Xml.Linq;
-using KLogMonitor;
+using Tvinci.Core.DAL;
 using TVinciShared;
-using ODBCWrapper;
-using System.Collections.Generic;
 
 public partial class adm_media_translate : System.Web.UI.Page
 {
@@ -218,9 +211,58 @@ public partial class adm_media_translate : System.Web.UI.Page
 
     protected void AddTagsFields(ref DBRecordWebEditor theRecord, int media_id, int lang_id)
     {
+        ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            
+        int groupId = LoginManager.GetLoginGroupID();
+        GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+        GroupsCacheManager.Group group = groupManager.GetGroup(groupId);
+
+        if (group.isTagsSingleTranslation)
+        {
+            MediaTagsTranslations mediaTagsTranslations = CatalogDAL.GetMediaTagsTranslations(media_id);
+
+            if (mediaTagsTranslations != null)
+            {
+                var translations = mediaTagsTranslations.Translations.Where(x => x.LanguageId == lang_id).ToList();
+
+                if (translations?.Count > 0)
+                {
+                    Dictionary<int, string> tagsTypes = new Dictionary<int, string>();
+                    var tagTypeIds = translations.Select(x => x.TagTypeId).Distinct();
+                    string ids = string.Join(",", tagTypeIds);
+
+                    selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery += $"select ID, NAME from media_tags_types where status=1 and id in ({ids})";
+                    selectQuery += "order by order_num";
+                    if (selectQuery.Execute("query", true) != null)
+                    {
+                        DataTable dt = selectQuery.Table("query");
+
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            string tagTypeName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                            int tagTypeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+
+                            var values = translations.Where(x => x.TagTypeId == tagTypeId).Select(y => y.Value).ToList();   //order by tagId
+
+                            DataRecordLongTextField dr_name = new DataRecordLongTextField("ltr", false, 60, 4);
+                            dr_name.Initialize(tagTypeName, "adm_table_header_nbg", "FormInput", "", false);
+                            dr_name.SetValue(string.Join("; ", values));
+                            theRecord.AddRecord(dr_name);
+                        }
+                    }
+                    selectQuery.Finish();
+                    selectQuery = null;
+                }
+
+                return;
+            }
+        }
+
         List<string> tagsTypeTranslate = new List<string>();
         string sGroups = PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID());
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+        selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select NAME from media_tags_types where status=1 and TagFamilyID IS NULL and group_id " + sGroups.Replace("in (", "in (0, ");
         selectQuery += "order by order_num";
         if (selectQuery.Execute("query", true) != null)
@@ -252,20 +294,22 @@ public partial class adm_media_translate : System.Web.UI.Page
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
             DataTable dt = selectQuery.Table("query");
-            
+
             string tagType = string.Empty;
             string tagValue = string.Empty;
-            List<string> tempvalues;           
+            List<string> tempvalues;
+
             foreach (string tags in tagsTypeTranslate)
             {
                 DataRow[] tagValues = dt.Select("tag_type_name ='" + tags + "'");
                 tempvalues = new List<string>();
+
                 foreach (DataRow dr in tagValues)
                 {
+
                     tagValue = ODBCWrapper.Utils.GetSafeStr(dr, "translateTagValue");
-                    tempvalues.Add(tagValue);                    
+                    tempvalues.Add(tagValue);
                 }
-               
 
                 DataRecordLongTextField dr_name = new DataRecordLongTextField("ltr", false, 60, 4);
                 dr_name.Initialize(tags, "adm_table_header_nbg", "FormInput", "", false);
@@ -274,7 +318,6 @@ public partial class adm_media_translate : System.Web.UI.Page
             }
         }
         selectQuery.Finish();
-        selectQuery = null;
     }
 
     public string GetPageContent(string sOrderBy, string sPageNum)
