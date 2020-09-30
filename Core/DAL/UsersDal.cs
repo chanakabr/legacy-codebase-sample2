@@ -802,13 +802,14 @@ namespace DAL
             return res;
         }
 
-        public static ApiObjects.Response.GenericResponse<DeviceReferenceData> InsertDeviceReferenceData(ContextData contextData, DeviceReferenceData coreObject)
+        public static ApiObjects.Response.GenericResponse<DeviceReferenceData> InsertDeviceReferenceData(ContextData contextData, DeviceReferenceData coreObject, long utcNow)
         {
             var response = new ApiObjects.Response.GenericResponse<DeviceReferenceData>();
             var sp = new StoredProcedure("Insert_DeviceReferenceData");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupID", contextData.GroupId);
             sp.AddParameter("@updaterID", contextData.UserId);
+            sp.AddParameter("@createDate", utcNow);
             sp.AddParameter("@name", coreObject.Name.Trim().ToUpper());
             sp.AddParameter("@type", coreObject.GetReferenceType());
 

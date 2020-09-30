@@ -65,7 +65,7 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                response = UsersDal.InsertDeviceReferenceData(contextData, coreObject);
+                response = UsersDal.InsertDeviceReferenceData(contextData, coreObject, TVinciShared.DateUtils.GetUtcUnixTimestampNow());
 
                 if (response.IsOkStatusCode())
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(contextData.GroupId));
