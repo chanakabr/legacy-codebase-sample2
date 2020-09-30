@@ -444,8 +444,6 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "householdIdEqual", "externalIdEqual");
                 }
 
-                //TODO - Matan, fix new params not returning for list
-
                 // call client
                 response = ClientsManager.DomainsClient().GetHouseholdDevices(groupId, household, filter.ConvertDeviceFamilyIdIn()
                     , filter.ExternalIdEqual);

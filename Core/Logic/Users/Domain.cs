@@ -1669,7 +1669,7 @@ namespace Core.Users
             }
 
             DataTable dt = DomainDal.Get_DomainDevices(m_nGroupID, m_nDomainID);
-            InitializeDomainDevicesData(dt);
+            InitializeDomainDevicesData(dt, m_nGroupID);
 
             return m_totalNumOfDevices;
         }
@@ -1918,7 +1918,7 @@ namespace Core.Users
             return res;
         }
 
-        private void InitializeDomainDevicesData(DataTable dt)
+        private void InitializeDomainDevicesData(DataTable dt, int groupID)
         {
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
@@ -1934,6 +1934,7 @@ namespace Core.Users
                 string macAddress = string.Empty;
                 string model = string.Empty;
                 long? manufacturerId = null;
+                string manufacturer = string.Empty;
 
                 Dictionary<string, int> domainDevices = new Dictionary<string, int>();
 
@@ -1953,6 +1954,12 @@ namespace Core.Users
                     macAddress = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "mac_address");
                     model = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "model");
                     manufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "manufacturer_id");
+                    if (manufacturerId.HasValue && manufacturerId.Value > 0)
+                    {
+                        var _filter = new DeviceManufacturersReferenceDataFilter() { IdsIn = new List<int>() { (int)manufacturerId.Value } };
+                        var cd = new ApiObjects.Base.ContextData(groupID);
+                        manufacturer = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.List(cd, _filter, null)?.Objects?.FirstOrDefault()?.Name;
+                    }
 
                     Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, sDeviceName, m_nDomainID, nDeviceID, nDeviceFamilyID, string.Empty, sPin,
                         dtActivationDate, eState);
@@ -1965,6 +1972,8 @@ namespace Core.Users
                         device.Model = model;
                     if (manufacturerId.HasValue)
                         device.ManufacturerId = manufacturerId.Value;
+                    if (!string.IsNullOrEmpty(manufacturer))
+                        device.Manufacturer = manufacturer;
 
                     if (AddDeviceToContainer(device))
                     {
