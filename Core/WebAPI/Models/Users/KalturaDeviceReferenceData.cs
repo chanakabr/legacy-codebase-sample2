@@ -9,9 +9,6 @@ using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using ApiObjects.Base;
 using ApiObjects.Response;
-using System.Text.RegularExpressions;
-using WebAPI.Exceptions;
-using WebAPI.Managers.Models;
 
 namespace WebAPI.Models.Users
 {
@@ -67,12 +64,10 @@ namespace WebAPI.Models.Users
 
         internal override void ValidateForAdd()
         {
-            ValidateName();
         }
 
         internal override void ValidateForUpdate()
         {
-            ValidateName();
         }
 
         internal override GenericResponse<DeviceReferenceData> Add(ContextData contextData)
@@ -83,15 +78,6 @@ namespace WebAPI.Models.Users
         internal override GenericResponse<DeviceReferenceData> Update(ContextData contextData)
         {
             throw new NotImplementedException();
-        }
-
-        internal void ValidateName()
-        {
-            //Numeric, words, underscore and spaces
-            if (!string.IsNullOrEmpty(Name) && !Regex.IsMatch(Name, @"^\w+$", RegexOptions.IgnoreCase))
-            {
-                throw new ClientException((int)StatusCode.Error, $"Field [Name] ({Name}) didn't passed validation");
-            }
         }
     }
 
