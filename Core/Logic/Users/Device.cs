@@ -8,6 +8,7 @@ using System.Text;
 using KLogMonitor;
 using System.Reflection;
 using CachingProvider.LayeredCache;
+using ApiObjects;
 
 namespace Core.Users
 {
@@ -522,7 +523,13 @@ namespace Core.Users
                 ExternalId = ODBCWrapper.Utils.GetSafeStr(dr["external_id"]);
                 MacAddress = ODBCWrapper.Utils.GetSafeStr(dr["mac_address"]);
                 Model = ODBCWrapper.Utils.GetSafeStr(dr["model"]);
-                Manufacturer = ODBCWrapper.Utils.GetSafeStr(dr["manufacturer"]);
+                ManufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dr["manufacturer_id"]);
+                if (this.ManufacturerId.HasValue && this.ManufacturerId.Value > 0)
+                {
+                    var _filter = new DeviceManufacturersReferenceDataFilter() { IdsIn = new List<int>() { (int)ManufacturerId.Value } };
+                    var cd = new ApiObjects.Base.ContextData(m_groupID);
+                    Manufacturer = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.List(cd, _filter, null)?.Objects?.FirstOrDefault()?.Name;
+                }
 
                 PopulateDeviceStreamTypeAndProfile();
 
