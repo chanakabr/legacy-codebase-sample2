@@ -4,13 +4,27 @@ namespace ApiObjects.Notification
 {
     public class EngagementAdapterResponse
     {
-        public ApiObjects.Response.Status Status { get; set; }
-        public EngagementAdapter EngagementAdapter { get; set; }
+        public Status Status { get; private set; }
+        public EngagementAdapter EngagementAdapter { get; private set; }
 
-        public EngagementAdapterResponse()
+        private EngagementAdapterResponse()
         {
-            Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
+            Status = new Status((int)eResponseStatus.Error, string.Empty);
             EngagementAdapter = new EngagementAdapter();
+        }
+
+        public static EngagementAdapterResponse Ok(EngagementAdapter adapter, string message)
+        {
+            return new EngagementAdapterResponse
+            {
+                Status = new Status(eResponseStatus.OK, message),
+                EngagementAdapter = adapter
+            };
+        }
+
+        public static EngagementAdapterResponse Error(Status status)
+        {
+            return new EngagementAdapterResponse { Status = status };
         }
     }
 }

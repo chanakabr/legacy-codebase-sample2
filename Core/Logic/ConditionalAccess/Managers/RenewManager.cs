@@ -1268,6 +1268,7 @@ namespace Core.ConditionalAccess
                 if (successTransactions.Count > 0)
                 {
                     successTransactionsEndDate = DateUtils.UtcUnixTimestampMillisecondsToDateTime(subscriptionCycle.UnifiedBillingCycle.endDate);
+                    bool setResult = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(householdId, subscriptionCycle.SubscriptionLifeCycle.GetTvmDuration(), subscriptionCycle.UnifiedBillingCycle.endDate);
                 }
 
                 if (pendingTransactions.Count > 0)

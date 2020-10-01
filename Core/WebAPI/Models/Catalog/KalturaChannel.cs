@@ -205,7 +205,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "metaData")]
         [JsonProperty("metaData")]
-        [XmlElement(ElementName = "metaData")]
+        [XmlElement(ElementName = "metaData", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> MetaData { get; set; }
 
         internal virtual void ValidateForInsert()
@@ -271,6 +272,14 @@ namespace WebAPI.Models.Catalog
             if (OrderBy != null)
             {
                 OrderBy.Validate(this.GetType());
+            }
+        }
+
+        internal virtual void FillEmptyFeildsForUpdate()
+        {
+            if (this.NullableProperties != null && this.NullableProperties.Contains("metadata"))
+            {
+                this.MetaData = new SerializableDictionary<string, KalturaStringValue>();
             }
         }
 

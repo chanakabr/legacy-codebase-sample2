@@ -141,6 +141,9 @@ namespace GroupsCacheManager
         [JsonProperty("media_types")]
         public List<MediaType> mediaTypes;
 
+        [JsonProperty("is_tags_single_transaltion")]
+        public bool isTagsSingleTranslation;
+
         #endregion
 
         #region CTOR

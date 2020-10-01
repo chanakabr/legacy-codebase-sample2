@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using CachingProvider.LayeredCache;
 using CouchbaseManager;
 using KLogMonitor;
+using Newtonsoft.Json;
 
 namespace CachingProvider
 {
-    public class CouchBaseCache<TO> : OutOfProcessCache
+    public class CouchBaseCache<TO> : OutOfProcessCache, ILayeredCacheService
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 2;
@@ -235,7 +237,7 @@ namespace CachingProvider
             return new CouchbaseManager.CouchbaseManager(bucket).Get<T>(key, ref result);
         }
 
-        public override bool Get<T>(string key, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
+        public override bool Get<T>(string key, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings = null)
         {
             return new CouchbaseManager.CouchbaseManager(bucket).Get<T>(key, ref result, jsonSerializerSettings);
         }
@@ -275,7 +277,7 @@ namespace CachingProvider
             return new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, ref results, shouldAllowPartialQuery);
         }
 
-        public override bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings, bool shouldAllowPartialQuery = false)
+        public override bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings = null, bool shouldAllowPartialQuery = false)
         {
             return new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, ref results, jsonSerializerSettings, shouldAllowPartialQuery);
         }
@@ -285,6 +287,18 @@ namespace CachingProvider
             results = new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, shouldAllowPartialQuery, asJson);
 
             return true;
+        }
+
+        public new bool Set<T>(string key, T value, uint ttlInSeconds, JsonSerializerSettings jsonSerializerSettings = null)
+        {
+            if (jsonSerializerSettings != null)
+            {
+                return new CouchbaseManager.CouchbaseManager(bucket).Set<T>(key, value, ttlInSeconds, jsonSerializerSettings);
+            }
+            else
+            {
+                return new CouchbaseManager.CouchbaseManager(bucket).Set<T>(key, value, ttlInSeconds);
+            }
         }
     }
 }

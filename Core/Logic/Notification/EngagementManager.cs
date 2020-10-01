@@ -1,7 +1,7 @@
-﻿using APILogic.AmazonSnsAdapter;
+﻿using ApiLogic.Notification.Managers;
+using APILogic.AmazonSnsAdapter;
 using APILogic.Notification.Adapters;
 using ApiObjects;
-using ApiObjects.EventBus;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
@@ -25,16 +25,20 @@ namespace Core.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private const string ENGAGEMENT_ADAPTER_ID_REQUIRED = "Engagement adapter identifier is required";
-        private const string ENGAGEMENT_ADAPTER_NOT_EXIST = "Engagement adapter doesn't exist";
-        private const string NO_ENGAGEMENT_ADAPTER_TO_INSERT = "Engagement adapter wasn't found";
-        private const string NAME_REQUIRED = "Name must have a value";
-        private const string ADAPTER_URL_REQUIRED = "ADAPTER URL must have a value";
-        private const string PROVIDER_URL_REQUIRED = "Provider URL must have a value";
-        private const string NO_ENGAGEMENT_ADAPTER_TO_UPDATE = "No Engagement adapter to update";
-        private const string NO_PARAMS_TO_INSERT = "No parameters to insert";
-        private const string CONFLICTED_PARAMS = "Conflicted params";
-        private const string NO_PARAMS_TO_DELETE = "No parameters to delete";
+        private static readonly Status ENGAGEMENT_ADAPTER_ID_REQUIRED = new Status(eResponseStatus.EngagementAdapterIdentifierRequired, "Engagement adapter identifier is required");
+        private static readonly Status ENGAGEMENT_ADAPTER_NOT_EXIST = new Status(eResponseStatus.EngagementAdapterNotExist, "Engagement adapter doesn't exist");
+        private static readonly Status ENGAGEMENT_ADAPTER_GENERAL_ERROR = new Status(eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+        private static readonly Status ENGAGEMENT_ADAPTER_FAILED_TO_INSERT = new Status(eResponseStatus.Error, "failed to insert new engagement Adapter");
+        private static readonly Status ENGAGEMENT_ADAPTER_FAILED_SET_CHANGES = new Status(eResponseStatus.Error, "Engagement adapter failed set changes");
+
+        private static readonly Status NO_ENGAGEMENT_ADAPTER_TO_INSERT = new Status(eResponseStatus.NoEngagementAdapterToInsert, "Engagement adapter wasn't found");
+        private static readonly Status NO_ENGAGEMENT_ADAPTER_TO_UPDATE = new Status(eResponseStatus.NoEngagementAdapterToUpdate, "No Engagement adapter to update");
+
+        private static readonly Status NAME_REQUIRED = new Status(eResponseStatus.NameRequired, "Name must have a value");
+        private static readonly Status ADAPTER_URL_REQUIRED = new Status(eResponseStatus.AdapterUrlRequired, "ADAPTER URL must have a value");
+        private static readonly Status PROVIDER_URL_REQUIRED = new Status(eResponseStatus.ProviderUrlRequired, "Provider URL must have a value");
+        
         private const string NO_ENGAGEMENT_TO_INSERT = "No Engagement to insert";
         private const string ENGAGEMENT_NOT_EXIST = "Engagement not exist";
         private const string EMPTY_SOURCE_USER_LIST = "User list and adapter ID are empty";
@@ -45,7 +49,7 @@ namespace Core.Notification
         private const string ENGAGEMENT_TIME_DIFFERENCE = "The difference send time between identical engagements must be higher that 1 hour";
         private const string ENGAGEMENT_SEND_WINDOW_FRAME = "Send time is not between the allowed time window";
         private const string FUTURE_SCHEDULE_ENGAGEMENT_DETECTED = "Future engagement scheduler detected";
-        private const string ENGAGEMENT_TEMPLATE_NOT_DOUND = "Engagement template wasn't found";
+        private const string ENGAGEMENT_TEMPLATE_NOT_FOUND = "Engagement template wasn't found";
         private const string ENGAGEMENT_SUCCESSFULLY_INSERTED = "Engagement was successfully inserted";
         private const string ERROR_INSERTING_ENGAGEMENT = "Error occurred while inserting engagement";
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group ID wasn't found";
@@ -60,318 +64,223 @@ namespace Core.Notification
 
         private const string ROUTING_KEY_ENGAGEMENTS = "PROCESS_ENGAGEMENTS";
 
+        # region Engagement Adapter
 
         internal static EngagementAdapterResponseList GetEngagementAdapters(int groupId)
         {
-            EngagementAdapterResponseList response = new EngagementAdapterResponseList();
             try
             {
-                response.EngagementAdapters = EngagementDal.GetEngagementAdapterList(groupId);
-                if (response.EngagementAdapters == null || response.EngagementAdapters.Count == 0)
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No engagement adapter related to group");
-                else
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                var engagementAdapters = EngagementDal.GetEngagementAdapterList(groupId);
+
+                return new EngagementAdapterResponseList
+                {
+                    EngagementAdapters = engagementAdapters,
+                    Status = new Status(eResponseStatus.OK,
+                        engagementAdapters?.Count > 0
+                            ? eResponseStatus.OK.ToString()
+                            : "No engagement adapter related to group")
+                };
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed to get engagement adapter groupID: {0}", groupId), ex);
+                log.Error($"Failed to get engagement adapters. GroupID: {groupId}", ex);
+                return new EngagementAdapterResponseList {Status = ENGAGEMENT_ADAPTER_GENERAL_ERROR};
             }
-
-            return response;
         }
 
         internal static EngagementAdapterResponse GetEngagementAdapter(int groupId, int engagementAdapterId)
         {
-            EngagementAdapterResponse response = new EngagementAdapterResponse();
             try
             {
-                response.EngagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-                if (response.EngagementAdapter == null)
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, "Engagement adapter not exist");
-                else
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                var engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
+
+                return engagementAdapter == null 
+                    ? EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_NOT_EXIST)
+                    : EngagementAdapterResponse.Ok(engagementAdapter, "OK");
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed to get engagement adapter. Group ID: {0}, engagementAdapterId: {1}", groupId, engagementAdapterId), ex);
+                log.Error($"Failed to get engagement adapter. Group ID: {groupId}, engagementAdapterId: {engagementAdapterId}", ex);
+                return EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_GENERAL_ERROR);
             }
-
-            return response;
         }
 
         internal static Status DeleteEngagementAdapter(int groupId, int id)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 if (id == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
-                    return response;
+                    return ENGAGEMENT_ADAPTER_ID_REQUIRED;
                 }
 
-                //check Engagement Adapter exist
-                EngagementAdapter adapter = EngagementDal.GetEngagementAdapter(groupId, id);
+                var adapter = EngagementDal.GetEngagementAdapter(groupId, id);
                 if (adapter == null || adapter.ID <= 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
-                    return response;
+                    return ENGAGEMENT_ADAPTER_NOT_EXIST;
                 }
 
-                bool isSet = EngagementDal.DeleteEngagementAdapter(groupId, id);
-                if (isSet)
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Engagement adapter deleted");
-                else
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
+                var isSet = EngagementDal.DeleteEngagementAdapter(groupId, id);
+                return isSet 
+                    ? new Status(eResponseStatus.OK, "Engagement adapter deleted")
+                    : ENGAGEMENT_ADAPTER_NOT_EXIST;
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed to delete engagement adapter. Group ID: {0}, engagementAdapterId: {1}", groupId, id), ex);
+                log.Error($"Failed to delete engagement adapter. Group ID: {groupId}, engagementAdapterId: {id}", ex);
+                return ENGAGEMENT_ADAPTER_GENERAL_ERROR;
             }
-            return response;
         }
 
-        internal static EngagementAdapterResponse InsertEngagementAdapter(int groupId, EngagementAdapter engagementAdapter)
+        internal static EngagementAdapterResponse InsertEngagementAdapter(int groupId, EngagementAdapter newEngagementAdapter)
         {
-            EngagementAdapterResponse response = new EngagementAdapterResponse();
+            if (newEngagementAdapter == null)
+            {
+                return EngagementAdapterResponse.Error(NO_ENGAGEMENT_ADAPTER_TO_INSERT);
+            }
+
+            var response = ValidateCommonFields(newEngagementAdapter);
+            if (response != null)
+            {
+                return response;
+            }
 
             try
             {
-                if (engagementAdapter == null)
+                newEngagementAdapter.SharedSecret = GenerateSharedSecret();
+
+                var engagementAdapter = EngagementDal.InsertEngagementAdapter(groupId, newEngagementAdapter);
+
+                if (engagementAdapter == null || engagementAdapter.ID <= 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoEngagementAdapterToInsert, NO_ENGAGEMENT_ADAPTER_TO_INSERT);
-                    return response;
+                    return EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_FAILED_TO_INSERT);
                 }
 
-                if (string.IsNullOrEmpty(engagementAdapter.Name))
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
-                    return response;
-                }
+                if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
+                    log.Debug($"InsertEngagementAdapter - SendConfigurationToAdapter failed : AdapterID = {engagementAdapter.ID}");
 
-                if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
-                    return response;
-                }
-
-                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
-                    return response;
-                }
-
-                // Create Shared secret 
-                engagementAdapter.SharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
-
-                response.EngagementAdapter = EngagementDal.InsertEngagementAdapter(groupId, engagementAdapter);
-                if (response.EngagementAdapter != null && response.EngagementAdapter.ID > 0)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "New engagement adapter was successfully inserted");
-
-                    if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, response.EngagementAdapter))
-                        log.ErrorFormat("InsertEngagementAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", response.EngagementAdapter.ID);
-                }
-                else
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed to insert new engagement Adapter");
+                return EngagementAdapterResponse.Ok(engagementAdapter, "New engagement adapter was successfully inserted");
+                
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed to insert engagement adapter. Group ID: {0}", groupId), ex);
+                log.Error($"Failed to insert engagement adapter. Group ID: {groupId}", ex);
+                return EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_GENERAL_ERROR);
             }
-            return response;
         }
 
-        internal static EngagementAdapterResponse SetEngagementAdapter(int groupId, EngagementAdapter engagementAdapter)
+        internal static EngagementAdapterResponse SetEngagementAdapter(int groupId, EngagementAdapter newEngagementAdapter)
         {
-            EngagementAdapterResponse response = new EngagementAdapterResponse();
+            if (newEngagementAdapter == null)
+            {
+                return EngagementAdapterResponse.Error(NO_ENGAGEMENT_ADAPTER_TO_UPDATE);
+            }
+
+            if (newEngagementAdapter.ID == 0)
+            {
+                return EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_ID_REQUIRED);
+            }
+
+            var response = ValidateCommonFields(newEngagementAdapter);
+            if (response != null)
+            {
+                return response;
+            }
 
             try
             {
-                if (engagementAdapter == null)
+                var existingEngagementAdapter = EngagementDal.GetEngagementAdapter(groupId, newEngagementAdapter.ID);
+                if (existingEngagementAdapter == null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoEngagementAdapterToUpdate, NO_ENGAGEMENT_ADAPTER_TO_UPDATE);
-                    return response;
-                }
-
-                if (engagementAdapter.ID == 0)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
-                    return response;
-                }
-                if (string.IsNullOrEmpty(engagementAdapter.Name))
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
-                    return response;
-                }
-
-                if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
-                    return response;
-                }
-
-                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
-                    return response;
+                    return EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_NOT_EXIST);
                 }
 
                 // SharedSecret generated only at insert 
                 // this value not relevant at update and should be ignored
-                //--------------------------------------------------------
-                engagementAdapter.SharedSecret = null;
+                newEngagementAdapter.SharedSecret = null;
 
-                // check engagementAdapter with this ID exists
-                EngagementAdapter existingEngagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapter.ID);
-                if (existingEngagementAdapter == null)
+                var engagementAdapter = newEngagementAdapter.SkipSettings
+                    ? EngagementDal.SetEngagementAdapter(groupId, newEngagementAdapter)
+                    : EngagementDal.SetEngagementAdapterWithSettings(groupId, newEngagementAdapter);
+
+                if (engagementAdapter == null || engagementAdapter.ID <= 0 || (!newEngagementAdapter.SkipSettings && engagementAdapter.Settings == null))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
-                    return response;
+                    return EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_FAILED_SET_CHANGES);
                 }
 
-                if (engagementAdapter.SkipSettings)
-                {
-                    // update EngagementAdapter
-                    response.EngagementAdapter = EngagementDal.SetEngagementAdapter(groupId, engagementAdapter);
-                    if (response.EngagementAdapter == null)
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Engagement adapter failed set changes");
-                }
-                else
-                {
-                    // update EngagementAdapter & EngagementAdapterSettings
-                    response.EngagementAdapter = EngagementDal.SetEngagementAdapterWithSettings(groupId, engagementAdapter);
-                    if (response.EngagementAdapter != null && response.EngagementAdapter.Settings == null)
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Engagement adapter failed set changes, check your params");
-                }
+                if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
+                    log.Debug($"SetEngagementAdapter - SendConfigurationToAdapter failed : AdapterID = {newEngagementAdapter.ID}");
 
-                if (response.EngagementAdapter != null && response.EngagementAdapter.ID > 0)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Engagement adapter was successfully set");
-
-                    bool isSendSucceeded = EngagementAdapterClient.SendConfigurationToAdapter(groupId, response.EngagementAdapter);
-                    if (!isSendSucceeded)
-                        log.DebugFormat("SetEngagementAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapter.ID);
-                }
+                return EngagementAdapterResponse.Ok(engagementAdapter, "Engagement adapter was successfully set");
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed to set engagement adapter. Group ID: {0}, engagement adapter ID: {1}, name: {2}, adapterUrl: {3}, isActive: {4}",
-                    groupId, engagementAdapter.ID, engagementAdapter.Name, engagementAdapter.AdapterUrl, engagementAdapter.IsActive), ex);
+                log.Error($"Failed to set engagement adapter. Group ID: {groupId}, engagement adapter ID: {newEngagementAdapter.ID}, " +
+                          $"name: {newEngagementAdapter.Name}, adapterUrl: {newEngagementAdapter.AdapterUrl}, isActive: {newEngagementAdapter.IsActive}", ex);
+                return EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_GENERAL_ERROR);
             }
-            return response;
         }
 
         internal static EngagementAdapterResponse GenerateEngagementSharedSecret(int groupId, int engagementAdapterId)
         {
-            EngagementAdapterResponse response = new EngagementAdapterResponse();
+            if (engagementAdapterId <= 0)
+            {
+                return EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_ID_REQUIRED);
+            }
 
             try
             {
-                if (engagementAdapterId <= 0)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
-                    return response;
-                }
-
-                //check Engagement Adapter exist
-                EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
+                var engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
                 if (engagementAdapter == null || engagementAdapter.ID <= 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
-                    return response;
+                    return EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_NOT_EXIST);
                 }
 
-                // Create Shared secret 
-                string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+                var sharedSecret = GenerateSharedSecret();
 
-                response.EngagementAdapter = EngagementDal.SetEngagementAdapterSharedSecret(groupId, engagementAdapterId, sharedSecret);
+                var adapterWithSecret = EngagementDal.SetEngagementAdapterSharedSecret(groupId, engagementAdapterId, sharedSecret);
+                if (adapterWithSecret == null || adapterWithSecret.ID <= 0)
+                {
+                    return EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_FAILED_SET_CHANGES);
+                }
 
-                if (response.EngagementAdapter != null && response.EngagementAdapter.ID > 0)
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Engagement adapter generate shared secret");
-                else
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Engagement adapter failed set changes");
+                engagementAdapter.SharedSecret = adapterWithSecret.SharedSecret;
+
+                return EngagementAdapterResponse.Ok(engagementAdapter, "Engagement adapter generate shared secret");
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}, engagementAdapterId={1}", groupId, engagementAdapterId), ex);
+                log.Error($"Failed to generate shared secret. GroupID={groupId}, engagementAdapterId={engagementAdapterId}", ex);
+                return EngagementAdapterResponse.Error(ENGAGEMENT_ADAPTER_GENERAL_ERROR);
             }
-
-            return response;
         }
 
-        //internal static Status SetEngagementAdapterSettings(int groupId, int engagementAdapterId, System.Collections.Generic.List<EngagementAdapterSettings> settings)
-        //{
-        //    ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-        //    try
-        //    {
-        //        if (engagementAdapterId == 0)
-        //        {
-        //            response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
-        //            return response;
-        //        }
-
-        //        if (settings == null || settings.Count == 0)
-        //        {
-        //            response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterParamsRequired, NO_PARAMS_TO_INSERT);
-        //            return response;
-        //        }
-
-        //        //check engagement Adapter exist
-        //        EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-        //        if (engagementAdapter == null || engagementAdapter.ID <= 0)
-        //        {
-        //            response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
-        //            return response;
-        //        }
-
-        //        int matchingKeyAmount = GetMatchingKeyAmount(engagementAdapter.Settings, settings);
-        //        if (matchingKeyAmount != settings.Count)
-        //        {
-        //            response = new ApiObjects.Response.Status((int)eResponseStatus.ConflictedParams, CONFLICTED_PARAMS);
-        //            return response;
-        //        }
-
-        //        bool isSet = EngagementDal.SetEngagementAdapterSettings(groupId, engagementAdapterId, settings);
-        //        if (isSet)
-        //        {
-        //            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "successfully set engagement adapter changes");
-        //            //Get engagement Adapter updated                        
-        //            engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-        //            if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
-        //                log.ErrorFormat("SetengagementAdapterSettings - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapterId);
-        //        }
-        //        else
-        //            response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to set engagement adapter settings, please check your input parameters");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-        //        log.Error(string.Format("Failed to set engagement adapter settings. Group ID: {0}, engagement adapter ID: {1}", groupId, engagementAdapterId), ex);
-        //    }
-        //    return response;
-        //}
-
-        private static int GetMatchingKeyAmount(System.Collections.Generic.List<EngagementAdapterSettings> originalList, System.Collections.Generic.List<EngagementAdapterSettings> settings)
+        private static EngagementAdapterResponse ValidateCommonFields(EngagementAdapter engagementAdapter)
         {
-            int matchingKeyAmount = 0;
-            EngagementAdapterSettings result;
-            foreach (EngagementAdapterSettings originalSettings in originalList)
+            if (string.IsNullOrEmpty(engagementAdapter.Name))
             {
-                result = settings.Find(x => x.Key == originalSettings.Key);
-                if (result != null)
-                    matchingKeyAmount++; ;
+                return EngagementAdapterResponse.Error(NAME_REQUIRED);
             }
 
-            return matchingKeyAmount;
+            if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
+            {
+                return EngagementAdapterResponse.Error(ADAPTER_URL_REQUIRED);
+            }
+
+            if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+            {
+                return EngagementAdapterResponse.Error(PROVIDER_URL_REQUIRED);
+            }
+
+            return null;
         }
+
+        private static string GenerateSharedSecret()
+        {
+            return Guid.NewGuid().ToString("N").Substring(0, 16);
+        }
+
+        # endregion Engagement Adapter
 
         internal static EngagementResponse AddEngagement(int partnerId, Engagement engagement)
         {
@@ -477,7 +386,7 @@ namespace Core.Notification
             {
                 if (EngagementDal.GetEngagementAdapter(partnerId, engagement.AdapterId) == null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
+                    response.Status = ENGAGEMENT_ADAPTER_NOT_EXIST;
                     log.ErrorFormat("Duplicate source list. User list and adapter ID are both with values. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
                     return false;
                 }
@@ -553,7 +462,7 @@ namespace Core.Notification
             if (templates == null || templates.Count == 0)
             {
                 log.ErrorFormat("Engagement template wasn't found: {0}", JsonConvert.SerializeObject(engagement));
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementTemplateNotFound, ENGAGEMENT_TEMPLATE_NOT_DOUND);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementTemplateNotFound, ENGAGEMENT_TEMPLATE_NOT_FOUND);
                 return false;
             }
 
@@ -1499,7 +1408,7 @@ namespace Core.Notification
             {
                 if (engagementAdapterId == 0)
                 {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
+                    status = ENGAGEMENT_ADAPTER_ID_REQUIRED;
                     return status;
                 }
 
@@ -1508,8 +1417,7 @@ namespace Core.Notification
 
                 if (engagementAdapter == null || engagementAdapter.ID <= 0)
                 {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
-                    return status;
+                    return ENGAGEMENT_ADAPTER_NOT_EXIST;
                 }
 
                 if (EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
@@ -1560,7 +1468,35 @@ namespace Core.Notification
             return true;
         }
 
-        internal static Status SendSmsToUser(int groupId, int userId, string message)
+        public static GenericResponse<string> GetPhoneNumberFromUser(int groupId, int userId)
+        {
+            var result = new GenericResponse<string>();
+            bool docExists = false;
+            UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
+            if (userNotificationData == null)
+            {
+                log.DebugFormat("user notification data wasn't found. sending SMS by user data GID: {0}, userId: {2}", groupId, userId);
+                Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
+                if (response == null || response.m_RespStatus != ApiObjects.ResponseStatus.OK || response.m_user == null)
+                {
+                    log.ErrorFormat("Failed to get user data for userId = {0}", userId);
+                    result.SetStatus(eResponseStatus.Error, "Failed to get user data");
+                    return result;
+                }
+                else
+                {
+                    result.Object = response.m_user.m_oBasicData.m_sPhone;
+                }
+            }
+            else if (userNotificationData.Settings.EnableSms == true)
+            {
+                result.Object = userNotificationData.UserData.PhoneNumber;
+            }
+
+            return result;
+        }
+
+        internal static Status SendSmsToUser(int groupId, int userId, string message, string phoneNumber)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -1591,38 +1527,27 @@ namespace Core.Notification
                 return result;
             }
 
-            string phoneNumber = null;
             // get user notification data
-            bool docExists = false;
-            UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
-            if (userNotificationData == null)
+            if (string.IsNullOrEmpty(phoneNumber))
             {
-                log.DebugFormat("user notification data wasn't found. sending SMS by user data GID: {0}, userId: {2}", groupId, userId);
-                Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, userId.ToString(), string.Empty);
-                if (response == null || response.m_RespStatus != ApiObjects.ResponseStatus.OK || response.m_user == null)
+                var _phoneNumber = GetPhoneNumberFromUser(groupId, userId);
+                if (!_phoneNumber.IsOkStatusCode())
                 {
-                    log.ErrorFormat("Failed to get user data for userId = {0}", userId);
                     result.Message = "Failed to get user data";
                     return result;
                 }
-                else
-                {
-                    phoneNumber = response.m_user.m_oBasicData.m_sPhone;
-                }
-            }
-            else if (userNotificationData.Settings.EnableSms == true)
-            {
-                phoneNumber = userNotificationData.UserData.PhoneNumber;
+                phoneNumber = _phoneNumber.Object;
             }
 
             if (!string.IsNullOrEmpty(phoneNumber))
             {
                 // send SMS                
                 var success = NotificationAdapter.SendSms(groupId, message, phoneNumber);
+
                 if (!success)
                 {
                     log.ErrorFormat("Error at SendSMS. GID: {0}, user ID: {1}, message: {2}", groupId, userId, message);
-                    result = new Status() { Code = (int)eResponseStatus.Error };
+                    result = new Status() { Code = (int)eResponseStatus.Error, Message = "Failed Sending Sms" };
                     return result;
                 }
 

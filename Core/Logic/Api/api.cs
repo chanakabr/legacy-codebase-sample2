@@ -5790,7 +5790,7 @@ namespace Core.Api
                 }
 
                 bool shouldUpdateEpgTagValues = parentalRuleToUpdate.epgTagValues != null;
-                if (shouldUpdateEpgTagValues && currentParentalRule.epgTagValues != null && currentParentalRule.mediaTagValues.SequenceEqual(parentalRuleToUpdate.epgTagValues))
+                if (shouldUpdateEpgTagValues && currentParentalRule.epgTagValues != null && currentParentalRule.epgTagValues.SequenceEqual(parentalRuleToUpdate.epgTagValues))
                 {
                     shouldUpdateEpgTagValues = false;
                 }
@@ -8336,31 +8336,29 @@ namespace Core.Api
             return null;
         }
 
-        public static ApiObjects.Roles.RolesResponse GetRoles(int groupId, List<long> roleIds)
+        public static RolesResponse GetRoles(int groupId, List<long> roleIds)
         {
-            RolesResponse response = new RolesResponse()
+            var roles = RolesPermissionsManager.GetRolesByGroupId(groupId);
+            if (roles == null)
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                log.Error($"Error while getting roles. group id = {groupId}");
+                return new RolesResponse
+                {
+                    Status = Status.Error
+                };
+            }
+
+            var shouldFilterByIds = roleIds?.Count > 0;
+            if (roles.Count > 0 && shouldFilterByIds)
+            {
+                roles = roles.Where(x => roleIds.Contains(x.Id)).ToList();
+            }
+
+            var response = new RolesResponse
+            {
+                Roles = roles,
+                Status = Status.Ok
             };
-
-            try
-            {
-                List<Role> roles = RolesPermissionsManager.GetRolesByGroupId(groupId);
-                if (roles?.Count > 0 && roleIds?.Count > 0)
-                {
-                    roles = roles.Where(x => roleIds.Contains(x.Id)).ToList();
-                }
-
-                if (roles?.Count > 0)
-                {
-                    response.Roles = roles;
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Error while getting roles. group id = {0}", groupId), ex);
-            }
 
             return response;
         }

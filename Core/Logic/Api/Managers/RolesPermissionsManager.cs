@@ -663,10 +663,9 @@ namespace APILogic.Api.Managers
             {
                 string key = LayeredCacheKeys.GetGroupPermissionsKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
-                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<long, Permission>>(key, ref result, BuildGroupPermissions,
+                if (!LayeredCache.Instance.Get<Dictionary<long, Permission>>(key, ref result, BuildGroupPermissions,
                                                                                                                 new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                                                                                 LayeredCacheConfigNames.GET_GROUP_PERMISSIONS,
-                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
                                                                                                                 new List<string>() { invalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetGroupPermissions from LayeredCache, groupId: {0}, key: {1}", groupId, key);

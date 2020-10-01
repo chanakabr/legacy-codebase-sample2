@@ -366,6 +366,16 @@ namespace TVinciShared
             return UtcUnixTimestampSecondsToDateTime(unixTimeStamp.Value);
         }
 
+        public static DateTime UtcUnixTimestampAbsSecondsToDateTime(long? unixTimeStamp)
+        {
+            if (!unixTimeStamp.HasValue)
+            {
+                return DateTime.MinValue;
+            }
+
+            return UtcUnixTimestampSecondsToDateTime(unixTimeStamp.Value);
+        }
+
         /// <summary>
         /// convert string to dateTime in format dd/MM/yyyy HH:mm:ss
         /// </summary>
@@ -413,6 +423,17 @@ namespace TVinciShared
         public static DateTime TruncateMilliSeconds(this DateTime dateTime)
         {
             return dateTime.AddTicks(-(dateTime.Ticks % TimeSpan.TicksPerSecond));
+        }
+
+
+        public static DateTime StartOfDay(this DateTime dateTime)
+        {
+            return dateTime.Date;
+        }
+
+        public static DateTime EndOfDay(this DateTime dateTime)
+        {
+            return dateTime.Date.AddDays(1).AddTicks(-1);
         }
     }
 }

@@ -66,24 +66,7 @@ namespace WebAPI.Controllers
 
             // days - default value 7
             if (filter.DaysLessThanOrEqual == null || (filter.DaysLessThanOrEqual.HasValue && filter.DaysLessThanOrEqual.Value == 0))
-                filter.DaysLessThanOrEqual = 7;
-
-            // validate typeIn - can be multiple only if does not contain recordings!
-            List<int> filterTypes = filter.getTypeIn();
-            if (filterTypes != null && filterTypes.Count > 1)
-            {
-                if (filterTypes.Contains(1))
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
-                        "KalturaAssetHistoryFilter.typeIn containing recording (1)", "KalturaAssetHistoryFilter.typeIn with single / multiple media types");
-                }
-
-                if (filterTypes.Contains(0))
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
-                        "KalturaAssetHistoryFilter.typeIn containing program (0)", "KalturaAssetHistoryFilter.typeIn with single / multiple media types");
-                }
-            }
+                filter.DaysLessThanOrEqual = 7;            
 
             string language = Utils.Utils.GetLanguageFromRequest();
 

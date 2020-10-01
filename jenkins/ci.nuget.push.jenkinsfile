@@ -13,9 +13,7 @@ pipeline {
     stages {
         stage("Clean"){
             steps{
-                sh(label:"clean published folder", script:"rm -rf *")
-                sh(label:"clean bin and obj folders", script:"find . -iname 'bin' -o -iname 'obj' | xargs rm -rf")
-                sh(label:"clean published folder", script:"rm -rf ./nugets")
+                deleteDir()
             }
         }
         stage("Checkout and restore Core Source"){
@@ -65,6 +63,8 @@ pipeline {
                 bat "dotnet pack Core/CachingProvider/CachingProvider.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/ApiObjects/ApiObjects.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/EventBus.Abstraction/EventBus.Abstraction.csproj -o ${WORKSPACE}/nugets/"
+				bat "dotnet pack Core/EventBus.Models/EventBus.Models.csproj -o ${WORKSPACE}/nugets/"
+				bat "dotnet pack Core/EventBus.Kafka/EventBus.Kafka.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/EventManager/EventManager.csproj -o ${WORKSPACE}/nugets/"
 				bat "dotnet pack Core/QueueWrapper/QueueWrapper.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/RabbitQueueWrapper/RabbitQueueWrapper.csproj -o ${WORKSPACE}/nugets/"
@@ -78,6 +78,7 @@ pipeline {
 				bat "dotnet pack Core/GroupsCacheManager/GroupsCacheManager.csproj -o ${WORKSPACE}/nugets/"
 				bat "dotnet pack Core/TVinciShared/TVinciShared.csproj -o ${WORKSPACE}/nugets/"
 				bat "dotnet pack Core/HealthCheck/HealthCheck.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/RedisManager/RedisManager.csproj -o ${WORKSPACE}/nugets/"
 
             }        
         }
@@ -95,6 +96,8 @@ pipeline {
                     bat "nuget push CachingProvider*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push ApiObjects*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push EventBus.Abstraction*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+					bat "nuget push EventBus.Models*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
+					bat "nuget push EventBus.Kafka*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push EventManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
 					bat "nuget push QueueWrapper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
                     bat "nuget push RabbitQueueWrapper*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0" 
@@ -108,6 +111,7 @@ pipeline {
 					bat "nuget push GroupsCacheManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
 					bat "nuget push TVinciShared*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
 					bat "nuget push HealthCheck*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
+					bat "nuget push RedisManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
                 }
             }
         }

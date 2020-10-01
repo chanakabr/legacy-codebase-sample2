@@ -301,12 +301,21 @@ namespace ElasticSearchHandler.IndexBuilders
                             }
                         }
                     }
-                    
+
+                    int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+                    if (maxDegreeOfParallelism == 0)
+                    {
+                        maxDegreeOfParallelism = 5;
+                    }
+
+                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                    ContextData contextData = new ContextData();
                     System.Net.ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
                     System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<int>>> failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<int>>>();
                     // Send request to elastic search in a different thread
-                    System.Threading.Tasks.Parallel.ForEach(bulkRequests, (bulkRequest, state) =>
+                    Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                     {
+                        contextData.Load();
                         List<ESBulkRequestObj<int>> invalidResults;
                         bool bulkResult = api.CreateBulkRequests(bulkRequest.Value, out invalidResults);
 

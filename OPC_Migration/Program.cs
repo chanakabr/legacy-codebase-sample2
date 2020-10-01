@@ -113,6 +113,10 @@ namespace OPC_Migration
                         Console.WriteLine("Failed getting group object for groupId: {0}, stopping validation and data preparation process until issue will be solved", groupId);
                         return;
                     }
+                    else
+                    {
+                        Utils.TrimEndSpaceFromGroup(group);
+                    }
 
                     // Validate and prepare data
                     ValidateAndPrepareDataManager prepDataMang = new ValidateAndPrepareDataManager(groupId, regularGroupId, linearMediaTypeId, programMediaTypeId);
@@ -180,11 +184,18 @@ namespace OPC_Migration
                     {
                         Console.WriteLine("Please enter a valid answer (true or false)");
                     }
+                    
+                    Console.WriteLine("Use mig_ table prefix? true/false");
+                    bool useMigTablesPrefix = false;
+                    while (!bool.TryParse(Console.ReadLine(), out useMigTablesPrefix))
+                    {
+                        Console.WriteLine("Please enter a valid answer (true or false)");
+                    }
 
                     if (shouldStartMigration)
                     {
                         // Perform the migration
-                        MigrateManager migrationMang = new MigrateManager(groupId, sequenceId, shouldBackup);
+                        MigrateManager migrationMang = new MigrateManager(groupId, sequenceId, shouldBackup, useMigTablesPrefix);
                         Console.WriteLine("Performing Migration");
                         log.DebugFormat("Performing Migration");
                         watch.Restart();
@@ -232,6 +243,7 @@ namespace OPC_Migration
             catch (Exception ex)
             {
                 log.Error("An error occurred during OPC migration process", ex);
+                Console.WriteLine($"An error occurred during OPC migration process {ex.Message}");
             }
 
             Console.WriteLine("Done, press enter to close");

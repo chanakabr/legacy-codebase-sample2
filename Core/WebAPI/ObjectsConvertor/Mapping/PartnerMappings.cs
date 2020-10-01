@@ -235,6 +235,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown DurationUnit value : {durationUnit.ToString()}");
                    }
                });
+
+            cfg.CreateMap<KalturaCatalogPartnerConfig, CatalogPartnerConfig>()
+               .ForMember(dest => dest.SingleMultilingualMode, opt => opt.MapFrom(src => src.SingleMultilingualMode));
+
+            cfg.CreateMap<CatalogPartnerConfig, KalturaCatalogPartnerConfig>()
+               .ForMember(dest => dest.SingleMultilingualMode, opt => opt.MapFrom(src => src.SingleMultilingualMode));
         }
 
         private static KalturaRollingDevicePolicy ConvertRollingDevicePolicy(

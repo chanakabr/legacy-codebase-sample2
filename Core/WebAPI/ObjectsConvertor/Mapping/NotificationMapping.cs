@@ -5,6 +5,7 @@ using ApiObjects.SearchObjects;
 using AutoMapper.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -121,6 +122,32 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.FollowSettings, opt => opt.MapFrom(src => src.PushFollowEnabled))
                  .ForMember(dest => dest.EnableMail, opt => opt.MapFrom(src => src.MailEnabled))
                  .ForMember(dest => dest.EnableSms, opt => opt.MapFrom(src => src.SmsEnabled));
+
+            cfg.CreateMap<KalturaSmsAdapterProfile, SmsAdapterProfile>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret))
+                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
+                ;
+
+            cfg.CreateMap<SmsAdapterProfile, KalturaSmsAdapterProfile>()
+               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings != null ? 
+               src.Settings.ToDictionary(k => k.Key, v => v.Value) : null))
+               ;
+
+            cfg.CreateMap<KalturaSmsAdapterProfile, SmsAdapterProfile>()
+                .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertSmsAdapterSettings(src)))
+                ;
+
+            cfg.CreateMap<SmsAdapterProfile, KalturaSmsAdapterProfile>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings))
+                .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret))
+                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+                ;
 
             cfg.CreateMap<KalturaAnnouncement, MessageAnnouncement>()
                  .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.getEnabled()))
@@ -396,6 +423,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaConcurrencyViolation, ConcurrencyViolation>()
                 .IncludeBase<KalturaOTTObject, CoreObject>()
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
+                .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                .ForMember(dest => dest.UDID, opt => opt.MapFrom(src => src.UDID))
+                .ForMember(dest => dest.ViolationRule, opt => opt.MapFrom(src => src.ViolationRule))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+
+            cfg.CreateMap<ConcurrencyViolation, KalturaConcurrencyViolation>()
+                .IncludeBase<CoreObject, KalturaOTTObject>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
@@ -782,6 +818,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        private static List<SmsAdapterParam> ConvertSmsAdapterSettings(KalturaSmsAdapterProfile src)
+        {
+            if (src.Settings == null) { return new List<SmsAdapterParam>(); }
+
+            var settingsList = src.Settings.Select(s => new SmsAdapterParam
+            {
+                AdapterId = (int)src.Id,
+                Key = s.Key,
+                Value = s.Value != null ? s.Value.value : null,
+            });
+
+            return settingsList.ToList();
+        }
         public static eMessageCategory ConvertInboxMessageType(KalturaInboxMessageType kalturaInboxMessageType)
         {
             eMessageCategory result;

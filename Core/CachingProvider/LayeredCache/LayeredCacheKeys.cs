@@ -586,6 +586,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("device_reference_data_by_group_V1_{0}", groupId);
         }
 
+        public static string GetSmsAdapaterByGroupKey(int groupId)
+        {
+            return string.Format("sms_adapter_by_group_{0}", groupId);
+        }
+
         public static string GetSSOAdapaterImplementationsKey(int adapterId)
         {
             return string.Format("sso_adapter_implementations_v1_{0}", adapterId);
@@ -709,6 +714,11 @@ namespace CachingProvider.LayeredCache
         public static string GetPaymentPartnerConfigKey(int groupId)
         {
             return string.Format("payment_partner_config_{0}", groupId);
+        }
+
+        public static string GetCatalogPartnerConfigKey(int groupId)
+        {
+            return string.Format("catalog_partner_config_{0}", groupId);
         }
 
         #endregion
@@ -955,6 +965,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("InvalidationKey_TstvAccountSettings_groupId_{0}", groupId);
         }
 
+        public static string GetSmsAdapaterInvalidationKey(int groupId)
+        {
+            return $"InvalidationKey_smsAdapter_groupId_{groupId}";
+        }
+
         public static Dictionary<string, List<string>> GetAssetsInvalidationKeysMap(string assetType, List<long> ids)
         {
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
@@ -993,7 +1008,7 @@ namespace CachingProvider.LayeredCache
                 ids = ids.Distinct().ToList();
                 foreach (long id in ids)
                 {
-                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });
+                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });                    
                 }
             }
 
@@ -1255,6 +1270,11 @@ namespace CachingProvider.LayeredCache
         public static string GetDomainDeviceInvalidationKey(int domainId, string deviceId)
         {
             return $"invalidationKey_domain_{domainId}_device_{deviceId}";
+        }
+
+        public static string GetCatalogPartnerConfigInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_{0}", GetCatalogPartnerConfigKey(groupId));
         }
 
         #endregion

@@ -9,10 +9,12 @@ using System.Security.AccessControl;
 using KLogMonitor;
 using System.Reflection;
 using ConfigurationManager;
+using CachingProvider.LayeredCache;
+using Newtonsoft.Json;
 
 namespace CachingProvider
 {
-    public class SingleInMemoryCache : ICachingService, IDisposable
+    public class SingleInMemoryCache : ICachingService, IDisposable, ILayeredCacheService
     {
         /*
          * Pay attention !
@@ -41,7 +43,20 @@ namespace CachingProvider
         {
             CacheName = GetCacheName();
             DefaultMinOffset = (double)defaultExpirationInSeconds / 60;
-            cache = new MemoryCache(CacheName);
+            var config = new System.Collections.Specialized.NameValueCollection();
+
+            if (ApplicationConfiguration.Current.MemoryCacheConfiguration.CacheMemoryLimit.Value > 0)
+            {
+                config["cacheMemoryLimitMegabytes"] = ApplicationConfiguration.Current.MemoryCacheConfiguration.CacheMemoryLimit.Value.ToString();
+            }
+            
+            if (ApplicationConfiguration.Current.MemoryCacheConfiguration.PollingIntervalSeconds.Value > 0)
+            {
+                var timeSpan = TimeSpan.FromSeconds(ApplicationConfiguration.Current.MemoryCacheConfiguration.PollingIntervalSeconds.Value);
+                config["pollingInterval"] = timeSpan.ToString();
+            }
+
+            cache = new MemoryCache(CacheName, config);
         }
 
         #endregion
@@ -367,6 +382,24 @@ namespace CachingProvider
             return GetValues(keys, ref results, shouldAllowPartialQuery);
         }
 
+        public bool Set<T>(string key, T value, uint ttlInSeconds, JsonSerializerSettings jsonSerializerSettings = null)
+        {
+            bool bRes = false;
+            try
+            {
+                DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes((double)ttlInSeconds / 60);
+                cache.Set(key, value, dtExpiresAt);
+                bRes = true;
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("SetWithVersion<T>", ex);
+                return false;
+            }
+
+            return bRes;
+        }
     }
 
 }

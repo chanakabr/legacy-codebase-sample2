@@ -335,15 +335,16 @@ namespace EpgBL
         {
             EpgCB oRes;
 
+            var docKey = GetEpgCBKey(m_nGroupID, (long)nProgramID);
+
             if (includeRecordingFallback)
             {
-                var docKey = GetEpgCBKey(m_nGroupID, (long)nProgramID);
                 var list = m_oEpgCouchbase.GetProgram(new List<string>() { docKey });
                 oRes = list.FirstOrDefault();
             }
             else
             {
-                oRes = m_oEpgCouchbase.GetProgram(nProgramID.ToString());
+                oRes = m_oEpgCouchbase.GetProgram(docKey);
             }
 
             return (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null; ;
@@ -521,6 +522,36 @@ namespace EpgBL
 
 
             return lRes;
+        }
+
+        public List<EpgCB> GetGroupEpgsWithBulkSize(DateTime? dfromDate, DateTime? dToDate, bool falseStaleState, int bulkSize)
+        {
+            List<EpgCB> epgs = new List<EpgCB>();
+            int pageSize = 0, startIndex = 0;
+            if (bulkSize > 0)
+            {
+                pageSize = bulkSize;
+            }
+
+            bool shouldGetNextPage = true;
+            while (shouldGetNextPage)
+            {
+                List<EpgCB> page = GetGroupEpgs(pageSize, startIndex, dfromDate, dToDate, falseStaleState, bulkSize);
+                if (page?.Count > 0)
+                {
+                    epgs.AddRange(page);
+                    page = null;
+                }
+                else
+                {
+                    shouldGetNextPage = false;
+                }
+
+                startIndex += pageSize;
+            }
+
+
+            return epgs;
         }
 
         public List<EpgCB> GetChannelPrograms(int nPageSize, int nStartIndex, int nChannelID, DateTime? fromUTCDay, DateTime? toUTCDay)
@@ -958,11 +989,17 @@ namespace EpgBL
             return newPicURL;
         }
 
-        public override List<EpgCB> GetEpgs(List<string> lIds)
+        public override List<EpgCB> GetEpgs(List<string> lIds, bool isRecordings = false)
         {
             try
             {
-                // Arthur: TODO: check if we can do long.parse here to get the key from elastic
+                if (isRecordings)
+                {
+                    return m_oEpgCouchbase.GetProgramFromRecordings(lIds);
+                }
+
+                lIds = lIds.Select(x => GetEpgCBKey(m_nGroupID, long.Parse(x))).ToList();
+
                 List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(lIds);
                 return lResCB;
             }
@@ -1181,6 +1218,16 @@ namespace EpgBL
 
             var hits = (json["hits"]["hits"] as JArray);
             var results = hits.Select(hit => ESUtils.ExtractValueFromToken<string>(hit["fields"], "document_id")).ToList();
+
+            //support for recordings
+            var resultsEpgIds = hits.Select(hit => long.Parse(ESUtils.ExtractValueFromToken<string>(hit["fields"], "epg_id"))).ToList();
+
+            var except = epgIds.ToList().Except(resultsEpgIds).ToList();
+            if (except?.Count > 0)
+            {
+                results.AddRange(GetEpgsCBKeysV1(epgIds, langCodes));
+            }
+
             return results;
         }
 
@@ -1191,50 +1238,35 @@ namespace EpgBL
             var result = new List<string>();
             var isNewEpgIngestEnabled = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
 
-            if (isNewEpgIngestEnabled)
+            if (isNewEpgIngestEnabled && !isAddAction)
             {
-                if (!isAddAction)
-                {
-                    // using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it
-                    // so there is no way for us to now what is the document id.
-                    // elastisearch holds the current document in CB so we go there to take it
-                    result = GetEpgCBDocumentIdsByEpgIdFromElasticsearch(groupId, epgIds, langCodes);
-                }
-                else
-                {
-                    if (langCodes == null)
-                    {
-                        result = epgIds.Select(x=>x.ToString()).ToList();
-                    }
-                    else
-                    {
-                        foreach (var epgId in epgIds)
-                        {
-                            var keys = langCodes.Select(langCode => langCode.IsDefault ?
-                            $"{epgId}" :
-                            $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
-
-                            result.AddRange(keys.ToList());
-                        }
-                        
-                    }
-                }
+                // using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it
+                // so there is no way for us to now what is the document id.
+                // elastisearch holds the current document in CB so we go there to take it
+                result = GetEpgCBDocumentIdsByEpgIdFromElasticsearch(groupId, epgIds, langCodes);
             }
             else
             {
-                if (langCodes == null)
-                {
-                    result = epgIds.Select(x => x.ToString()).ToList();
-                }
-                else
-                {
-                    foreach (var epgId in epgIds)
-                    {
-                        var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
+                result.AddRange(GetEpgsCBKeysV1(epgIds, langCodes));
+            }
 
-                        result.AddRange(keys.ToList());
-                    }
-               
+            return result;
+        }
+
+        private List<string> GetEpgsCBKeysV1(IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes)
+        {
+            var result = new List<string>();
+            if (langCodes == null)
+            {
+                result = epgIds.Select(x => x.ToString()).ToList();
+            }
+            else
+            {
+                foreach (var epgId in epgIds)
+                {
+                    var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
+
+                    result.AddRange(keys.ToList());
                 }
             }
 

@@ -137,17 +137,32 @@ namespace ApiLogic.Api.Managers
                     var regions = GetRegions(groupId, filter);
                     if (regions != null && regions.HasObjects())
                     {
-                        //log.ErrorFormat("");
+                        log.Error($"Cannot set region to sub region. groupId {groupId}.regionId {region.id} region.parentId  {region.parentId }");
                         response.SetStatus((int)eResponseStatus.Error, "Cannot set region to sub region");
                         return response;
                     }
                 }
 
-                if (regionToUpdate.linearChannels?.Count > 0 && !ValidateLinearChannelsExist(groupId, regionToUpdate.linearChannels))
+                if (regionToUpdate.linearChannels?.Count > 0)
                 {
-                    log.ErrorFormat("One or more of the assets in linear channel list does not exist. groupId:{0}, id:{1}", groupId, region.id);
-                    response.SetStatus(eResponseStatus.Error, "One or more of the assets in linear channel list does not exist");
-                    return response;
+                    if (parentRegion == null && regionToUpdate.parentId != 0)
+                    {
+                        // parent region need for validate channels
+                        parentRegion = GetRegion(groupId, regionToUpdate.parentId);
+                        if (parentRegion == null)
+                        {
+                            log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.parentId);
+                            response.SetStatus((int)eResponseStatus.RegionNotFound, "Parent region was not found");
+                            return response;
+                        }
+                    }
+
+                    var status = ValidateLinearChannels(groupId, regionToUpdate, parentRegion);
+                    if (!status.IsOkStatusCode())
+                    {
+                        response.Status.Set(status);
+                        return response;
+                    }
                 }
 
                 if (!ApiDAL.UpdateRegion(groupId, regionToUpdate, userId))
@@ -159,22 +174,23 @@ namespace ApiLogic.Api.Managers
 
                 InvalidateRegions(groupId);
 
-                if (parentRegion != null)
-                {
-                    regionToUpdate.linearChannels = parentRegion.linearChannels;
-                }
-
-                if (regionToUpdate.parentId == 0)
+                if (regionToUpdate.linearChannels?.Count > 0 || region.linearChannels?.Count > 0)
                 {
                     List<long> assetsToIndex = null;
-                    if (region.parentId > 0)
+
+                    if (regionToUpdate.linearChannels?.Count > 0 && region.linearChannels?.Count > 0)
+                    {
+                        assetsToIndex = GetLinearChannelsDiff(region.linearChannels, regionToUpdate.linearChannels);
+                    }
+                    else if (regionToUpdate.linearChannels?.Count > 0)
                     {
                         assetsToIndex = regionToUpdate.linearChannels.Select(lc => long.Parse(lc.key)).ToList();
                     }
                     else
                     {
-                        assetsToIndex = GetLinearChannelsDiff(region.linearChannels, regionToUpdate.linearChannels);
+                        assetsToIndex = region.linearChannels.Select(lc => long.Parse(lc.key)).ToList();
                     }
+
                     if (assetsToIndex?.Count > 0)
                     {
                         CatalogLogic.UpdateIndex(assetsToIndex, groupId, eAction.Update);
@@ -183,6 +199,16 @@ namespace ApiLogic.Api.Managers
                             UpdateProgramsRegions(groupId, asset);
                         }
                     }
+                }
+
+                if (parentRegion != null)
+                {
+                    if (regionToUpdate.linearChannels == null)
+                    {
+                        regionToUpdate.linearChannels = new List<ApiObjects.KeyValuePair>();
+                    }
+
+                    regionToUpdate.linearChannels.AddRange(parentRegion.linearChannels);
                 }
             }
             catch (Exception exc)
@@ -251,11 +277,14 @@ namespace ApiLogic.Api.Managers
                     }
                 }
 
-                if (region.linearChannels?.Count > 0 && !ValidateLinearChannelsExist(groupId, region.linearChannels))
+                if (region.linearChannels?.Count > 0)
                 {
-                    log.ErrorFormat("One or more of the assets in linear channel list does not exist. groupId:{0}", groupId);
-                    response.SetStatus(eResponseStatus.Error, "One or more of the assets in linear channel list does not exist");
-                    return response;
+                    var status = ValidateLinearChannels(groupId, region, parentRegion);
+                    if (!status.IsOkStatusCode())
+                    {
+                        response.SetStatus(status);
+                        return response;
+                    }
                 }
 
                 region.id = ApiDAL.AddRegion(groupId, region, userId);
@@ -269,12 +298,7 @@ namespace ApiLogic.Api.Managers
 
                 InvalidateRegions(groupId);
 
-                if (parentRegion != null)
-                {
-                    region.linearChannels = parentRegion.linearChannels;
-                }
-
-                if (region.parentId == 0 && region.linearChannels?.Count > 0)
+                if (region.linearChannels?.Count > 0)
                 {
                     var assets = region.linearChannels.Select(lc => long.Parse(lc.key)).ToList();
                     CatalogLogic.UpdateIndex(assets, groupId, eAction.Update);
@@ -282,6 +306,18 @@ namespace ApiLogic.Api.Managers
                     foreach (var asset in assets)
                     {
                         UpdateProgramsRegions(groupId, asset);
+                    }
+                }
+
+                if (parentRegion != null)
+                {
+                    if (region.linearChannels == null)
+                    {
+                        region.linearChannels = parentRegion.linearChannels;
+                    }
+                    else
+                    {
+                        region.linearChannels.AddRange(parentRegion.linearChannels);
                     }
                 }
             }
@@ -351,7 +387,7 @@ namespace ApiLogic.Api.Managers
                                         }
                                     }
                                 }
-                            }                                
+                            }
                         }
                     }
                 }
@@ -421,7 +457,7 @@ namespace ApiLogic.Api.Managers
             return result;
         }
 
-        internal static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex = 0, int pageSize = 0 )
+        internal static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex = 0, int pageSize = 0)
         {
             GenericListResponse<Region> result = new GenericListResponse<Region>();
 
@@ -434,7 +470,7 @@ namespace ApiLogic.Api.Managers
                     {
                         filter.RegionIds = map[filter.LiveAssetId];
                     }
-                    
+
                     if (filter.RegionIds == null || filter.RegionIds.Count == 0)
                     {
                         result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -455,7 +491,7 @@ namespace ApiLogic.Api.Managers
                         result.Objects = regionsCache.Regions.Where(r => filter.RegionIds.Contains(r.Key)).Select(r => r.Value).ToList();
                         result.TotalItems = result.Objects.Count;
 
-                        if (filter.ParentOnly) 
+                        if (filter.ParentOnly)
                         {
                             result.Objects = result.Objects.Where(x => x.parentId == 0).ToList();
                             result.TotalItems = result.Objects.Count;
@@ -483,7 +519,7 @@ namespace ApiLogic.Api.Managers
                     }
                     else if (filter.ParentOnly)
                     {
-                        result.Objects = regionsCache.Regions.Where( x => x.Value.parentId == 0).Select(x => x.Value).ToList();
+                        result.Objects = regionsCache.Regions.Where(x => x.Value.parentId == 0).Select(x => x.Value).ToList();
                         result.TotalItems = result.Objects.Count;
                     }
 
@@ -502,12 +538,16 @@ namespace ApiLogic.Api.Managers
 
                         foreach (var item in result.Objects)
                         {
-                            if (item.parentId > 0)
+                            if (item.parentId > 0 && !filter.ExclusiveLcn)
                             {
-                                item.linearChannels = new List<ApiObjects.KeyValuePair>();
+                                if (item.linearChannels == null)
+                                {
+                                    item.linearChannels = new List<ApiObjects.KeyValuePair>();
+                                }
+
                                 if (regionsCache.Regions.ContainsKey(item.parentId))
                                 {
-                                    item.linearChannels = regionsCache.Regions[item.parentId].linearChannels;
+                                    item.linearChannels.AddRange(regionsCache.Regions[item.parentId].linearChannels);
                                 }
                             }
                         }
@@ -673,18 +713,79 @@ namespace ApiLogic.Api.Managers
             return linearChannelsDic.Where(x => x.Value == 1).Select(y => y.Key).ToList();
         }
 
-        private static bool ValidateLinearChannelsExist(int groupId, List<KeyValuePair> linearChannels)
+        private static Status ValidateLinearChannels(int groupId, Region region, Region parentRegion)
         {
-            bool result = false;
-            try
-            {
-                List<KeyValuePair<eAssetTypes, long>> assets = linearChannels.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.key))).ToList();
-                var allAssets = AssetManager.GetAssets(groupId, assets, true);
-                result = allAssets?.Count == linearChannels.Count;
-            }
-            catch (Exception ex)
-            {
+            Status result = new Status();
 
+            HashSet<string> linearChannels = new HashSet<string>();
+            int number = 0;
+
+            foreach (var item in region.linearChannels)
+            {
+                if (!int.TryParse(item.key, out number))
+                {
+                    result.Set(eResponseStatus.InputFormatIsInvalid, $"The channel id {item.key} is invalid");
+                    return result;
+                }
+
+                if (!int.TryParse(item.value, out number))
+                {
+                    result.Set(eResponseStatus.InputFormatIsInvalid, $"The channel number  {item.value}  is invalid");
+                    return result;
+                }
+
+                if (linearChannels.Contains(item.key))
+                {
+                    result.Set(eResponseStatus.DuplicateRegionChannel, $"Channel ID, { item.key}: the channel or its LCN already appears in this bouquet or one of its subbouquets.");
+                    return result;
+                }
+
+                linearChannels.Add(item.key);
+            }
+
+            if (parentRegion != null)
+            {
+                bool duplicate = parentRegion.linearChannels.Any(x => linearChannels.Contains(x.key));
+
+                if (duplicate)
+                {
+                    List<string> channelKeys = parentRegion.linearChannels.Where(x => linearChannels.Contains(x.key)).Select(z => z.key).ToList();
+                    result.Set(eResponseStatus.ParentAlreadyContainsChannel, $"For the following channel(s), the channel or its LCN already appears in the parent bouquet: { string.Join(",", channelKeys)}");
+                    return result;
+                }
+            }
+            else if (region.id > 0)
+            {
+                //get region children
+                RegionFilter filterParent = new RegionFilter() { ParentId = region.id, ExclusiveLcn = true };
+                var subRegions = GetRegions(groupId, filterParent);
+                if (subRegions != null && subRegions.HasObjects())
+                {
+                    //search for duplicates
+                    foreach (var subRegion in subRegions.Objects)
+                    {
+                        if (subRegion.linearChannels?.Count > 0)
+                        {
+                            bool duplicate = subRegion.linearChannels.Any(x => linearChannels.Contains(x.key));
+
+                            if (duplicate)
+                            {
+                                List<string> channelKeys = subRegion.linearChannels.Where(x => linearChannels.Contains(x.key)).Select(z => z.key).ToList();
+                                result.Set(eResponseStatus.DuplicateRegionChannel, $"For the following channel(s), the channel or its LCN already appears in this bouquet or one of its subbouquets: {channelKeys}");
+                                return result;
+                            }
+                        }
+                    }
+                }
+            }
+
+            List<KeyValuePair<eAssetTypes, long>> assets = linearChannels.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x))).ToList();
+            var allAssets = AssetManager.GetAssets(groupId, assets, true);
+            if (allAssets == null || allAssets.Count != linearChannels.Count)
+            {
+                log.Error($"One or more of the assets in linear channel list does not exist. groupId:{groupId}, id:{region.id}");
+                result.Set(eResponseStatus.Error, "One or more of the assets in linear channel list does not exist");
+                return result;
             }
 
             return result;

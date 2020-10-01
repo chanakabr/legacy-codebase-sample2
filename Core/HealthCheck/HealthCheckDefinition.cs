@@ -37,6 +37,7 @@ namespace HealthCheck
         CouchBase,
         ElasticSearch,
         RabbitMQ,
-        ThirdParty
+        ThirdParty,
+        Redis
     }
 }

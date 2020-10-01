@@ -43,6 +43,7 @@ namespace Reflector
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Reflection;");
             file.WriteLine("using TVinciShared;");
+            file.WriteLine("using WebAPI.Exceptions;");
         }
 
         protected override void writeBody()
@@ -81,6 +82,11 @@ namespace Reflector
             }
             else if (propertyType.IsEnum)
             {
+                file.WriteLine($"                    if(string.IsNullOrEmpty(parameters[\"{apiName}\"].ToString()))");             
+                file.WriteLine("                    {");
+                file.WriteLine($"                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, \"{apiName}\");");
+                file.WriteLine("                    }");
+                file.WriteLine();
                 file.WriteLine("                    " + property.Name + " = (" + propertyType.Name + ") Enum.Parse(typeof(" + propertyType.Name + "), parameters[\"" + apiName + "\"].ToString(), true);");
                 file.WriteLine();
                 file.WriteLine("                    if (!Enum.IsDefined(typeof(" + propertyType.Name + "), " + property.Name + "))");

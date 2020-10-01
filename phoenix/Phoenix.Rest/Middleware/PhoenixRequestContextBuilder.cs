@@ -11,13 +11,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
 using WebAPI;
 using WebAPI.Filters;
-using WebAPI.Managers;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
 
@@ -264,15 +265,15 @@ namespace Phoenix.Rest.Middleware
             {
                 return await ParseFormDataBody(request, context);
             }
-            else if (request.ContentType.Equals("application/json", StringComparison.OrdinalIgnoreCase))
+
+            if (MediaTypeHeaderValue.TryParse(request.ContentType, out var contentType) &&
+                contentType.MediaType.Equals(MediaTypeNames.Application.Json, StringComparison.OrdinalIgnoreCase))
             {
                 return await ParseJsonBody(request, context);
             }
-            else
-            {
-                // TODO: Arthur, handle error
-                throw new Exception("Unsupported content type");
-            }
+
+            // TODO: Arthur, handle error
+            throw new Exception("Unsupported content type");
         }
 
         private IDictionary<string, object> GetActionParamsFromQueryString(HttpRequest request)
@@ -312,17 +313,17 @@ namespace Phoenix.Rest.Middleware
         private async Task<IDictionary<string, object>> ParseUploadedFiles(HttpRequest request)
         {
             var uploadedFiles = new Dictionary<string, object>();
-            if (!Directory.Exists(_FileSystemUploaderSourcePath))
-            {
-                Directory.CreateDirectory(_FileSystemUploaderSourcePath);
-            }
 
             foreach (var uploadedFile in request.Form.Files)
             {
 
                 if (ApplicationConfiguration.Current.RequestParserConfiguration.ShouldSaveAsFile.Value)
                 {
-                    
+                    if (!Directory.Exists(_FileSystemUploaderSourcePath))
+                    {
+                        Directory.CreateDirectory(_FileSystemUploaderSourcePath);
+                    }
+
                     var filePath = Path.Combine(_FileSystemUploaderSourcePath, CreateRandomFileName(uploadedFile.FileName));
                     using (Stream tempFile = File.Create(filePath))
                     {

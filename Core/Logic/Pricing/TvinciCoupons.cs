@@ -84,49 +84,71 @@ namespace Core.Pricing
             return tmp;
         }
 
-        public override CouponData GetCouponStatus(string sCouponCode, long domainId)
+        public override CouponData GetCouponStatus(string couponCode, long domainId)
         {
-            CouponData data = new CouponData();
-            Coupon coupon = new Coupon();
-            int? totalUses = null, leftUses = null;
+            var coupon = PricingDAL.GetCoupon(m_nGroupID, couponCode).ToCoupon();
+            if (NotExist(coupon)) return CouponData.NotExist;
 
-            if (coupon.Initialize(sCouponCode, m_nGroupID))
+            var couponsGroup = CouponsGroup.GetCouponsGroup(coupon.couponsGroupId, m_nGroupID);
+            var couponDomainUses = new Lazy<int>(() => PricingDAL.GetCouponDomainUses(m_nGroupID, coupon.m_nCouponID, domainId));
+            var status = CalculateCouponStatus(coupon, couponsGroup, couponDomainUses);
+
+            int? maxUses = null;
+            int? leftUses = null;
+            if (status == CouponsStatus.AllreadyUsed)
             {
-                CouponsGroup couponsGroup = CouponsGroup.GetCouponsGroup(coupon.couponsGroupId, m_nGroupID);
-                
-                CouponsStatus status = coupon.GetCouponStatus(m_nGroupID, couponsGroup);
-                if (status == CouponsStatus.Valid)
-                {
-                    int uses = coupon.useCount;
-                    if (couponsGroup.maxDomainUses > 0)
-                    {
-                        totalUses = couponsGroup.maxDomainUses;
-                        int domainUses = PricingDAL.GetCouponDomainUses(m_nGroupID, coupon.m_nCouponID, domainId);
-                        if (domainUses >= couponsGroup.maxDomainUses)
-                        {
-                            status = CouponsStatus.AllreadyUsed;
-                            leftUses = 0;
-                        }
-                        else
-                        {
-                            leftUses = couponsGroup.maxDomainUses - domainUses;
-                        }
-                    }
-                }
-
-                data.Initialize(sCouponCode, couponsGroup, status, coupon.m_couponType, coupon.m_campaignID, coupon.m_ownerGUID, coupon.m_ownerMedia, leftUses, totalUses);
+                maxUses = couponsGroup.HasDomainLimitation() ? couponsGroup.maxDomainUses : couponsGroup.m_nMaxUseCountForCoupon;
+                leftUses = 0;
             }
-            else
+            else if (status == CouponsStatus.Valid)
             {
-                data.m_CouponStatus = CouponsStatus.NotExists;
+                // if domain/household has coupon's limitation, we return leftUses for domain scope
+                // otherwise, return leftUses for global(partner/group) scope
+                int currentUses;
+                (maxUses, currentUses) = couponsGroup.HasDomainLimitation()
+                    ? (couponsGroup.maxDomainUses, couponDomainUses.Value)
+                    : (couponsGroup.m_nMaxUseCountForCoupon, coupon.useCount);
+                leftUses = maxUses - currentUses;
             }
 
+            var data = new CouponData(couponCode, couponsGroup, status, coupon.m_couponType, coupon.m_campaignID,
+                coupon.m_ownerGUID, coupon.m_ownerMedia, leftUses, maxUses);
+            
             return data;
         }
 
-        public override CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, Int32 nMFID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode, long domainId)
+        public override CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, int nMFID, int nSubCode, int nCollectionCode, int nPrePaidCode, long domainId)
         {
-            return Coupon.SetCouponUsed(sCouponCode, m_nGroupID, sSiteGUID, nCollectionCode, nMFID, nSubCode, nPrePaidCode, domainId);
+            var coupon = PricingDAL.GetCoupon(m_nGroupID, sCouponCode).ToCoupon();
+            if (NotExist(coupon)) return CouponsStatus.NotExists;
+
+            var couponsGroup = CouponsGroup.GetCouponsGroup(coupon.couponsGroupId, m_nGroupID);
+            var couponDomainUses = new Lazy<int>(() => PricingDAL.GetCouponDomainUses(m_nGroupID, coupon.m_nCouponID, domainId));
+
+            var couponsStatus = CalculateCouponStatus(coupon, couponsGroup, couponDomainUses);
+            if (couponsStatus == CouponsStatus.Valid)
+            {
+                PricingDAL.SetCouponUsed(coupon.m_nCouponID, m_nGroupID, sSiteGUID, nCollectionCode, nMFID,
+                    nSubCode, nPrePaidCode, domainId);
+            }
+            return couponsStatus;
+        }
+
+        private static bool NotExist(Coupon coupon)
+        {
+            return coupon == null || !coupon.status || !coupon.isActive;
+        }
+
+        private static CouponsStatus CalculateCouponStatus(Coupon coupon, CouponsGroup couponsGroup, Lazy<int> couponDomainUses)
+        {
+            if (couponsGroup.m_dEndDate <= DateTime.UtcNow) return CouponsStatus.Expired;
+            if (couponsGroup.m_dStartDate >= DateTime.UtcNow) return CouponsStatus.NotActive;
+            // global limitation
+            if (couponsGroup.m_nMaxUseCountForCoupon <= coupon.useCount) return CouponsStatus.AllreadyUsed;
+            // domain limitation
+            if (couponsGroup.HasDomainLimitation() && couponsGroup.maxDomainUses <= couponDomainUses.Value) return CouponsStatus.AllreadyUsed;
+
+            return CouponsStatus.Valid;
         }
 
         public override List<Coupon> GenerateCoupons(int numberOfCoupons, long couponGroupId, out ApiObjects.Response.Status status, bool useLetters = true, bool useNumbers = true, bool useSpecialCharacters = true)

@@ -225,7 +225,6 @@ namespace Core.Social
         {
             FacebookConfigResponse response = new FacebookConfigResponse();
 
-            string str = ApplicationConfiguration.Current.DatabaseConfiguration.ConnectionString.Value;
             FacebookWrapper oFBWRapper = new FacebookWrapper(nGroupID);
             response.FacebookConfig = oFBWRapper.FBConfig;
             if (response.FacebookConfig != null)

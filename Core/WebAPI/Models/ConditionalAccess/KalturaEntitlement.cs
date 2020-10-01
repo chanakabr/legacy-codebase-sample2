@@ -69,8 +69,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "endDate")]
         [JsonProperty("endDate")]
-        [XmlElement(ElementName = "endDate")]
-        [SchemeProperty(ReadOnly = true)]
+        [XmlElement(ElementName = "endDate", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.UPDATE)]
         [OldStandardProperty("end_date")]
         public long? EndDate { get; set; }
 

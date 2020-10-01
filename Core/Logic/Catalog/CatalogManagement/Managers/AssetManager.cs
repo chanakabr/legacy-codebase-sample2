@@ -247,7 +247,8 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
-        private static GenericResponse<Asset> CreateMediaAssetResponseFromDataSet(int groupId, Dictionary<string, DataTable> tables, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
+        private static GenericResponse<Asset> CreateMediaAssetResponseFromDataSet(int groupId, Dictionary<string, DataTable> tables, LanguageObj defaultLanguage,
+                                                                                    List<LanguageObj> groupLanguages, bool isForMigration = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
 
@@ -259,7 +260,7 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
 
-            result.Object = CreateMediaAsset(groupId, id, tables, defaultLanguage, groupLanguages);
+            result.Object = CreateMediaAsset(groupId, id, tables, defaultLanguage, groupLanguages, false, isForMigration);
 
             if (result.Object != null)
             {
@@ -269,7 +270,8 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static MediaAsset CreateMediaAsset(int groupId, long id, Dictionary<string, DataTable> tables, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages, bool isForIndex = false)
+        private static MediaAsset CreateMediaAsset(int groupId, long id, Dictionary<string, DataTable> tables, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages,
+                                                    bool isForIndex = false, bool isForMigration = false)
         {
             MediaAsset result = null;
             CatalogGroupCache catalogGroupCache = null;
@@ -353,7 +355,7 @@ namespace Core.Catalog.CatalogManagement
             images.AddRange(groupDefaultImages.Where(x => !assetImageTypes.Contains(x.ImageTypeId)));
 
             // new tags
-            if (tables.ContainsKey(TABLE_NAME_NEW_TAGS) && tables[TABLE_NAME_NEW_TAGS]?.Rows.Count > 0)
+            if (!isForMigration && tables.ContainsKey(TABLE_NAME_NEW_TAGS) && tables[TABLE_NAME_NEW_TAGS]?.Rows.Count > 0)
             {
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -1366,7 +1368,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList(), isForMigration);
                 if (!isForMigration && result != null && result.HasObject() && result.Object.Id > 0 && !isLinear)
                 {
                     if (assetStruct.ParentId.HasValue && assetStruct.ParentId.Value > 0)
@@ -1833,8 +1835,9 @@ namespace Core.Catalog.CatalogManagement
             return groupAssetsMap;
         }
 
-        private static Dictionary<int, ApiObjects.SearchObjects.Media> CreateMediasFromMediaAssetAndLanguages(int groupId, MediaAsset mediaAsset, EnumerableRowCollection<DataRow> assetFileTypes,
-                                                                                                                CatalogGroupCache catalogGroupCache, Dictionary<long, List<int>> linearChannelsRegionsMapping)
+        private static Dictionary<int, ApiObjects.SearchObjects.Media> CreateMediasFromMediaAssetAndLanguages(int groupId, MediaAsset mediaAsset, 
+                        EnumerableRowCollection<DataRow> assetFileTypes, CatalogGroupCache catalogGroupCache, 
+                        Dictionary<long, List<int>> linearChannelsRegionsMapping)
         {
             Dictionary<int, ApiObjects.SearchObjects.Media> result = new Dictionary<int, ApiObjects.SearchObjects.Media>();
             // File Types + is free
@@ -1889,28 +1892,38 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 if (mediaAsset.Metas != null && mediaAsset.Metas.Count > 0)
-                {
+                {                 
                     if (language.IsDefault)
                     {
-                        metas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType != MetaType.DateTime.ToString()).ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue);
-                        // handle date metas
-                        List<Metas> dateMetas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType == MetaType.DateTime.ToString()).ToList();
-                        if (dateMetas != null && dateMetas.Count > 0)
-                        {
-                            foreach (Metas meta in dateMetas)
-                            {
-                                DateTime date;
-                                if (DateTime.TryParseExact(meta.m_sValue, DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out date))
-                                {
-                                    metas.Add(meta.m_oTagMeta.m_sName, date.ToString("yyyyMMddHHmmss"));
-                                }
-                            }
-                        }
+                        metas = mediaAsset.Metas.Where(x => 
+                        x.m_oTagMeta.m_sType != MetaType.DateTime.ToString() && x.m_oTagMeta.m_sType != MetaType.Bool.ToString())
+                            .ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue);                       
                     }
                     else
                     {
                         List<Metas> languageMetas = mediaAsset.Metas.Where(x => x.Value != null && x.Value.Count(y => y.m_sLanguageCode3 == language.Code) == 1).ToList();
                         metas = languageMetas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.Value.Where(y => y.m_sLanguageCode3 == language.Code).Select(y => y.m_sValue).First());
+                    }
+
+                    // handle date metas
+                    List<Metas> dateMetas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType == MetaType.DateTime.ToString()).ToList();
+                    if (dateMetas != null && dateMetas.Count > 0)
+                    {
+                        foreach (Metas meta in dateMetas)
+                        {
+                            DateTime date;
+                            if (DateTime.TryParseExact(meta.m_sValue, DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out date))
+                            {
+                                metas.Add(meta.m_oTagMeta.m_sName, date.ToString("yyyyMMddHHmmss"));
+                            }
+                        }
+                    }
+
+                    // handle boolean metas
+                    List<Metas> booleanMetas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType == MetaType.Bool.ToString()).ToList();
+                    if (booleanMetas != null && booleanMetas.Count > 0)
+                    {
+                        metas.TryAddRange(booleanMetas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue));                        
                     }
                 }
 
@@ -1957,7 +1970,8 @@ namespace Core.Catalog.CatalogManagement
                     isFree = freeFileTypes != null && freeFileTypes.Count > 0,
                     inheritancePolicy = (int)mediaAsset.InheritancePolicy,
                     allowedCountries = new List<int>(),
-                    blockedCountries = new List<int>()
+                    blockedCountries = new List<int>(),
+                    epgIdentifier = mediaAsset.FallBackEpgIdentifier
                 };
 
                 if (catalogGroupCache.IsRegionalizationEnabled)
@@ -2061,7 +2075,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static GenericResponse<Asset> UpdateLinearMediaAsset(int groupId, MediaAsset mediaAsset, LiveAsset linearMediaAssetToUpdate, long userId)
+        private static GenericResponse<Asset> UpdateLinearMediaAsset(int groupId, MediaAsset mediaAsset, LiveAsset linearMediaAssetToUpdate, long userId, bool isForMigration = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             try
@@ -2076,11 +2090,14 @@ namespace Core.Catalog.CatalogManagement
                 {
                     result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                    // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, result.Object.Id);
-                    if (!indexingResult)
+                    if (!isForMigration)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateLinearMediaAsset", result.Object.Id, groupId);
+                        // UpdateIndex
+                        bool indexingResult = IndexManager.UpsertMedia(groupId, result.Object.Id);
+                        if (!indexingResult)
+                        {
+                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateLinearMediaAsset", result.Object.Id, groupId);
+                        }
                     }
                 }
             }
@@ -3269,7 +3286,21 @@ namespace Core.Catalog.CatalogManagement
                             if (isLinear && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK)
                             {
                                 LiveAsset linearMediaAssetToUpdate = assetToUpdate as LiveAsset;
-                                result = UpdateLinearMediaAsset(groupId, result.Object as MediaAsset, linearMediaAssetToUpdate, userId);
+                                if (isFromIngest)
+                                {
+                                    var oldLiveAsset = currentAsset as LiveAsset;
+                                    linearMediaAssetToUpdate.ExternalEpgIngestId = oldLiveAsset.ExternalEpgIngestId;
+                                    linearMediaAssetToUpdate.EnableCatchUpState = oldLiveAsset.EnableCatchUpState;
+                                    linearMediaAssetToUpdate.EnableCdvrState = oldLiveAsset.EnableCdvrState;
+                                    linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState = oldLiveAsset.EnableRecordingPlaybackNonEntitledChannelState;
+                                    linearMediaAssetToUpdate.EnableStartOverState = oldLiveAsset.EnableStartOverState;
+                                    linearMediaAssetToUpdate.EnableTrickPlayState = oldLiveAsset.EnableTrickPlayState;
+                                    linearMediaAssetToUpdate.BufferCatchUp = oldLiveAsset.BufferCatchUp;
+                                    linearMediaAssetToUpdate.BufferTrickPlay = oldLiveAsset.BufferTrickPlay;
+                                    linearMediaAssetToUpdate.ChannelType = oldLiveAsset.ChannelType;
+                                }
+
+                                result = UpdateLinearMediaAsset(groupId, result.Object as MediaAsset, linearMediaAssetToUpdate, userId, isForMigration);
                             }
                         }
                         break;

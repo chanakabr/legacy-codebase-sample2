@@ -50,6 +50,10 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.ApiClient().GetPaymentConfiguration(groupId);
                 }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.Catalog)
+                {
+                    response = ClientsManager.ApiClient().GetCatalogConfiguration(groupId);
+                }
                 else
                 {
                     throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "filter.partnerConfigurationTypeEqual", filter.PartnerConfigurationTypeEqual);

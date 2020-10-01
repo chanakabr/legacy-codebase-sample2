@@ -166,6 +166,10 @@ namespace Core.Users
         [JsonIgnore()]
         public bool shouldPurge;
 
+        public DateTime CreateDate { get; set; }
+
+        public DateTime UpdateDate { get; set; }
+
         public Domain()
         {
             m_sName = string.Empty;
@@ -176,21 +180,17 @@ namespace Core.Users
             m_nDomainID = 0;
             m_nIsActive = 0;
             m_nStatus = 0;
-
             m_UsersIDs = new List<int>();
             m_masterGUIDs = new List<int>();
             m_DefaultUsersIDs = new List<int>();
-
             m_DomainStatus = DomainStatus.UnKnown;
             m_DomainRestriction = DomainRestriction.DeviceMasterRestricted;
-
             m_homeNetworks = new List<HomeNetwork>();
             m_oLimitationsManager = new LimitationsManager();
             UdidToDeviceFamilyIdMapping = new Dictionary<string, int>();
         }
 
-        public Domain(int nDomainID)
-            : this()
+        public Domain(int nDomainID) : this()
         {
             m_nDomainID = nDomainID;
         }
@@ -855,7 +855,7 @@ namespace Core.Users
                 DeviceId = deviceId,
                 GroupId = m_nGroupID,
                 DomainId = m_nDomainID,
-                ActivataionStatus = DeviceState.UnActivated
+                ActivataionStatus = device != null ? device.m_state : DeviceState.UnActivated
             };
 
             if (device != null) //BEO-8622
@@ -867,7 +867,6 @@ namespace Core.Users
                 domainDevice.DeviceFamilyId = device.m_deviceFamilyID;
                 domainDevice.ExternalId = device.ExternalId;
             }
-
 
             bool deleted = domainDevice.Delete();
 
@@ -1834,86 +1833,62 @@ namespace Core.Users
         /// <returns>true if Query is valid</returns>
         protected bool GetDomainSettings(int nDomainID, int nGroupID)
         {
-            DateTime dDeviceFrequencyLastAction = Utils.FICTIVE_DATE;
-            DateTime dUserFrequencyLastAction = Utils.FICTIVE_DATE;
-
-            string sName = string.Empty;
-            string sDescription = string.Empty;
-            int nDeviceLimitationModule = 0;
-            int nDeviceLimit = 0;
-            int nUserLimit = 0;
-            int nConcurrentLimit = 0;
-            int nStatus = 0;
-            int nIsActive = 0;
-            int nFrequencyFlag = 0;
-            int nDeviceMinPeriodId = 0;
-            int nUserMinPeriodId = 0;
-            string sCoGuid = string.Empty;
-            int nDeviceRestriction = 0;
-            int nGroupConcurrentLimit = 0;
-            int regionId = 0;
-            int roleId = 0;
-
-            DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
-
-            bool res = DomainDal.GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
-                ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit,
-                ref eSuspendStat, ref regionId, ref roleId);
-
-            if (res)
-            {
-                // If the domain is not in status 1, the rest of the initialization has no meaning
-                if (nStatus != 1)
-                {
-                    this.m_DomainStatus = DomainStatus.DomainNotExists;
-                }
-                else
-                {
-                    m_sName = sName;
-                    m_sDescription = sDescription;
-                    m_nLimit = nDeviceLimitationModule;
-                    m_nDeviceLimit = nDeviceLimit;
-                    m_nUserLimit = nUserLimit;
-                    m_nConcurrentLimit = nConcurrentLimit;
-                    m_nStatus = nStatus;
-                    m_nIsActive = nIsActive;
-                    m_frequencyFlag = nFrequencyFlag;
-                    m_minPeriodId = nDeviceMinPeriodId;
-                    m_minUserPeriodId = nUserMinPeriodId;
-                    m_sCoGuid = sCoGuid;
-                    m_nRegion = regionId;
-                    m_DomainRestriction = (DomainRestriction)nDeviceRestriction;
-
-                    if (eSuspendStat == DomainSuspentionStatus.Suspended)
-                    {
-                        m_DomainStatus = DomainStatus.DomainSuspended;
-                    }
-
-                    if (roleId > 0)
-                    {
-                        this.roleId = roleId;
-                    }
-
-                    if (m_minPeriodId != 0)
-                    {
-                        m_NextActionFreq = Core.ConditionalAccess.Utils.GetEndDateTime(dDeviceFrequencyLastAction, m_minPeriodId);
-                    }
-
-                    long npvrQuotaInSecs = 0;
-                    npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, nDeviceLimitationModule, nGroupID, m_NextActionFreq);
-
-                    if (m_minUserPeriodId != 0)
-                    {
-                        m_NextUserActionFreq = Core.ConditionalAccess.Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
-                    }
-                }
-            }
-            else // nothing return - DomainNotExists
+            bool res = true;
+            
+            var dr = DomainDal.GetDomainSettings(nDomainID, nGroupID);
+            if (dr == null)
             {
                 this.m_DomainStatus = DomainStatus.DomainNotExists;
-                res = true;
+                return res;
             }
+
+            var status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
+            if (status != 1)
+            {
+                this.m_DomainStatus = DomainStatus.DomainNotExists;
+                return res;
+            }
+
+            this.m_nStatus = status;
+            this.m_sName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+            this.m_sDescription = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
+            this.m_nLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "MODULE_ID");
+            this.m_nDeviceLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "MAX_LIMIT");
+            this.m_nUserLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "USER_MAX_LIMIT");
+            this.m_nConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "CONCURRENT_MAX_LIMIT");
+            this.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE");
+            this.m_frequencyFlag = ODBCWrapper.Utils.GetIntSafeVal(dr, "FREQUENCY_FLAG");
+            this.m_minPeriodId = ODBCWrapper.Utils.GetIntSafeVal(dr, "freq_period_id");
+            this.m_minUserPeriodId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_freq_period_id");
+            this.m_sCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "COGUID");
+            this.m_nRegion = ODBCWrapper.Utils.GetIntSafeVal(dr, "REGION_ID");
+            this.m_DomainRestriction = (DomainRestriction)ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
+            this.roleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ROLE_ID");
+            this.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
+            this.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
+            var nGroupConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_CONCURRENT_MAX_LIMIT");
+            int suspendStatInt = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_SUSPENDED");
+
+            if (Enum.IsDefined(typeof(DomainSuspentionStatus), suspendStatInt))
+            {
+                if ((DomainSuspentionStatus)suspendStatInt == DomainSuspentionStatus.Suspended)
+                {
+                    m_DomainStatus = DomainStatus.DomainSuspended;
+                }
+            }
+
+            if (m_minPeriodId != 0)
+            {
+                m_NextActionFreq = Core.ConditionalAccess.Utils.GetEndDateTime(ODBCWrapper.Utils.GetDateSafeVal(dr, "FREQUENCY_LAST_ACTION"), m_minPeriodId);
+            }
+
+            if (m_minUserPeriodId != 0)
+            {
+                m_NextUserActionFreq = Core.ConditionalAccess.Utils.GetEndDateTime(ODBCWrapper.Utils.GetDateSafeVal(dr, "USER_FREQUENCY_LAST_ACTION"), m_minUserPeriodId);
+            }
+
+            long npvrQuotaInSecs = 0;
+            npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, this.m_nLimit, nGroupID, m_NextActionFreq);
 
             return res;
         }
@@ -1951,6 +1926,7 @@ namespace Core.Users
                     dtActivationDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["last_activation_date"]);
                     nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["device_id"]);
                     externalId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "external_id");
+
                     macAddress = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "mac_address");
                     model = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "model");
                     manufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "manufacturer_id");
@@ -2928,16 +2904,13 @@ namespace Core.Users
         protected override bool DoInsert()
         {
             bool success = false;
-
             DateTime dDateTime = DateTime.UtcNow;
-
-            long npvrQuotaInSecs = 0;
 
             // try to get the DomainLimitID
             int nDomainID = -1;
-            int nDomainLimitID = DomainDal.Get_DomainLimitID(this.m_nGroupID);
+            this.m_nLimit = DomainDal.Get_DomainLimitID(this.m_nGroupID); // the id for GROUPS_DEVICE_LIMITATION_MODULES table 
             bool bInserRes =
-                DomainDal.InsertNewDomain(this.m_sName, this.m_sDescription, this.m_nGroupID, dDateTime, nDomainLimitID, ref nDomainID, m_nRegion, this.m_sCoGuid);
+                DomainDal.InsertNewDomain(this.m_sName, this.m_sDescription, this.m_nGroupID, dDateTime, this.m_nLimit, ref nDomainID, m_nRegion, this.m_sCoGuid);
 
             if (!bInserRes)
             {
@@ -2945,26 +2918,24 @@ namespace Core.Users
                 return success;
             }
 
-            int nIsActive = 0;
-            int nStatus = 0;
-            int regionId = 0;
+            var dr = DomainDal.GetDomainDbObject(this.m_nGroupID, nDomainID);
+            if (dr != null)
+            {
+                this.m_sName = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                this.m_sDescription = ODBCWrapper.Utils.GetSafeStr(dr, "description");
+                this.m_nDomainID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                this.m_nIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                this.m_nStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
+                this.m_sCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "CoGuid");
+                this.m_nRegion = ODBCWrapper.Utils.GetIntSafeVal(dr, "Region_ID");
+            }
 
-            Domain domainDbObj = this;
-
-            bool resDbObj =
-                DomainDal.GetDomainDbObject(this.m_nGroupID, dDateTime, ref this.m_sName, ref this.m_sDescription,
-                nDomainID, ref nIsActive, ref nStatus, ref this.m_sCoGuid, ref regionId);
-
-            m_nDomainID = nDomainID;
-            m_nIsActive = nIsActive;
-            m_nStatus = nStatus;
-            m_nRegion = regionId;
-
-            m_nLimit = nDomainLimitID; // the id for GROUPS_DEVICE_LIMITATION_MODULES table 
+            this.CreateDate = dDateTime;
+            this.UpdateDate = dDateTime;
 
             // try to get from chace - DomainLimitID by nDomainLimitID
-
-            npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, nDomainLimitID, m_nGroupID, Utils.FICTIVE_DATE);
+            long npvrQuotaInSecs = 0;
+            npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, this.m_nLimit, m_nGroupID, Utils.FICTIVE_DATE);
 
             m_DomainStatus = DomainStatus.OK;
 
@@ -3019,15 +2990,17 @@ namespace Core.Users
         protected override bool DoUpdate()
         {
             bool result = true;
+            var updateDate = DateTime.UtcNow;
 
             if (shouldUpdateInfo)
             {
-                bool updateInfoResult = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, (int)m_DomainRestriction, m_nRegion, m_sCoGuid);
+                bool updateInfoResult = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, updateDate, (int)m_DomainRestriction, m_nRegion, m_sCoGuid);
 
                 if (!updateInfoResult)
                 {
                     m_DomainStatus = DomainStatus.Error;
                 }
+                this.UpdateDate = updateDate;
 
                 result &= updateInfoResult;
             }
@@ -3137,16 +3110,6 @@ namespace Core.Users
                     {
                         removeResponse = DomainResponseStatus.Error;
                         log.Error("Error - " + string.Format("Remove. NPVR Provider is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
-                    }
-                }
-                else
-                {
-                    var accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-                    if (accountSettings != null && accountSettings.IsCdvrEnabled.HasValue && accountSettings.IsCdvrEnabled.Value)
-                    {
-                        var queue = new QueueWrapper.GenericCeleryQueue();
-                        ApiObjects.QueueObjects.UserTaskData message = new ApiObjects.QueueObjects.UserTaskData(m_nGroupID, UserTaskType.DeleteDomain, string.Empty, m_nDomainID);
-                        queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, m_nGroupID));
                     }
                 }
             }

@@ -445,8 +445,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.DomainsClient().GetHouseholdDevices(groupId, household, filter.ConvertDeviceFamilyIdIn()
-                    , filter.ExternalIdEqual);
+                response = ClientsManager.DomainsClient().GetHouseholdDevices(groupId, household, filter.ConvertDeviceFamilyIdIn(), filter.ExternalIdEqual, filter.OrderBy);
             }
             catch (ClientException ex)
             {

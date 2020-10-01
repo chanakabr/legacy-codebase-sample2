@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using ConfigurationManager;
 using Core.Middleware;
 using KLogMonitor;
 using Microsoft.AspNetCore;
@@ -12,16 +13,18 @@ namespace Phoenix.Rest
         public static async Task Main(string[] args)
         {
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
-            var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";  
+            var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";
+            ConfigurationManager.ApplicationConfiguration.Init();
 
             var host = KalturaWebHostBuilder.BuildWebServerAsync<Startup>(new WebServerConfiguration
             {
                 CommandlineArgs = args,
                 AllowSynchronousIO = true,
                 DefaultLogDirectoryPath = defaultLogDir,
+                //to bytes
+                MaxRequestBodySize = ApplicationConfiguration.Current.KestrelConfiguration.MaxRequestBodySize.Value*1000*1000,
             });
-
-            ConfigurationManager.ApplicationConfiguration.Init();
+            
             await host.RunAsync();
         }
     }

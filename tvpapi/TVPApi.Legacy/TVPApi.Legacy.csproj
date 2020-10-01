@@ -997,10 +997,6 @@
       <Project>{e53bae81-a07c-4112-a42d-4e899d6a52fc}</Project>
       <Name>Localization</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ODBCWrapper\TVPApi.ODBCWrapper.csproj">
-      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
-      <Name>TVPApi.ODBCWrapper</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Tvinci.Configuration\Tvinci.Configuration.csproj">
       <Project>{b7ddd3f9-1844-41b1-ae65-68cfe6f95915}</Project>
       <Name>Tvinci.Configuration</Name>

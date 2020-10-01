@@ -1,7 +1,10 @@
-﻿using WebAPI.ClientManagers.Client;
+﻿using System.Collections.Generic;
+using System.Linq;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
 
@@ -154,10 +157,13 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         /// <param name="message">Message to send</param>     
+        /// <param name="phoneNumber">Optional phoneNumber</param>     
+        /// <param name="adapterData">Data used by the adapter</param>     
         [Action("sendSms")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public bool SendSms(string message)
+        static public bool SendSms(string message, string phoneNumber = null, 
+            SerializableDictionary<string, KalturaStringValue> adapterData = null)
         {
             bool response = false;
 
@@ -172,8 +178,8 @@ namespace WebAPI.Controllers
                 if (System.Text.ASCIIEncoding.Unicode.GetByteCount(message) > 2000)
                     throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, "message", 2000);
 
-                // call client                
-                response = ClientsManager.NotificationClient().SendSms(groupId, userId, message);
+                // call client     
+                response = ClientsManager.NotificationClient().SendSms(groupId, userId, message, phoneNumber, adapterData);
             }
             catch (ClientException ex)
             {

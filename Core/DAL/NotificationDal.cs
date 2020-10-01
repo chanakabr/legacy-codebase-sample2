@@ -2834,6 +2834,112 @@ namespace DAL
             return result;
         }
 
+        public static IEnumerable<SmsAdapter> GetSmsAdapters(int groupId)
+        {
+            var sp = new ODBCWrapper.StoredProcedure("Get_GroupSmsAdapters");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            var result = sp.ExecuteDataSet();
+
+            var smsAdapaterTbl = result.Tables[0];
+            var smsAdaptersConfig = result.Tables[1];
+
+            var adapterConfigsList = smsAdaptersConfig.ToList<SmsAdapterParam>();
+            var SmsAdapterProfileList = smsAdapaterTbl.ToList<SmsAdapter>();
+            var adaptersList = SmsAdapterProfileList
+                .Select(a =>
+                {
+                    a.Settings = adapterConfigsList.Where(c => c.AdapterId == a.Id).ToList();
+                    return a;
+                });
+
+            return adaptersList;
+        }
+
+        public static SmsAdapterProfile AddSmsAdapter(int groupId, SmsAdapterProfile adapterDetails, int updaterId)
+        {
+            var sp = new ODBCWrapper.StoredProcedure("Insert_SmsAdapter");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", adapterDetails.Name);
+            sp.AddParameter("@isActive", adapterDetails.IsActive);
+            sp.AddParameter("@status", 1);
+            sp.AddParameter("@updaterId", updaterId);
+            sp.AddParameter("@adapterUrl", adapterDetails.AdapterUrl);
+            sp.AddParameter("@externalId", adapterDetails.ExternalIdentifier);
+            sp.AddParameter("@sharedSecret", adapterDetails.SharedSecret);
+            var result = sp.ExecuteDataSet();
+            var adapterId = (int)result.Tables[0].Rows[0][0];
+            adapterDetails.Id = adapterId;
+
+            MergeSmsAdapaterSettings(adapterDetails.GroupId, adapterId, updaterId, adapterDetails.Settings);
+
+            return adapterDetails;
+        }
+
+        public static SmsAdapterProfile UpdateSmsAdapter(int groupId, SmsAdapterProfile adapterDetails, int updaterId)
+        {
+            var updateAdapterSp = new ODBCWrapper.StoredProcedure("Update_SmsAdapter");
+            updateAdapterSp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            updateAdapterSp.AddParameter("@groupId", groupId);
+            updateAdapterSp.AddParameter("@adapterId", adapterDetails.Id);
+            updateAdapterSp.AddParameter("@name", adapterDetails.Name);
+            updateAdapterSp.AddParameter("@isActive", adapterDetails.IsActive);
+            updateAdapterSp.AddParameter("@status", 1);
+            updateAdapterSp.AddParameter("@updaterId", updaterId);
+            updateAdapterSp.AddParameter("@adapterUrl", adapterDetails.AdapterUrl);
+            updateAdapterSp.AddParameter("@externalId", adapterDetails.ExternalIdentifier);
+            updateAdapterSp.AddParameter("@sharedSecret", adapterDetails.SharedSecret);
+
+            var resp = updateAdapterSp.ExecuteDataSet();
+            var updatedSettings = MergeSmsAdapaterSettings(adapterDetails.GroupId, adapterDetails.Id.Value, updaterId, adapterDetails.Settings);
+
+            var updatedAdapater = resp.Tables[0].ToList<SmsAdapterProfile>().FirstOrDefault();
+            if (updatedAdapater == null) { return null; }
+
+            updatedAdapater.Settings = updatedSettings;
+            return updatedAdapater;
+        }
+
+        public static bool DeleteSmsAdapter(int groupId, int adapterId, int updaterId)
+        {
+            var deleteAdapterSp = new ODBCWrapper.StoredProcedure("Delete_SmsAdapter");
+            deleteAdapterSp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            deleteAdapterSp.AddParameter("@groupId", groupId);
+            deleteAdapterSp.AddParameter("@adapterId", adapterId);
+            deleteAdapterSp.AddParameter("@updaterId", updaterId);
+
+            var updatedRows = deleteAdapterSp.ExecuteReturnValue<int>();
+            return updatedRows > 0;
+        }
+
+        public static SmsAdapter SetSharedSecret(int groupId, int adapterId, string sharedSecret, int updaterId)
+        {
+            var updateAdapterSp = new ODBCWrapper.StoredProcedure("Set_SmsAdapterSecret");
+            updateAdapterSp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            updateAdapterSp.AddParameter("@groupId", groupId);
+            updateAdapterSp.AddParameter("@adapterId", adapterId);
+            updateAdapterSp.AddParameter("@sharedSecret", sharedSecret);
+            updateAdapterSp.AddParameter("@updaterId", updaterId);
+
+            var dsResult = updateAdapterSp.ExecuteDataSet();
+            var updatedAdapater = dsResult.Tables[0].ToList<SmsAdapter>().FirstOrDefault();
+            return updatedAdapater;
+        }
+
+        private static IList<SmsAdapterParam> MergeSmsAdapaterSettings(int groupId, long adapaterId, int updaterId, IList<SmsAdapterParam> settings)
+        {
+            var settingsTbl = settings.Select(s => new KeyValuePair<string, string>(s.Key, s.Value)).ToList();
+            var mergeAdapterSettingsSp = new ODBCWrapper.StoredProcedure("Merge_SmsAdapterSettings");
+            mergeAdapterSettingsSp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            mergeAdapterSettingsSp.AddParameter("@groupId", groupId);
+            mergeAdapterSettingsSp.AddParameter("@adapterId", adapaterId);
+            mergeAdapterSettingsSp.AddParameter("@updaterId", updaterId);
+            mergeAdapterSettingsSp.AddKeyValueListParameter("@KeyValueList", settingsTbl, "key", "value");
+            var resp = mergeAdapterSettingsSp.ExecuteDataSet();
+            return resp.Tables[0].ToList<SmsAdapterParam>();
+        }
+
         #region TopicNotification & TopicNotificationMessage
         public static long InsertTopicNotification(int groupId, string topicName, SubscribeReferenceType type, long userId)
         {

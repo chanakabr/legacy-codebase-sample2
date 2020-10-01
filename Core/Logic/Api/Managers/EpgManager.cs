@@ -206,6 +206,7 @@ namespace APILogic.Api.Managers
                         m_bOnlyActiveMedia = true
                     },
                     ExtraReturnFields = new List<string> { },
+                    isAllowedToViewInactiveAssets = true
                 };
 
                 FillCatalogSignature(request);

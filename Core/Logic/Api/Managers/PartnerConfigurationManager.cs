@@ -35,6 +35,7 @@ namespace ApiLogic.Api.Managers
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;
                 }
+
                 if (partnerConfig != null)
                 {
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -50,7 +51,7 @@ namespace ApiLogic.Api.Managers
             }
 
             return response;
-        }
+        }       
 
         internal static Status UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
         {
@@ -591,14 +592,14 @@ namespace ApiLogic.Api.Managers
                                                GetPlaybackPartnerConfigDB,
                                                new Dictionary<string, object>() { { "groupId", groupId } },
                                                groupId,
-                                               LayeredCacheConfigNames.GET_COMMERCE_PARTNER_CONFIG,
+                                               LayeredCacheConfigNames.GET_PLAYBACK_PARTNER_CONFIG,
                                                invalidationKey))
                 {
-                    log.Error($"Failed getting GetCommercePartnerConfig from LayeredCache, groupId: {groupId}, key: {key}");
+                    log.Error($"Failed getting GetPlaybackConfig from LayeredCache, groupId: {groupId}, key: {key}");
                 }
                 else
                 {
-                    if (partnerConfig == null)
+                    if (partnerConfig == null || partnerConfig.DefaultAdapters == null)
                     {
                         response.SetStatus(eResponseStatus.PartnerConfigurationDoesNotExist, "Playback partner configuration does not exist.");
                     }
@@ -759,6 +760,103 @@ namespace ApiLogic.Api.Managers
         }
 
         #endregion
+
+        public static Status UpdateCatalogConfig(int groupId, CatalogPartnerConfig catalogPartnerConfig)
+        {
+            Status response = new Status(eResponseStatus.Error);
+
+            try
+            {
+                var needToUpdate = false;
+                var oldPlayadapterConfig = GetCatalogConfig(groupId);
+
+                if (oldPlayadapterConfig == null || !oldPlayadapterConfig.HasObject())
+                {
+                    needToUpdate = true;
+                }
+                else
+                {
+                    needToUpdate = catalogPartnerConfig.SetUnchangedProperties(oldPlayadapterConfig.Object);
+                }
+
+                if (needToUpdate)
+                {                   
+                    if (!ApiDAL.SaveCatalogPartnerConfig(groupId, catalogPartnerConfig))
+                    {
+                        log.Error($"Error while save PlaybackPartnerConfig. groupId: {groupId}.");
+                        return response;
+                    }
+
+                    string invalidationKey = LayeredCacheKeys.GetCatalogPartnerConfigInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.Error($"Failed to set invalidation key for CatalogPartnerConfig with invalidationKey: {invalidationKey}.");
+                    }
+                }
+
+                response.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                response.Set(eResponseStatus.Error);
+                log.Error($"An Exception was occurred in UpdateCatalogConfig. groupId:{groupId}.", ex);
+            }
+
+            return response;
+        }
+
+        internal static GenericResponse<CatalogPartnerConfig> GetCatalogConfig(int groupId)
+        {
+            var response = new GenericResponse<CatalogPartnerConfig>();
+
+            try
+            {
+                CatalogPartnerConfig partnerConfig = null;
+                string key = LayeredCacheKeys.GetCatalogPartnerConfigKey(groupId);
+                var invalidationKey = new List<string>() { LayeredCacheKeys.GetCatalogPartnerConfigInvalidationKey(groupId) };
+                if (!LayeredCache.Instance.Get(key,
+                                               ref partnerConfig,
+                                               GetCatalogPartnerConfigDB,
+                                               new Dictionary<string, object>() { { "groupId", groupId } },
+                                               groupId,
+                                               LayeredCacheConfigNames.GET_CATALOG_PARTNER_CONFIG,
+                                               invalidationKey))
+                {
+                    log.Error($"Failed getting GetCatalogConfig from LayeredCache, groupId: {groupId}, key: {key}");
+                }
+                else
+                {
+                    if (partnerConfig == null)
+                    {
+                        response.SetStatus(eResponseStatus.PartnerConfigurationDoesNotExist, "Catalog partner configuration does not exist.");
+                    }
+                    else
+                    {
+                        response.Object = partnerConfig;
+                        response.SetStatus(eResponseStatus.OK);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed GetPlaybackConfig for groupId: {groupId}", ex);
+            }
+
+            return response;
+        }
+
+        public static GenericListResponse<CatalogPartnerConfig> GetCatalogConfigList(int groupId)
+        {
+            GenericListResponse<CatalogPartnerConfig> response = new GenericListResponse<CatalogPartnerConfig>();
+            var generalPartnerConfig = GetCatalogConfig(groupId);
+            if (generalPartnerConfig != null && generalPartnerConfig.HasObject())
+            {
+                response.Objects.Add(generalPartnerConfig.Object);
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
 
         #endregion
 
@@ -933,7 +1031,7 @@ namespace ApiLogic.Api.Managers
                                                           LayeredCacheConfigNames.GET_OBJECT_VIRTUAL_ASSET_PARTNER_CONFIG,
                                                           configInvalidationKey))
                 {
-                    log.ErrorFormat("Failed getting GetObjectVirtualAssetPartnerConfig from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                    log.ErrorFormat("Failed getting ObjectVirtualAssetPartnerConfig from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
                 else
                 {
@@ -945,7 +1043,7 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetObjectVirtualAssetPartnerConfig for groupId: {0}", groupId), ex);
+                log.Error($"Failed GetObjectVirtualAssetPartnerConfig for groupId: {groupId}", ex);
             }
 
             return partnerConfig;
@@ -962,6 +1060,15 @@ namespace ApiLogic.Api.Managers
                 if (groupId.HasValue)
                 {
                     generalPartnerConfig = ApiDAL.GetObjectVirtualAssetPartnerConfiguration(groupId.Value, out resultStatus);
+                    
+                    if (resultStatus == eResultStatus.KEY_NOT_EXIST)
+                    {
+                        // save null document
+                        if (!ApiDAL.UpdateObjectVirtualAssetPartnerConfiguration(groupId.Value, new ObjectVirtualAssetPartnerConfig()))
+                        {
+                            log.Error($"failed to save ObjectVirtualAssetPartnerConfig null document for groupId {groupId.Value}");
+                        }
+                    }
                 }
             }
 
@@ -1076,8 +1183,17 @@ namespace ApiLogic.Api.Managers
                 int? groupId = funcParams["groupId"] as int?;
                 if (groupId.HasValue)
                 {
-                    commercePartnerConfig = ApiDAL.GetCommercePartnerConfig(groupId.Value);
+                    commercePartnerConfig = ApiDAL.GetCommercePartnerConfig(groupId.Value, out eResultStatus resultStatus);
                     result = true;
+
+                    if (resultStatus == eResultStatus.KEY_NOT_EXIST)
+                    {
+                        // save null document
+                        if (!ApiDAL.SaveCommercePartnerConfig(groupId.Value, new CommercePartnerConfig()))
+                        {
+                            log.Error($"failed to save CommercePartnerConfig null document for groupId {groupId.Value}");
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -1097,9 +1213,18 @@ namespace ApiLogic.Api.Managers
             {
                 int? groupId = funcParams["groupId"] as int?;
                 if (groupId.HasValue)
-                {
-                    partnerConfig = ApiDAL.GetPlaybackPartnerConfig(groupId.Value);
+                {                    
+                    partnerConfig = ApiDAL.GetPlaybackPartnerConfig(groupId.Value, out eResultStatus resultStatus);
                     result = true;
+
+                    if (resultStatus == eResultStatus.KEY_NOT_EXIST)
+                    {
+                        // save null document
+                        if (!ApiDAL.SavePlaybackPartnerConfig(groupId.Value, new PlaybackPartnerConfig()))
+                        {
+                            log.Error($"failed to save PlaybackPartner null document for groupId {groupId.Value}");
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -1193,6 +1318,29 @@ namespace ApiLogic.Api.Managers
 
             return response;
         }
+
+        private static Tuple<CatalogPartnerConfig, bool> GetCatalogPartnerConfigDB(Dictionary<string, object> funcParams)
+        {
+            CatalogPartnerConfig partnerConfig = null;
+            bool result = false;
+
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue)
+                {
+                    partnerConfig = ApiDAL.GetCatalogPartnerConfig(groupId.Value);
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetCatalogPartnerConfigDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<CatalogPartnerConfig, bool>(partnerConfig, result);
+        }
+
 
         #endregion
     }

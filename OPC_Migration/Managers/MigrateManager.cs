@@ -21,6 +21,8 @@ namespace OPC_Migration
         private int groupId;
         private long sequenceId;
         private bool shouldBackup;
+        private bool useMigTablesPrefix;
+        private string tablesPrefix;
         private static readonly List<string> GROUP_ID_NEEDED_TABLES = new List<string>() { "channel_media_types", "channels", "channels_media", "drm_adapters", "EPG_channel_deafults_values",
                                                                                             "epg_channels", "epg_channels_schedule", "epg_channels_schedule_translate", "epg_channels_translate",
                                                                                             "epg_comments", "EPG_fields_mapping", "EPG_metas_types", "epg_multi_pictures", "EPG_pics", "EPG_pics_sizes",
@@ -31,11 +33,13 @@ namespace OPC_Migration
                                                                                             "device_rules_brands", "geo_block_types", "geo_block_types_countries", "groups_media_type",
                                                                                             "parental_rules", "parental_rule_tag_values", "tags_translate", "group_ratios" };
 
-        public MigrateManager(int groupId, long sequenceId, bool shouldBackup)
+        public MigrateManager(int groupId, long sequenceId, bool shouldBackup, bool useMigTablesPrefix)
         {
             this.groupId = groupId;
             this.sequenceId = sequenceId;
             this.shouldBackup = shouldBackup;
+            this.useMigTablesPrefix = useMigTablesPrefix;
+            this.tablesPrefix = this.useMigTablesPrefix ? "mig_" : string.Empty;
         }
 
         public eMigrationResultStatus PerformMigration(Group group, HashSet<long> groupIdsToSave, ref Dictionary<string, Core.Catalog.Ratio> groupRatios, ref Dictionary<string, ImageType> groupImageTypes,
@@ -495,7 +499,7 @@ namespace OPC_Migration
             {
                 if (tagTypeToTopicIdMap.Count > 0)
                 {
-                    if (!OPCMigrationDAL.UpdateParentalRulesTableWithTopicIds(groupId, tagTypeToTopicIdMap, false, Utils.UPDATING_USER_ID, sequenceId))
+                    if (!OPCMigrationDAL.UpdateParentalRulesTableWithTopicIds(groupId, tagTypeToTopicIdMap, false, Utils.UPDATING_USER_ID, sequenceId, shouldBackup))
                     {
                         log.Error("Failed to update media tag types for parental rules");
                         res = false;
@@ -516,7 +520,7 @@ namespace OPC_Migration
 
                     if (epgTagTypeToTopicIdMap.Count > 0)
                     {
-                        if (!OPCMigrationDAL.UpdateParentalRulesTableWithTopicIds(groupId, epgTagTypeToTopicIdMap, true, Utils.UPDATING_USER_ID, sequenceId))
+                        if (!OPCMigrationDAL.UpdateParentalRulesTableWithTopicIds(groupId, epgTagTypeToTopicIdMap, true, Utils.UPDATING_USER_ID, sequenceId, shouldBackup))
                         {
                             res = false;
                             log.Error("Failed to update epg tag types for parental rules");
@@ -693,7 +697,8 @@ namespace OPC_Migration
                         GenericResponse<Asset> response = AssetManager.UpdateAsset(groupId, mediaAsset.Id, isLiveAsset ? liveAsset : mediaAsset, Utils.UPDATING_USER_ID, false, true, true);
                         if (!response.HasObject() || response.Object.Id != mediaAsset.Id)
                         {
-                            log.ErrorFormat("failed to update asset with id, will retry synchronously: {0}", mediaAsset.Id);
+                            string responseStatus = response.Status != null ? response.Status.ToString() : "null";
+                            log.ErrorFormat($"failed to update asset with id {mediaAsset.Id}, will retry synchronously, response status: {responseStatus}");
                             if (isLiveAsset)
                             {
                                 failedLiveAssets.Add(liveAsset);
@@ -714,7 +719,8 @@ namespace OPC_Migration
                             GenericResponse<Asset> response = AssetManager.UpdateAsset(groupId, assetToRetry.Id, assetToRetry, Utils.UPDATING_USER_ID, false, true, true);
                             if (!response.HasObject() || response.Object.Id != assetToRetry.Id)
                             {
-                                log.ErrorFormat("failed to update asset with id: {0}", assetToRetry.Id);
+                                string responseStatus = response.Status != null ? response.Status.ToString() : "null";
+                                log.ErrorFormat($"failed to update linear asset  (no retry) with id: {assetToRetry.Id}, will retry synchronously, response status: {responseStatus}");                                
                                 return false;
                             }
                         }
@@ -728,7 +734,8 @@ namespace OPC_Migration
                             GenericResponse<Asset> response = AssetManager.UpdateAsset(groupId, assetToRetry.Id, assetToRetry, Utils.UPDATING_USER_ID, false, true, true);
                             if (!response.HasObject() || response.Object.Id != assetToRetry.Id)
                             {
-                                log.ErrorFormat("failed to update asset with id: {0}", assetToRetry.Id);
+                                string responseStatus = response.Status != null ? response.Status.ToString() : "null";
+                                log.ErrorFormat($"failed to update asset (no retry) with id: {assetToRetry.Id}, response status: {responseStatus}");                                
                                 return false;
                             }
                         }
@@ -833,7 +840,7 @@ namespace OPC_Migration
                             }
 
                             res = TVinciShared.ImageUtils.UpdateImageState(groupId, response.Object.ReferenceId, 0, ApiObjects.eMediaType.VOD, ApiObjects.eTableStatus.OK,
-                                                                        (int)Utils.UPDATING_USER_ID, imageTypeAndBaseUrl.Value);
+                                                                        (int)Utils.UPDATING_USER_ID, imageTypeAndBaseUrl.Value, true);
                         }
                         else
                         {
@@ -949,7 +956,7 @@ namespace OPC_Migration
             {
                 if (mediaTypeIdToMediaFileTypeIdMap.Count > 0)
                 {
-                    res = OPCMigrationDAL.UpdateMediaFilesTableWithMediaTypeId(groupId, mediaTypeIdToMediaFileTypeIdMap.ToList(), Utils.UPDATING_USER_ID, sequenceId);
+                    res = OPCMigrationDAL.UpdateMediaFilesTableWithMediaTypeId(groupId, mediaTypeIdToMediaFileTypeIdMap.ToList(), Utils.UPDATING_USER_ID, sequenceId, shouldBackup);
                 }
             }
             catch (Exception ex)
@@ -991,7 +998,8 @@ namespace OPC_Migration
                                 break;
                         }
 
-                        if (OPCMigrationDAL.UpdateTableGroupId(tableName, groupId, sequenceId, withUpdateUserId ? Utils.UPDATING_USER_ID : 0, withUpdateDate ? 1 : 0, shouldBackup))
+                        string tableNameToUpdate = !string.IsNullOrEmpty(this.tablesPrefix) ? this.tablesPrefix + tableName : tableName;
+                        if (OPCMigrationDAL.UpdateTableGroupId(tableNameToUpdate, groupId, sequenceId, withUpdateUserId ? Utils.UPDATING_USER_ID : 0, withUpdateDate ? 1 : 0, shouldBackup))
                         {
                             log.DebugFormat("table {0} update groupId is done", tableName);
                         }
@@ -1031,7 +1039,8 @@ namespace OPC_Migration
                             }
 
                             log.DebugFormat("retrying update groupId for table {0}", tableName);
-                            if (OPCMigrationDAL.UpdateTableGroupId(tableName, groupId, sequenceId, withUpdateUserId ? Utils.UPDATING_USER_ID : 0, withUpdateDate ? 1 : 0, shouldBackup))
+                            string tableNameToUpdate = !string.IsNullOrEmpty(this.tablesPrefix) ? this.tablesPrefix + tableName : tableName;
+                            if (OPCMigrationDAL.UpdateTableGroupId(tableNameToUpdate, groupId, sequenceId, withUpdateUserId ? Utils.UPDATING_USER_ID : 0, withUpdateDate ? 1 : 0, shouldBackup))
                             {
                                 log.DebugFormat("table {0} update groupId is done", tableName);
                             }

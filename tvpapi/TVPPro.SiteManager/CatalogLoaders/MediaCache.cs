@@ -49,39 +49,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         public object Execute()
         {
-            List<BaseObject> retVal = null;
-            List<long> mediaIdsForCatalog = null;
-
-            // Build the List of CacheKeys from the MediaRes List
-            List<CacheKey> cacheKeys = MediaIDs.Select(mediaRes => new CacheKey() { ID = mediaRes.assetID.ToString(), UpdateDate = mediaRes.UpdateDate }).ToList();
-
-            // Get medias from cache
-            Log("Trying to get mediaIDs", MediaIDs);
-            List<BaseObject> lMediasFromCache = retVal = CacheManager.Cache.GetObjects(cacheKeys, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language), out mediaIdsForCatalog);
-            Log("Got mediaIDs", lMediasFromCache.Select(media => media.AssetId).ToList());
-
-            // Check if medias are missing in cache 
-            if (lMediasFromCache != null && lMediasFromCache.Count > 0)
-            {
-                if (mediaIdsForCatalog.Count > 0 && !FailOverManager.Instance.SafeMode)
-                {
-                    // Get missing medias from Catalog
-                    MediasProtocolRequest thisMediasRequest = m_oRequest as MediasProtocolRequest;
-                    MediasProtocolRequest newMediasRequest = BuildMediasProtocolRequest(mediaIdsForCatalog.Select(id => (int)id).ToList(), thisMediasRequest.m_nGroupID, thisMediasRequest.m_oFilter);
-                    // marge the lists
-                    retVal = CatalogHelper.MergeObjListsByOrder(MediaIDs.Select(media => media.assetID).ToList(), lMediasFromCache, GetMediasFromCatalog(newMediasRequest));
-                }
-                else
-                {
-                    // Return all the medias from Cache
-                    retVal = lMediasFromCache;
-                }
-            }
-            else
-            {
-                retVal = GetMediasFromCatalog(m_oRequest as MediasProtocolRequest);
-            }
-            return retVal;
+            return GetMediasFromCatalog(m_oRequest as MediasProtocolRequest);
         }
 
         // Get Medias from Catalog and Store the result Medias in cache
@@ -96,26 +64,9 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 retVal = oMediaResponse.m_lObj;
                 // Store in Cache the medias from Catalog
                 Log("Got MediaResponse from Catalog", oMediaResponse);
-                Log("Storing Medias in Cache", oMediaResponse.m_lObj);
-                int duration = ApplicationConfiguration.Current.TVPApiConfiguration.CacheLiteDurationInMinutes.Value;
-                CacheManager.Cache.StoreObjects(oMediaResponse.m_lObj, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language), duration);
             }
 
             return retVal;
-        }
-
-        private MediasProtocolRequest BuildMediasProtocolRequest(List<int> mediaIDs, int groupID, Filter filter)
-        {
-            MediasProtocolRequest oRequest = new MediasProtocolRequest()
-            {
-                m_lMediasIds = mediaIDs,
-                m_nGroupID = groupID,
-                m_sSignature = m_sSignature,
-                m_sSignString = m_sSignString,
-                m_sUserIP = string.Empty,
-                m_oFilter = filter
-            };
-            return oRequest;
         }
 
         protected override void Log(string message, object obj)

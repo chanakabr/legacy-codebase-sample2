@@ -62,16 +62,12 @@ namespace WebAPI.Models.API
         [DataMember(Name = "parentId")]
         [JsonProperty("parentId")]
         [XmlElement(ElementName = "parentId")]
+        [SchemeProperty(MinLong = 1)] 
         public long ParentId { get; set; }
 
 
         public void Validate(bool validateRequiredFields = false)
-        {
-            if (ParentId != 0 && RegionalChannels?.Count > 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "parentRegionId", "linearChannels");
-            }
-
+        {           
             if (RegionalChannels?.Count > 0 && RegionalChannels.Select(c => c.LinearChannelId).Distinct().Count() != RegionalChannels.Count)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "linearChannels.linearChannelId");

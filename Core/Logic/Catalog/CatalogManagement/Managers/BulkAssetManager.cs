@@ -34,6 +34,8 @@ namespace Core.Catalog.CatalogManagement
             var response = new GenericListResponse<Status>();
             try
             {
+                log.Debug($"BEO-8698 UpsertMediaAsset id {mediaAsset.Id}");
+
                 if (mediaAsset.Id == 0)
                 {
                     var addAsset = AssetManager.AddAsset(groupId, mediaAsset, userId, true);

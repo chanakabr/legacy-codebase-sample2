@@ -16,9 +16,7 @@ using WebAPI.Utils;
 using ApiObjects.Response;
 using WebAPI.Models.General;
 using ApiLogic.Users.Managers;
-using System.Text.RegularExpressions;
 using ApiObjects.Base;
-using System.Threading.Tasks;
 
 namespace WebAPI.Clients
 {
@@ -1218,7 +1216,8 @@ namespace WebAPI.Clients
             return response.Values.ToList();
         }
 
-        internal KalturaHouseholdDeviceListResponse GetHouseholdDevices(int groupId, KalturaHousehold household, List<long> deviceFamilyIds, string externalId)
+        internal KalturaHouseholdDeviceListResponse GetHouseholdDevices(int groupId, KalturaHousehold household, List<long> deviceFamilyIds,
+            string externalId, KalturaHouseholdDeviceOrderBy orderBy = default)
         {
             if (household == null)
             {
@@ -1260,6 +1259,23 @@ namespace WebAPI.Clients
                             response.TotalCount++;
                         }
                     }
+                }
+            }
+
+            if (orderBy != default && response.Objects?.Count > 1)
+            {
+                switch (orderBy)
+                {
+                    case KalturaHouseholdDeviceOrderBy.CREATED_DATE_ASC:
+                        response.Objects = response.Objects.OrderBy(device => device.ActivatedOn.HasValue)
+                            .ThenBy(device => device.ActivatedOn).ToList();
+                        break;
+                    case KalturaHouseholdDeviceOrderBy.CREATED_DATE_DESC:
+                        response.Objects = response.Objects.OrderByDescending(device => device.ActivatedOn.HasValue)
+                            .ThenBy(device => device.ActivatedOn).ToList();
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -1396,6 +1412,24 @@ namespace WebAPI.Clients
 
             KalturaGenericListResponse<KalturaHouseholdLimitations> response =
                 ClientUtils.GetResponseListFromWS<KalturaHouseholdLimitations, LimitationsManager>(getLimitationsManagerFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
+        internal KalturaHouseholdListResponse GetDomains(ContextData contextData, KalturaHouseholdFilter kalturaHouseholdFilter)
+        {
+            var result = new KalturaHouseholdListResponse();
+
+            var filter = Mapper.Map<DomainFilter>(kalturaHouseholdFilter);
+
+            Func<GenericListResponse<Domain>> getDomainsFunc = () =>
+                Core.Domains.Module.GetDomains(contextData, filter);
+
+            KalturaGenericListResponse<KalturaHousehold> response =
+                ClientUtils.GetResponseListFromWS<KalturaHousehold, Domain>(getDomainsFunc);
 
             result.Objects = response.Objects;
             result.TotalCount = response.TotalCount;

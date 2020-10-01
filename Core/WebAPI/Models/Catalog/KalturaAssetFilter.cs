@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -30,7 +30,31 @@ namespace WebAPI.Models.Catalog
 
         internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
-            throw new InternalServerErrorException();
+            // TODO refactoring. duplicate with KalturaSearchAssetFilter
+            var userId = contextData.UserId.ToString();
+            var domainId = (int)(contextData.DomainId ?? 0);
+            var isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
+
+            var response = ClientsManager.CatalogClient().SearchAssets(
+                contextData.GroupId, 
+                userId,
+                domainId,
+                contextData.Udid,
+                contextData.Language,
+                pager.getPageIndex(),
+                pager.PageSize, 
+                null,
+                OrderBy, 
+                null, 
+                null,
+                contextData.ManagementData,
+                DynamicOrderBy,
+                null,
+                responseProfile,
+                isAllowedToViewInactiveAssets,
+                null);
+
+            return response;
         }
     }
 }

@@ -335,12 +335,43 @@ namespace DalCB
             return resultEpgs;
         }
 
+        public List<EpgCB> GetProgramFromRecordings(List<string> ids)
+        {
+            List<EpgCB> resultEpgs = new List<EpgCB>();
+
+            try 
+            {
+                resultEpgs = RecordingsBucketFallBack(ids);
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("IDs: ");
+                if (ids != null && ids.Count > 0)
+                {
+                    for (int i = 0; i < ids.Count; i++)
+                    {
+                        sb.Append(String.Concat(ids[i], ";"));
+                    }
+                }
+                else
+                {
+                    sb.Append("list is null or empty.");
+                }
+
+                log.Error("Exception - " + string.Format("Exception at GetProgramFromrecordings (list of ids overload). Msg: {0} , IDs: {1} , Ex Type: {2} , ST: {3}", ex.Message, sb.ToString(), ex.GetType().Name, ex.StackTrace), ex);
+            }
+
+            return resultEpgs;
+        }
+
         private List<EpgCB> RecordingsBucketFallBack(List<string> idsToGetFromRecordingsBucket)
         {
             List<EpgCB> resultEpgs = new List<EpgCB>();
 
             if (idsToGetFromRecordingsBucket != null && idsToGetFromRecordingsBucket.Count > 0)
             {
+                idsToGetFromRecordingsBucket = idsToGetFromRecordingsBucket.Select(x => HandleKeyForRecording(x)).ToList();
+
                 // try getting Ids from recording bucket
                 IDictionary<string, object> epgsOnRecordingBucket = recordingCbManager.GetValues<object>(idsToGetFromRecordingsBucket, true);
 
@@ -364,6 +395,20 @@ namespace DalCB
             }
 
             return resultEpgs;
+        }
+
+        private string HandleKeyForRecording(string key)
+        {
+            if (key.StartsWith("epg_"))
+            {
+                var tokens = key.Split('_');
+                if (tokens.Length == 4 && !tokens[2].Equals("lang")) //V2
+                {
+                    key = tokens[3]; //extreact program id
+                }
+            }
+
+            return key;
         }
 
         private EpgCB BuildEpgCbFromCbObject(object cbObject)

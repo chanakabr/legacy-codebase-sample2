@@ -1,13 +1,12 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
-using Catalog.Response;
 using ConfigurationManager;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
-using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using GroupsCacheManager;
 using KLogMonitor;
@@ -17,10 +16,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 
@@ -307,69 +304,17 @@ namespace Core.Catalog
             if (lMediaIDs == null || lMediaIDs.Count == 0)
                 return lMediaRes;
 
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
 
-            if (searcher != null)
+            var assetsUpdateDates = wrapper.GetAssetsUpdateDate(nParentGroupID, eObjectType.Media, lMediaIDs);
+
+            Dictionary<int, SearchResult> idToSearchResult = assetsUpdateDates.ToDictionary<SearchResult, int>(item => item.assetID);
+
+            foreach (var mediaId in lMediaIDs)
             {
-                if (searcher.GetType().Equals(typeof(LuceneWrapper)))
-                {
-                    DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0);
-                    lMediaRes = GetMediaUpdateDate(lMediaIDs.Select(id => new SearchResult() { assetID = id, UpdateDate = dt }).ToList(), nParentGroupID);
-                }
-                else
-                {
-                    ConcurrentBag<SearchResult> itemList = new ConcurrentBag<SearchResult>();
-                    Dictionary<int, SearchResult> dictRes = new Dictionary<int, SearchResult>();
-                    foreach (int mediaID in lMediaIDs)
-                    {
-                        if (!dictRes.ContainsKey(mediaID))
-                            dictRes.Add(mediaID, new SearchResult());
-                    }
-
-                    try
-                    {
-                        ContextData contextData = new ContextData();
-                        Parallel.ForEach<int>(lMediaIDs, mediaID =>
-                        {
-                            contextData.Load();
-                            SearchResult res = new SearchResult()
-                            {
-                                assetID = mediaID,
-                                UpdateDate = DateTime.MinValue
-                            };
-                            try
-                            {
-                                res = searcher.GetDoc(nParentGroupID, mediaID);
-                                if (res != null)
-                                {
-                                    dictRes[mediaID] = new SearchResult()
-                                    {
-                                        assetID = res.assetID,
-                                        UpdateDate = res.UpdateDate
-                                    };
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                log.ErrorFormat("Failed getting document of media {0}. ex = {1}", mediaID, ex);
-                            }
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        log.ErrorFormat("Failed performing parallel GetMediaUpdateDate for group {0}. ex = {1}", nParentGroupID, ex);
-                    }
-                    
-                    foreach (var item in lMediaIDs)
-                    {
-                        if (dictRes[item].assetID > 0)
-                        {
-                            lMediaRes.Add(dictRes[item]);
-                        }
-                    }
-                }
+                lMediaRes.Add(idToSearchResult[mediaId]);
             }
-            
+
             return lMediaRes;
         }
 
@@ -696,7 +641,7 @@ namespace Core.Catalog
         }
 
         public static void BuildMediaFromDataSet(ref Dictionary<int, Dictionary<int, Media>> mediaTranslations,
-            ref Dictionary<int, Media> medias, Group group, DataSet dataSet)
+            ref Dictionary<int, Media> medias, Group group, DataSet dataSet, int mediaId)
         {
             if (dataSet != null && dataSet.Tables.Count > 0)
             {
@@ -808,7 +753,7 @@ namespace Core.Catalog
                         {
                             foreach (DataRow dateMetaRow in dataSet.Tables[6].Rows)
                             {
-                                int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dateMetaRow, "media_id");
+                                mediaId = ODBCWrapper.Utils.GetIntSafeVal(dateMetaRow, "media_id");
                                 string metaName = ODBCWrapper.Utils.GetSafeStr(dateMetaRow, "name");
                                 DateTime val = ODBCWrapper.Utils.GetDateSafeVal(dateMetaRow, "value");
                                 try
@@ -868,7 +813,7 @@ namespace Core.Catalog
                     {
                         foreach (DataRow mediaRegionRow in dataSet.Tables[5].Rows)
                         {
-                            int mediaId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "MEDIA_ID");
+                            mediaId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "MEDIA_ID");
                             int regionId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "REGION_ID");
 
                             // Accumulate region ids in list
@@ -888,9 +833,16 @@ namespace Core.Catalog
 
                     #endregion
 
+                    MediaTagsTranslations tagsTranslations = null;
+
                     #region - get all media tags
                     if (dataSet.Tables[2].Columns != null && dataSet.Tables[2].Rows != null && dataSet.Tables[2].Rows.Count > 0)
                     {
+                        if (group.isTagsSingleTranslation)
+                        {
+                            tagsTranslations = CatalogDAL.GetMediaTagsTranslations(mediaId);                            
+                        }
+
                         foreach (DataRow row in dataSet.Tables[2].Rows)
                         {
                             int nTagMediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
@@ -1001,7 +953,19 @@ namespace Core.Catalog
                     #endregion
 
                     #region - get all translated media tags
-                    if (dataSet.Tables[4].Columns != null && dataSet.Tables[4].Rows != null && dataSet.Tables[4].Rows.Count > 0)
+
+                    if (tagsTranslations != null)
+                    {
+                        
+                        if (tagsTranslations.Translations?.Count > 0)
+                        {
+                            foreach (var tagTranslation in tagsTranslations.Translations)
+                            {
+                                GetTranslatedMediaTags(group, tagTranslation.TagTypeId, tagTranslation.Value, mediaId, tagTranslation.LanguageId, ref mediaTranslations);
+                            }
+                        }
+                    }
+                    else if (dataSet.Tables[4].Columns != null && dataSet.Tables[4].Rows != null && dataSet.Tables[4].Rows.Count > 0)
                     {
                         foreach (DataRow row in dataSet.Tables[4].Rows)
                         {
@@ -1011,25 +975,7 @@ namespace Core.Catalog
                             int nLangID = ODBCWrapper.Utils.GetIntSafeVal(row, "language_id");
                             long tagID = ODBCWrapper.Utils.GetLongSafeVal(row, "tag_id");
 
-                            if (group.m_oGroupTags.ContainsKey(mttn) && !string.IsNullOrEmpty(val))
-                            {
-                                Media oMedia;
-
-                                if (mediaTranslations.ContainsKey(nTagMediaID) && mediaTranslations[nTagMediaID].ContainsKey(nLangID))
-                                {
-                                    oMedia = mediaTranslations[nTagMediaID][nLangID];
-                                    string sTagTypeName = group.m_oGroupTags[mttn];
-
-                                    if (!oMedia.m_dTagValues.ContainsKey(sTagTypeName))
-                                    {
-                                        oMedia.m_dTagValues.Add(sTagTypeName, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
-                                    }
-                                    if (!oMedia.m_dTagValues[sTagTypeName].Contains(val))
-                                    {
-                                        oMedia.m_dTagValues[sTagTypeName].Add(val);
-                                    }
-                                }
-                            }
+                            GetTranslatedMediaTags(group, mttn, val, nTagMediaID, nLangID, ref mediaTranslations);
                         }
                     }
 
@@ -1042,7 +988,7 @@ namespace Core.Catalog
                     {
                         foreach (DataRow mediaCountryRow in dataSet.Tables[7].Rows)
                         {
-                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "MEDIA_ID");
+                            mediaId = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "MEDIA_ID");
                             int countryId = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "COUNTRY_ID");
                             bool isAllowed = ODBCWrapper.Utils.GetIntSafeVal(mediaCountryRow, "IS_ALLOWED") == 1;
 
@@ -1068,7 +1014,30 @@ namespace Core.Catalog
 
                     #endregion
                 }
+            }
+        }
 
+        public static void GetTranslatedMediaTags(Group group, int tagType, string val, int mediaId, int langId,
+            ref Dictionary<int, Dictionary<int, Media>> mediaTranslations)
+        {
+            if (group.m_oGroupTags.ContainsKey(tagType) && !string.IsNullOrEmpty(val))
+            {
+                Media media;
+
+                if (mediaTranslations.ContainsKey(mediaId) && mediaTranslations[mediaId].ContainsKey(langId))
+                {
+                    media = mediaTranslations[mediaId][langId];
+                    string tagTypeName = group.m_oGroupTags[tagType];
+
+                    if (!media.m_dTagValues.ContainsKey(tagTypeName))
+                    {
+                        media.m_dTagValues.Add(tagTypeName, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+                    }
+                    if (!media.m_dTagValues[tagTypeName].Contains(val))
+                    {
+                        media.m_dTagValues[tagTypeName].Add(val);
+                    }
+                }
             }
         }
 

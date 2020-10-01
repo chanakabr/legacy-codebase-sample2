@@ -1417,7 +1417,7 @@ namespace Tvinci.Core.DAL
                     {
                         nMediaID = assetAndLocation.AssetId;
                         lastDate = Utils.UtcUnixTimestampSecondsToDateTime(assetAndLocation.CreatedAt);
-                        
+
                         UserMediaMark objUserMediaMark = new UserMediaMark
                         {
                             AssetID = nMediaID,
@@ -2816,8 +2816,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataTable Get_ValidateMediaFiles(int[] mediaFiles, int groupId)
-        {
-            //TODO Anat ask Ira
+        {            
             DataTable dt = null;
             try
             {
@@ -5168,7 +5167,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@opl", opl);
 
             return sp.ExecuteDataSet();
-        }
+        }        
 
         public static DataSet GetMediaFilesByAssetIds(int groupId, List<long> assetIds)
         {
@@ -5235,7 +5234,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetMediaFilesByExternalIdAndAltExternalId(int groupId, string externalId, string altExternalId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFilesByExternalId"); // TODO: anat rename Sp Name
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFilesByExternalId"); 
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@externalId", externalId);
@@ -5611,7 +5610,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@UserId", userId);
             sp.AddParameter("@IsInherited", isInherited);
             sp.AddParameter("@isLocationTag", isLocationTag);
-            
+
             return sp.Execute();
         }
 
@@ -5808,10 +5807,10 @@ namespace Tvinci.Core.DAL
                 foreach (var resultToSave in resultsToSave)
                 {
                     bulkUpload.Results[resultToSave.Index] = resultToSave;
-                    statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
-
-                    log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
                 }
+                statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
+                log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
+
             });
 
             status = statusAfterUpdate;
@@ -5855,33 +5854,32 @@ namespace Tvinci.Core.DAL
             }
 
             var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
-            if (isAnyInError)
-            {
-                return BulkUploadJobStatus.Failed;
-            }
-
+            var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
             var isAnyInProgress = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.InProgress);
+
+            // there are still items in progress we will return the current proccessing\parsing etc.. status 
             if (isAnyInProgress)
             {
                 return newStatus;
             }
 
-            var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
-
-            if (!isAnyInError)
+            // there are no items in progress anymore, so we check if all OK or some failed..
+            // found some errors there might be partial or total failue 
+            if (isAnyInError)
             {
-                newStatus = BulkUploadJobStatus.Success;
-            }
-            else if (!isAnyInOk)
-            {
-                newStatus = BulkUploadJobStatus.Failed;
+                if (isAnyInOk)
+                {
+                    return BulkUploadJobStatus.Partial;
+                }
+                else
+                {
+                    return BulkUploadJobStatus.Failed;
+                }
             }
             else
             {
-                newStatus = BulkUploadJobStatus.Partial;
+                return BulkUploadJobStatus.Success;
             }
-
-            return newStatus;
         }
 
         #endregion
@@ -6268,6 +6266,55 @@ namespace Tvinci.Core.DAL
             }
 
             return null;
+        }
+
+        public static MediaTagsTranslations GetMediaTagsTranslations(long mediaId)
+        {
+            string key = GetMediaTagsTranslationsKey(mediaId);
+            return UtilsDal.GetObjectFromCB<MediaTagsTranslations>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static void GetMediaTagsTranslations(Dictionary<long, MediaTagsTranslations> translations)
+        {
+            List<string> keys = translations.Keys.Select(x => GetMediaTagsTranslationsKey(x)).ToList();
+            var results = UtilsDal.GetObjectListFromCB<MediaTagsTranslations>(eCouchbaseBucket.OTT_APPS, keys);
+
+            foreach (var item in results)
+            {
+                translations[item.mediaId] = item;
+            }
+        }
+
+        private static string GetMediaTagsTranslationsKey(long mediaId)
+        {
+            return $"media_tags_translations_{mediaId}";
+        }
+
+        public static bool SaveMediaTagsTranslationCB(long mediaId, MediaTagsTranslations tagsTranslation)
+        {
+            var key = GetMediaTagsTranslationsKey(mediaId);
+            tagsTranslation.UpdateDate = DateTime.UtcNow;
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, tagsTranslation, false);
+        }
+
+        public static bool InsertMediaTag(int groupId, int mediaId, int tagId)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@mediaId", mediaId }, { "@tagId", tagId } };
+                return UtilsDal.ExecuteReturnValue<long>("Insert_MediaTags", parameters) > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while InsertMediaTag from DB, groupId = {groupId}", ex);
+            }
+
+            return false;
+        }
+        public static bool DeleteMediaTagsTranslations(long mediaId)
+        {
+            string key = GetMediaTagsTranslationsKey(mediaId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
         }
     }
 }

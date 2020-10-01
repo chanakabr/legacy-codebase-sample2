@@ -159,7 +159,7 @@ namespace ElasticSearchHandler.IndexBuilders
             return success;
         }
 
-        protected Dictionary<ulong, Dictionary<string, EpgCB>> GetEpgPrograms(int groupId, DateTime? dateTime, long bulkSize = 0)
+        protected Dictionary<ulong, Dictionary<string, EpgCB>> GetEpgPrograms(int groupId, DateTime? dateTime, int bulkSize = 0)
         {
             try
             {
@@ -168,7 +168,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 //Get All programs by group_id + date from CB
                 TvinciEpgBL oEpgBL = new TvinciEpgBL(groupId);
 
-                List<EpgCB> lEpgCB = oEpgBL.GetGroupEpgs(0, 0, dateTime, dateTime.Value.AddDays(1), true, bulkSize);
+                List<EpgCB> lEpgCB = oEpgBL.GetGroupEpgsWithBulkSize(dateTime, dateTime.Value.AddDays(1), true, bulkSize);
 
                 if (lEpgCB != null && lEpgCB.Count > 0)
                 {
@@ -176,7 +176,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
                 else
                 {
-                    log.DebugFormat("Got 0 or null EPG Programs. group = {0}, date = {1}", groupId, dateTime);
+                    log.WarnFormat("Got 0 or null EPG Programs. group = {0}, date = {1}", groupId, dateTime);
                 }
 
                 return epgs;

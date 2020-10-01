@@ -57,6 +57,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
         [Throws(eResponseStatus.RegionNotFound)]
         [Throws(eResponseStatus.RegionCannotBeParent)]
+        [Throws(eResponseStatus.InputFormatIsInvalid)]
+        [Throws(eResponseStatus.DuplicateRegionChannel)]
+        [Throws(eResponseStatus.ParentAlreadyContainsChannel)]
         static public KalturaRegion Add(KalturaRegion region)
         {
             KalturaRegion response = null;
@@ -89,6 +92,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RegionNotFound)]
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
         [Throws(eResponseStatus.RegionCannotBeParent)]
+        [Throws(eResponseStatus.InputFormatIsInvalid)]
+        [Throws(eResponseStatus.DuplicateRegionChannel)]
+        [Throws(eResponseStatus.ParentAlreadyContainsChannel)]
         static public KalturaRegion Update(int id, KalturaRegion region)
         {
             KalturaRegion response = null;
