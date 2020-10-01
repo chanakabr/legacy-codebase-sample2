@@ -24547,8 +24547,8 @@ namespace WebAPI.Models.Users
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = 50,
+            IsNullable = true,
+            MaxLength = 255,
             MinLength = 1,
         };
         public KalturaDeviceReferenceData(Dictionary<string, object> parameters = null) : base(parameters)
@@ -24564,6 +24564,10 @@ namespace WebAPI.Models.Users
                         IdSchemaProperty.Validate("id", parameters["id"]);
                     }
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("name__null") && parameters["name__null"] != null)
+                {
+                    AddNullableProperty("name");
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
@@ -28702,7 +28706,7 @@ namespace WebAPI.Models.Domains
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
-            MaxLength = -1,
+            MaxLength = 255,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ManufacturerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")

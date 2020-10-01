@@ -137,7 +137,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "manufacturer")]
         [JsonProperty("manufacturer")]
         [XmlElement(ElementName = "manufacturer", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MaxLength = 255)]
         public string Manufacturer { get; set; }
 
         /// <summary>
