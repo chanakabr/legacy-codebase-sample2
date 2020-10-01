@@ -1,15 +1,19 @@
-﻿using ApiObjects;
+﻿using APILogic.ConditionalAccess;
+using ApiObjects;
+using ApiObjects.Base;
+using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
 using Core.Users.Cache;
 using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Core.Users
 {
-    public class DomainDevice : CoreObject
+    public class DomainDevice : CoreObject, ICampaignObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -33,17 +37,13 @@ namespace Core.Users
 
         public string MacAddress { get; set; }
 
-        public string Model{ get; set; }
+        public long DeviceFamilyId { get; set; }
 
         public string Manufacturer { get; set; }
 
         public long? ManufacturerId { get; set; }
 
-        public long DeviceFamilyId
-        {
-            get;
-            set;
-        }
+        public string Model { get; set; }
 
         protected override bool DoInsert()
         {
@@ -75,14 +75,15 @@ namespace Core.Users
                 log.ErrorFormat("Insert domain device - Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", this.DomainId, this.Udid, ex);
             }
 
-            return Id > 0;
+            var sucsses = Id > 0;
+
+            if (sucsses)
+            {
+                ApiLogic.Users.Managers.CampaignManager.Instance.PublishTriggerCampaign(GroupId, DomainId, this, ApiService.DomainDevice, ApiAction.Insert);
+            }
+
+            return sucsses;
         }
-
-
-
-
-
-
 
         protected override bool DoUpdate()
         {
@@ -158,6 +159,26 @@ namespace Core.Users
             };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
+        }
+
+        public IConditionScope ConvertToConditionScope(ContextData contextData)
+        {
+            var userSegments = ApiObjects.Segmentation.UserSegment.List(contextData.GroupId, contextData.UserId.ToString(), out int totalCount);
+
+            var conditionScope = new TriggerCampaignConditionScope()
+            {
+                GroupId = contextData.GroupId,
+                UserId = contextData.UserId.ToString(),
+                BrandId = this.DeviceBrandId,
+                ManufacturerId = this.ManufacturerId,
+                Model = this.Model,
+                FamilyId = (int)this.DeviceFamilyId,
+                Udid = this.Udid,
+                FilterBySegments = true,
+                SegmentIds = userSegments?.Select(x => x.SegmentId).ToList()
+            };
+
+            return conditionScope;
         }
     }
 }

@@ -25,7 +25,7 @@ namespace DAL
 
         #region Generic Methods
 
-        public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction)
+        public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction, bool updateObjectActionIfNotExist = false) where T : new()
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
             var numOfTries = 0;
@@ -41,11 +41,16 @@ namespace DAL
 
                     if (getResult == eResultStatus.KEY_NOT_EXIST)
                     {
-                        log.ErrorFormat("KeyNotFound - Error while SaveObjectWithVersionCheckInCB. key:{0}.", key);
-                        return false;
+                        if (!updateObjectActionIfNotExist)
+                        {
+                            log.ErrorFormat("KeyNotFound - Error while SaveObjectWithVersionCheckInCB. key:{0}.", key);
+                            return false;
+                        }
+
+                        objectToSave = new T();
                     }
 
-                    if (getResult == eResultStatus.SUCCESS)
+                    if (getResult != eResultStatus.ERROR)
                     {
                         updateObjectAction(objectToSave);
 

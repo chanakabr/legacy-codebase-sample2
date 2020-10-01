@@ -1,12 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -24,9 +26,14 @@ namespace WebAPI.Models.API
         HEADER,
         USER_SUBSCRIPTION,
         ASSET_SUBSCRIPTION,
-        USER_ROLE
+        USER_ROLE,
+        DEVICE_BRAND,
+        DEVICE_FAMILY,
+        DEVICE_MANUFACTURER,
+        DEVICE_MODEL,
+        DEVICE_UDID_DYNAMIC_LIST
     }
-    
+
     /// <summary>
     /// Condition
     /// </summary>
@@ -178,7 +185,7 @@ namespace WebAPI.Models.API
         [JsonProperty("limit")]
         [XmlElement(ElementName = "limit")]
         public int Limit { get; set; }
-        
+
         /// <summary>
         /// Concurrency limitation type
         /// </summary>
@@ -222,7 +229,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "fromIP")]
         [JsonProperty("fromIP")]
         [XmlElement(ElementName = "fromIP")]
-        public string FromIP{ get; set; }
+        public string FromIP { get; set; }
 
         /// <summary>
         /// TO IP address range
@@ -315,7 +322,7 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "segmentsIds")]
         [SchemeProperty(DynamicMinInt = 0)]
         public string SegmentsIds { get; set; }
-        
+
 
         protected override void Init()
         {
@@ -429,7 +436,7 @@ namespace WebAPI.Models.API
             }
         }
     }
-    
+
     public abstract partial class KalturaSubscriptionCondition : KalturaCondition
     {
         /// <summary>
@@ -449,7 +456,7 @@ namespace WebAPI.Models.API
             }
         }
     }
-    
+
     /// <summary>
     /// UserSubscription Condition - indicates which users this rule is applied on by their subscriptions
     /// </summary>
@@ -473,7 +480,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.ASSET_SUBSCRIPTION;
         }
     }
-    
+
     /// <summary>
     /// UserRole Condition - indicates which users this rule is applied on by their roles
     /// </summary>
@@ -499,6 +506,153 @@ namespace WebAPI.Models.API
             if (string.IsNullOrEmpty(this.IdIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaUserRoleCondition.idIn");
+            }
+        }
+    }
+
+    public partial class KalturaDeviceBrandCondition : KalturaCondition
+    {
+        /// <summary>
+        /// Comma separated Device Brand IDs list
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn")]
+        [SchemeProperty(DynamicMinInt = 0)]
+        public string IdIn { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.DEVICE_BRAND;
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.IdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceBrandCondition.idIn");
+            }
+
+            var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
+            if (items.Count > 10)
+            {
+                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceBrandCondition.idIn", 10);
+            }
+        }
+    }
+
+    public partial class KalturaDeviceFamilyCondition : KalturaCondition
+    {
+        /// <summary>
+        /// Comma separated Device Family IDs list
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn")]
+        [SchemeProperty(DynamicMinInt = 0)]
+        public string IdIn { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.DEVICE_FAMILY;
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.IdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceFamilyCondition.idIn");
+            }
+
+            var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
+            if (items.Count > 10)
+            {
+                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceFamilyCondition.idIn", 10);
+            }
+        }
+    }
+
+    public partial class KalturaDeviceManufacturerCondition : KalturaCondition
+    {
+        /// <summary>
+        /// Comma separated Device Manufacturer IDs list
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn")]
+        [SchemeProperty(DynamicMinInt = 0)]
+        public string IdIn { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.DEVICE_MANUFACTURER;
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.IdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceManufacturerCondition.idIn");
+            }
+
+            var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
+            if (items.Count > 10)
+            {
+                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceManufacturerCondition.idIn", 10);
+            }
+        }
+    }
+
+    public partial class KalturaDeviceModelCondition : KalturaCondition
+    {
+        /// <summary>
+        /// regex of device model that is compared to
+        /// </summary>
+        [DataMember(Name = "regexEqual")]
+        [JsonProperty("regexEqual")]
+        [XmlElement(ElementName = "regexEqual")]
+        public string RegexEqual { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.DEVICE_MODEL;
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.RegexEqual))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceModelCondition.idIn");
+            }
+        }
+    }
+
+    public partial class KalturaUdidDynamicListCondition : KalturaCondition
+    {
+        /// <summary>
+        /// KalturaUdidDynamicList.id
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(DynamicMinInt = 1)]
+        public long Id { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.DEVICE_UDID_DYNAMIC_LIST;
+        }
+
+        internal override void Validate()
+        {
+            if (Id < 1)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaUdidDynamicListCondition.id");
             }
         }
     }

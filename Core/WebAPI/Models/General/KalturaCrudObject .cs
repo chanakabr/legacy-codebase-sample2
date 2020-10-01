@@ -18,8 +18,8 @@ namespace WebAPI.Models.General
         internal virtual void ValidateForAdd() { }
         internal virtual void ValidateForUpdate() { }
         internal abstract void SetId(IdentifierT id);
-        internal virtual GenericResponse<ICrudHandeledObject> Add(ContextData contextData) { return null; }
-        internal virtual GenericResponse<ICrudHandeledObject> Update(ContextData contextData) { return null; }
+        internal virtual GenericResponse<ICrudHandeledObject> Add(ContextData contextData) { throw new NotImplementedException(); }
+        internal virtual GenericResponse<ICrudHandeledObject> Update(ContextData contextData) { throw new NotImplementedException(); }
 
         protected override void Init()
         {

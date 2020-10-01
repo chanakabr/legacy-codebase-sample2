@@ -681,7 +681,8 @@ namespace Core.Users
                             ExternalId = device.ExternalId,
                             MacAddress = device.MacAddress,
                             Model = device.Model,
-                            Manufacturer = device.Manufacturer
+                            Manufacturer = device.Manufacturer,
+                            ManufacturerId = device.ManufacturerId
                         };
 
                         bool updated = domainDevice.Update();

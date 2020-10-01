@@ -1316,6 +1316,13 @@ namespace Core.ConditionalAccess
                     return status;
                 }
 
+                if (renewData != null && renewData.CampaignDetails != null && renewData.CampaignDetails.Id > 0)
+                {
+                    status.Set(eResponseStatus.CampaignIsAlreadyAppliedForSubscription);
+                    return status;
+                }
+
+
                 bool validCoupon = false;
                 // look if this coupon group id exsits in coupon list 
                 if (

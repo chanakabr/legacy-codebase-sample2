@@ -123,13 +123,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sCode));
 
             // BundleCodeContainer to SlimChannel
+            cfg.CreateMap<PromotionInfo, KalturaPromotionInfo>()
+               .ForMember(dest => dest.CampaignId, opt => opt.MapFrom(src => src.CampaignId));
+
+            // BundleCodeContainer to SlimChannel
             cfg.CreateMap<SubscriptionsPricesContainer, KalturaSubscriptionPrice>()
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
                .ForMember(dest => dest.PurchaseStatus, opt => opt.ResolveUsing(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
+               .ForMember(dest => dest.FullPrice, opt => opt.MapFrom(src => src.OriginalPrice))
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
                .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => KalturaTransactionType.subscription))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.endDate.HasValue ? src.endDate.Value : 0))
+               .ForMember(dest => dest.PromotionInfo, opt => opt.MapFrom(src => src.PromotionInfo))
                ;
 
 

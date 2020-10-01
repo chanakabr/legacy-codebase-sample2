@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace ApiObjects.Response
 {
     public enum eResponseStatus
@@ -198,6 +193,7 @@ namespace ApiObjects.Response
         NetworkRuleBlock = 3080,
         SubscriptionDoesNotExist = 3081,
         OtherCouponIsAlreadyAppliedForSubscription = 3082,
+        CampaignIsAlreadyAppliedForSubscription = 3083,
 
         #endregion
 
@@ -543,6 +539,12 @@ namespace ApiObjects.Response
         CouponCodeAlreadyLoaded = 9024,
         CouponCodeNotInHousehold = 9025,
         ExceededHouseholdCouponLimit = 9026,
+        CampaignDoesNotExist = 9027,
+        ExceededMaxCapacity = 9028,
+        CanDeleteOnlyInactiveCampaign = 9029,
+        DynamicListDoesNotExist = 9030,
+        ExceededMaxLength = 9031,
+
         #endregion
 
         #region Adapters 10000-10999
@@ -563,6 +565,7 @@ namespace ApiObjects.Response
         EPGSProgramDatesError = 11003,
         EPGLanguageNotFound = 11004,
         EPGProgramOverlapFixed = 11005,
+
         #endregion
 
         #region DMS  12000-12999

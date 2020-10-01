@@ -82,7 +82,7 @@ namespace TVPPro.SiteManager.Helper
             if (!string.IsNullOrEmpty(FileTypeName))
             {
                 //Get all Files type(trailer, poster , main flv...)
-                Dictionary<int, FileTypeContainer[]> FileType = ApiService.Instance.GetFileTypes(GroupID);
+                Dictionary<int, FileTypeContainer[]> FileType = Services.ApiService.Instance.GetFileTypes(GroupID);
 
                 if (FileType != null && FileType.Count > 0 && FileType.Keys.Contains(GroupID))
                 {

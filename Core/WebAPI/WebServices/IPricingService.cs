@@ -23,11 +23,11 @@ namespace WebAPI.WebServices
         [OperationContract]
         List<Coupon> GeneratePublicCoupons(string sWSUserName, string sWSPassword, long couponGroupId, string code);
         [OperationContract]
-        Campaign GetCampaignData(string sWSUserName, string sWSPassword, long nCampaignID);
+        Core.Pricing.Campaign GetCampaignData(string sWSUserName, string sWSPassword, long nCampaignID);
         [OperationContract]
-        Campaign GetCampaignsByHash(string sWSUserName, string sWSPassword, string hashCode);
+        Core.Pricing.Campaign GetCampaignsByHash(string sWSUserName, string sWSPassword, string hashCode);
         [OperationContract]
-        Campaign[] GetCampaignsByType(string sWSUserName, string sWSPassword, CampaignTrigger triggerType, string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive);
+        Core.Pricing.Campaign[] GetCampaignsByType(string sWSUserName, string sWSPassword, CampaignTrigger triggerType, string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive);
         [OperationContract]
         Collection GetCollectionData(string sWSUserName, string sWSPassword, string sCollectionCode, string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive);
         [OperationContract]
@@ -47,7 +47,7 @@ namespace WebAPI.WebServices
         [OperationContract]
         Subscription[] GetIndexedSubscriptionsContainingMedia(string sWSUserName, string sWSPassword, int nMediaID, int nFileTypeID, int count);
         [OperationContract]
-        Campaign[] GetMediaCampaigns(string sWSUserName, string sWSPassword, int nMediaID, string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive);
+        Core.Pricing.Campaign[] GetMediaCampaigns(string sWSUserName, string sWSPassword, int nMediaID, string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive);
         [OperationContract]
         UsageModule GetOfflineUsageModule(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName);
         [OperationContract]

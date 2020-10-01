@@ -97,7 +97,10 @@ namespace DAL
                     if (row.Table.Columns.Contains(fieldName))
                     {
                         if (row[fieldName] == null) { safeValue = null; }
-                        if (propType.IsEnum) { safeValue = Enum.ToObject(propType, 5); }
+                        if (propType.IsEnum)
+                        {
+                            safeValue = Enum.ToObject(propType, row[fieldName]);
+                        }
                         else { safeValue = Convert.ChangeType(row[fieldName], propType); }
                     }
 

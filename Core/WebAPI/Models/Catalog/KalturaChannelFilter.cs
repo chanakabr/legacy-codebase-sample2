@@ -62,7 +62,6 @@ namespace WebAPI.Models.Catalog
         {
             KalturaAssetListResponse response = null;
 
-            // TODO SHIR - GROUP_BY
             int domainId = (int)(contextData.DomainId ?? 0);
             if (this.ExcludeWatched)
             {

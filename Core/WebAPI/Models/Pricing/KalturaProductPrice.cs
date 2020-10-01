@@ -41,6 +41,15 @@ namespace WebAPI.Models.Pricing
         public KalturaPrice Price { get; set; }
 
         /// <summary>
+        /// The full price of the item (with no discounts)
+        /// </summary>
+        [DataMember(Name = "fullPrice")]
+        [JsonProperty("fullPrice")]
+        [XmlElement(ElementName = "fullPrice", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public KalturaPrice FullPrice { get; set; }
+
+        /// <summary>
         /// Product purchase status  
         /// </summary>
         [DataMember(Name = "purchaseStatus")]
@@ -48,5 +57,25 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "purchaseStatus")]
         [OnlyNewStandard]
         public KalturaPurchaseStatus PurchaseStatus { get; set; }
+
+        /// <summary>
+        /// Promotion Info
+        /// </summary>
+        [DataMember(Name = "promotionInfo")]
+        [JsonProperty("promotionInfo")]
+        [XmlElement(ElementName = "promotionInfo")]
+        [SchemeProperty(IsNullable = true)]
+        public KalturaPromotionInfo PromotionInfo { get; set; }
     }
+
+    public partial class KalturaPromotionInfo : KalturaOTTObject
+    {
+        /// <summary>
+        /// Campaign Id
+        /// </summary>
+        [DataMember(Name = "campaignId")]
+        [JsonProperty("campaignId")]
+        [XmlElement(ElementName = "campaignId")]
+        public long? CampaignId { get; set; }
+    } 
 }

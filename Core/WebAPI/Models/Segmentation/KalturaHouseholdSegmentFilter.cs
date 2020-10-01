@@ -27,7 +27,7 @@ namespace WebAPI.Models.Segmentation
             return KalturaHouseholdSegmentOrderBy.NONE;
         }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
         }
 

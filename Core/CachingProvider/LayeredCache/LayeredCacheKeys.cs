@@ -54,7 +54,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("ip_{0}", ip);
         }
-        
+
         public static string GetKeyForCountryName(string countryName)
         {
             return string.Format("countryName_{0}", countryName);
@@ -450,7 +450,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("TstvAccountSettingsExists_groupId_{0}", groupId);
         }
-        
+
         public static string GetDeviceRulesByBrandIdKey(int groupId, int brandId)
         {
             return string.Format("deviceRules_groupId_{0}_brandId_{1}", groupId, brandId);
@@ -634,8 +634,8 @@ namespace CachingProvider.LayeredCache
         public static string GetDomainRecordingsKey(long domainId)
         {
             return string.Format("DomainRecordings_domainId_{0}", domainId);
-		}
-		
+        }
+
         public static string GetMediaStatsKey(int assetId)
         {
             return string.Format("MediaStats_{0}", assetId);
@@ -719,6 +719,26 @@ namespace CachingProvider.LayeredCache
         public static string GetCatalogPartnerConfigKey(int groupId)
         {
             return string.Format("catalog_partner_config_{0}", groupId);
+        }
+
+        public static string GetGroupCampaignKey(int groupId, int campaignType)
+        {
+            return $"group_campaign_{groupId}_type_{campaignType}";
+        }
+
+        public static string GetCampaignKey(int groupId, long campaignId)
+        {
+            return $"group_campaign_{groupId}_id_{campaignId}";
+        }
+
+        public static string GetDynamicListKey(int groupId, long id)
+        {
+            return $"group_DynamicList_{groupId}_id_{id}";
+        }
+
+        public static string GetDynamicListGroupMappingKey(int groupId, int type)
+        {
+            return $"group_DynamicList_Mapping_{groupId}_type_{type}";
         }
 
         #endregion
@@ -1008,12 +1028,12 @@ namespace CachingProvider.LayeredCache
                 ids = ids.Distinct().ToList();
                 foreach (long id in ids)
                 {
-                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });                    
+                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });
                 }
             }
 
             return result;
-        }        
+        }
 
         public static string GetUserParentalRuleInvalidationKey(string siteGuid)
         {
@@ -1129,7 +1149,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKey_device_reference_data_{0}", groupId);
         }
-        
+
         public static string GetSSOAdapaterImplementationsInvalidationKey(int adapaterId)
         {
             return string.Format("invalidationKey_sso_adapater_implementations_{0}", adapaterId);
@@ -1314,7 +1334,7 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupCategoriesInvalidationKey(int groupId)
         {
             return $"invalidationKey_groupCategoriesKey_groupId_{groupId}";
-        }      
+        }
 
         public static string GetCategoryIdInvalidationKey(long categoryId)
         {
@@ -1380,6 +1400,26 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupIotClientConfigInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_groupIotClientConfig_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupCampaignInvalidationKey(int groupId, int type)
+        {
+            return $"invalidationKey_{GetGroupCampaignKey(groupId, type)}";
+        }
+
+        public static string GetCampaignInvalidationKey(int groupId, long campaignId)
+        {
+            return $"invalidationKey_{GetCampaignKey(groupId, campaignId)}";
+        }
+
+        public static string GetDynamicListInvalidationKey(int groupId, long id)
+        {
+            return $"invalidationKey_{GetDynamicListKey(groupId, id)}";
+        }
+
+        public static string GetDynamicListGroupMappingInvalidationKey(int groupId, int type)
+        {
+            return $"invalidationKey_{GetDynamicListGroupMappingKey(groupId, type)}";
         }
 
         #endregion

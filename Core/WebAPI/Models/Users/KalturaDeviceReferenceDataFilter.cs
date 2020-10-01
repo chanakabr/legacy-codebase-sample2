@@ -33,7 +33,7 @@ namespace WebAPI.Models.Users
             return KalturaDeviceReferenceDataOrderBy.NONE;
         }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
         }
 

@@ -173,10 +173,8 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                GenericResponse<string> saveFileResponse;
                 // save the bulkUpload file to server (cut it from iis) and set fileURL                                
-                saveFileResponse = fileData.SaveFile(response.Object.Id,"KalturaBulkUpload");
-
+                GenericResponse<string> saveFileResponse = fileData.SaveFile(response.Object.Id,"KalturaBulkUpload");
                 if (!saveFileResponse.HasObject())
                 {
                     log.ErrorFormat("Error while saving BulkUpload File to file server. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
@@ -519,7 +517,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("UpdateBulkUploadStatusWithVersionCheck > Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
                 }
                 log.Debug($"UpdateBulkUploadStatusWithVersionCheck > status by results is:[{updatedStatus}], status to set:[{newStatus}]");
-                response.Object.Status = newStatus;
+                response.Object.Status = updatedStatus;
 
                 UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
 
