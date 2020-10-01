@@ -24,6 +24,8 @@ namespace ApiObjects
         IConditionScope ConvertToConditionScope(ContextData contextData);
     }
 
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class CampaignDB
     {
         [DBFieldMapping("ID")]

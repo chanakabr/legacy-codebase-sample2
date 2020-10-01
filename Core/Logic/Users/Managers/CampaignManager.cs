@@ -491,7 +491,7 @@ namespace ApiLogic.Users.Managers
 
             if (newState == CampaignState.ACTIVE)
             {
-                if (campaign.type == (int)eCampaignType.Trigger)
+                if (campaign.CampaignType == eCampaignType.Trigger)
                 {
                     var campaignFilter = new TriggerCampaignFilter() { StateEqual = CampaignState.ACTIVE };
                     var campaigns = ListTriggerCampaigns(contextData, campaignFilter);
@@ -501,7 +501,7 @@ namespace ApiLogic.Users.Managers
                         return response;
                     }
                 }
-                else if (campaign.type == (int)eCampaignType.Batch)
+                else if (campaign.CampaignType == eCampaignType.Batch)
                 {
                     var campaignFilter = new BatchCampaignFilter() { StateEqual = CampaignState.ACTIVE };
                     var campaigns = ListBatchCampaigns(contextData, campaignFilter);
