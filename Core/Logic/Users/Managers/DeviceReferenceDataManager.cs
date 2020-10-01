@@ -160,8 +160,6 @@ namespace ApiLogic.Users.Managers
 
         public GenericListResponse<DeviceReferenceData> List(ContextData contextData, DeviceReferenceDataFilter filter, CorePager pager)
         {
-            //Todo - Matan, fix for more generic list filter
-
             var response = new GenericListResponse<DeviceReferenceData>();
 
             if (filter == null)
@@ -186,7 +184,7 @@ namespace ApiLogic.Users.Managers
                 response.Objects = response.Objects?.Where(rd => filter.IdsIn.Contains((int)rd.Id)).ToList();
             }
 
-            if (pager != null)
+            if (pager != null && pager.PageSize > 0)
             {
                 response.Objects = response.Objects?.Skip(pager.PageIndex * pager.PageSize)?.Take(pager.PageSize).ToList();
             }
