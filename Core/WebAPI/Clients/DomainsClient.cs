@@ -1087,6 +1087,7 @@ namespace WebAPI.Clients
 
         private static DomainDevice CastToDomainDevice(KalturaHouseholdDevice device)
         {
+            //TODO - Matan, use mapping
             return new DomainDevice
             {
                 Udid = device.Udid,

@@ -162,11 +162,6 @@ namespace ApiLogic.Users.Managers
         {
             var response = new GenericListResponse<DeviceReferenceData>();
 
-            if (filter == null)
-            {
-                filter = new DeviceManufacturersReferenceDataFilter();
-            }
-
             response.Objects = GetReferenceData(contextData.GroupId);
 
             if (filter is DeviceManufacturersReferenceDataFilter)
@@ -184,12 +179,13 @@ namespace ApiLogic.Users.Managers
                 response.Objects = response.Objects?.Where(rd => filter.IdsIn.Contains((int)rd.Id)).ToList();
             }
 
+            response.TotalItems = response.Objects == null ? 0 : response.Objects.Count;
+
             if (pager != null && pager.PageSize > 0)
             {
                 response.Objects = response.Objects?.Skip(pager.PageIndex * pager.PageSize)?.Take(pager.PageSize).ToList();
             }
 
-            response.TotalItems = response.Objects == null ? 0 : response.Objects.Count;
             response.SetStatus(eResponseStatus.OK);
 
             return response;

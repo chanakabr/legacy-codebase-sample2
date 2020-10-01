@@ -9,7 +9,7 @@ namespace WebAPI.Controllers
     [AddAction(ClientThrows = new eResponseStatus[] { eResponseStatus.Fail, eResponseStatus.AlreadyExist })]
     [UpdateAction(ClientThrows = new eResponseStatus[] { eResponseStatus.IdentifierRequired, eResponseStatus.Fail })]
     [DeleteAction(ClientThrows = new eResponseStatus[] { eResponseStatus.IdentifierRequired })]
-    [ListAction(ClientThrows = new eResponseStatus[] { eResponseStatus.Fail }, IsFilterOptional = true)]
+    [ListAction(ClientThrows = new eResponseStatus[] { eResponseStatus.Fail }, IsFilterOptional = false, IsPagerOptional = true)]
     public class DeviceReferenceDataController : KalturaCrudController<KalturaDeviceReferenceData, KalturaDeviceReferenceDataListResponse, DeviceReferenceData, long, KalturaDeviceReferenceDataFilter>
     {
     }
