@@ -236,7 +236,7 @@ namespace TVinciShared
             {
                 using (MD5 md5 = MD5.Create())
                 {
-                    var hashed = md5.ComputeHash(Encoding.ASCII.GetBytes(payload));
+                    var hashed = md5.ComputeHash(Encoding.UTF8.GetBytes(payload));
                     response = hashed.Aggregate(string.Empty, (x, y) => x + y.ToString("X2").ToLower());
                 }
             }
