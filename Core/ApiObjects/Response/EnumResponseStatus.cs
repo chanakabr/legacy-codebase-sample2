@@ -198,6 +198,8 @@ namespace ApiObjects.Response
         NetworkRuleBlock = 3080,
         SubscriptionDoesNotExist = 3081,
         OtherCouponIsAlreadyAppliedForSubscription = 3082,
+        PurchasePendingFailed = 3083,
+        PendingEntitlement = 3084, // BEO-8661
 
         #endregion
 

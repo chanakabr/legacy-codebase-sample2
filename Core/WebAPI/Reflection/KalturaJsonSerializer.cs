@@ -1769,6 +1769,10 @@ namespace WebAPI.Models.ConditionalAccess
                     ret.Add("is_in_grace_period", "\"is_in_grace_period\": " + IsInGracePeriod.ToString().ToLower());
                 }
             }
+            if(IsPending.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isPending")))
+            {
+                ret.Add("isPending", "\"isPending\": " + IsPending.ToString().ToLower());
+            }
             if(!omitObsolete && IsRenewable.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isRenewable")))
             {
                 ret.Add("isRenewable", "\"isRenewable\": " + IsRenewable.ToString().ToLower());
@@ -1946,6 +1950,10 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                 ret.Add("is_in_grace_period", "<is_in_grace_period>" + IsInGracePeriod.ToString().ToLower() + "</is_in_grace_period>");
                 }
+            }
+            if(IsPending.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isPending")))
+            {
+                ret.Add("isPending", "<isPending>" + IsPending.ToString().ToLower() + "</isPending>");
             }
             if(!omitObsolete && IsRenewable.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isRenewable")))
             {
@@ -38762,6 +38770,10 @@ namespace WebAPI.Models.Billing
                     ret.Add("is_active", "\"is_active\": " + IsActive);
                 }
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("isAsyncPolicy")))
+            {
+                ret.Add("isAsyncPolicy", "\"isAsyncPolicy\": " + IsAsyncPolicy.ToString().ToLower());
+            }
             if(PendingInterval.HasValue && (retrievedProperties == null || retrievedProperties.Contains("pendingInterval")))
             {
                 ret.Add("pendingInterval", "\"pendingInterval\": " + PendingInterval);
@@ -38876,6 +38888,10 @@ namespace WebAPI.Models.Billing
                 {
                 ret.Add("is_active", "<is_active>" + IsActive + "</is_active>");
                 }
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("isAsyncPolicy")))
+            {
+                ret.Add("isAsyncPolicy", "<isAsyncPolicy>" + IsAsyncPolicy.ToString().ToLower() + "</isAsyncPolicy>");
             }
             if(PendingInterval.HasValue && (retrievedProperties == null || retrievedProperties.Contains("pendingInterval")))
             {

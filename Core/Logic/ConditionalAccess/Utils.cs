@@ -2,7 +2,6 @@
 using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using APILogic.ConditionalAccess.Managers;
-using APILogic.ConditionalAccess.Modules;
 using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.Catalog;
@@ -37,7 +36,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
-using System.Web;
 using System.Xml;
 using TVinciShared;
 using Tvinic.GoogleAPI;
@@ -783,8 +781,14 @@ namespace Core.ConditionalAccess
                         endDate = DateTime.MinValue;
                         int gracePeriodMinutes = 0;
                         bool isSuspend = false;
+                        bool isPending = false;
                         GetSubscriptionBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
-                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes, ref isSuspend);
+                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes, ref isSuspend, ref isPending);
+
+                        if (isPending) //pending entitlement BEO-8661
+                        {
+                            continue;
+                        }
 
                         // decide which is the correct end period
                         if (endDate < DateTime.UtcNow)
@@ -834,8 +838,15 @@ namespace Core.ConditionalAccess
                         waiver = 0;
                         purchaseDate = DateTime.MinValue;
                         endDate = DateTime.MinValue;
+                        bool isPending = false;
 
-                        GetCollectionBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver, ref purchaseDate, ref endDate);
+                        GetCollectionBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver, ref purchaseDate, ref endDate, ref isPending);
+
+                        if (isPending) //pending entitlement BEO-8661
+                        {
+                            continue;
+                        }
+
                         // add to bulk query of Bundle_DoesCreditNeedToDownload to DB
                         //afterwards, the colls which pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
                         // finally, the colls which pass the catalog need to be validated against PPV_DoesCreditNeedToDownloadedUsingCollection
@@ -857,7 +868,8 @@ namespace Core.ConditionalAccess
                                         sBundleCode = bundleCode,
                                         nWaiver = waiver,
                                         dtPurchaseDate = purchaseDate,
-                                        dtEndDate = endDate
+                                        dtEndDate = endDate,
+                                        isPending = isPending
                                     });
                                 }
                             }
@@ -972,6 +984,7 @@ namespace Core.ConditionalAccess
             public DateTime dtEndDate;
             public int nNumOfUses;
             public int nMaxNumOfUses;
+            public bool isPending;
 
             public UserBundlePurchase() { }
         }
@@ -1070,7 +1083,7 @@ namespace Core.ConditionalAccess
         }
 
         private static void GetSubscriptionBundlePurchaseData(DataRow dataRow, string codeColumnName, ref int numOfUses, ref int maxNumOfUses, ref string bundleCode, ref int waiver,
-                                                                ref DateTime purchaseDate, ref DateTime endDate, ref int gracePeriodMin, ref bool isSuspend)
+                                                                ref DateTime purchaseDate, ref DateTime endDate, ref int gracePeriodMin, ref bool isSuspend, ref bool isPending)
         {
             numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
             maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
@@ -1081,12 +1094,11 @@ namespace Core.ConditionalAccess
             gracePeriodMin = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
             int subscriptionStatus = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "subscription_status");
             isSuspend = SubscriptionPurchaseStatus.Suspended == (SubscriptionPurchaseStatus)subscriptionStatus;
+            isPending = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "IS_PENDING") == 1;
         }
 
-
-
         private static void GetCollectionBundlePurchaseData(DataRow dataRow, string codeColumnName, ref int numOfUses, ref int maxNumOfUses,
-            ref string bundleCode, ref int waiver, ref DateTime purchaseDate, ref DateTime endDate)
+            ref string bundleCode, ref int waiver, ref DateTime purchaseDate, ref DateTime endDate, ref bool isPending)
         {
             numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
             maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
@@ -1094,6 +1106,7 @@ namespace Core.ConditionalAccess
             waiver = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER");
             purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "CREATE_DATE");
             endDate = ODBCWrapper.Utils.ExtractDateTime(dataRow, "END_DATE");
+            isPending = ODBCWrapper.Utils.GetIntSafeVal(dataRow["is_pending"]) == 1;
         }
 
         private static bool IsBundlesDataSetValid(DataSet ds)
@@ -1357,7 +1370,7 @@ namespace Core.ConditionalAccess
                     DomainBundles domainBundles = GetDomainBundles(groupId, domainId);
                     if (domainBundles != null && domainBundles.EntitledSubscriptions != null && domainBundles.EntitledSubscriptions.ContainsKey(subCode))
                     {
-                        theReason = PriceReason.SubscriptionPurchased;
+                        theReason = domainBundles.EntitledSubscriptions[subCode][0].isPending ? PriceReason.PendingEntitlement : PriceReason.SubscriptionPurchased;
 
                         if (subscription.m_bIsRecurring)
                         {
@@ -1379,7 +1392,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                if (theReason != PriceReason.SubscriptionPurchased || !blockDoublePurchase)
+                if ((theReason != PriceReason.SubscriptionPurchased && theReason != PriceReason.PendingEntitlement) || !blockDoublePurchase)
                 {
                     if (!isSubscriptionSetModifySubscription && subscription.m_oPreviewModule != null &&
                         IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref finalPrice, ref theReason, domainId))
@@ -1908,13 +1921,17 @@ namespace Core.ConditionalAccess
                 return price;
             }
 
-            List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, groupId, ref domainID);
-            DataTable dt = ConditionalAccessDAL.Get_CollectionByCollectionCodeAndUserIDs(lUsersIds, sColCode, domainID);
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            DomainEntitlements domainEntitlements = null;
+            if (TryGetDomainEntitlementsFromCache(groupId, domainID, null, ref domainEntitlements))
             {
-                price.m_dPrice = 0.0;
-                theReason = PriceReason.CollectionPurchased;
-                return price;
+                if (domainEntitlements.DomainBundleEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledCollections != null 
+                    && domainEntitlements.DomainBundleEntitlements.EntitledCollections.ContainsKey(sColCode))
+                {
+                    bool isPending = domainEntitlements.DomainBundleEntitlements.EntitledCollections[sColCode].isPending;
+                    theReason = isPending ? PriceReason.PendingEntitlement : PriceReason.CollectionPurchased;
+                    price.m_dPrice = 0.0;
+                    return price;
+                }
             }
 
             Price discountPrice = null;
@@ -1922,6 +1939,8 @@ namespace Core.ConditionalAccess
             {
                 discountPrice = GetPriceAfterDiscount(price, externalDiscount, 0);
             }
+
+            List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, groupId, ref domainID);
 
             price = GetLowestPrice(groupId, price, domainID, discountPrice, eTransactionType.Collection, currencyCode, long.Parse(sColCode), countryCode,
                                    ref couponCode, collection.m_oCouponsGroup, collection.CouponsGroups, lUsersIds.ConvertAll(x => x.ToString()));
@@ -2366,6 +2385,7 @@ namespace Core.ConditionalAccess
                     string sSubCode = string.Empty;
                     string sPPCode = string.Empty;
                     bool isEntitled = false;
+                    bool isPending = false;
 
                     if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
                     {
@@ -2378,16 +2398,22 @@ namespace Core.ConditionalAccess
                         }
 
                         isEntitled = IsUserEntitled(isRelated, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid,
-                                                    ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary, nMediaFileID, mediaFiles);
+                                                    ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary, 
+                                                    nMediaFileID, mediaFiles, ref isPending);
                     }
                     else
                     {
                         isEntitled = ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, lstFileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode,
-                                                                            ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainID);
+                                                                            ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, 
+                                                                            ref p_dtStartDate, ref p_dtEndDate, ref isPending, domainID);
                     }
 
+                    if (isPending)
+                    {
+                        theReason = PriceReason.PendingEntitlement;
+                    }
                     // user or domain users have entitlements \ purchases
-                    if (isEntitled)
+                    else if (isEntitled)
                     {
                         price.m_dPrice = 0;
                         // Cancellation Window check by ppvUsageModule + purchase date
@@ -2440,7 +2466,7 @@ namespace Core.ConditionalAccess
                         theReason = PriceReason.ForPurchaseSubscriptionOnly;
                     }
 
-                    if (bEnd || !bIsValidForPurchase)
+                    if (bEnd || (!bIsValidForPurchase && !isPending))
                     {
                         return price;
                     }
@@ -2591,6 +2617,11 @@ namespace Core.ConditionalAccess
                     {
                         theReason = PriceReason.UserSuspended;
                         return null;
+                    }
+
+                    if (theReason == PriceReason.PendingEntitlement) // BEO-8661
+                    {
+                        return price;
                     }
 
                     // the media file was not purchased in any way. calculate its price as a single media file and its price reason
@@ -3921,7 +3952,7 @@ namespace Core.ConditionalAccess
 
         private static bool IsUserEntitled(bool isRelated, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode, ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate,
                                             ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate,
-                                            Dictionary<string, EntitlementObject> entitlements, int mediaFileId, HashSet<int> files)
+                                            Dictionary<string, EntitlementObject> entitlements, int mediaFileId, HashSet<int> files, ref bool isPending)
         {
             bool res = false;
             int ppvId;
@@ -3942,7 +3973,9 @@ namespace Core.ConditionalAccess
                         p_sPurchasedBySiteGuid = ppv.purchasedBySiteGuid;
                         p_nPurchasedAsMediaFileID = ppv.purchasedAsMediaFileID;
                         res = true;
-                        break;
+                        isPending = ppv.isPending;
+                        if (!isPending)
+                            break;
                     }
                 }
             }
@@ -4016,8 +4049,9 @@ namespace Core.ConditionalAccess
                         string bundleCode = string.Empty;
                         int gracePeriodMinutes = 0;
                         bool isSuspend = false;
+                        bool isPending = false;
                         GetSubscriptionBundlePurchaseData(subsRow, "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
-                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes, ref isSuspend);
+                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes, ref isSuspend, ref isPending);
 
                         // decide which is the correct end period
                         if (endDate < DateTime.UtcNow)
@@ -4035,7 +4069,8 @@ namespace Core.ConditionalAccess
                                     dtPurchaseDate = purchaseDate,
                                     dtEndDate = endDate,
                                     nNumOfUses = numOfUses,
-                                    nMaxNumOfUses = maxNumOfUses
+                                    nMaxNumOfUses = maxNumOfUses,
+                                    isPending = isPending
                                 });
                             }
                         }
@@ -4054,8 +4089,9 @@ namespace Core.ConditionalAccess
                         waiver = 0;
                         purchaseDate = DateTime.MinValue;
                         endDate = DateTime.MinValue;
+                        bool isPending = false;
 
-                        GetCollectionBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver, ref purchaseDate, ref endDate);
+                        GetCollectionBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver, ref purchaseDate, ref endDate, ref isPending);
 
                         int collCode = 0;
                         if (Int32.TryParse(bundleCode, out collCode) && collCode > 0)
@@ -4453,8 +4489,9 @@ namespace Core.ConditionalAccess
                             string bundleCode = string.Empty;
                             int gracePeriodMinutes = 0;
                             bool isSuspend = false;
+                            bool isPending = false;
                             GetSubscriptionBundlePurchaseData(subsRow, "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
-                                                                ref purchaseDate, ref endDate, ref gracePeriodMinutes, ref isSuspend);
+                                                                ref purchaseDate, ref endDate, ref gracePeriodMinutes, ref isSuspend, ref isPending);
 
                             // decide which is the correct end period
                             if (endDate < DateTime.UtcNow)
@@ -4476,7 +4513,9 @@ namespace Core.ConditionalAccess
                                     dtEndDate = endDate,
                                     nNumOfUses = numOfUses,
                                     nMaxNumOfUses = maxNumOfUses,
-                                    isSuspend = isSuspend
+                                    isSuspend = isSuspend,
+                                    isPending = isPending
+
                                 });
                             }
                         }
@@ -4494,8 +4533,9 @@ namespace Core.ConditionalAccess
                             waiver = 0;
                             purchaseDate = DateTime.MinValue;
                             endDate = DateTime.MinValue;
+                            bool isPending = false;
 
-                            GetCollectionBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver, ref purchaseDate, ref endDate);
+                            GetCollectionBundlePurchaseData(colls.Rows[i], "COLLECTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver, ref purchaseDate, ref endDate, ref isPending);
 
                             int collCode = 0;
                             if (Int32.TryParse(bundleCode, out collCode) && collCode > 0)
@@ -7405,6 +7445,9 @@ namespace Core.ConditionalAccess
                 case PriceReason.CollectionPurchased:
                     status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseCollectionPurchased, "Collection already purchased");
                     break;
+                case PriceReason.PendingEntitlement: //entitlement
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.PendingEntitlement, "Entitlement is pending");
+                    break;
                 default:
                     status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
                     break;
@@ -9273,6 +9316,20 @@ namespace Core.ConditionalAccess
         internal static List<ApiObjects.KeyValuePair> GetResumRenewUnifiedAdapterData(long processId)
         {
             return ConditionalAccessDAL.GetResumRenewUnifiedAdapterData(processId);
+        }
+
+        public static DateTime CalcCollectionEndDate(Collection col, DateTime dtToInitializeWith)
+        {
+            DateTime res = dtToInitializeWith;
+            if (col != null)
+            {
+                if (col.m_oCollectionUsageModule != null)
+                {
+                    // calc end date as before.
+                    res = Utils.GetEndDateTime(res, col.m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                }
+            }
+            return res;
         }
     }
 }

@@ -2369,6 +2369,8 @@ namespace WebAPI.Reflection
                             return "isCancelationWindowEnabled";
                         case "IsInGracePeriod":
                             return "isInGracePeriod";
+                        case "IsPending":
+                            return "isPending";
                         case "IsRenewable":
                             return "isRenewable";
                         case "IsRenewableForPurchase":
@@ -4505,6 +4507,8 @@ namespace WebAPI.Reflection
                             return "externalVerification";
                         case "IsActive":
                             return "isActive";
+                        case "IsAsyncPolicy":
+                            return "isAsyncPolicy";
                         case "PendingInterval":
                             return "pendingInterval";
                         case "PendingRetries":

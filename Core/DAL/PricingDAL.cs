@@ -1614,7 +1614,7 @@ namespace DAL
 
         // possible duplicate with Insert_NewCouponUse
         public static void SetCouponUsed(int couponId, int nGroupID, string sSiteGUID, int nCollectionCode,
-            int nMediaFileID, int nSubCode, int nPrePaidCode, long domainId)
+            int nMediaFileID, int nSubCode, int nPrePaidCode, long domainId, bool doReduce = false)
         {
             DirectQuery directQuery = null;
             InsertQuery insertQuery = null;
@@ -1622,7 +1622,14 @@ namespace DAL
             {
                 directQuery = new DirectQuery();
                 directQuery.SetConnectionKey("pricing_connection");
-                directQuery += "update coupons set USE_COUNT=USE_COUNT+1, LAST_USED_DATE=getdate() where ";
+                if (!doReduce)
+                {
+                    directQuery += "update coupons set USE_COUNT=USE_COUNT+1, LAST_USED_DATE=getdate() where ";
+                }
+                else
+                {
+                    directQuery += "update coupons set USE_COUNT=USE_COUNT-1, LAST_USED_DATE=getdate() where ";
+                }
                 directQuery += NEW_PARAM("ID", "=", couponId);
                 directQuery.Execute();
 

@@ -1,7 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Billing;
 using KLogMonitor;
-using Newtonsoft.Json;
 using ODBCWrapper;
 using System;
 using System.Collections.Generic;
@@ -1062,6 +1061,7 @@ namespace DAL
                             pgw.IsDefault = isDefault == 1;
                             pgw.SupportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support") == 1;
                             pgw.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(dr, "external_verification") == 0 ? false : true;
+                            pgw.IsAsyncPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ASYNC_POLICY") == 1 ? true: false;
 
                             if (dtConfig != null)
                             {
@@ -1127,6 +1127,7 @@ namespace DAL
                             pgw.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             pgw.IsDefault = isDefault == 1 ? true : false;
+                            pgw.IsAsyncPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ASYNC_POLICY") == 1 ? true : false;
 
                             if (dtConfig != null)
                             {
@@ -1258,7 +1259,8 @@ namespace DAL
                                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active"),
                                 ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(dr, "external_verification") == 0 ? false : true,
                                 IsDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default") == 1 ? true : false,
-                                SupportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support") == 1
+                                SupportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support") == 1,
+                                IsAsyncPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ASYNC_POLICY") == 1 ? true : false
                             };
 
                             if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
@@ -1383,7 +1385,7 @@ namespace DAL
                     chargeId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_Id");
                     isSuspended = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_suspended") == 0 ? false : true;
                     paymentGateway.ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "external_verification") == 0 ? false : true;
-
+                    paymentGateway.IsAsyncPolicy = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "IS_ASYNC_POLICY") == 1 ? true: false;
                 }
 
             }
@@ -1511,6 +1513,7 @@ namespace DAL
                 sp.AddParameter("@renewal_interval", paymentGateway.RenewalIntervalMinutes);
                 sp.AddParameter("@renewal_start", paymentGateway.RenewalStartMinutes);
                 sp.AddParameter("@external_verification", paymentGateway.ExternalVerification);
+                sp.AddParameter("@isAsyncPolicy", paymentGateway.IsAsyncPolicy);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;
@@ -1551,6 +1554,9 @@ namespace DAL
                     // default on sp is 0
                     sp.AddParameter("@KeyValueListHasItems", 1);
                 }
+
+                sp.AddParameter("@isAsyncPolicy", pgw.IsAsyncPolicy);
+
 
                 DataSet ds = sp.ExecuteDataSet();
                 
@@ -1965,6 +1971,7 @@ namespace DAL
                     IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active"),
                     ExternalVerification = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "external_verification") == 0 ? false : true,
                     SupportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support") == 1 ? true : false,
+                    IsAsyncPolicy = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "IS_ASYNC_POLICY") == 1 ? true : false,
                 };
 
                 result.IsDefault = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "DEFAULT_PAYMENT_GATEWAY") == result.ID ? true : false;

@@ -77,7 +77,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainBundlesKey(int groupId, int domainId)
         {
-            return string.Format("domainBundlesV2_groupId_{0}_domainId_{1}", groupId, domainId);
+            return string.Format("domainBundlesV3_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
         public static string GetGroupLanguagesCacheKey(int groupId)

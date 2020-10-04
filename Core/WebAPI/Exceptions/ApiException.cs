@@ -151,6 +151,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType SUBSCRIPTION_CANCELLATION_IS_BLOCKED = new ClientExceptionType(eResponseStatus.SubscriptionCancellationIsBlocked, "The cancellation for the specified subscription is blocked");
         public static ClientExceptionType UNKNOWN_PRICE_REASON = new ClientExceptionType(eResponseStatus.UnknownPriceReason, "Unknown price reason", "Unknown price reason");
         public static ClientExceptionType SUBSCRIPTION_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.SubscriptionDoesNotExist, "The subscription does not exist", "The subscription does not exist");
+        public static ClientExceptionType PURCHASE_PENDING_FAILED = new ClientExceptionType(eResponseStatus.PurchasePendingFailed, "");
+        public static ClientExceptionType PENDING_ENTITELMENT = new ClientExceptionType(eResponseStatus.PendingEntitlement, "", "Entitlement is pending");
 
 
         #endregion

@@ -117,7 +117,7 @@ namespace Core.Pricing
             return data;
         }
 
-        public override CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, int nMFID, int nSubCode, int nCollectionCode, int nPrePaidCode, long domainId)
+        public override CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, int nMFID, int nSubCode, int nCollectionCode, int nPrePaidCode, long domainId, bool doReduce = false)
         {
             var coupon = PricingDAL.GetCoupon(m_nGroupID, sCouponCode).ToCoupon();
             if (NotExist(coupon)) return CouponsStatus.NotExists;
@@ -129,7 +129,7 @@ namespace Core.Pricing
             if (couponsStatus == CouponsStatus.Valid)
             {
                 PricingDAL.SetCouponUsed(coupon.m_nCouponID, m_nGroupID, sSiteGUID, nCollectionCode, nMFID,
-                    nSubCode, nPrePaidCode, domainId);
+                    nSubCode, nPrePaidCode, domainId, doReduce);
             }
             return couponsStatus;
         }

@@ -3875,6 +3875,10 @@ namespace WebAPI.Models.ConditionalAccess
                     }
                     HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("isPending") && parameters["isPending"] != null)
+                {
+                    IsPending = (Boolean) Convert.ChangeType(parameters["isPending"], typeof(Boolean));
+                }
             }
         }
     }
@@ -31166,6 +31170,10 @@ namespace WebAPI.Models.Billing
                 if (parameters.ContainsKey("externalVerification") && parameters["externalVerification"] != null)
                 {
                     ExternalVerification = (Boolean) Convert.ChangeType(parameters["externalVerification"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("isAsyncPolicy") && parameters["isAsyncPolicy"] != null)
+                {
+                    IsAsyncPolicy = (Boolean) Convert.ChangeType(parameters["isAsyncPolicy"], typeof(Boolean));
                 }
             }
         }

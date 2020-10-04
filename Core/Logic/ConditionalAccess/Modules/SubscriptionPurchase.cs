@@ -1,11 +1,6 @@
 ﻿using ApiObjects;
-using ApiObjects.ConditionalAccess;
 using DAL;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.ConditionalAccess.Modules
 {
@@ -25,6 +20,10 @@ namespace Core.ConditionalAccess.Modules
         public string languageCode { get; set; }
         public long processPurchasesId { get; set; }
 
+        public bool UpdateFromPending { get; set; }
+
+        public bool UpdateFromCancelRenewal { get; set; }        
+
         public override eTransactionType type
         {
             get
@@ -34,9 +33,9 @@ namespace Core.ConditionalAccess.Modules
         }
 
         #endregion
-        
+
         public SubscriptionPurchase(int groupId)
-            : base(groupId) 
+            : base(groupId)
         {
         }
 
@@ -67,17 +66,17 @@ namespace Core.ConditionalAccess.Modules
                 {
                     this.purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(this.GroupId, this.productId, this.siteGuid, this.isEntitledToPreviewModule ? 0.0 : this.price, this.currency, this.customData, this.country,
                            this.deviceName, this.usageModuleExists ? this.maxNumberOfViews : 0, this.usageModuleExists ? this.viewLifeCycle : 0, this.isRecurring, this.billingTransactionId,
-                           this.previewModuleId, this.startDate.Value, this.endDate.Value, this.entitlementDate.Value, this.houseHoldId, this.billingGuid, this.processPurchasesId, 0, this.couponCode);
+                           this.previewModuleId, this.startDate.Value, this.endDate.Value, this.entitlementDate.Value, this.houseHoldId, this.billingGuid, this.processPurchasesId, 0, this.couponCode, this.IsPending);
                 }
                 else
                 {
-                    this.purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(this.GroupId, this.productId, this.siteGuid, this.price, 
+                    this.purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(this.GroupId, this.productId, this.siteGuid, this.price,
                         this.currency, this.customData, this.country, this.languageCode,
-                        this.deviceName, this.maxNumberOfViews, this.viewLifeCycle, this.isRecurring, this.billingTransactionId, 
+                        this.deviceName, this.maxNumberOfViews, this.viewLifeCycle, this.isRecurring, this.billingTransactionId,
                         this.previewModuleId, this.startDate.Value, this.endDate.Value,
-                        this.entitlementDate.Value, string.Empty, (int)this.houseHoldId, this.processPurchasesId);
+                        this.entitlementDate.Value, string.Empty, (int)this.houseHoldId, this.processPurchasesId, this.IsPending);
                 }
-                
+
                 if (this.purchaseId > 0)
                 {
                     success = true;
@@ -94,7 +93,11 @@ namespace Core.ConditionalAccess.Modules
             bool success = false;
             try
             {
-                if (this.status == SubscriptionPurchaseStatus.Fail)
+                if (UpdateFromPending)
+                {
+                    success = ConditionalAccessDAL.UpdateSubscriptionsPurchases(this.GroupId, this.purchaseId, this.startDate.Value, this.endDate.Value, this.IsPending);
+                }                
+                else if (this.status == SubscriptionPurchaseStatus.Fail || UpdateFromCancelRenewal)
                 {
                     long result = ConditionalAccessDAL.CancelSubscription((int)this.purchaseId, this.GroupId, this.siteGuid, this.productId, (int)this.status);
                     if (result > 0)
@@ -109,7 +112,7 @@ namespace Core.ConditionalAccess.Modules
                 }
             }
             catch
-            { 
+            {
             }
             return success;
         }
@@ -117,7 +120,7 @@ namespace Core.ConditionalAccess.Modules
         protected override bool DoDelete()
         {
             bool success = false;
-            
+
             try
             {
                 success = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(this.siteGuid, this.productId, (int)this.houseHoldId, (int)SubscriptionPurchaseStatus.CancelNow);
@@ -127,8 +130,8 @@ namespace Core.ConditionalAccess.Modules
                 log.ErrorFormat("Failed CancelSubscriptionPurchaseTransaction for site guid = {0}, assetId = {1}, domainId = {2}, ex = {3}",
                     this.siteGuid,
                     this.productId,
-                    this.houseHoldId, 
-                    ex);           
+                    this.houseHoldId,
+                    ex);
             }
 
             return success;
