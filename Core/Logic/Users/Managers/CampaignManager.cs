@@ -89,7 +89,8 @@ namespace ApiLogic.Users.Managers
                                                             },
                                                             contextData.GroupId,
                                                             LayeredCacheConfigNames.GET_CAMPAIGN_BY_ID,
-                                                            new List<string>() { LayeredCacheKeys.GetCampaignInvalidationKey(contextData.GroupId, id) });
+                                                            new List<string>() { LayeredCacheKeys.GetCampaignInvalidationKey(contextData.GroupId, id) }, 
+                                                            true);
             }
             catch (Exception ex)
             {
