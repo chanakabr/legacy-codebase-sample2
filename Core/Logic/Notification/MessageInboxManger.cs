@@ -299,31 +299,47 @@ namespace Core.Notification
 
         public static void AddCampaignMessage(Campaign campaign, int groupId, long userId)
         {
-            var ttl = DateUtils.UtcUnixTimestampSecondsToDateTime(campaign.EndDate) - DateTime.UtcNow;
+            AddCampaignMessage(campaign.Id, campaign.CampaignType, campaign.Message, campaign.EndDate, groupId, userId);
+        }
+
+        public static void AddCampaignMessage(long campaignId, eCampaignType campaignType, string message, long endDate, int groupId, long userId, long? productId = null)
+        {
+            var ttl = DateUtils.UtcUnixTimestampSecondsToDateTime(endDate) - DateTime.UtcNow;
             var current = DateUtils.GetUtcUnixTimestampNow();
 
             //Add to user Inbox
             var inboxMessage = new InboxMessage
             {
                 Id = Guid.NewGuid().ToString(),
-                Message = campaign.Message,
+                Message = message,
                 UserId = userId,
                 CreatedAtSec = current,
                 UpdatedAtSec = current,
                 State = eMessageState.Unread,
                 Category = eMessageCategory.Campaign,
-                CampaignId = campaign.Id
+                CampaignId = campaignId
             };
 
             if (!DAL.NotificationDal.SetUserInboxMessage(groupId, inboxMessage, ttl.TotalDays))
             {
-                log.Error($"Failed to add campaign message (campaign: {campaign.Id}) to User: {userId} Inbox");
+                log.Error($"Failed to add campaign message (campaign: {campaignId}) to User: {userId} Inbox");
             }
             else
             {
-                log.Debug($"Campaign message (campaign: {campaign.Id}) sent successfully to User: {userId} Inbox");
-                var campaignMessageDetails = new CampaignMessageDetails() { MessageId = inboxMessage.Id, ExpiredAt = campaign.EndDate, CreateDate = current, Type = campaign.CampaignType };
-                DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(campaign.Id, groupId, userId, campaignMessageDetails);//update mapping
+                log.Debug($"Campaign message (campaign: {campaignId}) sent successfully to User: {userId} Inbox");
+                var campaignMessageDetails = new CampaignMessageDetails() 
+                { 
+                    MessageId = inboxMessage.Id, 
+                    ExpiredAt = endDate,
+                    Type = campaignType 
+                };
+
+                if (productId != null && productId.HasValue)
+                {
+                    campaignMessageDetails.SubscriptionUses.Add(productId.Value, current);
+                }
+
+                DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(campaignId, groupId, userId, campaignMessageDetails);//update mapping
             }
         }
     }

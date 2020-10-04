@@ -1339,14 +1339,18 @@ namespace Core.ConditionalAccess
                                         if (userCampaigns.Campaigns.ContainsKey(fullPrice.CampaignDetails.Id))
                                         {
                                             var campaignDetails = userCampaigns.Campaigns[fullPrice.CampaignDetails.Id];
-                                            campaignDetails.ProductId = productId;
-                                            campaignDetails.ProductType = eTransactionType.Subscription; 
-                                            campaignDetails.CreateDate = DateUtils.GetUtcUnixTimestampNow();
+                                            campaignDetails.SubscriptionUses.Add(productId, DateUtils.GetUtcUnixTimestampNow());
+                                            
                                             if (!DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(fullPrice.CampaignDetails.Id, contextData.GroupId, _userId, campaignDetails))
                                             {
                                                 log.Error($"Failed InsertCampaignUsage with campaign: {fullPrice.CampaignDetails.Id}, " +
                                                     $"hh: {householdId}, group: {contextData.GroupId}");
                                             }
+                                        }
+                                        else
+                                        {
+                                            Notification.MessageInboxManger.AddCampaignMessage
+                                                (fullPrice.CampaignDetails.Id, fullPrice.CampaignDetails.CampaignType.Value, fullPrice.CampaignDetails.Message, fullPrice.CampaignDetails.EndDate, contextData.GroupId, _userId, productId);
                                         }
                                     }
 

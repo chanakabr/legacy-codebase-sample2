@@ -1415,6 +1415,9 @@ namespace Core.ConditionalAccess
                                 {
                                     Id = campaign.Id,
                                     LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0,
+                                    CampaignType = campaign.CampaignType,
+                                    Message = campaign.Message,
+                                    EndDate = campaign.EndDate
                                 };
                             }
                         }
@@ -1440,6 +1443,9 @@ namespace Core.ConditionalAccess
                             {
                                 Id = campaign.Id,
                                 LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0,
+                                CampaignType = campaign.CampaignType,
+                                Message = campaign.Message,
+                                EndDate = campaign.EndDate
                             };
 
                             CalcPriceAndCampaignRemainderByUnifiedBillingCycle(groupId, subscription, false, domainId, ref fullPrice);
@@ -1941,7 +1947,7 @@ namespace Core.ConditionalAccess
                     {
                         var contains = userCampaigns != null && userCampaigns.Campaigns != null && userCampaigns.Campaigns.ContainsKey(promotedCampaign.Id);
 
-                        if (contains && userCampaigns.Campaigns[promotedCampaign.Id].ProductId.HasValue)
+                        if (contains && userCampaigns.Campaigns[promotedCampaign.Id].SubscriptionUses.ContainsKey(businessModuleId))
                         {
                             //Don't allow campaign usage
                             continue;

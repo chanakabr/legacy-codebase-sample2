@@ -32,9 +32,15 @@ namespace ApiObjects.Notification
         public string MessageId { get; set; }
         public long ExpiredAt { get; set; }
         public eCampaignType Type { get; set; }
-        public long? ProductId { get; set; }
-        public eTransactionType? ProductType { get; set; }
-        public long? CreateDate { get; set; }
+        
+        /// <summary>
+        /// ProductId to CreateDate of the use for prodcutId
+        /// </summary>
+        public Dictionary<long, long> SubscriptionUses { get; set; }
 
+        public CampaignMessageDetails()
+        {
+            this.SubscriptionUses = new Dictionary<long, long>();
+        }
     }
 }
