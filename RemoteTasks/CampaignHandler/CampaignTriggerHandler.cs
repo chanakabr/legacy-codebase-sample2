@@ -62,7 +62,7 @@ namespace CampaignHandler
                         var _contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = user };
                         if (_triggerCampaign.EvaluateTriggerConditions(serviceEvent.EventObject, _contextData))
                         {
-                            Core.Notification.MessageInboxManger.AddCampaignMessage(_triggerCampaign, serviceEvent.GroupId, serviceEvent.UserId);
+                            Core.Notification.MessageInboxManger.AddCampaignMessage(_triggerCampaign, serviceEvent.GroupId, user);
                         }
                     });
                 }
