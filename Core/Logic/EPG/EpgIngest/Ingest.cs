@@ -697,14 +697,14 @@ namespace EpgIngest
                                     continue;
                                 }
                             }
+                            else if (value != null && !string.IsNullOrEmpty(value.Value))
+                            {
+                                if (!dEpgTags.ContainsKey(tag.TagType))
+                                {
+                                    dEpgTags.Add(tag.TagType, new List<string>());
+                                }
 
-                            if (dEpgTags.ContainsKey(tag.TagType))
-                            {
                                 dEpgTags[tag.TagType].Add(value.Value);
-                            }
-                            else
-                            {
-                                dEpgTags.Add(tag.TagType, new List<string>() { value.Value });
                             }
                         }
                     }

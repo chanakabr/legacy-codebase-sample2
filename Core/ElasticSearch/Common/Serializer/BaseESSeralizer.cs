@@ -1054,14 +1054,15 @@ namespace ElasticSearch.Common
                 {
                     if (!string.IsNullOrWhiteSpace(sMetaName))
                     {
-                        List<string> lMetaValues = oEpg.Metas[sMetaName];
+                        var lMetaValues = oEpg.Metas[sMetaName].Where(meta => !string.IsNullOrEmpty(meta)).ToList();
                         if (lMetaValues != null && lMetaValues.Count > 0)
                         {
                             for (int i = 0; i < lMetaValues.Count; i++)
                             {
-                                if (!string.IsNullOrEmpty(lMetaValues[i]))
+                                var metaValue = lMetaValues[i];
+                                if (!string.IsNullOrEmpty(metaValue))
                                 {
-                                    sTrimed = lMetaValues[i].Trim();
+                                    sTrimed = metaValue.Trim();
                                     lMetaValues[i] = string.Format("\"{0}\"", Common.Utils.ReplaceDocumentReservedCharacters(sTrimed, shouldLowerCase));
                                 }
                             }
@@ -1090,7 +1091,7 @@ namespace ElasticSearch.Common
                 {
                     if (!string.IsNullOrEmpty(sTagName))
                     {
-                        List<string> lTagValues = oEpg.Tags[sTagName];
+                        List<string> lTagValues = oEpg.Tags[sTagName].Where(tag => !string.IsNullOrEmpty(tag)).ToList();
                         if (lTagValues != null && lTagValues.Count > 0)
                         {
                             for (int i = 0; i < lTagValues.Count; i++)
