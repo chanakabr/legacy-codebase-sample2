@@ -1464,7 +1464,7 @@ namespace Core.ConditionalAccess
                         var subscriptionCycle = fullPrice.SubscriptionCycle;
 
                         var finalPriceAndCouponRemainder =
-                            CalcPriceAndCouponRemainderByUnifiedBillingCycle(fullPrice.OriginalPrice.m_dPrice, couponCode, finalPrice.m_dPrice, ref subscriptionCycle,
+                            CalcPriceAndCouponRemainderByUnifiedBillingCycle(fullPrice.OriginalPrice.m_dPrice, couponCode, fullPrice.FinalPrice.m_dPrice, ref subscriptionCycle,
                                                                              groupId, subscription, false, domainId);
 
                         fullPrice.FinalPrice.m_dPrice = finalPriceAndCouponRemainder.Item1;
