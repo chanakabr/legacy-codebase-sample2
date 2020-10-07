@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using TVinciShared;
+using ApiObjects.Notification;
 
 namespace Core.Catalog
 {
@@ -369,6 +370,15 @@ namespace Core.Catalog
             }
 
             return false;
+        }
+
+        internal override AssetEvent ToAssetEvent(int groupId, long userId)
+        {
+            var assetEvent = base.ToAssetEvent(groupId, userId);
+            var epgEvent = (EpgAssetEvent)assetEvent;
+            epgEvent.Type = 0;
+            epgEvent.LiveAssetId = LinearAssetId ?? 0;
+            return epgEvent;
         }
     }
 

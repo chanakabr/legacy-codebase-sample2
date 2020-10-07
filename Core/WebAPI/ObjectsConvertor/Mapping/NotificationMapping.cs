@@ -537,6 +537,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
+            cfg.CreateMap<KalturaAssetEvent, AssetEvent>()
+                .IncludeBase<KalturaOTTObject, CoreObject>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId));
+
+            cfg.CreateMap<KalturaProgramAssetEvent, EpgAssetEvent>()
+                .IncludeBase<KalturaAssetEvent, AssetEvent>()
+                .ForMember(dest => dest.LiveAssetId, opt => opt.MapFrom(src => src.LiveAssetId));
+
             #region Engagement Adapter
 
             cfg.CreateMap<KalturaEngagementAdapter, EngagementAdapter>()

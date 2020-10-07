@@ -3341,6 +3341,11 @@ namespace Core.Catalog.CatalogManagement
                 {
                     case eAssetTypes.EPG:
                         result = EpgAssetManager.DeleteEpgAsset(groupId, id, userId);
+                        if (result.IsOkStatusCode())
+                        {
+                            var epgAssetEvent = assets[0].ToAssetEvent(groupId, userId);
+                            epgAssetEvent.Delete();
+                        }
                         break;
                     case eAssetTypes.NPVR:
                         break;

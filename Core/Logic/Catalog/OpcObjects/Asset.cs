@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using TVinciShared;
+using ApiObjects.Notification;
 
 namespace Core.Catalog
 {
@@ -453,5 +454,18 @@ namespace Core.Catalog
         }
 
         #endregion
+
+        internal virtual AssetEvent ToAssetEvent(int groupId, long userId)
+        {
+            var assetEvent = new AssetEvent()
+            {
+                GroupId = groupId,
+                AssetId = this.Id,
+                ExternalId = this.CoGuid,
+                UserId = userId
+            };
+
+            return assetEvent;
+        }
     }
 }

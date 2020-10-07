@@ -217,6 +217,13 @@ namespace Core.Catalog.CatalogManagement
 
                 SendActionEvent(groupId, newEpgId, eAction.On);
                 result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
+
+                if (result.HasObject())
+                {
+                    var epgAssetEvent = result.Object.ToAssetEvent(groupId, userId);
+                    epgAssetEvent.Insert();
+
+                }
             }
             catch (Exception ex)
             {
@@ -349,6 +356,13 @@ namespace Core.Catalog.CatalogManagement
 
                 // get updated epgAsset
                 result = AssetManager.GetAsset(groupId, epgAssetToUpdate.Id, eAssetTypes.EPG, true);
+
+                if (result.HasObject())
+                {
+                    var epgAssetEvent = result.Object.ToAssetEvent(groupId, userId);
+                    epgAssetEvent.Update();
+
+                }
             }
             catch (Exception ex)
             {
