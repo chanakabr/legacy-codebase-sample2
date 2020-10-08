@@ -18,7 +18,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "userId")]
         [JsonProperty(PropertyName = "userId")]
         [XmlElement(ElementName = "userId")]
-        [SchemeProperty(MinLong = 0)]
+        [SchemeProperty(ReadOnly = true)]
         public long UserId { get; set; }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]
-        [SchemeProperty(MinLong = 0)]
+        [SchemeProperty(ReadOnly = true)]
         public long AssetId { get; set; }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace WebAPI.Models.Notification
     }
 
     [Serializable]
-    public partial class KalturaProgramAssetEvent : KalturaEventObject
+    public partial class KalturaProgramAssetEvent : KalturaAssetEvent
     {
         /// <summary>
         /// The  live asset Id that was identified according liveAssetExternalId

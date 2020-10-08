@@ -374,10 +374,16 @@ namespace Core.Catalog
 
         internal override AssetEvent ToAssetEvent(int groupId, long userId)
         {
-            var assetEvent = base.ToAssetEvent(groupId, userId);
-            var epgEvent = (EpgAssetEvent)assetEvent;
-            epgEvent.Type = 0;
-            epgEvent.LiveAssetId = LinearAssetId ?? 0;
+            var epgEvent = new EpgAssetEvent()
+            {
+                GroupId = groupId,
+                AssetId = this.Id,
+                ExternalId = this.CoGuid,
+                UserId = userId,
+                Type = 0,
+                LiveAssetId = LinearAssetId ?? 0
+            };
+
             return epgEvent;
         }
     }

@@ -457,15 +457,7 @@ namespace Core.Catalog
 
         internal virtual AssetEvent ToAssetEvent(int groupId, long userId)
         {
-            var assetEvent = new AssetEvent()
-            {
-                GroupId = groupId,
-                AssetId = this.Id,
-                ExternalId = this.CoGuid,
-                UserId = userId
-            };
-
-            return assetEvent;
+            return null;
         }
     }
 }
