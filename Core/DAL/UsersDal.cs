@@ -870,7 +870,7 @@ namespace DAL
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupID", contextData.GroupId);
             sp.AddParameter("@id", coreObject.Id);
-            sp.AddParameter("@name", coreObject.Name);
+            sp.AddParameter("@name", coreObject.Name.Trim().ToUpper());
             sp.AddParameter("@updaterId", contextData.UserId);
             sp.AddParameter("@status", coreObject.Status);
 

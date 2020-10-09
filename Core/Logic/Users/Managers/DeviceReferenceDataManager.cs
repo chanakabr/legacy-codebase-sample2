@@ -91,13 +91,20 @@ namespace ApiLogic.Users.Managers
 
             try
             {
+                var _list = List(contextData, new DeviceReferenceDataFilter() { IdsIn = new List<int> { (int)coreObject.Id } }, null);
+                if (_list == null || !_list.IsOkStatusCode() || _list.TotalItems == 0)
+                {
+                    response.SetStatus(eResponseStatus.Error, $"DeviceReferenceData Id: {coreObject.Id} not found");
+                    return response;
+                }
+
                 var _response = UsersDal.UpdateDeviceReferenceData(contextData, coreObject);
 
                 if (_response.IsOkStatusCode())
                 {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(contextData.GroupId));
-                    var list = GetReferenceData(contextData.GroupId);
-                    response.Object = list?.Where(refObj => refObj.Id == coreObject.Id).FirstOrDefault();
+                    response.Object = List(contextData, new DeviceReferenceDataFilter()
+                    { IdsIn = new List<int> { (int)coreObject.Id } }, null)?.Objects?.FirstOrDefault();
                     response.SetStatus(eResponseStatus.OK);
                 }
                 else
