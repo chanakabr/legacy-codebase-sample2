@@ -16,6 +16,6 @@ namespace PlaybackAdapter
         public List<DrmPlaybackPluginData> Drm { get; set; }       
 
         [DataMember]
-        public bool IsTokenized;
+        public bool IsTokenized { get; set; }
     }
 }
