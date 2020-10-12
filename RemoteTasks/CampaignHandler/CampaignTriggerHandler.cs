@@ -4,6 +4,7 @@ using ApiObjects.Base;
 using Core.Users;
 using EventBus.Abstraction;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -26,6 +27,8 @@ namespace CampaignHandler
         {
             try
             {
+                _Logger.Debug($"Debug event: {JsonConvert.SerializeObject(serviceEvent)}");
+
                 var filter = new TriggerCampaignFilter()
                 {
                     Service = (ApiService)serviceEvent.ApiService,
@@ -35,6 +38,14 @@ namespace CampaignHandler
                 };
 
                 var domain = Core.ConditionalAccess.Utils.GetDomainInfo((int)serviceEvent.DomainId, serviceEvent.GroupId);
+
+                if (domain == null)
+                {
+                    _Logger.Debug($"Couldn't find domain: {(int)serviceEvent.DomainId}, " +
+                        $"requestId: [{serviceEvent.RequestId}], Service: [{filter.Service}]");
+                    return Task.CompletedTask;
+                }
+
                 var master = domain.m_masterGUIDs.FirstOrDefault();
                 var contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = master };
 
