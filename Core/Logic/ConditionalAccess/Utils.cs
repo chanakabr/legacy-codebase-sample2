@@ -1707,6 +1707,7 @@ namespace Core.ConditionalAccess
             }
 
             fullPrice.FinalPrice.m_dPrice = priceAfterUnified;
+            fullPrice.SubscriptionCycle = subscriptionCycle;
 
             log.Debug($"CalcPriceAndCampaignRemainderByUnifiedBillingCycle - price after unified:{priceAfterUnified}, campaign remainder:{fullPrice.CampaignDetails.Remainder}");
         }
