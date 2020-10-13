@@ -33,7 +33,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
-        [SchemeProperty(IsNullable = true, MinLength = 1, MaxLength = 255)]
+        [SchemeProperty(IsNullable = true, MinLength = 1, MaxLength = 128)]
         public string Name { get; set; }
 
         /// <summary>

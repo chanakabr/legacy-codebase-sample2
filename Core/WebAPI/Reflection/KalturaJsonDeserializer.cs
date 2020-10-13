@@ -26622,7 +26622,7 @@ namespace WebAPI.Models.Users
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
-            MaxLength = 255,
+            MaxLength = 128,
             MinLength = 1,
         };
         public KalturaDeviceReferenceData(Dictionary<string, object> parameters = null) : base(parameters)
@@ -31080,7 +31080,7 @@ namespace WebAPI.Models.Domains
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = true,
-            MaxLength = 255,
+            MaxLength = 128,
             MinLength = -1,
         };
         private static RuntimeSchemePropertyAttribute ManufacturerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
