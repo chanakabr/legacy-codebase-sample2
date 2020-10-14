@@ -46,7 +46,7 @@ namespace WebAPI.Utils
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Exception received while calling catalog service. user ID: {0}, request type: {1}, exception: {3}",
+                    log.ErrorFormat("Exception received while calling catalog service. user ID: {0}, request type: {1}, exception: {2}",
                         request.m_sSiteGuid != null ? request.m_sSiteGuid : string.Empty,                            // 0
                         request.GetType(),                                                                           // 1
                         ex);                                                                                         // 2
