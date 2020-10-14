@@ -4105,7 +4105,8 @@ namespace Core.ConditionalAccess
                                     dtPurchaseDate = purchaseDate,
                                     dtEndDate = endDate,
                                     nNumOfUses = numOfUses,
-                                    nMaxNumOfUses = maxNumOfUses
+                                    nMaxNumOfUses = maxNumOfUses,
+                                    isPending = isPending
                                 });
                             }
                         }
