@@ -25,8 +25,5 @@ namespace ApiObjects.ConditionalAccess
         public double Remainder { get; set; }
         public int LeftRecurring { get; set; }
         public bool IsUseRemainder { get; set; }
-        public eCampaignType? CampaignType { get; set; }
-        public string Message { get; set; }
-        public long EndDate { get; set; }
     }
 }
