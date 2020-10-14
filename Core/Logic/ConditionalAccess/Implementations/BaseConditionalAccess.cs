@@ -17133,9 +17133,9 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        public Tuple<string, int, bool> GetEpgSeriesDetails(long epgId)
+        public Tuple<string, int, bool, int> GetEpgSeriesDetails(long epgId)
         {
-            Tuple<string, int, bool> result = new Tuple<string, int, bool>(string.Empty, -1, false);
+            Tuple<string, int, bool, int> result = new Tuple<string, int, bool, int>(string.Empty, -1, false, 0);
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
             if (epgs == null || epgs.Count != 1)
             {
@@ -17159,7 +17159,14 @@ namespace Core.ConditionalAccess
                 return result;
             }
 
-            return new Tuple<string, int, bool>(seriesId, epgSeasonNumber, IsEpgFirstTimeAirDate(epg));
+            int epgChannelId = 0;
+            if (!int.TryParse(epg.EPG_CHANNEL_ID, out epgChannelId))
+            {
+                log.ErrorFormat("failed parsing EPG_CHANNEL_ID, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
+                return result;
+            }
+
+            return new Tuple<string, int, bool, int>(seriesId, epgSeasonNumber, IsEpgFirstTimeAirDate(epg), epgChannelId);
         }
 
         public SearchableRecording[] GetDomainSearchableRecordings(int groupID, long domainId)
