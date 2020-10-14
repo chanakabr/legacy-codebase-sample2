@@ -261,11 +261,11 @@ namespace Core.Users
             if (device == null)
                 device = new DomainDevice();
 
-            return Save(nIsActive, nStatus, device.DeviceId, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, allowNullExternalId, allowNullMacAddress);
+            return Save(nIsActive, nStatus, device.DeviceId, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, device.Manufacturer, allowNullExternalId, allowNullMacAddress);
         }
 
         public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = "",
-            string model = "", long? manufacturerId = null, bool allowNullExternalId = false, bool allowNullMacAddress = false)
+            string model = "", long? manufacturerId = null, string manufacturer = null, bool allowNullExternalId = false, bool allowNullMacAddress = false)
         {
             int retVal = 0;
 
@@ -356,6 +356,9 @@ namespace Core.Users
                 Model = model;
                 ManufacturerId = manufacturerId;
             }
+
+            if (ManufacturerId.HasValue)
+                Manufacturer = manufacturer;
 
             return retVal;
         }
