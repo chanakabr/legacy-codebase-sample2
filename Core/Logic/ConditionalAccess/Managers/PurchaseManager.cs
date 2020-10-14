@@ -1349,8 +1349,28 @@ namespace Core.ConditionalAccess
                                         }
                                         else
                                         {
-                                            Notification.MessageInboxManger.AddCampaignMessage
-                                                (fullPrice.CampaignDetails.Id, fullPrice.CampaignDetails.CampaignType.Value, fullPrice.CampaignDetails.Message, fullPrice.CampaignDetails.EndDate, contextData.GroupId, _userId, productId);
+                                            try
+                                            {
+                                                CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
+                                                {
+                                                    IdIn = new List<long>() { fullPrice.CampaignDetails.Id }
+                                                };
+
+                                                var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
+
+                                                if (campaigns.HasObjects())
+                                                {
+                                                    var campaign = campaigns.Objects[0];
+
+                                                    Notification.MessageInboxManger.AddCampaignMessage
+                                                    (fullPrice.CampaignDetails.Id, campaign.CampaignType, campaign.Message, campaign.EndDate, contextData.GroupId, _userId, productId);
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                log.Error($"Failed AddCampaignMessage with campaign: {fullPrice.CampaignDetails.Id}, " +
+                                                    $"hh: {householdId}, group: {contextData.GroupId}");
+                                            }
                                         }
                                     }
 

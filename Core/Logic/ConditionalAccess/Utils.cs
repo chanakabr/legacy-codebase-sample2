@@ -1415,9 +1415,6 @@ namespace Core.ConditionalAccess
                                 {
                                     Id = campaign.Id,
                                     LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0,
-                                    CampaignType = campaign.CampaignType,
-                                    Message = campaign.Message,
-                                    EndDate = campaign.EndDate
                                 };
                             }
                         }
@@ -1443,9 +1440,6 @@ namespace Core.ConditionalAccess
                             {
                                 Id = campaign.Id,
                                 LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0,
-                                CampaignType = campaign.CampaignType,
-                                Message = campaign.Message,
-                                EndDate = campaign.EndDate
                             };
 
                             CalcPriceAndCampaignRemainderByUnifiedBillingCycle(groupId, subscription, false, domainId, ref fullPrice);
