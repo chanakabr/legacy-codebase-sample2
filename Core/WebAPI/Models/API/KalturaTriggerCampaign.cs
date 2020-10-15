@@ -56,12 +56,10 @@ namespace WebAPI.Models.API
         {
             base.ValidateForAdd();
 
-            if (this.TriggerConditions == null || this.TriggerConditions.Count == 0)
+            if (this.TriggerConditions != null)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "triggerConditions");
+                ValidateConditions();
             }
-
-            ValidateConditions();
         }
 
         internal override GenericResponse<Campaign> Add(ContextData contextData)
