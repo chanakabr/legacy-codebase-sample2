@@ -57,7 +57,7 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "description")]
         public string Description { get; set; }
 
-        internal abstract void Validate();
+        internal abstract void Validate(HashSet<KalturaRuleConditionType> types = null);
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.OR;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (this.Conditions == null || this.Conditions.Count == 0)
             {
@@ -104,7 +104,12 @@ namespace WebAPI.Models.API
 
             foreach (var condition in this.Conditions)
             {
-                condition.Validate();
+                if (types != null && !types.Contains(condition.Type))
+                {
+                    throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "conditions", condition.objectType);
+                }
+
+                condition.Validate(types);
             }
         }
     }
@@ -134,7 +139,7 @@ namespace WebAPI.Models.API
             return this.GetItemsIn<List<int>, int>(Countries, "KalturaCountryCondition.countries");
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(Countries))
             {
@@ -163,7 +168,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.ASSET;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(Ksql) || string.IsNullOrWhiteSpace(Ksql))
             {
@@ -200,7 +205,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.CONCURRENCY;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             base.Validate();
 
@@ -245,7 +250,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.IP_RANGE;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             string ipRegex = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
 
@@ -300,7 +305,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.BUSINESS_MODULE;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if ((!this.BusinessModuleId.HasValue || this.BusinessModuleId == 0) && !this.BusinessModuleType.HasValue)
             {
@@ -351,7 +356,7 @@ namespace WebAPI.Models.API
             return segments;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.SegmentsIds))
             {
@@ -387,7 +392,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DATE;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (this.StartDate == 0 && this.EndDate == 0)
             {
@@ -423,7 +428,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.HEADER;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(Key))
             {
@@ -448,7 +453,7 @@ namespace WebAPI.Models.API
         [SchemeProperty(DynamicMinInt = 0)]
         public string IdIn { get; set; }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.IdIn))
             {
@@ -501,7 +506,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.USER_ROLE;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.IdIn))
             {
@@ -527,7 +532,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DEVICE_BRAND;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.IdIn))
             {
@@ -559,7 +564,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DEVICE_FAMILY;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.IdIn))
             {
@@ -591,7 +596,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DEVICE_MANUFACTURER;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.IdIn))
             {
@@ -622,7 +627,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DEVICE_MODEL;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.RegexEqual))
             {
@@ -648,7 +653,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DEVICE_UDID_DYNAMIC_LIST;
         }
 
-        internal override void Validate()
+        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (Id < 1)
             {

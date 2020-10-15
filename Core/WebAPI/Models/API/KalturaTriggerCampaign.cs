@@ -98,7 +98,7 @@ namespace WebAPI.Models.API
                     throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "triggerConditions", condition.objectType);
                 }
 
-                condition.Validate();
+                condition.Validate(VALID_TRIGGER_CONDITIONS);
             }
         }
     }

@@ -16,6 +16,12 @@ namespace WebAPI.Models.API
     /// </summary>
     public partial class KalturaBatchCampaign : KalturaCampaign
     {
+        private static readonly HashSet<KalturaRuleConditionType> VALID_BATCH_CONDITIONS = new HashSet<KalturaRuleConditionType>()
+        {
+            KalturaRuleConditionType.OR,
+            KalturaRuleConditionType.SEGMENTS
+        };
+
         /// <summary>
         /// These conditions define the population that apply one the campaign
         /// </summary>
@@ -68,12 +74,12 @@ namespace WebAPI.Models.API
 
             foreach (var condition in this.PopulationConditions)
             {
-                if (condition.Type != KalturaRuleConditionType.OR && condition.Type != KalturaRuleConditionType.SEGMENTS)
+                if (!VALID_BATCH_CONDITIONS.Contains(condition.Type))
                 {
                     throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "populationConditions", condition.objectType);
                 }
 
-                condition.Validate();
+                condition.Validate(VALID_BATCH_CONDITIONS);
             }
         }
     }
