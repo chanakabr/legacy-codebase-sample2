@@ -74,8 +74,13 @@ namespace Core.Catalog
                 
 
                 var allPrograms = bulkResultToProgrmResultObject.Values.ToList();
-                var allProgramDates = allPrograms.Select(p => p.StartDate.Date).Distinct().ToArray();
-                DatesOfProgramsToIngest = allProgramDates;
+                var allProgramDates = allPrograms.Select(p => p.StartDate.Date).Distinct().ToList();
+
+                //add one day at start and end of files to ingest;
+                allProgramDates.Add(allPrograms.Max(x => x.StartDate.Date).AddDays(1));
+                allProgramDates.Add(allPrograms.Min(x => x.StartDate.Date).AddDays(-1));
+                
+                DatesOfProgramsToIngest = allProgramDates.ToArray();
                 LockKeys = allProgramDates.Select(programDate => GetIngestLockKey(groupId, programDate)).ToArray();
 
                 response.SetStatus(eResponseStatus.OK);

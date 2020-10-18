@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.EventBus
 {
+    [Serializable]
     public class ProfessionalServicesRequest : ServiceEvent
     {
         [JsonProperty("model")]
