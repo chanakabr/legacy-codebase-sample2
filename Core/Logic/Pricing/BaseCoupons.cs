@@ -18,7 +18,8 @@ namespace Core.Pricing
         public abstract CouponsGroup[] GetCouponGroupListForAdmin();
         public abstract CouponsGroup[] GetCouponGroupListForAdmin(bool isVoucher);
         public abstract CouponData GetCouponStatus(string sCouponCode, long domainId);
-        public abstract CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, Int32 nMFID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode, long domainId);
+        public abstract CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, Int32 nMFID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode, 
+            long domainId, bool doReduce = false);
 
         protected Int32 m_nGroupID;
 

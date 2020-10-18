@@ -333,7 +333,7 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute()]
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
         public AdapterControllers.PlaybackAdapter.RuleActionType Type
         {
             get
@@ -383,21 +383,21 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="CaptionPlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    [System.Runtime.Serialization.DataContractAttribute(Name = "CaptionPlaybackPluginData", Namespace = "http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
     public partial class CaptionPlaybackPluginData : object
     {
-        
+
         private string FormatField;
-        
+
         private string LabelField;
-        
+
         private string LanguageField;
-        
+
         private string URLField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Format
         {
@@ -410,7 +410,7 @@ namespace AdapterControllers.PlaybackAdapter
                 this.FormatField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Label
         {
@@ -423,7 +423,7 @@ namespace AdapterControllers.PlaybackAdapter
                 this.LabelField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Language
         {
@@ -436,7 +436,7 @@ namespace AdapterControllers.PlaybackAdapter
                 this.LanguageField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string URL
         {
@@ -450,11 +450,10 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Runtime.Serialization.DataContractAttribute(Name="PlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(AdapterControllers.PlaybackAdapter.BumperPlaybackPluginData))]
     public partial class PlaybackPluginData : object
     {
     }
@@ -555,17 +554,22 @@ namespace AdapterControllers.PlaybackAdapter
         [System.Runtime.Serialization.EnumMemberAttribute()]
         APPLY_PLAYBACK_ADAPTER = 7,
     }
-    
+
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(AdapterControllers.PlaybackAdapter.BumperPlaybackPluginData))]
+    public partial class PlaybackPluginData : object
+    {
+    }
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BumperPlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    [System.Runtime.Serialization.DataContractAttribute(Name = "BumperPlaybackPluginData", Namespace = "http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
     public partial class BumperPlaybackPluginData : AdapterControllers.PlaybackAdapter.PlaybackPluginData
     {
-        
+
         private string StreamerTypeField;
-        
+
         private string URLField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string StreamerType
         {
@@ -578,7 +582,7 @@ namespace AdapterControllers.PlaybackAdapter
                 this.StreamerTypeField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string URL
         {
@@ -592,7 +596,8 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
     }
-    
+
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Runtime.Serialization.DataContractAttribute(Name="AssetFile", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
@@ -948,9 +953,24 @@ namespace AdapterControllers.PlaybackAdapter
     public partial class DrmPlaybackPluginData : AdapterControllers.PlaybackAdapter.PluginData
     {
         
+        private System.Collections.Generic.List<AdapterControllers.PlaybackAdapter.KeyValue> DynamicDataField;
+        
         private string LicenseURLField;
         
         private AdapterControllers.PlaybackAdapter.DrmSchemeName SchemeField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<AdapterControllers.PlaybackAdapter.KeyValue> DynamicData
+        {
+            get
+            {
+                return this.DynamicDataField;
+            }
+            set
+            {
+                this.DynamicDataField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string LicenseURL
@@ -965,7 +985,7 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute()]
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
         public AdapterControllers.PlaybackAdapter.DrmSchemeName Scheme
         {
             get
@@ -988,15 +1008,15 @@ namespace AdapterControllers.PlaybackAdapter
     public partial class PluginData : object
     {
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="CustomDrmPlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    [System.Runtime.Serialization.DataContractAttribute(Name = "CustomDrmPlaybackPluginData", Namespace = "http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
     public partial class CustomDrmPlaybackPluginData : AdapterControllers.PlaybackAdapter.DrmPlaybackPluginData
     {
-        
+
         private string DataField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Data
         {
@@ -1010,15 +1030,15 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="FairPlayPlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    [System.Runtime.Serialization.DataContractAttribute(Name = "FairPlayPlaybackPluginData", Namespace = "http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
     public partial class FairPlayPlaybackPluginData : AdapterControllers.PlaybackAdapter.DrmPlaybackPluginData
     {
-        
+
         private string CertificateField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Certificate
         {
@@ -1032,7 +1052,7 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Runtime.Serialization.DataContractAttribute(Name="DrmSchemeName", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
     public enum DrmSchemeName : int
@@ -1118,7 +1138,7 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute()]
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
         public AdapterControllers.PlaybackAdapter.AdapterAssetType AssetType
         {
             get
@@ -1131,7 +1151,7 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute()]
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
         public System.Nullable<AdapterControllers.PlaybackAdapter.AdapterPlaybackContextType> Context
         {
             get
@@ -1170,7 +1190,7 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute()]
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
         public AdapterControllers.PlaybackAdapter.AdapterUrlType UrlType
         {
             get
@@ -1304,7 +1324,7 @@ namespace AdapterControllers.PlaybackAdapter
         public ServiceClient() : 
                 base(ServiceClient.GetDefaultBinding(), ServiceClient.GetDefaultEndpointAddress())
         {
-            this.Endpoint.Name = EndpointConfiguration.BasicHttpBinding_IService.ToString();
+            this.Endpoint.Name = EndpointConfiguration.BasicHttpBinding.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
         
@@ -1361,7 +1381,7 @@ namespace AdapterControllers.PlaybackAdapter
         
         private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(EndpointConfiguration endpointConfiguration)
         {
-            if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding_IService))
+            if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding))
             {
                 System.ServiceModel.BasicHttpBinding result = new System.ServiceModel.BasicHttpBinding();
                 result.MaxBufferSize = int.MaxValue;
@@ -1375,27 +1395,27 @@ namespace AdapterControllers.PlaybackAdapter
         
         private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration)
         {
-            if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding_IService))
+            if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding))
             {
-                return new System.ServiceModel.EndpointAddress("http://localhost:86/PlaybackAdapter/Service.svc");
+                return new System.ServiceModel.EndpointAddress("http://localhost:9000/PlaybackAdapter/Service.svc");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
         
         private static System.ServiceModel.Channels.Binding GetDefaultBinding()
         {
-            return ServiceClient.GetBindingForEndpoint(EndpointConfiguration.BasicHttpBinding_IService);
+            return ServiceClient.GetBindingForEndpoint(EndpointConfiguration.BasicHttpBinding);
         }
         
         private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress()
         {
-            return ServiceClient.GetEndpointAddress(EndpointConfiguration.BasicHttpBinding_IService);
+            return ServiceClient.GetEndpointAddress(EndpointConfiguration.BasicHttpBinding);
         }
         
         public enum EndpointConfiguration
         {
             
-            BasicHttpBinding_IService,
+            BasicHttpBinding,
         }
     }
 }

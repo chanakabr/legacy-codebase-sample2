@@ -193,7 +193,9 @@ namespace ApiObjects.Response
         NetworkRuleBlock = 3080,
         SubscriptionDoesNotExist = 3081,
         OtherCouponIsAlreadyAppliedForSubscription = 3082,
-        CampaignIsAlreadyAppliedForSubscription = 3083,
+        PurchasePendingFailed = 3083,
+        PendingEntitlement = 3084, // BEO-8661
+        CampaignIsAlreadyAppliedForSubscription = 3085,
 
         #endregion
 

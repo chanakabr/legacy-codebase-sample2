@@ -3366,6 +3366,13 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     LicenseURL = (String) Convert.ChangeType(parameters["licenseURL"], typeof(String));
                 }
+                if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
+                {
+                    if (parameters["dynamicData"] is JObject)
+                    {
+                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
             }
         }
     }
@@ -3970,6 +3977,10 @@ namespace WebAPI.Models.ConditionalAccess
                         HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
                     }
                     HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("isPending") && parameters["isPending"] != null)
+                {
+                    IsPending = (Boolean) Convert.ChangeType(parameters["isPending"], typeof(Boolean));
                 }
             }
         }
@@ -32350,6 +32361,10 @@ namespace WebAPI.Models.Billing
                 if (parameters.ContainsKey("externalVerification") && parameters["externalVerification"] != null)
                 {
                     ExternalVerification = (Boolean) Convert.ChangeType(parameters["externalVerification"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("isAsyncPolicy") && parameters["isAsyncPolicy"] != null)
+                {
+                    IsAsyncPolicy = (Boolean) Convert.ChangeType(parameters["isAsyncPolicy"], typeof(Boolean));
                 }
             }
         }

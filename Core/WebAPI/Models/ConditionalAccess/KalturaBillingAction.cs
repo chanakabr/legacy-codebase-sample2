@@ -7,6 +7,7 @@
         renew_payment = 2,
         renew_canceled_subscription = 3,
         cancel_subscription_order = 4,
-        subscription_date_changed = 5
+        subscription_date_changed = 5,
+        pending = 6
     }
 }

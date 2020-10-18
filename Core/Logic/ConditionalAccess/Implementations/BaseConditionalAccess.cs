@@ -149,16 +149,16 @@ namespace Core.ConditionalAccess
 
         protected internal abstract bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                        PPVModule thePPVModule, int productID, int contentID, string billingGuid, DateTime entitlementDate, ref long purchaseID);
+                                                        PPVModule thePPVModule, int productID, int contentID, string billingGuid, DateTime entitlementDate, ref long purchaseID, DateTime? endDate = null, bool isPending = false);
 
         protected internal abstract bool HandleSubscriptionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon,
                                                                  string userIP, string country, string deviceName, long billingTransactionId, string customData,
                                                                  int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate,
-                                                                 ref long purchaseID, ref DateTime? subscriptionEndDate, SubscriptionPurchaseStatus subscriptionPurchaseStatus, long process_purchases_id = 0);
+                                                                 ref long purchaseID, ref DateTime? subscriptionEndDate, SubscriptionPurchaseStatus subscriptionPurchaseStatus, long process_purchases_id = 0, bool isPending = false);
 
         protected internal abstract bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
                                                               string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
-                                                              string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID);
+                                                              string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID, DateTime? endDate = null, bool isPending = false);
 
 
         /*
@@ -1066,20 +1066,6 @@ namespace Core.ConditionalAccess
             return InAppRes.m_oBillingResponse;
         }
 
-        protected DateTime CalcCollectionEndDate(Collection col, DateTime dtToInitializeWith)
-        {
-            DateTime res = dtToInitializeWith;
-            if (col != null)
-            {
-                if (col.m_oCollectionUsageModule != null)
-                {
-                    // calc end date as before.
-                    res = Utils.GetEndDateTime(res, col.m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle);
-                }
-            }
-            return res;
-        }
-
         /// <summary>
         /// In App Charge User For Subscription
         /// </summary>
@@ -1832,7 +1818,17 @@ namespace Core.ConditionalAccess
                             }
 
                             // Try to cancel subscription
-                            cancelResult = ConditionalAccessDAL.CancelSubscription(purchaseID, m_nGroupID, sPurchasingSiteGuid, subscriptionCode, (int)SubscriptionPurchaseStatus.Cancel) > 0;
+
+                            SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(m_nGroupID)
+                            {
+                                purchaseId = purchaseID,
+                                productId = subscriptionCode,
+                                siteGuid = sPurchasingSiteGuid,                                
+                                status = SubscriptionPurchaseStatus.Cancel,
+                                UpdateFromCancelRenewal = true
+                            };
+
+                            cancelResult = subscriptionPurchase.Update();
 
                             if (cancelResult)
                             {
@@ -7478,7 +7474,7 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0, 
+        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0,
             TransactionHistoryOrderBy orderBy = TransactionHistoryOrderBy.CreateDateDesc)
         {
             BillingTransactionsResponse theResp = new BillingTransactionsResponse();
@@ -7692,6 +7688,11 @@ namespace Core.ConditionalAccess
                         res.ExternalTransactionId = paymentGatewayTransaction.ExternalTransactionId;
                         res.m_sPaymentMethodExtraDetails += string.Format(", PaymentMethod:{0}, PaymentDetails:{1}",
                             paymentGatewayTransaction.PaymentMethod, paymentGatewayTransaction.PaymentDetails);
+
+                        if (paymentGatewayTransaction.State == (int)eTransactionState.Pending)
+                        {
+                            res.m_eBillingAction = BillingAction.Pending;
+                        }
                     }
                 }
                 else
@@ -10165,7 +10166,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // Check if within cancellation window
-                    bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid);
+                    bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid, true);                    
 
                     // Check if the user purchased the asset at all
                     if (userPurchasesTable == null || userPurchasesTable.Rows == null || userPurchasesTable.Rows.Count == 0)
@@ -10728,7 +10729,7 @@ namespace Core.ConditionalAccess
         /// <param name="p_dtUserPurchases"></param>
         /// <param name="p_domainID"></param>
         /// <returns></returns>
-        private bool GetCancellationWindow(int p_nAssetID, eTransactionType p_enmServiceType, ref DataTable p_dtUserPurchases, int p_domainID, ref string billingGuid)
+        private bool GetCancellationWindow(int p_nAssetID, eTransactionType p_enmServiceType, ref DataTable p_dtUserPurchases, int p_domainID, ref string billingGuid, bool includeSuspended = false)
         {
             UsageModule oUsageModule = null;
             bool bCancellationWindow = false;
@@ -10745,7 +10746,7 @@ namespace Core.ConditionalAccess
                     }
                 case eTransactionType.Subscription:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, null, m_nGroupID, p_domainID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, null, m_nGroupID, p_domainID, includeSuspended);
                         break;
                     }
                 case eTransactionType.Collection:
@@ -12318,54 +12319,43 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                // if status pending or completed - nothing to update
-                if (billingResponse.TransactionState == eTransactionState.OK || billingResponse.TransactionState == eTransactionState.Pending)
+                // if status OK or Pending
+                if (billingResponse.TransactionState != eTransactionState.Failed)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    return response;
-                }
-                // update cas
-                else
-                {
-                    bool isUpdated = false;
-                    switch (billingResponse.ProductType)
+                    if (billingResponse.TransactionState == eTransactionState.OK && billingResponse.IsAsyncPolicy)
                     {
-                        case eTransactionType.PPV:
-                            isUpdated = ConditionalAccessDAL.UpdatePPVPurchaseActiveStatus(billingResponse.BillingGuid, 0);
-                            break;
-                        case eTransactionType.Subscription:
-                            {
-                                int purchaseId = ConditionalAccessDAL.UpdateSubscriptionPurchaseActiveStatus(billingResponse.BillingGuid, 0, 0);
+                        response = EntitlementManager.UpdatePendingEntitlement(m_nGroupID, billingResponse.ProductType, billingResponse.BillingGuid, null);
 
-                                isUpdated = purchaseId > 0;
+                        if (!response.IsOkStatusCode())
+                        {
+                            log.Error($"Failed to set Update PendingEntitlement ProductType: {billingResponse.ProductType}, BillingGuid:{billingResponse.BillingGuid}");
+                            return response;
+                        }
 
-                                if (isUpdated)
-                                {
-                                    long endDateUnix = DateUtils.GetUtcUnixTimestampNow();
-                                    RenewManager.EnqueueSubscriptionEndsMessage(this.m_nGroupID, string.Empty, purchaseId, endDateUnix);
-                                }
-
-                                break;
-                            }
-                        case eTransactionType.Collection:
-                            isUpdated = ConditionalAccessDAL.UpdateCollectionPurchaseActiveStatus(billingResponse.BillingGuid, 0);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (isUpdated)
-                    {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey(billingResponse.DomainId);
+                        string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(billingResponse.DomainId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
-                            log.ErrorFormat("Failed to set invalidation key on UpdatePendingTransaction key = {0}", invalidationKey);
+                            log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
                         }
                     }
-                    else
+
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    // if status Failed
+                    response = EntitlementManager.DeletePendingEntitlement(m_nGroupID, billingResponse.ProductType, billingResponse.BillingGuid);
+
+                    if (!response.IsOkStatusCode())
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, "error while updating pending transaction entitlement");
+                        log.Error($"Failed to set Update PendingEntitlement ProductType: {billingResponse.ProductType}, BillingGuid:{billingResponse.BillingGuid}");
+                        return response;
+                    }
+
+                    string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey(billingResponse.DomainId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on CheckPendingTransaction key = {0}", invalidationKey);
                     }
                 }
             }
@@ -12374,6 +12364,7 @@ namespace Core.ConditionalAccess
                 log.Error("UpdatePendingTransaction  ", ex);
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while updating pending transaction");
             }
+
             return response;
         }
 
@@ -12402,7 +12393,6 @@ namespace Core.ConditionalAccess
 
                 #endregion
 
-                //GetEntitlement(
                 // update billing
                 var billingResponse = Billing.Module.CheckPendingTransaction(m_nGroupID, paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid);
 
@@ -12419,60 +12409,57 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                // if status pending or completed - nothing to update
-                if (billingResponse.State == eTransactionState.OK ||
-                    billingResponse.State == eTransactionState.Pending)
+                // if status pending or completed
+                if (billingResponse.State != eTransactionState.Failed)
                 {
                     WriteToUserLog(siteGuid, string.Format("Check Pending Transaction : TransactionID:{0}, State:{1}", billingResponse.TransactionID, billingResponse.State));
+
+                    if (billingResponse.State == eTransactionState.OK)
+                    {
+                        // Get Adapter Data
+                        PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(m_nGroupID, (int)paymentGatewayPendingId, 1, 1);
+
+                        if (paymentGateway != null && paymentGateway.IsAsyncPolicy)
+                        {
+                            response = EntitlementManager.UpdatePendingEntitlement(m_nGroupID, (eTransactionType)productType, billingGuid, paymentGateway);
+
+                            if (!response.IsOkStatusCode())
+                            {
+                                log.Error($"Failed to set Update PendingEntitlement ProductType: {productType}, BillingGuid:{billingGuid}");
+                                return response;
+                            }
+
+                            string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(domainId);
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
+                            }
+                        }
+                    }
 
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;
                 }
-                // update cas
                 else
                 {
-                    bool isUpdated = false;
-                    switch ((eTransactionType)productType)
+                    // if status Failed
+                    response = EntitlementManager.DeletePendingEntitlement(m_nGroupID, (eTransactionType)productType, billingGuid);
+
+                    if (!response.IsOkStatusCode())
                     {
-                        case eTransactionType.PPV:
-                            isUpdated = ConditionalAccessDAL.UpdatePPVPurchaseActiveStatus(billingGuid, 0);
-                            break;
-                        case eTransactionType.Subscription:
-                            {
-                                int purchaseId = ConditionalAccessDAL.UpdateSubscriptionPurchaseActiveStatus(billingGuid, 0, 0);
-
-                                isUpdated = purchaseId > 0;
-
-                                if (isUpdated)
-                                {
-                                    long endDateUnix = DateUtils.GetUtcUnixTimestampNow();
-                                    RenewManager.EnqueueSubscriptionEndsMessage(this.m_nGroupID, siteGuid, purchaseId, endDateUnix);
-                                }
-
-                                break;
-                            }
-                        case eTransactionType.Collection:
-                            isUpdated = ConditionalAccessDAL.UpdateCollectionPurchaseActiveStatus(billingGuid, 0);
-                            break;
-                        default:
-                            break;
+                        log.Error($"Failed to set Update PendingEntitlement ProductType: {productType}, BillingGuid:{billingGuid}");
+                        return response;
                     }
 
-                    if (isUpdated)
-                    {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ",
-                            billingResponse.TransactionID, billingResponse.State, billingResponse.FailReasonCode));
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                        string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey(domainId);
-                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                        {
-                            log.ErrorFormat("Failed to set invalidation key on CheckPendingTransaction key = {0}", invalidationKey);
-                        }
-                    }
-                    else
+                    WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ",
+                        billingResponse.TransactionID, billingResponse.State, billingResponse.FailReasonCode));
+
+                    string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey(domainId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, "error while updating pending transaction entitlement");
+                        log.ErrorFormat("Failed to set invalidation key on CheckPendingTransaction key = {0}", invalidationKey);
                     }
                 }
             }
@@ -12483,8 +12470,7 @@ namespace Core.ConditionalAccess
             }
 
             return response;
-        }
-
+        }       
 
         public ApiObjects.Response.Status GrantEntitlements(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string ip,
             string udid, bool history)
@@ -16604,7 +16590,7 @@ namespace Core.ConditionalAccess
 
             /* insert a new message for the next batch of 500 domainSeriesIds with distribution time = epgStartDate */
             if (followingDomains != null && followingDomains.Rows != null && followingDomains.Rows.Count > 0 && maxDomainSeriesId > -1)
-            {                
+            {
                 RecordingsManager.EnqueueMessage(m_nGroupID, epgId, id, epgStartDate, epgStartDate, eRecordingTask.DistributeRecording, maxDomainSeriesId);
             }
 
@@ -16699,7 +16685,7 @@ namespace Core.ConditionalAccess
                         }
                     }
                 }
-            });            
+            });
 
             return result;
         }
@@ -17181,13 +17167,13 @@ namespace Core.ConditionalAccess
                     {
                         Domain domain;
                         ApiObjects.Response.Status status = Utils.ValidateDomain(m_nGroupID, domainId, out domain);
-                        
+
                         if (status == null)
                         {
                             log.ErrorFormat("Failed to validate domain = {0}", domainId);
                             return result;
                         }
-                        
+
                         if (status.Code != (int)eResponseStatus.OK)
                         {
                             log.ErrorFormat("Failed to validate domain = {0}, code = {1}, message = {2}", domainId, status.Code, status.Message);
@@ -17252,7 +17238,7 @@ namespace Core.ConditionalAccess
                             res = RecordingsDAL.DeleteDomainQuota(domainId);
 
                             result = ApiObjects.Response.Status.Ok;
-                            
+
                         }
                         catch (Exception ex)
                         {
@@ -17267,9 +17253,9 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        public Tuple<string, int, bool> GetEpgSeriesDetails(long epgId)
+        public Tuple<string, int, bool, int> GetEpgSeriesDetails(long epgId)
         {
-            Tuple<string, int, bool> result = new Tuple<string, int, bool>(string.Empty, -1, false);
+            Tuple<string, int, bool, int> result = new Tuple<string, int, bool, int>(string.Empty, -1, false, 0);
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
             if (epgs == null || epgs.Count != 1)
             {
@@ -17293,7 +17279,14 @@ namespace Core.ConditionalAccess
                 return result;
             }
 
-            return new Tuple<string, int, bool>(seriesId, epgSeasonNumber, IsEpgFirstTimeAirDate(epg));
+            int epgChannelId = 0;
+            if (!int.TryParse(epg.EPG_CHANNEL_ID, out epgChannelId))
+            {
+                log.ErrorFormat("failed parsing EPG_CHANNEL_ID, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
+                return result;
+            }
+
+            return new Tuple<string, int, bool, int>(seriesId, epgSeasonNumber, IsEpgFirstTimeAirDate(epg), epgChannelId);
         }
 
         public SearchableRecording[] GetDomainSearchableRecordings(int groupID, long domainId)
@@ -17547,9 +17540,9 @@ namespace Core.ConditionalAccess
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to suspend household payment gateway");
                     return response;
                 }
-                
+
                 bool doInvalidate = false;
-                
+
                 // get entitelments 
                 DataTable dt = ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId);
 

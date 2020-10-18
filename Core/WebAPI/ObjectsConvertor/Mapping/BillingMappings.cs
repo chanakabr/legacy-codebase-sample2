@@ -32,7 +32,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RenewStartMinutes, opt => opt.MapFrom(src => src.RenewalStartMinutes))
                 .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertPaymentGatewaySettings(src.Settings)))
                 .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
-                .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.ExternalVerification));
+                .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.ExternalVerification))
+                .ForMember(dest => dest.IsAsyncPolicy, opt => opt.MapFrom(src => src.IsAsyncPolicy));
 
             //KalturaPaymentGatewayProfile to PaymentGateway
             cfg.CreateMap<WebAPI.Models.Billing.KalturaPaymentGatewayProfile, PaymentGateway>()
@@ -51,7 +52,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SkipSettings, opt => opt.MapFrom(src => src.Settings == null))
                .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertPaymentGatewaySettings(src.Settings)))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
-               .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.ExternalVerification));
+               .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.ExternalVerification))
+               .ForMember(dest => dest.IsAsyncPolicy, opt => opt.MapFrom(src => src.IsAsyncPolicy));
 
             cfg.CreateMap<KalturaSuspendSettings, SuspendSettings>()
               .ForMember(dest => dest.RevokeEntitlements, opt => opt.MapFrom(src => src.RevokeEntitlements))
@@ -97,7 +99,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StatusUrl, opt => opt.MapFrom(src => src.PaymentGateway.StatusUrl))
                 .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertPaymentGatewaySettings(src.PaymentGateway.Settings)))
                 .ForMember(dest => dest.TransactUrl, opt => opt.MapFrom(src => src.PaymentGateway.TransactUrl))
-                .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.PaymentGateway.ExternalVerification)); 
+                .ForMember(dest => dest.ExternalVerification, opt => opt.MapFrom(src => src.PaymentGateway.ExternalVerification))
+                .ForMember(dest => dest.IsAsyncPolicy, opt => opt.MapFrom(src => src.PaymentGateway.IsAsyncPolicy)); 
 
             cfg.CreateMap<PaymentGatewaySelectedBy, KalturaHouseholdPaymentGateway>()
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))

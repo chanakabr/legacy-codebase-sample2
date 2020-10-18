@@ -253,5 +253,13 @@ namespace WebAPI.Models.ConditionalAccess
             get;
             set;
         }
+
+        /// <summary>
+        /// Indicates whether the asynchronous purchase is pending
+        /// </summary>
+        [DataMember(Name = "isPending")]
+        [JsonProperty("isPending")]
+        [XmlElement(ElementName = "isPending")]
+        public bool? IsPending { get; set; }
     }
 }

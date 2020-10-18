@@ -147,7 +147,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.endDate)))
               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
               .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
-              .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.productId));
+              .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.productId))
+              .ForMember(dest => dest.IsPending, opt => opt.MapFrom(src => src.IsPending))
+              ;
 
             cfg.CreateMap<CollectionPurchase, KalturaCollectionEntitlement>()
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.collection))
@@ -160,7 +162,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)))
               .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)))
               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.endDate)))
-              .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumberOfUses));
+              .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumberOfUses))
+              ;
 
             cfg.CreateMap<Entitlement, KalturaPpvEntitlement>()
                .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
@@ -180,6 +183,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
+               .ForMember(dest => dest.IsPending, opt => opt.MapFrom(src => src.IsPending))
                ;
             cfg.CreateMap<PpvPurchase, KalturaPpvEntitlement>()
               //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.ppv))
@@ -202,6 +206,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
+               .ForMember(dest => dest.IsPending, opt => opt.MapFrom(src => src.IsPending))
                ;
 
             cfg.CreateMap<Entitlement, KalturaCollectionEntitlement>()
@@ -224,6 +229,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.purchaseID))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.collection))
               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
+              .ForMember(dest => dest.IsPending, opt => opt.MapFrom(src => src.IsPending))
               ;
 
             cfg.CreateMap<PpvPurchase, KalturaEntitlementCancellation>()

@@ -1621,6 +1621,11 @@ namespace WebAPI.Models.ConditionalAccess
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
+            {
+                propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
+            }
             if(LicenseURL != null && (retrievedProperties == null || retrievedProperties.Contains("licenseURL")))
             {
                 ret.Add("licenseURL", "\"licenseURL\": " + "\"" + EscapeJson(LicenseURL) + "\"");
@@ -1643,6 +1648,11 @@ namespace WebAPI.Models.ConditionalAccess
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
+            {
+                propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
+            }
             if(LicenseURL != null && (retrievedProperties == null || retrievedProperties.Contains("licenseURL")))
             {
                 ret.Add("licenseURL", "<licenseURL>" + EscapeXml(LicenseURL) + "</licenseURL>");
@@ -1768,6 +1778,10 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     ret.Add("is_in_grace_period", "\"is_in_grace_period\": " + IsInGracePeriod.ToString().ToLower());
                 }
+            }
+            if(IsPending.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isPending")))
+            {
+                ret.Add("isPending", "\"isPending\": " + IsPending.ToString().ToLower());
             }
             if(!omitObsolete && IsRenewable.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isRenewable")))
             {
@@ -1946,6 +1960,10 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                 ret.Add("is_in_grace_period", "<is_in_grace_period>" + IsInGracePeriod.ToString().ToLower() + "</is_in_grace_period>");
                 }
+            }
+            if(IsPending.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isPending")))
+            {
+                ret.Add("isPending", "<isPending>" + IsPending.ToString().ToLower() + "</isPending>");
             }
             if(!omitObsolete && IsRenewable.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isRenewable")))
             {
@@ -40130,6 +40148,10 @@ namespace WebAPI.Models.Billing
                     ret.Add("is_active", "\"is_active\": " + IsActive);
                 }
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("isAsyncPolicy")))
+            {
+                ret.Add("isAsyncPolicy", "\"isAsyncPolicy\": " + IsAsyncPolicy.ToString().ToLower());
+            }
             if(PendingInterval.HasValue && (retrievedProperties == null || retrievedProperties.Contains("pendingInterval")))
             {
                 ret.Add("pendingInterval", "\"pendingInterval\": " + PendingInterval);
@@ -40244,6 +40266,10 @@ namespace WebAPI.Models.Billing
                 {
                 ret.Add("is_active", "<is_active>" + IsActive + "</is_active>");
                 }
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("isAsyncPolicy")))
+            {
+                ret.Add("isAsyncPolicy", "<isAsyncPolicy>" + IsAsyncPolicy.ToString().ToLower() + "</isAsyncPolicy>");
             }
             if(PendingInterval.HasValue && (retrievedProperties == null || retrievedProperties.Contains("pendingInterval")))
             {

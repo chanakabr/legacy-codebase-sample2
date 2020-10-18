@@ -879,7 +879,7 @@ namespace ApiObjects
         HouseholdCancel = 4,
         Switched = 5,
         Switched_To = 6,
-        Suspended = 7,
+        Suspended = 7
     }
 
     public enum PlayContextType

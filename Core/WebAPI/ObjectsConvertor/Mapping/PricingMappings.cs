@@ -556,6 +556,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case PriceReason.CurrencyNotDefinedOnPriceCode:
                     result = KalturaPurchaseStatus.currency_not_defined_on_price_code;
                     break;
+                case PriceReason.PendingEntitlement:
+                    result = KalturaPurchaseStatus.pending_entitlement;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown purchase status");
             }

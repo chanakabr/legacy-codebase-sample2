@@ -756,7 +756,7 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static HashSet<long> GetSeriesFollowingDomainsIds(int groupId, string seriesId, int seasonNumber, bool isFIsEpgFirstTimeAirDate, ref long maxDomainSeriesId)
+        public static HashSet<long> GetSeriesFollowingDomainsIds(int groupId, string seriesId, int seasonNumber, bool isFIsEpgFirstTimeAirDate, int epgChannelId, ref long maxDomainSeriesId)
         {
             HashSet<long> domainSeriesIds = new HashSet<long>();
             ODBCWrapper.StoredProcedure spGetSeriesFollowingDomainsIds = new ODBCWrapper.StoredProcedure("GetSeriesFollowingDomainsIds");
@@ -766,6 +766,7 @@ namespace DAL
             spGetSeriesFollowingDomainsIds.AddParameter("@SeasonNumber", seasonNumber);
             spGetSeriesFollowingDomainsIds.AddParameter("@IsEpgFirstTimeAirDate", isFIsEpgFirstTimeAirDate ? 1 : 0);
             spGetSeriesFollowingDomainsIds.AddParameter("@MaxId", maxDomainSeriesId);
+            spGetSeriesFollowingDomainsIds.AddParameter("@EpgChannelId", epgChannelId);
             DataTable dt = spGetSeriesFollowingDomainsIds.Execute();
 
             if (dt != null && dt.Rows != null)

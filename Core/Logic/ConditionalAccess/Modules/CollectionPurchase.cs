@@ -2,10 +2,6 @@
 using Core.ConditionalAccess.Modules;
 using DAL;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiLogic.ConditionalAccess.Modules
 {
@@ -41,13 +37,14 @@ namespace ApiLogic.ConditionalAccess.Modules
             purchaseId = ConditionalAccessDAL.Insert_NewMColPurchase(GroupId, productId, siteGuid, price, currency, customData, country,
                                                                      deviceName, maxNumberOfUses,
                                                                      viewLifeCycle, billingTransactionId,
-                                                                     startDate.Value, endDate.Value, createAndUpdateDate, houseHoldId, billingGuid);
+                                                                     startDate.Value, endDate.Value, createAndUpdateDate, houseHoldId, billingGuid, this.IsPending);
             return purchaseId > 0;
         }
 
         protected override bool DoUpdate()
-        {
-            throw new NotImplementedException();
+        {            
+            bool success = ConditionalAccessDAL.UpdateCollectionPurchases(this.GroupId, this.purchaseId, this.startDate.Value, this.endDate.Value, this.IsPending);
+            return success;
         }
     }
 }

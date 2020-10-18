@@ -153,6 +153,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType SUBSCRIPTION_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.SubscriptionDoesNotExist, "The subscription does not exist", "The subscription does not exist");
         public static ClientExceptionType OTHER_COUPON_ALREADY_APPLIED = new ClientExceptionType(eResponseStatus.OtherCouponIsAlreadyAppliedForSubscription, "Other coupon is already applied for subscription", "Other coupon is already applied for subscription");
         public static ClientExceptionType CAMPAIGN_ALREADY_APPLIED = new ClientExceptionType(eResponseStatus.CampaignIsAlreadyAppliedForSubscription, "Campaign is already applied for subscription", "Campaign is already applied for subscription");
+        public static ClientExceptionType PURCHASE_PENDING_FAILED = new ClientExceptionType(eResponseStatus.PurchasePendingFailed, "");
+        public static ClientExceptionType PENDING_ENTITELMENT = new ClientExceptionType(eResponseStatus.PendingEntitlement, "", "Entitlement is pending");
 
         #endregion
 

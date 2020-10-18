@@ -356,7 +356,7 @@ namespace Core.ConditionalAccess
 
             bool bUsageModuleExists = (theCol != null && theCol.m_oUsageModule != null);
             DateTime dtUtcNow = DateTime.UtcNow;
-            DateTime dtSubEndDate = CalcCollectionEndDate(theCol, dtUtcNow);
+            DateTime dtSubEndDate = Utils.CalcCollectionEndDate(theCol, dtUtcNow);
 
             lPurchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, sCollectionCode, sSiteGUID, dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode, sDeviceName,
                 bUsageModuleExists ? theCol.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theCol.m_oUsageModule.m_tsViewLifeCycle : 0, lBillingTransactionID,
@@ -765,7 +765,8 @@ namespace Core.ConditionalAccess
 
         protected internal override bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIp, string country, string deviceName, long billingTransactionId, string customData,
-                                                        PPVModule thePPVModule, int productId, int contentId, string billingGuid, DateTime entitlementDate, ref long purchaseId)
+                                                        PPVModule thePPVModule, int productId, int contentId, string billingGuid, DateTime entitlementDate, 
+                                                        ref long purchaseId, DateTime? endDate = null, bool isPending = false)
         {
             purchaseId = 0;
             try
@@ -777,23 +778,27 @@ namespace Core.ConditionalAccess
 
                 // get PPV end date
                 DateTime startDate = entitlementDate;
-                DateTime endDate = entitlementDate;
+
+                if (!endDate.HasValue)
+                {
+                    endDate = entitlementDate;
+
+                    if (isPPVUsageModuleExists)
+                    {
+                        endDate = Utils.GetEndDateTime(startDate, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle, true, true);
+                    }
+                }                
 
                 if (response != null && response.StartDateSeconds > 0)
                 {
                     // received start date form transaction - calculate end date accordingly
                     startDate = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(response.StartDateSeconds);
-                }
-
-                if (isPPVUsageModuleExists)
-                {
-                    endDate = Utils.GetEndDateTime(startDate, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle, true, true);
-                }
+                }               
 
                 if (response != null)
                 {
                     if (response.EndDateSeconds == 0)
-                        response.EndDateSeconds = (long)endDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                        response.EndDateSeconds = (long)endDate.Value.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
 
                     if (response.StartDateSeconds == 0)
                         response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
@@ -819,7 +824,8 @@ namespace Core.ConditionalAccess
                     country = country,
                     deviceName = deviceName,
                     houseHoldId = houseHoldId,
-                    billingGuid = billingGuid
+                    billingGuid = billingGuid,
+                    IsPending = isPending
                 };
                 ppvPurchase.Insert();
                 purchaseId = ppvPurchase.purchaseId;
@@ -852,7 +858,7 @@ namespace Core.ConditionalAccess
             string currency, string coupon, string userIP,
             string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
             bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate, ref long purchaseId, ref DateTime? subscriptionEndDate,
-            SubscriptionPurchaseStatus purchaseStatus = SubscriptionPurchaseStatus.OK, long processPurchasesId = 0)
+            SubscriptionPurchaseStatus purchaseStatus = SubscriptionPurchaseStatus.OK, long processPurchasesId = 0, bool isPending = false)
         {
             purchaseId = 0;
             try
@@ -933,8 +939,10 @@ namespace Core.ConditionalAccess
                     houseHoldId = houseHoldId,
                     billingGuid = billingGuid,
                     couponCode = coupon,
-                    processPurchasesId = processPurchasesId
+                    processPurchasesId = processPurchasesId,
+                    IsPending = isPending
                 };
+                
                 subscriptionPurchase.Insert();
                 purchaseId = subscriptionPurchase.purchaseId;
 
@@ -965,9 +973,10 @@ namespace Core.ConditionalAccess
             return purchaseId > 0;
         }
 
-        protected internal override bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, 
-            Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName, 
-            long billingTransactionId, string customData, int productID, string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID)
+        protected internal override bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID,
+            Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName,
+            long billingTransactionId, string customData, int productID, string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate,
+            ref long purchaseID, DateTime? endDate = null, bool isPending = false)
         {
             purchaseID = 0;
 
@@ -977,22 +986,37 @@ namespace Core.ConditionalAccess
                 HandleCouponUses(null, string.Empty, siteGUID, price, currency, 0, coupon, userIP, country, string.Empty, deviceName, true, 0, productID, houseHoldID);
 
                 bool usageModuleExists = (collection != null && collection.m_oUsageModule != null);
+                DateTime collectionEndDate;
 
-                // get collection end date
-                DateTime collectionEndDate = CalcCollectionEndDate(collection, entitlementDate);
+                if (endDate.HasValue)
+                {
+                    collectionEndDate = endDate.Value;
+                    if(response != null)
+                    {
+                        response.EndDateSeconds = (long)collectionEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    }
+                }
+                else
+                {
+                    // get collection end date
+                    collectionEndDate = Utils.CalcCollectionEndDate(collection, entitlementDate);
+
+                    if (response != null)
+                    {
+                        if (response.EndDateSeconds > 0)
+                        {
+                            collectionEndDate = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(response.EndDateSeconds);
+                        }
+                        else
+                        {
+                            response.EndDateSeconds = (long)collectionEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                        }
+                    }
+                }              
 
                 // update response object
                 if (response != null)
                 {
-                    if (response.EndDateSeconds > 0)
-                    {
-                        collectionEndDate = TVinciShared.DateUtils.UtcUnixTimestampSecondsToDateTime(response.EndDateSeconds);
-                    }
-                    else
-                    {
-                        response.EndDateSeconds = (long)collectionEndDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-                    }
-
                     response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
                 }
 
@@ -1013,7 +1037,8 @@ namespace Core.ConditionalAccess
                     endDate = collectionEndDate,
                     createAndUpdateDate = entitlementDate,
                     houseHoldId = houseHoldID,
-                    billingGuid = billingGuid
+                    billingGuid = billingGuid,
+                    IsPending = isPending
                 };
 
                 collectionPurchase.Insert();
