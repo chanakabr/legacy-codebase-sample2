@@ -1,4 +1,6 @@
-﻿namespace ApiObjects.PlaybackAdapter
+﻿using System.Collections.Generic;
+
+namespace ApiObjects.PlaybackAdapter
 {
     public class PluginData
     {
@@ -9,6 +11,8 @@
         public ApiObjects.PlaybackAdapter.DrmSchemeName Scheme { get; set; }
 
         public string LicenseURL { get; set; }
+
+        public Dictionary<string, string> DynamicData { get; set; }
     }
 
     public class FairPlayPlaybackPluginData : DrmPlaybackPluginData

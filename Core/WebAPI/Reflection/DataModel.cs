@@ -2193,6 +2193,8 @@ namespace WebAPI.Reflection
                 case "KalturaDrmPlaybackPluginData":
                     switch(property.Name)
                     {
+                        case "DynamicData":
+                            return "dynamicData";
                         case "LicenseURL":
                             return "licenseURL";
                         case "Scheme":

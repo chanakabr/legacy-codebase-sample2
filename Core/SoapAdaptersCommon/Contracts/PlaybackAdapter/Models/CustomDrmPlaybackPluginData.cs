@@ -9,4 +9,3 @@ namespace PlaybackAdapter
         public string Data { get; set; }
     }
 }
-

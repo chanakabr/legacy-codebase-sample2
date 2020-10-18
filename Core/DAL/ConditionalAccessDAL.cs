@@ -1072,7 +1072,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, object assetID, int domainID = 0, int subscriptionPurchaseStatus = 2)
+        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, object assetID, int domainID = 0, int subscriptionPurchaseStatus = 2, long subscriptionPurchaseId = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSubscriptionPurchaseTransaction");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
@@ -1080,7 +1080,8 @@ namespace DAL
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", assetID);
             sp.AddParameter("@DomainID", domainID);
-            sp.AddParameter("@SubscriptionPurchaseStatus", subscriptionPurchaseStatus);
+            sp.AddParameter("@SubscriptionPurchaseStatus", subscriptionPurchaseStatus);            
+            sp.AddParameter("@id", subscriptionPurchaseId);
 
             return sp.ExecuteReturnValue<bool>();
         }
@@ -1429,7 +1430,7 @@ namespace DAL
             }
         }
 
-        public static DataTable Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(int nSubscriptionCode, List<int> UserIDs, int nGroupID, int domainID = 0)
+        public static DataTable Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(int nSubscriptionCode, List<int> UserIDs, int nGroupID, int domainID = 0, bool includeSuspended = false)
         {
             if (UserIDs == null)
             {
@@ -1441,7 +1442,7 @@ namespace DAL
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@groupID", nGroupID);
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@DomainID", domainID);
-
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@includeSuspended", includeSuspended);
 
             DataSet ds = spGet_AllPPVPurchasesByUserIDsAndMediaFileID.ExecuteDataSet();
 

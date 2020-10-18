@@ -10046,7 +10046,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // Check if within cancellation window
-                    bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid);
+                    bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid, true);                    
 
                     // Check if the user purchased the asset at all
                     if (userPurchasesTable == null || userPurchasesTable.Rows == null || userPurchasesTable.Rows.Count == 0)
@@ -10609,7 +10609,7 @@ namespace Core.ConditionalAccess
         /// <param name="p_dtUserPurchases"></param>
         /// <param name="p_domainID"></param>
         /// <returns></returns>
-        private bool GetCancellationWindow(int p_nAssetID, eTransactionType p_enmServiceType, ref DataTable p_dtUserPurchases, int p_domainID, ref string billingGuid)
+        private bool GetCancellationWindow(int p_nAssetID, eTransactionType p_enmServiceType, ref DataTable p_dtUserPurchases, int p_domainID, ref string billingGuid, bool includeSuspended = false)
         {
             UsageModule oUsageModule = null;
             bool bCancellationWindow = false;
@@ -10626,7 +10626,7 @@ namespace Core.ConditionalAccess
                     }
                 case eTransactionType.Subscription:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, null, m_nGroupID, p_domainID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, null, m_nGroupID, p_domainID, includeSuspended);
                         break;
                     }
                 case eTransactionType.Collection:
@@ -17767,6 +17767,5 @@ namespace Core.ConditionalAccess
         {
             return EntitlementManager.ApplyCoupon(this, this.m_nGroupID, domainId, userId, purchaseId, couponCode);
         }
-
     }
 }

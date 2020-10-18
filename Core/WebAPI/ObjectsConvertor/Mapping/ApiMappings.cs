@@ -1453,12 +1453,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaDrmPlaybackPluginData>()
                 .IncludeBase<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaPluginData>()
                 .ForMember(dest => dest.Scheme, opt => opt.MapFrom(src => src.Scheme))
-                .ForMember(dest => dest.LicenseURL, opt => opt.MapFrom(src => src.LicenseURL));
+                .ForMember(dest => dest.LicenseURL, opt => opt.MapFrom(src => src.LicenseURL))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
+                ;
 
             cfg.CreateMap<KalturaDrmPlaybackPluginData, ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>()
                 .IncludeBase<KalturaPluginData, ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>()
                 .ForMember(dest => dest.Scheme, opt => opt.MapFrom(src => src.Scheme))
-                .ForMember(dest => dest.LicenseURL, opt => opt.MapFrom(src => src.LicenseURL));
+                .ForMember(dest => dest.LicenseURL, opt => opt.MapFrom(src => src.LicenseURL))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
+                .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
+                ;
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.FairPlayPlaybackPluginData, KalturaFairPlayPlaybackPluginData>()
                 .IncludeBase<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaDrmPlaybackPluginData>()

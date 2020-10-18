@@ -267,10 +267,13 @@ namespace Core.Catalog.Request
 
             // build the filter query for the search
             StringBuilder ksql = new StringBuilder("(and (or ");
-            StringBuilder seasonsToExclude = null;
-            string season = null;
-            if (series != null)
+
+            if (series?.Length > 0)
             {
+                string season = null;
+                StringBuilder seasonsToExclude = null;
+                string isOriginalBroadcast = string.Empty;
+
                 foreach (SeriesRecording serie in series)
                 {
                     season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumberMetaOrTag)) ? string.Format("{0} = '{1}' ", seasonNumberMetaOrTag, serie.SeasonNumber) : string.Empty;
@@ -283,7 +286,13 @@ namespace Core.Catalog.Request
                         }
                     }
 
-                    ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4})", seriesIdMetaOrTag, serie.SeriesId, serie.EpgChannelId, season, seasonsToExclude.ToString());
+                    isOriginalBroadcast = string.Empty;
+                    if (serie.Type == RecordingType.OriginalBroadcast)
+                    {
+                        isOriginalBroadcast = "isOriginalBroadcast = '1'";
+                    }
+
+                    ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4} {5})", seriesIdMetaOrTag, serie.SeriesId, serie.EpgChannelId, season, seasonsToExclude.ToString(), isOriginalBroadcast);
                 }
             }
 

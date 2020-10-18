@@ -3276,6 +3276,13 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     LicenseURL = (String) Convert.ChangeType(parameters["licenseURL"], typeof(String));
                 }
+                if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
+                {
+                    if (parameters["dynamicData"] is JObject)
+                    {
+                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
             }
         }
     }

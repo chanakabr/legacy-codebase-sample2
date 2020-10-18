@@ -1,5 +1,6 @@
-﻿using System.Runtime.Serialization;
-using System.Xml.Serialization;
+﻿using AdapaterCommon.Models;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace PlaybackAdapter
 {
@@ -13,5 +14,8 @@ namespace PlaybackAdapter
 
         [DataMember]
         public string LicenseURL { get; set; }
+        
+        [DataMember]
+        public List<KeyValue> DynamicData { get; set; }
     }
 }
