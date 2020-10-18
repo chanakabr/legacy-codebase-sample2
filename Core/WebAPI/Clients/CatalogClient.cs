@@ -2721,13 +2721,6 @@ namespace WebAPI.Clients
                 throw new ClientException(StatusCode.Error);
             }
 
-            //BEO-8762
-            if (pageSize.HasValue && channelResponse.aggregationResults?.FirstOrDefault() != null)
-            {
-                channelResponse.aggregationResults[0].results  = channelResponse.aggregationResults[0].results
-                    .Skip(pageIndex * pageSize.Value).Take(pageSize.Value).ToList();
-            }
-
             if (channelResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
@@ -2735,7 +2728,8 @@ namespace WebAPI.Clients
             }
 
             //BEO-8762
-            if (pageSize.HasValue && channelResponse.aggregationResults?.FirstOrDefault() != null)
+            if (pageSize.HasValue && channelResponse.aggregationResults?.FirstOrDefault() != null
+                && (order == null || (!ElasticsearchWrapper.PaginationDone(order.m_eOrderBy))))
             {
                 channelResponse.aggregationResults[0].results = channelResponse.aggregationResults[0].results
                     .Skip(pageIndex * pageSize.Value).Take(pageSize.Value).ToList();
