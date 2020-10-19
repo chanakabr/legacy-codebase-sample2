@@ -23,7 +23,7 @@ namespace Core.ConditionalAccess
         private string m_fromAdd;
         private string m_voucherMailSubject;
 
-        public override bool ActivateCampaign(Campaign camp, CampaignActionInfo cai, int groupID)
+        public override bool ActivateCampaign(Core.Pricing.Campaign camp, CampaignActionInfo cai, int groupID)
         {
             bool retVal = false;
             int numOfUses = 0;

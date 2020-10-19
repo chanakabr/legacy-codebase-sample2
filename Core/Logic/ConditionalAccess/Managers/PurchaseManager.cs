@@ -1,6 +1,4 @@
-﻿using ApiLogic.Api.Managers;
-using APILogic.ConditionalAccess.Managers;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
@@ -9,10 +7,8 @@ using ApiObjects.Response;
 using ApiObjects.Segmentation;
 using ApiObjects.SubscriptionSet;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
 using Core.Api;
 using Core.Api.Managers;
-using Core.Catalog;
 using Core.Pricing;
 using Core.Pricing.Handlers;
 using DAL;
@@ -1076,14 +1072,17 @@ namespace Core.ConditionalAccess
                 }
 
                 // validate price
-                PriceReason priceReason = PriceReason.UnKnown;
                 Subscription subscription = null;
                 bool isGiftCard = false;
-                Price priceResponse = null;
-                double couponRemainder = 0;
-                var subscriptionCycle = new SubscriptionCycle(); // there is a unified billingCycle for this subscription cycle
-                priceResponse = Utils.GetSubscriptionFinalPrice(contextData.GroupId, productId.ToString(), userId, ref couponCode, ref priceReason, ref subscription, country, string.Empty,
-                                                                contextData.Udid, contextData.UserIp, ref subscriptionCycle, out couponRemainder, currency, isSubscriptionSetModifySubscription);
+
+                var fullPrice = Utils.GetSubscriptionFullPrice(contextData.GroupId, productId.ToString(), userId, couponCode, ref subscription, country, string.Empty,
+                                                                contextData.Udid, contextData.UserIp, currency, isSubscriptionSetModifySubscription);
+
+                var subscriptionCycle = fullPrice.SubscriptionCycle;
+                double couponRemainder = fullPrice.CouponRemainder;
+                couponCode = fullPrice.CouponCode;
+                Price finalPrice = fullPrice.FinalPrice;
+                PriceReason priceReason = fullPrice.PriceReason;
 
                 if (subscription == null)
                 {
@@ -1091,10 +1090,10 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                if (priceResponse != null && (priceReason == PriceReason.PendingEntitlement || (priceReason == PriceReason.SubscriptionPurchased && priceResponse.m_dPrice == -1)))
+                if (fullPrice != null && ((fullPrice.PriceReason == PriceReason.PendingEntitlement)  || (fullPrice.PriceReason == PriceReason.SubscriptionPurchased && fullPrice.FinalPrice.m_dPrice == -1)))
                 {
                     // item not for purchase
-                    response.Status = Utils.SetResponseStatus(priceReason);
+                    response.Status = Utils.SetResponseStatus(fullPrice.PriceReason);
                     return response;
                 }
 
@@ -1198,7 +1197,7 @@ namespace Core.ConditionalAccess
                      subscription.CouponsGroups.Count(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode) > 0)))
                 {
                     isGiftCard = true;
-                    priceResponse = new Price()
+                    finalPrice = new Price()
                     {
                         m_dPrice = 0.0,
                         m_oCurrency = new Currency()
@@ -1234,7 +1233,7 @@ namespace Core.ConditionalAccess
                 {
                     // item is for purchase
                     if (isSubscriptionSetModifySubscription ||
-                        (priceResponse != null && priceResponse.m_dPrice == price && priceResponse.m_oCurrency.m_sCurrencyCD3 == currency) ||
+                        (finalPrice != null && finalPrice.m_dPrice == price && finalPrice.m_oCurrency.m_sCurrencyCD3 == currency) ||
                         (paymentGateway != null && paymentGateway.ExternalVerification))
                     {
                         // price is validated, create custom data
@@ -1242,7 +1241,7 @@ namespace Core.ConditionalAccess
                         string customData = cas.GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, userId, price, currency,
                                                                          couponCode, contextData.UserIp, country, string.Empty, contextData.Udid, string.Empty,
                                                                          entitleToPreview ? subscription.m_oPreviewModule.m_nID + "" : string.Empty,
-                                                                         entitleToPreview, false, 0, false, null, partialPrice);
+                                                                         entitleToPreview, false, 0, false, null, partialPrice, fullPrice.CampaignDetails?.Id > 0 ? fullPrice.CampaignDetails.Id : 0);
 
                         // create new GUID for billing transaction
                         string billingGuid = Guid.NewGuid().ToString();
@@ -1390,38 +1389,83 @@ namespace Core.ConditionalAccess
                                     cas.WriteToUserLog(userId, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
                                         productId, purchaseID, response.TransactionID));
 
-                                    var recurringRenewDetails = new RecurringRenewDetails()
-                                    {
-                                        CouponCode = couponCode,
-                                        CouponRemainder = couponRemainder,
-                                        IsCouponGiftCard = isGiftCard,
-                                        IsPurchasedWithPreviewModule = entitleToPreview,
-                                        LeftCouponRecurring = coupon != null ? coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon : 0,
-                                        TotalNumOfRenews = 0,
-                                        IsCouponHasEndlessRecurring = coupon != null && coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon == 0
-                                    };
-
-                                    if (!ConditionalAccessDAL.SaveRecurringRenewDetails(recurringRenewDetails, purchaseID))
-                                    {
-                                        log.ErrorFormat("Error to Insert RecurringRenewDetails to CB, purchaseId:{0}.", purchaseID);
-                                    }
-
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0 && !IsDoublePurchase)
                                     {
                                         cas.UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
                                     }
 
+                                    if (fullPrice.CampaignDetails != null && fullPrice.CampaignDetails.Id > 0)
+                                    {
+                                        //Update campaign message details
+                                        int.TryParse(userId, out int _userId);
+                                        var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, _userId);
+
+                                        if (userCampaigns.Campaigns.ContainsKey(fullPrice.CampaignDetails.Id))
+                                        {
+                                            var campaignDetails = userCampaigns.Campaigns[fullPrice.CampaignDetails.Id];
+                                            campaignDetails.SubscriptionUses.Add(productId, DateUtils.GetUtcUnixTimestampNow());
+                                            
+                                            if (!DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(fullPrice.CampaignDetails.Id, contextData.GroupId, _userId, campaignDetails))
+                                            {
+                                                log.Error($"Failed InsertCampaignUsage with campaign: {fullPrice.CampaignDetails.Id}, " +
+                                                    $"hh: {householdId}, group: {contextData.GroupId}");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            try
+                                            {
+                                                CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
+                                                {
+                                                    IdIn = new List<long>() { fullPrice.CampaignDetails.Id }
+                                                };
+
+                                                var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
+
+                                                if (campaigns.HasObjects())
+                                                {
+                                                    var campaign = campaigns.Objects[0];
+
+                                                    Notification.MessageInboxManger.AddCampaignMessage
+                                                    (fullPrice.CampaignDetails.Id, campaign.CampaignType, campaign.Message, campaign.EndDate, contextData.GroupId, _userId, productId);
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                log.Error($"Failed AddCampaignMessage with campaign: {fullPrice.CampaignDetails.Id}, " +
+                                                    $"hh: {householdId}, group: {contextData.GroupId}");
+                                            }
+                                        }
+                                    }
+
                                     long endDateUnix = 0;
 
                                     if (endDate.HasValue)
                                     {
-                                        endDateUnix = DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)endDate);
+                                        endDateUnix = DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value);
                                     }
 
                                     // If the subscription if recurring, put a message for renewal and all that...
                                     if (subscription.m_bIsRecurring && !subscription.PreSaleDate.HasValue)
                                     {
+                                        var recurringRenewDetails = new RecurringRenewDetails()
+                                        {
+                                            CouponCode = couponCode,
+                                            CouponRemainder = couponRemainder,
+                                            IsCouponGiftCard = isGiftCard,
+                                            IsPurchasedWithPreviewModule = entitleToPreview,
+                                            LeftCouponRecurring = coupon != null ? coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon : 0,
+                                            TotalNumOfRenews = 0,
+                                            IsCouponHasEndlessRecurring = coupon != null && coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon == 0,
+                                            CampaignDetails = fullPrice.CampaignDetails
+                                        };
+
+                                        if (!ConditionalAccessDAL.SaveRecurringRenewDetails(recurringRenewDetails, purchaseID))
+                                        {
+                                            log.ErrorFormat("Error to Insert RecurringRenewDetails to CB, purchaseId:{0}.", purchaseID);
+                                        }
+
                                         DateTime nextRenewalDate = endDate.Value;
 
                                         if (!isGiftCard)

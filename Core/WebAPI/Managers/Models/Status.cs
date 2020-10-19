@@ -183,6 +183,8 @@ namespace WebAPI.Managers.Models
         TypeNotSupported = 500083,
         FormatNotSupported = 500084,
         GroupMissMatch = 500085,
-        KeyCannotBeEmptyOrNull = 500086
+        KeyCannotBeEmptyOrNull = 500086,
+        MissingMandatoryArgumentInProperty = 500087,
+        MaxArguments = 500088
     }
 }

@@ -2126,11 +2126,14 @@ namespace Core.Api
                     return result;
                 }
 
-                SegmentationType segmentationType = new SegmentationType()
+                var segmentationTypeList = SegmentationType.List(groupId, new List<long>() { id }, 0, 0, out int totalcount);
+                if (segmentationTypeList == null || segmentationTypeList.Count != 1 || segmentationTypeList[0].Id != id)
                 {
-                    GroupId = groupId,
-                    Id = id
-                };
+                    result.Set(eResponseStatus.ObjectNotExist, "Given Id does not exist for group");
+                    return result;
+                }
+
+                var segmentationType = segmentationTypeList[0];
 
                 deleteResult = segmentationType.Delete();
 

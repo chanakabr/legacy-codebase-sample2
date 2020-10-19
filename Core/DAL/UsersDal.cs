@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.SSOAdapter;
 using ConfigurationManager;
 using CouchbaseManager;
@@ -799,6 +800,105 @@ namespace DAL
             }
 
             return res;
+        }
+
+        public static ApiObjects.Response.GenericResponse<DeviceReferenceData> InsertDeviceReferenceData(ContextData contextData, DeviceReferenceData coreObject, long utcNow)
+        {
+            var response = new ApiObjects.Response.GenericResponse<DeviceReferenceData>();
+            var sp = new StoredProcedure("Insert_DeviceReferenceData");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupID", contextData.GroupId);
+            sp.AddParameter("@updaterID", contextData.UserId);
+            sp.AddParameter("@createDate", utcNow);
+            sp.AddParameter("@name", coreObject.Name.Trim().ToUpper());
+            sp.AddParameter("@type", coreObject.GetReferenceType());
+
+            var id = sp.ExecuteReturnValue<int>();
+
+            if (id == -1)
+            {
+                response.SetStatus(ApiObjects.Response.eResponseStatus.AlreadyExist, 
+                    $"Device Reference already exist with name: {coreObject.Name}");
+            }
+            else if (id > 0)
+            {
+                coreObject.Id = id;
+                response.Object = coreObject;
+                response.SetStatus(ApiObjects.Response.eResponseStatus.OK);
+            }
+            else
+                response.SetStatus(ApiObjects.Response.eResponseStatus.Error, $"Failed adding {coreObject.Name}");
+
+            return response;
+        }
+
+        public static List<DeviceReferenceData> GetDeviceReferenceData(int groupId)
+        {
+            var res = new List<DeviceReferenceData>();
+            var sp = new StoredProcedure("GetDeviceReferenceData");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i] != null)
+                    {
+                        if (Utils.GetLongSafeVal(dt.Rows[i], "type") == (int)DeviceInformationType.Manufacturer)
+                        {
+                            res.Add(new DeviceManufacturerInformation
+                            {
+                                Id = Utils.GetLongSafeVal(dt.Rows[i], "id"),
+                                Name = Utils.GetSafeStr(dt.Rows[i], "name"),
+                                Type = (int)DeviceInformationType.Manufacturer
+                            });
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public static ApiObjects.Response.Status UpdateDeviceReferenceData(ContextData contextData, DeviceReferenceData coreObject)
+        {
+            var response = new ApiObjects.Response.Status(ApiObjects.Response.eResponseStatus.Error);
+            var sp = new StoredProcedure("Update_DeviceReferenceData");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupID", contextData.GroupId);
+            sp.AddParameter("@id", coreObject.Id);
+            sp.AddParameter("@name", coreObject.Name.Trim().ToUpper());
+            sp.AddParameter("@updaterId", contextData.UserId);
+            sp.AddParameter("@status", coreObject.Status);
+
+            var id = sp.ExecuteReturnValue<int>();
+
+            if (id > 0)
+                response = new ApiObjects.Response.Status(ApiObjects.Response.eResponseStatus.OK);
+            else
+                response = new ApiObjects.Response.Status(ApiObjects.Response.eResponseStatus.Error, $"Failed updating {coreObject.Name}");
+
+            return response;
+        }
+
+        public static ApiObjects.Response.GenericResponse<bool> DeleteDeviceInformation(int groupId, long? updaterId, long id)
+        {
+            var response = new ApiObjects.Response.GenericResponse<bool>();
+            var sp = new StoredProcedure("Delete_DeviceReferenceData");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@updaterId", updaterId);
+
+            response.Object = sp.ExecuteReturnValue<bool>();
+            if (response.Object)
+            {
+                response.SetStatus(ApiObjects.Response.eResponseStatus.OK);
+            }
+            return response;
         }
 
         public static string GetActivationToken(int nGroupID, string sUserName)

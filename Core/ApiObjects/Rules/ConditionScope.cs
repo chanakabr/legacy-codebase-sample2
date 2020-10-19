@@ -1,9 +1,5 @@
-﻿using ApiObjects.Response;
-using System;
+﻿using ApiObjects.Base;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.Rules
 {
@@ -67,4 +63,17 @@ namespace ApiObjects.Rules
 
         List<long> GetUserRoleIds(int groupId, string userId);
     }
+
+    public interface ITriggerCampaignConditionScope : IConditionScope, ISegmentsConditionScope
+    {
+        int GroupId { get; set; }
+        string UserId { get; set; }
+        int? BrandId { get; set; }
+        int? FamilyId { get; set; }
+        long? ManufacturerId { get; set; }
+        string Model { get; set; }
+        string Udid { get; set; }
+
+        bool CheckDynamicList(long id);
+    }   
 }

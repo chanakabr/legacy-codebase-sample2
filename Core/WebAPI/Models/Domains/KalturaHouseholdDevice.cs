@@ -122,6 +122,33 @@ namespace WebAPI.Models.Domains
         [SchemeProperty(IsNullable = true, MaxLength = 255)]
         public string MacAddress { get; set; }
 
+        /// <summary>
+        /// model
+        /// </summary>
+        [DataMember(Name = "model")]
+        [JsonProperty("model")]
+        [XmlElement(ElementName = "model", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MaxLength = 255)]
+        public string Model { get; set; }
+
+        /// <summary>
+        /// manufacturer
+        /// </summary>
+        [DataMember(Name = "manufacturer")]
+        [JsonProperty("manufacturer")]
+        [XmlElement(ElementName = "manufacturer", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MaxLength = 128)]
+        public string Manufacturer { get; set; }
+
+        /// <summary>
+        /// manufacturer Id, read only
+        /// </summary>
+        [DataMember(Name = "manufacturerId")]
+        [JsonProperty("manufacturerId")]
+        [XmlElement(ElementName = "manufacturerId", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, ReadOnly = true)]
+        public long? ManufacturerId { get; set; }
+
         internal int getBrandId()
         {
             return BrandId.HasValue ? (int)BrandId : 0;

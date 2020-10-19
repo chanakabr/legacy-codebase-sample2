@@ -60,6 +60,11 @@ namespace DAL
             return string.Format("inbox_message:{0}:{1}:{2}", groupId, userId, messageId);
         }
 
+        private static string GetInboxMessageCampaignMappingKey(int groupId, long userId)
+        {
+            return $"user_inbox_campaigns:{groupId}:{userId}";
+        }
+
         private static string GetUserPushKey(int groupId, long userId)
         {
             return string.Format("user_push:{0}:{1}", groupId, userId);
@@ -86,7 +91,6 @@ namespace DAL
         {
             return string.Format("system_inbox:{0}:{1}", groupId, messageId);
         }
-
         private static string GetNotificationCleanupKey()
         {
             return "notification_cleanup";
@@ -1877,47 +1881,17 @@ namespace DAL
             return userInboxMessage;
         }
 
-        public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage, int ttlDays)
+        public static List<InboxMessage> GetUserInboxMessagesByIds(int groupId, long userId, List<string> messagesIds)
         {
-            bool result = false;
-            try
-            {
-                int numOfTries = 0;
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
-                    result = cbManager.Set(GetInboxMessageKey(groupId, inboxMessage.UserId, inboxMessage.Id), inboxMessage, (uint)TimeSpan.FromDays(ttlDays).TotalSeconds);
+            var keys = messagesIds.Select(x => GetInboxMessageKey(groupId, userId, x)).ToList();
+            return UtilsDal.GetObjectListFromCB<InboxMessage>(eCouchbaseBucket.NOTIFICATION, keys);
+        }
 
-                    if (!result)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while setting inbox message. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
-                             numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            inboxMessage.UserId,
-                            JsonConvert.SerializeObject(inboxMessage));
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                    else
-                    {
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully set inbox message. number of tries: {0}/{1}. object {2}",
-                            numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            JsonConvert.SerializeObject(inboxMessage));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while setting inbox message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, inboxMessage.UserId, inboxMessage.Id, ex);
-            }
-
-            return result;
+        public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage, double ttlDays)
+        {
+            var ttl = (uint)TimeSpan.FromDays(ttlDays).TotalSeconds;
+            var key = GetInboxMessageKey(groupId, (int)inboxMessage.UserId, inboxMessage.Id);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.NOTIFICATION, key, inboxMessage, false, ttl);
         }
 
         public static bool UpdateInboxMessageState(int groupId, int userId, string messageId, eMessageState messageState)
@@ -1974,6 +1948,46 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static bool SaveToCampaignInboxMessageMapCB(long campaignId, int groupId, long userId, CampaignMessageDetails inboxMessage)
+        {
+            var key = GetInboxMessageCampaignMappingKey(groupId, userId);
+            var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<CampaignInboxMessageMap>(0, eCouchbaseBucket.NOTIFICATION, key, mapping =>
+            {
+                if (mapping.Campaigns.ContainsKey(campaignId))
+                {
+                    mapping.Campaigns[campaignId] = inboxMessage;
+                }
+                else
+                {
+                    mapping.Campaigns.Add(campaignId, inboxMessage);
+                }
+            }, true);
+
+            return isSaveSuccess;
+        }
+
+        public static bool RemoveOldCampaignsFromInboxMessageMapCB(int groupId, long userId, long utcNow)
+        {
+            var key = GetInboxMessageCampaignMappingKey(groupId, userId);
+            var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<CampaignInboxMessageMap>(0, eCouchbaseBucket.NOTIFICATION, key, mapping =>
+            {
+                var idsToDelete = mapping.Campaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
+                foreach (int campaignId in idsToDelete)
+                {
+                    mapping.Campaigns.Remove(campaignId);
+                }
+            }, true);
+
+            return isSaveSuccess;
+        }
+
+        public static CampaignInboxMessageMap GetCampaignInboxMessageMapCB(int groupId, long userId)
+        {
+            CampaignInboxMessageMap campaignInboxMessageMap = cbManager.Get<CampaignInboxMessageMap>(GetInboxMessageCampaignMappingKey(groupId, userId));
+
+            return campaignInboxMessageMap ?? new CampaignInboxMessageMap();
         }
 
         public static List<string> GetSystemInboxMessagesView(int groupId, long fromDate)

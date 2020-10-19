@@ -1320,6 +1320,13 @@ namespace Core.ConditionalAccess
                     return status;
                 }
 
+                if (renewData != null && renewData.CampaignDetails != null && renewData.CampaignDetails.Id > 0)
+                {
+                    status.Set(eResponseStatus.CampaignIsAlreadyAppliedForSubscription);
+                    return status;
+                }
+
+
                 bool validCoupon = false;
                 // look if this coupon group id exsits in coupon list 
                 if (
@@ -1609,7 +1616,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // Get subscriptions_purchase
-                DataTable dt = ConditionalAccessDAL.GetPPVPurchasesByBillingGuid(groupId, billingGuid);
+                DataTable dt = ConditionalAccessDAL.GetCollectionsPurchasesByBillingGuid(groupId, billingGuid);
                 if (dt?.Rows.Count > 0)
                 {
                     DateTime now = DateTime.UtcNow;
@@ -1803,7 +1810,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // Get subscriptions_purchase
-                DataTable dt = ConditionalAccessDAL.GetPPVPurchasesByBillingGuid(groupId, billingGuid);
+                DataTable dt = ConditionalAccessDAL.GetCollectionsPurchasesByBillingGuid(groupId, billingGuid);
                 if (dt?.Rows.Count > 0)
                 {
                     DateTime now = DateTime.UtcNow;
@@ -1824,7 +1831,7 @@ namespace Core.ConditionalAccess
                             houseHoldId = householdId
                         };
 
-                        if (collectionPurchase.Update())
+                        if (collectionPurchase.Delete())
                         {
                             status.Set(eResponseStatus.OK);
 

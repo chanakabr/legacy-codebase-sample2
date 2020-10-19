@@ -67,7 +67,7 @@ namespace Core.ConditionalAccess
         public override bool ActivateCampaign(int campaignID, CampaignActionInfo cai)
         {
             bool retVal = false;
-            Campaign camp = Pricing.Module.GetCampaignData(m_nGroupID, campaignID);
+            Core.Pricing.Campaign camp = Pricing.Module.GetCampaignData(m_nGroupID, campaignID);
             if (camp != null)
             {
                 BaseCampaignActionImpl campImpl = Utils.GetCampaignActionByType(camp.m_CampaignResult);
@@ -82,7 +82,7 @@ namespace Core.ConditionalAccess
         public override CampaignActionInfo ActivateCampaignWithInfo(int campaignID, CampaignActionInfo cai)
         {
             CampaignActionInfo retVal = null;
-            Campaign camp = null;
+            Core.Pricing.Campaign camp = null;
             if (campaignID > 0)
             {
                 camp = Pricing.Module.GetCampaignData(m_nGroupID, campaignID);

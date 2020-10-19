@@ -6272,5 +6272,98 @@ namespace DAL
             string key = GetCatalogPartnerConfigKey(groupId);
             return UtilsDal.SaveObjectInCB<CatalogPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, partnerConfig);
         }
+
+        #region DynamicList
+
+        private static string GetDynamicListKey(long groupId, long dynamicListId)
+        {
+            return $"dynamic_list_group_{groupId}_id_{dynamicListId}";
+        }
+
+        private static string GetDynamicListGroupMappingKey(int groupId, DynamicListType dynamicListType)
+        {
+            return $"dynamic_list_map_{groupId}_type_{(int)dynamicListType}";
+        }
+
+        public static DynamicList GetDynamicList(long groupId, long dynamicListId)
+        {
+            var key = GetDynamicListKey(groupId, dynamicListId);
+            // currently we have only UDID type
+            return UtilsDal.GetObjectFromCB<UdidDynamicList>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SaveDynamicList(int groupId, DynamicList dynamicList)
+        {
+            string key = GetDynamicListKey(groupId, dynamicList.Id);
+            var status = UtilsDal.SaveObjectInCB<DynamicList>(eCouchbaseBucket.OTT_APPS, key, dynamicList);
+            if (status)
+            {
+                var mapKey = GetDynamicListGroupMappingKey(groupId, dynamicList.Type);
+                status = UtilsDal.SaveObjectWithVersionCheckInCB<List<long>>(0, eCouchbaseBucket.OTT_APPS, mapKey, mapping =>
+                {
+                    if (!mapping.Contains(dynamicList.Id))
+                    {
+                        mapping.Add(dynamicList.Id);
+                    }
+                }, true);
+            }
+            return status;
+        }
+
+        public static List<long> GetDynamicListGroupMapping(int groupId, DynamicListType dynamicListType)
+        {
+            var mapKey = GetDynamicListGroupMappingKey(groupId, dynamicListType);
+            return UtilsDal.GetObjectFromCB<List<long>>(eCouchbaseBucket.OTT_APPS, mapKey);
+        }
+
+        public static bool DeleteDynamicList(int groupId, DynamicList dynamicList)
+        {
+            string key = GetDynamicListKey(groupId, dynamicList.Id);
+            var status = UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+            if (status)
+            {
+                var mapKey = GetDynamicListGroupMappingKey(groupId, dynamicList.Type);
+                status = UtilsDal.SaveObjectWithVersionCheckInCB<List<long>>(0, eCouchbaseBucket.OTT_APPS, mapKey, mapping =>
+                {if (mapping.Contains(dynamicList.Id))
+                    {
+                        mapping.Remove(dynamicList.Id);
+                    }
+                }, true);
+            }
+
+            if (status)
+            {
+                status = DeleteUdidDynamicListKey(groupId, dynamicList.Id);
+            }
+
+            return status;
+        }
+
+        private static string GetUdidDynamicListKey(int groupId, long dynamicListId)
+        {
+            return $"group_{groupId}_udid_dynamic_list_{dynamicListId}";
+        }
+
+        public static List<string> GetUdidDynamicList(int groupId, long dynamicListId)
+        {
+            var key = GetUdidDynamicListKey(groupId, dynamicListId);
+            return UtilsDal.GetObjectFromCB<List<string>>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SaveUdidDynamicList(int groupId, long dynamicListId, List<string> udidList)
+        {
+            string key = GetUdidDynamicListKey(groupId, dynamicListId);
+            var status = UtilsDal.SaveObjectInCB<List<string>>(eCouchbaseBucket.OTT_APPS, key, udidList);
+            return status;
+        }
+
+        private static bool DeleteUdidDynamicListKey(int groupId, long dynamicListId)
+        {
+            string key = GetUdidDynamicListKey(groupId, dynamicListId);
+            var status = UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+            return status;
+        }
+
+        #endregion
     }
 }

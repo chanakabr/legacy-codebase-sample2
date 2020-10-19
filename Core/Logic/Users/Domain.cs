@@ -678,7 +678,11 @@ namespace Core.Users
                             ActivatedOn = DateTime.UtcNow,
                             GroupId = m_nGroupID,
                             DeviceFamilyId = device.m_deviceFamilyID,
-                            ExternalId = device.ExternalId
+                            ExternalId = device.ExternalId,
+                            MacAddress = device.MacAddress,
+                            Model = device.Model,
+                            Manufacturer = device.Manufacturer,
+                            ManufacturerId = device.ManufacturerId
                         };
 
                         bool updated = domainDevice.Update();
@@ -688,7 +692,7 @@ namespace Core.Users
                             bRemove = true;
                             device.m_domainID = nDomainID;
                             device.m_state = DeviceState.Activated;
-                            int deviceID = device.Save(1, 1, tempDeviceID, device.MacAddress, device.ExternalId);
+                            int deviceID = device.Save(1, 1, domainDevice);
                             GetDeviceList();
 
                             return eRetVal;
@@ -721,7 +725,7 @@ namespace Core.Users
             {
                 // Get row id from devices table (not udid)
                 device.m_domainID = nDomainID;
-                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId);
+                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, device.Manufacturer);
                 DomainDevice domainDevice = new DomainDevice()
                 {
                     Id = nDbDomainDeviceID,
@@ -734,7 +738,11 @@ namespace Core.Users
                     GroupId = m_nGroupID,
                     Name = deviceName,
                     DeviceFamilyId = device.m_deviceFamilyID,
-                    ExternalId = device.ExternalId
+                    ExternalId = device.ExternalId,
+                    MacAddress = device.MacAddress,
+                    Model = device.Model,
+                    Manufacturer = device.Manufacturer,
+                    ManufacturerId = device.ManufacturerId
                 };
 
                 bool domainDeviceInsertSuccess = domainDevice.Insert();
@@ -770,7 +778,11 @@ namespace Core.Users
                         ActivatedOn = DateTime.UtcNow,
                         Udid = sUDID,
                         GroupId = m_nGroupID,
-                        DeviceFamilyId = device.m_deviceFamilyID
+                        DeviceFamilyId = device.m_deviceFamilyID,
+                        MacAddress = device.MacAddress,
+                        Model = device.Model,
+                        Manufacturer = device.Manufacturer,
+                        ManufacturerId = device.ManufacturerId
                     };
 
                     bool updated = domainDevice.Update();
@@ -780,7 +792,7 @@ namespace Core.Users
                         bRemove = true;
                         eRetVal = DomainResponseStatus.OK;
                         device.m_domainID = nDomainID;
-                        int deviceID = device.Save(1);
+                        int deviceID = device.Save(1, 1, domainDevice);
 
                         // change the device in the container                      
                         DeviceFamiliesMapping[device.m_deviceFamilyID].ChangeDeviceInstanceState(device.m_deviceUDID, DeviceState.Activated);
@@ -1657,7 +1669,7 @@ namespace Core.Users
             }
 
             DataTable dt = DomainDal.Get_DomainDevices(m_nGroupID, m_nDomainID);
-            InitializeDomainDevicesData(dt);
+            InitializeDomainDevicesData(dt, m_nGroupID);
 
             return m_totalNumOfDevices;
         }
@@ -1882,7 +1894,7 @@ namespace Core.Users
             return res;
         }
 
-        private void InitializeDomainDevicesData(DataTable dt)
+        private void InitializeDomainDevicesData(DataTable dt, int groupID)
         {
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
@@ -1895,6 +1907,10 @@ namespace Core.Users
                 DeviceState eState = DeviceState.UnKnown;
                 int nDeviceID = 0;
                 string externalId = string.Empty;
+                string macAddress = string.Empty;
+                string model = string.Empty;
+                long? manufacturerId = null;
+                string manufacturer = string.Empty;
 
                 Dictionary<string, int> domainDevices = new Dictionary<string, int>();
 
@@ -1911,14 +1927,29 @@ namespace Core.Users
                     dtActivationDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["last_activation_date"]);
                     nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i]["device_id"]);
                     externalId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "external_id");
+                    macAddress = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "mac_address");
+                    model = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i], "model");
+                    manufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "manufacturer_id");
+                    if (manufacturerId.HasValue && manufacturerId.Value > 0)
+                    {
+                        var _filter = new DeviceManufacturersReferenceDataFilter() { IdsIn = new List<int>() { (int)manufacturerId.Value } };
+                        var cd = new ApiObjects.Base.ContextData(groupID);
+                        manufacturer = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.List(cd, _filter, null)?.Objects?.FirstOrDefault()?.Name;
+                    }
 
                     Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, sDeviceName, m_nDomainID, nDeviceID, nDeviceFamilyID, string.Empty, sPin,
                         dtActivationDate, eState);
 
                     if (!string.IsNullOrEmpty(externalId))
-                    {
                         device.ExternalId = externalId;
-                    }
+                    if (!string.IsNullOrEmpty(macAddress))
+                        device.MacAddress = macAddress;
+                    if (!string.IsNullOrEmpty(model))
+                        device.Model = model;
+                    if (manufacturerId.HasValue)
+                        device.ManufacturerId = manufacturerId.Value;
+                    if (!string.IsNullOrEmpty(manufacturer))
+                        device.Manufacturer = manufacturer;
 
                     if (AddDeviceToContainer(device))
                     {
@@ -2214,7 +2245,7 @@ namespace Core.Users
 
             // Get row id from devices table (not udid)
             device.m_domainID = this.m_nDomainID;
-            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId);
+            deviceID = device.Save(0, 3, null, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, device.Manufacturer);
             bRemoveDomain = true;
 
             string sActivationToken = Guid.NewGuid().ToString();
@@ -2229,7 +2260,11 @@ namespace Core.Users
                 Name = device.m_deviceName,
                 Udid = sDeviceUdid,
                 GroupId = m_nGroupID,
-                DeviceFamilyId = device.m_deviceFamilyID
+                DeviceFamilyId = device.m_deviceFamilyID,
+                MacAddress = device.MacAddress,
+                ExternalId = device.ExternalId,
+                Model = device.Model,
+                Manufacturer = device.Manufacturer
             };
 
             bool domainDeviceInsertSuccess = domainDevice.Insert();

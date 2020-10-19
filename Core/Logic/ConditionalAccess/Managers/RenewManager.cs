@@ -1578,6 +1578,24 @@ namespace Core.ConditionalAccess
                     renewDetails.RecurringData.LeftCouponRecurring--;
                 }
 
+                if (renewDetails.RecurringData.CampaignDetails != null)
+                {
+                    if (renewDetails.RecurringData.CampaignDetails.IsUseRemainder)
+                    {
+                        renewDetails.RecurringData.CampaignDetails = null;
+                    }
+
+                    if (renewDetails.RecurringData.CampaignDetails.LeftRecurring > 0)
+                    {
+                        renewDetails.RecurringData.CampaignDetails.LeftRecurring--;
+
+                        if (renewDetails.RecurringData.CampaignDetails.LeftRecurring == 0 && renewDetails.RecurringData.CampaignDetails.Remainder == 0)
+                        {
+                            renewDetails.RecurringData.CampaignDetails = null;
+                        }
+                    }
+                }
+
                 ConditionalAccessDAL.SaveRecurringRenewDetails(renewDetails.RecurringData, renewDetails.PurchaseId);
             }
 

@@ -34,7 +34,7 @@ namespace WebAPI.Models.Users
             return KalturaPasswordPolicyOrderBy.NONE;
         }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
         }
 

@@ -40,18 +40,21 @@ namespace Core.ConditionalAccess
     {
         public string m_sSubscriptionCode;
         public Price m_oPrice;
+        public Price OriginalPrice;
         public PriceReason m_PriceReason;
         public long? endDate;
+        public PromotionInfo PromotionInfo;
 
         public SubscriptionsPricesContainer()
         { }
 
-        public void Initialize(string sSubscriptionCode, Price oPrice, PriceReason ePriceReason, long? endDate = null)
+        public void Initialize(string sSubscriptionCode, Price oPrice, PriceReason ePriceReason, Price originalPrice, long? endDate = null)
         {
             m_sSubscriptionCode = sSubscriptionCode;
             m_oPrice = oPrice;
             m_PriceReason = ePriceReason;
             this.endDate = endDate;
+            OriginalPrice = originalPrice;
         }
 
     }
@@ -97,6 +100,7 @@ namespace Core.ConditionalAccess
         public string m_sPPVModuleCode;
         public bool m_bSubscriptionOnly;
         public Price m_oPrice;
+        public Price OriginalPrice;
         public Price m_oFullPrice;
         public PriceReason m_PriceReason;
         public Subscription m_relevantSub;
@@ -167,5 +171,10 @@ namespace Core.ConditionalAccess
             m_sProductCode = productCode;
             m_dtDiscountEndDate = dtDiscountEndDate;
         }
+    }
+
+    public class PromotionInfo
+    {
+        public long? CampaignId;
     }
 }
