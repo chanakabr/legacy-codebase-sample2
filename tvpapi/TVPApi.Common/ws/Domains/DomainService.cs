@@ -205,7 +205,14 @@ namespace TVPApiServices
 
                     if (resDomain.m_oDomainResponseStatus == DomainResponseStatus.OK)
                     {
-                        AuthorizationManager.Instance.DeleteAccessToken(groupID, initObj.Token, true);
+                        if (AuthorizationManager.IsAdmin())
+                        {
+                            AuthorizationManager.Instance.RevokeSessions(groupID, initObj.Platform, resDomain.m_oDomain, domainID, sUdid);
+                        }
+                        else
+                        {
+                            AuthorizationManager.Instance.DeleteAccessToken(groupID, initObj.Token, true);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -620,7 +627,18 @@ namespace TVPApiServices
                 }
                 try
                 {
+                    Domain domain = null;
+                    if (AuthorizationManager.IsAdmin())
+                    {
+                        domain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDomainInfo(initObj.DomainID);
+                    }
+
                     resDomain = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).RemoveDomain(initObj.DomainID);
+
+                    if (resDomain == DomainResponseStatus.OK && AuthorizationManager.IsAdmin())
+                    {
+                        AuthorizationManager.Instance.RevokeSessions(groupID, initObj.Platform, domain);
+                    }      
                 }
                 catch (Exception ex)
                 {
