@@ -3112,6 +3112,16 @@ namespace Core.Users
                         log.Error("Error - " + string.Format("Remove. NPVR Provider is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
                     }
                 }
+                else //BEO-8378
+                {
+                    var accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                    if (accountSettings != null && accountSettings.IsCdvrEnabled.HasValue && accountSettings.IsCdvrEnabled.Value)
+                    {
+                        var queue = new QueueWrapper.GenericCeleryQueue();
+                        ApiObjects.QueueObjects.UserTaskData message = new ApiObjects.QueueObjects.UserTaskData(m_nGroupID, UserTaskType.DeleteDomain, string.Empty, m_nDomainID);
+                        queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, m_nGroupID));
+                    }
+                }
             }
             else
             {
