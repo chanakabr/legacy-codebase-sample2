@@ -544,6 +544,9 @@ namespace WebAPI.Controllers
 
                 // remove users, devices and household
                 ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value, false);
+
+                AuthorizationManager.RevokeHouseholdSessions(groupId, null, householdUserIds);
+
             }
             catch (ClientException ex)
             {

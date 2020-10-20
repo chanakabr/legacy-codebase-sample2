@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
                     res = ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)householdId, udid);
                 }
 
-                AuthorizationManager.RevokeDeviceSessions(groupId, householdId, udid);
+                AuthorizationManager.RevokeHouseholdSessions(groupId, udid);
             }
             catch (ClientException ex)
             {
