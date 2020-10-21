@@ -2889,7 +2889,15 @@ namespace Core.Catalog.CatalogManagement
                         result = new MediaObj(groupId, assets[0] as MediaAsset);
                         if (assets[0] is LiveAsset)
                         {
-                            result.m_ExternalIDs = (assets[0] as LiveAsset).EpgChannelId.ToString();
+                            //BEO-8950
+                            var liveAsset = assets[0] as LiveAsset;
+                            
+                            result.m_ExternalIDs = liveAsset.EpgChannelId.ToString();
+                            result.EnableCDVR = liveAsset.CdvrEnabled;
+                            result.EnableCatchUp = liveAsset.CatchUpEnabled;
+                            result.EnableStartOver = liveAsset.StartOverEnabled;
+                            result.EnableTrickPlay = liveAsset.TrickPlayEnabled;
+                            result.EnableRecordingPlaybackNonEntitledChannel = liveAsset.RecordingPlaybackNonEntitledChannelEnabled;
                         }
                     }
                 }
