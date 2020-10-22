@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ApiObjects.Rules
@@ -298,7 +299,7 @@ namespace ApiObjects.Rules
             return isInHeaders;
         }
     }
-    
+
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class SubscriptionCondition<T> : RuleBaseCondition<T> where T : IConditionScope
@@ -319,7 +320,7 @@ namespace ApiObjects.Rules
         protected override bool DoEvaluate(IUserSubscriptionConditionScope scope)
         {
             if (scope.UserSubscriptions == null) { return true; }
-            
+
             return scope.UserSubscriptions.Any(x => this.SubscriptionIds.Contains(x));
         }
     }
@@ -356,9 +357,115 @@ namespace ApiObjects.Rules
         protected override bool DoEvaluate(IUserRoleConditionScope scope)
         {
             if (string.IsNullOrEmpty(scope.UserId)) { return true; }
-            
+
             var userRoleIds = scope.GetUserRoleIds(scope.GroupId, scope.UserId);
             return userRoleIds != null && userRoleIds.Any(x => RoleIds.Contains(x));
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class DeviceBrandCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    {
+        public List<int> IdIn { get; set; }
+
+        public DeviceBrandCondition()
+        {
+            Type = RuleConditionType.DeviceBrand;
+        }
+
+        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
+        {
+            if (!scope.BrandId.HasValue) { return true; }
+
+            var isExist = this.IdIn.Contains(scope.BrandId.Value);
+            return isExist;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class DeviceFamilyCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    {
+        public List<int> IdIn { get; set; }
+
+        public DeviceFamilyCondition()
+        {
+            Type = RuleConditionType.DeviceFamily;
+        }
+
+        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
+        {
+            if (!scope.FamilyId.HasValue) { return true; }
+
+            var isExist = this.IdIn.Contains(scope.FamilyId.Value);
+            return isExist;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class DeviceManufacturerCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    {
+        public List<long> IdIn { get; set; }
+
+        public DeviceManufacturerCondition()
+        {
+            Type = RuleConditionType.DeviceManufacturer;
+        }
+
+        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
+        {
+            if (!scope.ManufacturerId.HasValue) { return true; }
+
+            var isExist = this.IdIn.Contains(scope.ManufacturerId.Value);
+            return isExist;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class DeviceModelCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    {
+        public string RegexEqual { get; set; }
+
+        public DeviceModelCondition()
+        {
+            Type = RuleConditionType.DeviceModel;
+        }
+
+        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
+        {
+            if (string.IsNullOrEmpty(scope.Model)) { return true; }
+
+            try
+            {
+                return Regex.IsMatch(scope.Model, RegexEqual, RegexOptions.IgnoreCase);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class UdidDynamicListCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    {
+        public long Id { get; set; }
+
+        public UdidDynamicListCondition()
+        {
+            Type = RuleConditionType.DeviceUdidDynamicList;
+        }
+
+        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
+        {
+            if (string.IsNullOrEmpty(scope.Udid)) { return true; }
+            
+            var isExist = scope.CheckDynamicList(this.Id);
+            return isExist;
         }
     }
 }

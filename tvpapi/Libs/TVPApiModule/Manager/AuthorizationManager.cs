@@ -51,7 +51,7 @@ namespace TVPApiModule.Manager
                 return _instance;
             }
         }
-        
+
         private AuthorizationManager()
         {
             try
@@ -62,7 +62,7 @@ namespace TVPApiModule.Manager
                 _lock = new ReaderWriterLockSlim();
 
                 if (_groupConfigsTtlSeconds <= 0)
-                { 
+                {
                     logger.ErrorFormat("AuthorizationManager: Configuration Authorization.GroupConfigsTtlSeconds is missing!");
                     throw new Exception("Configuration Authorization.GroupConfigsTtlSeconds is missing!");
                 }
@@ -104,7 +104,7 @@ namespace TVPApiModule.Manager
             if (groupConfig == null)
             {
                 groupConfig = cbManager.Get<GroupConfiguration>(groupKey, true);
-                 
+
                 if (groupConfig != null)
                 {
                     // add app credentials to dictionary if not exists
@@ -179,7 +179,7 @@ namespace TVPApiModule.Manager
                     HandleKsErrors(ex);
                     return null;
                 }
-                
+
             }
 
             // generate access token and refresh token pair
@@ -743,7 +743,7 @@ namespace TVPApiModule.Manager
                 GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
 
                 APIToken apiToken = cbManager.Get<APIToken>(apiTokenId, true);
-                
+
                 if (apiToken.IsAdmin && !isSignOut)
                 {
                     return;
@@ -752,7 +752,7 @@ namespace TVPApiModule.Manager
                 if (!groupConfig.AvoidRefreshRevocation)
                 {
                     string refreshTokenId = RefreshToken.GetRefreshTokenId(apiToken.RefreshToken);
-                    
+
                     if (!cbManager.Remove(refreshTokenId))
                         logger.ErrorFormat("DeleteAccessToken: failed to remove refresh token {0}", refreshTokenId);
                 }
@@ -769,6 +769,11 @@ namespace TVPApiModule.Manager
         public static bool IsTokenizationEnabled()
         {
             return HttpContext.Current.Items.ContainsKey("tokenization");
+        }
+
+        public static bool IsAdmin()
+        {
+            return HttpContext.Current.Items.ContainsKey("admin_token");
         }
 
         public static bool IsSwitchingUsersAllowed(int groupId)
@@ -1248,5 +1253,82 @@ namespace TVPApiModule.Manager
             return token.Length > ACCESS_TOKEN_LENGTH;
         }
 
+        public void RevokeSessions(int groupId, PlatformType platform, TVPApiModule.Objects.Domain domain, int domainId = 0, string udid = null)
+        {
+            GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
+
+            if (groupConfig.SessionRevocationEnabled && !groupConfig.AvoidRefreshRevocation)
+            {
+                if (domain == null && domainId > 0)
+                {
+                    domain = new ApiDomainsService(groupId, platform).GetDomainInfo(domainId);
+                }
+                if (domain != null)
+                {
+                    var domainUserIds = GetDomainUserIds(domain);
+                    IEnumerable<string> udidsToRevoke = !string.IsNullOrEmpty(udid) ?
+                        new List<string>() { udid } :
+                        GetDomainUdids(domain);
+
+                    foreach (var user in domainUserIds)
+                    {
+                        foreach (var device in udidsToRevoke)
+                        {
+                            string viewId = UserDeviceTokensView.GetViewId(user.ToString(), device);
+                            UserDeviceTokensView view = cbManager.Get<UserDeviceTokensView>(viewId, true);
+                            if (view != null)
+                            {
+                                cbManager.Remove(view.AccessTokenId);
+                                cbManager.Remove(view.RefreshTokenId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<int> GetDomainUserIds(Objects.Domain domain)
+        {
+            IEnumerable<int> response = domain.m_masterGUIDs?.Count > 0 ? domain.m_masterGUIDs : new List<int>();
+
+            if (domain.m_UsersIDs?.Count > 0)
+            {
+                response = response.Concat(domain.m_UsersIDs);
+            }
+
+            if (domain.m_DefaultUsersIDs?.Count > 0)
+            {
+                response = response.Concat(domain.m_DefaultUsersIDs);
+            }
+
+            if (domain.m_masterGUIDs?.Count > 0)
+            {
+                response = response.Concat(domain.m_masterGUIDs);
+            }
+
+            if (domain.m_PendingUsersIDs?.Count > 0)
+            {
+                response = response.Concat(domain.m_PendingUsersIDs);
+            }
+            return response.Distinct();
+        }
+
+        private IEnumerable<string> GetDomainUdids(Objects.Domain domain)
+        {
+            IEnumerable<string> response = new List<string>();
+
+            if (domain.m_deviceFamilies?.Count > 0)
+            {
+                foreach (var family in domain.m_deviceFamilies)
+                {
+                    if (family.DeviceInstances?.Count > 0)
+                    {
+                        response = response.Concat(family.DeviceInstances.Select(d => d.m_deviceUDID));
+                    }
+                }
+            }
+
+            return response;
+        }
     }
 }

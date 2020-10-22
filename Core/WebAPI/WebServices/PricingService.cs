@@ -321,9 +321,9 @@ namespace WebAPI.WebServices
         }
 
         [WebMethod]
-        [System.Xml.Serialization.XmlInclude(typeof(Campaign))]
+        [System.Xml.Serialization.XmlInclude(typeof(Core.Pricing.Campaign))]
         [System.Xml.Serialization.XmlInclude(typeof(UsageModule))]
-        public virtual Campaign[] GetMediaCampaigns(string sWSUserName, string sWSPassword, int nMediaID
+        public virtual Core.Pricing.Campaign[] GetMediaCampaigns(string sWSUserName, string sWSPassword, int nMediaID
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
 
@@ -342,9 +342,9 @@ namespace WebAPI.WebServices
         }
 
         [WebMethod]
-        [System.Xml.Serialization.XmlInclude(typeof(Campaign))]
+        [System.Xml.Serialization.XmlInclude(typeof(Core.Pricing.Campaign))]
         [System.Xml.Serialization.XmlInclude(typeof(UsageModule))]
-        public virtual Campaign[] GetCampaignsByType(string sWSUserName, string sWSPassword, CampaignTrigger triggerType
+        public virtual Core.Pricing.Campaign[] GetCampaignsByType(string sWSUserName, string sWSPassword, CampaignTrigger triggerType
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
 
@@ -363,9 +363,9 @@ namespace WebAPI.WebServices
         }
 
         [WebMethod]
-        [System.Xml.Serialization.XmlInclude(typeof(Campaign))]
+        [System.Xml.Serialization.XmlInclude(typeof(Core.Pricing.Campaign))]
         [System.Xml.Serialization.XmlInclude(typeof(UsageModule))]
-        public virtual Campaign GetCampaignsByHash(string sWSUserName, string sWSPassword, string hashCode)
+        public virtual Core.Pricing.Campaign GetCampaignsByHash(string sWSUserName, string sWSPassword, string hashCode)
         {
 
 
@@ -383,9 +383,9 @@ namespace WebAPI.WebServices
         }
 
         [WebMethod]
-        [System.Xml.Serialization.XmlInclude(typeof(Campaign))]
+        [System.Xml.Serialization.XmlInclude(typeof(Core.Pricing.Campaign))]
         [System.Xml.Serialization.XmlInclude(typeof(UsageModule))]
-        public virtual Campaign GetCampaignData(string sWSUserName, string sWSPassword, long nCampaignID)
+        public virtual Core.Pricing.Campaign GetCampaignData(string sWSUserName, string sWSPassword, long nCampaignID)
         {
 
             Int32 nGroupID = Core.Pricing.Utils.GetGroupID(sWSUserName, sWSPassword);

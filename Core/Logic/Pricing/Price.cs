@@ -50,4 +50,17 @@ namespace Core.Pricing
             return m_dPrice == 0.0;
         }
     }
+
+    public class FullPrice
+    {
+        public Price OriginalPrice { get; set; }
+        public Price FinalPrice { get; set; }
+        public ApiObjects.ConditionalAccess.PriceReason PriceReason { get; set; }
+        public string CouponCode { get; set; }
+        public double CouponRemainder { get; set; }
+        public ApiObjects.Billing.SubscriptionCycle SubscriptionCycle { get; set; }
+        public ApiObjects.ConditionalAccess.RecurringCampaignDetails CampaignDetails { get; set; }
+    }
+
+    
 }

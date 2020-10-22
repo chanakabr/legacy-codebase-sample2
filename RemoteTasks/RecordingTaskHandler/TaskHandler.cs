@@ -115,11 +115,11 @@ namespace RecordingTaskHandler
                     case eRecordingTask.DistributeRecording:
                     {
                         // Get epg series details (seriesId, seassonNumber and isFIsEpgFirstTimeAirDate
-                        Tuple<string, int, bool> epgSeriesDetails = Core.ConditionalAccess.Module.GetEpgSeriesDetails(request.GroupID, request.ProgramId);
+                        Tuple<string, int, bool, int> epgSeriesDetails = Core.ConditionalAccess.Module.GetEpgSeriesDetails(request.GroupID, request.ProgramId);
                         if (epgSeriesDetails != null && !string.IsNullOrEmpty(epgSeriesDetails.Item1) && epgSeriesDetails.Item2 > -1)
                         {
                             long maxDomainSeriesId = request.MaxDomainSeriesId.HasValue ? request.MaxDomainSeriesId.Value : 0;
-                            HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, epgSeriesDetails.Item1, epgSeriesDetails.Item2, epgSeriesDetails.Item3, ref maxDomainSeriesId);
+                            HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, epgSeriesDetails.Item1, epgSeriesDetails.Item2, epgSeriesDetails.Item3, epgSeriesDetails.Item4, ref maxDomainSeriesId);
                             if (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
                             {
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

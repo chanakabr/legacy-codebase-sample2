@@ -129,7 +129,7 @@ namespace TVPApi.Web.Middleware
             // Check for Status code
             if (context.Items.ContainsKey("StatusCode"))
             {
-                context.Response.Clear();
+                context.Response.Body = new MemoryStream();
                 context.Response.StatusCode = (int)context.Items["StatusCode"];
             }
 

@@ -719,6 +719,10 @@ public partial class MethodFinder
                     }
                     HttpContext.Current.Items.Add("tokenization", null);
                 }
+                else
+                {
+                    HttpContext.Current.Items.Add("admin_token", null);
+                }
             }
 
             object result = executer.ExecuteMethod(methodParameters);

@@ -1202,6 +1202,7 @@ namespace Core.Users
             {
                 response.Object.m_RespStatus = ResponseStatus.UserDoesNotExist;
                 response.Object.m_user = null;
+                response.SetStatus(eResponseStatus.InvalidToken, "Invalid token");
                 return response;
             }
 

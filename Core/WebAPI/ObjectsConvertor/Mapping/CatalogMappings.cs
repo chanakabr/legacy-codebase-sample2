@@ -1115,6 +1115,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ProgramExternalId, opt => opt.MapFrom(src => src.ProgramExternalId))
               .ForMember(dest => dest.LiveAssetId, opt => opt.MapFrom(src => src.LiveAssetId));
 
+            cfg.CreateMap<BulkUploadDynamicListResult, KalturaBulkUploadDynamicListResult>()
+               .IncludeBase<BulkUploadResult, KalturaBulkUploadResult>();
+
+            cfg.CreateMap<BulkUploadUdidDynamicListResult, KalturaBulkUploadUdidDynamicListResult>()
+              .IncludeBase<BulkUploadDynamicListResult, KalturaBulkUploadDynamicListResult>()
+              .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid));
+
             cfg.CreateMap<KalturaBulkUploadJobData, BulkUploadJobData>();
 
             cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()
@@ -1146,6 +1153,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<ApiObjects.KeyValuePair, KeyValuePair<string, KalturaStringValue>>()
              .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
+
+            cfg.CreateMap<KalturaBulkUploadDynamicListData, BulkUploadDynamicListData>()
+               .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>()
+               .ForMember(dest => dest.DynamicListId, opt => opt.MapFrom(src => src.DynamicListId));
+
+            cfg.CreateMap<KalturaBulkUploadUdidDynamicListData, BulkUploadUdidDynamicListData>()
+               .IncludeBase<KalturaBulkUploadDynamicListData, BulkUploadDynamicListData>();
 
             #endregion
 

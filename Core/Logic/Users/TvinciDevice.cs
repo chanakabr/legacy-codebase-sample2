@@ -29,7 +29,8 @@ namespace Core.Users
             ApiObjects.Response.Status status = null;
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
             device.Initialize(sDeviceUDID);
-            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, "", "");
+            var dDevice = new DomainDevice { Udid = sDeviceUDID, Name = sDeviceName };
+            bool isSetSucceeded = device.SetDeviceInfo(dDevice);
 
             // in case set device Succeeded
             // domain should be remove from the cache 
@@ -68,12 +69,11 @@ namespace Core.Users
             return status;
         }
 
-        public override DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string macAddress, 
-            string externalId, bool allowNullExternalId, bool allowNullMacAddress = false)
+        public override DeviceResponseObject SetDevice(int nGroupID, Users.DomainDevice dDevice, bool allowNullExternalId, bool allowNullMacAddress = false)
         {
             DeviceResponseObject ret = new DeviceResponseObject();
-            Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
-            var init = device.Initialize(sDeviceUDID);
+            Device device = new Device(dDevice.Udid, 0, nGroupID, dDevice.Name);
+            var init = device.Initialize(dDevice.Udid);
 
             if (!init)
             {
@@ -82,7 +82,7 @@ namespace Core.Users
             }
 
             //Check if external id already exists
-            var device_Id = Device.GetDeviceIDByExternalId(nGroupID, externalId);
+            var device_Id = Device.GetDeviceIDByExternalId(nGroupID, dDevice.ExternalId);
 
             //already exists
             if (!string.IsNullOrEmpty(device_Id) && device.m_id != device_Id)
@@ -92,8 +92,9 @@ namespace Core.Users
                 return ret;
             }
 
-            var _deviceName = !string.IsNullOrEmpty(sDeviceName) ? sDeviceName : device.m_deviceName;
-            bool isSetSucceeded = device.SetDeviceInfo(_deviceName, macAddress, externalId, allowNullExternalId, allowNullMacAddress);
+            var _deviceName = !string.IsNullOrEmpty(dDevice.Name) ? dDevice.Name : device.m_deviceName;
+            dDevice.Name = _deviceName;
+            bool isSetSucceeded = device.SetDeviceInfo(dDevice, allowNullExternalId, allowNullMacAddress);
 
             // in case set device Succeeded
             // domain should be remove from the cache 
@@ -107,14 +108,13 @@ namespace Core.Users
 
                 if (baseDomain != null)
                 {
-                    List<Domain> domains = baseDomain.GetDeviceDomains(sDeviceUDID);
+                    List<Domain> domains = baseDomain.GetDeviceDomains(dDevice.Udid);
                     if (domains != null && domains.Count > 0)
                     {
                         DomainsCache oDomainCache = DomainsCache.Instance();
                         foreach (var domain in domains)
                         {
                             oDomainCache.RemoveDomain(domain.m_nDomainID);
-
                         }
                     }
                 }

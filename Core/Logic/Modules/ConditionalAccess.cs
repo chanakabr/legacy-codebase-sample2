@@ -2805,10 +2805,10 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static Tuple<string, int, bool> GetEpgSeriesDetails(int groupID, long epgId)
+        public static Tuple<string, int, bool, int> GetEpgSeriesDetails(int groupID, long epgId)
         {
             BaseConditionalAccess t = null;
-            Tuple<string, int, bool> result = new Tuple<string, int, bool>(string.Empty, -1, false);
+            Tuple<string, int, bool, int> result = new Tuple<string, int, bool, int>(string.Empty, -1, false, 0);
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {

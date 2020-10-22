@@ -357,6 +357,7 @@ namespace WebAPI.Controllers
         [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.InvalidToken)]
         static public KalturaOTTUser setInitialPassword(int partnerId, string token, string password)
         {
             KalturaOTTUser response = null;

@@ -298,6 +298,44 @@ namespace ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaKeyValue, ApiObjects.KeyValuePair>()
                 .ForMember(dest => dest.key, opt => opt.MapFrom(src => src.key))
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.value));
+
+            cfg.CreateMap<KalturaDeviceReferenceData, DeviceReferenceData>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                ;
+
+            cfg.CreateMap<DeviceReferenceData, KalturaDeviceReferenceData>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                ;
+
+            cfg.CreateMap<KalturaDeviceManufacturerInformation, DeviceManufacturerInformation>()
+                .IncludeBase<KalturaDeviceReferenceData, DeviceReferenceData>()
+                ;
+
+            cfg.CreateMap<DeviceManufacturerInformation, KalturaDeviceManufacturerInformation>()
+                .IncludeBase<DeviceReferenceData, KalturaDeviceReferenceData>()
+                ;
+
+            cfg.CreateMap<DeviceReferenceDataFilter, KalturaDeviceReferenceDataFilter> ()
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdsIn)))
+            ;
+
+            cfg.CreateMap<KalturaDeviceReferenceDataFilter, DeviceReferenceDataFilter>()
+               .ForMember(dest => dest.IdsIn, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.IdIn, "KalturaDeviceReferenceDataFilter.IdIn", true, false)))
+            ;
+
+            cfg.CreateMap<KalturaDeviceManufacturersReferenceDataFilter, DeviceManufacturersReferenceDataFilter>()
+                .IncludeBase<KalturaDeviceReferenceDataFilter, DeviceReferenceDataFilter>()
+                .ForMember(dest => dest.NameEqual, opt => opt.MapFrom(src => src.NameEqual))
+                ;
+
+            cfg.CreateMap<DeviceManufacturersReferenceDataFilter, KalturaDeviceManufacturersReferenceDataFilter>()
+                .IncludeBase<DeviceReferenceDataFilter, KalturaDeviceReferenceDataFilter>()
+                .ForMember(dest => dest.NameEqual, opt => opt.MapFrom(src => src.NameEqual))
+                ;
         }
 
         private static List<SSOAdapterParam> ConvertSsoAdapterSettings(KalturaSSOAdapterProfile src)

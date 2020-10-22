@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects.Base;
+using ApiObjects.Response;
 using System;
 using System.Linq;
 using TVinciShared;
@@ -48,7 +49,7 @@ namespace WebAPI.Controllers
                     res = ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)householdId, udid);
                 }
 
-                AuthorizationManager.RevokeDeviceSessions(groupId, householdId, udid);
+                AuthorizationManager.RevokeHouseholdSessions(groupId, udid);
             }
             catch (ClientException ex)
             {
@@ -112,20 +113,24 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string userId = KS.GetFromRequest().UserId;
+            int.TryParse(userId, out int _userId);
+            var contextData = new ContextData(groupId) { UserId = _userId };
 
             try
             {
+                ClientsManager.DomainsClient().ValidateDeviceReferencesData(contextData, device);
+
                 if (HouseholdUtils.IsUserMaster())
                 {
-                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId, device.MacAddress);
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device);
                 }
                 else if (device.HouseholdId != 0)
                 {
-                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId, device.MacAddress);
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device);
                 }
                 else
                 {
-                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device.Udid, device.Name, device.getBrandId(), device.ExternalId, device.MacAddress);
+                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device);
                 }
             }
             catch (ClientException ex)
@@ -299,6 +304,12 @@ namespace WebAPI.Controllers
 
             try
             {
+                string userId = KS.GetFromRequest().UserId;
+                int.TryParse(userId, out int _userId);
+                var contextData = new ContextData(groupId) { UserId = _userId };
+
+                ClientsManager.DomainsClient().ValidateDeviceReferencesData(contextData, device);
+
                 // check device registration status - return forbidden if device not in domain        
                 var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                 if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
@@ -310,7 +321,8 @@ namespace WebAPI.Controllers
                 var allowNullMacAddress = device.NullableProperties != null && device.NullableProperties.Contains("macaddress");
 
                 // call client
-                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.MacAddress, device.ExternalId, allowNullExternalId, allowNullMacAddress);
+                device.Udid = udid;
+                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device, allowNullExternalId, allowNullMacAddress);
             }
             catch (ClientException ex)
             {
@@ -345,7 +357,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid, string.Empty, string.Empty);
+                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid);
             }
             catch (ClientException ex)
             {

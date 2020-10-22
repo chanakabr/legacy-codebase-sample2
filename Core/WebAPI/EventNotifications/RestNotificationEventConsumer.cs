@@ -66,7 +66,6 @@ namespace WebAPI
             string actionString = "None";
 
             var actionEvent = objectEvent as KalturaObjectActionEvent;
-
             if (actionEvent != null)
             {
                 actionString = actionEvent.Action.ToString();
@@ -90,7 +89,6 @@ namespace WebAPI
             })
             {
                 cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
-
                 string cbKey = GetCBSpecificKey(objectEvent);
                 specificNotification = cbManager.Get<EventNotification>(cbKey, true);
             }

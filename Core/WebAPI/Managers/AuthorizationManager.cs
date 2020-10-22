@@ -749,22 +749,26 @@ namespace WebAPI.Managers
             return loginSession;
         }
 
-        public static void RevokeDeviceSessions(int groupId, long householdId, string udid)
+        public static void RevokeHouseholdSessions(int groupId, string udid = null, List<string> householdUserIds = null)
         {
-            List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true);
+            if (householdUserIds == null)
+            {
+                householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true);
+            }
 
-            if (householdUserIds == null || householdUserIds.Count == 0)
+            if (householdUserIds?.Count == 0)
                 return;
 
             Group group = GroupsManager.GetGroup(groupId);
             long utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
             long maxSessionDuration = utcNow + Math.Max(group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds);
+            bool revokeAll = string.IsNullOrEmpty(udid) ? true : false;
 
             foreach (string userId in householdUserIds)
             {
-                if (!UpdateUsersSessionsRevocationTime(group, userId, udid, (int)utcNow, (int)maxSessionDuration))
+                if (!UpdateUsersSessionsRevocationTime(group, userId, udid, (int)utcNow, (int)maxSessionDuration, revokeAll))
                 {
-                    log.ErrorFormat("RevokeDeviceSessions: Failed to revoke session for UDID = {0}, userId = {1}", udid, userId);
+                    log.ErrorFormat("RevokeDeviceSessions: Failed to revoke session for userId = {0}, UDID = {1}", userId, revokeAll ? "All" : udid);
                 }
             }
         }

@@ -1250,8 +1250,7 @@ namespace Core.Catalog
                 }
             }
             // if there is group by
-            else if (!string.IsNullOrEmpty(distinctGroup.Key) &&
-                (orderBy == OrderBy.META || orderBy == OrderBy.NAME))
+            else if (!string.IsNullOrEmpty(distinctGroup.Key) && PaginationDone(orderBy))
             {
                 isOrderedByString = true;
 
@@ -2282,6 +2281,11 @@ namespace Core.Catalog
             }
 
             #endregion
+        }
+
+        public static bool PaginationDone(OrderBy orderBy)
+        {
+            return orderBy == OrderBy.META || orderBy == OrderBy.NAME;
         }
 
         private Tuple<Dictionary<string, int>, bool> SortAssetsByStatsDelegate(Dictionary<string, object> funcParams)

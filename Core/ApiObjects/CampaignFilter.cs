@@ -1,0 +1,41 @@
+﻿using ApiObjects.Base;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+
+namespace ApiObjects
+{
+    public class CampaignFilter : ICrudFilter
+    {
+        public CampaignOrderBy? OrderBy { get; set; }
+    }
+
+    public class CampaignIdInFilter : CampaignFilter
+    {
+        public List<long> IdIn { get; set; }
+        public bool IsAllowedToViewInactiveCampaigns { get; set; }
+    }
+
+    public class CampaignSearchFilter : CampaignFilter
+    {
+        public long? StartDateGreaterThanOrEqual { get; set; }
+        public long? EndDateLessThanOrEqual { get; set; }
+        public CampaignState? StateEqual { get; set; }
+        public bool? HasPromotion { get; set; }
+        public bool IsActiveNow { get; set; }
+    }
+
+    public class TriggerCampaignFilter : CampaignSearchFilter
+    {
+        public ApiService? Service { get; set; }
+        public ApiAction? Action { get; set; }
+    }
+
+    public class BatchCampaignFilter : CampaignSearchFilter
+    {
+    }
+
+    public enum CampaignOrderBy
+    {
+        StartDateDesc
+    }
+}

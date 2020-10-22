@@ -11,10 +11,20 @@ namespace WebAPI.EventNotifications
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class RabbitQueueHandler : NotificationAction
     {
-        public RabbitQueueHandler()
-            : base()
-        {
-        }
+
+        [JsonProperty("routing_key")]
+        public string RoutingKey { get; set; }
+
+        [JsonProperty("expiration")]
+        public long Expiration { get; set; }
+
+        [JsonProperty("task")]
+        public string Task { get; set; }
+
+        [JsonProperty("extra_args")]
+        public List<object> ExtraArgs { get; set; }
+
+        public RabbitQueueHandler() : base() { }
 
         internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification theObject)
         {
@@ -42,34 +52,6 @@ namespace WebAPI.EventNotifications
             data.args.Add(data.RequestId);
 
             queue.Enqueue(data, this.RoutingKey, this.Expiration);
-        }
-
-        [JsonProperty("routing_key")]
-        public string RoutingKey
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty("expiration")]
-        public long Expiration
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty("task")]
-        public string Task
-        {
-            get;
-            set;
-        }
-
-        [JsonProperty("extra_args")]
-        public List<object> ExtraArgs
-        {
-            get;
-            set;
         }
     }
 }

@@ -36,14 +36,6 @@ namespace WebAPI.Models.Pricing
         public bool? IsSubscriptionOnly { get; set; }
 
         /// <summary>
-        /// The full price of the item (with no discounts)
-        /// </summary>
-        [DataMember(Name = "fullPrice")]
-        [JsonProperty("fullPrice")]
-        [XmlElement(ElementName = "fullPrice", IsNullable = true)]
-        public KalturaPrice FullPrice { get; set; }
-
-        /// <summary>
         /// The identifier of the relevant subscription
         /// </summary>
         [DataMember(Name = "subscriptionId")]

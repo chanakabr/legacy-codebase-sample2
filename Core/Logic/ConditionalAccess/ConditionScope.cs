@@ -1,5 +1,7 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Users.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
@@ -14,13 +16,13 @@ using System.Threading.Tasks;
 
 namespace APILogic.ConditionalAccess
 {
-    public class ConditionScope : IConditionScope, 
-                                  IBusinessModuleConditionScope, 
-                                  ISegmentsConditionScope, 
-                                  IDateConditionScope, 
-                                  IHeaderConditionScope, 
-                                  IIpRangeConditionScope, 
-                                  IAssetConditionScope, 
+    public class ConditionScope : IConditionScope,
+                                  IBusinessModuleConditionScope,
+                                  ISegmentsConditionScope,
+                                  IDateConditionScope,
+                                  IHeaderConditionScope,
+                                  IIpRangeConditionScope,
+                                  IAssetConditionScope,
                                   IUserRoleConditionScope,
                                   IUserSubscriptionConditionScope,
                                   IAssetSubscriptionConditionScope
@@ -92,7 +94,7 @@ namespace APILogic.ConditionalAccess
             {
                 sb.AppendFormat("UserId: {0}; ", UserId);
             }
-            
+
             if (UserSubscriptions != null)
             {
                 sb.AppendFormat("UserSubscriptions: {0}; ", string.Join(", ", UserSubscriptions));
@@ -100,7 +102,7 @@ namespace APILogic.ConditionalAccess
 
             return sb.ToString();
         }
-        
+
         public List<BusinessModuleRule> GetBusinessModuleRulesByMediaId(int groupId, long mediaId)
         {
             List<BusinessModuleRule> allBusinessModuleRules = BusinessModuleRuleManager.GetAllBusinessModuleRules(groupId);
@@ -132,7 +134,7 @@ namespace APILogic.ConditionalAccess
 
             return businessRulesByMedia;
         }
-        
+
         private static Tuple<List<BusinessModuleRule>, bool> GetBusinessModuleRulesByMedia(Dictionary<string, object> funcParams)
         {
             List<BusinessModuleRule> BusinessModuleRulesByAsset = new List<BusinessModuleRule>();
@@ -198,7 +200,7 @@ namespace APILogic.ConditionalAccess
 
             return null;
         }
-        
+
         public bool IsMediaIncludedInSubscription(int groupId, long mediaId, HashSet<long> subscriptionIds)
         {
             var subscriptionsChannels = Core.Pricing.Module.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty, null);
@@ -220,6 +222,33 @@ namespace APILogic.ConditionalAccess
 
             List<int> validChannelIds = Core.ConditionalAccess.Utils.ValidateMediaContainedInChannels((int)mediaId, groupId, channelsIds);
             return validChannelIds != null && validChannelIds.Count > 0;
+        }
+    }
+    public class TriggerCampaignConditionScope : ITriggerCampaignConditionScope
+    {
+        public int? BrandId { get; set; }
+        public int? FamilyId { get; set; }
+        public long? ManufacturerId { get; set; }
+        public string Model { get; set; }
+        public string Udid { get; set; }
+        public long RuleId { get; set; }
+        public int GroupId { get; set; }
+        public string UserId { get; set; }
+        public List<long> SegmentIds { get; set; }
+        public bool FilterBySegments { get; set; }
+
+        public bool CheckDynamicList(long id)
+        {
+            var contextData = new ContextData(this.GroupId);
+            var filter = new DynamicListSearchFilter()
+            {
+                TypeEqual = DynamicListType.UDID,
+                IdEqual = id,
+                ValueEqual = this.Udid
+            };
+
+            var dynamicListResponse = ApiLogic.Api.Managers.DynamicListManager.Instance.SearchDynamicLists(contextData, filter);
+            return dynamicListResponse.HasObjects();
         }
     }
 }

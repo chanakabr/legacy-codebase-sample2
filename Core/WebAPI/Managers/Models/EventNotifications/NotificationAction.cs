@@ -9,55 +9,26 @@ namespace WebAPI.Managers.Models
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class NotificationAction
     {
-
         [JsonProperty("status")]
-        public int Status
-        {
-            get;
-            set;
-        }
+        public int Status { get; set; }
 
         [JsonProperty("system_name")]
-        public string SystemName
-        {
-            get;
-            set;
-        }
+        public string SystemName { get; set; }
 
         [JsonProperty("friendly_name")]
-        public string FriendlyName
-        {
-            get;
-            set;
-        }
+        public string FriendlyName { get; set; }
 
         [JsonProperty("conditions")]
-        public List<NotificationCondition> Conditions
-        {
-            get;
-            set;
-        }
+        public List<NotificationCondition> Conditions { get; set; }
 
         [JsonProperty("is_asynch")]
-        public bool IsAsync
-        {
-            get;
-            set;
-        }
+        public bool IsAsync { get; set; }
 
         [JsonProperty("failure_handlers")]
-        public List<NotificationAction> FailureHandlers
-        {
-            get;
-            set;
-        }
+        public List<NotificationAction> FailureHandlers { get; set; }
 
         [JsonProperty("save_event")]
-        public bool? SaveEvent
-        {
-            get;
-            set;
-        }
+        public bool? SaveEvent { get; set; }
 
         internal abstract void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification wrapper);
     }

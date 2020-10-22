@@ -36,7 +36,7 @@ pipeline {
                 buildDockerAndPushToEcr("phoenix","Phoenix.Dockerfile")
                 buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
                 buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
-                buildDockerAndPushToEcr("remote-tasks-handlers","RemoteTasks.Dockerfile")
+                buildDockerAndPushToEcr("ingesthandlers","IngestHandlers.Dockerfile")
 				buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
             }
         }
@@ -107,6 +107,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${FULL_VERSION}")
+    echo "Docker build image: ${ECR_REPOSITORY}:${FULL_VERSION}"
 }
 
 def report(){
