@@ -40,7 +40,7 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<BulkUpload> response = new GenericResponse<BulkUpload>();
             try
             {
-                DataTable dt = CatalogDAL.GetBulkUpload(bulkUploadId);
+                DataTable dt = CatalogDAL.GetBulkUpload(bulkUploadId, groupId);
                 response.Object = CreateBulkUploadFromDataTable(dt, groupId, true);
                 if (response.Object == null)
                 {

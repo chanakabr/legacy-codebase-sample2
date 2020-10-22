@@ -5710,11 +5710,12 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataTable GetBulkUpload(long bulkUploadId)
+        public static DataTable GetBulkUpload(long bulkUploadId, long groupId)
         {
             StoredProcedure sp = new StoredProcedure("GetBulkUpload");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@BulkUploadId", bulkUploadId);
+            sp.AddParameter("@groupId", groupId);
             return sp.Execute();
         }
 
