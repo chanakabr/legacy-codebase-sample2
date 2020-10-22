@@ -1838,129 +1838,46 @@ namespace Core.Catalog.CatalogManagement
         private static Dictionary<int, ApiObjects.SearchObjects.Media> CreateMediasFromMediaAssetAndLanguages(int groupId, MediaAsset mediaAsset, 
                         EnumerableRowCollection<DataRow> assetFileTypes, CatalogGroupCache catalogGroupCache, 
                         Dictionary<long, List<int>> linearChannelsRegionsMapping)
-        {
-            Dictionary<int, ApiObjects.SearchObjects.Media> result = new Dictionary<int, ApiObjects.SearchObjects.Media>();
-            // File Types + is free
-            HashSet<int> fileTypes = null;
-            HashSet<int> freeFileTypes = null;
-            if (assetFileTypes != null && assetFileTypes.Any())
-            {
-                fileTypes = new HashSet<int>();
-                freeFileTypes = new HashSet<int>();
-                foreach (DataRow dr in assetFileTypes)
-                {
-                    int fileTypeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID");
-                    bool isFree = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_FREE", 0) == 1;
+        {   
+            GetFileTypes(assetFileTypes, out HashSet<int> fileTypes, out HashSet<int> freeFileTypes);
+            var now = DateTime.UtcNow;
+            var max = DateTime.MaxValue;
 
-                    if (fileTypeId > 0 && !fileTypes.Contains(fileTypeId))
-                    {
-                        fileTypes.Add(fileTypeId);
-                    }
-
-                    if (isFree && fileTypeId > 0 && !freeFileTypes.Contains(fileTypeId))
-                    {
-                        freeFileTypes.Add(fileTypeId);
-                    }
-                }
-            }
-
+            // create separate Media for each language with language-specific versions of name, description, metas and tags
+            var languageToMedia = new Dictionary<int, ApiObjects.SearchObjects.Media>();
             foreach (LanguageObj language in catalogGroupCache.LanguageMapById.Values)
             {
-                string name = mediaAsset.Name;
-                string description = mediaAsset.Description;
-                Dictionary<string, string> metas = new Dictionary<string, string>();
-                Dictionary<string, HashSet<string>> tags = new Dictionary<string, HashSet<string>>();
-                if (!language.IsDefault)
+                string name = GetValueForLanguage(language, mediaAsset.NamesWithLanguages, mediaAsset.Name);
+                string description = GetValueForLanguage(language, mediaAsset.DescriptionsWithLanguages, mediaAsset.Description);
+                Dictionary<string, string> metas = GetMetasForLanguage(language, mediaAsset.Metas);
+                Dictionary<string, HashSet<string>> tags = GetTagsForLanguage(language, mediaAsset.Tags);
+
+                var mediaAssetId = (int)mediaAsset.Id;
+                List<int> regions = new List<int>();
+                if (catalogGroupCache.IsRegionalizationEnabled)
                 {
-                    if (mediaAsset.NamesWithLanguages.Count(x => x.m_sLanguageCode3 == language.Code) == 1)
-                    {
-                        var nameWithLanguages = mediaAsset.NamesWithLanguages.FirstOrDefault(x => x.m_sLanguageCode3 == language.Code);
-                        if (nameWithLanguages != null)
-                        {
-                            name = nameWithLanguages.m_sValue;
-                        }
-                    }
-
-                    if (mediaAsset.DescriptionsWithLanguages.Count(x => x.m_sLanguageCode3 == language.Code) == 1)
-                    {
-                        var descriptionWithLanguages = mediaAsset.DescriptionsWithLanguages.FirstOrDefault(x => x.m_sLanguageCode3 == language.Code);
-                        if (descriptionWithLanguages != null)
-                        {
-                            description = descriptionWithLanguages.m_sValue;
-                        }
-                    }
+                    regions = linearChannelsRegionsMapping != null && linearChannelsRegionsMapping.ContainsKey(mediaAssetId)
+                        ? linearChannelsRegionsMapping[mediaAssetId]
+                        : new List<int>() { 0 };
                 }
-
-                if (mediaAsset.Metas != null && mediaAsset.Metas.Count > 0)
-                {                 
-                    if (language.IsDefault)
-                    {
-                        metas = mediaAsset.Metas.Where(x => 
-                        x.m_oTagMeta.m_sType != MetaType.DateTime.ToString() && x.m_oTagMeta.m_sType != MetaType.Bool.ToString())
-                            .ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue);                       
-                    }
-                    else
-                    {
-                        List<Metas> languageMetas = mediaAsset.Metas.Where(x => x.Value != null && x.Value.Count(y => y.m_sLanguageCode3 == language.Code) == 1).ToList();
-                        metas = languageMetas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.Value.Where(y => y.m_sLanguageCode3 == language.Code).Select(y => y.m_sValue).First());
-                    }
-
-                    // handle date metas
-                    List<Metas> dateMetas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType == MetaType.DateTime.ToString()).ToList();
-                    if (dateMetas != null && dateMetas.Count > 0)
-                    {
-                        foreach (Metas meta in dateMetas)
-                        {
-                            DateTime date;
-                            if (DateTime.TryParseExact(meta.m_sValue, DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out date))
-                            {
-                                metas.Add(meta.m_oTagMeta.m_sName, date.ToString("yyyyMMddHHmmss"));
-                            }
-                        }
-                    }
-
-                    // handle boolean metas
-                    List<Metas> booleanMetas = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sType == MetaType.Bool.ToString()).ToList();
-                    if (booleanMetas != null && booleanMetas.Count > 0)
-                    {
-                        metas.TryAddRange(booleanMetas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.m_sValue));                        
-                    }
-                }
-
-                if (mediaAsset.Tags != null && mediaAsset.Tags.Count > 0)
-                {
-                    if (language.IsDefault)
-                    {
-                        tags = mediaAsset.Tags.ToDictionary(x => x.m_oTagMeta.m_sName, x => new HashSet<string>(x.m_lValues, StringComparer.OrdinalIgnoreCase));
-                    }
-                    else
-                    {
-                        tags = mediaAsset.Tags.Where(x => x.Values != null).ToDictionary(x => x.m_oTagMeta.m_sName,
-                                                                                        x => new HashSet<string>(x.Values.SelectMany(y => y.Where(z => z.m_sLanguageCode3 == language.Code)
-                                                                                                                                        .Select(z => z.m_sValue)).ToList(), StringComparer.OrdinalIgnoreCase));
-                    }
-                }
-
-                string now = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-                string max = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
 
                 ApiObjects.SearchObjects.Media media = new ApiObjects.SearchObjects.Media()
                 {
-                    m_nMediaID = (int)mediaAsset.Id,
+                    m_nMediaID = mediaAssetId,
                     m_sName = name,
                     m_sDescription = description,
                     m_nMediaTypeID = mediaAsset.MediaType.m_nTypeID,
                     m_nIsActive = mediaAsset.IsActive.HasValue && mediaAsset.IsActive.Value ? 1 : 0,
                     m_nGroupID = groupId,
-                    m_sCreateDate = mediaAsset.CreateDate.Value.ToString("yyyyMMddHHmmss"),
-                    m_sEndDate = mediaAsset.EndDate.HasValue ? mediaAsset.EndDate.Value.ToString("yyyyMMddHHmmss") : max,
-                    m_sFinalEndDate = mediaAsset.FinalEndDate.HasValue ? mediaAsset.FinalEndDate.Value.ToString("yyyyMMddHHmmss") : max,
-                    m_sStartDate = mediaAsset.StartDate.HasValue ? mediaAsset.StartDate.Value.ToString("yyyyMMddHHmmss") : now,
-                    CatalogStartDate = mediaAsset.CatalogStartDate.HasValue ? mediaAsset.CatalogStartDate.Value.ToString("yyyyMMddHHmmss") : now,
-                    m_sUpdateDate = mediaAsset.UpdateDate.HasValue ? mediaAsset.UpdateDate.Value.ToString("yyyyMMddHHmmss") : now,
+                    m_sCreateDate = mediaAsset.CreateDate.Value.ToESDateFormat(),
+                    m_sEndDate = mediaAsset.EndDate.GetValueOrDefault(max).ToESDateFormat(),
+                    m_sFinalEndDate = mediaAsset.FinalEndDate.GetValueOrDefault(max).ToESDateFormat(),
+                    m_sStartDate = mediaAsset.StartDate.GetValueOrDefault(now).ToESDateFormat(),
+                    CatalogStartDate = mediaAsset.CatalogStartDate.GetValueOrDefault(now).ToESDateFormat(),
+                    m_sUpdateDate = mediaAsset.UpdateDate.GetValueOrDefault(now).ToESDateFormat(),
                     m_sUserTypes = mediaAsset.UserTypes,
-                    m_nDeviceRuleId = mediaAsset.DeviceRuleId.HasValue ? (int)mediaAsset.DeviceRuleId.Value : 0,
-                    geoBlockRule = mediaAsset.GeoBlockRuleId.HasValue ? (int)mediaAsset.GeoBlockRuleId.Value : 0,
+                    m_nDeviceRuleId = mediaAsset.DeviceRuleId.GetValueOrDefault(0),
+                    geoBlockRule = mediaAsset.GeoBlockRuleId.GetValueOrDefault(0),
                     CoGuid = mediaAsset.CoGuid,
                     EntryId = mediaAsset.EntryId,
                     m_dMeatsValues = metas,
@@ -1971,25 +1888,102 @@ namespace Core.Catalog.CatalogManagement
                     inheritancePolicy = (int)mediaAsset.InheritancePolicy,
                     allowedCountries = new List<int>(),
                     blockedCountries = new List<int>(),
-                    epgIdentifier = mediaAsset.FallBackEpgIdentifier
+                    epgIdentifier = mediaAsset.FallBackEpgIdentifier,
+                    regions = regions
                 };
 
-                if (catalogGroupCache.IsRegionalizationEnabled)
-                {
-                    if (linearChannelsRegionsMapping != null && linearChannelsRegionsMapping.ContainsKey(media.m_nMediaID))
-                    {
-                        media.regions = linearChannelsRegionsMapping[media.m_nMediaID];
-                    }
-                    else
-                    {
-                        media.regions = new List<int>() { 0 };
-                    }
-                }
-
-                result.Add(language.ID, media);
+                languageToMedia.Add(language.ID, media);
             }
 
-            return result;
+            return languageToMedia;
+        }
+
+        private static void GetFileTypes(EnumerableRowCollection<DataRow> assetFileTypes, out HashSet<int> fileTypes, out HashSet<int> freeFileTypes)
+        {
+            fileTypes = null;
+            freeFileTypes = null;
+            if (assetFileTypes != null && assetFileTypes.Any())
+            {
+                fileTypes = new HashSet<int>();
+                freeFileTypes = new HashSet<int>();
+                foreach (DataRow dr in assetFileTypes)
+                {
+                    int fileTypeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID");
+                    bool isFree = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_FREE", 0) == 1;
+
+                    if (fileTypeId > 0)
+                    {
+                        fileTypes.Add(fileTypeId);
+                        if (isFree) freeFileTypes.Add(fileTypeId);
+                    }
+                }
+            }
+        }
+
+        private static string GetValueForLanguage(LanguageObj language, IEnumerable<LanguageContainer> languagesValues, string defaultLanguageValue)
+        {
+            if (language.IsDefault) return defaultLanguageValue;
+            var nameWithLanguages = languagesValues.FirstOrDefault(x => x.m_sLanguageCode3 == language.Code);
+            return nameWithLanguages == null ? defaultLanguageValue : nameWithLanguages.m_sValue;
+        }
+
+        private static IEnumerable<string> GetValuesForLanguage(LanguageObj language, IEnumerable<LanguageContainer> languagesValues)
+        {
+            return languagesValues.Where(z => z.m_sLanguageCode3 == language.Code).Select(z => z.m_sValue);
+        }
+
+        private static Dictionary<string, string> GetMetasForLanguage(LanguageObj language, List<Metas> metas)
+        {
+            Dictionary<string, string> languageMetas = new Dictionary<string, string>();
+            if (metas == null || metas.Count == 0) return languageMetas;
+
+            var dateTimeType = MetaType.DateTime.ToString();
+            var boolType = MetaType.Bool.ToString();
+            var numberType = MetaType.Number.ToString();
+            
+            foreach (Metas meta in metas)
+            {
+                var tagName = meta.m_oTagMeta.m_sName;
+                var tagType = meta.m_oTagMeta.m_sType;
+
+                if (tagType == dateTimeType
+                    && DateTime.TryParseExact(meta.m_sValue, DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out var date))
+                {
+                    languageMetas.Add(tagName, date.ToESDateFormat());
+                }
+                else if (tagType == boolType || tagType == numberType)
+                {
+                    languageMetas.TryAdd(tagName, meta.m_sValue);
+                }
+                else
+                {
+                    if (language.IsDefault)
+                    {
+                        languageMetas.Add(tagName, meta.m_sValue);
+                    }
+                    else if (meta.Value != null)
+                    {
+                        var values = GetValuesForLanguage(language, meta.Value);
+                        if (values.Count() == 1) languageMetas.Add(tagName, values.First());
+                    }
+                }
+            }
+
+            return languageMetas;
+        }
+
+        private static Dictionary<string, HashSet<string>> GetTagsForLanguage(LanguageObj language, List<Tags> tags)
+        {
+            if (tags == null || tags.Count == 0) return new Dictionary<string, HashSet<string>>();
+            if (language.IsDefault)
+            {
+                return tags.ToDictionary(x => x.m_oTagMeta.m_sName, x => new HashSet<string>(x.m_lValues, StringComparer.OrdinalIgnoreCase));
+            }
+
+            return tags
+                .Where(x => x.Values != null)
+                .ToDictionary(x => x.m_oTagMeta.m_sName,
+                    x => new HashSet<string>(x.Values.SelectMany(y => GetValuesForLanguage(language, y)).ToList(), StringComparer.OrdinalIgnoreCase));
         }
 
         private static Status ValidateBasicTopicIdsToRemove(CatalogGroupCache catalogGroupCache, HashSet<long> topicIds)
