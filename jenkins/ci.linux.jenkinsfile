@@ -36,7 +36,7 @@ pipeline {
                 buildDockerAndPushToEcr("phoenix","Phoenix.Dockerfile")
                 buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
                 buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
-                buildDockerAndPushToEcr("remote-tasks-handlers","RemoteTasks.Dockerfile")
+                buildDockerAndPushToEcr("ingesthandlers","IngestHandlers.Dockerfile")
 				buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
             }
         }
