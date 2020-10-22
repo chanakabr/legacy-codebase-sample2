@@ -1,3 +1,4 @@
+using ApiObjects.SearchObjects;
 using System;
 using System.Globalization;
 
@@ -434,6 +435,11 @@ namespace TVinciShared
         public static DateTime EndOfDay(this DateTime dateTime)
         {
             return dateTime.Date.AddDays(1).AddTicks(-1);
+        }
+
+        public static string ToESDateFormat(this DateTime dateTime)
+        {
+            return dateTime.ToString(ESMediaFields.DATE_FORMAT);
         }
     }
 }
