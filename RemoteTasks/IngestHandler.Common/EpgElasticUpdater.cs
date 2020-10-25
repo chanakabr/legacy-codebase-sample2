@@ -47,15 +47,14 @@ namespace IngestHandler.Common
             bulkSize = bulkSize == 0 ? sizeOfBulkDefaultValue : bulkSize > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : bulkSize;
         }
 
-        public void Update(IList<EpgProgramBulkUploadObject> calculatedPrograms, IList<EpgProgramBulkUploadObject> programsToDelete)
+        public void Update(IList<EpgProgramBulkUploadObject> calculatedPrograms, IList<EpgProgramBulkUploadObject> programsToDelete,string dailyEpgIndex)
         {
-            var dailyEpgIndex = IndexManager.GetDailyEpgIndexName(_GroupId, _DateOfProgramsToIngest);
 
             var isOpc = GroupSettingsManager.IsOpc(_GroupId);
-            var metasToPad = GetMetasToPad(_GroupId, isOpc);
+            var metasToPad = GetMetasToPad(_GroupId, isOpc);            
 
-            UpsertProgramsToDraftIndex(calculatedPrograms, dailyEpgIndex, isOpc, metasToPad);
             DeleteProgramsFromIndex(programsToDelete, dailyEpgIndex);
+            UpsertProgramsToDraftIndex(calculatedPrograms, dailyEpgIndex, isOpc, metasToPad);
         }
 
         private void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, bool isOpc, HashSet<string> metasToPad)
@@ -70,49 +69,87 @@ namespace IngestHandler.Common
             policy.Execute(() =>
             {
                 var bulkRequests = new List<ESBulkRequestObj<string>>();
-                var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
-                foreach (var program in programTranslationsToIndex)
-                {
-                    program.PadMetas(metasToPad);
-                    var suffix = program.Language == _DefaultLanguage.Code ? "" : program.Language;
-                    var language = _Languages[program.Language];
-
-                    // Serialize EPG object to string
-                    var serializedEpg = _Serializer.SerializeEpgObject(program, suffix, isOpc);
-                    var epgType = GetTanslationType(DEFAULT_INDEX_MAPPING_TYPE, language);
-
-                    var totalMinutes = GetTTLMinutes(program);
-                    // TODO: what should we do if someone trys to ingest something to the past ... :\
-                    totalMinutes = totalMinutes < 0 ? 10 : totalMinutes;
-
-                    var ttl = string.Format("{0}m", totalMinutes);
-
-                    var bulkRequest = new ESBulkRequestObj<string>()
+                try
+                {                    
+                    var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
+                    foreach (var program in programTranslationsToIndex)
                     {
-                        docID = program.EpgID.ToString(),
-                        document = serializedEpg,
-                        index = draftIndexName,
-                        Operation = eOperation.index,
-                        routing = program.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
-                        type = epgType,
-                        ttl = ttl
-                    };
+                        program.PadMetas(metasToPad);
+                        var suffix = program.Language == _DefaultLanguage.Code ? "" : program.Language;
+                        var language = _Languages[program.Language];
 
-                    bulkRequests.Add(bulkRequest);
+                        // Serialize EPG object to string
+                        string serializedEpg = HanlderSerializedEpg(isOpc, program, suffix);
+                        var epgType = GetTanslationType(DEFAULT_INDEX_MAPPING_TYPE, language);
 
-                    // If we exceeded maximum size of bulk 
-                    if (bulkRequests.Count >= bulkSize)
+                        var totalMinutes = GetTTLMinutes(program);
+                        // TODO: what should we do if someone trys to ingest something to the past ... :\
+                        totalMinutes = totalMinutes < 0 ? 10 : totalMinutes;
+
+                        var ttl = string.Format("{0}m", totalMinutes);
+
+                        var bulkRequest = new ESBulkRequestObj<string>()
+                        {
+                            docID = program.EpgID.ToString(),
+                            document = serializedEpg,
+                            index = draftIndexName,
+                            Operation = eOperation.index,
+                            routing = _DateOfProgramsToIngest.Date.ToString("yyyyMMdd") /*program.StartDate.ToUniversalTime().ToString("yyyyMMdd")*/,
+                            type = epgType,
+                            ttl = ttl
+                        };
+
+                        bulkRequests.Add(bulkRequest);
+
+                        // If we exceeded maximum size of bulk 
+                        if (bulkRequests.Count >= bulkSize)
+                        {
+                            ExecuteAndValidateBulkRequests(bulkRequests);
+                        }
+                    }
+
+                    // If we have anything left that is less than the size of the bulk
+                    if (bulkRequests.Count > 0)
                     {
                         ExecuteAndValidateBulkRequests(bulkRequests);
                     }
                 }
-
-                // If we have anything left that is less than the size of the bulk
-                if (bulkRequests.Count > 0)
+                finally
                 {
-                    ExecuteAndValidateBulkRequests(bulkRequests);
+                    if (bulkRequests!=null && bulkRequests.Any() )
+                    {
+                        _Logger.Debug($"Clearing bulk requests");
+                        bulkRequests.Clear();
+                    }                    
                 }
             });
+            
+        }
+
+        private string HanlderSerializedEpg(bool isOpc, EpgCB program, string suffix)
+        {
+
+            try
+            {
+                return _Serializer.SerializeEpgObject(program, suffix, isOpc);
+            }
+            catch (Exception e)
+            {
+                string msg = "";
+                if (program != null && program.Crid != null)
+                {
+                    msg += $" program_crid: {program.Crid} ";
+                    msg += $" program_epg_id: {program.EpgID} ";
+                }
+
+                if (e.InnerException != null && e.InnerException.Message != null)
+                {
+                    msg += $" InnerException: {e.InnerException.Message} ";
+                }
+
+                _Logger.Debug($"Error while calling SerializeEpgObject {msg} {e.Message}", e);
+                throw;
+            }
 
         }
 
@@ -137,9 +174,20 @@ namespace IngestHandler.Common
             bulkRequests.Clear();
         }
 
-        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string index)
+        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string index, bool deleteByExternal=true)
         {
+            if (programsToDelete.Count()==0)
+            {
+                return;
+            }
             var programIds = programsToDelete.Select(program => program.EpgId);
+            var externalIds = new List<string>();
+
+            var channelIds = programsToDelete.Select(x => x.ChannelId).Distinct().ToList();
+            if (deleteByExternal)
+            {
+                externalIds= programsToDelete.Select(program => program.EpgExternalId).Distinct().ToList();
+            }
 
             // We will retry deletion until the sum of all deleted programs is equal to the total docs deleted, this is becasue
             // there is an issue in elastic 2.3 where we cannot be sure it will find the item to delete
@@ -156,14 +204,14 @@ namespace IngestHandler.Common
                     _Logger.Warn($"delete attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
                 });
 
-                var deleteQuery = GetElasticsearchQueryForEpgIDs(programIds);
+                var deleteQuery = GetElasticsearchQueryForEpgIDs(programIds, externalIds ?? new List<string>(), channelIds);
                 policy.Execute(() =>
                 {
                     _ElasticSearchClient.DeleteDocsByQuery(index, "", ref deleteQuery, out var deletedDocsCount);
                     totalDocumentsDeleted += deletedDocsCount;
                     if (totalDocumentsDeleted < programIds.Count())
-                    {
-                        throw new Exception($"requested to delete {programIds.Count()} programs but actually deleted so far {totalDocumentsDeleted}");
+                    {                            
+                       // throw new Exception($"requested to delete {programIds.Count()} programs but actually deleted so far {totalDocumentsDeleted} program ids are: {string.Join(",", programIds)}");
                     }
                 });
             }
@@ -200,7 +248,7 @@ namespace IngestHandler.Common
             return Math.Ceiling((epg.EndDate.AddDays(BulkUploadMethods.EXPIRY_DATE_DELTA) - DateTime.UtcNow).TotalMinutes);
         }
 
-        private static string GetElasticsearchQueryForEpgIDs(IEnumerable<ulong> programIds)
+        public static string GetElasticsearchQueryForEpgIDs(IEnumerable<ulong> programIds, IEnumerable<string> externalIds, List<int> channelIds)
         {
             // Build query for getting programs
             var query = new FilteredQuery(true);
@@ -211,13 +259,22 @@ namespace IngestHandler.Common
             query.PageSize = 1;
             query.ReturnFields.Clear();
 
-            var composite = new FilterCompositeType(CutWith.AND);
+            var composite = new FilterCompositeType(CutWith.OR);
 
             // build terms query: epg_id IN (1, 2, 3 ... bulkSize)
 
-            var terms = ESTerms.GetSimpleNumericTerm("epg_id", programIds);
-            composite.AddChild(terms);
+            var epgIdTerms = ESTerms.GetSimpleNumericTerm("epg_id", programIds);
+            
+            composite.AddChild(epgIdTerms);
 
+            //external id must be in one of the given channels
+            var externalIdsComposite = new FilterCompositeType(CutWith.AND);
+            var epgExternalIdTerms = ESTerms.GetSimpleStringTerm("epg_identifier", externalIds);
+            var epgChannelIdTerms = ESTerms.GetSimpleStringTerm("epg_channel_id", channelIds);
+            externalIdsComposite.AddChild(epgExternalIdTerms);
+            externalIdsComposite.AddChild(epgChannelIdTerms);
+
+            composite.AddChild(externalIdsComposite);
             filter.FilterSettings = composite;
             query.Filter = filter;
 

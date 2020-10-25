@@ -31,9 +31,9 @@ namespace Synchronizer
         /// any other process to request same lock
         /// </summary>
         /// <returns>Ture if successfully locked, flase otherwise</returns>
-        public bool Lock(IEnumerable<string> keys, int numOfRetries, int retryIntervalMs, int ttlSeconds, string lockInitiator)
+        public bool Lock(IEnumerable<string> keys, int numOfRetries, int retryIntervalMs, int ttlSeconds, string lockInitiator,string globalLockKeyNameInitiator = "")
         {
-            var globalLockKey = GetGlobalLockKey(_GroupId);
+            var globalLockKey = GetGlobalLockKey(_GroupId)+ globalLockKeyNameInitiator ;
             // global lock object is used when aquiring lock on multiple keys.
             // it is here to make sure tow processes will not aquires partial lock form each list which will cause a deadlock
             var globalLockObj = new LockObjectDocument() { LockInitiator = $"{lockInitiator}_{string.Join("_", keys)}" };
@@ -51,6 +51,7 @@ namespace Synchronizer
                     var isLockedSucess = LockSingleKey(numOfRetries, retryIntervalMs, ttlSeconds, lockObj, key);
                     if (!isLockedSucess)
                     {
+                        _Logger.Error($"DistributedLock > Could not acquired lock on key:[{key}], all retry attempts exhausted.");
                         return false;
                     }
                 }
@@ -67,6 +68,8 @@ namespace Synchronizer
             _Logger.Debug($"DistributedLock > Acquired lock on key:[{string.Join(",", keys)}]...");
             return true;
         }
+
+
 
         private bool LockSingleKey(int numOfRetries, int retryIntervalMs, int ttlSeconds, LockObjectDocument lockObj, string key)
         {
@@ -87,7 +90,6 @@ namespace Synchronizer
 
             if (lockAttempt >= numOfRetries)
             {
-                _Logger.Error($"DistributedLock > Could not acquired lock on key:[{key}], all retry attempts exhausted.");
                 return false;
             }
 
@@ -100,6 +102,9 @@ namespace Synchronizer
         /// <param name="keys"></param>
         public void Unlock(IEnumerable<string> keys)
         {
+            if (keys == null || !keys.Any())
+                return;
+
             foreach (var key in keys)
             {
                 if (_KeyValueStore.Remove(key))
