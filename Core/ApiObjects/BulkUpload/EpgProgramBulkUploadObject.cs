@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 namespace ApiObjects.BulkUpload
 {
-    // TODO: Move and merge with all other epg objects
+    [Serializable]
+    // TODO: Move and merge with all other epg objects    
     public class EpgProgramBulkUploadObject : IBulkUploadObject, IAffectedObject, IEquatable<EpgProgramBulkUploadObject>
     {
         public programme ParsedProgramObject { get; set; }
@@ -17,7 +18,8 @@ namespace ApiObjects.BulkUpload
         public string ChannelExternalId { get; set; }
         public long LinearMediaId { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime EndDate { get; set; }        
+        public DateTime UpdateDate { get; set; }        
         public bool IsAutoFill { get; set; }
         ulong IAffectedObject.ObjectId { get => EpgId; }
 
@@ -37,7 +39,7 @@ namespace ApiObjects.BulkUpload
 
         public override string ToString()
         {
-            return $"{{EpgId:{EpgId}, EpgExternalId:{EpgExternalId}, ChannelId:{ChannelId}, StartDate:{StartDate}, EndDate:{EndDate}}}";
+            return $"{{EpgId:{EpgId}, EpgExternalId:{EpgExternalId}, ChannelId:{ChannelId}, StartDate:{StartDate}, EndDate:{EndDate}, UpdateDate:{UpdateDate}}} ";
         }
     }
 }

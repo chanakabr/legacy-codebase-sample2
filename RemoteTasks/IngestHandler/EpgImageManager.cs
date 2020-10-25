@@ -97,31 +97,45 @@ namespace IngestHandler
             GetExistingPictures(groupID, validPicturesToUpload);
             var picsToInsert = validPicturesToUpload.Where(p => p.Object.PicID <= 0);
 
-            InsertNewPicturesToDB(groupID, picsToInsert);
+            InsertNewPicturesToDB(groupID, picsToInsert.ToList());
 
             return results;
         }
 
-        private static void InsertNewPicturesToDB(int groupID, IEnumerable<GenericResponse<EpgPicture>> picsToInsert)
+        private static void InsertNewPicturesToDB(int groupID, List<GenericResponse<EpgPicture>> picsToInsert)
         {
-            var epgPictures = new Dictionary<int, EpgPicture>();
+            var picIdPerEpgPictureCache = new Dictionary<string, int>();
             foreach (var picResult in picsToInsert)
             {
                 var pic = picResult.Object;
-                int nPicID = ImporterImpl.DownloadEPGPic(pic.Url, pic.PicName, groupID, 0, pic.ChannelId, pic.RatioId, pic.ImageTypeId);
-                pic.PicID = nPicID;
-                epgPictures[nPicID]=pic;
+                string epgPicKey = pic.Url+pic.PicName+ groupID+ 0+ pic.ChannelId+ pic.RatioId+ pic.ImageTypeId;
+                if (picIdPerEpgPictureCache.ContainsKey(epgPicKey))
+                {
+                    pic.PicID = picIdPerEpgPictureCache[epgPicKey];
+                }
+                else
+                {
+                    pic.PicID = ImporterImpl.DownloadEPGPic(pic.Url, pic.PicName, groupID, 0, pic.ChannelId, pic.RatioId, pic.ImageTypeId);
+                    picIdPerEpgPictureCache[epgPicKey] = pic.PicID;
+                }
             }
 
+            var EpgUrlPerId = EpgIngest.Utils.GetEpgPicsBaseUrls(groupID, picsToInsert.Where(x => x.Object != null).Select(x => x.Object.PicID).Distinct().ToList());
 
-            var EpgUrlPerId
-                = EpgIngest.Utils.GetEpgPicsBaseUrls(groupID, epgPictures.Keys.ToList());
-
-            foreach (var epgPerID in EpgUrlPerId)
+            foreach (var picData in EpgUrlPerId)
             {
-                epgPictures[epgPerID.Key].Url = epgPerID.Value;
-                epgPictures[epgPerID.Key].BaseUrl = epgPerID.Value;
+                var allPicsById = picsToInsert.Where(x => x.Object != null && x.Object.PicID == picData.Key).Select(x=>x.Object).ToList();
+                if (allPicsById.Any())
+                {
+                    foreach (var pic in allPicsById)
+                    {
+                        pic.BaseUrl = picData.Value;
+                        pic.Url = picData.Value;
+                    }
+                }
             }
+
+            
             
         }
 

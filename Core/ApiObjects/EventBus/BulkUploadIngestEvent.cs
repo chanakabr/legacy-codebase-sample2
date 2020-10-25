@@ -8,8 +8,9 @@ using EventBus.Abstraction;
 
 namespace ApiObjects.EventBus
 {
+    [Serializable]
     public class BulkUploadIngestEvent : BulkUploadEvent
-    {
+    {        
         public DateTime DateOfProgramsToIngest { get; set; }
 
         public List<EpgProgramBulkUploadObject> ProgramsToIngest { get; set; }
