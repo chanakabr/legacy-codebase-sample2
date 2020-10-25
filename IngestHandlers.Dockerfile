@@ -17,7 +17,8 @@ RUN sh /src/Core/DllVersioning.Core.sh . && \
     dotnet publish -c Release "./HealthCheck/HealthCheck.csproj" -o /src/published/HealthCheck && \
     dotnet publish -c Release "./IngestHandler/IngestHandler.csproj" -o /src/published/IngestHandler && \
     dotnet publish -c Release "./IngestTransformationHandler/IngestTransformationHandler.csproj" -o /src/published/IngestTransformationHandler && \
-    dotnet publish -c Release "./IngestValidationHandler/IngestValidationHandler.csproj" -o /src/published/IngestValidationHandler
+    dotnet publish -c Release "./IngestValidationHandler/IngestValidationHandler.csproj" -o /src/published/IngestValidationHandler && \
+	dotnet publish -c Release "./CampaignHandler/CampaignHandler.csproj" -o /src/published/CampaignHandler
 
 
 # Cannot use alpine base runtime image because of this issue:
@@ -30,7 +31,7 @@ WORKDIR /opt
 
 ENV RUN_TASK=no-task-selected
 ENV CONCURRENT_CONSUMERS=1
-ENV API_LOG_DIR=/var/log/remote-tasks/
+ENV API_LOG_DIR=/var/log/ingesthandlera/
 
 COPY --chown=${USER_ID}:${GROUP_ID} --from=builder /src/published .
 
@@ -44,7 +45,7 @@ RUN update-ca-certificates && \
     addgroup -g ${GROUP_ID} -S ott-users && \
     adduser -D -S -s /sbin/nologin -G ott-users kaltura -u ${USER_ID} && \
     mkdir -p ${API_LOG_DIR} && chown -R ${USER_ID}:${GROUP_ID} ${API_LOG_DIR} && \
-    apk add --no-cache icu-libs
+    apk add --no-cache icu-libs curl less
 USER kaltura
 ###### deploy root CA ######
 
