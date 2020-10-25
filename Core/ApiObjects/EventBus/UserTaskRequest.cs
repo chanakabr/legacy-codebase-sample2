@@ -9,6 +9,7 @@ using EventBus.Abstraction;
 
 namespace ApiObjects.EventBus
 {
+    [Serializable]
     public class UserTaskRequest : ServiceEvent
     {
         [JsonProperty("task")]

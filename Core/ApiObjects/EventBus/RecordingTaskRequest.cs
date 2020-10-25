@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 namespace ApiObjects.EventBus
 {
+    [Serializable]
     public class RecordingTaskRequest : DelayedServiceEvent
     {
         [JsonProperty("recording_task")]

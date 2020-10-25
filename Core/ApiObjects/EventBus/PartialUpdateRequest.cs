@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 namespace ApiObjects.EventBus
 {
+    [Serializable]
     public class PartialUpdateRequest : ServiceEvent
     {
         [JsonProperty("assets")]

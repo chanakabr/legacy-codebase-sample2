@@ -1,8 +1,10 @@
 ﻿using EventBus.Abstraction;
 using Newtonsoft.Json;
+using System;
 
 namespace ApiObjects.EventBus
 {
+    [Serializable]
     public class MessageInterestRequest : DelayedServiceEvent
     {
         [JsonProperty("start_time")]
