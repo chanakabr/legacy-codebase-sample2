@@ -1,39 +1,35 @@
 ﻿using KLogMonitor;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
+using System.IO;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace EventBus.Abstraction
 {
-
-    public class ServiceEventRoutingKeyOverrideAttribute : Attribute
+    public class ServiceEventNameAttribute : Attribute
     {
-        public string RoutingKey { get; set; }
+        public string Name { get; set; }
 
-        public ServiceEventRoutingKeyOverrideAttribute(string name)
+        public ServiceEventNameAttribute(string name)
         {
-            RoutingKey = name;
+            Name = name;
         }
     }
 
+    [Serializable]
     public abstract class ServiceEvent
     {
         public ServiceEvent()
         {
             this.RequestId = KLogger.GetRequestId();
+            this.EventNameOverride = null;
         }
 
-        [JsonProperty("group_id")]
-        public int GroupId { get; set; }
+        [JsonProperty("group_id")] public int GroupId { get; set; }
 
-        [JsonProperty("req_id")]
-        public string RequestId { get; set; }
-        
-        // in some cases service events will have keys to identify the messgae
-        // e.g when sending event via kafka every  message has a key
-        [JsonIgnore]
-        public virtual string EventKey { get; }
-
+        [JsonProperty("req_id")] public string RequestId { get; set; }
 
         private long _UserId;
 
@@ -52,12 +48,48 @@ namespace EventBus.Abstraction
         }
 
 
-        public static string GetEventRoutingKey(Type eventType)
+        // in some cases service events will have keys to identify the message
+        // e.g when sending event via kafka every  message has a key
+        [JsonIgnore] public virtual string EventKey { get; }
+
+        // in some cases service events need to be re-routed from their default
+        // key that is calculated by reflection and get the routing key from configuration at runtime
+        [JsonIgnore] public virtual string EventNameOverride { get; set; }
+
+        // some events are intended to be published to a dedicated per partner consumer
+        // when this value is set to true the event will using dedicated partner routing convention
+        [JsonIgnore] public virtual bool EventForGroupDedicatedConsumer { get; set; }
+
+        public string GetEventName()
         {
-            var routingKeyOverride = eventType.GetCustomAttribute<ServiceEventRoutingKeyOverrideAttribute>();
+            var eventName = EventNameOverride ?? GetEventName(this.GetType());
+            return eventName;
+        }
+
+        public string GetRoutingKey()
+        {
+            var eventName = this.GetEventName();
+            if (EventForGroupDedicatedConsumer)
+            {
+                return GetDedicatedPartnerRoutingKey(this.GroupId, eventName);
+            }
+
+            return eventName;
+        }
+
+        public static string GetDedicatedPartnerRoutingKey(int? partnerId, string eventName)
+        {
+            var partnerIdTag = partnerId.HasValue ? $"{partnerId}_" : "";
+            var routingKey = $"{partnerIdTag}{eventName}";
+            return routingKey;
+        }
+
+        public static string GetEventName(Type eventType)
+        {
+            var routingKeyOverride = eventType.GetCustomAttribute<ServiceEventNameAttribute>();
             if (routingKeyOverride != null)
             {
-                return routingKeyOverride.RoutingKey;
+                return routingKeyOverride.Name;
             }
 
 
@@ -65,23 +97,18 @@ namespace EventBus.Abstraction
             return $"{eventType.Namespace}.{eventType.Name}";
         }
 
-        public static string GetEventRoutingKey(ServiceEvent e) => GetEventRoutingKey(e.GetType());
+        
 
         public override string ToString()
         {
             try
             {
-                return $"groupId {GroupId} requestId {RequestId} eventName: {GetEventRoutingKey(this.GetType())}";
+                return $"groupId {GroupId} requestId {RequestId} eventName: {GetEventName(this.GetType())}";
             }
             catch
             {
                 return base.ToString();
             }
-        }
-
-        public virtual string Serialize()
-        {
-            return JsonConvert.SerializeObject(this);
         }
     }
 }

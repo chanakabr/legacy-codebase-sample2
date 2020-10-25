@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,15 +33,22 @@ namespace EventBus.RabbitMQ
         private List<IModel> _ConsumerChannels;
         private string _QueueName;
         private bool _Disposed;
+        private IEnumerable<int> _PartnerIds;
 
-        public static EventBusConsumerRabbitMQ GetInstanceUsingTCMConfiguration(IServiceProvider serviceProvide, IRabbitMQPersistentConnection persistentConnection, string queueName, int concurrentConsumers)
+        public static EventBusConsumerRabbitMQ GetInstanceUsingTCMConfiguration(
+            IServiceProvider serviceProvide, 
+            IRabbitMQPersistentConnection persistentConnection, 
+            string queueName, 
+            int concurrentConsumers, 
+            IEnumerable<int> partnerIds)
         {
             var eventBusConsumer = new EventBusConsumerRabbitMQ(
                 serviceProvide,
                 persistentConnection,
                 ApplicationConfiguration.Current.RabbitConfiguration.EventBus.Exchange.Value,
                 queueName,
-                concurrentConsumers);
+                concurrentConsumers,
+                partnerIds);
 
             return eventBusConsumer;
         }
@@ -47,7 +58,8 @@ namespace EventBus.RabbitMQ
             IRabbitMQPersistentConnection persistentConnection,
             string exchangeName = "kaltura_event_bus",
             string queueName = null,
-            int concurrentConsumers = 4)
+            int concurrentConsumers = 4,
+            IEnumerable<int> partnerIds = null)
         {
             _Handlers = new ConcurrentDictionary<string, HashSet<SubscriptionInfo>>();
             _ServiceProvide = serviceProvide;
@@ -55,15 +67,32 @@ namespace EventBus.RabbitMQ
             _ExchangeName = exchangeName;
             _QueueName = queueName;
             _ConcurrentConsumers = concurrentConsumers;
+            _PartnerIds = partnerIds;
         }
 
         public Task StartConsumerAsync(CancellationToken cancellationToken)
         {
             _Logger.Info("Starting kaltura event-bus consumer...");
-            for (var i = 0; i < _ConcurrentConsumers; i++)
+            if (_PartnerIds != null)
             {
-                _Logger.Info($"Connecting consumer [{i + 1}/{_ConcurrentConsumers}]");
-                ConnectConsumer();
+                foreach (var partnerId in _PartnerIds)
+                {
+                    _Logger.Info($"Connecting consumer for partner [{partnerId}]");
+
+                    for (var i = 0; i < _ConcurrentConsumers; i++)
+                    {
+                        _Logger.Info($"Connecting partner:[{partnerId}] consumer:[{i + 1}/{_ConcurrentConsumers}]");
+                        ConnectConsumer(partnerId);
+                    }
+                }
+            }
+            else
+            {
+                for (var i = 0; i < _ConcurrentConsumers; i++)
+                {
+                    _Logger.Info($"Connecting consumer [{i + 1}/{_ConcurrentConsumers}]");
+                    ConnectConsumer();
+                }
             }
 
             _Logger.Info("Listening to following events...");
@@ -98,16 +127,13 @@ namespace EventBus.RabbitMQ
 
         public void Subscribe(Type eventType, Type handlerType)
         {
-            var routingKey = ServiceEvent.GetEventRoutingKey(eventType);
+            var routingKey = ServiceEvent.GetEventName(eventType);
             var subscriptionInfo = new SubscriptionInfo(eventType, handlerType);
             _Logger.Debug($"Subscribing [{subscriptionInfo}]");
 
             if (!_Handlers.ContainsKey(routingKey))
             {
                 _Handlers[routingKey] = new HashSet<SubscriptionInfo>();
-                // If we are already connected and someone asked to dynamically subscribe we need to add a new binding
-                // otherwise the bindings for all subscriptions during configuration will be done in StartAsync
-                if (_ConsumerChannels != null) { InitializeNewEventBinding(routingKey); }
             }
 
             _Handlers[routingKey].Add(subscriptionInfo);
@@ -115,7 +141,7 @@ namespace EventBus.RabbitMQ
 
         public void Unsubscribe(Type eventType, Type handlerType)
         {
-            var eventName = ServiceEvent.GetEventRoutingKey(eventType);
+            var eventName = ServiceEvent.GetEventName(eventType);
             var subscriptionInfo = new SubscriptionInfo(eventType, handlerType);
             if (_Handlers.TryGetValue(eventName, out var handlersForEvent))
             {
@@ -159,15 +185,15 @@ namespace EventBus.RabbitMQ
 
         }
 
-        private void ConnectConsumer()
+        
+
+        private void ConnectConsumer(int? partnerId = null)
         {
-            _Logger.Info($"Creating consumer channel");
+            _Logger.Info($"Creating consumer channel for partner:[{partnerId}]");
             _ConsumerChannels = _ConsumerChannels ?? new List<IModel>();
             var currentConsumer = _PersistentConnection.CreateModel();
             _ConsumerChannels.Add(currentConsumer);
 
-
-            // TODO: Consider making exchangeType configurable
             const string exchangeType = "direct";
             const bool isExchangeDurable = true;
             _Logger.Info($"Declaring exchangeName:[{_ExchangeName}], exchangeType:[{exchangeType}], isExchangeDurable:[{isExchangeDurable}]");
@@ -176,12 +202,16 @@ namespace EventBus.RabbitMQ
             const bool isQueueDurable = true;
             const bool isQueueExclusive = false;
             const bool autoDelete = false;
-            _Logger.Info($"Declaring queue:[{_QueueName}], isQueueDurable:[{isQueueDurable}], isQueueExclusive:[{isQueueExclusive}]");
-            currentConsumer.QueueDeclare(_QueueName, isQueueDurable, isQueueExclusive, autoDelete);
+            
+            var partnerIdTag = partnerId.HasValue ? $"{partnerId}_" : "";
+            var dedicatedQueueName = $"{partnerIdTag}{_QueueName}";
+            _Logger.Info($"Declaring queue:[{dedicatedQueueName}], isQueueDurable:[{isQueueDurable}], isQueueExclusive:[{isQueueExclusive}]");
+            currentConsumer.QueueDeclare(dedicatedQueueName, isQueueDurable, isQueueExclusive, autoDelete);
 
             foreach (var eventName in _Handlers.Keys)
             {
-                InitializeNewEventBinding(eventName);
+                var routingKey = ServiceEvent.GetDedicatedPartnerRoutingKey(partnerId, eventName);
+                InitializeNewEventBinding(dedicatedQueueName, routingKey);
             }
 
             _Logger.Info($"Configuring consumer...");
@@ -190,7 +220,7 @@ namespace EventBus.RabbitMQ
 
             const bool isConsumerAutoAck = false;
             _Logger.Info($"Starting to consume events isConsumerAutoAck:[{isConsumerAutoAck}]");
-            currentConsumer.BasicConsume(_QueueName, isConsumerAutoAck, consumer);
+            currentConsumer.BasicConsume(dedicatedQueueName, isConsumerAutoAck, consumer);
             currentConsumer.BasicQos(0, 1, false);
             currentConsumer.CallbackException += ConsumerOnCallbackException;
 
@@ -223,9 +253,21 @@ namespace EventBus.RabbitMQ
         private async Task ConsumerOnReceived(object sender, BasicDeliverEventArgs eventArgs)
         {
             var consumer = (AsyncEventingBasicConsumer)sender;
-            var eventName = eventArgs.RoutingKey;
-            var message = Encoding.UTF8.GetString(eventArgs.Body);
-            _Logger.Debug($"Channel:[{consumer.Model.ChannelNumber}] ConsumerTag:[{consumer.ConsumerTag}] received event:[{eventName}]]");
+            var routingKey = eventArgs.RoutingKey;
+            var headers = eventArgs.BasicProperties.Headers;
+            
+            // By default the event name is the routing key with which it was sent.
+            // In case of a dedicated consumer, the event name and the routing key does not match
+            // because of the partnerId prefix added to the routing key.
+            // In this case an additional header will be sent representing the eventName
+            var eventName = routingKey;
+            if (headers.TryGetValue(EventBusPublisherRabbitMQ.HEADER_KEY_EVENT_BASE_NAME, out var eventNameBytes))
+            {
+                eventName = Encoding.UTF8.GetString((byte[]) eventNameBytes);
+            }
+            
+                       
+            _Logger.Debug($"Channel:[{consumer.Model.ChannelNumber}] ConsumerTag:[{consumer.ConsumerTag}] received event:[{eventName}]], on routing key:[{routingKey}]");
 
             try
             {
@@ -234,7 +276,7 @@ namespace EventBus.RabbitMQ
                 await Task.Yield();
                 if (_Handlers.ContainsKey(eventName))
                 {
-                    await ProcessEvent(eventName, message);
+                    await ProcessEvent(eventName, eventArgs.Body,eventArgs.BasicProperties.Headers);
                 }
                 else
                 {
@@ -247,12 +289,12 @@ namespace EventBus.RabbitMQ
             }
             catch (Exception e)
             {
-                _Logger.Error($"Error during invocation of ProcessEvent([{eventName}],[{message}]).", e);
+                _Logger.Error($"Error during invocation of ProcessEvent([{eventName}]).", e);
                 consumer.Model.BasicNack(eventArgs.DeliveryTag, multiple: false, requeue: false);
             }
         }
 
-        private async Task ProcessEvent(string eventName, string message)
+        private async Task ProcessEvent(string eventName, byte[] message, IDictionary<string, object> headers)
         {
             var subscriptions = _Handlers[eventName];
 
@@ -277,14 +319,21 @@ namespace EventBus.RabbitMQ
                         return;
                     }
 
-                    var eventType = subscription.EventType;
-                    var serviceEvent = JsonConvert.DeserializeObject(message, eventType);
+                    Type eventType = subscription.EventType;
+                    var serviceEvent = RabbitMqSerializationsHelper.Deserialize(message, eventType);
+                    
+                    
                     SetLoggingContext(serviceEvent);
                     await (Task)handleMethod.Invoke(handler, new[] { serviceEvent });
                 }
             }
 
         }
+
+
+        
+
+
 
         private void SetLoggingContext(object serviceEvent)
         {
@@ -297,13 +346,14 @@ namespace EventBus.RabbitMQ
             KLogger.LogContextData[KLogMonitor.Constants.REQUEST_ID_KEY] = eventData.RequestId;
         }
 
-        private void InitializeNewEventBinding(string eventName)
+        private void InitializeNewEventBinding(string dedicatedQueueName, string routingKey)
         {
-            _Logger.Info($"Initializing new event binding on queue:[{_QueueName}], exchange:{_ExchangeName}, routingKey:[{eventName}]");
+            _Logger.Info($"Initializing new event binding on queue:[{_QueueName}], exchange:{_ExchangeName}, routingKey:[{routingKey}]");
             using (var channel = _PersistentConnection.CreateModel())
             {
-                channel.QueueBind(_QueueName, _ExchangeName, eventName);
+                channel.QueueBind(dedicatedQueueName, _ExchangeName, routingKey);
             }
         }
+        
     }
 }

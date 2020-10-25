@@ -29,12 +29,26 @@ namespace ApiObjects
         }
 
         public void AddRange(CRUDOperations<T> crudsToAdd)
-        {
+        {            
             ItemsToAdd.AddRange(crudsToAdd.ItemsToAdd);
             ItemsToUpdate.AddRange(crudsToAdd.ItemsToUpdate);
             ItemsToDelete.AddRange(crudsToAdd.ItemsToDelete);
             RemainingItems.AddRange(crudsToAdd.RemainingItems);
             AffectedItems.AddRange(crudsToAdd.AffectedItems);
+        }
+
+
+        /// <summary>
+        /// removes duplicates before adding to crud
+        /// </summary>
+        /// <param name="crudsToAdd"></param>
+        public void AddRangeUnique(CRUDOperations<T> crudsToAdd)
+        {
+            ItemsToAdd.AddRange(crudsToAdd.ItemsToAdd.ToHashSet());
+            ItemsToUpdate.AddRange(crudsToAdd.ItemsToUpdate.ToHashSet());
+            ItemsToDelete.AddRange(crudsToAdd.ItemsToDelete.ToHashSet());
+            RemainingItems.AddRange(crudsToAdd.RemainingItems.ToHashSet());
+            AffectedItems.AddRange(crudsToAdd.AffectedItems.ToHashSet());
         }
 
         public override string ToString()

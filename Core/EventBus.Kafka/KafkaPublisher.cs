@@ -43,9 +43,9 @@ namespace EventBus.Kafka
         {
             using (var kmon = new KLogMonitor.KMonitor(Events.eEvent.EVENT_KAFKA, serviceEvent.GroupId.ToString(), "kafka.publish", serviceEvent.RequestId))
             {
-                var topic = ServiceEvent.GetEventRoutingKey(serviceEvent);
+                var topic = serviceEvent.GetRoutingKey();
                 var key = serviceEvent.EventKey;
-                var payload = serviceEvent.Serialize();
+                var payload = JsonConvert.SerializeObject(serviceEvent);
                 kmon.Database = topic;
                 kmon.Table = key;
 
