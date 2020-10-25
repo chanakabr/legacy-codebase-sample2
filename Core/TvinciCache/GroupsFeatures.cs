@@ -13,9 +13,8 @@ namespace TvinciCache
 {
     public class GroupsFeatures
     {
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        
         public static bool GetGroupFeatureStatus(int groupId, GroupFeature groupFeature)
         {
             bool res = false;
@@ -23,8 +22,8 @@ namespace TvinciCache
             try
             {
                 string key = LayeredCacheKeys.GroupFeaturesKey(groupId);
-                if (!LayeredCache.Instance.Get<Dictionary<GroupFeature, bool>>(key, ref groupFeatures, GetGroupFeatures, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                                                    LayeredCacheConfigNames.GROUP_FEATURES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupFeatureInvalidationKey(groupId) }))
+                if (!LayeredCache.Instance.Get<Dictionary<GroupFeature, bool>>(key, ref groupFeatures, GetGroupFeatures, new Dictionary<string, object>() {{"groupId", groupId}}, groupId,
+                    LayeredCacheConfigNames.GROUP_FEATURES_LAYERED_CACHE_CONFIG_NAME, new List<string>() {LayeredCacheKeys.GetGroupFeatureInvalidationKey(groupId)}))
                 {
                     log.DebugFormat("GetGroupFeatureStatus - Couldn't get groupId {0} features", groupId);
                 }
@@ -32,8 +31,6 @@ namespace TvinciCache
                 {
                     res = groupFeatures[groupFeature];
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -43,6 +40,19 @@ namespace TvinciCache
             return res;
         }
 
+        public static IEnumerable<int> GetGroupsThatImplementFeature(GroupFeature featureKey)
+        {
+            try
+            {
+                return UtilsDal.GetGroupsThatImplementFeature(featureKey.ToString());
+            }
+            catch (Exception e)
+            {
+                log.Error($"GetGroupsThatImplementFeature failed, featureKey:[{featureKey}]", e);
+                return null;
+            }
+        }
+
         private static Tuple<Dictionary<GroupFeature, bool>, bool> GetGroupFeatures(Dictionary<string, object> funcParams)
         {
             bool res = false;
@@ -50,7 +60,7 @@ namespace TvinciCache
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
-                {                    
+                {
                     int? groupId = funcParams["groupId"] as int?;
                     groupFeatures = UtilsDal.GetGroupFeatures(groupId.Value);
                     if (groupFeatures == null)
@@ -68,6 +78,5 @@ namespace TvinciCache
 
             return new Tuple<Dictionary<GroupFeature, bool>, bool>(groupFeatures, res);
         }
-
     }
 }

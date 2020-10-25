@@ -5,7 +5,7 @@ using System;
 
 namespace Core.Catalog
 {
-    [Serializable]
+    [Serializable]    
     public class MediaAssetBulkUploadRequest : ServiceEvent
     {
         [JsonProperty("bulk_upload_id")]
