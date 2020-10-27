@@ -14,7 +14,7 @@ namespace EventBus.RabbitMQ
 {
     public class EventBusConfiguration
     {
-        public Func<IEnumerable<int>> DedicatedConsumerTagsResolver { get; set; }
+        public Func<IEnumerable<int>> DedicatedPartnerIdsResolver { get; set; }
     }
 
     public class RabbitMQConnectionDetails
@@ -144,10 +144,10 @@ namespace EventBus.RabbitMQ
         private static IEnumerable<int> GetDedicatedConsumerPartnerIds()
         {
             IEnumerable<int> partnerIds = null;
-            if (_Configuration.DedicatedConsumerTagsResolver != null)
+            if (_Configuration.DedicatedPartnerIdsResolver != null)
             {
                 _Logger.Info($"Detected dedicated consumer requirement configuration, resolving partner Ids.");
-                partnerIds = _Configuration.DedicatedConsumerTagsResolver();
+                partnerIds = _Configuration.DedicatedPartnerIdsResolver();
                 if (partnerIds?.Any() == true)
                 {
                     _Logger.Info($"Dedicated consumers for Partners: [{string.Join(",", partnerIds)}]");

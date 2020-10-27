@@ -1,6 +1,10 @@
 ﻿using System.Threading.Tasks;
 using ApiObjects;
 using EventBus.RabbitMQ;
+using IngestTransformationHandler;
+using IngestTransformationHandler.Managers;
+using IngestTransformationHandler.Repositories;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TvinciCache;
 using WebAPI.Filters;
@@ -14,9 +18,14 @@ namespace EPGTransformationHandler
             var builder = new HostBuilder()
                 .ConfigureMappings()
                 .ConfigureEventNotificationsConfig()
+                .ConfigureServices(s =>
+                {
+                    s.AddScoped<IEpgRepository, EpgRepository>();
+                    s.AddScoped<IEpgCRUDOperationsManager, EpgCRUDOperationsManager>();
+                })
                 .ConfigureEventBustConsumer(c =>
                 {
-                    c.DedicatedConsumerTagsResolver = () => GroupsFeatures.GetGroupsThatImplementFeature(GroupFeature.EPG_INGEST_V2);
+                    c.DedicatedPartnerIdsResolver = () => GroupsFeatures.GetGroupsThatImplementFeature(GroupFeature.EPG_INGEST_V2);
                 });
             await builder.RunConsoleAsync();
         }

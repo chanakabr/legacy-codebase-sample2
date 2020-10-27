@@ -11,11 +11,8 @@ namespace EpgBL
 {
     public static class Utils
     {
-
-        #region CONST
         private const int YES_REGULAR = 154;
         private const int YES = 153;
-        #endregion
 
         public static BaseEpgBL GetInstance(int nGroupID)
         {
@@ -58,13 +55,10 @@ namespace EpgBL
             return dChannelEpgList;
         }
 
-
-
         public static List<Tuple<EpgProgramBulkUploadObject, EpgProgramBulkUploadObject>> GetOverlappingPrograms(List<EpgProgramBulkUploadObject> listOfPrograms)
         {
             return GetOverlappingPrograms(listOfPrograms, listOfPrograms);
         }
-
 
         /// <summary>
         /// Get list of overlapping programs between tow lists
@@ -76,7 +70,8 @@ namespace EpgBL
             List<EpgProgramBulkUploadObject> otherListOfPrograms)
         {
             var overlappingPairs = new List<Tuple<EpgProgramBulkUploadObject, EpgProgramBulkUploadObject>>();
-            foreach (var prog in listOfPrograms)
+            var uniqueListOfPrograms = listOfPrograms.ToHashSet().ToList();
+            foreach (var prog in uniqueListOfPrograms)
             {
                 var allOtherPrograms = otherListOfPrograms.Where(p => p.EpgExternalId != prog.EpgExternalId);
                 foreach (var otherProg in allOtherPrograms)
@@ -88,24 +83,14 @@ namespace EpgBL
                 }
             }
 
-            return overlappingPairs;
+            // make sure we return a unique list of overlaps
+            return overlappingPairs.ToHashSet().ToList();
         }
 
-
-      
-
-        /// <summary>
-        /// Get list of overlapping programs between tow lists
-        /// </summary>
-        /// <param name="listOfPrograms">1st list</param>
-        /// <param name="otherListOfPrograms">2nd list</param>
-        /// <returns>List of overlapping pairs, item1 is from 1st list item2 is from 2nd</returns>
         private static bool IsOverlappingPrograms(EpgProgramBulkUploadObject prog, EpgProgramBulkUploadObject otherProg)
         {
             // if prog starts befor other ends AND other start before the prog ends
             return prog.StartDate < otherProg.EndDate && otherProg.StartDate < prog.EndDate;
         }
-
-
     }
 }

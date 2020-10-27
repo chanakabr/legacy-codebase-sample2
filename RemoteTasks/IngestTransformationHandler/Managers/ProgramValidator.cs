@@ -1,15 +1,12 @@
-﻿using ApiObjects.BulkUpload;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
+using ApiObjects.BulkUpload;
 using ApiObjects.Response;
 
-namespace ApiLogic.Catalog.BulkUpload.Validators
+namespace IngestTransformationHandler.Managers
 {
-    public static  class ProgramValidator
+    public static class ProgramValidator
     {
-        internal static bool Validate(this EpgProgramBulkUploadObject program,BulkUploadResult epg)
+        internal static bool Validate(EpgProgramBulkUploadObject program,BulkUploadResult epg)
         {
             bool result = true;
             if (!ValidateMetadataLang(program))

@@ -18,20 +18,42 @@ namespace ApiObjects.BulkUpload
         public string ChannelExternalId { get; set; }
         public long LinearMediaId { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }        
-        public DateTime UpdateDate { get; set; }        
+        public DateTime EndDate { get; set; }
+        public DateTime UpdateDate { get; set; }
         public bool IsAutoFill { get; set; }
-        ulong IAffectedObject.ObjectId { get => EpgId; }
+
+        ulong IAffectedObject.ObjectId
+        {
+            get => EpgId;
+        }
 
         public bool Equals(EpgProgramBulkUploadObject other)
         {
             if (other is null)
                 return false;
 
-            return this.EpgId == other.EpgId 
-                && this.EpgExternalId == other.EpgExternalId
-                && this.ChannelId == other.ChannelId;
+            return this.EpgId == other.EpgId
+                   && this.EpgExternalId == other.EpgExternalId
+                   && this.ChannelId == other.ChannelId;
         }
+
+
+        public bool StartsBefore(EpgProgramBulkUploadObject otherProg) => this.StartDate < otherProg.StartDate;
+        public bool StartsBeforeOrWith(EpgProgramBulkUploadObject otherProg) => this.StartDate <= otherProg.StartDate;
+
+        public bool StartsAfter(EpgProgramBulkUploadObject otherProg) => this.StartDate > otherProg.StartDate;
+        public bool StartsAfterOrWith(EpgProgramBulkUploadObject otherProg) => this.StartDate >= otherProg.StartDate;
+
+        public bool EndsBefore(EpgProgramBulkUploadObject otherProg) => this.EndDate < otherProg.EndDate;
+        public bool EndsBeforeOrWith(EpgProgramBulkUploadObject otherProg) => this.EndDate <= otherProg.EndDate;
+
+        public bool EndsAfter(EpgProgramBulkUploadObject otherProg) => this.EndDate < otherProg.EndDate;
+        public bool EndsAfterOrWith(EpgProgramBulkUploadObject otherProg) => this.EndDate <= otherProg.EndDate;
+
+        public bool IsInMiddle(EpgProgramBulkUploadObject otherProg) => (this.StartsAfter(otherProg) && this.EndsBefore(otherProg));
+
+        public bool IsSameTimeAs(EpgProgramBulkUploadObject otherProg)
+            => this.StartDate == otherProg.StartDate && this.EndDate == otherProg.EndDate;
 
         public override bool Equals(object obj) => Equals(obj as EpgProgramBulkUploadObject);
 
@@ -39,7 +61,14 @@ namespace ApiObjects.BulkUpload
 
         public override string ToString()
         {
-            return $"{{EpgId:{EpgId}, EpgExternalId:{EpgExternalId}, ChannelId:{ChannelId}, StartDate:{StartDate}, EndDate:{EndDate}, UpdateDate:{UpdateDate}}} ";
+            return $"{{EpgId:{EpgId}, EpgExternalId:{EpgExternalId}, ChannelId:{ChannelId}, Time:{PrettyFormatDateRange(StartDate, EndDate)}, UpdateDate:{UpdateDate}}} ";
+        }
+        
+        private string PrettyFormatDateRange(DateTime start, DateTime end)
+        {
+            var startStr = $"{start:yyyy-MM-dd HH:mm}";
+            var endStr = (start.Date != end.Date) ? $"{end:yyyy-MM-dd HH:mm}" : $"{end:HH:mm}";
+            return $"{startStr} - {endStr}";
         }
     }
 }

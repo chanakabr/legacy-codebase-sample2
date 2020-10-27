@@ -77,14 +77,14 @@ namespace IngestHandler
             return nRet;
         }
 
-        public static async Task<IEnumerable<GenericResponse<EpgPicture>>> UploadEPGPictures(int groupID, IEnumerable<EpgPicture> pics)
+        public static async Task<IEnumerable<GenericResponse<EpgPicture>>> UploadEPGPictures(int groupID, IList<EpgPicture> pics)
         {
-            var results = pics.Select(p => new GenericResponse<EpgPicture>(Status.Ok, p));
+            var results = pics.Select(p => new GenericResponse<EpgPicture>(Status.Ok, p)).ToList();
             ValidatePicturesHasUrl(results);
-            var validPicturesToUpload = results.Where(p => p.IsOkStatusCode());
+            var validPicturesToUpload = results.Where(p => p.IsOkStatusCode()).ToList();
 
             await CheckPictureUrlWithHeadRequest(validPicturesToUpload);
-            validPicturesToUpload = results.Where(p => p.IsOkStatusCode());
+            validPicturesToUpload = results.Where(p => p.IsOkStatusCode()).ToList();
 
             foreach (var pic in validPicturesToUpload)
             {
@@ -181,13 +181,13 @@ namespace IngestHandler
             }
         }
 
-        private static void ValidatePicturesHasUrl(IEnumerable<GenericResponse<EpgPicture>> results)
+        private static void ValidatePicturesHasUrl(IList<GenericResponse<EpgPicture>> results)
         {
             if (results.Any(p => string.IsNullOrEmpty(p.Object.Url)))
             {
-                var picsResultsWIthoutUrl = results.Where(p => string.IsNullOrEmpty(p.Object.Url));
-                log.Error($"Some picture were sent withour Url. pics:[{string.Join(",", picsResultsWIthoutUrl.Select(r => r.Object))}], setting their Id to 0");
-                foreach (var picResult in picsResultsWIthoutUrl)
+                var picsResultsWithoutUrl = results.Where(p => string.IsNullOrEmpty(p.Object.Url)).ToList();
+                log.Error($"Some picture were sent without Url. pics:[{string.Join(",", picsResultsWithoutUrl.Select(r => r.Object))}], setting their Id to 0");
+                foreach (var picResult in picsResultsWithoutUrl)
                 {
                     picResult.SetStatus(eResponseStatus.ImageUrlRequired);
                 }

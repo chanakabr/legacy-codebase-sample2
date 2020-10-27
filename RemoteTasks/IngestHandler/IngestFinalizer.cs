@@ -76,6 +76,8 @@ namespace IngestHandler
 
                 var dailyEpgIndexName = IndexManager.GetDailyEpgIndexName(_config.GroupId, _config.DateOfProgramsToIngest);
                 var isRefreshSuccess = IndexManager.ForceRefresh(dailyEpgIndexName);
+                // TODO: arthur, consider unlock this day without waiting until the process completed, and remove the global unlock
+
                 if (!isRefreshSuccess)
                 {
                     _Logger.Error($"BulkId [{_config.BulkUploadId}], Date:[{_config.DateOfProgramsToIngest}] > index refresh failed");

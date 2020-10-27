@@ -16,7 +16,7 @@ namespace EPGTransformationHandler
                 .ConfigureEventNotificationsConfig()
                 .ConfigureEventBustConsumer(c =>
                 {
-                    c.DedicatedConsumerTagsResolver = () => GroupsFeatures.GetGroupsThatImplementFeature(GroupFeature.EPG_INGEST_V2);
+                    c.DedicatedPartnerIdsResolver = () => GroupsFeatures.GetGroupsThatImplementFeature(GroupFeature.EPG_INGEST_V2);
                 });
             await builder.RunConsoleAsync();
         }
