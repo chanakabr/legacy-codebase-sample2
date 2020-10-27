@@ -1290,7 +1290,7 @@ namespace DAL
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     // in case sent userid doesnt exist
-                    if (ds.Tables.Count == 1)
+                    if (ds.Tables.Count == 1) // looks like, SP returns 2 tables always and this code is never executed
                     {
                         res = DALUserActivationState.UserDoesNotExist;
                     }
@@ -1298,7 +1298,13 @@ namespace DAL
                     {
                         DataTable userDetails = ds.Tables[0];
                         DataTable domainDetails = ds.Tables[1];
-                        if (userDetails != null && userDetails.Rows != null && userDetails.Rows.Count > 0)
+                        var userExist = userDetails != null 
+                            && userDetails.Rows != null 
+                            && userDetails.Rows.Count > 0
+                            // dirty-hack: stored procedure shouldn't return rows when no-user/deleted, but it does return.
+                            // USERNAME is not null column, that's why it's chosen as indicator of user's abscense.
+                            && userDetails.Rows[0]["USERNAME"] != DBNull.Value;
+                        if (userExist)
                         {
                             DataRow dr = userDetails.Rows[0];
                             if (nUserID <= 0)

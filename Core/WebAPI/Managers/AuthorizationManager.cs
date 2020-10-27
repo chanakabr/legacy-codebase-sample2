@@ -19,6 +19,9 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using WebAPI.Clients;
+using ApiObjects.User;
+using ApiObjects.Response;
 
 namespace WebAPI.Managers
 {
@@ -29,11 +32,7 @@ namespace WebAPI.Managers
         private const string APP_TOKEN_PRIVILEGE_SESSION_ID = "sessionid";
         private const string APP_TOKEN_PRIVILEGE_APP_TOKEN = "apptoken";
         private const string CB_SECTION_NAME = "tokens";
-
-        private const string USERS_SESSIONS_KEY_FORMAT = "sessions_{0}";
-        private const string REVOKED_KS_KEY_FORMAT = "r_ks_{0}";
         private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
-
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 
@@ -180,7 +179,7 @@ namespace WebAPI.Managers
         private static void ValidateUser(int groupId, string userId)
         {
             // if anonymous user
-            if (userId == "0")
+            if (userId.IsAnonymous())
                 return;
 
             List<KalturaOTTUser> usersResponse = null;
@@ -265,7 +264,7 @@ namespace WebAPI.Managers
         {
             KalturaSessionInfo response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GetGroupConfiguration(groupId);
 
             // 1. get token from cb by id
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
@@ -334,19 +333,28 @@ namespace WebAPI.Managers
                 }
             }
 
+            UsersClient usersClient = ClientsManager.UsersClient();            
+            ValidateUser(groupId, userId, usersClient);
+            
+            if (group.ShouldCheckDeviceInDomain && IsEndUser())
+            {
+                DomainsClient domainsClient = ClientsManager.DomainsClient();
+                ValidateDevice(groupId, userId, udid, domainId, domainsClient);
+            }
+
             // 8. get the group secret by the session type
             string secret = sessionType == KalturaSessionType.ADMIN ? group.AdminSecret : group.UserSecret;
 
             // 9. privileges - we do not support it so copy from app token
-            var privilagesList = new Dictionary<string, string>();
+            var privilegesList = new Dictionary<string, string>();
 
-            if (!privilagesList.ContainsKey(APP_TOKEN_PRIVILEGE_APP_TOKEN))
+            if (!privilegesList.ContainsKey(APP_TOKEN_PRIVILEGE_APP_TOKEN))
             {
-                privilagesList.Add(APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token);
+                privilegesList.Add(APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token);
             }
-            if (!privilagesList.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
+            if (!privilegesList.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
             {
-                privilagesList.Add(APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
+                privilegesList.Add(APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
             }
 
             if (!string.IsNullOrEmpty(appToken.SessionPrivileges))
@@ -357,15 +365,15 @@ namespace WebAPI.Managers
                     foreach (var privilige in splitedPrivileges)
                     {
                         var splitedPrivilege = privilige.Split(':');
-                        if (splitedPrivilege != null && splitedPrivilege.Length > 0 && !privilagesList.ContainsKey(splitedPrivilege[0]))
+                        if (splitedPrivilege != null && splitedPrivilege.Length > 0 && !privilegesList.ContainsKey(splitedPrivilege[0]))
                         {
                             if (splitedPrivilege.Length == 2)
                             {
-                                privilagesList.Add(splitedPrivilege[0], splitedPrivilege[1]);
+                                privilegesList.Add(splitedPrivilege[0], splitedPrivilege[1]);
                             }
                             else
                             {
-                                privilagesList.Add(splitedPrivilege[0], null);
+                                privilegesList.Add(splitedPrivilege[0], null);
                             }
                         }
                     }
@@ -374,7 +382,7 @@ namespace WebAPI.Managers
 
             // set payload data
             var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
-            var userRoles = ClientsManager.UsersClient().GetUserRoleIds(groupId, userId);
+            var userRoles = usersClient.GetUserRoleIds(groupId, userId);
             var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
 
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
@@ -386,15 +394,52 @@ namespace WebAPI.Managers
             }
 
             // 10. build the ks:
-            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, ksData, privilagesList, KS.KSVersion.V2);
+            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, ksData, privilegesList, KS.KSVersion.V2);
 
             //11. update last login date
-            ClientsManager.UsersClient().UpdateLastLoginDate(groupId, userId);
+            usersClient.UpdateLastLoginDate(groupId, userId);
 
             // 12. build the response from the ks:
             response = new KalturaSessionInfo(ks);
 
             return response;
+        }
+
+        private static bool IsEndUser()
+        {
+            return !RequestContextUtils.IsPartnerRequest();
+        }
+
+        private static readonly HashSet<ResponseStatus> validUserStatus = new HashSet<ResponseStatus> { ResponseStatus.OK, ResponseStatus.UserWithNoDomain, ResponseStatus.UserNotIndDomain, ResponseStatus.UserNotMasterApproved };
+        // TODO remove duplication with ValidateUser(int groupId, string userId)
+        private static void ValidateUser(int groupId, string userIdString, UsersClient usersClient)
+        {
+            var userId = userIdString.ParseUserId(invalidValue: -1);
+            if (userId == -1) throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "userId");
+            if (userId.IsAnonymous()) return;
+
+            var userStatus = usersClient.GetUserActivationState(groupId, userId);
+
+            if (validUserStatus.Contains(userStatus)) return;
+            
+            // ConvertResponseStatusToResponseObject use WrongPasswordOrUserName for ResponseStatus.UserDoesNotExist
+            // but we want to return more meaningful status 
+            var errorResponse = userStatus == ResponseStatus.UserDoesNotExist
+                ? new Status(eResponseStatus.InvalidUser)
+                : Core.Users.Utils.ConvertResponseStatusToResponseObject(userStatus);
+            errorResponse.ThrowOnError();
+        }
+
+        private static void ValidateDevice(int groupId, string userIdString, string udid, int domainId, DomainsClient domainsClient)
+        {
+            var skipValidation = userIdString.IsAnonymous();
+            if (skipValidation) return;
+
+            if (domainId <= 0) throw new ClientException(new Status(eResponseStatus.DeviceNotInDomain));
+            if (string.IsNullOrEmpty(udid)) throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "udid");
+
+            // throw ClientException if status != OK
+            domainsClient.GetDevice(groupId, domainId, udid, userIdString);
         }
 
         internal static KalturaAppToken AddAppToken(KalturaAppToken appToken, int groupId)
@@ -770,20 +815,6 @@ namespace WebAPI.Managers
                 {
                     log.ErrorFormat("RevokeDeviceSessions: Failed to revoke session for userId = {0}, UDID = {1}", userId, revokeAll ? "All" : udid);
                 }
-            }
-        }
-
-        private static void ValidateUdid(int groupId, string udid)
-        {
-            if (string.IsNullOrEmpty(udid))
-                return;
-
-            List<string> udids = HouseholdUtils.GetHouseholdUdids(groupId);
-
-            if (udids == null || udids.Contains(udid))
-            {
-                log.ErrorFormat("ValidateUdid: UDID not found in household. UDID = {0}", udid);
-                throw new UnauthorizedException(UnauthorizedException.INVALID_UDID, udid);
             }
         }
 
