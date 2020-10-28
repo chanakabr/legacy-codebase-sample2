@@ -36,8 +36,14 @@ pipeline {
                 buildDockerAndPushToEcr("phoenix","Phoenix.Dockerfile")
                 buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
                 buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
-                buildDockerAndPushToEcr("remote-tasks-handlers","RemoteTasks.Dockerfile")
-		buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
+                buildDockerAndPushToEcr("ingesthandlers","IngestHandlers.Dockerfile")
+				buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
+            }
+        }
+        
+        stage('Test'){
+            steps{
+                runTestInDocker("RemoteTasks/IngestV2.Tests")  
             }
         }
       
@@ -65,6 +71,17 @@ pipeline {
         always {
             report()
         }
+    }
+}
+
+def runTestInDocker(testProjPath){
+    withEnv(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME']) {
+        docker.image("mcr.microsoft.com/dotnet/core/sdk:3.1-alpine").inside(){
+            dir("${testProjPath}"){
+                sh('dotnet test --logger "junit;LogFilePath=./test-results.xml"')
+            }
+        }
+        junit "${testProjPath}/test-results.xml"
     }
 }
 

@@ -324,6 +324,10 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 string msg = $"An Exception was occurred in ProcessBulkUpload. groupId:{groupId}, userId:{userId}, bulkUploadId:{bulkUpload.Id}.";
+                if (ex is OverlapException)
+                {
+                    msg += ex.Message;
+                }
                 bulkUploadResponse.Object.AddError(eResponseStatus.Error, msg);
                 bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Fatal);
                 log.Error(msg, ex);
@@ -510,7 +514,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 var originalStatus = bulkUploadToUpdate.Status;
                 response.Object = bulkUploadToUpdate;
-
+                response.Object.Status = newStatus;
                 BulkUploadJobStatus updatedStatus;
                 if (!CatalogDAL.SaveBulkUploadStatusAndErrorsCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 {

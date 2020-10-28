@@ -316,19 +316,7 @@ namespace WebAPI.Managers
 
                 if (isPartner)
                 {
-                    if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TAGS))
-                    {
-                        var tags = (HashSet<string>)HttpContext.Current.Items[RequestContextUtils.REQUEST_TAGS];
-                        if (!tags.Contains(RequestContextUtils.REQUEST_TAGS_PARTNER_ROLE))
-                        {
-                            tags.Add(RequestContextUtils.REQUEST_TAGS_PARTNER_ROLE);
-                            HttpContext.Current.Items[RequestContextUtils.REQUEST_TAGS] = tags;
-                        }
-                    }
-                    else
-                    {
-                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_TAGS, new HashSet<string>() { RequestContextUtils.REQUEST_TAGS_PARTNER_ROLE });
-                    }
+                    RequestContextUtils.SetIsPartnerRequest();
                 }
             }
 

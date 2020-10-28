@@ -175,5 +175,12 @@ namespace Core.Users
 
             return (this.isActivationNeededProp.HasValue ? isActivationNeededProp.Value : true);
         }
+
+        public UserActivationState GetUserActivationState(ref string username, ref int userId, ref bool isGracePeriod)
+        {
+            UserActivationState activationState = (UserActivationState)UsersDal.GetUserActivationState(GroupId, activationMustHours, ref username, ref userId, ref isGracePeriod);
+
+            return activationState;
+        }
     }
 }

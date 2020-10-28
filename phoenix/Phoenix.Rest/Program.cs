@@ -14,6 +14,8 @@ namespace Phoenix.Rest
         {
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";
+            KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
+
             ConfigurationManager.ApplicationConfiguration.Init();
 
             var host = KalturaWebHostBuilder.BuildWebServerAsync<Startup>(new WebServerConfiguration

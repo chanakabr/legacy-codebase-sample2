@@ -452,7 +452,7 @@ namespace ApiObjects
             FBObjectID = string.Empty;
         }
     }
-
+    [Serializable]
     public class Stats
     {
         [JsonProperty("views")]

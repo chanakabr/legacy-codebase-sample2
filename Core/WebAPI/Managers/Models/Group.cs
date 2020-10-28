@@ -63,6 +63,9 @@ namespace WebAPI.Managers.Models
         [JsonProperty(PropertyName = "should_support_friendly_url")]
         public bool ShouldSupportFriendlyURL { get; set; }
 
+        [JsonProperty(PropertyName = "should_check_device_in_domain")]
+        public bool ShouldCheckDeviceInDomain { get; set; } = false;
+
         [JsonProperty(PropertyName = "ks_expiration_seconds")]
         public long KSExpirationSeconds { get; set; }
 

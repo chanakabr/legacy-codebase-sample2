@@ -6,6 +6,7 @@ using System.Text;
 
 namespace ApiObjects.EventBus
 {
+    [Serializable]
     public class ResizeImageRequest : ServiceEvent
     {
         public string size;

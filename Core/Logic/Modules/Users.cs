@@ -1984,5 +1984,19 @@ namespace Core.Users
 
             return stringUserIds;
         }
+
+        public static ResponseStatus GetUserActivationState(int groupId, int userId)
+        {
+            string notUsed = null;
+            bool notUsedBool = false;
+
+            KalturaBaseUsers kalturaUser = null;
+            Utils.GetBaseImpl(ref kalturaUser, groupId);
+            if (kalturaUser == null) return ResponseStatus.InternalError;
+
+            var userActivationStatus = kalturaUser.GetUserActivationState(ref notUsed, ref userId, ref notUsedBool);
+            var responseStatus = Utils.MapToResponseStatus(userActivationStatus);
+            return responseStatus;
+        }
     }
 }
