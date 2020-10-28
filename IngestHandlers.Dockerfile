@@ -30,7 +30,7 @@ WORKDIR /opt
 
 ENV RUN_TASK=no-task-selected
 ENV CONCURRENT_CONSUMERS=1
-ENV API_LOG_DIR=/var/log/ingesthandlera/
+ENV API_LOG_DIR=/var/log/ingesthandlers/
 
 COPY --chown=${USER_ID}:${GROUP_ID} --from=builder /src/published .
 
