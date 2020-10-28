@@ -364,6 +364,20 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetEvent":
+                    switch(property.Name)
+                    {
+                        case "AssetId":
+                            return "assetId";
+                        case "ExternalId":
+                            return "externalId";
+                        case "Type":
+                            return "type";
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
                 case "KalturaAssetFieldGroupBy":
                     switch(property.Name)
                     {
@@ -5425,6 +5439,14 @@ namespace WebAPI.Reflection
                             return "enableStartOver";
                         case "TrickPlayEnabled":
                             return "enableTrickPlay";
+                    }
+                    break;
+                    
+                case "KalturaProgramAssetEvent":
+                    switch(property.Name)
+                    {
+                        case "LiveAssetId":
+                            return "liveAssetId";
                     }
                     break;
                     

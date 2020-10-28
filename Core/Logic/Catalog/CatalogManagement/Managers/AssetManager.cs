@@ -3185,6 +3185,12 @@ namespace Core.Catalog.CatalogManagement
                         if (assetToAdd is EpgAsset)
                         {
                             result = EpgAssetManager.AddEpgAsset(groupId, (assetToAdd as EpgAsset), userId, catalogGroupCache);
+                            if (!isFromIngest && result.HasObject())
+                            {
+                                var epgAssetEvent = result.Object.ToAssetEvent(groupId, userId);
+                                epgAssetEvent.Insert();
+
+                            }
                         }
                         break;
                     case eAssetTypes.NPVR:
@@ -3251,6 +3257,13 @@ namespace Core.Catalog.CatalogManagement
                         {
                             result = EpgAssetManager.UpdateEpgAsset
                                 (groupId, (assetToUpdate as EpgAsset), userId, (oldAsset.Object as EpgAsset), catalogGroupCache);
+
+                            if (!isFromIngest && result.HasObject())
+                            {
+                                var epgAssetEvent = result.Object.ToAssetEvent(groupId, userId);
+                                epgAssetEvent.Update();
+
+                            }
                         }
                         break;
                     case eAssetTypes.NPVR:
@@ -3343,6 +3356,11 @@ namespace Core.Catalog.CatalogManagement
                 {
                     case eAssetTypes.EPG:
                         result = EpgAssetManager.DeleteEpgAsset(groupId, id, userId);
+                        if (result.IsOkStatusCode())
+                        {
+                            var epgAssetEvent = assets[0].ToAssetEvent(groupId, userId);
+                            epgAssetEvent.Delete();
+                        }
                         break;
                     case eAssetTypes.NPVR:
                         break;
