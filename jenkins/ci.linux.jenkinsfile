@@ -40,6 +40,12 @@ pipeline {
 				buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
             }
         }
+        
+        stage('Test'){
+            steps{
+                runTestInDocker("RemoteTasks/IngestV2.Tests")  
+            }
+        }
       
         stage("Trigger Release Candidate"){
             steps{
@@ -65,6 +71,17 @@ pipeline {
         always {
             report()
         }
+    }
+}
+
+def runTestInDocker(testProjPath){
+    withEnv(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME']) {
+        docker.image("mcr.microsoft.com/dotnet/core/sdk:3.1-alpine").inside(){
+            dir("${testProjPath}"){
+                sh('dotnet test --logger "junit;LogFilePath=./test-results.xml"')
+            }
+        }
+        junit "${testProjPath}/test-results.xml"
     }
 }
 

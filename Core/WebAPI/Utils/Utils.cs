@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using ApiObjects.User;
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -217,20 +218,7 @@ namespace WebAPI.Utils
             if (ks == null)
                 return 0;
 
-            string siteGuid = ks.UserId;
-
-            if (siteGuid == "0")
-                return 0;
-
-            long userId = 0;
-            if (long.TryParse(siteGuid, out userId) && userId > 0)
-            {
-                return userId;
-            }
-            else
-            {
-                return 0;
-            }
+            return ks.UserId.ParseUserId();
         }
         
         public static bool IsAllowedToViewInactiveAssets(int groupId, string userId, bool ignoreDoesGroupUsesTemplates = false)

@@ -11,6 +11,7 @@ using KLogMonitor;
 using System.Reflection;
 using Synchronizer;
 using ConfigurationManager;
+using System.Runtime.Serialization;
 
 namespace Core.Catalog
 {
@@ -30,38 +31,10 @@ namespace Core.Catalog
         {
             return bulkUploadObjectType;
         }
-
+        
         public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> objects)
         {
-            var hasErrors = objects.Any(o => o.Errors?.Any() == true);
-            if (hasErrors)
-            {
-                _Logger.Error($"Ingest transformation encountered errors. will no enqueue bulkUploadId:[{bulkUpload.Id}], groupId:[{bulkUpload.GroupId}]");
-                return;
-            }
-
-            var programResults = objects.Cast<BulkUploadProgramAssetResult>().Select(r => r.Object as EpgProgramBulkUploadObject);
-            var programsByDate = programResults.GroupBy(p => p.StartDate.Date);
-            var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-
-            var bulkUploadIngestEvents = programsByDate.Select(p => new BulkUploadIngestEvent
-            {
-                BulkUploadId = bulkUpload.Id,
-                GroupId = bulkUpload.GroupId,
-                DateOfProgramsToIngest = p.Key,
-                ProgramsToIngest = p.ToList(),
-                RequestId = KLogger.GetRequestId(),
-            });
-
-            // Lock all dates before starting the ingest
-            var jobData = bulkUpload.JobData as BulkUploadIngestJobData;
-            var locker = new DistributedLock(bulkUpload.GroupId);
-            var epgV2Config = ApplicationConfiguration.Current.EPGIngestV2Configuration;
-
-            var isLocked = locker.Lock(jobData.LockKeys, epgV2Config.LockNumOfRetries.Value, epgV2Config.LockRetryIntervalMS.Value, epgV2Config.LockTTLSeconds.Value, $"BulkUpload_{bulkUpload.Id}");
-           
-            if (!isLocked) { throw new Exception("Failed to aquire lock on ingest dates"); }
-            publisher.Publish(bulkUploadIngestEvents);
+            throw new NotImplementedException("Enqueue logic for ingest events is happening in the Transformation Handler");
         }
 
         public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, List<Status> errorStatusDetails)
@@ -72,6 +45,27 @@ namespace Core.Catalog
         public override IBulkUploadStructureManager GetStructureManager()
         {
             throw new NotImplementedException();
+        }
+    }
+
+
+    [Serializable]
+    public class OverlapException : Exception
+    {
+        public OverlapException()
+        {
+        }
+
+        public OverlapException(string message) : base(message)
+        {
+        }
+
+        public OverlapException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected OverlapException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }

@@ -7,6 +7,7 @@ using EventBus.Abstraction;
 
 namespace ApiObjects.EventBus
 {
+    [Serializable]
     public class BulkUploadTransformationEvent : BulkUploadEvent
     {
 

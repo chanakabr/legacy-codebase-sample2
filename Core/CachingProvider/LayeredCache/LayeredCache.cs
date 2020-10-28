@@ -1303,6 +1303,7 @@ namespace CachingProvider.LayeredCache
             return layeredCacheConfig?.Count > 0;
         }
 
+        // TODO duplicate with RequestContextUtils.IsPartnerRequest
         private bool isPartnerRequest()
         {
             bool isPartner = false;

@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 
 namespace ApiObjects.EventBus
 {
+    [Serializable]
     public class EngagementRequest : ServiceEvent
     {
         [JsonProperty("start_time")]

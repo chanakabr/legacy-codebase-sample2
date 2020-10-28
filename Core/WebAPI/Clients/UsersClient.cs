@@ -1611,5 +1611,10 @@ namespace WebAPI.Clients
 
             return response;
         }
+
+        internal ResponseStatus GetUserActivationState(int groupId, long userId)
+        {
+            return Core.Users.Module.GetUserActivationState(groupId, (int)userId);
+        }
     }
 }

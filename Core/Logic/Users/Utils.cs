@@ -553,7 +553,23 @@ namespace Core.Users
             return
                 (string.Format("{0:dd-MM-yyyy_hh-mm-ss}", dateTime));
         }
-        
+
+        public static ResponseStatus MapToResponseStatus(UserActivationState activationState)
+        {
+            switch (activationState)
+            {
+                case UserActivationState.Error: return ResponseStatus.InternalError;
+                case UserActivationState.UserDoesNotExist: return ResponseStatus.UserDoesNotExist;
+                case UserActivationState.Activated: return ResponseStatus.OK;
+                case UserActivationState.NotActivated: return ResponseStatus.UserNotActivated;
+                case UserActivationState.NotActivatedByMaster: return ResponseStatus.UserNotMasterApproved;
+                case UserActivationState.UserRemovedFromDomain: return ResponseStatus.UserNotIndDomain;
+                case UserActivationState.UserWIthNoDomain: return ResponseStatus.UserWithNoDomain;
+                case UserActivationState.UserSuspended: return ResponseStatus.UserSuspended;
+                default: return ResponseStatus.InternalError;
+            };
+        }
+
         public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus responseStatus, ApiObjects.Response.Status status = null, bool isLogin = false, int externalCode = 0, string externalMessage = null)
         {
             var result = new ApiObjects.Response.Status();

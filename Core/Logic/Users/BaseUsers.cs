@@ -2,6 +2,7 @@
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Statistics;
+using ApiObjects.User;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
@@ -1465,7 +1466,7 @@ namespace Core.Users
             try
             {
                 // if this is an anonymous user - simply return an empty list (just like the stored procedure returns)
-                if (string.IsNullOrEmpty(userId) || userId == "0")
+                if (userId.IsAnonymous())
                 {
                     response.Ids = new List<long>();
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

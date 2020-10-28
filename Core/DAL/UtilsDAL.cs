@@ -1103,6 +1103,27 @@ namespace DAL
             return res;
         }
 
+        public static IEnumerable<int> GetGroupsThatImplementFeature(string featureKey)
+        {
+            var query = new ODBCWrapper.DataSetSelectQuery();
+            query += "select GROUP_ID from tvinci.dbo.groups_features g where STATUS = 1 and ";
+            query += ODBCWrapper.Parameter.NEW_PARAM("FEATURE", "=", featureKey);
+            query.Execute("query", true);
+            
+            var groupIds = new List<int>();
+            if (query.Table("query").DefaultView.Count > 0)
+            {
+                var table = query.Table("query").Rows;
+                foreach (DataRow row in table)
+                {
+                    var groupId = ODBCWrapper.Utils.ExtractInteger(row, "GROUP_ID");
+                    groupIds.Add(groupId);
+                }
+            }
+
+            return groupIds;
+        }
+
         public static Dictionary<GroupFeature, bool> GetGroupFeatures(int groupId)
         {
             Dictionary<GroupFeature, bool> groupFeatures = null;
