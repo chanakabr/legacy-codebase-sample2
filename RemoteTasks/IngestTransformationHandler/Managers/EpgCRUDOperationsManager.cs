@@ -8,6 +8,7 @@ using ApiObjects.Response;
 using IngestHandler.Common;
 using IngestTransformationHandler.Repositories;
 using KLogMonitor;
+using TVinciShared;
 
 namespace IngestTransformationHandler.Managers
 {
@@ -95,8 +96,8 @@ namespace IngestTransformationHandler.Managers
             
             // NOTE! this method will no handle updates that happen more than +- 1 days from the ingest range
             // if an update was sent to a program that exists that far it will just calculate it as a program to add 
-            var currentEpgStartRange = programsToIngest.Min(p => p.StartDate.Date).AddDays(-1);
-            var currentEpgEndRange = programsToIngest.Max(p => p.EndDate.Date).AddDays(+1);
+            var currentEpgStartRange = programsToIngest.Min(p => p.StartDate.Date).AddDays(-1).StartOfDay();
+            var currentEpgEndRange = programsToIngest.Max(p => p.EndDate.Date).AddDays(1).EndOfDay();
             var currentEpgData = _epgRepository.GetCurrentProgramsByDate(groupId, channelId, currentEpgStartRange, currentEpgEndRange);
 
             var ingestStart = programsToIngest.Min(p => p.StartDate);

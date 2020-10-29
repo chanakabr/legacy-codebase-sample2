@@ -77,12 +77,16 @@ namespace IngestHandler
                 InitializedHandlerProperties(serviceEvent);
                 SetProgramsWithEpgIds(serviceEvent.CrudOperations);
                 AddEpgCBObjects(serviceEvent.CrudOperations);
+                SetResultsWithObjectId(serviceEvent.CrudOperations);
                 if (_bulkUpload.Results.Any(r => r.Errors?.Any() == true))
                 {
                     _bulkUpload.AddError(eResponseStatus.Error, "errors while trying to create multilingual translations, see results for details");
                     UpdateBulkUploadObjectStatusAndResults();
                     return;
                 }
+
+                //update bulk object with the epgId set to all results
+                UpdateBulkUploadObjectStatusAndResults();
 
                 await UploadEpgImages(serviceEvent.CrudOperations);
 
@@ -120,6 +124,15 @@ namespace IngestHandler
             }
         }
 
+        private void SetResultsWithObjectId(CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
+        {
+            var allPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).Where(p=>!p.IsAutoFill);
+            foreach (var prog in allPrograms)
+            {
+                _relevantResultsDictionary[prog.ChannelId][prog.EpgExternalId].ObjectId = (long)prog.EpgId;
+            }
+        }
+
         private void InitializedHandlerProperties(BulkUploadIngestEvent serviceEvent)
         {
             _logger.Debug($"Starting BulkUploadIngestHandler  requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
@@ -130,7 +143,7 @@ namespace IngestHandler
             if (_bulkUpload.Results?.Any() != true) { throw new Exception("received bulk upload without any crud operations"); }
 
             _languages = BulkUploadMethods.GetGroupLanguages(_eventData.GroupId, out _defaultLanguage);
-            
+
             _elasticSearchUpdater = new EpgElasticUpdater(serviceEvent.GroupId, serviceEvent.BulkUploadId, serviceEvent.DateOfProgramsToIngest, _languages);
 
             _allRelevantPrograms = _eventData.CrudOperations.ItemsToAdd
@@ -215,7 +228,7 @@ namespace IngestHandler
             // it is also important to remeber to update the start \ end of the CB docs as they are the ones who get indexed into ES
             if (crudOperations.AffectedItems.Any())
             {
-                var documentIds = _epgBL.GetEpgsCBKeys(_eventData.GroupId, crudOperations.AffectedItems.Select(x => (long) x.EpgId), _languages.Values, false);
+                var documentIds = _epgBL.GetEpgsCBKeys(_eventData.GroupId, crudOperations.AffectedItems.Select(x => (long)x.EpgId), _languages.Values, false);
                 var epgCbList = EpgDal.GetEpgCBList(documentIds);
                 foreach (var affectedProgram in crudOperations.AffectedItems)
                 {
@@ -334,7 +347,7 @@ namespace IngestHandler
                 epgPicture.Url = imgUrl;
                 epgPicture.PicID = -1;
                 epgPicture.Ratio = icon.ratio;
-                epgPicture.RatioId = (int) ratioId;
+                epgPicture.RatioId = (int)ratioId;
                 epgPicture.ImageTypeId = imageTypeId;
                 epgPicture.ProgramName = epgItem.Name;
                 epgPicture.ChannelId = epgItem.ChannelID;
