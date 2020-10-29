@@ -6,82 +6,92 @@ namespace IngestTransformationHandler.Managers
 {
     public static class ProgramValidator
     {
-        internal static bool Validate(EpgProgramBulkUploadObject program,BulkUploadResult epg)
+        internal static bool Validate(EpgProgramBulkUploadObject program, BulkUploadResult epg)
         {
             bool result = true;
             if (!ValidateMetadataLang(program))
             {
-                epg.AddError(eResponseStatus.Error,
-                    "Language value on meta data must not be empty.");
+                epg.AddError(eResponseStatus.Error, "Language value on meta data must not be empty.");
                 result = false;
             }
 
             if (!ValidateTagsLang(program))
             {
-                epg.AddError(eResponseStatus.Error,
-                    "Language value on tags data must not be empty.");
+                epg.AddError(eResponseStatus.Error, "Language value on tags data must not be empty.");
                 result = false;
             }
 
             if (!ValidateTitleLang(program))
             {
-                epg.AddError(eResponseStatus.Error,
-                "Language value on title cannot be empty.");
+                epg.AddError(eResponseStatus.Error, "Language value on title cannot be empty.");
                 result = false;
             }
 
             if (!ValidateIcon(program))
             {
-                epg.AddError(eResponseStatus.Error,
-                "Icon src cannot be empty");
+                epg.AddError(eResponseStatus.Error, "Icon src cannot be empty");
                 result = false;
             }
 
             if (!ValidateExternalId(program))
             {
-                epg.AddError(eResponseStatus.Error,
-                "External ID cannot be empty");
+                epg.AddError(eResponseStatus.Error, "External ID cannot be empty");
                 result = false;
+            }
+
+            if (!ValidateProgramDates(program))
+            {
+                epg.AddError(eResponseStatus.Error, "Invalid Program Dates");
+                return false;
             }
 
             return result;
         }
 
-        private static bool ValidateIcon(EpgProgramBulkUploadObject program)
+        private static bool ValidateIcon(EpgProgramBulkUploadObject p)
         {
-            return program.ParsedProgramObject!=null&&program.ParsedProgramObject.icon==null || 
-                program.ParsedProgramObject.icon.All(x => x!=null&&!string.IsNullOrEmpty(x.src));
+            return p.ParsedProgramObject != null
+                && p.ParsedProgramObject.icon == null
+                || p.ParsedProgramObject.icon.All(x => x != null && !string.IsNullOrEmpty(x.src));
         }
 
-        private static bool ValidateTitleLang(EpgProgramBulkUploadObject program)
+        private static bool ValidateTitleLang(EpgProgramBulkUploadObject p)
         {
-            return program.ParsedProgramObject != null && program.ParsedProgramObject.title != null 
-                && program.ParsedProgramObject.title.All(x => x!=null&&!string.IsNullOrEmpty(x.lang));
+            return p.ParsedProgramObject != null
+                && p.ParsedProgramObject.title != null
+                && p.ParsedProgramObject.title.All(x => x != null && !string.IsNullOrEmpty(x.lang));
         }
 
-        public static bool ValidateMetadataLang(EpgProgramBulkUploadObject program)
-        {
-            //verify does not contain empty lang 
-            return (program.ParsedProgramObject != null && program.ParsedProgramObject.metas==null) ||
-                (program.ParsedProgramObject != null && program.ParsedProgramObject.metas != null &&
-                program.ParsedProgramObject.metas.SelectMany(x => x.MetaValues)
-                .All(x => x!=null&&!string.IsNullOrEmpty(x.lang)));
-        }
-
-        public static bool ValidateTagsLang(EpgProgramBulkUploadObject program)
+        public static bool ValidateMetadataLang(EpgProgramBulkUploadObject p)
         {
             //verify does not contain empty lang 
-            return (program.ParsedProgramObject != null && program.ParsedProgramObject.tags == null )||
-                (program.ParsedProgramObject != null && program.ParsedProgramObject.tags != null &&
-                program.ParsedProgramObject.tags.SelectMany(x => x.TagValues)
-                .All(x => x!=null&&!string.IsNullOrEmpty(x.lang)));
+            return (p.ParsedProgramObject != null
+                && p.ParsedProgramObject.metas == null)
+                || (p.ParsedProgramObject != null
+                && p.ParsedProgramObject.metas != null
+                && p.ParsedProgramObject.metas.SelectMany(x => x.MetaValues)
+                .All(x => x != null && !string.IsNullOrEmpty(x.lang)));
         }
 
-        private static bool ValidateExternalId(EpgProgramBulkUploadObject program)
+        public static bool ValidateTagsLang(EpgProgramBulkUploadObject p)
+        {
+            //verify does not contain empty lang 
+            return (p.ParsedProgramObject != null && p.ParsedProgramObject.tags == null)
+                || (p.ParsedProgramObject != null && p.ParsedProgramObject.tags != null
+                && p.ParsedProgramObject.tags.SelectMany(x => x.TagValues)
+                                             .All(x => x != null && !string.IsNullOrEmpty(x.lang)));
+        }
+
+        private static bool ValidateExternalId(EpgProgramBulkUploadObject p)
         {
             //verify that external id is not empty
-            return program.ParsedProgramObject != null && !string.IsNullOrWhiteSpace(program.ParsedProgramObject.external_id);
-                
+            return p.ParsedProgramObject != null && !string.IsNullOrWhiteSpace(p.ParsedProgramObject.external_id);
+
+        }
+
+        private static bool ValidateProgramDates(EpgProgramBulkUploadObject p)
+        {
+            return p.StartDate != null && p.EndDate != null && p.StartDate < p.EndDate;
         }
 
     }

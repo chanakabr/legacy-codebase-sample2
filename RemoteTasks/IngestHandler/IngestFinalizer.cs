@@ -17,6 +17,7 @@ using IngestHandler.Common;
 using KLogMonitor;
 using Polly;
 using Polly.Retry;
+using Synchronizer;
 
 namespace IngestHandler
 {
@@ -28,91 +29,82 @@ namespace IngestHandler
 
         public DateTime DateOfProgramsToIngest { get; set; }
         public IDictionary<string, LanguageObj> Languages { get; set; }
-        public Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> Results { get; set; }
 
         public override string ToString()
         {
-            return $"{{{nameof(EPGs)}={EPGs}, {nameof(DateOfProgramsToIngest)}={DateOfProgramsToIngest}, {nameof(Languages)}={Languages}, {nameof(Results)}={Results}, {nameof(BulkUploadId)}={BulkUploadId}, {nameof(GroupId)}={GroupId}}}";
+            return $"{{{nameof(EPGs)}={EPGs}, {nameof(DateOfProgramsToIngest)}={DateOfProgramsToIngest}, {nameof(Languages)}={Languages}, {nameof(BulkUploadId)}={BulkUploadId}, {nameof(GroupId)}={GroupId}}}";
         }
     }
 
     public class IngestFinalizer
     {
         private const string INDEX_REFRESH_INTERVAL = "10s";
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private IngestFinalizerConfig _config;
 
-        private readonly ElasticSearchApi _elasticSearchClient = null;
+        private BulkUpload _bulkUpload;
+        private readonly ElasticSearchApi _elasticSearchClient;
         private readonly RetryPolicy _ingestRetryPolicy;
-        private BulkUpload _bulkUploadObject = null;
-
-        /// <summary>
-        /// This list contains all existing affected programs that were updated due
-        /// to overlap policy and were cut to fit the new ingested programs
-        /// </summary>
-        private List<EpgProgramBulkUploadObject> _AffectedPrograms;
-
-        private TvinciEpgBL _EpgBL;
-        private BulkUploadIngestJobData _bulkUploadJobData;
-
-        public IngestFinalizer()
+        private readonly BulkUploadResultsDictionary _relevantResults;
+        private readonly DateTime _dateOfProgramsToIngest;
+        private readonly BulkUploadIngestJobData _bulkUploadJobData;
+        
+        public IngestFinalizer(BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults, DateTime dateOfProgramsToIngest)
         {
             _elasticSearchClient = new ElasticSearchApi();
             _ingestRetryPolicy = GetRetryPolicy<Exception>();
+            _bulkUpload = bulkUpload;
+            _relevantResults = relevantResults;
+            _bulkUploadJobData = bulkUpload.JobData as BulkUploadIngestJobData;
+            _dateOfProgramsToIngest = dateOfProgramsToIngest;
         }
 
-        public Task FinalizeEpgIngest(IngestFinalizerConfig eventData)
+        public Task FinalizeEpgIngest()
         {
             try
             {
-                _Logger.Debug($"Starting IngestFinalizer BulkUploadId:[{eventData.BulkUploadId}]");
+                _logger.Debug($"Starting IngestFinalizer BulkUploadId:[{_bulkUpload.Id}]");
+                
 
-                _config = eventData;
-                _EpgBL = new TvinciEpgBL(_config.GroupId);
-                _bulkUploadObject = BulkUploadMethods.GetBulkUploadData(_config.GroupId, _config.BulkUploadId);
-                _bulkUploadJobData = _bulkUploadObject.JobData as BulkUploadIngestJobData;
-                _AffectedPrograms = _bulkUploadObject.AffectedObjects?.Cast<EpgProgramBulkUploadObject>()?.ToList();
-
-                var dailyEpgIndexName = IndexManager.GetDailyEpgIndexName(_config.GroupId, _config.DateOfProgramsToIngest);
+                var dailyEpgIndexName = IndexManager.GetDailyEpgIndexName(_bulkUpload.GroupId, _dateOfProgramsToIngest);
                 var isRefreshSuccess = IndexManager.ForceRefresh(dailyEpgIndexName);
-                // TODO: arthur, consider unlock this day without waiting until the process completed, and remove the global unlock
 
                 if (!isRefreshSuccess)
                 {
-                    _Logger.Error($"BulkId [{_config.BulkUploadId}], Date:[{_config.DateOfProgramsToIngest}] > index refresh failed");
+                    _logger.Error($"BulkId [{_bulkUpload.Id}], Date:[{_dateOfProgramsToIngest}] > index refresh failed");
                 }
 
-                var newStatus = SetStatusToAllCurrentResults(BulkUploadResultStatus.Ok);
+                var newStatus = SetOkayStatusToallResults(_bulkUpload);
 
                 // Need to refresh the data from the bulk upload object after updating with the validation result
-                _bulkUploadObject = BulkUploadMethods.GetBulkUploadData(eventData.GroupId, eventData.BulkUploadId);
+                _bulkUpload = BulkUploadMethods.GetBulkUploadData(_bulkUpload.GroupId, _bulkUpload.Id);
+
 
                 // All separated jobs of bulkUpload were completed, we are the last one, we need to switch the alias and commit the changes.
                 if (BulkUpload.IsProcessCompletedByStatus(newStatus))
                 {
-                    _Logger.Debug($"BulkUploadId: [{_config.BulkUploadId}] Date:[{_config.DateOfProgramsToIngest}], Final part of bulk is marked, status is: [{newStatus}], finlizing bulk object");
+                    _logger.Debug($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}], Final part of bulk is marked, status is: [{newStatus}], finlizing bulk object");
                     InvalidateEpgAssets();
                     RefreshAllIndexes();
-                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUploadObject, newStatus);
-                    _Logger.Info($"BulkUploadId: [{_config.BulkUploadId}] Date:[{_config.DateOfProgramsToIngest}] > Ingest Validation for entire bulk is completed, status:[{newStatus}]");
+                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, newStatus);
+                    _logger.Info($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}] > Ingest Validation for entire bulk is completed, status:[{newStatus}]");
                 }
 
-                _Logger.Info($"BulkUploadId: [{_config.BulkUploadId}] Date:[{_config.DateOfProgramsToIngest}] > Ingest Validation for part of the bulk is completed, status:[{newStatus}]");
+                _logger.Info($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}] > Ingest Validation for part of the bulk is completed, status:[{newStatus}]");
             }
             catch (Exception ex)
             {
                 try
                 {
-                    _Logger.Error($"Setting bulk upload results to error status because of an unexpected error, BulkUploadId:[{_config.BulkUploadId}] Date:[{_config.DateOfProgramsToIngest}]", ex);
-                    _bulkUploadObject.Results.ForEach(r => r.Status = BulkUploadResultStatus.Error);
-                    _bulkUploadObject.AddError(eResponseStatus.Error, $"An unexpected error occored during ingest validation, {ex.Message}");
-                    var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUploadObject, BulkUploadJobStatus.Fatal);
-                    _Logger.Error($"An Exception occurred in BulkUploadIngestValidationHandler BulkUploadId:[{eventData.BulkUploadId}], update result status [{result.Status}].", ex);
+                    _logger.Error($"Setting bulk upload results to error status because of an unexpected error, BulkUploadId:[{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}]", ex);
+                    _bulkUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Error);
+                    _bulkUpload.AddError(eResponseStatus.Error, $"An unexpected error occored during ingest validation, {ex.Message}");
+                    var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, BulkUploadJobStatus.Fatal);
+                    _logger.Error($"An Exception occurred in BulkUploadIngestValidationHandler BulkUploadId:[{_bulkUpload.Id}], update result status [{result.Status}].", ex);
                 }
                 catch (Exception innerEx)
                 {
-                    _Logger.Error($"Error while trying to update bulk upload with failed status from ingestValidation, trying one last time...", innerEx);
+                    _logger.Error($"Error while trying to update bulk upload with failed status from ingestValidation, trying one last time...", innerEx);
                 }
 
                 throw;
@@ -123,7 +115,7 @@ namespace IngestHandler
 
         private void RefreshAllIndexes()
         {
-            var indexes = _bulkUploadJobData.DatesOfProgramsToIngest.Select(x => IndexManager.GetDailyEpgIndexName(_config.GroupId, x));
+            var indexes = _bulkUploadJobData.DatesOfProgramsToIngest.Select(x => IndexManager.GetDailyEpgIndexName(_bulkUpload.GroupId, x));
             var foundIndexes = new List<string>();
 
             foreach (var indexName in indexes)
@@ -136,7 +128,7 @@ namespace IngestHandler
                     var isSetRefreshSuccess = _elasticSearchClient.UpdateIndexRefreshInterval(indexName, INDEX_REFRESH_INTERVAL);
                     if (!isSetRefreshSuccess)
                     {
-                        _Logger.Error($"BulkId [{_config.BulkUploadId}], Date:[{_config.DateOfProgramsToIngest}] > index set refresh to -1 failed [{isSetRefreshSuccess}]]");
+                        _logger.Error($"BulkId [{_bulkUpload.Id}], Date:[{_dateOfProgramsToIngest}] > index set refresh to -1 failed [{isSetRefreshSuccess}]]");
                         throw new Exception("Could not set index refresh interval");
                     }
                 });
@@ -147,54 +139,44 @@ namespace IngestHandler
         private RetryPolicy GetRetryPolicy<TException>(int retryCount = 3) where TException : Exception
         {
             return Policy.Handle<TException>()
-                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) => { _Logger.Warn($"upsert attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex); });
+                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) => { _logger.Warn($"upsert attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex); });
+        }
+
+        
+
+        private BulkUploadJobStatus SetOkayStatusToallResults(BulkUpload _bulkUploadObject)
+        {
+            var bulkUploadResultsOfCurrentDate = _relevantResults.SelectMany(channel => channel.Value).Select(prog => prog.Value).ToList();
+            bulkUploadResultsOfCurrentDate.ForEach(r => r.Status = BulkUploadResultStatus.Ok);
+
+            BulkUploadManager.UpdateBulkUploadResults(bulkUploadResultsOfCurrentDate, out BulkUploadJobStatus newStatus);
+            _logger.Info($"updated result bulkUploadId: [{_bulkUpload.Id}] date:[{_dateOfProgramsToIngest}], countOfUpdates:[{bulkUploadResultsOfCurrentDate.Count}], results updated in CB, calculated status [{newStatus}]");
+            return newStatus;
         }
 
         public void InvalidateEpgAssets()
         {
-            var affectedProgramIds = _AffectedPrograms?.Select(p => (long) p.EpgId);
-            var ingestedProgramIds = _bulkUploadObject.Results.Where(r => r.ObjectId.HasValue).Select(r => r.ObjectId.Value) ?? new List<long>();
+            var affectedProgramIds = _bulkUpload.AffectedObjects?.Select(p => (long)p.ObjectId);
+            var ingestedProgramIds = _bulkUpload.Results.Where(r => r.ObjectId.HasValue).Select(r => r.ObjectId.Value) ?? new List<long>();
             var programIdsToInvalidate = affectedProgramIds?.Any() == true
                 ? ingestedProgramIds.Concat(affectedProgramIds)
                 : ingestedProgramIds;
 
-            var isOPC = GroupSettingsManager.IsOpc(_config.GroupId);
+            var isOPC = GroupSettingsManager.IsOpc(_bulkUpload.GroupId);
             foreach (var progId in programIdsToInvalidate)
             {
                 string invalidationKey = isOPC
                     ? LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), progId)
-                    : LayeredCacheKeys.GetEpgInvalidationKey(_config.GroupId, progId);
+                    : LayeredCacheKeys.GetEpgInvalidationKey(_bulkUpload.GroupId, progId);
 
                 var invalidationResult = LayeredCache.Instance.SetInvalidationKey(invalidationKey);
                 if (!invalidationResult)
                 {
-                    _Logger.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after EpgIngest", progId, eAssetType.PROGRAM.ToString(), invalidationKey);
+                    _logger.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after EpgIngest", progId, eAssetType.PROGRAM.ToString(), invalidationKey);
                 }
 
-                _Logger.Debug($"SetInvalidationKey: [{invalidationKey}] done with result: [{invalidationResult}]");
+                _logger.Debug($"SetInvalidationKey: [{invalidationKey}] done with result: [{invalidationResult}]");
             }
-        }
-
-        private BulkUploadJobStatus SetStatusToAllCurrentResults(BulkUploadResultStatus statusToSet)
-        {
-            foreach (var prog in _config.EPGs)
-            {
-                if (prog.EpgExternalId != null && _config.Results.ContainsKey(prog.ChannelId) && _config.Results[prog.ChannelId].ContainsKey(prog.EpgExternalId))
-                {
-                    var resultObj = _config.Results[prog.ChannelId][prog.EpgExternalId];
-                    resultObj.ObjectId = (long) prog.EpgId;
-                    resultObj.Status = statusToSet;
-                    if (statusToSet != BulkUploadResultStatus.Ok)
-                    {
-                        resultObj.AddError(eResponseStatus.Error, "Failed elasticsearch index validation");
-                    }
-                }
-            }
-
-            var bulkUploadResultsOfCurrentDate = _config.Results.Values.SelectMany(r => r.Values);
-            BulkUploadManager.UpdateBulkUploadResults(bulkUploadResultsOfCurrentDate, out BulkUploadJobStatus newStatus);
-            _Logger.Debug($"BulkUploadId: [{_config.BulkUploadId}] Date:[{_config.DateOfProgramsToIngest}], results updated in CB, calculated status [{newStatus}]");
-            return newStatus;
         }
     }
 }

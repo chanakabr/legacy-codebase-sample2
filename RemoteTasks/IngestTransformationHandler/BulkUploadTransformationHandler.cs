@@ -34,7 +34,6 @@ namespace IngestTransformationHandler
         private readonly IEpgCRUDOperationsManager _crudOperationsManager;
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly XmlSerializer _XmlTVSerializer = new XmlSerializer(typeof(EpgChannels));
-        private const string LOCK_KEY_DATE_FORMAT = "yyyyMMdd";
 
         private BulkUploadTransformationEvent _eventData;
         private BulkUpload _bulUpload;
@@ -92,7 +91,7 @@ namespace IngestTransformationHandler
 
                 // start lock before calculating crude so that the schedule will not change while we try to calculate and ingest
                 _jobData.DatesOfProgramsToIngest = CalculateIngestDates(_bulUpload.Results).OrderBy(d => d).ToArray();
-                _jobData.LockKeys = _jobData.DatesOfProgramsToIngest.Select(programDate => GetIngestLockKey(_bulUpload.GroupId, programDate)).ToArray();
+                _jobData.LockKeys = _jobData.DatesOfProgramsToIngest.Select(programDate => BulkUploadMethods.GetIngestLockKey(_bulUpload.GroupId, programDate)).ToArray();
                 AcquireLockOnIngestRange();
 
                 var crudOperations = _crudOperationsManager.CalculateCRUDOperations(_bulUpload, _ingestProfile.DefaultOverlapPolicy, _ingestProfile.DefaultAutoFillPolicy);
@@ -392,10 +391,7 @@ namespace IngestTransformationHandler
             return liveAssets;
         }
 
-        public static string GetIngestLockKey(int groupId, DateTime dateOfProgramsToIngest)
-        {
-            return $"Ingest_V2_Lock_{groupId}_{dateOfProgramsToIngest.ToString(LOCK_KEY_DATE_FORMAT)}";
-        }
+
 
         public void EnqueueIngestEvents(CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
         {
@@ -406,6 +402,17 @@ namespace IngestTransformationHandler
                 Unlock();
                 _bulUpload.Results.ForEach(r => r.Status = BulkUploadResultStatus.Ok);
                 BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Success);
+            }
+
+            // in case the actual crud calculations are less thant the keys we locked initially this means we can unlock few days
+            var effectiveLockDays = ingestEvents.Select(e => BulkUploadMethods.GetIngestLockKey(e.GroupId, e.DateOfProgramsToIngest));
+            var keysToUnlock = _jobData.LockKeys.Except(effectiveLockDays);
+            if (keysToUnlock.Any())
+            {
+                _logger.Info($"calculated crud operations did not include several days that were locked, unlocking:[{string.Join(",", keysToUnlock)}]");
+                _locker.Unlock(keysToUnlock);
+                _jobData.LockKeys = effectiveLockDays.ToArray();
+                BulkUploadManager.UpdateBulkUpload(_bulUpload, _bulUpload.Status);
             }
 
             var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();

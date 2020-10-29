@@ -696,11 +696,12 @@ namespace Core.Catalog.CatalogManagement
                         log.Error($"UpdateBulkUploadInSqlAndInvalidateKeys > Failed to send notification to consumers, failed to detch updated bulkUpload object.");
                     }
 
-                    if (bulkUpload.JobData is BulkUploadIngestJobData ingestJobData)
-                    {
-                        var locker = new DistributedLock(bulkUpload.GroupId);
-                        locker.Unlock(ingestJobData.LockKeys);
-                    }
+                    // every day of ingest wil gradually unlock now .. so we dont want to unloc the keys if they were started already by another ingest
+                    //if (bulkUpload.JobData is BulkUploadIngestJobData ingestJobData)
+                    //{
+                    //    var locker = new DistributedLock(bulkUpload.GroupId);
+                    //    locker.Unlock(ingestJobData.LockKeys);
+                    //}
                 }
             }
         }
