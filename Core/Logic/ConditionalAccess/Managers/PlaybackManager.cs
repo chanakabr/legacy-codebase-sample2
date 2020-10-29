@@ -93,7 +93,7 @@ namespace Core.ConditionalAccess
                             log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", groupId, userId, domainId);
                             response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
                             return response;
-                        }                        
+                        }
                     }
                 }
 
@@ -330,8 +330,18 @@ namespace Core.ConditionalAccess
                         }
 
                         response.Files = files.Where(f => assetFileIdsAds.Keys.Contains(f.Id)).ToList();
+
                         foreach (MediaFile file in response.Files)
                         {
+                            if (response.ConcurrencyData != null)
+                            {
+                                file.BusinessModuleDetails = new BusinessModuleDetails 
+                                {
+                                    BusinessModuleId = response.ConcurrencyData.ProductId,
+                                    BusinessModuleType = response.ConcurrencyData.ProductType
+                                };
+                            }
+
                             var assetFileAds = assetFileIdsAds[file.Id];
                             if (assetFileAds != null)
                             {
@@ -479,7 +489,6 @@ namespace Core.ConditionalAccess
                     }
                 }
             }
-
             return adsData;
         }
 

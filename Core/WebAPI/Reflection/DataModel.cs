@@ -1170,6 +1170,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBusinessModuleDetails":
+                    switch(property.Name)
+                    {
+                        case "BusinessModuleId":
+                            return "businessModuleId";
+                        case "BusinessModuleType":
+                            return "businessModuleType";
+                    }
+                    break;
+                    
                 case "KalturaBusinessModuleRule":
                     switch(property.Name)
                     {
@@ -4001,6 +4011,8 @@ namespace WebAPI.Reflection
                             return "assetId";
                         case "BillingType":
                             return "billingType";
+                        case "BusinessModuleDetails":
+                            return "businessModuleDetails";
                         case "CatalogEndDate":
                             return "catalogEndDate";
                         case "CdnAdapaterProfileId":
@@ -5089,6 +5101,10 @@ namespace WebAPI.Reflection
                             return "adsParam";
                         case "AdsPolicy":
                             return "adsPolicy";
+                        case "BusinessModuleId":
+                            return "businessModuleId";
+                        case "BusinessModuleType":
+                            return "businessModuleType";
                         case "Drm":
                             return "drm";
                         case "Format":

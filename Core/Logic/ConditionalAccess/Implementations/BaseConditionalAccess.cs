@@ -1823,7 +1823,7 @@ namespace Core.ConditionalAccess
                             {
                                 purchaseId = purchaseID,
                                 productId = subscriptionCode,
-                                siteGuid = sPurchasingSiteGuid,                                
+                                siteGuid = sPurchasingSiteGuid,
                                 status = SubscriptionPurchaseStatus.Cancel,
                                 UpdateFromCancelRenewal = true
                             };
@@ -11216,12 +11216,13 @@ namespace Core.ConditionalAccess
 
                         if (transactionType.HasValue && businessModuleId > 0)
                         {
+                            response.Data.ProductType = transactionType.Value;
+                            response.Data.ProductId = businessModuleId;
+
                             var commerceConfig = PartnerConfigurationManager.GetCommercePartnerConfig(this.m_nGroupID);
                             if (commerceConfig.HasObject() && commerceConfig.Object.BookmarkEventThresholds?.Count > 0 && commerceConfig.Object.BookmarkEventThresholds.ContainsKey(transactionType.Value))
                             {
                                 response.Data.BookmarkEventThreshold = commerceConfig.Object.BookmarkEventThresholds[transactionType.Value];
-                                response.Data.ProductType = transactionType.Value;
-                                response.Data.ProductId = businessModuleId;
                             }
                         }
                     }
@@ -12470,7 +12471,7 @@ namespace Core.ConditionalAccess
             }
 
             return response;
-        }       
+        }
 
         public ApiObjects.Response.Status GrantEntitlements(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string ip,
             string udid, bool history)

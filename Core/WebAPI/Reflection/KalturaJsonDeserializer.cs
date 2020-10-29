@@ -420,6 +420,9 @@ namespace WebAPI.Reflection
                 case "KalturaBusinessModuleCondition":
                     return new KalturaBusinessModuleCondition(parameters);
                     
+                case "KalturaBusinessModuleDetails":
+                    return new KalturaBusinessModuleDetails(parameters);
+                    
                 case "KalturaBusinessModuleRule":
                     return new KalturaBusinessModuleRule(parameters);
                     
@@ -4801,10 +4804,32 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPlaybackSource
     {
+        private static RuntimeSchemePropertyAttribute BusinessModuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPlaybackSource")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute BusinessModuleTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPlaybackSource")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaPlaybackSource(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("format") && parameters["format"] != null)
                 {
                     Format = (String) Convert.ChangeType(parameters["format"], typeof(String));
@@ -4845,6 +4870,32 @@ namespace WebAPI.Models.ConditionalAccess
                 if (parameters.ContainsKey("isTokenized") && parameters["isTokenized"] != null)
                 {
                     IsTokenized = (Boolean) Convert.ChangeType(parameters["isTokenized"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("businessModuleId") && parameters["businessModuleId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        BusinessModuleIdSchemaProperty.Validate("businessModuleId", parameters["businessModuleId"]);
+                    }
+                    BusinessModuleId = (Int32) Convert.ChangeType(parameters["businessModuleId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("businessModuleType") && parameters["businessModuleType"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        BusinessModuleTypeSchemaProperty.Validate("businessModuleType", parameters["businessModuleType"]);
+                    }
+                    if(string.IsNullOrEmpty(parameters["businessModuleType"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "businessModuleType");
+                    }
+
+                    BusinessModuleType = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["businessModuleType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), BusinessModuleType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", BusinessModuleType, typeof(KalturaTransactionType)));
+                    }
                 }
             }
         }
@@ -12728,6 +12779,33 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaBusinessModuleDetails
+    {
+        public KalturaBusinessModuleDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("businessModuleId") && parameters["businessModuleId"] != null)
+                {
+                    BusinessModuleId = (Int32) Convert.ChangeType(parameters["businessModuleId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("businessModuleType") && parameters["businessModuleType"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["businessModuleType"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "businessModuleType");
+                    }
+
+                    BusinessModuleType = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["businessModuleType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), BusinessModuleType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", BusinessModuleType, typeof(KalturaTransactionType)));
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaBuzzScore
     {
         public KalturaBuzzScore(Dictionary<string, object> parameters = null) : base(parameters)
@@ -15143,6 +15221,17 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("opl") && parameters["opl"] != null)
                 {
                     Opl = (String) Convert.ChangeType(parameters["opl"], typeof(String));
+                }
+                if (parameters.ContainsKey("businessModuleDetails") && parameters["businessModuleDetails"] != null)
+                {
+                    if (parameters["businessModuleDetails"] is JObject)
+                    {
+                        BusinessModuleDetails = (KalturaBusinessModuleDetails) Deserializer.deserialize(typeof(KalturaBusinessModuleDetails), ((JObject) parameters["businessModuleDetails"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["businessModuleDetails"] is IDictionary)
+                    {
+                        BusinessModuleDetails = (KalturaBusinessModuleDetails) Deserializer.deserialize(typeof(KalturaBusinessModuleDetails), (Dictionary<string, object>) parameters["businessModuleDetails"]);
+                    }
                 }
             }
         }

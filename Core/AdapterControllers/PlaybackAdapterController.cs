@@ -300,7 +300,12 @@ namespace AdapterControllers
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
                             Protocols = x.Protocols,
-                            Type = x.Type
+                            Type = x.Type,
+                            BusinessModuleDetails = new BusinessModuleDetails
+                            {
+                                BusinessModuleId = x.BusinessModuleId,
+                                BusinessModuleType = ConvertModuleType(x.BusinessModuleType)
+                            }
                         }).ToList();
                 }
 
@@ -323,6 +328,44 @@ namespace AdapterControllers
             }
 
             return kalturaPlaybackContext;
+        }
+
+        private static eTransactionType? ConvertModuleType(TransactionType? businessModuleType)
+        {
+            if (!businessModuleType.HasValue)
+            {
+                return null;
+            }
+            switch (businessModuleType)
+            {
+                case TransactionType.Collection:
+                    return eTransactionType.Collection;
+                case TransactionType.PPV:
+                    return eTransactionType.PPV;
+                case TransactionType.Subscription:
+                    return eTransactionType.Subscription;
+                default:
+                    throw new KalturaException($"Unknown Transaction Type: {businessModuleType}", (int)eResponseStatus.Error);
+            }
+        }
+
+        private static TransactionType? ConvertModuleType(eTransactionType? businessModuleType)
+        {
+            if (!businessModuleType.HasValue)
+            {
+                return null;
+            }
+            switch (businessModuleType)
+            {
+                case eTransactionType.Collection:
+                    return TransactionType.Collection;
+                case eTransactionType.PPV:
+                    return TransactionType.PPV;
+                case eTransactionType.Subscription:
+                    return TransactionType.Subscription;
+                default:
+                    throw new KalturaException($"Unknown Transaction Type: {businessModuleType}", (int)eResponseStatus.Error);
+            }
         }
 
         private static List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> ParseDrm(List<PlaybackAdapter.DrmPlaybackPluginData> drms)
@@ -512,7 +555,9 @@ namespace AdapterControllers
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
                             Protocols = x.Protocols,
-                            Type = x.Type
+                            Type = x.Type,
+                            BusinessModuleId = x.BusinessModuleDetails?.BusinessModuleId,
+                            BusinessModuleType = ConvertModuleType(x.BusinessModuleDetails?.BusinessModuleType)
                         }).ToList();
                 }
 

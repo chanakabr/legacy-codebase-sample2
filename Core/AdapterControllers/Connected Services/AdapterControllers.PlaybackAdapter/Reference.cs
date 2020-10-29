@@ -383,21 +383,21 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
-    [System.Runtime.Serialization.DataContractAttribute(Name = "CaptionPlaybackPluginData", Namespace = "http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="CaptionPlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
     public partial class CaptionPlaybackPluginData : object
     {
-
+        
         private string FormatField;
-
+        
         private string LabelField;
-
+        
         private string LanguageField;
-
+        
         private string URLField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Format
         {
@@ -410,7 +410,7 @@ namespace AdapterControllers.PlaybackAdapter
                 this.FormatField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Label
         {
@@ -423,7 +423,7 @@ namespace AdapterControllers.PlaybackAdapter
                 this.LabelField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Language
         {
@@ -436,7 +436,7 @@ namespace AdapterControllers.PlaybackAdapter
                 this.LanguageField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string URL
         {
@@ -450,7 +450,7 @@ namespace AdapterControllers.PlaybackAdapter
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Runtime.Serialization.DataContractAttribute(Name="PlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
@@ -464,6 +464,10 @@ namespace AdapterControllers.PlaybackAdapter
     public partial class PlaybackSource : AdapterControllers.PlaybackAdapter.MediaFile
     {
         
+        private System.Nullable<int> BusinessModuleIdField;
+        
+        private System.Nullable<AdapterControllers.PlaybackAdapter.TransactionType> BusinessModuleTypeField;
+        
         private System.Collections.Generic.List<AdapterControllers.PlaybackAdapter.DrmPlaybackPluginData> DrmField;
         
         private string FormatField;
@@ -471,6 +475,32 @@ namespace AdapterControllers.PlaybackAdapter
         private bool IsTokenizedField;
         
         private string ProtocolsField;
+
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired = false)]
+        public System.Nullable<int> BusinessModuleId
+        {
+            get
+            {
+                return this.BusinessModuleIdField;
+            }
+            set
+            {
+                this.BusinessModuleIdField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=false)]
+        public System.Nullable<AdapterControllers.PlaybackAdapter.TransactionType> BusinessModuleType
+        {
+            get
+            {
+                return this.BusinessModuleTypeField;
+            }
+            set
+            {
+                this.BusinessModuleTypeField = value;
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<AdapterControllers.PlaybackAdapter.DrmPlaybackPluginData> Drm
@@ -554,7 +584,7 @@ namespace AdapterControllers.PlaybackAdapter
         [System.Runtime.Serialization.EnumMemberAttribute()]
         APPLY_PLAYBACK_ADAPTER = 7,
     }
-
+    
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(AdapterControllers.PlaybackAdapter.BumperPlaybackPluginData))]
     public partial class PlaybackPluginData : object
     {
@@ -945,6 +975,21 @@ namespace AdapterControllers.PlaybackAdapter
         }
     }
     
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="TransactionType", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
+    public enum TransactionType : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PPV = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Subscription = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Collection = 2,
+    }
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Runtime.Serialization.DataContractAttribute(Name="DrmPlaybackPluginData", Namespace="http://schemas.datacontract.org/2004/07/PlaybackAdapter")]
@@ -1008,7 +1053,7 @@ namespace AdapterControllers.PlaybackAdapter
     public partial class PluginData : object
     {
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
     [System.Runtime.Serialization.DataContractAttribute(Name = "CustomDrmPlaybackPluginData", Namespace = "http://schemas.datacontract.org/2004/07/PlaybackAdapter")]

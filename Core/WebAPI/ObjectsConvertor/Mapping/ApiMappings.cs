@@ -1652,6 +1652,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
                 .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized))
                 .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.OutputProtecationLevel))
+                .ForMember(dest => dest.BusinessModuleDetails, opt => opt.MapFrom(src => src.BusinessModuleDetails))
                 ;
 
             cfg.CreateMap<KalturaPlaybackSource, ApiObjects.PlaybackAdapter.PlaybackSource>()
@@ -1664,6 +1665,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
                 .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized))
                 .ForMember(dest => dest.OutputProtecationLevel, opt => opt.MapFrom(src => src.Opl))
+                .ForMember(dest => dest.BusinessModuleDetails, opt => opt.MapFrom(src => src.BusinessModuleDetails))
                 ;
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData, KalturaPluginData>();
@@ -2742,6 +2744,46 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
+        }
+
+        private static KalturaTransactionType? ConvertTransactionType(eTransactionType? type)
+        {
+            if (type == null)
+            {
+                return null;
+            }
+
+            switch (type)
+            {
+                case eTransactionType.Collection:
+                    return KalturaTransactionType.collection;
+                case eTransactionType.PPV:
+                    return KalturaTransactionType.ppv;
+                case eTransactionType.Subscription:
+                    return KalturaTransactionType.subscription;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Transaction Type");
+            }
+        }
+
+        private static eTransactionType? ConvertTransactionType(KalturaTransactionType? type)
+        {
+            if (type == null)
+            {
+                return null;
+            }
+
+            switch (type)
+            {
+                case KalturaTransactionType.collection:
+                    return eTransactionType.Collection;
+                case KalturaTransactionType.ppv:
+                    return eTransactionType.PPV;
+                case KalturaTransactionType.subscription:
+                    return eTransactionType.Subscription;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Transaction Type");
+            }
         }
 
         private static WebAPI.Models.API.KalturaPurchaseSettingsType? ConvertPurchaseSetting(ePurchaeSettingsType? type)

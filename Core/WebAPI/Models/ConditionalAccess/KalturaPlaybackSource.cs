@@ -62,5 +62,23 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isTokenized")]
         [XmlElement(ElementName = "isTokenized")]
         public bool IsTokenized { get; set; }
+
+        /// <summary>
+        /// Business Module Id
+        /// </summary>
+        [DataMember(Name = "businessModuleId")]
+        [JsonProperty("businessModuleId")]
+        [XmlElement(ElementName = "businessModuleId")]
+        [SchemeProperty(ReadOnly = true)]
+        public int? BusinessModuleId { get; set; }
+
+        /// <summary>
+        /// Business Module Type
+        /// </summary>
+        [DataMember(Name = "businessModuleType")]
+        [JsonProperty("businessModuleType")]
+        [XmlElement(ElementName = "businessModuleType")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaTransactionType? BusinessModuleType { get; set; }
     }
 }
