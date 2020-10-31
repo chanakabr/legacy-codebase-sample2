@@ -4917,6 +4917,17 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataSet GetTagByValue(int groupId, string value, long topicId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTagByValue");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@value", value);
+            sp.AddParameter("@topicId", (int)topicId);
+
+            return sp.ExecuteDataSet();
+        }
+
         public static DataSet UpdateTag(int groupId, long id, string value, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> tagsInOtherLanguages, int topicId, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTag");

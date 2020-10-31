@@ -306,6 +306,7 @@ namespace Core.Catalog.CatalogManagement
             var tagMetaType = MetaType.Tag.ToString();
             List<TagToInvalidate> tagsToInvalidate = new List<TagToInvalidate>();
             var defaultLanguageId = cache.DefaultLanguage.ID;
+            Dictionary<string, ApiObjects.SearchObjects.TagValue> tagsMap = new Dictionary<string, TagValue>();
 
             foreach (var tag in tagsTranslations)
             {
@@ -315,15 +316,45 @@ namespace Core.Catalog.CatalogManagement
                     Topic topicTag = cache.TopicsMapBySystemNameAndByType[tag.Value.TopicSystemName][tagMetaType];
                     tag.Value.TopicId = topicTag.Id;
 
-                    var tagResponse = CatalogManager.SearchTags(groupId, true, tag.Value.DefaultTagValue, (int)topicTag.Id, defaultLanguageId, 0, 1);
+                    string key = $"{topicTag.Id}_{tag.Value.DefaultTagValue.ToLower()}";
 
-                    if (!tagResponse.HasObjects())
+                    ApiObjects.SearchObjects.TagValue tagValue = null;
+
+                    if (!tagsMap.ContainsKey(key))
+                    {
+                        log.DebugFormat($"BEO-8957 tagsMap Miss:{key}");
+                        var tagResponse = CatalogManager.SearchTags(groupId, true, tag.Value.DefaultTagValue, (int)topicTag.Id, defaultLanguageId, 0, 1);
+                        if (tagResponse.HasObjects())
+                        {
+                            log.DebugFormat($"BEO-8957 tag ES Hit:{key}");
+                            tagsMap.Add(key, tagResponse.Objects[0]);
+                            tagValue = tagResponse.Objects[0];
+                        }
+                        else
+                        {
+                            log.DebugFormat($"BEO-8957 tag ES Miss:{key}");
+                            var tagByValue = CatalogManager.GetTagByValue(groupId, tag.Value.DefaultTagValue, topicTag.Id);
+                            if (tagByValue.HasObject())
+                            {
+                                log.DebugFormat($"BEO-8957 tag DB Hit:{key}");
+                                tagsMap.Add(key, tagByValue.Object);
+                                tagValue = tagByValue.Object;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        log.DebugFormat($"BEO-8957 tag tagsMap Hit:{key}");
+                        tagValue = tagsMap[key];
+                    }
+
+                    if (tagValue == null)
                     {
                         tagsToInvalidate.Add(AddTagTranslations(groupId, tag.Value, defaultLanguageId, ref response));
                     }
                     else
                     {
-                        tagsToInvalidate.Add(UpdateTagTranslations(groupId, tag.Value, defaultLanguageId, tagResponse.Objects[0], ref response));
+                        tagsToInvalidate.Add(UpdateTagTranslations(groupId, tag.Value, defaultLanguageId, tagValue, ref response));
                     }
                 }
             }
