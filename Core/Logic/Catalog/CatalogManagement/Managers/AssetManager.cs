@@ -768,10 +768,12 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
+                    int index = 0;
                     // insert default language values into tagsXml
                     foreach (string tagValue in tag.m_lValues)
                     {
-                        AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, tagValue);
+                        index++;
+                        AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, tagValue, index);
                     }
                 }
             }
@@ -1110,7 +1112,7 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int languageId, string value)
+        private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int languageId, string value, int order = 0)
         {
             if (value != null)
             {
@@ -1118,6 +1120,8 @@ namespace Core.Catalog.CatalogManagement
                 XmlNode topicIdNode;
                 XmlNode languageIdNode;
                 XmlNode valueNode;
+                XmlNode orderNode;
+
                 rowNode = metasXmlDoc.CreateElement("row");
                 topicIdNode = metasXmlDoc.CreateElement("topic_id");
                 topicIdNode.InnerText = topicId.ToString();
@@ -1128,6 +1132,9 @@ namespace Core.Catalog.CatalogManagement
                 valueNode = metasXmlDoc.CreateElement("value");
                 valueNode.InnerText = value;
                 rowNode.AppendChild(valueNode);
+                orderNode = metasXmlDoc.CreateElement("order");
+                orderNode.InnerText = order.ToString();
+                rowNode.AppendChild(orderNode);
                 rootNode.AppendChild(rowNode);
             }
         }

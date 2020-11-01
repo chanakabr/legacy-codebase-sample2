@@ -27,13 +27,13 @@ namespace Core.Catalog
             "//You may edit this template to only include the fields you wish to update, but columns marked with * are mandatory",
             "//Field types information:",
             "//Text fields are strings (example: The Godfather)",
-            "//Numeric fields are integers single value is supported (example: 3600). Double integers are also accepted (example 7.9)",
+            "//Numeric fields are integers single value is supported (example: 3600). Double integers are also accepted (example 7.9)", 
             "//Switch values should be TRUE or FALSE",
             "//Tags should be separated by commas (example: drama, action, family)",
             "//Date&Time (format: dd/mm/yyyy hh:mm:ss)",
             "//Playback file types columns include the file identifier and the field type as it appears in OPC (example: AndroidMain:External Id)",
-            "//Image types columns include the image identifier and the field type as it appears in OPC (example: BoxCoverEnglish:Image URL)",
-            "//PPV for file types can be updated using the PPV name separated by “;”. (example: [PPV name];[PPVname]. PPV with dates[PPV1];[Start];[End];[PPV2];[Start];[End]…)",
+            "//Image types columns include the image identifier and the field type as it appears in OPC (example: BoxCoverEnglish:Image URL)",            
+            "//The list of PPVs for a file type can be updated. To add a single PPV use the name only format: [PPV name] OR you can enter a single PPV together with dates:  [PPV name];[StartDate];[EndDate]. For Multiple PPVs you MUST enter each PPV name followed by dates.PPVs need to be separated by “;”: [PPVname];[StartDate];[EndDate];[PPV2 Name];[Start];[End]…",
             "//Image columns are generated with no value by default. If you wish to update an image, enter the URL in the appropriate Image URL column",
             "//For rules, provide the rule name as it appears in OPC."
         };
