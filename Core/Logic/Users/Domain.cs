@@ -575,7 +575,7 @@ namespace Core.Users
 
                     // remove domain from cache 
                     DomainsCache oDomainCache = DomainsCache.Instance();
-                    oDomainCache.RemoveDomain(nDomainID);
+                    oDomainCache.RemoveDomain(nGroupID, nDomainID);
                     InvalidateDomain();
                     InvalidateDomainUser(nUserID.ToString());
 
@@ -610,7 +610,7 @@ namespace Core.Users
                 {
                     //Remove domain from cache
                     DomainsCache domainCache = DomainsCache.Instance();
-                    domainCache.RemoveDomain(domainId);
+                    domainCache.RemoveDomain(groupId, domainId);
                     InvalidateDomain();
 
                     var domainDevices = ConcurrencyManager.GetDomainDevices(domainId, groupId);
@@ -1108,7 +1108,7 @@ namespace Core.Users
             {
                 //remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(m_nDomainID);
+                oDomainCache.RemoveDomain(nGroupID, m_nDomainID);
                 InvalidateDomain();
             }
 
@@ -1135,7 +1135,7 @@ namespace Core.Users
                 usersCache.RemoveUser(nUserID, nGroupID);
                 //Remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(nDomainID);
+                oDomainCache.RemoveDomain(nGroupID, nDomainID);
                 InvalidateDomain();
                 InvalidateDomainUser(nUserID.ToString());
             }
@@ -1154,7 +1154,7 @@ namespace Core.Users
                         if (UsersDal.UpsertUserRoleIds(m_nGroupID, nUserID, currUser.m_oBasicData.RoleIds))
                         {
                             // add invalidation key for user roles cache
-                            string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nUserID.ToString());
+                            string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nGroupID, nUserID.ToString());
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on AddUserToDomain key = {0}", invalidationKey);
@@ -1215,7 +1215,7 @@ namespace Core.Users
 
                 //Remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                bool cacheRemoveResult = oDomainCache.RemoveDomain(nDomainID);
+                bool cacheRemoveResult = oDomainCache.RemoveDomain(nGroupID, nDomainID);
                 InvalidateDomain();
                 InvalidateDomainUser(nUserID.ToString());
 
@@ -1239,7 +1239,7 @@ namespace Core.Users
                 UsersCache usersCache = UsersCache.Instance();
                 usersCache.RemoveUser(nUserID, nGroupID);
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                bool bRemove = oDomainCache.RemoveDomain(nDomainID);
+                bool bRemove = oDomainCache.RemoveDomain(nGroupID, nDomainID);
                 InvalidateDomain();
                 InvalidateDomainUser(nUserID.ToString());
             }
@@ -1373,7 +1373,7 @@ namespace Core.Users
 
             //remove domain from cache 
             DomainsCache oDomainCache = DomainsCache.Instance();
-            oDomainCache.RemoveDomain(m_nDomainID);
+            oDomainCache.RemoveDomain(m_nGroupID, m_nDomainID);
             InvalidateDomain();
 
             return DomainResponseStatus.OK;
@@ -1401,7 +1401,7 @@ namespace Core.Users
                 {
 
                     DomainsCache oDomainCache = DomainsCache.Instance();
-                    oDomainCache.RemoveDomain(m_nDomainID);
+                    oDomainCache.RemoveDomain(nGroupID, m_nDomainID);
                     InvalidateDomain();
                 }
             }
@@ -1474,7 +1474,7 @@ namespace Core.Users
 
                 // remove domain from cache 
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(m_nDomainID);
+                oDomainCache.RemoveDomain(nGroupID, m_nDomainID);
                 InvalidateDomain();
                 InvalidateDomainUser(nCurrentMasterID.ToString());
                 InvalidateDomainUser(nNewMasterID.ToString());
@@ -3015,7 +3015,7 @@ namespace Core.Users
             if (result)
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(m_nDomainID);
+                oDomainCache.RemoveDomain(m_nGroupID, m_nDomainID);
                 InvalidateDomain();
             }
             return result;
@@ -3060,7 +3060,7 @@ namespace Core.Users
             {
                 //remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(m_nDomainID);
+                oDomainCache.RemoveDomain(m_nGroupID, m_nDomainID);
                 InvalidateDomain();
 
                 // delete users from cache
@@ -3073,7 +3073,7 @@ namespace Core.Users
                     UserSegment.Remove(userId.ToString());
 
                     // add invalidation key for user roles cache
-                    string userRoleInvalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
+                    string userRoleInvalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, userId.ToString());
                     if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(userRoleInvalidationKey))
                         log.ErrorFormat("Failed to set invalidation key on RemoveDomain key = {0}", userRoleInvalidationKey);
                 }
@@ -3149,19 +3149,19 @@ namespace Core.Users
             foreach (int userID in this.m_UsersIDs)
             {
                 // Remove Users Roles
-                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(userID.ToString()));
+                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, userID.ToString()));
             }
 
             foreach (int userID in this.m_DefaultUsersIDs)
             {
                 // Remove Users Roles
-                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(userID.ToString()));
+                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, userID.ToString()));
             }
 
             foreach (int userID in this.m_masterGUIDs)
             {
                 // Remove Users Roles
-                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(userID.ToString()));
+                invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, userID.ToString()));
             }
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
@@ -3171,7 +3171,7 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
                 {
-                    LayeredCacheKeys.GetHouseholdInvalidationKey(this.m_nDomainID)
+                    LayeredCacheKeys.GetHouseholdInvalidationKey(m_nGroupID, this.m_nDomainID)
                 };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
@@ -3181,7 +3181,7 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
                 {
-                    LayeredCacheKeys.GetHouseholdUserInalidationKey(this.m_nDomainID, userId)
+                    LayeredCacheKeys.GetHouseholdUserInalidationKey(m_nGroupID, this.m_nDomainID, userId)
                 };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);

@@ -102,10 +102,10 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        public static bool InvalidateAsset(eAssetTypes assetType, long assetId, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
+        public static bool InvalidateAsset(eAssetTypes assetType, int groupId, long assetId, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
         {
             bool result = true;
-            string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), assetId);
+            string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(groupId, assetType.ToString(), assetId);
             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
             {
                 result = false;
@@ -122,7 +122,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (DataRow dr in dt.Rows)
                 {
-                    InvalidateAsset(eAssetTypes.MEDIA, ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID"));
+                    InvalidateAsset(eAssetTypes.MEDIA, groupId, ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID"));
                 }
             }
         }
@@ -869,7 +869,7 @@ namespace Core.Catalog.CatalogManagement
                 eAssetTypes assetType = eAssetTypes.MEDIA;
                 Dictionary<string, MediaAsset> mediaAssetMap = null;
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), ids);
-                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), ids);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(groupId, assetType.ToString(), ids);
 
                 if (!LayeredCache.Instance.GetValues<MediaAsset>(keyToOriginalValueMap, ref mediaAssetMap, GetMediaAssets, new Dictionary<string, object>()
                                                               { { "groupId", groupId }, { "ids", ids }, { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets } },
@@ -3334,7 +3334,7 @@ namespace Core.Catalog.CatalogManagement
                 if (!isFromIngest && result.IsOkStatusCode())
                 {
                     // invalidate asset
-                    InvalidateAsset(assetToUpdate.AssetType, id);
+                    InvalidateAsset(assetToUpdate.AssetType, groupId, id);
                 }
             }
             catch (Exception ex)
@@ -3382,7 +3382,7 @@ namespace Core.Catalog.CatalogManagement
                 if (result.IsOkStatusCode())
                 {
                     // invalidate asset
-                    InvalidateAsset(assetType, id);
+                    InvalidateAsset(assetType, groupId, id);
                 }
             }
             catch (Exception ex)
@@ -3401,7 +3401,7 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteMediaAsset(groupId, id, userId, true))
                 {
                     result = true;
-                    InvalidateAsset(assetType, id);
+                    InvalidateAsset(assetType, groupId, id);
                 }
                 else
                 {
@@ -3509,7 +3509,7 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         // invalidate asset
-                        InvalidateAsset(eAssetTypes.MEDIA, id);
+                        InvalidateAsset(eAssetTypes.MEDIA, groupId, id);
 
                         //Get updated Asset
                         var assetResponse = AssetManager.GetAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, true);

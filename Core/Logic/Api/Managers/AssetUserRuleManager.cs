@@ -110,7 +110,7 @@ namespace Core.Api.Managers
                 {
                     string assetUserRuleKey = LayeredCacheKeys.GetAssetUserRuleKey(assetUserRuleId);
                     keysToOriginalValueMap.Add(assetUserRuleKey, assetUserRuleId.ToString());
-                    invalidationKeysMap.Add(assetUserRuleKey, new List<string>() { LayeredCacheKeys.GetAssetUserRuleInvalidationKey(assetUserRuleId) });
+                    invalidationKeysMap.Add(assetUserRuleKey, new List<string>() { LayeredCacheKeys.GetAssetUserRuleInvalidationKey(groupId, assetUserRuleId) });
                 }
 
                 Dictionary<string, AssetUserRule> fullAssetUserRules = null;
@@ -257,7 +257,7 @@ namespace Core.Api.Managers
                 else
                 {
                     // set invalidation keys
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleInvalidationKey(assetUserRuleToUpdate.Id));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleInvalidationKey(groupId, assetUserRuleToUpdate.Id));
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId));
 
                     response.Object = assetUserRuleToUpdate;
@@ -323,7 +323,7 @@ namespace Core.Api.Managers
                 {
                     // set invalidation keys
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleIdsGroupInvalidationKey(groupId));
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleInvalidationKey(assetUserRuleId));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetUserRuleInvalidationKey(groupId, assetUserRuleId));
 
                     DataTable dtDeletedUserToAssetUserRuleIds = ds.Tables[1];
                     if (dtDeletedUserToAssetUserRuleIds != null && dtDeletedUserToAssetUserRuleIds.Rows != null)
@@ -331,7 +331,7 @@ namespace Core.Api.Managers
                         foreach (DataRow deletedUserToAssetUserRow in dtDeletedUserToAssetUserRuleIds.Rows)
                         {
                             long deletedUserId = ODBCWrapper.Utils.GetLongSafeVal(deletedUserToAssetUserRow, "USER_ID");
-                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(deletedUserId));
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(groupId, deletedUserId));
                         }
                     }
 
@@ -406,7 +406,7 @@ namespace Core.Api.Managers
                     dt.Rows.Count > 0 &&
                     ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "USER_ID") > 0)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(userId));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(groupId, userId));
 
                     response.Code = (int)eResponseStatus.OK;
                     response.Message = eResponseStatus.OK.ToString();
@@ -480,7 +480,7 @@ namespace Core.Api.Managers
                 }
 
                 // set invalidation keys
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(userId));
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(groupId, userId));
 
                 response.Code = (int)eResponseStatus.OK;
                 response.Message = eResponseStatus.OK.ToString();
@@ -733,7 +733,7 @@ namespace Core.Api.Managers
                                                        new Dictionary<string, object>() { { "userId", userId } },
                                                        groupId,
                                                        LayeredCacheConfigNames.GET_USER_TO_ASSET_USER_RULE_IDS,
-                                                       new List<string>() { LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(userId) }))
+                                                       new List<string>() { LayeredCacheKeys.GetUserToAssetUserRuleIdsInvalidationKey(groupId, userId) }))
             {
                 log.ErrorFormat("TryGetUserAssetUserRuleIds - Failed get data from cache. groupId: {0}, userId: {1}", groupId, userId);
                 return false;

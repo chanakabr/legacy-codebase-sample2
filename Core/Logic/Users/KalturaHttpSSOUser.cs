@@ -262,7 +262,7 @@ namespace Core.Users
                 new Dictionary<string, object>() { { "adapterId", _AdapterId } },
                 _GroupId,
                 LayeredCacheConfigNames.GET_SSO_ADAPATER_BY_GROUP_ID_CACHE_CONFIG_NAME,
-                new List<string>() { LayeredCacheKeys.GetSSOAdapaterImplementationsInvalidationKey(_AdapterId) });
+                new List<string>() { LayeredCacheKeys.GetSSOAdapaterImplementationsInvalidationKey(_GroupId, _AdapterId) });
 
             if (!cacheResult || implementationsResponse == null)
             {

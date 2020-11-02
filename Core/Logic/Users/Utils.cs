@@ -449,7 +449,7 @@ namespace Core.Users
                         res.Add(hn);
                     }
                     // remove current domain from cache
-                    oDomainCache.RemoveDomain((int)lDomainID);
+                    oDomainCache.RemoveDomain(nGroupID, (int)lDomainID);
                 }
                 else
                 {

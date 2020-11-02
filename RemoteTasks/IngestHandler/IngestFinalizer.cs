@@ -166,7 +166,7 @@ namespace IngestHandler
             foreach (var progId in programIdsToInvalidate)
             {
                 string invalidationKey = isOPC
-                    ? LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), progId)
+                    ? LayeredCacheKeys.GetAssetInvalidationKey(_bulkUpload.GroupId, eAssetTypes.EPG.ToString(), progId)
                     : LayeredCacheKeys.GetEpgInvalidationKey(_bulkUpload.GroupId, progId);
 
                 var invalidationResult = LayeredCache.Instance.SetInvalidationKey(invalidationKey);

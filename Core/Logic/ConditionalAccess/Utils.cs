@@ -4861,7 +4861,7 @@ namespace Core.ConditionalAccess
                 DomainBundles tempDomainBundles = null;
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
                 if (LayeredCache.Instance.Get<DomainBundles>(key, ref tempDomainBundles, InitializeDomainBundles, funcParams, groupId, LayeredCacheConfigNames.GET_DOMAIN_BUNDLES_LAYERED_CACHE_CONFIG_NAME,
-                                                                LayeredCacheKeys.GetDomainBundlesInvalidationKeys(domainId)) && tempDomainBundles != null)
+                                                            LayeredCacheKeys.GetDomainBundlesInvalidationKeys(groupId, domainId)) && tempDomainBundles != null)
                 {
                     domainBundles = ObjectCopier.Clone<DomainBundles>(tempDomainBundles);
                     // remove expired subscriptions
@@ -5860,7 +5860,7 @@ namespace Core.ConditionalAccess
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
 
                 if (LayeredCache.Instance.Get(LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap, GetDomainRecordingsFromDB, funcParams, groupId,
-                                        LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId) }, true)
+                                        LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, domainId) }, true)
                     && domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
                     SetRecordingStatus(domainRecordingIdToRecordingMap, groupId);
@@ -5907,7 +5907,7 @@ namespace Core.ConditionalAccess
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } };
 
                 if (LayeredCache.Instance.Get(LayeredCacheKeys.GetDomainRecordingsKey(domainId), ref domainRecordingIdToRecordingMap, GetDomainRecordingsFromDB, funcParams, groupId,
-                                        LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId) }, true)
+                                        LayeredCacheConfigNames.GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, domainId) }, true)
                     && domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
                     SetRecordingStatus(domainRecordingIdToRecordingMap, groupId);
@@ -8296,7 +8296,7 @@ namespace Core.ConditionalAccess
                     Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "mapper", mapperMapperList } };
                     result = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams, groupId,
                                                                         LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME,
-                                                                        LayeredCacheKeys.GetDomainEntitlementInvalidationKeys(domainId));
+                                                                        new List<string>() { LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId) });
                 }
 
                 if (result && domainEntitlements != null)

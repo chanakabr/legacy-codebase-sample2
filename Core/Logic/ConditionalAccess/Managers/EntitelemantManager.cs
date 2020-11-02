@@ -519,7 +519,7 @@ namespace Core.ConditionalAccess
 
             if (response.status.IsOkStatusCode())
             {
-                string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(domainId);
+                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
@@ -1261,7 +1261,7 @@ namespace Core.ConditionalAccess
                                     groupId, domainId, scheduledSubscriptionId, subscriptionSetModifyDetailsId);
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(domainId);
+                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key on CancelScheduledSubscription key = {0}", invalidationKey);

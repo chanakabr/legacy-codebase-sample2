@@ -101,7 +101,7 @@ namespace Core.ConditionalAccess
                                 if (UpdatePPVPurchases(purchaseId, itemPriceContainer.m_sPPVModuleCode, countryCode, languageCode, udid, groupId, numOfUses, endDate.Value))
                                 {
                                     //PPV Purchases updated - update purchase validation key
-                                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(domainId)))
+                                    if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId)))
                                     {
                                         log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
                                     }
@@ -220,7 +220,7 @@ namespace Core.ConditionalAccess
                 tasks.Add(Task.Run(() => Utils.InsertOfflinePpvUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID, contextData)));
             }
 
-            if (setPurchaseInvalidationKey && !LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(domainId)))
+            if (setPurchaseInvalidationKey && !LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId)))
             {
                 log.DebugFormat("Failed SetInvalidationKey for setPurchaseInvalidationKey, domainId: {0}", domainId);
             }
@@ -327,7 +327,7 @@ namespace Core.ConditionalAccess
                 tasks.Add(Task.Run(() => Utils.InsertOfflinePpvUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID, contextData)));
             }
 
-            if (setPurchaseInvalidationKey && !LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(domainId)))
+            if (setPurchaseInvalidationKey && !LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId)))
             {
                 log.DebugFormat("Failed SetInvalidationKey for setPurchaseInvalidationKey, domainId: {0}", domainId);
             }

@@ -217,7 +217,7 @@ namespace ApiLogic.Users.Managers
 
                 Dictionary<string, List<PasswordPolicy>> passwordPolicies = null;
                 var keyToOriginalValueMap = GetPasswordPolicyKeyMap(filter.RoleIdsIn);
-                var invalidationKeysMap = GetPasswordPolicyInvalidationKeysMap(filter.RoleIdsIn);
+                var invalidationKeysMap = GetPasswordPolicyInvalidationKeysMap(contextData.GroupId, filter.RoleIdsIn);
 
                 if (!LayeredCache.Instance.GetValues(keyToOriginalValueMap,
                                                      ref passwordPolicies,
@@ -365,7 +365,7 @@ namespace ApiLogic.Users.Managers
 
             foreach (var roleId in roleIds)
             {
-                var key = LayeredCacheKeys.GetPasswordPolicyInvalidationKey(roleId);
+                var key = LayeredCacheKeys.GetPasswordPolicyInvalidationKey(groupId, roleId);
                 if (!LayeredCache.Instance.SetInvalidationKey(key))
                 {
                     log.Error($"Error setting: {key}");
@@ -610,7 +610,7 @@ namespace ApiLogic.Users.Managers
             return result;
         }
 
-        private static Dictionary<string, List<string>> GetPasswordPolicyInvalidationKeysMap(List<long> roleIds)
+        private static Dictionary<string, List<string>> GetPasswordPolicyInvalidationKeysMap(int groupId, List<long> roleIds)
         {
             var result = new Dictionary<string, List<string>>();
             if (roleIds != null && roleIds.Count > 0)
@@ -620,7 +620,7 @@ namespace ApiLogic.Users.Managers
                     var key = LayeredCacheKeys.GetPasswordPolicyKey(id);
                     if (!result.ContainsKey(key))
                     {
-                        result.Add(key, new List<string>() { LayeredCacheKeys.GetPasswordPolicyInvalidationKey(id) });
+                        result.Add(key, new List<string>() { LayeredCacheKeys.GetPasswordPolicyInvalidationKey(groupId, id) });
                     }
                 }
             }

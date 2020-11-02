@@ -657,7 +657,7 @@ namespace Core.Catalog.Request
                 int userId = 0;
                 if (int.TryParse(siteGuid, out userId) && userId > 0)
                 {
-                    string invalidationKey = LayeredCacheKeys.GetUserWatchedMediaIdsInvalidationKey(userId);
+                    string invalidationKey = LayeredCacheKeys.GetUserWatchedMediaIdsInvalidationKey(groupID, userId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on GetUserWatchedMediasInvalidationKey key = {0}", invalidationKey);

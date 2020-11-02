@@ -97,7 +97,7 @@ namespace Core.Users
                                     if (UsersDal.UpsertUserRoleIds(nGroupID, nMasterUserGuid, currUser.m_oBasicData.RoleIds))
                                     {
                                         // add invalidation key for user roles cache
-                                        string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nMasterUserGuid.ToString());
+                                        string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, nMasterUserGuid.ToString());
                                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                                         {
                                             log.ErrorFormat("Failed to set invalidation key on AddDomain key = {0}", invalidationKey);

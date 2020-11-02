@@ -647,7 +647,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate medias
                 foreach (int mediaId in mediaIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId) && result;
+                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, mediaId) && result;
                 }
             }
 
@@ -656,7 +656,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate epgs
                 foreach (int epgId in epgIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, epgId) && result;
+                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgId) && result;
                 }
             }
 
@@ -963,7 +963,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate medias
                 foreach (int mediaId in mediaIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId) && result;
+                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, mediaId) && result;
                 }
             }
 
@@ -979,7 +979,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate epgs
                 foreach (int epgId in epgIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, epgId) && result;
+                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgId) && result;
                 }
             }
 
@@ -1087,7 +1087,7 @@ namespace Core.Catalog.CatalogManagement
 
                         if (topicsForAssetUpdate.Count > 0)
                         {
-                            AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)newAsset.Id);
+                            AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, (int)newAsset.Id);
 
                             var data = new InheritanceParentUpdate()
                             {

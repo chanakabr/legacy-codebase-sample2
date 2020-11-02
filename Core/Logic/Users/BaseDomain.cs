@@ -741,7 +741,7 @@ namespace Core.Users
             {
                 // remove domain from cache 
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain((int)lDomainID);
+                oDomainCache.RemoveDomain(m_nGroupID, (int)lDomainID);
 
                 res.eReason = NetworkResponseStatus.OK;
                 res.bSuccess = true;
@@ -779,7 +779,7 @@ namespace Core.Users
                 if (res != null && res.Code == (int)eResponseStatus.OK)
                 {
                     DomainsCache oDomainCache = DomainsCache.Instance();
-                    oDomainCache.RemoveDomain((int)domainID);
+                    oDomainCache.RemoveDomain(m_nGroupID, (int)domainID);
                 }
             }
             catch (Exception ex)
@@ -808,7 +808,7 @@ namespace Core.Users
             if (res != null && res.Code == (int)ApiObjects.Response.eResponseStatus.OK)
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain((int)lDomainID);
+                oDomainCache.RemoveDomain(m_nGroupID, (int)lDomainID);
             }
             return res;
         }
@@ -1021,7 +1021,7 @@ namespace Core.Users
                 }
 
                 // Remove Domain
-                oDomainCache.RemoveDomain(nDomainID);
+                oDomainCache.RemoveDomain(m_nGroupID, nDomainID);
                 UsersCache usersCache = UsersCache.Instance();
                 foreach (int userID in domain.m_UsersIDs)
                 {
@@ -1111,7 +1111,7 @@ namespace Core.Users
                     bool resultSuspendedUsers = UpdateSuspendedUserRoles(domain, m_nGroupID, currentRoleId.HasValue ? currentRoleId.Value : 0, null);
                 }
                 // Remove Domain
-                oDomainCache.RemoveDomain(nDomainID);
+                oDomainCache.RemoveDomain(m_nGroupID, nDomainID);
                 UsersCache usersCache = UsersCache.Instance();
                 foreach (int userID in domain.m_UsersIDs)
                 {
@@ -1555,7 +1555,7 @@ namespace Core.Users
             try
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                bool bRes = oDomainCache.RemoveDLM(nDlmID);
+                bool bRes = oDomainCache.RemoveDLM(m_nGroupID, nDlmID);
                 if (bRes)
                     resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 else
@@ -1600,7 +1600,7 @@ namespace Core.Users
                             bool bSuccess = domain.CompareDLM(oLimitationsManager, ref oChangeDLMObj);
                         }
                     }
-                    oDomainsCache.RemoveDomain(domainID);
+                    oDomainsCache.RemoveDomain(m_nGroupID, domainID);
                 }
                 else
                 {
@@ -1661,7 +1661,7 @@ namespace Core.Users
 
                 if (DomainDal.UpdateDomainRegion(domainId, groupId, extRegionId, lookupKey))
                 {
-                    DomainsCache.Instance().RemoveDomain(domainId);
+                    DomainsCache.Instance().RemoveDomain(m_nGroupID, domainId);
                     status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
                 }
                 else
@@ -1920,7 +1920,7 @@ namespace Core.Users
 
                 // remove domain from cache 
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain((int)domainId);
+                oDomainCache.RemoveDomain(m_nGroupID, (int)domainId);
 
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }

@@ -48,7 +48,7 @@ namespace Core.Users
                         DomainsCache oDomainCache = DomainsCache.Instance();
                         foreach (var domain in domains)
                         {
-                            oDomainCache.RemoveDomain(domain.m_nDomainID);
+                            oDomainCache.RemoveDomain(nGroupID, domain.m_nDomainID);
 
                         }
                     }
@@ -114,7 +114,7 @@ namespace Core.Users
                         DomainsCache oDomainCache = DomainsCache.Instance();
                         foreach (var domain in domains)
                         {
-                            oDomainCache.RemoveDomain(domain.m_nDomainID);
+                            oDomainCache.RemoveDomain(m_nGroupID, domain.m_nDomainID);
                         }
                     }
                 }

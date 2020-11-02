@@ -285,7 +285,7 @@ namespace Core.Users
             if(UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds))
             {
                 // add invalidation key for user roles cache
-                string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nUserID.ToString());
+                string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, nUserID.ToString());
                 LayeredCache.Instance.SetInvalidationKey(invalidationKey);
             }
             

@@ -1678,7 +1678,7 @@ namespace Core.ConditionalAccess
                         {
                             WriteToUserLog(sSiteGUID,
                                 String.Concat("Sub ID: ", sSubscriptionCode, " with Purchase ID: ", nSubscriptionPurchaseID, " has been canceled."));
-                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(domainId)))
+                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId)))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on CancelSubscription for domainId = {0}");
                             }
@@ -1852,7 +1852,7 @@ namespace Core.ConditionalAccess
 
                                 EnqueueEventRecord(NotifiedAction.CancelDomainSubscriptionRenewal, dicData, userId, udid, userIp);
 
-                                string invalidationKey = LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(domainId);
+                                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
                                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                                 {
                                     log.ErrorFormat("Failed to set invalidation key on CancelSubscriptionRenewal key = {0}", invalidationKey);
@@ -2488,7 +2488,7 @@ namespace Core.ConditionalAccess
                             long domainId = 0;
                             Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
 
-                            string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(domainId);
+                            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on InApp_RenewSubscription key = {0}", invalidationKey);
@@ -2852,7 +2852,7 @@ namespace Core.ConditionalAccess
                         long domainId = 0;
                         Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
 
-                        string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(domainId);
+                        string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
                             log.ErrorFormat("Failed to set invalidation key on DD_BaseRenewMultiUsageSubscription key = {0}", invalidationKey);
@@ -5310,7 +5310,7 @@ namespace Core.ConditionalAccess
 
                         if (oResponse.m_oStatus == BillingResponseStatus.Success)
                         {
-                            string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(uObj.m_user.m_domianID);
+                            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, uObj.m_user.m_domianID);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on CC_BaseChargeUserForMediaFile key = {0}", invalidationKey);
@@ -6227,7 +6227,7 @@ namespace Core.ConditionalAccess
                         }
                         if (ret.m_oStatus == BillingResponseStatus.Success)
                         {
-                            string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(uObj.m_user.m_domianID);
+                            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, uObj.m_user.m_domianID);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on CC_BaseChargeUserForBundle key = {0}", invalidationKey);
@@ -10344,7 +10344,7 @@ namespace Core.ConditionalAccess
                                     EnqueueCancelServiceRecord(domainId, assetID, transactionType, dtEndDate, updaterUser, udid, userIp);
                                 }
 
-                                string invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId);
+                                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
                                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                                 {
                                     log.ErrorFormat("Failed to set invalidation key on CancelServiceNow key = {0}", invalidationKey);
@@ -10697,7 +10697,7 @@ namespace Core.ConditionalAccess
                     WriteToUserLog(p_sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", p_sSiteGuid, Enum.GetName(typeof(eTransactionType), p_enmTransactionType), p_nAssetID));
                     //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
 
-                    string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey((long)domainid);
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainid);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on CancelTransaction key = {0}", invalidationKey);
@@ -11873,7 +11873,7 @@ namespace Core.ConditionalAccess
 
                             if (handleBillingPassed)
                             {
-                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(householdId));
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId));
                                 WriteToUserLog(siteguid, string.Format("PPV Purchase, ProductID:{0}, ContentID:{1}, PurchaseID:{2}, BillingTransactionID:{3}",
                                     productId, contentId, purchaseId, response.TransactionID));
 
@@ -12013,7 +12013,7 @@ namespace Core.ConditionalAccess
 
                                 if (handleBillingPassed && subscriptionEndDate.HasValue)
                                 {
-                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(householdId));
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId));
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0)
                                     {
@@ -12198,7 +12198,7 @@ namespace Core.ConditionalAccess
 
                             if (handleBillingPassed)
                             {
-                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(householdId));
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId));
                                 // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
 
                                 // entitlement passed - build notification message
@@ -12333,7 +12333,7 @@ namespace Core.ConditionalAccess
                             return response;
                         }
 
-                        string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(billingResponse.DomainId);
+                        string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, billingResponse.DomainId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
                             log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
@@ -12353,7 +12353,7 @@ namespace Core.ConditionalAccess
                         return response;
                     }
 
-                    string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey(billingResponse.DomainId);
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, billingResponse.DomainId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on CheckPendingTransaction key = {0}", invalidationKey);
@@ -12430,7 +12430,7 @@ namespace Core.ConditionalAccess
                                 return response;
                             }
 
-                            string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(domainId);
+                            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
@@ -12457,7 +12457,7 @@ namespace Core.ConditionalAccess
                     WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ",
                         billingResponse.TransactionID, billingResponse.State, billingResponse.FailReasonCode));
 
-                    string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey(domainId);
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on CheckPendingTransaction key = {0}", invalidationKey);
@@ -12938,7 +12938,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // invalidate purchase key anyway - BEO-6693
-                string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(householdId);
+                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
@@ -13824,7 +13824,7 @@ namespace Core.ConditionalAccess
 
                     if (RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, domainSeriesRecordingId))
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainID));
                     }
                     else
                     {
@@ -13928,7 +13928,7 @@ namespace Core.ConditionalAccess
 
                 if (res)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
 
                     if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
                     {
@@ -14951,7 +14951,7 @@ namespace Core.ConditionalAccess
                     if (RecordingsDAL.SetDomainsRecordings(recording.Id, protectedUntilDate, protectedUntilEpoch, metaDataStr, recordingToUpdate.ViewableUntilDate))
                     {
                         UpdateRecordingSuccessed((recording as ExternalRecording), protectedUntilEpoch, (recordingToUpdate as ExternalRecording).MetaData, recordingToUpdate.ViewableUntilDate);
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainID));
                     }
                     else
                     {
@@ -15070,7 +15070,7 @@ namespace Core.ConditionalAccess
                     // Try to Update protection details for domain recording and update recording status
                     if (RecordingsDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainID));
                         UpdateRecordingSuccessed(recording, protectedUntilEpoch);
                     }
                     else
@@ -15557,7 +15557,7 @@ namespace Core.ConditionalAccess
                                     {
                                         log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", task.RecordingId, domainId);
                                     }
-                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
                                 }
                                 else
                                 {
@@ -15656,7 +15656,7 @@ namespace Core.ConditionalAccess
 
                             if (quotaSuccessfullyUpdated)
                             {
-                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
                                 if (!CompleteDomainSeriesRecordings(domainId))
                                 {
                                     log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", recording.Id, domainId);
@@ -15727,7 +15727,7 @@ namespace Core.ConditionalAccess
 
                     if (!isUserAddToDic)
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(userDomainPair.Value));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, userDomainPair.Value));
                     }
                 }
 
@@ -16437,7 +16437,7 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
 
                             if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
                             {
@@ -17582,7 +17582,7 @@ namespace Core.ConditionalAccess
 
                 if (doInvalidate)
                 {
-                    string invalidationKey = LayeredCacheKeys.GetSubscriptionSuspendInvalidationKey(householdId);
+                    string invalidationKey = LayeredCacheKeys.GetSubscriptionSuspendInvalidationKey(m_nGroupID, householdId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on SuspendPaymentGatewayEntitlements key = {0}", invalidationKey);
@@ -17590,7 +17590,7 @@ namespace Core.ConditionalAccess
 
                     if (householdPaymentGateway.SuspendSettings.RevokeEntitlements)
                     {
-                        invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey((int)householdId);
+                        invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
                             log.ErrorFormat("Failed to set invalidation key on revoke key = {0}", invalidationKey);
@@ -17797,7 +17797,7 @@ namespace Core.ConditionalAccess
             }
             else if (endDateFromRow < DateTime.UtcNow.AddSeconds(2))
             {
-                string key = LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(householdId);
+                string key = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId);
                 LayeredCache.Instance.SetInvalidationKey(key);
             }
 

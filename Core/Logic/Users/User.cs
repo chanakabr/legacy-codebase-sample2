@@ -666,7 +666,7 @@ namespace Core.Users
 
                 if (UsersDal.UpsertUserRoleIds(this.GroupId, this.userId, m_oBasicData.RoleIds))
                 {
-                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(this.m_sSiteGUID);
+                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(GroupId, this.m_sSiteGUID);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on DoInsert key = {0}", invalidationKey);

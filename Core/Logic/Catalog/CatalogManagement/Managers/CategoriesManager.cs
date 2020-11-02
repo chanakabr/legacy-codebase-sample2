@@ -274,7 +274,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 string key = LayeredCacheKeys.GetCategoryItemKey(groupId, id);
-                string invalidationKey = LayeredCacheKeys.GetCategoryIdInvalidationKey(id);
+                string invalidationKey = LayeredCacheKeys.GetCategoryIdInvalidationKey(groupId, id);
                 bool cacheResult = LayeredCache.Instance.Get<CategoryItem>(key,
                                                         ref result,
                                                         BuildCategoryItem,
@@ -496,7 +496,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (var item in objectToAdd.ChildrenIds)
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(groupId, item));
                     }
                 }
 

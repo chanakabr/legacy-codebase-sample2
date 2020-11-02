@@ -519,7 +519,7 @@ namespace Core.ConditionalAccess
                 response = new Status(transactionResponse.Status.Code, transactionResponse.Status.Message);
                 if (transactionResponse.Status.Code == (int)eResponseStatus.OK)
                 {
-                    string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(domainId);
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
@@ -875,7 +875,7 @@ namespace Core.ConditionalAccess
                         CouponWalletHandler.UpdateLastUsageDate(contextData.DomainId.Value, couponData.id);
                     }
 
-                    string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(contextData.DomainId.Value);
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(contextData.GroupId, contextData.DomainId.Value);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);

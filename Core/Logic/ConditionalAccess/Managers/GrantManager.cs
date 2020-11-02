@@ -82,7 +82,7 @@ namespace Core.ConditionalAccess
 
                 if (status != null && status.Code == (int)eResponseStatus.OK)
                 {
-                    string invalidationKey = LayeredCacheKeys.GetGrantEntitlementInvalidationKey(householdId);
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, householdId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on GrantEntitlements key = {0}", invalidationKey);
@@ -630,7 +630,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(houseHoldID));
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, houseHoldID));
                 ApiObjects.Response.Status status = GrantSubscription(cas, groupId, userId, (long)houseHoldID, int.Parse(newSubscription.m_SubscriptionCode), userIp, deviceName, history, 1, null, oldSubscription.m_dEndDate, GrantContext.Swap);
 
                 if (status.Code != (int)eResponseStatus.OK)
@@ -639,7 +639,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGrantEntitlementInvalidationKey(houseHoldID));
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, houseHoldID));
             }
             catch (Exception ex)
             {

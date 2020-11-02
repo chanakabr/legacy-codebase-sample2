@@ -4782,7 +4782,7 @@ namespace Core.Api
                         status.Code = (int)eResponseStatus.OK;
                         status.Message = string.Empty;
 
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, siteGuid));
                     }
                     else if (newId == -260)
                     {
@@ -4944,7 +4944,7 @@ namespace Core.Api
                             // if we updated a user only - set its key as invalid
                             if (!string.IsNullOrEmpty(siteGuid))
                             {
-                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, siteGuid));
                             }
                             // otherwise - set all of the domain's users keys as invalid
                             else
@@ -4991,7 +4991,7 @@ namespace Core.Api
                 // Set invalidation key for each of its users
                 foreach (var userId in domain.m_UsersIDs)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId.ToString()));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, userId.ToString()));
                 }
             }
         }
@@ -5374,7 +5374,7 @@ namespace Core.Api
                         if (!string.IsNullOrEmpty(siteGuid) && siteGuid != "0")
                         {
                             List<string> userParentalRulesInvalidationKeys = new List<string>();
-                            userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
+                            userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, siteGuid));
 
                             // user rules 
                             key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
@@ -5536,7 +5536,7 @@ namespace Core.Api
                     else if (epgRuleIds != null && epgRuleIds.Count > 0)
                     {
                         List<string> userParentalRulesInvalidationKeys = new List<string>();
-                        userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
+                        userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, siteGuid));
 
                         // user rules 
                         key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
@@ -10769,7 +10769,7 @@ namespace Core.Api
                         { "userId", userId }
                         },
                     groupId, LayeredCacheConfigNames.GET_USER_WATCHED_MEDIA_IDS_LAYERED_CACHE_CONFIG_NAME,
-                    new List<string>() { LayeredCacheKeys.GetUserWatchedMediaIdsInvalidationKey(userId) });
+                    new List<string>() { LayeredCacheKeys.GetUserWatchedMediaIdsInvalidationKey(groupId, userId) });
 
                 if (!cacheResult)
                 {
@@ -11108,7 +11108,7 @@ namespace Core.Api
 
             string key = LayeredCacheKeys.GetMediaCountriesKey(mediaId);
             if (!LayeredCache.Instance.Get<DataTable>(key, ref mediaCountries, GetMediaCountries, new Dictionary<string, object>() { { "mediaId", mediaId } },
-                groupId, LayeredCacheConfigNames.GET_MEDIA_COUNTRIES, new List<string>() { LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId) }))
+                groupId, LayeredCacheConfigNames.GET_MEDIA_COUNTRIES, new List<string>() { LayeredCacheKeys.GetMediaCountriesInvalidationKey(groupId, mediaId) }))
             {
                 log.ErrorFormat("Failed media countries from LayeredCache, key: {0}", key);
             }

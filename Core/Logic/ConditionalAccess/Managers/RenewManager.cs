@@ -200,7 +200,7 @@ namespace Core.ConditionalAccess
 
                         if (res)
                         {
-                            string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(domainId);
+                            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);
@@ -813,7 +813,7 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
+            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, householdId);
             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
             {
                 log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);
@@ -1296,7 +1296,7 @@ namespace Core.ConditionalAccess
             {
                 if (successTransactions.Count > 0)
                 {
-                    string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, householdId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);

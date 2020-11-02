@@ -3295,7 +3295,7 @@ namespace Core.Catalog
                                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
                                 if (doesGroupUsesTemplates)
                                 {
-                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(eAssetType.MEDIA.ToString(), id));
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(groupId, eAssetType.MEDIA.ToString(), id));
                                 }
                             }
                         }
@@ -6989,7 +6989,7 @@ namespace Core.Catalog
                         string parentalRulesKey = LayeredCacheKeys.GetUserParentalRulesKey(groupId, userId);
                         bool parentalRulesCacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(parentalRulesKey, ref ruleIds,
                             APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } },
-                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId) });
+                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, userId) });
 
                         if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
                         {
@@ -7089,7 +7089,7 @@ namespace Core.Catalog
                         string parentalRulesKey = LayeredCacheKeys.GetUserParentalRulesKey(groupId, userId);
                         bool parentalRulesCacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(parentalRulesKey, ref ruleIds,
                             APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } },
-                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId) });
+                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, userId) });
 
                         if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
                         {

@@ -591,7 +591,7 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         // invalidate asset
-                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileToAdd.AssetId);
+                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToAdd.AssetId);
                     }
 
                     // free item index update 
@@ -631,7 +631,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // invalidate asset
-                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileResponse.Object.AssetId);
+                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileResponse.Object.AssetId);
                 }
             }
             catch (Exception ex)
@@ -745,7 +745,7 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         // invalidate asset
-                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetFileToUpdate.AssetId);
+                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToUpdate.AssetId);
                     }
 
                     // free item index update 

@@ -223,7 +223,7 @@ namespace APILogic.Api.Managers
             {
                 string businessModuleRuleKey = LayeredCacheKeys.GetBusinessModuleRuleKey(ruleId);
                 keysToOriginalValueMap.Add(businessModuleRuleKey, ruleId.ToString());
-                invalidationKeysMap.Add(businessModuleRuleKey, new List<string>() { LayeredCacheKeys.GetBusinessModuleRuleInvalidationKey(ruleId) });
+                invalidationKeysMap.Add(businessModuleRuleKey, new List<string>() { LayeredCacheKeys.GetBusinessModuleRuleInvalidationKey(groupId, ruleId) });
             }
 
             Dictionary<string, BusinessModuleRule> fullBusinessModuleRules = null;
@@ -343,7 +343,7 @@ namespace APILogic.Api.Managers
 
             if (ruleId.HasValue)
             {
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetBusinessModuleRuleInvalidationKey(ruleId.Value));
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetBusinessModuleRuleInvalidationKey(groupId, ruleId.Value));
             }
         }
 

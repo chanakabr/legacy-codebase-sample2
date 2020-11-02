@@ -1478,7 +1478,7 @@ namespace Core.Users
 
                     // try to get from cache            
                     if (LayeredCache.Instance.Get<List<long>>(key, ref roleIds, Utils.Get_UserRoleIds, new Dictionary<string, object>() { { "groupId", m_nGroupID }, { "userId", userId } },
-                                                              m_nGroupID, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(userId) }))
+                                                              m_nGroupID, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, userId) }))
                     {
                         response.Ids = roleIds;
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -1516,7 +1516,7 @@ namespace Core.Users
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     // add invalidation key for user roles cache
-                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId);
+                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, userId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on AddRoleToUser key = {0}", invalidationKey);

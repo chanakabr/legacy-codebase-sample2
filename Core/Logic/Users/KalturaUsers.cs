@@ -307,7 +307,7 @@ namespace Core.Users
                 userResponse.m_user.m_oBasicData.RoleIds.Add(roleId);
                 if (UsersDal.UpsertUserRoleIds(GroupId, userId, userResponse.m_user.m_oBasicData.RoleIds))
                 {
-                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(siteGuid);
+                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, siteGuid);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on MidCreateDefaultRules key = {0}", invalidationKey);
