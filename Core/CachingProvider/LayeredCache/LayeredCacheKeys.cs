@@ -775,6 +775,13 @@ namespace CachingProvider.LayeredCache
             return string.Format($"{partnerId}_InvalidateUserRoles_{userId}");
         }
 
+        // This key was added to user Get \ initilize method because when its connected to authentication miscroservice
+        // it will be invalidated when microservice invalidates the user login history recotd
+        public static string GetUserLoginHistoryInvalidationKey(int partnerId, int userId)
+        {
+            return $"{partnerId}_InvalidateUserLoginHistory_{userId}";
+        }
+
         public static string GetSubscriptionSuspendInvalidationKey(int groupId, long domainId)
         {
             return string.Format("subscription_suspend_groupId_{0}_domainId_{1}", groupId, domainId);

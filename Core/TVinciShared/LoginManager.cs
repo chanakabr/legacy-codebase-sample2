@@ -390,7 +390,7 @@ namespace TVinciShared
 
                         bRet = true;
                         sErrMessage = "";
-
+                        
                         ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
                         directQuery += "update accounts set FAIL_COUNT=0,";
                         directQuery += ODBCWrapper.Parameter.NEW_PARAM("LAST_FAIL_DATE", "=", DBNull.Value);

@@ -1,7 +1,9 @@
 ﻿using ApiLogic.Users.Managers;
 using ApiObjects;
 using ApiObjects.Response;
+using AuthenticationGrpcClientWrapper;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using DAL;
 using System;
 using System.Collections.Generic;
@@ -90,29 +92,43 @@ namespace Core.Users
 
             string sUserName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "USERNAME");
             string sPass = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "PASSWORD");
-            string sSalt = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "SALT"); 
-            string sFirstName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FIRST_NAME"); 
-            string sLastName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "LAST_NAME"); 
-            string sEmail = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "EMAIL_ADD"); 
+            string sSalt = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "SALT");
+            string sFirstName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FIRST_NAME");
+            string sLastName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "LAST_NAME");
+            string sEmail = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "EMAIL_ADD");
             string sAddress = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "ADDRESS");
             string sAffiliate = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "REG_AFF");
-            string sCity = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "CITY"); 
-            Int32 nStateID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "STATE_ID"); 
-            Int32 nCountryID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "COUNTRY_ID"); 
-            string sZip = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "ZIP"); 
+            string sCity = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "CITY");
+            Int32 nStateID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "STATE_ID");
+            Int32 nCountryID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "COUNTRY_ID");
+            string sZip = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "ZIP");
             string sPhone = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "PHONE");
-            string sFacebookID = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FACEBOOK_ID"); 
+            string sFacebookID = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FACEBOOK_ID");
             string sFacebookImage = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FACEBOOK_IMAGE");
             bool bFacebookImagePermitted = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "FACEBOOK_IMAGE_PERMITTED"));
-            string sCoGuid = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "CoGuid"); 
-            string sExternalToken = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "externaltoken"); 
-            string sFacebookToken = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "fb_token"); 
-            string sUserType = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "user_type_desc"); 
+            string sCoGuid = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "CoGuid");
+            string sExternalToken = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "externaltoken");
+            string sFacebookToken = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "fb_token");
+            string sUserType = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "user_type_desc");
             bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "is_default"));
             DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "CREATE_DATE");
             DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "UPDATE_DATE");
             DateTime lastLoginDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "LAST_LOGIN_DATE");
-            int failedLoginCount = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "FAIL_COUNT");
+
+            int failedLoginCount = 0;
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.UserLoginHistory.Value)
+            {
+                var authClient = AuthenticationClient.GetClientFromTCM();
+                var failHistory = authClient.GetUserLoginHistory(nGroupID, nUserID);
+                if (failHistory != null)
+                {
+                    failedLoginCount = failHistory.ConsecutiveFailedLoginCount;
+                }
+            }
+            else
+            {
+                failedLoginCount = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "FAIL_COUNT");
+            }
 
 
             int? nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "user_type_id");
@@ -120,19 +136,19 @@ namespace Core.Users
             {
                 nUserTypeID = null;
             }
-            
+
             UserType userType = new UserType(nUserTypeID, sUserType, isDefault);
 
-            res = Initialize(sUserName, sPass, sSalt, sFirstName, sLastName, sEmail, sAddress, sCity, nStateID, nCountryID, sZip, sPhone, sFacebookID, 
+            res = Initialize(sUserName, sPass, sSalt, sFirstName, sLastName, sEmail, sAddress, sCity, nStateID, nCountryID, sZip, sPhone, sFacebookID,
                              bFacebookImagePermitted, sFacebookImage, sAffiliate, sFacebookToken, sCoGuid, sExternalToken, userType, nUserID, nGroupID,
                              createDate, updateDate, lastLoginDate, failedLoginCount);
 
             return res;
         }
-        
-        public bool Initialize(string sUserName, string sPassword, string sSalt, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity, 
-                               int nStateID, Int32 nCountryID, string sZip, string sPhone, string sFacebookID, bool bIsFacebookImagePermitted, string sFacebookImageURL, 
-                               string sAffiliate, string sFacebookToken, string sCoGuid, string sExternalToken, UserType userType, Int32 userId, Int32 groupId, 
+
+        public bool Initialize(string sUserName, string sPassword, string sSalt, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity,
+                               int nStateID, Int32 nCountryID, string sZip, string sPhone, string sFacebookID, bool bIsFacebookImagePermitted, string sFacebookImageURL,
+                               string sAffiliate, string sFacebookToken, string sCoGuid, string sExternalToken, UserType userType, Int32 userId, Int32 groupId,
                                DateTime createDate, DateTime updateDate, DateTime lastLoginDate, int failedLoginCount)
         {
             bool res = true;
@@ -166,7 +182,7 @@ namespace Core.Users
             {
                 m_State = new State();
                 res = m_State.Initialize(nStateID);
-            }            
+            }
 
             if (nCountryID != 0)
             {
@@ -209,7 +225,7 @@ namespace Core.Users
             m_sEmail = WS_Utils.GetNodeValue(ref t, "email");
             m_sAddress = WS_Utils.GetNodeValue(ref t, "address");
             m_sCity = WS_Utils.GetNodeValue(ref t, "city");
-            
+
             string sbIsFacebookImagePermitted = WS_Utils.GetNodeValue(ref t, "facebookimagepermitted").ToLower().Trim();
             m_bIsFacebookImagePermitted = (sbIsFacebookImagePermitted == "true");
 
@@ -255,8 +271,8 @@ namespace Core.Users
             }
 
             this.UpdateDate = DateTime.UtcNow;
-            
-            bool saved = DAL.UsersDal.SaveBasicData(nUserID,
+
+            bool saved = DAL.UsersDal.SaveBasicData(groupId, nUserID,
                                                     m_sPassword,
                                                     m_sSalt,
                                                     m_sFacebookID,
@@ -282,16 +298,16 @@ namespace Core.Users
                                                     resetFailCount,
                                                     updateUserPassword);
 
-            if(UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds))
+            if (UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds))
             {
                 // add invalidation key for user roles cache
                 string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, nUserID.ToString());
                 LayeredCache.Instance.SetInvalidationKey(invalidationKey);
             }
-            
+
             return saved;
         }
-        
+
         public object Clone()
         {
             return CloneImpl();
@@ -327,7 +343,7 @@ namespace Core.Users
 
             return isRoleIdsSet;
         }
-        
+
         /// <summary>
         /// copy all relevent properites from other UserBasicData to currenct object befor update
         /// </summary>
@@ -349,7 +365,7 @@ namespace Core.Users
                 this.m_sEmail = other.m_sUserName;
                 isBasicChanged = true;
             }
-            
+
             if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sFirstName) && !this.m_sFirstName.Equals(other.m_sFirstName)))
             {
                 this.m_sFirstName = other.m_sFirstName;
@@ -361,7 +377,7 @@ namespace Core.Users
                 this.m_sLastName = other.m_sLastName;
                 isBasicChanged = true;
             }
-            
+
             if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sCity) && !this.m_sCity.Equals(other.m_sCity)))
             {
                 this.m_sCity = other.m_sCity;
@@ -373,13 +389,13 @@ namespace Core.Users
                 this.m_sPhone = other.m_sPhone;
                 isBasicChanged = true;
             }
-            
+
             if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sZip) && !this.m_sZip.Equals(other.m_sZip)))
             {
                 this.m_sZip = other.m_sZip;
                 isBasicChanged = true;
             }
-            
+
             if (!isSSOMCImplementation)
             {
                 this.m_sEmail = other.m_sEmail;
@@ -393,7 +409,7 @@ namespace Core.Users
                 this.m_UserType = other.m_UserType;
                 this.m_CoGuid = other.m_CoGuid;
             }
-            
+
             if (other.RoleIds != null && other.RoleIds.Count > 0)
             {
                 this.RoleIds = other.RoleIds;

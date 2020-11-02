@@ -13,6 +13,7 @@ using CachingProvider.LayeredCache.Helper;
 using EventBus.Kafka;
 using EventBus.Abstraction;
 using System.ServiceModel.Channels;
+using System.Text.RegularExpressions;
 
 namespace CachingProvider.LayeredCache
 {
@@ -40,6 +41,7 @@ namespace CachingProvider.LayeredCache
         };
 
         private readonly IEventBusPublisher _InvalidationEventsPublisher;
+        private List<Regex> _InvalidationEventsRegexRules;
 
         private LayeredCache()
         {
@@ -48,7 +50,24 @@ namespace CachingProvider.LayeredCache
             if (layeredCacheTcmConfig.ShouldProduceInvalidationEventsToKafka)
             {
                 _InvalidationEventsPublisher = KafkaPublisher.GetFromTcmConfiguration();
+                LoadInvalidationEventsRules();
+            }
+        }
 
+        private void LoadInvalidationEventsRules()
+        {
+            _InvalidationEventsRegexRules = new List<Regex>();
+            foreach (var regexRule in layeredCacheTcmConfig.InvalidationEventsMatchRules)
+            {
+                try
+                {
+                    var regex = new Regex(regexRule, RegexOptions.Compiled);
+                    _InvalidationEventsRegexRules.Add(regex);
+                }
+                catch (Exception e)
+                {
+                    log.Error($"error parsing invalidation event rule:[{regexRule}], skipping the rule.", e);
+                }
             }
         }
 
@@ -1517,10 +1536,18 @@ namespace CachingProvider.LayeredCache
             {
                 if (string.IsNullOrEmpty(key)) { return; }
 
-                var invalidationEvent = InvalidationKeysLegacyMapping.GetInvalidationEventKeyByLegacyKey(key);
+                // if we have some rules we have to verify the key is matched before we send invalidation event
+                if (_InvalidationEventsRegexRules.Any())
+                {
+                    if (!_InvalidationEventsRegexRules.Any(r => r.IsMatch(key)))
+                    {
+                        return;
+                    }
+                }
+                
+                var invalidationEvent = new CacheInvalidationEvent(key, layeredCacheTcmConfig.InvalidationEventsTopic);
                 if (invalidationEvent != null)
                 {
-                    // TODO: move the publisher creation to the staic constarctonr....
                     _InvalidationEventsPublisher.Publish(invalidationEvent);
                 }
             }

@@ -91,6 +91,7 @@ namespace ConfigurationManager
         public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
         public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();
         public HttpClientConfiguration HttpClientConfiguration = new HttpClientConfiguration();
+        public MicroservicesClientConfiguration MicroservicesClientConfiguration = new MicroservicesClientConfiguration();
         public DatabaseConfiguration DatabaseConfiguration = new DatabaseConfiguration();
         public NotificationConfiguration NotificationConfiguration = new NotificationConfiguration();
         public ImageUtilsConfiguration ImageUtilsConfiguration = new ImageUtilsConfiguration();

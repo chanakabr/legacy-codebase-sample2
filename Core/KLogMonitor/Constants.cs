@@ -43,6 +43,7 @@ namespace KLogMonitor
         public const string EVENT_WS = "ws";
         public const string EVENT_KAFKA = "kafka";
         public const string EVENT_REDIS = "redis";
+        public const string EVENT_GRPC = "grpc";
 
         // http context
         public const string PRIVILIGES = "priviliges";

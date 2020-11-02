@@ -54,14 +54,8 @@ namespace Core.Users
         [JsonProperty()]
         public int m_nGroupID
         {
-            get
-            {
-                return this.GroupId;
-            }
-            set
-            {
-                this.GroupId = value;
-            }
+            get { return this.GroupId; }
+            set { this.GroupId = value; }
         }
 
         //Domain Max_Limit  = module_group_limit_id     
@@ -95,18 +89,13 @@ namespace Core.Users
         public List<int> m_DefaultUsersIDs;
 
         //List of device brands
-        [JsonProperty()]
-        public List<DeviceContainer> m_deviceFamilies;
+        [JsonProperty()] public List<DeviceContainer> m_deviceFamilies;
 
-        [XmlIgnore]
-        protected Dictionary<string, int> UdidToDeviceFamilyIdMapping;
+        [XmlIgnore] protected Dictionary<string, int> UdidToDeviceFamilyIdMapping;
 
-        [XmlIgnore]
-        [JsonProperty()]
-        protected Dictionary<int, DeviceContainer> DeviceFamiliesMapping;
+        [XmlIgnore] [JsonProperty()] protected Dictionary<int, DeviceContainer> DeviceFamiliesMapping;
 
-        [JsonProperty()]
-        public DomainStatus m_DomainStatus;
+        [JsonProperty()] public DomainStatus m_DomainStatus;
 
         public int m_frequencyFlag;
 
@@ -116,55 +105,35 @@ namespace Core.Users
         // Domain's Operator ID
         public int m_nSSOOperatorID;
 
-        [JsonProperty()]
-        public DomainRestriction m_DomainRestriction;
+        [JsonProperty()] public DomainRestriction m_DomainRestriction;
 
-        [JsonProperty()]
-        protected int m_totalNumOfDevices;
+        [JsonProperty()] protected int m_totalNumOfDevices;
 
-        [JsonProperty()]
-        protected int m_totalNumOfUsers;
+        [JsonProperty()] protected int m_totalNumOfUsers;
 
-        [JsonProperty()]
-        protected int m_minPeriodId;
+        [JsonProperty()] protected int m_minPeriodId;
 
-        [JsonProperty()]
-        protected int m_minUserPeriodId;
+        [JsonProperty()] protected int m_minUserPeriodId;
 
-        [JsonProperty()]
-        public List<HomeNetwork> m_homeNetworks;
+        [JsonProperty()] public List<HomeNetwork> m_homeNetworks;
 
-        [XmlIgnore]
-        [JsonProperty()]
-        public LimitationsManager m_oLimitationsManager { get; protected set; }
+        [XmlIgnore] [JsonProperty()] public LimitationsManager m_oLimitationsManager { get; protected set; }
 
-        [JsonProperty()]
-        public int m_nRegion;
+        [JsonProperty()] public int m_nRegion;
 
-        [XmlIgnore]
-        protected int MasterGuID;
+        [XmlIgnore] protected int MasterGuID;
 
-        [XmlIgnore]
-        [JsonIgnore()]
-        private DomainResponseStatus removeResponse;
+        [XmlIgnore] [JsonIgnore()] private DomainResponseStatus removeResponse;
 
-        [XmlIgnore]
-        [JsonIgnore()]
-        public bool shouldUpdateInfo;
+        [XmlIgnore] [JsonIgnore()] public bool shouldUpdateInfo;
 
-        [XmlIgnore]
-        [JsonIgnore()]
-        public DomainSuspentionStatus nextSuspensionStatus;
+        [XmlIgnore] [JsonIgnore()] public DomainSuspentionStatus nextSuspensionStatus;
 
         public int? roleId { get; set; }
 
-        [XmlIgnore]
-        [JsonIgnore()]
-        public bool shouldUpdateSuspendStatus;
+        [XmlIgnore] [JsonIgnore()] public bool shouldUpdateSuspendStatus;
 
-        [XmlIgnore]
-        [JsonIgnore()]
-        public bool shouldPurge;
+        [XmlIgnore] [JsonIgnore()] public bool shouldPurge;
 
         public DateTime CreateDate { get; set; }
 
@@ -225,12 +194,13 @@ namespace Core.Users
             {
                 m_sName = sName;
             }
+
             if (!string.IsNullOrEmpty(sDescription))
             {
                 m_sDescription = sDescription;
             }
 
-            DomainResponseStatus dStatus = GetUserList(nDomainID, nGroupID, false);   // OK or NoUsersInDomain --  get user list from DB (not from cache)
+            DomainResponseStatus dStatus = GetUserList(nDomainID, nGroupID, false); // OK or NoUsersInDomain --  get user list from DB (not from cache)
 
             if (m_UsersIDs != null)
                 m_totalNumOfUsers = m_UsersIDs.Count();
@@ -335,6 +305,7 @@ namespace Core.Users
             {
                 m_DomainStatus = DomainStatus.OK;
             }
+
             return true;
         }
 
@@ -363,6 +334,7 @@ namespace Core.Users
                 {
                     m_deviceFamilies = new List<DeviceContainer>();
                 }
+
                 if (DeviceFamiliesMapping == null)
                 {
                     DeviceFamiliesMapping = new Dictionary<int, DeviceContainer>();
@@ -375,15 +347,16 @@ namespace Core.Users
                     foreach (DeviceFamilyLimitations currDeviceFamilyLimitations in m_oLimitationsManager.lDeviceFamilyLimitations)
                     {
                         DeviceContainer currDeviceContainer = new DeviceContainer(currDeviceFamilyLimitations.deviceFamily,
-                                                                                  currDeviceFamilyLimitations.deviceFamilyName,
-                                                                                  currDeviceFamilyLimitations.quantity,
-                                                                                  currDeviceFamilyLimitations.concurrency,
-                                                                                  currDeviceFamilyLimitations.Frequency);
+                            currDeviceFamilyLimitations.deviceFamilyName,
+                            currDeviceFamilyLimitations.quantity,
+                            currDeviceFamilyLimitations.concurrency,
+                            currDeviceFamilyLimitations.Frequency);
 
                         this.InitDeviceFamily(currDeviceContainer, currDeviceFamilyLimitations.deviceFamily);
                     }
                 }
             }
+
             return true;
         }
 
@@ -523,7 +496,7 @@ namespace Core.Users
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_DELETE.ToString())))
+                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_DELETE.ToString())))
                 {
                     eRetVal = DomainResponseStatus.DomainSuspended;
                     return eRetVal;
@@ -541,8 +514,8 @@ namespace Core.Users
             }
 
             // Check master and default users
-            List<int> masterUserKV = dTypedUserIDs.Where(x => x.Value == (int)UserDomainType.Master).Select(y => y.Key).ToList();
-            List<int> defaultUserKV = dTypedUserIDs.Where(x => x.Value == (int)UserDomainType.Household).Select(y => y.Key).ToList();
+            List<int> masterUserKV = dTypedUserIDs.Where(x => x.Value == (int) UserDomainType.Master).Select(y => y.Key).ToList();
+            List<int> defaultUserKV = dTypedUserIDs.Where(x => x.Value == (int) UserDomainType.Household).Select(y => y.Key).ToList();
 
             //User can be removed in case there is more than 1 master in domain
             if ((masterUserKV.Contains(nUserID) && masterUserKV.Count == 1) || defaultUserKV.Contains(nUserID))
@@ -582,7 +555,6 @@ namespace Core.Users
                     // remove user from cache
                     UsersCache usersCache = UsersCache.Instance();
                     usersCache.RemoveUser(nUserID, nGroupID);
-
                 }
                 else
                 {
@@ -642,7 +614,7 @@ namespace Core.Users
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADD.ToString())))
+                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADD.ToString())))
                 {
                     eRetVal = DomainResponseStatus.DomainSuspended;
                     return eRetVal;
@@ -766,7 +738,7 @@ namespace Core.Users
             else
             {
                 //Update device status if exists
-                if (isActive != 1)               // should be status != 1 ?
+                if (isActive != 1) // should be status != 1 ?
                 {
                     DomainDevice domainDevice = new DomainDevice()
                     {
@@ -825,8 +797,8 @@ namespace Core.Users
             if (!forceRemove &&
                 m_DomainStatus == DomainStatus.DomainSuspended &&
                 (roleId == 0 || (m_masterGUIDs != null &&
-                                    m_masterGUIDs.Count > 0 &&
-                                    !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_DELETE.ToString()))))
+                                 m_masterGUIDs.Count > 0 &&
+                                 !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_DELETE.ToString()))))
             {
                 return DomainResponseStatus.DomainSuspended;
             }
@@ -948,10 +920,9 @@ namespace Core.Users
                 {
                     case DrmSecurityPolicy.DeviceLevel: // device - clear only device 
                         // get specific device by udid 
-                        deviceIds = (this.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Where(f => f.m_deviceUDID == sUDID).
-                            Select(y => int.Parse(y.m_id)).ToList<int>();
+                        deviceIds = (this.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Where(f => f.m_deviceUDID == sUDID).Select(y => int.Parse(y.m_id)).ToList<int>();
                         break;
-                    case DrmSecurityPolicy.HouseholdLevel:// hh - cleare all devices 
+                    case DrmSecurityPolicy.HouseholdLevel: // hh - cleare all devices 
                         // get all devices for the domain
                         deviceIds = (this.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Select(y => int.Parse(y.m_id)).ToList<int>();
                         break;
@@ -962,6 +933,7 @@ namespace Core.Users
                 // get all drmId for devices      
                 return ClearDevicesDrmId(deviceIds);
             }
+
             return false;
         }
 
@@ -980,6 +952,7 @@ namespace Core.Users
                     }
                 }
             }
+
             return false;
         }
 
@@ -1036,7 +1009,7 @@ namespace Core.Users
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_UPDATESTATUS.ToString())))
+                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_UPDATESTATUS.ToString())))
                 {
                     domainResponseStatus = DomainResponseStatus.DomainSuspended;
                     return domainResponseStatus;
@@ -1070,7 +1043,7 @@ namespace Core.Users
 
             int isActive = 0;
             int nDeviceID = 0;
-            int nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, nGroupID, sUDID, ref isActive, ref nDeviceID);     //DoesDeviceExistInDomain(m_nDomainID, sUDID, ref isActive, ref nDeviceID);
+            int nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, nGroupID, sUDID, ref isActive, ref nDeviceID); //DoesDeviceExistInDomain(m_nDomainID, sUDID, ref isActive, ref nDeviceID);
 
             if (nDomainDeviceID > 0 && domainResponseStatus != DomainResponseStatus.ExceededLimit)
             {
@@ -1128,7 +1101,7 @@ namespace Core.Users
             DomainResponseStatus eDomainResponseStatus = DomainResponseStatus.UnKnown;
             bool bRemove = false;
             eDomainResponseStatus = AddUserToDomain(nGroupID, nDomainID, nUserID, nMasterUserGuid, userType, out bRemove);
-            if (bRemove)    //remove domain from Cache
+            if (bRemove) //remove domain from Cache
             {
                 //Remove user from cache
                 UsersCache usersCache = UsersCache.Instance();
@@ -1207,7 +1180,7 @@ namespace Core.Users
                 eDomainResponseStatus = DomainResponseStatus.Error;
             }
 
-            if (eDomainResponseStatus == DomainResponseStatus.OK)  //remove domain & user from cache
+            if (eDomainResponseStatus == DomainResponseStatus.OK) //remove domain & user from cache
             {
                 //Remove user from cache
                 UsersCache usersCache = UsersCache.Instance();
@@ -1223,7 +1196,6 @@ namespace Core.Users
                 {
                     log.Debug("AddUserToDomain Failed - " + String.Format("failed to remove domain id from CB nGroupID ={0}, nDomainID={1}, nUserID={2},bIsMaster={3}", nGroupID, nDomainID, nUserID, bIsMaster));
                 }
-
             }
 
             return eDomainResponseStatus;
@@ -1299,7 +1271,7 @@ namespace Core.Users
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                    && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADDBYPIN.ToString())))
+                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADDBYPIN.ToString())))
                 {
                     eRetVal = DeviceResponseStatus.Error;
                     device = new Device(m_nGroupID);
@@ -1389,7 +1361,6 @@ namespace Core.Users
         /// <param name="nBrandID"></param>
         /// <param name="device"></param>
         /// <returns></returns>
-
         public DomainResponseStatus SubmitAddDeviceToDomainRequest(int nGroupID, string sDeviceUdid, string sDeviceName, ref Device device)
         {
             bool bRemoveDomain = false;
@@ -1399,7 +1370,6 @@ namespace Core.Users
             {
                 if (bRemoveDomain)
                 {
-
                     DomainsCache oDomainCache = DomainsCache.Instance();
                     oDomainCache.RemoveDomain(nGroupID, m_nDomainID);
                     InvalidateDomain();
@@ -1619,6 +1589,7 @@ namespace Core.Users
             {
                 m_deviceFamilies = new List<DeviceContainer>(dbDeviceFamilies.Count);
             }
+
             if (DeviceFamiliesMapping == null)
             {
                 DeviceFamiliesMapping = new Dictionary<int, DeviceContainer>(dbDeviceFamilies.Count);
@@ -1642,10 +1613,10 @@ namespace Core.Users
                 }
 
                 DeviceContainer currDeviceContainer = new DeviceContainer(currDeviceFamilyId,
-                                                                          currDeviceFamilyName,
-                                                                          overrideQuantityLimit > -1 ? overrideQuantityLimit : m_oLimitationsManager.Quantity,
-                                                                          overrideConcurrencyLimit > -1 ? overrideConcurrencyLimit : m_oLimitationsManager.Concurrency,
-                                                                          m_oLimitationsManager.Frequency);
+                    currDeviceFamilyName,
+                    overrideQuantityLimit > -1 ? overrideQuantityLimit : m_oLimitationsManager.Quantity,
+                    overrideConcurrencyLimit > -1 ? overrideConcurrencyLimit : m_oLimitationsManager.Concurrency,
+                    m_oLimitationsManager.Frequency);
 
                 this.InitDeviceFamily(currDeviceContainer, currDeviceFamilyId);
             }
@@ -1738,6 +1709,7 @@ namespace Core.Users
                     break;
                 }
             }
+
             return eRetVal;
         }
 
@@ -1835,7 +1807,7 @@ namespace Core.Users
         protected bool GetDomainSettings(int nDomainID, int nGroupID)
         {
             bool res = true;
-            
+
             var dr = DomainDal.GetDomainSettings(nDomainID, nGroupID);
             if (dr == null)
             {
@@ -1863,7 +1835,7 @@ namespace Core.Users
             this.m_minUserPeriodId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_freq_period_id");
             this.m_sCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "COGUID");
             this.m_nRegion = ODBCWrapper.Utils.GetIntSafeVal(dr, "REGION_ID");
-            this.m_DomainRestriction = (DomainRestriction)ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
+            this.m_DomainRestriction = (DomainRestriction) ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
             this.roleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ROLE_ID");
             this.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
             this.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
@@ -1872,7 +1844,7 @@ namespace Core.Users
 
             if (Enum.IsDefined(typeof(DomainSuspentionStatus), suspendStatInt))
             {
-                if ((DomainSuspentionStatus)suspendStatInt == DomainSuspentionStatus.Suspended)
+                if ((DomainSuspentionStatus) suspendStatInt == DomainSuspentionStatus.Suspended)
                 {
                     m_DomainStatus = DomainStatus.DomainSuspended;
                 }
@@ -2007,7 +1979,7 @@ namespace Core.Users
             // m_oLimitationsManager.Quantity == 0 is unlimited 
             if (dc.m_oLimitationsManager.Quantity > 0 &&
                 ((m_totalNumOfDevices >= m_oLimitationsManager.Quantity && m_oLimitationsManager.Quantity > 0) ||
-                  activatedDevices >= dc.m_oLimitationsManager.Quantity))
+                 activatedDevices >= dc.m_oLimitationsManager.Quantity))
             {
                 res = DomainResponseStatus.ExceededLimit;
 
@@ -2023,7 +1995,6 @@ namespace Core.Users
                 return TryRemoveHouseholdDevice(
                     generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalPolicy.Value,
                     generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds);
-
             }
 
             return res;
@@ -2034,7 +2005,7 @@ namespace Core.Users
         {
             //remove by policy based on the dates
             var udid = new DeviceRemovalPolicyHandler()
-                .GetDeviceRemovalCandidate(rollingDeviceRemovalPolicy, rollingDeviceRemovalFamilyIds, m_deviceFamilies);
+                .GetDeviceRemovalCandidate(m_nGroupID, rollingDeviceRemovalPolicy, rollingDeviceRemovalFamilyIds, m_deviceFamilies);
 
             if (udid.IsNullOrEmptyOrWhiteSpace())
             {
@@ -2047,8 +2018,9 @@ namespace Core.Users
             if (tryRemoveHouseholdDevice != DomainResponseStatus.OK) return tryRemoveHouseholdDevice;
             foreach (var usersId in m_UsersIDs)
             {
-                SessionManager.UpdateUsersSessionsRevocationTime(string.Empty, 0, 0, usersId.ToString(), udid, (int)DateUtils.GetUtcUnixTimestampNow(), 0);
+                SessionManager.UpdateUsersSessionsRevocationTime(string.Empty, 0, 0, usersId.ToString(), udid, (int) DateUtils.GetUtcUnixTimestampNow(), 0);
             }
+
             return tryRemoveHouseholdDevice;
         }
 
@@ -2058,9 +2030,9 @@ namespace Core.Users
             concurrentDeviceFamilyIdCount = 0;
             List<DevicePlayData> streamingDevicePlayData = new List<DevicePlayData>();
             List<DevicePlayData> devicePlayDataList =
-                    CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices(this.m_nDomainID, this.m_nGroupID),
-                                                     new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA, ePlayType.EPG },
-                                                     ConcurrencyManager.GetConcurrencyMillisecThreshold(this.m_nGroupID), udid);
+                CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices(this.m_nDomainID, this.m_nGroupID),
+                    new List<ePlayType>() {ePlayType.NPVR, ePlayType.MEDIA, ePlayType.EPG},
+                    ConcurrencyManager.GetConcurrencyMillisecThreshold(this.m_nGroupID), udid);
 
             if (devicePlayDataList != null)
             {
@@ -2094,7 +2066,6 @@ namespace Core.Users
             if (nUserGuid <= 0)
             {
                 eRetVal = DomainResponseStatus.UserNotAllowed;
-
             }
             else if (m_nUserLimit > 0 && m_totalNumOfUsers >= m_nUserLimit)
             {
@@ -2156,19 +2127,19 @@ namespace Core.Users
             switch (validationType)
             {
                 case ValidationType.Concurrency:
-                    {
-                        res = DeviceFamiliesMapping != null &&
-                            DeviceFamiliesMapping.ContainsKey(deviceFamilyId) &&
-                            DeviceFamiliesMapping[deviceFamilyId].IsUnlimitedConcurrency();
-                        break;
-                    }
+                {
+                    res = DeviceFamiliesMapping != null &&
+                          DeviceFamiliesMapping.ContainsKey(deviceFamilyId) &&
+                          DeviceFamiliesMapping[deviceFamilyId].IsUnlimitedConcurrency();
+                    break;
+                }
                 case ValidationType.Quantity:
-                    {
-                        res = DeviceFamiliesMapping != null &&
-                            DeviceFamiliesMapping.ContainsKey(deviceFamilyId) &&
-                            DeviceFamiliesMapping[deviceFamilyId].IsUnlimitedQuantity();
-                        break;
-                    }
+                {
+                    res = DeviceFamiliesMapping != null &&
+                          DeviceFamiliesMapping.ContainsKey(deviceFamilyId) &&
+                          DeviceFamiliesMapping[deviceFamilyId].IsUnlimitedQuantity();
+                    break;
+                }
                 default:
                     break;
             }
@@ -2179,6 +2150,7 @@ namespace Core.Users
         private DomainResponseStatus SubmitAddDeviceToDomainRequest(int nGroupID, string sDeviceUdid, string sDeviceName, ref Device device, out bool bRemoveDomain)
         {
             #region Validations
+
             bRemoveDomain = false;
 
             if (this.m_nDomainID <= 0)
@@ -2224,7 +2196,7 @@ namespace Core.Users
 
             #endregion
 
-            if (isActive == 3)  // device pending activation in this or other domain; reset this association
+            if (isActive == 3) // device pending activation in this or other domain; reset this association
             {
                 int rowsAffected = DomainDal.SetDeviceStatusInDomain(deviceID, this.m_nDomainID, nGroupID, nDeviceDomainRecordID, 2, 2);
                 if (rowsAffected > 0)
@@ -2293,7 +2265,6 @@ namespace Core.Users
                     bool sendingMailResult = Utils.SendMail(nGroupID, sMailRequest);
 
                     return sendingMailResult ? DomainResponseStatus.RequestSent : DomainResponseStatus.RequestFailed;
-
                 }
             }
 
@@ -2316,6 +2287,7 @@ namespace Core.Users
                 {
                     eDomainResponseStatus = DomainResponseStatus.NoUsersInDomain;
                 }
+
                 return eDomainResponseStatus;
             }
             catch (Exception ex)
@@ -2338,9 +2310,9 @@ namespace Core.Users
 
                 if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
                 {
-                    m_UsersIDs = dbTypedUserIDs.Where(ut => ut.Value != (int)UserDomainType.Household).Select(ut => ut.Key).ToList();
-                    m_masterGUIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Master).Select(ut => ut.Key).ToList();
-                    m_DefaultUsersIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Household).Select(ut => ut.Key).ToList();
+                    m_UsersIDs = dbTypedUserIDs.Where(ut => ut.Value != (int) UserDomainType.Household).Select(ut => ut.Key).ToList();
+                    m_masterGUIDs = dbTypedUserIDs.Where(ut => ut.Value == (int) UserDomainType.Master).Select(ut => ut.Key).ToList();
+                    m_DefaultUsersIDs = dbTypedUserIDs.Where(ut => ut.Value == (int) UserDomainType.Household).Select(ut => ut.Key).ToList();
 
                     eDomainResponseStatus = DomainResponseStatus.OK;
                 }
@@ -2380,7 +2352,7 @@ namespace Core.Users
             if (m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                   && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_ADD.ToString())))
+                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_ADD.ToString())))
                 {
                     bRemove = false;
                     return DomainResponseStatus.DomainSuspended;
@@ -2393,7 +2365,7 @@ namespace Core.Users
 
             if ((dbTypedUserIDs == null || dbTypedUserIDs.Count == 0) && (nUserID == nMasterUserGuid))
             {
-                int inserted = DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, (int)userType, status, isActive, nMasterUserGuid);
+                int inserted = DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, (int) userType, status, isActive, nMasterUserGuid);
 
                 if (inserted > 0)
                 {
@@ -2417,7 +2389,7 @@ namespace Core.Users
             }
 
             // Domain has users, but action user is NOT Master
-            List<int> masterUserIDs = dbTypedUserIDs.Where(ut => ut.Value == (int)UserDomainType.Master).Select(ut => ut.Key).ToList();
+            List<int> masterUserIDs = dbTypedUserIDs.Where(ut => ut.Value == (int) UserDomainType.Master).Select(ut => ut.Key).ToList();
 
             if (masterUserIDs != null && masterUserIDs.Count > 0 && !masterUserIDs.Contains(nMasterUserGuid))
             {
@@ -2447,7 +2419,7 @@ namespace Core.Users
             }
 
             // user exist
-            if (nUserDomainID > 0)  // If user exists, update its status to active
+            if (nUserDomainID > 0) // If user exists, update its status to active
             {
                 //in case user already exist, Do nothing , return userAlreadyexistInDomain
                 if (userStatus.HasValue && userStatus == 1 && userIsActive.HasValue && userIsActive == 1)
@@ -2501,7 +2473,7 @@ namespace Core.Users
                 }
             }
 
-            int inserted1 = DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, (int)userType, status, isActive, nMasterUserGuid);
+            int inserted1 = DomainDal.InsertUserToDomain(nUserID, nDomainID, nGroupID, (int) userType, status, isActive, nMasterUserGuid);
 
             if (inserted1 > 0)
             {
@@ -2547,11 +2519,12 @@ namespace Core.Users
             {
                 return new DomainResponseObject(this, DomainResponseStatus.UserNotAllowed);
             }
+
             if (masterUser.m_eSuspendState == DomainSuspentionStatus.Suspended)
             {
                 return new DomainResponseObject(this, DomainResponseStatus.DomainSuspended);
-
             }
+
             // Let's try to find the domain of this master
             nDomainID = masterUser.m_domianID;
 
@@ -2576,6 +2549,7 @@ namespace Core.Users
             {
                 return new DomainResponseObject(this, DomainResponseStatus.Error);
             }
+
             if (m_UsersIDs == null || m_UsersIDs.Count == 0)
             {
                 DomainResponseStatus eDomainResponseStatus = GetUserList(nDomainID, nGroupID, false); // get user list from DB
@@ -2651,7 +2625,7 @@ namespace Core.Users
 
             // Add the new user to the domain
             int isMaster = 0;
-            int status = 3;     // Pending
+            int status = 3; // Pending
             int isActive = 0;
             string sActivationToken = Guid.NewGuid().ToString();
 
@@ -2683,7 +2657,7 @@ namespace Core.Users
                 if (!string.IsNullOrEmpty(sActivationToken))
                 {
                     AddUserMailRequest sMailRequest = MailFactory.GetAddUserMailRequest(nGroupID, masterUser.m_oBasicData.m_sFirstName, masterUser.m_oBasicData.m_sUserName, masterUser.m_oBasicData.m_sEmail,
-                                                                                                sNewUsername, sNewFirstName, sActivationToken);
+                        sNewUsername, sNewFirstName, sActivationToken);
                     if (sMailRequest != null)
                     {
                         bool sendingMailResult = Utils.SendMail(nGroupID, sMailRequest);
@@ -2723,9 +2697,9 @@ namespace Core.Users
                 {
                     int concurrencyMillisecThreshold = ConcurrencyManager.GetConcurrencyMillisecThreshold(this.m_nGroupID);
                     List<DevicePlayData> devicePlayDataList =
-                        CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices((int)domainId, this.m_nGroupID),
-                                                     new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA },
-                                                     concurrencyMillisecThreshold, udid);
+                        CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices((int) domainId, this.m_nGroupID),
+                            new List<ePlayType>() {ePlayType.NPVR, ePlayType.MEDIA},
+                            concurrencyMillisecThreshold, udid);
 
                     if (devicePlayDataList != null)
                     {
@@ -2761,6 +2735,7 @@ namespace Core.Users
                 if (oLimitationsManager != null) // initialize all fields 
                 {
                     #region Devices
+
                     List<string> devicesChange = new List<string>();
                     DeviceContainer currentDC = new DeviceContainer();
 
@@ -2784,7 +2759,7 @@ namespace Core.Users
 
                                         // Get group downgrade policy for desc/Asc
                                         var downgradePolicy = ApiDAL.GetGroupDowngradePolicy(this.GroupId);
-                                        devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID, (DowngradePolicy)downgradePolicy);
+                                        devicesChange = DomainDal.SetDevicesDomainStatus(nDeviceToDelete, 0, this.m_nDomainID, lDevicesID, (DowngradePolicy) downgradePolicy);
                                         if (devicesChange != null && devicesChange.Count > 0)
                                         {
                                             oChangeDLMObj.devices.AddRange(devicesChange);
@@ -2815,6 +2790,7 @@ namespace Core.Users
                                 bNeedToDelete = false;
                             }
                         }
+
                         if (bNeedToDelete) // family device id not exsits in new DLM - delete all devices
                         {
                             List<int> lDevicesID = currentItem.Value.DeviceInstances.Select(x => int.Parse(x.m_id)).ToList<int>();
@@ -2853,6 +2829,7 @@ namespace Core.Users
                                 }
                             }
                         }
+
                         if (lDevicesID.Count > 0)
                         {
                             int nDeviceToDelete = lDevicesID.Count - oLimitationsManager.Quantity;
@@ -2870,6 +2847,7 @@ namespace Core.Users
                     #endregion
 
                     #region Users limit
+
                     List<string> users = new List<string>();
                     if (this.m_nUserLimit > oLimitationsManager.nUserLimit && oLimitationsManager.nUserLimit != 0)
                     {
@@ -2884,19 +2862,20 @@ namespace Core.Users
                             }
                         }
                     }
+
                     #endregion
                 }
 
                 // change dlmid in domain table 
                 bool bChangeDoamin = DomainDal.ChangeDomainDLM(this.m_nDomainID, oLimitationsManager.domianLimitID);
 
-                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
+                oChangeDLMObj.resp = new ApiObjects.Response.Status((int) eResponseStatus.OK, string.Empty);
                 return true;
             }
             catch (Exception ex)
             {
                 log.Error("", ex);
-                oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
+                oChangeDLMObj.resp = new ApiObjects.Response.Status((int) eResponseStatus.Error, string.Empty);
                 return false;
             }
         }
@@ -2958,7 +2937,7 @@ namespace Core.Users
             {
                 try
                 {
-                    NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString(), Quota = npvrQuotaInSecs });
+                    NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj() {EntityID = m_nDomainID.ToString(), Quota = npvrQuotaInSecs});
                     if (resp != null)
                     {
                         if (resp.isOK)
@@ -2994,12 +2973,13 @@ namespace Core.Users
 
             if (shouldUpdateInfo)
             {
-                bool updateInfoResult = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, updateDate, (int)m_DomainRestriction, m_nRegion, m_sCoGuid);
+                bool updateInfoResult = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, updateDate, (int) m_DomainRestriction, m_nRegion, m_sCoGuid);
 
                 if (!updateInfoResult)
                 {
                     m_DomainStatus = DomainStatus.Error;
                 }
+
                 this.UpdateDate = updateDate;
 
                 result &= updateInfoResult;
@@ -3018,14 +2998,15 @@ namespace Core.Users
                 oDomainCache.RemoveDomain(m_nGroupID, m_nDomainID);
                 InvalidateDomain();
             }
+
             return result;
         }
 
         protected override bool DoDelete()
         {
             bool success = false;
-            int isActive = 2;   // Inactive
-            int status = 2;     // Removed
+            int isActive = 2; // Inactive
+            int status = 2; // Removed
 
             // get household users
             List<int> domainUserIds = new List<int>();

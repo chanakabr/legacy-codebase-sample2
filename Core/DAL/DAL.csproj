@@ -20,6 +20,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\AuthenticationGrpcClientWrapper\AuthenticationGrpcClientWrapper.csproj" />
     <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />

@@ -138,8 +138,9 @@ namespace Core.Users
                                                LayeredCacheConfigNames.USER_LAYERED_CACHE_CONFIG_NAME, 
                                                new List<string>()
                                                {
-                                                   LayeredCacheKeys.GetUserInvalidationKey(groupId,userId.ToString()),
-                                                   LayeredCacheKeys.GetUserRolesInvalidationKey(groupId,userId.ToString())
+                                                   LayeredCacheKeys.GetUserInvalidationKey(groupId, userId.ToString()),
+                                                   LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, userId.ToString()),
+                                                   LayeredCacheKeys.GetUserLoginHistoryInvalidationKey(groupId, userId)
                                                }))
                 {
                     log.DebugFormat("GetUser - Couldn't get userId {0}", userId);
