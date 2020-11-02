@@ -9,8 +9,6 @@ using System.Reflection;
 
 namespace EventBus.Kafka
 {
-
-
     public class KafkaPublisher : IEventBusPublisher
     {
         private static IProducer<string, string> _Producer;
@@ -52,7 +50,6 @@ namespace EventBus.Kafka
                 var msg = new Message<string, string> { Key = key, Value = payload };
                 _Producer.Produce(topic, msg, DeliveryHandler);
             }
-
         }
 
         private void DeliveryHandler(DeliveryReport<string, string> ack)

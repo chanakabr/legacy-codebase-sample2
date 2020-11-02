@@ -31,7 +31,8 @@ namespace EventBus.RabbitMQ
 
         private static readonly Assembly _EntryAssembly = Assembly.GetEntryAssembly();
         private static readonly Type[] _EntryAssemblyTypes = _EntryAssembly.GetTypes();
-        private static readonly List<Type> _AllServiceHandlers = _EntryAssemblyTypes.Where(IsTypeImplementsIServiceHandler).ToList();
+        private static readonly List<Type> _AllServiceHandlers = _EntryAssemblyTypes.Where(IServiceEventHandlerUtils.IsTypeImplementsIServiceHandler).ToList();
+
         private static EventBusConfiguration _Configuration;
 
         public static IHostBuilder ConfigureEventBustConsumer(this IHostBuilder builder)
@@ -65,7 +66,7 @@ namespace EventBus.RabbitMQ
                 }
 
                 _Logger.Info($"Health check passed. Starting consumers.");
-                services.AddHostedService<KalturaEventBusRabbitMQConsumerService>();
+                services.AddHostedService<EventBusConsumerService>();
             });
 
             return builder;
@@ -131,7 +132,7 @@ namespace EventBus.RabbitMQ
                 foreach (var handler in allServiceHandlers)
                 {
                     var eventType = handler.GetInterfaces()
-                        .First(IsInterfaceAnyGenericOfIServiceHandler)
+                        .First(IServiceEventHandlerUtils.IsInterfaceAnyGenericOfIServiceHandler)
                         .GetGenericArguments()
                         .First();
                     eventBus.Subscribe(eventType, handler);
@@ -171,17 +172,6 @@ namespace EventBus.RabbitMQ
             }
 
             return concurrentConsumersIntValue;
-        }
-
-        private static bool IsInterfaceAnyGenericOfIServiceHandler(Type i)
-        {
-            return i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IServiceEventHandler<>);
-        }
-
-        private static bool IsTypeImplementsIServiceHandler(Type t)
-        {
-            var implementedInterfaces = t.GetInterfaces();
-            return implementedInterfaces.Any(IsInterfaceAnyGenericOfIServiceHandler);
         }
     }
 }

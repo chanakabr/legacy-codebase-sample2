@@ -190,11 +190,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveAssetBulkUploadHandler"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CampaignHandlers", "CampaignHandlers", "{BAC1AB0E-FC4E-45B2-8FF6-6779D882BEEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CampaignHandler", "CampaignHandler\CampaignHandler.csproj", "{C255205B-7CD9-4E3E-BB77-7E13817D5943}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CampaignHandler", "CampaignHandler\CampaignHandler.csproj", "{C255205B-7CD9-4E3E-BB77-7E13817D5943}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdaptersCommon", "..\Core\AdaptersCommon\AdaptersCommon.csproj", "{2A948C07-C0FE-4ED4-BA88-03B4C5118133}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedisManager", "..\Core\RedisManager\RedisManager.csproj", "{74E69321-9247-4E04-85B1-F0C66A0EEA38}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Kafka", "..\Core\EventBus.Kafka\EventBus.Kafka.csproj", "{E9380231-178F-44F3-9753-05BEE46BE04F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1409,6 +1411,22 @@ Global
 		{74E69321-9247-4E04-85B1-F0C66A0EEA38}.Release|Any CPU.Build.0 = Release|Any CPU
 		{74E69321-9247-4E04-85B1-F0C66A0EEA38}.Release|x86.ActiveCfg = Release|Any CPU
 		{74E69321-9247-4E04-85B1-F0C66A0EEA38}.Release|x86.Build.0 = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Basic|x86.ActiveCfg = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Basic|x86.Build.0 = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Debug|x86.Build.0 = Debug|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Local|Any CPU.Build.0 = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Local|x86.ActiveCfg = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Local|x86.Build.0 = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Release|x86.ActiveCfg = Release|Any CPU
+		{E9380231-178F-44F3-9753-05BEE46BE04F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1501,6 +1519,7 @@ Global
 		{C255205B-7CD9-4E3E-BB77-7E13817D5943} = {BAC1AB0E-FC4E-45B2-8FF6-6779D882BEEA}
 		{2A948C07-C0FE-4ED4-BA88-03B4C5118133} = {0CA87022-0FDC-4F36-8806-689B3A94FCA0}
 		{74E69321-9247-4E04-85B1-F0C66A0EEA38} = {0CA87022-0FDC-4F36-8806-689B3A94FCA0}
+		{E9380231-178F-44F3-9753-05BEE46BE04F} = {0CA87022-0FDC-4F36-8806-689B3A94FCA0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {40B1C766-E53F-4A55-9434-E4001604AA8F}
