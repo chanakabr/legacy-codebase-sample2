@@ -2312,7 +2312,7 @@ namespace Core.Billing
 
             if (adapterResponse != null && adapterResponse.Transaction != null)
             {
-                bool createTransaction = DAL.BillingDAL.GetPaymentGatewayFailReason(adapterResponse.Transaction.FailReasonCode, out failReasonCodeExist);
+                bool createTransaction = DAL.BillingDAL.GetPaymentGatewayFailReason(adapterResponse.Transaction.FailReasonCode, out failReasonCodeExist, out string failreason);
 
                 if (!failReasonCodeExist)
                 {
@@ -2723,10 +2723,12 @@ namespace Core.Billing
                     return response;
                 }
 
+                string failreason = string.Empty;
+
                 if (transactionStatus == eTransactionState.Failed)
                 {
                     bool failReasonCodeExist = false;
-                    bool createTransaction = DAL.BillingDAL.GetPaymentGatewayFailReason(failReason, out failReasonCodeExist);
+                    bool createTransaction = DAL.BillingDAL.GetPaymentGatewayFailReason(failReason, out failReasonCodeExist, out failreason);
 
                     if (!failReasonCodeExist)
                     {
@@ -2801,6 +2803,14 @@ namespace Core.Billing
                     response.Status = new Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, ERROR_UPDATING_PENDING_TRANSACTION);
                     log.DebugFormat("Failed to update pending transaction. paymentGatewayId = {0}, adapterTransactionState = {1}, failReason = {2}, externalTransactionId = {3}, externalStatus = {4}, externalMessage = {5}",
                         paymentGatewayId, adapterTransactionState, failReason, externalTransactionId, externalStatus, externalMessage);
+                }
+
+                if (transactionStatus == eTransactionState.Failed)
+                {
+                    if(!DAL.ApiDAL.Update_BillingStatusAndReason_ByBillingGuid(billingGuid, 1, failreason))
+                    { 
+                        //add log
+                    }
                 }
             }
 

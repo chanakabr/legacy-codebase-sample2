@@ -1853,10 +1853,10 @@ namespace DAL
             return res;
         }
 
-        public static bool GetPaymentGatewayFailReason(int failReasonCode, out bool failReasonCodeExist)
+        public static bool GetPaymentGatewayFailReason(int failReasonCode, out bool failReasonCodeExist, out string failReason)
         {
             int createTransaction = 0;
-            string description = string.Empty;
+            failReason = string.Empty;
             failReasonCodeExist = false;
             try
             {
@@ -1868,7 +1868,7 @@ namespace DAL
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     createTransaction = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "CREATE_TRANSACTION");
-                    description = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "DESCRIPTION");
+                    failReason = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "DESCRIPTION");
                     failReasonCodeExist = true;
                 }
 
