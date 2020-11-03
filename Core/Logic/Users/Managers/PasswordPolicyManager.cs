@@ -252,7 +252,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public Status ValidatePassword(string password, int groupId, long userId, List<long> userRoleIds)
+        public Status ValidatePasswordAndUpdateHistory(string password, string salt, int groupId, long userId, List<long> userRoleIds)
         {
             var response = new Status(eResponseStatus.OK);
 
@@ -266,6 +266,8 @@ namespace ApiLogic.Users.Managers
                 {
                     int? historyCount = null;
                     HashSet<string> passwordsHistory = UsersDal.GetPasswordsHistory(userId);
+                    PasswordHistory hashedPasswordHistory = UsersDal.GetHashedPasswordHistory(userId);
+                    var encrypter = new Lazy<Core.Users.BaseEncrypter>(() => Core.Users.Utils.GetBaseImpl(groupId));
                     var invalidPasswordComplexities = new HashSet<string>();
                     var isPasswordReused = false;
 
@@ -274,10 +276,10 @@ namespace ApiLogic.Users.Managers
                         if (!isPasswordReused && passwordPolicy.HistoryCount.HasValue && passwordPolicy.HistoryCount.Value > 0)
                         {
                             historyCount = passwordPolicy.HistoryCount;
-                            if (passwordsHistory != null && passwordsHistory.Contains(password))
+                            if (PasswordWasUsed(password, passwordsHistory, hashedPasswordHistory, encrypter))
                             {
                                 isPasswordReused = true;
-                                response.AddArg(eResponseStatus.PasswordCannotBeReused, 
+                                response.AddArg(eResponseStatus.PasswordCannotBeReused,
                                     $"The password shall be different from the last {passwordPolicy.HistoryCount} " +
                                     $"passwords used by the user");
                             }
@@ -307,7 +309,7 @@ namespace ApiLogic.Users.Managers
                     }
                     else
                     {
-                        UpdatePasswordHistory(userId, password, historyCount, passwordsHistory);
+                        UpdatePasswordHistory(userId, password, salt, historyCount, passwordsHistory, hashedPasswordHistory, encrypter);
                     }
                 }
             }
@@ -318,6 +320,23 @@ namespace ApiLogic.Users.Managers
             }
 
             return response;
+        }
+
+        private static bool PasswordWasUsed(string password, HashSet<string> passwordsHistory, PasswordHistory hashedPasswordHistory, Lazy<Core.Users.BaseEncrypter> encrypter)
+        {
+            var historyEmpty = passwordsHistory == null || passwordsHistory.Count == 0;
+            var hashedHistoryEmpty = hashedPasswordHistory == null || hashedPasswordHistory.History.Count == 0;
+
+            if (historyEmpty && hashedHistoryEmpty) return false;
+
+            var noEncryption = encrypter.Value == null;
+            var notMigrated = !historyEmpty && hashedHistoryEmpty; // see User.MigratePasswordHistory
+
+            var passwordWasUsed = noEncryption || notMigrated
+                ? passwordsHistory.Contains(password)
+                : hashedPasswordHistory.History.Any(p => p.HashedPassword == encrypter.Value.Encrypt(password, p.Salt));
+
+            return passwordWasUsed;
         }
 
         public GenericResponse<PasswordPolicy> ValidateCrudObject(ContextData contextData, long id = 0, PasswordPolicy objectToValidate = null)
@@ -498,23 +517,45 @@ namespace ApiLogic.Users.Managers
             return new Tuple<Dictionary<long, HashSet<long>>, bool>(userRolesToPasswordPolicy, res);
         }
 
-        private void UpdatePasswordHistory(long userId, string password, int? policyHistoryCount, HashSet<string> passwordsHistory)
+        private void UpdatePasswordHistory(
+            long userId,
+            string password,
+            string salt,
+            int? policyHistoryCount,
+            HashSet<string> passwordsHistory,
+            PasswordHistory hashedPasswordHistory,
+            Lazy<Core.Users.BaseEncrypter> encrypter)
         {
             if (policyHistoryCount.HasValue)
             {
-                if (passwordsHistory == null)
+                var noEncryption = encrypter.Value == null;
+                var hashedHistoryEmpty = hashedPasswordHistory == null || hashedPasswordHistory.History.Count == 0;
+                var notMigrated = passwordsHistory?.Count > 0 && hashedHistoryEmpty; // see User.MigratePasswordHistory
+                if (noEncryption || notMigrated)
                 {
-                    passwordsHistory = new HashSet<string>();
-                }
+                    if (passwordsHistory == null)
+                    {
+                        passwordsHistory = new HashSet<string>();
+                    }
 
-                while (passwordsHistory.Count > 0 && passwordsHistory.Count >= policyHistoryCount.Value)
+                    while (passwordsHistory.Count > 0 && passwordsHistory.Count >= policyHistoryCount.Value)
+                    {
+                        var oldPassword = passwordsHistory.FirstOrDefault();
+                        passwordsHistory.Remove(oldPassword);
+                    }
+
+                    passwordsHistory.Add(password);
+                    UsersDal.SavePasswordsHistory(userId, passwordsHistory);
+                }
+                else
                 {
-                    var oldPassword = passwordsHistory.FirstOrDefault();
-                    passwordsHistory.Remove(oldPassword);
-                }
+                    if (hashedPasswordHistory == null) hashedPasswordHistory = new PasswordHistory();
 
-                passwordsHistory.Add(password);
-                UsersDal.SavePasswordsHistory(userId, passwordsHistory);
+                    var hashedPassword = new Password(encrypter.Value.Encrypt(password, salt), salt);
+                    hashedPasswordHistory.Add(hashedPassword, policyHistoryCount.Value);
+
+                    UsersDal.SaveHashedPasswordHistory(userId, hashedPasswordHistory);
+                }
             }
         }
 

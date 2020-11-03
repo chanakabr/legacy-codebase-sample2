@@ -2600,22 +2600,45 @@ namespace DAL
             return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleKey);
         }
 
+        #region Password History
         private static string GetPasswordsHistoryKey(long userId)
         {
             return string.Format("user_passwords_history_{0}", userId);
         }
 
+        private static string GetHashedPasswordHistoryKey(long userId)
+        {
+            return string.Format("user_passwords_history_V2_{0}", userId);
+        }
+
+        // TODO should be removed when all passwords history will be converted to hashed version(BEO-8869)
         public static HashSet<string> GetPasswordsHistory(long userId)
         {
             var key = GetPasswordsHistoryKey(userId);
             return UtilsDal.GetObjectFromCB<HashSet<string>>(eCouchbaseBucket.OTT_APPS, key);
-        }
+        }        
 
         public static bool SavePasswordsHistory(long userId, HashSet<string> passwordsHistory)
         {
             var key = GetPasswordsHistoryKey(userId);
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, passwordsHistory);
         }
+
+        public static bool DeletePasswordsHistory(long userId)
+        {
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, GetPasswordsHistoryKey(userId));
+        }
+
+        public static PasswordHistory GetHashedPasswordHistory(long userId)
+        {
+            return UtilsDal.GetObjectFromCB<PasswordHistory>(eCouchbaseBucket.OTT_APPS, GetHashedPasswordHistoryKey(userId));
+        }
+
+        public static bool SaveHashedPasswordHistory(long userId, PasswordHistory passwordHistory)
+        {
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, GetHashedPasswordHistoryKey(userId), passwordHistory);
+        }
+        #endregion Password History
 
         public static bool DeleteUserRolesToPasswordPolicy(int groupId, Dictionary<long, HashSet<long>> policies)
         {

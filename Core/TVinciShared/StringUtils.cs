@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ApiObjects.SearchObjects;
 
 namespace TVinciShared
 {
@@ -13,6 +10,11 @@ namespace TVinciShared
             if (string.IsNullOrEmpty(value))
                 return value;
             return value.Length <= maxLength ? value : value.Substring(0, maxLength);
+        }
+
+        public static bool IsNullOrEmpty(this string value)
+        {
+            return string.IsNullOrEmpty(value);
         }
 
         public static bool IsNullOrEmptyOrWhiteSpace(this string value)

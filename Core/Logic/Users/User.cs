@@ -1109,17 +1109,7 @@ namespace Core.Users
                 if (isUserInitialized && initializedUser.m_oBasicData != null && initializedUser.m_oDynamicData != null && !string.IsNullOrEmpty(initializedUser.m_oBasicData.m_sPassword))
                 {
                     responseStatus = ResponseStatus.OK;
-
-                    bool isPasswordEqual = (password == initializedUser.m_oBasicData.m_sPassword);
-
-                    if (!isPasswordEqual)
-                    {
-                        BaseEncrypter encrypter = Utils.GetBaseImpl(groupId);
-                        if (encrypter != null)
-                        {
-                            isPasswordEqual = (initializedUser.m_oBasicData.m_sPassword == encrypter.Encrypt(password, initializedUser.m_oBasicData.m_sSalt));
-                        }
-                    }
+                    bool isPasswordEqual = IsPasswordEqual(password, initializedUser, groupId, userId);
 
                     GetMaxFailuresCountAndExpiration(defaultMaxFailCount, initializedUser.m_oBasicData.RoleIds, groupId, out int maxFailuresCount, out int maxExpiration);
 
@@ -1173,6 +1163,55 @@ namespace Core.Users
 
             userResponseObject.Initialize(responseStatus, user);
             return userResponseObject;
+        }
+
+        private static bool IsPasswordEqual(string password, User user, int groupId, int userId)
+        {
+            var passwordFromDb = user.m_oBasicData.m_sPassword;
+            var salt = user.m_oBasicData.m_sSalt;
+            BaseEncrypter encrypter = Utils.GetBaseImpl(groupId);
+
+            var encryptionEnabled = encrypter != null;
+            var passwordWasHashed = !salt.IsNullOrEmpty();
+
+            var passwordToCheck = encryptionEnabled && passwordWasHashed
+                ? encrypter.Encrypt(password, salt)
+                : password;
+
+            bool isPasswordEqual = passwordFromDb == passwordToCheck;
+
+            if (isPasswordEqual && encryptionEnabled)
+            {
+                if (!passwordWasHashed) MigratePassword(password, groupId, user);
+
+                MigratePasswordHistory(userId, encrypter);
+            }
+
+            return isPasswordEqual;
+        }
+
+        private static void MigratePassword(string password, int groupId, User initializedUser)
+        {
+            initializedUser.m_oBasicData.SetPassword(password, groupId); // generate salt and encrypt password
+
+            initializedUser.SaveForUpdate(groupId, false, false, true);            
+        }
+
+        private static void MigratePasswordHistory(int userId, BaseEncrypter encrypter)
+        {
+            var passwordsHistory = UsersDal.GetPasswordsHistory(userId);
+            if (passwordsHistory?.Count > 0)
+            {
+                var hashedPasswords = passwordsHistory.Select(p => {
+                    var salt = BaseEncrypter.GetRand64String();
+                    return new Password(encrypter.Encrypt(p, salt), salt);
+                }).ToList();
+                var hashedPasswordHistory = new PasswordHistory(hashedPasswords);
+                if (UsersDal.SaveHashedPasswordHistory(userId, hashedPasswordHistory))
+                {
+                    UsersDal.DeletePasswordsHistory(userId);
+                }
+            }
         }
 
         private static void GetMaxFailuresCountAndExpiration(int defaultMaxFailCount, List<long> roleIds, int groupId, out int maxFailuresCount, out int maxExpiration)

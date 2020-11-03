@@ -214,16 +214,16 @@ namespace Core.Users
             switch (nImplID)
             {
                 case 1:
-                    baseEncrypter = new MD5Encrypter(nGroupID);
+                    baseEncrypter = new MD5Encrypter();
                     break;
                 case 2:
-                    baseEncrypter = new SHA1Encrypter(nGroupID);
+                    baseEncrypter = new SHA1Encrypter();
                     break;
                 case 3:
-                    baseEncrypter = new SHA256Encrypter(nGroupID);
+                    baseEncrypter = new SHA256Encrypter();
                     break;
                 case 4:
-                    baseEncrypter = new SHA384Encrypter(nGroupID);
+                    baseEncrypter = new SHA384Encrypter();
                     break;
                 default:
                     break;
