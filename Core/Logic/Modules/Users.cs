@@ -1019,7 +1019,7 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return Users.Utils.GetIPCountry2(sUserIP);
+                return Users.Utils.GetIPCountry2(nGroupID, sUserIP);
             }
             else
             {
