@@ -7381,7 +7381,7 @@ namespace Core.ConditionalAccess
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(groupId, epg);
-            if (epgFieldMappings == null || epgFieldMappings.Count == 0)
+            if (epgFieldMappings == null || epgFieldMappings.Count == 0 || !epgFieldMappings.ContainsKey(Utils.SERIES_ID))
             {
                 log.DebugFormat("no epgFieldMappings found, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
                 // if no mapping found we assume the user is not following the epg's season/series
