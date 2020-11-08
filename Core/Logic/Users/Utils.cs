@@ -321,22 +321,21 @@ namespace Core.Users
             return ret;
         }
 
-        static public Country GetIPCountry2(string sIP)
+        static public Country GetIPCountry2(int groupId, string sIP)
         {
-            Int32 nCountry = 0;
-            string[] splited = sIP.Split('.');
-
-            Int64 nIPVal = Int64.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
-            //Int32 nID = 0;
-            nCountry = DAL.UtilsDal.GetCountryIDFromIP(nIPVal);
-
-            if (nCountry == 0)
+            var id = 0;
+            try
             {
-                return null;
+                var country = Core.Api.api.GetCountryByIp(groupId, sIP);
+                id = country?.Id ?? 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetIPCountry2 with groupId: {0}, ip: {1}", groupId, sIP), ex);
             }
 
-            Country ret = new Country();
-            ret.Initialize(nCountry);
+            var ret = new Country();
+            ret.Initialize(id);
             return ret;
         }
 
