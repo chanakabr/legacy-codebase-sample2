@@ -1147,11 +1147,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_device_reference_data_{0}", groupId);
         }
 
-        public static string GetSSOAdapaterImplementationsInvalidationKey(int groupId, int adapaterId)
-        {
-            return string.Format("invalidationKey_groupId_{0}_ssoAdapaterImplementations_{1}", groupId, adapaterId);
-        }
-
         public static string GroupManagerGetGroupInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_group_manager_get_group_{0}", groupId);

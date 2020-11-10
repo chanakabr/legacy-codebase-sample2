@@ -78,10 +78,22 @@ namespace IngestHandler
                 SetProgramsWithEpgIds(serviceEvent.CrudOperations);
                 AddEpgCBObjects(serviceEvent.CrudOperations);
                 SetResultsWithObjectId(serviceEvent.CrudOperations);
+
+                // validate no errors or fail
                 if (_bulkUpload.Results.Any(r => r.Errors?.Any() == true))
                 {
                     _bulkUpload.AddError(eResponseStatus.Error, "errors while trying to create multilingual translations, see results for details");
-                    UpdateBulkUploadObjectStatusAndResults();
+
+                    // set errors on all other items that are not errors of same date so that status can be finlized as failed
+                    foreach (var r in _bulkUpload.Results)
+                    {
+                        if (r.Status != BulkUploadResultStatus.Error)
+                        {
+                            r.AddError(eResponseStatus.Error, $"Item was not ingested due to errors in other items in same date:[{_eventData.DateOfProgramsToIngest}]");
+
+                        }
+                    }
+                    UpdateBulkUploadObjectStatusAndResults(BulkUploadJobStatus.Failed);
                     return;
                 }
 
@@ -97,7 +109,7 @@ namespace IngestHandler
 
                 _elasticSearchUpdater.Update(serviceEvent.CrudOperations, dailyEpgIndexName);
 
-                var finalizer = new IngestFinalizer(_bulkUpload,_relevantResultsDictionary,serviceEvent.DateOfProgramsToIngest);
+                var finalizer = new IngestFinalizer(_bulkUpload, _relevantResultsDictionary, serviceEvent.DateOfProgramsToIngest);
                 await finalizer.FinalizeEpgIngest();
                 _logger.Info($"BulkUploadId: [{_eventData.BulkUploadId}] Date:[{_eventData.DateOfProgramsToIngest}] > Ingest Handler completed.");
             }
@@ -126,7 +138,7 @@ namespace IngestHandler
 
         private void SetResultsWithObjectId(CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
         {
-            var allPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).Where(p=>!p.IsAutoFill);
+            var allPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).Where(p => !p.IsAutoFill);
             foreach (var prog in allPrograms)
             {
                 _relevantResultsDictionary[prog.ChannelId][prog.EpgExternalId].ObjectId = (long)prog.EpgId;

@@ -391,8 +391,8 @@ namespace Core.ConditionalAccess
                                                 PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
                                             }
                                             // item must be free otherwise we wouldn't get this far
-                                            else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value && filePrice.m_oItemPrices?.Length > 0)
-
+                                            else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value 
+                                                && filePrice?.m_oItemPrices?.Length > 0) 
                                             {
                                                 bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, (int)file.Id,
                                                         new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false,

@@ -30,6 +30,7 @@ namespace EpgBL
         private static readonly int DAYSBUFFER = 7;
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
         protected ElasticSearchApi elasticSearchApi;
+        private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
         public TvinciEpgBL(int nGroupID)
         {
@@ -1153,9 +1154,9 @@ namespace EpgBL
 
             int nUPDATER_ID = 0;                      //not in use
             DateTime nPUBLISH_DATE = DateTime.UtcNow; //not in use  
-            oProg.Initialize((long)epg.EpgID, epg.ChannelID.ToString(), epg.EpgIdentifier, epg.Name, epg.Description, epg.StartDate.ToString("dd/MM/yyyy HH:mm:ss"),
-                             epg.EndDate.ToString("dd/MM/yyyy HH:mm:ss"), epg.PicUrl, epg.Status.ToString(), epg.IsActive.ToString(), epg.GroupID.ToString(), nUPDATER_ID.ToString(),
-                             epg.UpdateDate.ToString(), nPUBLISH_DATE.ToString("dd/MM/yyyy HH:mm:ss"), epg.CreateDate.ToString("dd/MM/yyyy HH:mm:ss"), lTags, lMetas,
+            oProg.Initialize((long)epg.EpgID, epg.ChannelID.ToString(), epg.EpgIdentifier, epg.Name, epg.Description, epg.StartDate.ToString(EPG_DATETIME_FORMAT),
+                             epg.EndDate.ToString(EPG_DATETIME_FORMAT), epg.PicUrl, epg.Status.ToString(), epg.IsActive.ToString(), epg.GroupID.ToString(), nUPDATER_ID.ToString(),
+                             epg.UpdateDate.ToString(EPG_DATETIME_FORMAT), nPUBLISH_DATE.ToString(EPG_DATETIME_FORMAT), epg.CreateDate.ToString(EPG_DATETIME_FORMAT), lTags, lMetas,
                              epg.ExtraData.MediaID.ToString(), (int)epg.Statistics.Likes, epg.pictures, epg.EnableCDVR, epg.EnableCatchUp, epg.EnableStartOver, epg.EnableTrickPlay, epg.Crid);
             oProg.PIC_ID = epg.PicID;
             return oProg;

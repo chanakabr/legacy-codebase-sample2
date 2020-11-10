@@ -68,7 +68,15 @@ namespace ODBCWrapper
                 value = DBNull.Value;
             }
 
-            m_Parameters.Add(key, Tuple.Create(isUnicode, value));
+            if (isUnicode)
+            {
+                m_Parameters.Add(key, Tuple.Create(isUnicode, value));
+            }
+            else
+            {
+                m_Parameters.Add(key, value);
+            }
+            
             Utils.CheckDBReadWrite(key, value, procedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
