@@ -871,7 +871,7 @@ namespace TVinciShared
         {
             Int32 nRet = 0;
 
-            if (bWithCache == true && CachingManager.CachingManager.Exist("GetMediaFileID_" + nMediaID.ToString() + "_" + sFileFormat + "_" + sFileQuality + "_" + bIsAdmin.ToString() + "_" + nGroupID.ToString()) == true)
+            if (bWithCache == true && CachingManager.CachingManager.Exists("GetMediaFileID_" + nMediaID.ToString() + "_" + sFileFormat + "_" + sFileQuality + "_" + bIsAdmin.ToString() + "_" + nGroupID.ToString()) == true)
             {
                 object[] arr = ((string[])(CachingManager.CachingManager.GetCachedData("GetMediaFileID_" + nMediaID.ToString() + "_" + sFileFormat + "_" + sFileQuality + "_" + bIsAdmin.ToString() + "_" + nGroupID.ToString())));
                 nRet = int.Parse(arr[0].ToString());
@@ -1337,7 +1337,7 @@ namespace TVinciShared
             Int32 nBrandRecurring = 0;
             if (thePics == null)
             {
-                if (sPicsForCache != "" && CachingManager.CachingManager.Exist("GetPicSizesXMLParts_" + sPicsForCache + nMediaID.ToString() + "_" + nPicID.ToString()) == true && bWithCache == true)
+                if (sPicsForCache != "" && CachingManager.CachingManager.Exists("GetPicSizesXMLParts_" + sPicsForCache + nMediaID.ToString() + "_" + nPicID.ToString()) == true && bWithCache == true)
                     return CachingManager.CachingManager.GetCachedData("GetPicSizesXMLParts_" + sPicsForCache + nMediaID.ToString() + "_" + nPicID.ToString()).ToString();
 
                 bool bCont = true;
@@ -1383,7 +1383,7 @@ namespace TVinciShared
             }
             else
             {
-                if (sPicsForCache != "" && CachingManager.CachingManager.Exist("ws.GetPicSizesXMLParts_" + sPicsForCache + nMediaID.ToString() + "_" + nPicID.ToString()) == true && bWithCache == true)
+                if (sPicsForCache != "" && CachingManager.CachingManager.Exists("ws.GetPicSizesXMLParts_" + sPicsForCache + nMediaID.ToString() + "_" + nPicID.ToString()) == true && bWithCache == true)
                 {
                     thePics = TVinciShared.ObjectCopier.Clone<ApiObjects.PicObject[]>((ApiObjects.PicObject[])(CachingManager.CachingManager.GetCachedData("ws.GetPicSizesXMLParts_" + sPicsForCache + nMediaID.ToString() + "_" + nPicID.ToString())));
                     //thePics = (ApiObjects.PicObject[])(CachingManager.CachingManager.GetCachedData("ws.GetPicSizesXMLParts_" + sPicsForCache + nMediaID.ToString()));
@@ -1438,7 +1438,7 @@ namespace TVinciShared
             StringBuilder sRet = new StringBuilder();
             if (thePics == null && theDoc != null)
             {
-                if (sPicsForCache != "" && CachingManager.CachingManager.Exist("GetPicSizesXMLPartsForChannel_" + sPicsForCache + nChannelID.ToString()) == true && bWithCache == true)
+                if (sPicsForCache != "" && CachingManager.CachingManager.Exists("GetPicSizesXMLPartsForChannel_" + sPicsForCache + nChannelID.ToString()) == true && bWithCache == true)
                     return CachingManager.CachingManager.GetCachedData("GetPicSizesXMLPartsForChannel_" + sPicsForCache + nChannelID.ToString()).ToString();
 
                 bool bCont = true;
@@ -1467,7 +1467,7 @@ namespace TVinciShared
             }
             else if (theDoc == null && thePics != null)
             {
-                if (sPicsForCache != "" && CachingManager.CachingManager.Exist("ws.GetPicSizesXMLPartsForChannel_" + sPicsForCache + nChannelID.ToString()) == true && bWithCache == true)
+                if (sPicsForCache != "" && CachingManager.CachingManager.Exists("ws.GetPicSizesXMLPartsForChannel_" + sPicsForCache + nChannelID.ToString()) == true && bWithCache == true)
                 {
                     thePics = TVinciShared.ObjectCopier.Clone<ApiObjects.PicObject[]>((ApiObjects.PicObject[])(CachingManager.CachingManager.GetCachedData("ws.GetPicSizesXMLPartsForChannel_" + sPicsForCache + nChannelID.ToString())));
                     //thePics = (ApiObjects.PicObject[])(CachingManager.CachingManager.GetCachedData("ws.GetPicSizesXMLPartsForChannel_" + sPicsForCache + nChannelID.ToString()));
@@ -1801,7 +1801,7 @@ namespace TVinciShared
                     {
                         if (int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "USE_DEFAULT_INFO_STRUCT", nGroupID, 60).ToString()) == 1)
                         {
-                            if (CachingManager.CachingManager.Exist("infoStruct_" + nGroupID.ToString()) == true && bWithCache == true)
+                            if (CachingManager.CachingManager.Exists("infoStruct_" + nGroupID.ToString()) == true && bWithCache == true)
                                 return (XmlNode)(CachingManager.CachingManager.GetCachedData("infoStruct_" + nGroupID.ToString()));
                             object oInfoStruct = ODBCWrapper.Utils.GetTableSingleVal("groups", "DEFAULT_INFO_STRUCT", nGroupID);
                             if (oInfoStruct != null && oInfoStruct != DBNull.Value && oInfoStruct.ToString().Trim() != "")
@@ -1822,7 +1822,7 @@ namespace TVinciShared
                     {
                         if (int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "USE_DEFAULT_INFO_STRUCT", nGroupID, 60).ToString()) == 1)
                         {
-                            if (CachingManager.CachingManager.Exist("infoStruct_" + nGroupID.ToString()) == true && bWithCache == true)
+                            if (CachingManager.CachingManager.Exists("infoStruct_" + nGroupID.ToString()) == true && bWithCache == true)
                                 return (XmlNode)(CachingManager.CachingManager.GetCachedData("infoStruct_" + nGroupID.ToString()));
                             object oInfoStruct = ODBCWrapper.Utils.GetTableSingleVal("groups", "DEFAULT_INFO_STRUCT", nGroupID);
                             if (oInfoStruct != null && oInfoStruct != DBNull.Value && oInfoStruct.ToString().Trim() != "")
@@ -1902,9 +1902,9 @@ namespace TVinciShared
 
         public static string GetPlayListSchema(ref XmlDocument theDoc, Int32 nChannelID, Int32 nGroupID, Int32 nLangID, bool bIsMainLang, Int32 nWatcherID, Int32 nPlayerID, bool bWithCache, ref ApiObjects.PlayListSchema oPlayListSchema)
         {
-            if (oPlayListSchema == null && CachingManager.CachingManager.Exist("playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString()) == true && bWithCache == true)
+            if (oPlayListSchema == null && CachingManager.CachingManager.Exists("playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString()) == true && bWithCache == true)
                 return CachingManager.CachingManager.GetCachedData("playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString()).ToString();
-            if (oPlayListSchema != null && CachingManager.CachingManager.Exist("ws.playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString()) == true && bWithCache == true)
+            if (oPlayListSchema != null && CachingManager.CachingManager.Exists("ws.playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString()) == true && bWithCache == true)
             {
                 oPlayListSchema = (ApiObjects.PlayListSchema)(CachingManager.CachingManager.GetCachedData("ws.playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString()));
                 return "";
@@ -2214,10 +2214,10 @@ namespace TVinciShared
         {
             try
             {
-                if (thePreAdObject == null && CachingManager.CachingManager.Exist("mediaadsschema" + nMediaFileID.ToString() + "_" + nGroupID.ToString()) == true && bWithCache == true)
+                if (thePreAdObject == null && CachingManager.CachingManager.Exists("mediaadsschema" + nMediaFileID.ToString() + "_" + nGroupID.ToString()) == true && bWithCache == true)
                     return CachingManager.CachingManager.GetCachedData("mediaadsschema" + nMediaFileID.ToString() + "_" + nGroupID.ToString()).ToString();
 
-                if (thePreAdObject != null && CachingManager.CachingManager.Exist("ws.mediaadsschema" + nMediaFileID.ToString() + "_" + nGroupID.ToString()) == true && bWithCache == true)
+                if (thePreAdObject != null && CachingManager.CachingManager.Exists("ws.mediaadsschema" + nMediaFileID.ToString() + "_" + nGroupID.ToString()) == true && bWithCache == true)
                 {
                     ApiObjects.MediaAdObject[] t = (ApiObjects.MediaAdObject[])(CachingManager.CachingManager.GetCachedData("ws.mediaadsschema" + nMediaFileID.ToString() + "_" + nGroupID.ToString()));
                     thePreAdObject = t[0];
@@ -4043,7 +4043,7 @@ namespace TVinciShared
             else
                 sPicSizeForCache = GetPicSizeForCache(ref thePics);
 
-            if (theMediaObj == null && CachingManager.CachingManager.Exist("GetMediaTagNeto_" + sPicSizeForCache + sCountryCD + nMediaFileID.ToString() + "_" + nMediaID.ToString() + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + adminToken + "_" + userIP + "_" + bUseStartDate.ToString()) == true && bWithCach == true && bWithUDID == false)
+            if (theMediaObj == null && CachingManager.CachingManager.Exists("GetMediaTagNeto_" + sPicSizeForCache + sCountryCD + nMediaFileID.ToString() + "_" + nMediaID.ToString() + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + adminToken + "_" + userIP + "_" + bUseStartDate.ToString()) == true && bWithCach == true && bWithUDID == false)
             {
                 sRet.Append(CachingManager.CachingManager.GetCachedData("GetMediaTagNeto_" + sPicSizeForCache + sCountryCD + nMediaFileID.ToString() + "_" + nMediaID.ToString() + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + adminToken + "_" + userIP + "_" + bUseStartDate.ToString()).ToString());
                 if (sRet.ToString() != "")
@@ -4444,7 +4444,7 @@ namespace TVinciShared
 
         static protected void GetFileTypesXML(Int32 nMediaID, bool bWithCach, ref ApiObjects.FileTypeContainer[] theFileTypes)
         {
-            if (CachingManager.CachingManager.Exist("ws.GetFileTypesXML" + nMediaID.ToString()) == true && bWithCach == true)
+            if (CachingManager.CachingManager.Exists("ws.GetFileTypesXML" + nMediaID.ToString()) == true && bWithCach == true)
                 theFileTypes = ((ApiObjects.FileTypeContainer[])(CachingManager.CachingManager.GetCachedData("ws.GetFileTypesXML" + nMediaID.ToString())));
             else
             {
@@ -4475,7 +4475,7 @@ namespace TVinciShared
         static protected string GetFileTypesXML(Int32 nMediaID, bool bWithCach)
         {
             StringBuilder sRet = new StringBuilder();
-            if (CachingManager.CachingManager.Exist("GetFileTypesXML" + nMediaID.ToString()) == true && bWithCach == true)
+            if (CachingManager.CachingManager.Exists("GetFileTypesXML" + nMediaID.ToString()) == true && bWithCach == true)
                 sRet.Append(CachingManager.CachingManager.GetCachedData("GetFileTypesXML" + nMediaID.ToString()).ToString());
             else
             {
@@ -4719,9 +4719,9 @@ namespace TVinciShared
         {
             StringBuilder sRet = new StringBuilder();
             string sInfoSigStruct = ConvertXMLToString(ref theInfoStruct, false);
-            if (theInfo == null && CachingManager.CachingManager.Exist("GetMediaInfoInner" + nMediaID.ToString() + "_" + nLangID.ToString() + "_" + sInfoSigStruct) == true && bWithCach == true)
+            if (theInfo == null && CachingManager.CachingManager.Exists("GetMediaInfoInner" + nMediaID.ToString() + "_" + nLangID.ToString() + "_" + sInfoSigStruct) == true && bWithCach == true)
                 sRet.Append(CachingManager.CachingManager.GetCachedData("GetMediaInfoInner" + nMediaID.ToString() + "_" + nLangID.ToString() + "_" + sInfoSigStruct).ToString());
-            else if (theInfo != null && CachingManager.CachingManager.Exist("ws.GetMediaInfoInner" + nMediaID.ToString() + "_" + nLangID.ToString() + "_" + sInfoSigStruct) == true && bWithCach == true)
+            else if (theInfo != null && CachingManager.CachingManager.Exists("ws.GetMediaInfoInner" + nMediaID.ToString() + "_" + nLangID.ToString() + "_" + sInfoSigStruct) == true && bWithCach == true)
             {
                 theInfo = (ApiObjects.MediaInfoObject)(CachingManager.CachingManager.GetCachedData("ws.GetMediaInfoInner" + nMediaID.ToString() + "_" + nLangID.ToString() + "_" + sInfoSigStruct));
             }
@@ -4930,7 +4930,7 @@ namespace TVinciShared
         {
             if (sAdminToken == "")
                 return false;
-            if (CachingManager.CachingManager.Exist(sAdminToken + "_" + sIP) == true)
+            if (CachingManager.CachingManager.Exists(sAdminToken + "_" + sIP) == true)
             {
                 string sCached = CachingManager.CachingManager.GetCachedData(sAdminToken + "_" + sIP).ToString();
                 string[] sSep = { "|" };
@@ -5641,7 +5641,7 @@ namespace TVinciShared
 
                 string sTheDoc = ProtocolsFuncs.GetSig(ref theDoc, true);
 
-                if (CachingManager.CachingManager.Exist(sTheDoc) == true)
+                if (CachingManager.CachingManager.Exists(sTheDoc) == true)
                     return CachingManager.CachingManager.GetCachedData(sTheDoc).ToString();
 
                 if (sCategoryID == "")
@@ -5746,7 +5746,7 @@ namespace TVinciShared
             {
                 string sTheDoc = "ws.CategoriesListProtocol_" + nGroupID.ToString() + "_" + nWSCategoryID.ToString() + "_" + bWithCache.ToString();
 
-                if (CachingManager.CachingManager.Exist(sTheDoc) == true && bWithCache == true)
+                if (CachingManager.CachingManager.Exists(sTheDoc) == true && bWithCache == true)
                 {
                     theCategories = (ApiObjects.CategoryObject[])(CachingManager.CachingManager.GetCachedData(sTheDoc));
                 }
@@ -5803,7 +5803,7 @@ namespace TVinciShared
             bool bIsLangMain = true;
             ProtocolsFuncs.GetLangData(sLang, nGroupID, ref nLangID, ref bIsLangMain);
             string sTheDoc = ProtocolsFuncs.GetSig(ref theDoc, true);
-            if (CachingManager.CachingManager.Exist(sTheDoc) == true)
+            if (CachingManager.CachingManager.Exists(sTheDoc) == true)
                 return CachingManager.CachingManager.GetCachedData(sTheDoc).ToString();
             StringBuilder sRet = new StringBuilder();
 
@@ -7844,7 +7844,7 @@ namespace TVinciShared
                 bWithCache = false;
 
             string sTheSigDoc = ProtocolsFuncs.GetSig(ref theDoc, true);
-            if (CachingManager.CachingManager.Exist(sTheSigDoc) == true && bWithCache == true)
+            if (CachingManager.CachingManager.Exists(sTheSigDoc) == true && bWithCache == true)
                 return CachingManager.CachingManager.GetCachedData(sTheSigDoc).ToString();
 
             Int32 nLangID = 0;
@@ -8000,7 +8000,7 @@ namespace TVinciShared
             if (HttpContext.Current.Session.Get("ODBC_CACH_SEC") != null && HttpContext.Current.Session.Get("ODBC_CACH_SEC").ToString() == "0")
                 bWithCache = false;
             string sTheSigDoc = ProtocolsFuncs.GetSig(ref theDoc, true);
-            if (CachingManager.CachingManager.Exist(sTheSigDoc) == true && bWithCache == true)
+            if (CachingManager.CachingManager.Exists(sTheSigDoc) == true && bWithCache == true)
                 return CachingManager.CachingManager.GetCachedData(sTheSigDoc).ToString();
 
             Int32 nLangID = 0;
@@ -10048,7 +10048,7 @@ namespace TVinciShared
             if (nGroupID == 0)
                 nGroupID = LoginManager.GetLoginGroupID();
 
-            //if (CachingManager.CachingManager.Exist("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString()) == true && bWithCache == true)
+            //if (CachingManager.CachingManager.Exists("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString()) == true && bWithCache == true)
             //{
             //    retVal = int.Parse(CachingManager.CachingManager.GetCachedData("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString()).ToString());
             //    return int.Parse(CachingManager.CachingManager.GetCachedData("GetSearchCountNew" + "_" + nGroupID + "_" + mediaID.ToString() + "_" + mediaType.ToString() + country.ToString() + "_" + language.ToString() + "_" + device.ToString()).ToString());
@@ -10152,9 +10152,10 @@ namespace TVinciShared
             //            string sDocStruct = TVinciShared.ProtocolsFuncs.ConvertXMLToString(ref theMetaList, true);
             //sDocStruct += TVinciShared.ProtocolsFuncs.ConvertXMLToString(ref theTagsList, true);
 
-            if (CachingManager.CachingManager.Exist("GetSearchCount" + sDocStructForCache + sEndDateField + "_" + nType.ToString() + "_" + nGroupID.ToString() + "_" + sWPGID.ToString() + "_" + sName + "_" + bAnd.ToString() + "_" + bExact.ToString() + "_" + sDescription + "_" + sMinDate + "_" + sMaxDate + "_" + nCountryID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString()) == true && bWithCache == true)
+            string searchCountCacheKey = "GetSearchCount" + sDocStructForCache + sEndDateField + "_" + nType.ToString() + "_" + nGroupID.ToString() + "_" + sWPGID.ToString() + "_" + sName + "_" + bAnd.ToString() + "_" + bExact.ToString() + "_" + sDescription + "_" + sMinDate + "_" + sMaxDate + "_" + nCountryID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString();
+            if (CachingManager.CachingManager.Exists(searchCountCacheKey) == true && bWithCache == true)
             {
-                return int.Parse(CachingManager.CachingManager.GetCachedData("GetSearchCount" + sDocStructForCache + sEndDateField + "_" + nType.ToString() + "_" + nGroupID.ToString() + "_" + sWPGID.ToString() + "_" + sName + "_" + bAnd.ToString() + "_" + bExact.ToString() + "_" + sDescription + "_" + sMinDate + "_" + sMaxDate + "_" + nCountryID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString()).ToString());
+                return int.Parse(CachingManager.CachingManager.GetCachedData(searchCountCacheKey).ToString());
             }
 
             //string sGroups = PageUtils.GetParentsGroupsStr(nGroupID);
@@ -10575,7 +10576,11 @@ namespace TVinciShared
 
             selectQuery.Finish();
             selectQuery = null;
-            CachingManager.CachingManager.SetCachedData("GetSearchCount" + sDocStructForCache + sEndDateField + "_" + nType.ToString() + "_" + nGroupID.ToString() + "_" + sWPGID.ToString() + "_" + sName + "_" + bAnd.ToString() + "_" + bExact.ToString() + "_" + sDescription + "_" + sMinDate + "_" + sMaxDate + "_" + nCountryID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + bUseStartDate.ToString(), nRet, 10800, CacheItemPriority.Default, 0, false);
+            CachingManager.CachingManager.SetCachedData(
+                "GetSearchCount" + sDocStructForCache + sEndDateField + "_" + nType.ToString() + "_" + nGroupID.ToString() + "_" + 
+                sWPGID.ToString() + "_" + sName + "_" + bAnd.ToString() + "_" + bExact.ToString() + "_" + sDescription + "_" + 
+                sMinDate + "_" + sMaxDate + "_" + nCountryID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + bUseStartDate.ToString(),
+                nRet, 10800, CacheItemPriority.Default, 0, false);
             return nRet;
         }
 
@@ -10830,7 +10835,7 @@ namespace TVinciShared
 
                     if (sTagName != "")
                     {
-                        if (CachingManager.CachingManager.Exist("TagValuesProtocol_" + nGroupID.ToString() + "_" + sTagName + "_" + sOrderBy + "_" + sInMin + "_" + sInMax + "_" + nLangID.ToString() + "_" + nCountryID.ToString() + "_" + nDeviceID.ToString()) == true)
+                        if (CachingManager.CachingManager.Exists("TagValuesProtocol_" + nGroupID.ToString() + "_" + sTagName + "_" + sOrderBy + "_" + sInMin + "_" + sInMax + "_" + nLangID.ToString() + "_" + nCountryID.ToString() + "_" + nDeviceID.ToString()) == true)
                             sRet.Append(CachingManager.CachingManager.GetCachedData("TagValuesProtocol_" + nGroupID.ToString() + "_" + sTagName + "_" + sOrderBy + "_" + sInMin + "_" + sInMax + "_" + nLangID.ToString() + "_" + nCountryID.ToString() + "_" + nDeviceID.ToString()).ToString());
                         else
                         {
@@ -12303,9 +12308,9 @@ namespace TVinciShared
             string sInfoSigStruct = TVinciShared.ProtocolsFuncs.ConvertXMLToString(ref theInfoStruct, false);
 
 
-            if (sPersonal == "false" && CachingManager.CachingManager.Exist("GetSearchMediaInner_" + sCountryCD + "_" + sDocStruct + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + sStatistics + "_" + sMinDate + "_" + sMaxDate + "_" + nDeviceID.ToString()) == true && bWithCache == true && theChannelObject == null)
+            if (sPersonal == "false" && CachingManager.CachingManager.Exists("GetSearchMediaInner_" + sCountryCD + "_" + sDocStruct + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + sStatistics + "_" + sMinDate + "_" + sMaxDate + "_" + nDeviceID.ToString()) == true && bWithCache == true && theChannelObject == null)
                 return CachingManager.CachingManager.GetCachedData("GetSearchMediaInner_" + sCountryCD + "_" + sDocStruct + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + sStatistics + "_" + sMinDate + "_" + sMaxDate + "_" + nDeviceID.ToString()).ToString();
-            else if (sPersonal == "false" && CachingManager.CachingManager.Exist("ws.GetSearchMediaInner_" + sCountryCD + "_" + sDocStruct + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + sStatistics + "_" + sMinDate + "_" + sMaxDate + "_" + nDeviceID.ToString()) == true && bWithCache == true && theChannelObject != null)
+            else if (sPersonal == "false" && CachingManager.CachingManager.Exists("ws.GetSearchMediaInner_" + sCountryCD + "_" + sDocStruct + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + sStatistics + "_" + sMinDate + "_" + sMaxDate + "_" + nDeviceID.ToString()) == true && bWithCache == true && theChannelObject != null)
             {
                 theChannelObject = (ApiObjects.ChannelObject)(CachingManager.CachingManager.GetCachedData("ws.GetSearchMediaInner_" + sCountryCD + "_" + sDocStruct + "_" + bIPAllowed.ToString() + "_" + nLangID.ToString() + "_" + sStatistics + "_" + sMinDate + "_" + sMaxDate + "_" + nDeviceID.ToString()));
                 return "";
@@ -14196,7 +14201,7 @@ namespace TVinciShared
                 }
 
 
-                if (CachingManager.CachingManager.Exist("SubscriptionMediaProtocol_" + sMediaType + "_" + sSubscriptionID + "_" + nGroupID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + nNumOfItems.ToString() + "_" + nStartIndex.ToString()) == true && bWithCache == true)
+                if (CachingManager.CachingManager.Exists("SubscriptionMediaProtocol_" + sMediaType + "_" + sSubscriptionID + "_" + nGroupID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + nNumOfItems.ToString() + "_" + nStartIndex.ToString()) == true && bWithCache == true)
                 {
                     sRet.Append(CachingManager.CachingManager.GetCachedData("SubscriptionMediaProtocol_" + sMediaType + "_" + sSubscriptionID + "_" + nGroupID.ToString() + "_" + nLangID.ToString() + "_" + nDeviceID.ToString() + "_" + nNumOfItems.ToString() + "_" + nStartIndex.ToString()));
 

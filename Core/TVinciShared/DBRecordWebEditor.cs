@@ -217,7 +217,7 @@ namespace TVinciShared
         {
             if (m_bStartValue == true || m_sFieldName == "")
                 return;
-            if (CachingManager.CachingManager.Exist("SetValue_" + sTable + "_" + sIndexFieldName + "_" + oIndexFieldVal.ToString() + "_" + m_sConnectionKey) == true)
+            if (CachingManager.CachingManager.Exists("SetValue_" + sTable + "_" + sIndexFieldName + "_" + oIndexFieldVal.ToString() + "_" + m_sConnectionKey) == true)
             {
                 DataTable dt = ((DataTable)(CachingManager.CachingManager.GetCachedData("SetValue_" + sTable + "_" + sIndexFieldName + "_" + oIndexFieldVal.ToString() + "_" + m_sConnectionKey)));
                 ConvertDBObjToStr(ref dt);

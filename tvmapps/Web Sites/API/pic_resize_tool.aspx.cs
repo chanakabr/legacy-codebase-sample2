@@ -58,7 +58,7 @@ public partial class pic_resize_tool : System.Web.UI.Page
         bool bCrop = false;
         if (sCrop.Trim().ToLower() == "true")
             bCrop = true;
-        if (CachingManager.CachingManager.Exist("image_resize" + sURL + "_" + sWidth + "_" + sHight + "_" + sCrop) == true)
+        if (CachingManager.CachingManager.Exists("image_resize" + sURL + "_" + sWidth + "_" + sHight + "_" + sCrop) == true)
             byteArray = (byte[])(CachingManager.CachingManager.GetCachedData("image_resize" + sURL + "_" + sWidth + "_" + sHight + "_" + sCrop));
 
         if (sURL != "")

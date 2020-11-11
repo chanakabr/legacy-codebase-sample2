@@ -20,7 +20,8 @@ namespace TvinciCache
         private static object locker = new object();
         private static WSCache instance = null;
         #endregion
-        private ICachingService cache = null;
+        private SingleInMemoryCache cache = null;
+        private uint defaultTimeInCacheSeconds = 0;
 
         private string GetCacheName()
         {
@@ -53,7 +54,7 @@ namespace TvinciCache
                     //this.cache = new OutOfProcessCache
                     break;
                 default:
-                    this.cache = new SingleInMemoryCache(expirationInSeconds);
+                    this.cache = SingleInMemoryCache.GetInstance(InMemoryCacheType.General, expirationInSeconds);
                     break;
 
             }
@@ -61,7 +62,8 @@ namespace TvinciCache
 
         private WSCache()
         {
-            InitializeCachingService(GetCacheName(), GetDefaultCacheTimeInSeconds());
+            defaultTimeInCacheSeconds = GetDefaultCacheTimeInSeconds();
+            InitializeCachingService(GetCacheName(), defaultTimeInCacheSeconds);
         }
 
         public static WSCache Instance
@@ -123,8 +125,7 @@ namespace TvinciCache
 
         public bool Add(string key, object obj)
         {
-            BaseModuleCache bModule = new BaseModuleCache(obj);
-            return obj != null && cache.Add(key, bModule);
+            return obj != null && cache.Add(key, obj, defaultTimeInCacheSeconds);
         }
 
         public bool Add(string key, object obj, double nMinuteOffset)

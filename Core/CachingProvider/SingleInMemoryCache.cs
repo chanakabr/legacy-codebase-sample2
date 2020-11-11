@@ -37,22 +37,58 @@ namespace CachingProvider
             private set;
         }
 
+        private static object locker = new object();
+        
+        private static Dictionary<InMemoryCacheType, SingleInMemoryCache> instances = new Dictionary<InMemoryCacheType, SingleInMemoryCache>();
+        public static SingleInMemoryCache GetInstance(InMemoryCacheType type, uint defaultExpirationInSeconds)
+        {
+            if (!instances.ContainsKey(type))
+            {
+                lock (locker)
+                {
+                    if (!instances.ContainsKey(type))
+                    {
+                        long cacheMemoryLimit = 0;
+                        int pollingIntervalSeconds = 0;
+
+                        switch (type)
+                        {
+                            case InMemoryCacheType.LayeredCache:
+                                cacheMemoryLimit = ApplicationConfiguration.Current.LayeredCacheInMemoryCacheConfiguration.CacheMemoryLimit.Value;
+                                pollingIntervalSeconds = ApplicationConfiguration.Current.LayeredCacheInMemoryCacheConfiguration.PollingIntervalSeconds.Value;
+                                break;
+                            case InMemoryCacheType.General:
+                                cacheMemoryLimit = ApplicationConfiguration.Current.GeneralInMemoryCacheConfiguration.CacheMemoryLimit.Value;
+                                pollingIntervalSeconds = ApplicationConfiguration.Current.GeneralInMemoryCacheConfiguration.PollingIntervalSeconds.Value;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        instances[type] = new SingleInMemoryCache(defaultExpirationInSeconds, cacheMemoryLimit, pollingIntervalSeconds);
+                    }
+                }
+            }
+
+            return instances[type];
+        }
+
         #region Ctors
 
-        public SingleInMemoryCache(uint defaultExpirationInSeconds)
+        private SingleInMemoryCache(uint defaultExpirationInSeconds, long cacheMemoryLimitMegabytes = 0, int pollingIntervalSeconds = 0)
         {
             CacheName = GetCacheName();
             DefaultMinOffset = (double)defaultExpirationInSeconds / 60;
             var config = new System.Collections.Specialized.NameValueCollection();
 
-            if (ApplicationConfiguration.Current.MemoryCacheConfiguration.CacheMemoryLimit.Value > 0)
+            if (cacheMemoryLimitMegabytes > 0)
             {
-                config["cacheMemoryLimitMegabytes"] = ApplicationConfiguration.Current.MemoryCacheConfiguration.CacheMemoryLimit.Value.ToString();
+                config["cacheMemoryLimitMegabytes"] = cacheMemoryLimitMegabytes.ToString();
             }
-            
-            if (ApplicationConfiguration.Current.MemoryCacheConfiguration.PollingIntervalSeconds.Value > 0)
+
+            if (pollingIntervalSeconds > 0)
             {
-                var timeSpan = TimeSpan.FromSeconds(ApplicationConfiguration.Current.MemoryCacheConfiguration.PollingIntervalSeconds.Value);
+                var timeSpan = TimeSpan.FromSeconds(pollingIntervalSeconds);
                 config["pollingInterval"] = timeSpan.ToString();
             }
 
@@ -109,6 +145,20 @@ namespace CachingProvider
             return res;
         }
 
+        public bool Set<T>(string key, T value, DateTimeOffset absoluteExpiration)
+        {
+            try
+            {
+                cache.Set(key, value, absoluteExpiration);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error when setting memory cache value. key = {key}, ex = {ex}", ex);
+                return false;
+            }
+        }
+
         public bool Set(string sKey, BaseModuleCache oValue)
         {
             return Set(sKey, oValue, DefaultMinOffset);
@@ -135,6 +185,11 @@ namespace CachingProvider
             if (string.IsNullOrEmpty(sKey))
                 return default(T);
             return cache.Get(sKey) as T;
+        }
+
+        public bool Contains(string key)
+        {
+            return cache.Contains(key);
         }
 
         public BaseModuleCache GetWithVersion<T>(string sKey)
@@ -400,6 +455,52 @@ namespace CachingProvider
 
             return bRes;
         }
+
+        public bool RemoveKeysStartingWith(string keyPrefix)
+        {
+            try
+            {
+                List<KeyValuePair<string, object>> removeList = null;
+                if (!string.IsNullOrEmpty(keyPrefix))
+                {
+                    removeList = cache.Where(item => item.Key.StartsWith(keyPrefix)).ToList();
+                }
+                else
+                {
+                    removeList = cache.ToList();
+                }
+
+                foreach (var item in removeList)
+                {
+                    try
+                    {
+                        cache.Remove(item.Key);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error($"Error when removing key from cache. key = {item.Key}, ex = {ex}", ex);
+
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error when removing keys from cache. start key = {keyPrefix}, ex = {ex}", ex);
+                return false;
+            }
+        }
+
+        public List<string> GetCachedKeys()
+        {
+            return this.cache.Select(item => item.Key).ToList();
+        }
     }
 
+    public enum InMemoryCacheType
+    {
+        LayeredCache,
+        General
+    }
 }

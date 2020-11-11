@@ -315,36 +315,6 @@ namespace CachingProvider.LayeredCache
             return res;
         }
 
-        public bool GetWithAppDomainCache<T>(string key, ref T genericParameter, Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectMethod, Dictionary<string, object> funcParameters,
-                                                int groupId, string layeredCacheConfigName, double ttlOnAppDomainInSeconds = 60, List<string> inValidationKeys = null)
-        {
-            bool result = false;
-            try
-            {
-                if (TryGetKeyFromAppDomainCache<T>(key, ref genericParameter))
-                {
-                    result = true;
-                }
-                else if (Get<T>(key, ref genericParameter, fillObjectMethod, funcParameters, groupId, layeredCacheConfigName, inValidationKeys) && ttlOnAppDomainInSeconds > 0)
-                {
-                    Dictionary<string, T> resultsToAdd = new Dictionary<string, T>();
-                    resultsToAdd.Add(key, genericParameter);
-                    InsertResultsToAppDomainCache<T>(resultsToAdd, ttlOnAppDomainInSeconds);
-                    result = true;
-                }
-            }
-
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed to get key {0} from LayeredCache on GetWithAppDomainCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}", key,
-                                        string.IsNullOrEmpty(layeredCacheConfigName) ? string.Empty : layeredCacheConfigName,
-                                        fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
-                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
-            }
-
-            return result;
-        }
-
         public bool SetInvalidationKey(string key, DateTime? updatedAt = null)
         {
             bool res = false;
@@ -1436,35 +1406,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("layeredCacheGroupConfig_V1_{0}", groupId);
         }
-
-        private bool TryGetKeyFromAppDomainCache<T>(string key, ref T genericParameter)
-        {
-            bool res = false;
-            try
-            {
-                object cachedObj = MemoryCache.Default.Get(key);
-                if (cachedObj != null)
-                {
-                    genericParameter = (T)cachedObj;
-                    res = genericParameter != null && true;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed to get key {0} from TryGetKeyFromAppDomainCache", key), ex);
-            }
-
-            return res;
-        }
-
-        private void InsertResultsToAppDomainCache<T>(Dictionary<string, T> results, double ttlOnAppDomainInSeconds)
-        {
-            foreach (KeyValuePair<string, T> pair in results)
-            {
-                MemoryCache.Default.Add(pair.Key, pair.Value, DateTime.UtcNow.AddSeconds(ttlOnAppDomainInSeconds));
-            }
-        }
-
+		
         #endregion
 
         #region Insert
