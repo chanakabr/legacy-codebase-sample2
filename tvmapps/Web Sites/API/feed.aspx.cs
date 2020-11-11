@@ -233,7 +233,7 @@ public partial class rss : System.Web.UI.Page
                 string sSubtitles = GetSafeQueryString("subtitles");
                 string[] sep = { "," };
                 string[] sRolesSep = sRoles.Split(sep, StringSplitOptions.RemoveEmptyEntries);
-                if (CachingManager.CachingManager.Exist("Rss_" + sRoles + "_" + sMediaIDs + "_" + nGroupID.ToString() + "_" + sChannelID + "_" + sPicSize + "_" + sStartIndex + "_" + sPageSize + "_" + sFileFormat + "_" + sFileQuality + "_" + sLang + "_" + sType + "_" + sBaseURL + "_" + sCountryID + "_" + sDeviceID + "_" + sPicResize + "_" + sWithImageInDescription) == true)
+                if (CachingManager.CachingManager.Exists("Rss_" + sRoles + "_" + sMediaIDs + "_" + nGroupID.ToString() + "_" + sChannelID + "_" + sPicSize + "_" + sStartIndex + "_" + sPageSize + "_" + sFileFormat + "_" + sFileQuality + "_" + sLang + "_" + sType + "_" + sBaseURL + "_" + sCountryID + "_" + sDeviceID + "_" + sPicResize + "_" + sWithImageInDescription) == true)
                 {
                     string sAll = CachingManager.CachingManager.GetCachedData("Rss_" + sRoles + "_" + sMediaIDs + "_" + nGroupID.ToString() + "_" + sChannelID + "_" + sPicSize + "_" + sStartIndex + "_" + sPageSize + "_" + sFileFormat + "_" + sFileQuality + "_" + sLang + "_" + sType + "_" + sBaseURL + "_" + sCountryID + "_" + sDeviceID + "_" + sPicResize + "_" + sWithImageInDescription).ToString();
                     Response.Expires = -1;

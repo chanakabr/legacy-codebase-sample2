@@ -27,7 +27,7 @@ namespace CDNetworksVault
 
         protected string GetServerIP()
         {
-            if (CachingManager.CachingManager.Exist("___server_ip") == true)
+            if (CachingManager.CachingManager.Exists("___server_ip") == true)
             {
                 return CachingManager.CachingManager.GetCachedData("___server_ip").ToString();
             }

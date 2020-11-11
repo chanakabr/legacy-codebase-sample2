@@ -18,6 +18,12 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
 
         internal T ActualValue { get; set; }
 
+        public virtual string EnvironmentVariable
+        {
+            get;
+            set;
+        }
+
         public T Value
         {
             get

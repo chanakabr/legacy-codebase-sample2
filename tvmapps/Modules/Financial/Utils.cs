@@ -153,7 +153,7 @@ namespace Financial
             if (GetWSURL("pricing_ws") != "")
                 m.Url = GetWSURL("pricing_ws");
 
-            if (CachingManager.CachingManager.Exist("GetPPVModuleData" + nPPVM + "_" + nGroupID.ToString()) == true)
+            if (CachingManager.CachingManager.Exists("GetPPVModuleData" + nPPVM + "_" + nGroupID.ToString()) == true)
                 thePPVModule = (TvinciPricing.PPVModule)(CachingManager.CachingManager.GetCachedData("GetPPVModuleData" + nPPVM + "_" + nGroupID.ToString()));
             else
             {
@@ -175,7 +175,7 @@ namespace Financial
             if (GetWSURL("pricing_ws") != "")
                 m.Url = GetWSURL("pricing_ws");
 
-            if (CachingManager.CachingManager.Exist("GetPrePaidModuleData" + nPPM + "_" + nGroupID.ToString()) == true)
+            if (CachingManager.CachingManager.Exists("GetPrePaidModuleData" + nPPM + "_" + nGroupID.ToString()) == true)
                 thePPModule = (TvinciPricing.PrePaidModule)(CachingManager.CachingManager.GetCachedData("GetPrePaidModuleData" + nPPM + "_" + nGroupID.ToString()));
             else
             {
@@ -198,7 +198,7 @@ namespace Financial
             if (Utils.GetWSURL("pricing_staging_ws") != "")
                 m.Url = Utils.GetWSURL("pricing_staging_ws");
 
-            if (CachingManager.CachingManager.Exist("GetCouponGroupData" + nCouponGroupID + "_" + nGroupID.ToString()) == true)
+            if (CachingManager.CachingManager.Exists("GetCouponGroupData" + nCouponGroupID + "_" + nGroupID.ToString()) == true)
                 theCoupon = (TvinciPricing.CouponsGroup)(CachingManager.CachingManager.GetCachedData("GetCouponGroupData" + nCouponGroupID + "_" + nGroupID.ToString()));
             else
             {
@@ -221,7 +221,7 @@ namespace Financial
             if (Utils.GetWSURL("pricing_ws") != "")
                 m.Url = Utils.GetWSURL("pricing_ws");
 
-            if (CachingManager.CachingManager.Exist("GetCouponStatus" + sCouponCode + "_" + nGroupID.ToString()) == true)
+            if (CachingManager.CachingManager.Exists("GetCouponStatus" + sCouponCode + "_" + nGroupID.ToString()) == true)
                 theCoupon = (TvinciPricing.CouponData)(CachingManager.CachingManager.GetCachedData("GetCouponStatus" + sCouponCode + "_" + nGroupID.ToString()));
             else
             {

@@ -195,10 +195,9 @@ namespace WebAPI.Managers
             {
                 string key = LayeredCacheKeys.GetGroupPermissionItemsDictionaryKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
-                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>>(key, ref result, BuildGroupPermissionItemsDictionary,
+                if (!LayeredCache.Instance.Get<Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>>(key, ref result, BuildGroupPermissionItemsDictionary,
                                                                                                                 new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                                                                                 LayeredCacheConfigNames.GET_GROUP_PERMISSION_ITEMS_BY_GROUP_ID,
-                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
                                                                                                                 new List<string>() { invalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetGroupPermissionItemsDictionary from LayeredCache, groupId: {0}, key: {1}", groupId, key);
@@ -488,10 +487,9 @@ namespace WebAPI.Managers
             {
                 string key = LayeredCacheKeys.GetPermissionItemsToFeaturesDictionaryKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
-                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<string, List<string>>>(key, ref result, BuildPermissionItemsToFeaturesDictionary,
+                if (!LayeredCache.Instance.Get<Dictionary<string, List<string>>>(key, ref result, BuildPermissionItemsToFeaturesDictionary,
                                                                                                                 new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                                                                                 LayeredCacheConfigNames.GET_PERMISSION_ITEMS_TO_FEATURES,
-                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
                                                                                                                 new List<string>() { invalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetGroupPermissionItemsDictionary from LayeredCache, groupId: {0}, key: {1}", groupId, key);

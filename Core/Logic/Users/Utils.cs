@@ -518,7 +518,7 @@ namespace Core.Users
         {
             string res = null;
             Dictionary<string, string> minPeriods;
-            if (CachingManager.CachingManager.Exist("MinPeriods"))
+            if (CachingManager.CachingManager.Exists("MinPeriods"))
             {
                 minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<string, string>;
             }

@@ -19,7 +19,8 @@ namespace ODBCWrapper
         private static object locker = new object();
         private static ODBCWrapperCache instance = null;
         #endregion
-        private ICachingService cache = null;
+        private SingleInMemoryCache cache = null;
+        private uint defaultTimeInCacheSeconds = 0;
 
         private string GetCacheName()
         {
@@ -55,7 +56,7 @@ namespace ODBCWrapper
                     //this.cache = new OutOfProcessCache
                     break;
                 default:
-                    this.cache = new SingleInMemoryCache(expirationInSeconds);
+                    this.cache = SingleInMemoryCache.GetInstance(InMemoryCacheType.General, expirationInSeconds);
                     break;
 
             }
@@ -63,7 +64,8 @@ namespace ODBCWrapper
 
         private ODBCWrapperCache()
         {
-            InitializeCachingService(GetCacheName(), GetDefaultCacheTimeInSeconds());
+            defaultTimeInCacheSeconds = GetDefaultCacheTimeInSeconds();
+            InitializeCachingService(GetCacheName(), defaultTimeInCacheSeconds);
         }
 
         public static ODBCWrapperCache Instance
@@ -125,8 +127,7 @@ namespace ODBCWrapper
 
         public bool Add(string key, object obj)
         {
-            BaseModuleCache bModule = new BaseModuleCache(obj);
-            return obj != null && cache.Add(key, bModule);
+            return obj != null && cache.Add(key, obj, defaultTimeInCacheSeconds);
         }
 
         public bool Add(string key, object obj, double nMinuteOffset)

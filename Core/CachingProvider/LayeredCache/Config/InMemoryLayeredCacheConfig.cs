@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ConfigurationManager;
+using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -35,7 +36,7 @@ namespace CachingProvider.LayeredCache
                     {
                         if (cache == null)
                         {
-                            cache = new SingleInMemoryCache(this.TTL);
+                            cache = SingleInMemoryCache.GetInstance(InMemoryCacheType.LayeredCache, this.TTL);
                         }
                     }
                 }

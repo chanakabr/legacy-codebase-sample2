@@ -77,7 +77,7 @@ namespace TVinciShared
                 return;
             //need to take off the no_cache and the site_guid
             string sReq = RemoveUnWantedParameters(m_sRequest, "/root");
-            if (CachingManager.CachingManager.Exist(sReq) == true && CachingManager.CachingManager.GetCachedData(sReq).ToString() == "---")
+            if (CachingManager.CachingManager.Exists(sReq) == true && CachingManager.CachingManager.GetCachedData(sReq).ToString() == "---")
                 return;
             CachingManager.CachingManager.SetCachedData(sReq, "---", 10800, CacheItemPriority.Default, 0, false);
             string sCachingSeverXML = "<root><req>" + sReq + "</req>";

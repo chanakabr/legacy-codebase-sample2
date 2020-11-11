@@ -180,12 +180,12 @@ public partial class adm_tvp_galleries_new : System.Web.UI.Page
 
     static protected object GetDefaultVal(Int32 nGalleryID, string sField, string sCollKey)
     {
-        if (CachingManager.CachingManager.Exist("GetDefaultVal_" + sField + "_" + sCollKey + "_" + nGalleryID.ToString()) == true)
+        if (CachingManager.CachingManager.Exists("GetDefaultVal_" + sField + "_" + sCollKey + "_" + nGalleryID.ToString()) == true)
         {
             return CachingManager.CachingManager.GetCachedData("GetDefaultVal_" + sField + "_" + sCollKey + "_" + nGalleryID.ToString());
         }
         Int32 nTemplateID = 0;
-        if (CachingManager.CachingManager.Exist("TemplateID" + nGalleryID.ToString()) == true)
+        if (CachingManager.CachingManager.Exists("TemplateID" + nGalleryID.ToString()) == true)
         {
             nTemplateID = int.Parse(CachingManager.CachingManager.GetCachedData("TemplateID" + nGalleryID.ToString()).ToString());
         }
@@ -240,7 +240,7 @@ public partial class adm_tvp_galleries_new : System.Web.UI.Page
         Int32 nTemplateID = int.Parse(HttpContext.Current.Session["template_id"].ToString());
 
         DataTable dt = null;
-        if (CachingManager.CachingManager.Exist("IsFieldAvailable_" + sCollKey + "_" + nTemplateID.ToString()) == true)
+        if (CachingManager.CachingManager.Exists("IsFieldAvailable_" + sCollKey + "_" + nTemplateID.ToString()) == true)
         {
             dt = (DataTable)(CachingManager.CachingManager.GetCachedData("IsFieldAvailable_" + sCollKey + "_" + nTemplateID.ToString()));
         }
@@ -264,7 +264,7 @@ public partial class adm_tvp_galleries_new : System.Web.UI.Page
             return false;
         return true;
         /*
-        if (CachingManager.CachingManager.Exist("IsFieldAvailable_" + sField + "_" + sCollKey + "_" + nTemplateID.ToString()) == true)
+        if (CachingManager.CachingManager.Exists("IsFieldAvailable_" + sField + "_" + sCollKey + "_" + nTemplateID.ToString()) == true)
         {
             nOK = int.Parse(CachingManager.CachingManager.GetCachedData("IsFieldAvailable_" + sField + "_" + sCollKey + "_" + nTemplateID.ToString()).ToString());
         }

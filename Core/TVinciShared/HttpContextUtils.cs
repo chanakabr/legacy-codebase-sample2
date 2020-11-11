@@ -131,11 +131,6 @@ namespace TVinciShared
             return dict.Contains(key);
         }
 
-        public static System.Runtime.Caching.MemoryCache GetCache(this HttpContext ctx)
-        {
-            return System.Runtime.Caching.MemoryCache.Default;
-        }
-
         public static string GetValue(this HttpCookieCollection collection, string name)
         {
             return collection[name].Value;
@@ -314,11 +309,6 @@ namespace TVinciShared
             }
 
             return result;
-        }
-
-        public static System.Runtime.Caching.MemoryCache GetCache(this HttpContext ctx)
-        {
-            return System.Runtime.Caching.MemoryCache.Default;
         }
 
         public static void Add(this IResponseCookies cookies, object cookie)

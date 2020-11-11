@@ -299,7 +299,7 @@ public partial class adm_tvp_galleries_items_new : System.Web.UI.Page
     static protected bool IsFieldAvailable(string sField, string sCollKey)
     {
         Int32 nTemplateID = 0;
-        if (CachingManager.CachingManager.Exist("TemplateID" + HttpContext.Current.Session["gallery_id"].ToString()) == true)
+        if (CachingManager.CachingManager.Exists("TemplateID" + HttpContext.Current.Session["gallery_id"].ToString()) == true)
         {
             nTemplateID = int.Parse(CachingManager.CachingManager.GetCachedData("TemplateID" + HttpContext.Current.Session["gallery_id"].ToString()).ToString());
         }
@@ -310,7 +310,7 @@ public partial class adm_tvp_galleries_items_new : System.Web.UI.Page
         }
         Int32 nOK = 0;
         DataTable dt = null;
-        if (CachingManager.CachingManager.Exist("IsFieldAvailable_" + sCollKey + "_" + nTemplateID.ToString()) == true)
+        if (CachingManager.CachingManager.Exists("IsFieldAvailable_" + sCollKey + "_" + nTemplateID.ToString()) == true)
         {
             dt = (DataTable)(CachingManager.CachingManager.GetCachedData("IsFieldAvailable_" + sCollKey + "_" + nTemplateID.ToString()));
         }
@@ -337,12 +337,12 @@ public partial class adm_tvp_galleries_items_new : System.Web.UI.Page
 
     static protected object GetDefaultVal(Int32 nGalleryID , string sField, string sCollKey)
     {
-        if (CachingManager.CachingManager.Exist("GetDefaultVal_" + sField + "_" + sCollKey + "_" + nGalleryID.ToString()) == true)
+        if (CachingManager.CachingManager.Exists("GetDefaultVal_" + sField + "_" + sCollKey + "_" + nGalleryID.ToString()) == true)
         {
             return CachingManager.CachingManager.GetCachedData("GetDefaultVal_" + sField + "_" + sCollKey + "_" + nGalleryID.ToString());
         }
         Int32 nTemplateID = 0;
-        if (CachingManager.CachingManager.Exist("TemplateID" + nGalleryID.ToString()) == true)
+        if (CachingManager.CachingManager.Exists("TemplateID" + nGalleryID.ToString()) == true)
         {
             nTemplateID = int.Parse(CachingManager.CachingManager.GetCachedData("TemplateID" + nGalleryID.ToString()).ToString());
         }
@@ -737,7 +737,7 @@ public partial class adm_tvp_galleries_items_new : System.Web.UI.Page
 
     static protected Int32 GetTVMAccountDetails(Int32 nID , bool bIsMain , ref string sPUN , ref string sPPass , Int32 nGroupID)
     {
-        if (CachingManager.CachingManager.Exist("GetTVMAccountDetails_" + nID.ToString() + "_" + bIsMain.ToString() + "_" + nGroupID.ToString()) == true)
+        if (CachingManager.CachingManager.Exists("GetTVMAccountDetails_" + nID.ToString() + "_" + bIsMain.ToString() + "_" + nGroupID.ToString()) == true)
         {
             string sAll = CachingManager.CachingManager.GetCachedData("GetTVMAccountDetails_" + nID.ToString() + "_" + bIsMain.ToString() + "_" + nGroupID.ToString()).ToString();
             string[] sSep = {"|"};

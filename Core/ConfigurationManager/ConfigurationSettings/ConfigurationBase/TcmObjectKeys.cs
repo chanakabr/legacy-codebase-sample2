@@ -56,7 +56,7 @@
 		public const string CouchbaseClientConfiguration = "couchbase_client_config";
 		public const string CouchbaseBucketConfiguration = "BucketConfigs";
 		public const string CouchbasePoolConfiguration = "poolConfiguration";
-		public const string FacebookConfiguration ="facebook_configuration";
+		public const string FacebookConfiguration = "facebook_configuration";
 		public const string SocialFeedConfiguration = "social_feed_configuration";
 		public const string SocialFeedQueueConfiguration = "social_feed_queue_configuration";
 		public const string ExportConfiguration = "export";
@@ -71,15 +71,15 @@
 		public const string ElasticSearchHttpClientConfiguration = "elastic_search_http_client_configuration";
 		public const string NPVRHttpClientConfiguration = "npvr_http_client_configuration";
 		public const string MailerHttpClientConfiguration = "mailer_http_client_configuration";
-		public const string Stub = "Stub";   
+		public const string Stub = "Stub";
 		public const string EPGIngestV2Configuration = "epg_ingest_v2";
 		public const string KafkaClientConfiguration = "kafka_client_configuration";
 		public const string HealthCheckConfiguration = "health_check";
 		public const string IotConfiguration = "iot_configuration";
 		public const string UdidUsageConfiguration = "udid_usage";
 		public const string RedisClientConfiguration = "redis_client_configuration";
-		public const string MemoryCacheConfiguration = "memory_cache_configuration";
-		
-	}    
+		public const string LayeredCacheInMemoryCacheConfiguration = "layered_cache_memory_cache_configuration";
+		public const string GeneralInMemoryCacheConfiguration = "general_in_memory_cache_configuration";
+	}
 }
 

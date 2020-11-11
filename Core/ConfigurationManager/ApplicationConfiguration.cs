@@ -134,7 +134,8 @@ namespace ConfigurationManager
         public IotAdapterConfiguration IotAdapterConfiguration = new IotAdapterConfiguration();
         public KestrelConfiguration KestrelConfiguration = new KestrelConfiguration();
         public RedisClientConfiguration RedisClientConfiguration = new RedisClientConfiguration();
-        public MemoryCacheConfiguration MemoryCacheConfiguration = new MemoryCacheConfiguration();
+        public LayeredCacheInMemoryCacheConfiguration LayeredCacheInMemoryCacheConfiguration = new LayeredCacheInMemoryCacheConfiguration();
+        public GeneralInMemoryCacheConfiguration GeneralInMemoryCacheConfiguration = new GeneralInMemoryCacheConfiguration();
 
         public T GetValueByKey<T>(string key)
         {
