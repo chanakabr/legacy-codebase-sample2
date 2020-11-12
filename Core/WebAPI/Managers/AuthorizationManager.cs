@@ -794,11 +794,17 @@ namespace WebAPI.Managers
             return loginSession;
         }
 
-        public static void RevokeHouseholdSessions(int groupId, string udid = null, List<string> householdUserIds = null)
+        public static void RevokeHouseholdSessions(int groupId, string udid = null, List<string> householdUserIds = null, long domainId = 0)
         {
             if (householdUserIds == null)
             {
                 householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true);
+
+                if (householdUserIds == null)
+                {
+                    //BEO-9133: If Admin/Operator, should get list by udid
+                    householdUserIds = Core.ConditionalAccess.Utils.GetDomainsUsers((int)domainId, groupId)?.Select(x => x.ToString()).ToList();
+                }
             }
 
             if (householdUserIds?.Count == 0)
