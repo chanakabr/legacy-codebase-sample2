@@ -732,6 +732,18 @@ namespace CachingProvider.LayeredCache
                 if (!string.IsNullOrEmpty(layeredCacheConfigurationString))
                 {
                     layeredCacheTcmConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<LayeredCacheTcmConfig>(layeredCacheConfigurationString, layeredCacheConfigSerializerSettings);
+
+                    string envVariableShouldProduceInvalidationEventsToKafka = Environment.GetEnvironmentVariable("SHOULD_PRODUCE_INVALIDATION_EVENTS_TO_KAFKA");
+
+                    if (!string.IsNullOrEmpty(envVariableShouldProduceInvalidationEventsToKafka))
+                    {
+                        bool shouldProduceInvalidationEventsToKafka;
+
+                        if (bool.TryParse(envVariableShouldProduceInvalidationEventsToKafka, out shouldProduceInvalidationEventsToKafka))
+                        {
+                            layeredCacheTcmConfig.ShouldProduceInvalidationEventsToKafka = shouldProduceInvalidationEventsToKafka;
+                        }
+                    }
                 }
             }
             catch (Exception ex)
