@@ -103,7 +103,7 @@ namespace WebAPI.Managers
                 throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
             }
 
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid,groupId);
+            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid, groupId);
             return new KalturaLoginSession()
             {
                 KS = token.KS,
@@ -320,6 +320,7 @@ namespace WebAPI.Managers
             KalturaSessionType sessionType = KalturaSessionType.USER;
 
             // 7. get session user id from cb token - if not defined - use the supplied userId
+
             if (!string.IsNullOrEmpty(appToken.SessionUserId))
             {
                 userId = appToken.SessionUserId;
@@ -332,14 +333,17 @@ namespace WebAPI.Managers
                     }
                 }
             }
+            UsersClient usersClient = ClientsManager.UsersClient();
 
-            UsersClient usersClient = ClientsManager.UsersClient();            
-            ValidateUser(groupId, userId, usersClient);
-            
-            if (group.ShouldCheckDeviceInDomain && IsEndUser())
+            if (!group.ApptokenUserValidationDisabled)
             {
-                DomainsClient domainsClient = ClientsManager.DomainsClient();
-                ValidateDevice(groupId, userId, udid, domainId, domainsClient);
+                ValidateUser(groupId, userId, usersClient);
+
+                if (group.ShouldCheckDeviceInDomain && IsEndUser())
+                {
+                    DomainsClient domainsClient = ClientsManager.DomainsClient();
+                    ValidateDevice(groupId, userId, udid, domainId, domainsClient);
+                }
             }
 
             // 8. get the group secret by the session type
@@ -421,7 +425,7 @@ namespace WebAPI.Managers
             var userStatus = usersClient.GetUserActivationState(groupId, userId);
 
             if (validUserStatus.Contains(userStatus)) return;
-            
+
             // ConvertResponseStatusToResponseObject use WrongPasswordOrUserName for ResponseStatus.UserDoesNotExist
             // but we want to return more meaningful status 
             var errorResponse = userStatus == ResponseStatus.UserDoesNotExist
@@ -756,10 +760,10 @@ namespace WebAPI.Managers
         private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, int revocationTime, int expiration, bool revokeAll = false)
         {
 
-           return SessionManager.UpdateUsersSessionsRevocationTime(group.UserSessionsKeyFormat,
-                group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds, userId, udid, revocationTime,
-                expiration, revokeAll);
-            
+            return SessionManager.UpdateUsersSessionsRevocationTime(group.UserSessionsKeyFormat,
+                 group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds, userId, udid, revocationTime,
+                 expiration, revokeAll);
+
         }
 
         internal static void RemoveUserSessions(Group group, string userId)
@@ -794,27 +798,40 @@ namespace WebAPI.Managers
             return loginSession;
         }
 
-        public static void RevokeHouseholdSessions(int groupId, string udid = null, List<string> householdUserIds = null)
+        public static void RevokeHouseholdSessions(int groupId, string udid = null, List<string> householdUserIds = null, long domainId = 0)
         {
-            if (householdUserIds == null)
+            try
             {
-                householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true);
-            }
-
-            if (householdUserIds?.Count == 0)
-                return;
-
-            Group group = GroupsManager.GetGroup(groupId);
-            long utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-            long maxSessionDuration = utcNow + Math.Max(group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds);
-            bool revokeAll = string.IsNullOrEmpty(udid) ? true : false;
-
-            foreach (string userId in householdUserIds)
-            {
-                if (!UpdateUsersSessionsRevocationTime(group, userId, udid, (int)utcNow, (int)maxSessionDuration, revokeAll))
+                if (householdUserIds == null)
                 {
-                    log.ErrorFormat("RevokeDeviceSessions: Failed to revoke session for userId = {0}, UDID = {1}", userId, revokeAll ? "All" : udid);
+                    householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true);
+
+                    if (householdUserIds == null)
+                    {
+                        //BEO-9133: If Admin/Operator, should get list by udid
+                        householdUserIds = Core.ConditionalAccess.Utils.GetDomainsUsers((int)domainId, groupId)?.Select(x => x.ToString()).ToList();
+                    }
                 }
+
+                if (householdUserIds == null || householdUserIds.Count == 0)
+                    return;
+
+                Group group = GroupsManager.GetGroup(groupId);
+                long utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+                long maxSessionDuration = utcNow + Math.Max(group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds);
+                bool revokeAll = string.IsNullOrEmpty(udid) ? true : false;
+
+                foreach (string userId in householdUserIds)
+                {
+                    if (!UpdateUsersSessionsRevocationTime(group, userId, udid, (int)utcNow, (int)maxSessionDuration, revokeAll))
+                    {
+                        log.ErrorFormat("RevokeDeviceSessions: Failed to revoke session for userId = {0}, UDID = {1}", userId, revokeAll ? "All" : udid);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"RevokeHouseholdSessions error: {ex.Message}", ex);
             }
         }
 

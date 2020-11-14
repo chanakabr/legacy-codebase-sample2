@@ -976,15 +976,16 @@ namespace Core.Domains
             return response;
         }
 
-        public static ApiObjects.Response.Status DeleteDevice(int groupId, string udid)
+        public static ApiObjects.Response.Status DeleteDevice(int groupId, string udid, out long domainId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            domainId = 0;
 
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                response = t.DeleteDevice(groupId, udid);
+                response = t.DeleteDevice(groupId, udid, out domainId);
             }
 
             return response;

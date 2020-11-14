@@ -40,16 +40,17 @@ namespace WebAPI.Controllers
             try
             {
                 var userRoles = RolesManager.GetRoleIds(ks);
+                long domainId = 0;
                 if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
                 {
-                    res = ClientsManager.DomainsClient().DeleteDevice(groupId, udid);
+                    res = ClientsManager.DomainsClient().DeleteDevice(groupId, udid, out domainId);
                 }
                 else
                 {
                     res = ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)householdId, udid);
                 }
 
-                AuthorizationManager.RevokeHouseholdSessions(groupId, udid);
+                AuthorizationManager.RevokeHouseholdSessions(groupId, udid, null, domainId);
             }
             catch (ClientException ex)
             {
