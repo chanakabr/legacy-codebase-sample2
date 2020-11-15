@@ -1286,7 +1286,7 @@ namespace WebAPI.Clients
         internal bool DeleteDevice(int groupId, string udid, out long domainId)
         {
             ApiObjects.Response.Status response = null;
-            domainId = 0; 
+            domainId = 0;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
