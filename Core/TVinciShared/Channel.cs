@@ -716,7 +716,7 @@ namespace TVinciShared
 
         public Int32 GetTotalChannelSize()
         {
-            if (CachingManager.CachingManager.Exist("GetTotalChannelSize" + m_nChannelID.ToString() + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString()) == true && m_bWithCache == true)
+            if (CachingManager.CachingManager.Exists("GetTotalChannelSize" + m_nChannelID.ToString() + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString()) == true && m_bWithCache == true)
                 return int.Parse(CachingManager.CachingManager.GetCachedData("GetTotalChannelSize" + m_nChannelID.ToString() + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString()).ToString());
             Int32 nCo = 0;
             Int32 nGroupID = m_nGroupID;
@@ -1013,7 +1013,7 @@ namespace TVinciShared
                 }
             }
 
-            if (CachingManager.CachingManager.Exist("GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString()) == true && m_bWithCache == true)
+            if (CachingManager.CachingManager.Exists("GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString()) == true && m_bWithCache == true)
             {
                 log.Debug("Caching - GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString());
                 return (System.Data.DataTable)(CachingManager.CachingManager.GetCachedData("GetChannelMediaDT" + m_nChannelID.ToString() + "_" + nNumOfItems.ToString() + "_" + m_sOrderBy + "_" + sFileTypesStr + "_" + m_nLangID.ToString() + "_" + m_nCountryID.ToString() + "_" + m_nDeviceID.ToString() + "_" + m_nGroupID.ToString() + "_" + bUseStartDate.ToString()));

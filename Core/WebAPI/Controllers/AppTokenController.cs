@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
@@ -111,6 +112,13 @@ namespace WebAPI.Controllers
         [Throws(StatusCode.InvalidAppTokenHash)]
         [Throws(StatusCode.NotActiveAppToken)]
         [Throws(StatusCode.ExpiredAppToken)]
+        [Throws(StatusCode.InvalidArgument)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.UserNotActivated)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.DeviceNotExists)]
+        [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
         static public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, int? expiry = null, string udid = null)
         {
             KalturaSessionInfo response = null;

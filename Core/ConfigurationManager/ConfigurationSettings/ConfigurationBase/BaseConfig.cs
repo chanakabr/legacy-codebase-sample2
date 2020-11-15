@@ -56,6 +56,25 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                     }
                 }
 
+                if (!string.IsNullOrEmpty(defaultData.EnvironmentVariable))
+                {
+                    var envVariableValue = Environment.GetEnvironmentVariable(defaultData.EnvironmentVariable);
+
+                    if (!string.IsNullOrEmpty(envVariableValue))
+                    {
+                        try
+                        {
+                            defaultData.ActualValue = (TV)Convert.ChangeType(envVariableValue, typeof(TV));
+                            emptyValue = false;
+                            _Logger.Debug($"Overriding {path} with environment variable {envVariableValue}");
+                        }
+                        catch (Exception ex)
+                        {
+                            _Logger.Error($"Invalid data structure for key: {path} under object [{GetType().Name}]. Setting default value as actual value", ex);
+                        }
+                    }
+                }
+
                 if (emptyValue)
                 {
                     _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{path}], setting default value as actual value");

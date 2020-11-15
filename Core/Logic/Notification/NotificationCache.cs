@@ -88,7 +88,7 @@ namespace Core.Notification
 
         private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            this.CacheService = new SingleInMemoryCache(expirationInSeconds);
+            this.CacheService = SingleInMemoryCache.GetInstance(InMemoryCacheType.General, expirationInSeconds);
         }
 
         private NotificationCache()

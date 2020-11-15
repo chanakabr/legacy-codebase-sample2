@@ -34,8 +34,8 @@ namespace TVinciShared
 
         public const string MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR = "global_abort_on_error";
 
-        public const string REQUEST_TAGS = "request_tags";
-        public const string REQUEST_TAGS_PARTNER_ROLE = "partner_role";
+        private const string REQUEST_TAGS = "request_tags";
+        private const string REQUEST_TAGS_PARTNER_ROLE = "partner_role";
 
         public static bool GetRequestContextValue<T>(string key, out T value)
         {
@@ -54,6 +54,31 @@ namespace TVinciShared
             GetRequestContextValue<long>(REQUEST_KS_ORIGINAL_USER_ID, out long originalUserId);
 
             return originalUserId;
+        }
+
+        public static void SetIsPartnerRequest()
+        {
+            if (System.Web.HttpContext.Current.Items.ContainsKey(REQUEST_TAGS))
+            {
+                var tags = (HashSet<string>)System.Web.HttpContext.Current.Items[REQUEST_TAGS];
+                if (!tags.Contains(REQUEST_TAGS_PARTNER_ROLE))
+                {
+                    tags.Add(REQUEST_TAGS_PARTNER_ROLE);
+                    System.Web.HttpContext.Current.Items[REQUEST_TAGS] = tags;
+                }
+            }
+            else
+            {
+                System.Web.HttpContext.Current.Items.Add(REQUEST_TAGS, new HashSet<string>() { REQUEST_TAGS_PARTNER_ROLE });
+            }
+        }
+
+        // TODO duplicate with LayeredCache.isPartnerRequest
+        public static bool IsPartnerRequest()
+        {
+            var isPartner = GetRequestContextValue(REQUEST_TAGS, out HashSet<string> tags) 
+                && tags != null && tags.Contains(REQUEST_TAGS_PARTNER_ROLE);
+            return isPartner;
         }
     }
 }

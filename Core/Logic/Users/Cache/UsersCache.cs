@@ -138,8 +138,9 @@ namespace Core.Users
                                                LayeredCacheConfigNames.USER_LAYERED_CACHE_CONFIG_NAME, 
                                                new List<string>()
                                                {
-                                                   LayeredCacheKeys.GetUserInvalidationKey(userId.ToString()),
-                                                   LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString())
+                                                   LayeredCacheKeys.GetUserInvalidationKey(groupId, userId.ToString()),
+                                                   LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, userId.ToString()),
+                                                   LayeredCacheKeys.GetUserLoginHistoryInvalidationKey(groupId, userId)
                                                }))
                 {
                     log.DebugFormat("GetUser - Couldn't get userId {0}", userId);
@@ -264,14 +265,14 @@ namespace Core.Users
             bool res = false;
             try
             {
-                string invalidationKey = LayeredCacheKeys.GetUserInvalidationKey(userId.ToString());
+                string invalidationKey = LayeredCacheKeys.GetUserInvalidationKey(groupId, userId.ToString());
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed removing user {0} from cache", invalidationKey);
                     return res;
                 }
 
-                invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
+                invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, userId.ToString());
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed removing user {0} from cache", invalidationKey);

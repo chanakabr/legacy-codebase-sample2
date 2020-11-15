@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using ApiObjects.EventBus;
 using ConfigurationManager;
@@ -17,6 +20,8 @@ namespace EventBus.RabbitMQ
 {
     public class EventBusPublisherRabbitMQ : IEventBusPublisher
     {
+        public const string HEADER_KEY_EVENT_BASE_NAME = "x-ott-eventbus-event-name";
+
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private readonly IRabbitMQPersistentConnection _PersistentConnection;
@@ -59,25 +64,50 @@ namespace EventBus.RabbitMQ
 
                 foreach (var serviceEvent in serviceEvents)
                 {
-                    var eventName = ServiceEvent.GetEventRoutingKey(serviceEvent);
-                    var message = serviceEvent.Serialize();
-                    var body = Encoding.UTF8.GetBytes(message);
+                    byte[] body;
+                    var routingKey = serviceEvent.GetRoutingKey();
+                    var eventName = serviceEvent.GetEventName();
 
+                    try
+                    {
+                        body = RabbitMqSerializationsHelper.Serialize(serviceEvent);
+                    }
+                    catch (SerializationException e)
+                    {
+                        _Logger.Warn("Could not serialize ,will use JsonConvert and Encoding.UTF8.GetBytes instead.if you see this error add [Serializable] on the object " + e.Message);
+                        var jsonMsg = JsonConvert.SerializeObject(serviceEvent);
+                        body = Encoding.UTF8.GetBytes(jsonMsg);
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                        
                     publishRetryPolicy.Execute(() =>
                     {
-                        PublishEvent(channel, eventName, body, message);
+                        PublishEvent(channel, routingKey,eventName, body, string.Empty);
                     });
+                    
                 }
             }
         }
 
-        private void PublishEvent(IModel channel, string eventName, byte[] body, string message)
+        private void PublishEvent(IModel channel, string routingKey, string eventName, byte[] body, string message)
         {
             var properties = channel.CreateBasicProperties();
             properties.DeliveryMode = 2; // persistent
+
+            //Gil:this is a temp fix until ingest handlers and phoenix are going to be synced so we need to have a
+            //backwards compatibility to suppport json serialized data (we changed to binarry formatter)
+
+            if (properties.Headers == null)
+            {
+                properties.Headers = new Dictionary<string, object>();
+            }
+            properties.Headers.Add(HEADER_KEY_EVENT_BASE_NAME, eventName);
             const bool isDeliverySuccessMandatory = true;
-            channel.BasicPublish(_ExchangeName, eventName, isDeliverySuccessMandatory, properties, body);
-            _Logger.Info($"Event [{eventName}] with body length:[{message?.Length}] sent to exchange:[{_ExchangeName}]");
+            channel.BasicPublish(_ExchangeName, routingKey, isDeliverySuccessMandatory, properties, body);
+            _Logger.Info($"RoutingKey [{routingKey}], EventName:[{eventName}] with body length:[{message?.Length}] sent to exchange:[{_ExchangeName}]");
             // TODO: Configure wait for conformation timespan;
             // TODO: This takes long, 100 msgs takes 11 seconds .. whitout it takes 1 sec.
             channel.WaitForConfirmsOrDie(TimeSpan.FromSeconds(5));

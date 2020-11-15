@@ -55,22 +55,9 @@ namespace WebAPI.Utils
                     ErrorUtils.HandleWSException(ex);
                 }
 
-                if (baseResponse == null && shouldSupportFailOverCaching && !string.IsNullOrEmpty(cacheKey))
-                {
-                    // No response from Catalog -> gets medias from cache
-                    baseResponse = CatalogCacheManager.Cache.GetFailOverResponse(cacheKey);
-                }
-
                 if (baseResponse != null && baseResponse is T)
                 {
-                    // response received
-                    if (shouldSupportFailOverCaching && !string.IsNullOrEmpty(cacheKey))
-                    {
-                        // insert to cache for failover support
-                        CatalogCacheManager.Cache.InsertFailOverResponse(baseResponse, cacheKey);
-                    }
-
-                    // convert response to requires object
+                    // convert response to required object
                     response = baseResponse as T;
                     passed = true;
                 }

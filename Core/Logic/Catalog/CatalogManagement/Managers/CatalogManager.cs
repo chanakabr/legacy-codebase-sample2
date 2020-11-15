@@ -15,8 +15,10 @@ using QueueWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
@@ -645,7 +647,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate medias
                 foreach (int mediaId in mediaIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId) && result;
+                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, mediaId) && result;
                 }
             }
 
@@ -654,7 +656,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate epgs
                 foreach (int epgId in epgIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, epgId) && result;
+                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgId) && result;
                 }
             }
 
@@ -961,7 +963,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate medias
                 foreach (int mediaId in mediaIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, mediaId) && result;
+                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, mediaId) && result;
                 }
             }
 
@@ -977,7 +979,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate epgs
                 foreach (int epgId in epgIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, epgId) && result;
+                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgId) && result;
                 }
             }
 
@@ -1085,7 +1087,7 @@ namespace Core.Catalog.CatalogManagement
 
                         if (topicsForAssetUpdate.Count > 0)
                         {
-                            AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)newAsset.Id);
+                            AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, (int)newAsset.Id);
 
                             var data = new InheritanceParentUpdate()
                             {
@@ -2664,6 +2666,23 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed GetTagById for groupId: {0} and tagId: {1}", groupId, tagId), ex);
+            }
+
+            return result;
+        }
+
+        public static GenericResponse<ApiObjects.SearchObjects.TagValue> GetTagByValue(int groupId, string value, long topicId)
+        {
+            var result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
+
+            try
+            {
+                DataSet ds = CatalogDAL.GetTagByValue(groupId, value, topicId);
+                result = CreateTagValueFromDataSet(ds);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetTagByValue for groupId: {0}, value: {1}, topic:{2}", groupId, value, topicId), ex);
             }
 
             return result;

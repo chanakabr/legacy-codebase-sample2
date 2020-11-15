@@ -1176,7 +1176,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Users.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Users.Utils.GetIPCountry2(sUserIP);
+                return Core.Users.Utils.GetIPCountry2(nGroupID, sUserIP);
             }
             else
             {

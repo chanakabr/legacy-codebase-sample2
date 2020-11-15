@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -12,11 +12,9 @@ using Polly.Retry;
 
 namespace EventBus.RabbitMQ
 {
-    // TODO: is there a service handler configuration required here ? 
     public class EventBusConfiguration
     {
-        public string QueueName { get; set; }
-        public int ConcurrentConsumers { get; set; }
+        public Func<IEnumerable<int>> DedicatedPartnerIdsResolver { get; set; }
     }
 
     public class RabbitMQConnectionDetails
@@ -33,7 +31,9 @@ namespace EventBus.RabbitMQ
 
         private static readonly Assembly _EntryAssembly = Assembly.GetEntryAssembly();
         private static readonly Type[] _EntryAssemblyTypes = _EntryAssembly.GetTypes();
-        private static readonly List<Type> _AllServiceHandlers = _EntryAssemblyTypes.Where(IsTypeImplementsIServiceHandler).ToList();
+        private static readonly List<Type> _AllServiceHandlers = _EntryAssemblyTypes.Where(IServiceEventHandlerUtils.IsTypeImplementsIServiceHandler).ToList();
+
+        private static EventBusConfiguration _Configuration;
 
         public static IHostBuilder ConfigureEventBustConsumer(this IHostBuilder builder)
         {
@@ -43,34 +43,30 @@ namespace EventBus.RabbitMQ
 
         public static IHostBuilder ConfigureEventBustConsumer(this IHostBuilder builder, Action<EventBusConfiguration> configureService)
         {
+            InitLogger();
+            ApplicationConfiguration.Init();
             Console.Title = _EntryAssembly.GetName().ToString();
 
             // Default configuration
-            var configuration = new EventBusConfiguration
-            {
-
-            };
-
-            configureService(configuration);
-            InitLogger();
+            _Configuration = new EventBusConfiguration { };
+            configureService(_Configuration);
 
             builder.ConfigureServices((hostContext, services) =>
             {
-                ApplicationConfiguration.Init();
                 // Add all discovered implementation of IServiceHandler as scoped services
-                foreach (var handler in _AllServiceHandlers)
-                {
-                    services.AddScoped(handler);
-                }
+                _AllServiceHandlers.ForEach(h => services.AddScoped(h));
 
                 services.AddSingleton<IRabbitMQPersistentConnection>(RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration());
-                ConfigureRabbitMQEventBus(services, configuration, _AllServiceHandlers);
+                ConfigureRabbitMQEventBus(services, _AllServiceHandlers);
 
                 var isHealthy = HealthCheck(services);
-                if (!isHealthy) { throw new Exception("Health check returned errors, service will not start"); }
-                _Logger.Info($"Health check passed. Starting consumers.");
+                if (!isHealthy)
+                {
+                    throw new Exception("Health check returned errors, service will not start");
+                }
 
-                services.AddHostedService<KalturaEventBusRabbitMQConsumerService>();
+                _Logger.Info($"Health check passed. Starting consumers.");
+                services.AddHostedService<EventBusConsumerService>();
             });
 
             return builder;
@@ -80,10 +76,7 @@ namespace EventBus.RabbitMQ
         {
             var retryCount = 3;
             var policy = Policy.Handle<Exception>()
-            .WaitAndRetry(retryCount, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)), (ex, time, attempt, ctx) =>
-            {
-                _Logger.Warn($"Health check failed attempt:[{attempt}/{retryCount}]", ex);
-            });
+                .WaitAndRetry(retryCount, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)), (ex, time, attempt, ctx) => { _Logger.Warn($"Health check failed attempt:[{attempt}/{retryCount}]", ex); });
 
             _Logger.Info($"Starting health check.");
             _Logger.Info($"Checking couchbase connection...");
@@ -115,7 +108,6 @@ namespace EventBus.RabbitMQ
             });
 
             return (cbIsSuccess && sqlIsSuccess);
-
         }
 
         private static void InitLogger()
@@ -123,31 +115,24 @@ namespace EventBus.RabbitMQ
             var assembly = Assembly.GetEntryAssembly();
             var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
             var assemblyVersion = $"{fvi.FileMajorPart}_{fvi.FileMinorPart}_{fvi.FileBuildPart}";
-            var logDir = Environment.GetEnvironmentVariable("API_LOG_DIR");
-            logDir = logDir != null ? Environment.ExpandEnvironmentVariables(logDir) : @"C:\log\EventHandlers\";
-            log4net.GlobalContext.Properties["LogDir"] = logDir;
-            log4net.GlobalContext.Properties["ApiVersion"] = assemblyVersion;
-            log4net.GlobalContext.Properties["LogName"] = assembly.GetName().Name;
-
-            KMonitor.Configure("log4net.config", KLogEnums.AppType.WindowsService);
-            KLogger.Configure("log4net.config", KLogEnums.AppType.WindowsService);
-
+            KLogger.InitLogger("log4net.config", KLogEnums.AppType.WindowsService, @"/var/log/EventHandlers/");
         }
 
-        private static void ConfigureRabbitMQEventBus(IServiceCollection services, EventBusConfiguration configuration, List<Type> allServiceHandlers)
+        private static void ConfigureRabbitMQEventBus(IServiceCollection services, List<Type> allServiceHandlers)
         {
-            services.AddSingleton((Func<IServiceProvider, IEventBusConsumer>)(serviceProvider =>
+            services.AddSingleton((Func<IServiceProvider, IEventBusConsumer>) (serviceProvider =>
             {
                 var queueName = _EntryAssembly.GetName().Name;
                 var rabbitMQPersistentConnection = serviceProvider.GetRequiredService<IRabbitMQPersistentConnection>();
-                int concurrentConsumersIntValue = GetConcurrentConsumersFromEnvironmentVars();
+                var concurrentConsumersIntValue = GetConcurrentConsumersFromEnvironmentVars();
+                var partnerIds = GetDedicatedConsumerPartnerIds();
 
-                var eventBus = EventBusConsumerRabbitMQ.GetInstanceUsingTCMConfiguration(serviceProvider, rabbitMQPersistentConnection, queueName, concurrentConsumersIntValue);
+                var eventBus = EventBusConsumerRabbitMQ.GetInstanceUsingTCMConfiguration(serviceProvider, rabbitMQPersistentConnection, queueName, concurrentConsumersIntValue, partnerIds);
 
                 foreach (var handler in allServiceHandlers)
                 {
                     var eventType = handler.GetInterfaces()
-                        .First(IsInterfaceAnyGenericOfIServiceHandler)
+                        .First(IServiceEventHandlerUtils.IsInterfaceAnyGenericOfIServiceHandler)
                         .GetGenericArguments()
                         .First();
                     eventBus.Subscribe(eventType, handler);
@@ -155,6 +140,26 @@ namespace EventBus.RabbitMQ
 
                 return eventBus;
             }));
+        }
+
+        private static IEnumerable<int> GetDedicatedConsumerPartnerIds()
+        {
+            IEnumerable<int> partnerIds = null;
+            if (_Configuration.DedicatedPartnerIdsResolver != null)
+            {
+                _Logger.Info($"Detected dedicated consumer requirement configuration, resolving partner Ids.");
+                partnerIds = _Configuration.DedicatedPartnerIdsResolver();
+                if (partnerIds?.Any() == true)
+                {
+                    _Logger.Info($"Dedicated consumers for Partners: [{string.Join(",", partnerIds)}]");
+                }
+                else
+                {
+                    _Logger.Warn($"Dedicated partner resolver have returned a Null or empty list of partners");
+                }
+            }
+
+            return partnerIds;
         }
 
         private static int GetConcurrentConsumersFromEnvironmentVars()
@@ -167,17 +172,6 @@ namespace EventBus.RabbitMQ
             }
 
             return concurrentConsumersIntValue;
-        }
-
-        private static bool IsInterfaceAnyGenericOfIServiceHandler(Type i)
-        {
-            return i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IServiceEventHandler<>);
-        }
-
-        private static bool IsTypeImplementsIServiceHandler(Type t)
-        {
-            var implementedInterfaces = t.GetInterfaces();
-            return implementedInterfaces.Any(IsInterfaceAnyGenericOfIServiceHandler);
         }
     }
 }

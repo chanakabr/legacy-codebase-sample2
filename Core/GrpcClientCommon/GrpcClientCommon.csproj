@@ -3,6 +3,7 @@
   <PropertyGroup>
     <Version>5.2.0.3673</Version>
     <AssemblyTitle>2019-04-09 20:15:47 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-147-gb99fddbc-dirty</AssemblyTitle>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
@@ -14,12 +15,11 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <PackageReference Include="ott-lib-cachekeys" Version="1.1.50" />
+    <PackageReference Include="Grpc.Core" Version="2.32.0" />
   </ItemGroup>
-    
+
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj" />
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
   
-
 </Project>

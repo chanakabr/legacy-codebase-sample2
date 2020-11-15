@@ -69,14 +69,9 @@ namespace TVPApiModule.CatalogLoaders
 
             if (m_oResponse == null)// No response from Catalog, gets medias from cache
             {
-                m_oResponse = CacheManager.Cache.GetFailOverResponse(cacheKey);
-
-                if (m_oResponse == null)// No response from Catalog and no response from cache
-                {
-                    result = new Objects.Responses.UnifiedSearchResponse();
-                    result.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
-                    return result;
-                }
+                result = new Objects.Responses.UnifiedSearchResponse();
+                result.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+                return result;
             }
 
             MediaIdsStatusResponse response = (MediaIdsStatusResponse)m_oResponse;
@@ -96,8 +91,6 @@ namespace TVPApiModule.CatalogLoaders
 
             if (response.assetIds != null && response.assetIds.Count > 0)
             {
-                CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey); // Insert the UnifiedSearchResponse to cache for failover support
-
                 List<MediaObj> medias;
                 List<ProgramObj> epgs;
 
@@ -118,9 +111,6 @@ namespace TVPApiModule.CatalogLoaders
 
         protected void GetAssets(string cacheKey, MediaIdsStatusResponse response, out List<MediaObj> medias, out List<ProgramObj> epgs)
         {
-            // Insert the UnifiedSearchResponse to cache for failover support
-            CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);
-
             List<long> mediaIds = response.assetIds.Where(asset => asset.AssetType == eAssetTypes.MEDIA).Select(asset => long.Parse(asset.AssetId)).ToList();
             List<long> epgIds = response.assetIds.Where(asset => asset.AssetType == eAssetTypes.EPG).Select(asset => long.Parse(asset.AssetId)).ToList(); ;
             List<ProgramObj> recordings;

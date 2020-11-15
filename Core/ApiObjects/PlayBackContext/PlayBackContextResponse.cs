@@ -47,6 +47,14 @@ namespace ApiObjects
         public string AdsParam { get; set; }
 
         public string Opl { get; set; }
+
+        public BusinessModuleDetails BusinessModuleDetails { get; set; }
+    }
+
+    public class BusinessModuleDetails
+    {
+        public int? BusinessModuleId { get; set; }
+        public eTransactionType? BusinessModuleType { get; set; }
     }
 
     public class PlayManifestResponse

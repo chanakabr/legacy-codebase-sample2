@@ -819,7 +819,7 @@ namespace Core.Recordings
                     string externalDomainRecordingId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "EXTERNAL_DOMAIN_RECORDING_ID");
                     if (domainRecordingId > 0 && !string.IsNullOrEmpty(externalDomainRecordingId))
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, domainId));
 
                         bool isNew = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_NEW", -1) == 1;
                         Recording domainRecording = ConditionalAccess.Utils.ValidateRecordID(groupId, domainId, domainRecordingId, false);

@@ -91,6 +91,7 @@ namespace ConfigurationManager
         public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
         public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();
         public HttpClientConfiguration HttpClientConfiguration = new HttpClientConfiguration();
+        public MicroservicesClientConfiguration MicroservicesClientConfiguration = new MicroservicesClientConfiguration();
         public DatabaseConfiguration DatabaseConfiguration = new DatabaseConfiguration();
         public NotificationConfiguration NotificationConfiguration = new NotificationConfiguration();
         public ImageUtilsConfiguration ImageUtilsConfiguration = new ImageUtilsConfiguration();
@@ -133,7 +134,8 @@ namespace ConfigurationManager
         public IotAdapterConfiguration IotAdapterConfiguration = new IotAdapterConfiguration();
         public KestrelConfiguration KestrelConfiguration = new KestrelConfiguration();
         public RedisClientConfiguration RedisClientConfiguration = new RedisClientConfiguration();
-        public MemoryCacheConfiguration MemoryCacheConfiguration = new MemoryCacheConfiguration();
+        public LayeredCacheInMemoryCacheConfiguration LayeredCacheInMemoryCacheConfiguration = new LayeredCacheInMemoryCacheConfiguration();
+        public GeneralInMemoryCacheConfiguration GeneralInMemoryCacheConfiguration = new GeneralInMemoryCacheConfiguration();
 
         public T GetValueByKey<T>(string key)
         {

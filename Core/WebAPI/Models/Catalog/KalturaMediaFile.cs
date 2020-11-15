@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.Models.Catalog
 {
@@ -297,7 +298,34 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "opl")]
         public string Opl { get; set; }
 
+        /// <summary>
+        /// businessModuleDetails
+        /// </summary>
+        [DataMember(Name = "businessModuleDetails")]
+        [JsonProperty(PropertyName = "businessModuleDetails")]
+        [XmlElement(ElementName = "businessModuleDetails")]
+        public KalturaBusinessModuleDetails BusinessModuleDetails { get; set; }
+
         #endregion
+    }
+
+    public partial class KalturaBusinessModuleDetails : KalturaOTTObject
+    {
+        /// <summary>
+        /// BusinessModuleId
+        /// </summary>
+        [DataMember(Name = "businessModuleId")]
+        [JsonProperty(PropertyName = "businessModuleId")]
+        [XmlElement(ElementName = "businessModuleId")]
+        public int? BusinessModuleId { get; set; }
+
+        /// <summary>
+        /// BusinessModuleType
+        /// </summary>
+        [DataMember(Name = "businessModuleType")]
+        [JsonProperty(PropertyName = "businessModuleType")]
+        [XmlElement(ElementName = "businessModuleType")]
+        public KalturaTransactionType? BusinessModuleType { get; set; }
     }
 
     /// <summary>

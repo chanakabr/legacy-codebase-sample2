@@ -103,7 +103,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 eAssetTypes assetType = eAssetTypes.EPG;
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), epgIds);
-                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), epgIds);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(groupId, assetType.ToString(), epgIds);
 
                 if (!LayeredCache.Instance.GetValues<EpgAsset>(keyToOriginalValueMap,
                                                                ref epgAssets,
@@ -476,7 +476,7 @@ namespace Core.Catalog.CatalogManagement
                         RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
 
                         // invalidate asset
-                        AssetManager.InvalidateAsset(eAssetTypes.EPG, epgAsset.Id);
+                        AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
 
                         // UpdateIndex
                         bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id }, false);
@@ -518,7 +518,7 @@ namespace Core.Catalog.CatalogManagement
                     string invalidationKey;
                     if (doesGroupUsesTemplates)
                     {
-                        invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType, currEpgId);
+                        invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(groupId, assetType, currEpgId);
                     }
                     else
                     {

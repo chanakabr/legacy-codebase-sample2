@@ -427,7 +427,7 @@ namespace TVinciShared
         {
             if (nGroupID == 0)
                 return "in (0)";
-            if (CachingManager.CachingManager.Exist("GetFullChildGroupsStr_" + nGroupID.ToString()) == true)
+            if (CachingManager.CachingManager.Exists("GetFullChildGroupsStr_" + nGroupID.ToString()) == true)
                 return (string)(CachingManager.CachingManager.GetCachedData("GetFullChildGroupsStr_" + nGroupID.ToString()));
             StringBuilder sRet = new StringBuilder();
             sRet.Append("in (").Append(nGroupID);
@@ -440,7 +440,7 @@ namespace TVinciShared
         }
         public static string GetFullGroupsStr(Int32 nGroupID, string sConnKey)
         {
-            if (CachingManager.CachingManager.Exist("GetFullGroupsStr_" + nGroupID.ToString()) == true)
+            if (CachingManager.CachingManager.Exists("GetFullGroupsStr_" + nGroupID.ToString()) == true)
                 return (string)(CachingManager.CachingManager.GetCachedData("GetFullGroupsStr_" + nGroupID.ToString()));
             StringBuilder sRet = new StringBuilder();
             sRet.Append("in (").Append(nGroupID);
@@ -509,7 +509,7 @@ namespace TVinciShared
         private static bool TryGetCachedData(string sKeyOfCachedData, int nGroupID, ref string sRet)
         {
             string sRealKey = GetRealCachedKey(sKeyOfCachedData, nGroupID);
-            if (CachingManager.CachingManager.Exist(sRealKey))
+            if (CachingManager.CachingManager.Exists(sRealKey))
             {
                 sRet = (string)(CachingManager.CachingManager.GetCachedData(sRealKey));
                 return true;
@@ -528,7 +528,7 @@ namespace TVinciShared
         }
         public static string GetAllGroupsStr(Int32 nID, ref string sRet, string sConnKey)
         {
-            if (CachingManager.CachingManager.Exist("GetAllGroupsStr_" + nID.ToString()) == true)
+            if (CachingManager.CachingManager.Exists("GetAllGroupsStr_" + nID.ToString()) == true)
             {
                 sRet = (string)(CachingManager.CachingManager.GetCachedData("GetAllGroupsStr_" + nID.ToString()));
                 return sRet;

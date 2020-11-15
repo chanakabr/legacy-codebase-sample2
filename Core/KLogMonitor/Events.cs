@@ -22,7 +22,8 @@ namespace KLogMonitor
             EVENT_DUMPFILE,
             EVENT_WS,
             EVENT_KAFKA,
-            EVENT_REDIS
+            EVENT_REDIS,
+            EVENT_GRPC
         }
 
         internal static string GetEventString(eEvent eventMonitor)
@@ -57,6 +58,8 @@ namespace KLogMonitor
                     return Constants.EVENT_KAFKA;
                 case eEvent.EVENT_REDIS:
                     return Constants.EVENT_REDIS;
+                case eEvent.EVENT_GRPC:
+                    return Constants.EVENT_GRPC;
                 default:
                     break;
             }

@@ -570,6 +570,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
             .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
 
+            cfg.CreateMap<BusinessModuleDetails, KalturaBusinessModuleDetails>()
+              .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
+              .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConvertKalturaTransactionType(src.BusinessModuleType)))
+              ;
+
+            cfg.CreateMap<KalturaBusinessModuleDetails, BusinessModuleDetails>()
+              .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
+              .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConvertKalturaTransactionType(src.BusinessModuleType)))
+              ;
+
             cfg.CreateMap<MediaFile, KalturaPlaybackSource>()
               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.MediaId.ToString()))
               .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
@@ -585,6 +595,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.AdsPolicy, opt => opt.ResolveUsing(src => ConvertAdsPolicy(src.AdsPolicy)))
               .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => 0))
               .ForMember(dest => dest.Opl, opt => opt.ResolveUsing(src => src.Opl))
+              .ForMember(dest => dest.BusinessModuleDetails, opt => opt.ResolveUsing(src => src.BusinessModuleDetails))
               ;
 
             cfg.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()
@@ -652,6 +663,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     return eTransactionType.PPV;
                 case KalturaTransactionType.subscription:
                     return eTransactionType.Subscription;
+                default:
+                    break;
+            }
+            throw new NotImplementedException();
+        }
+
+        internal static KalturaTransactionType? ConvertKalturaTransactionType(eTransactionType? businessModuleTypeEqual)
+        {
+            if (!businessModuleTypeEqual.HasValue)
+            {
+                return null;
+            }
+            switch (businessModuleTypeEqual)
+            {
+                case eTransactionType.Collection:
+                    return KalturaTransactionType.collection;
+                case eTransactionType.PPV:
+                    return KalturaTransactionType.ppv;
+                case eTransactionType.Subscription:
+                    return KalturaTransactionType.subscription;
                 default:
                     break;
             }

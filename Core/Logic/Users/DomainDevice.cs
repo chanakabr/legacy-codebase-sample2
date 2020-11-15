@@ -66,7 +66,7 @@ namespace Core.Users
             try
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(this.DomainId);
+                oDomainCache.RemoveDomain(GroupId, this.DomainId);
 
                 InvalidateDomainDevice();
             }
@@ -115,7 +115,7 @@ namespace Core.Users
             try
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(this.DomainId);
+                oDomainCache.RemoveDomain(GroupId, this.DomainId);
 
                 InvalidateDomainDevice();
             }
@@ -135,7 +135,7 @@ namespace Core.Users
             try
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(this.DomainId);
+                oDomainCache.RemoveDomain(GroupId, this.DomainId);
 
                 InvalidateDomainDevice();
             }
@@ -155,7 +155,7 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
             {
-                LayeredCacheKeys.GetDomainDeviceInvalidationKey(DomainId, DeviceId.ToString())
+                LayeredCacheKeys.GetDomainDeviceInvalidationKey(GroupId, DomainId, DeviceId.ToString())
             };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);

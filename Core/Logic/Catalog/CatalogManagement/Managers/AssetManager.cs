@@ -102,10 +102,10 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        public static bool InvalidateAsset(eAssetTypes assetType, long assetId, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
+        public static bool InvalidateAsset(eAssetTypes assetType, int groupId, long assetId, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
         {
             bool result = true;
-            string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType.ToString(), assetId);
+            string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(groupId, assetType.ToString(), assetId);
             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
             {
                 result = false;
@@ -122,7 +122,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (DataRow dr in dt.Rows)
                 {
-                    InvalidateAsset(eAssetTypes.MEDIA, ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID"));
+                    InvalidateAsset(eAssetTypes.MEDIA, groupId, ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID"));
                 }
             }
         }
@@ -768,10 +768,12 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
+                    int index = 0;
                     // insert default language values into tagsXml
                     foreach (string tagValue in tag.m_lValues)
                     {
-                        AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, tagValue);
+                        index++;
+                        AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, tagValue, index);
                     }
                 }
             }
@@ -867,7 +869,7 @@ namespace Core.Catalog.CatalogManagement
                 eAssetTypes assetType = eAssetTypes.MEDIA;
                 Dictionary<string, MediaAsset> mediaAssetMap = null;
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), ids);
-                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), ids);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(groupId, assetType.ToString(), ids);
 
                 if (!LayeredCache.Instance.GetValues<MediaAsset>(keyToOriginalValueMap, ref mediaAssetMap, GetMediaAssets, new Dictionary<string, object>()
                                                               { { "groupId", groupId }, { "ids", ids }, { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets } },
@@ -1110,7 +1112,7 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int languageId, string value)
+        private static void AddTopicLanguageValueToXml(XmlDocument metasXmlDoc, XmlNode rootNode, long topicId, int languageId, string value, int order = 0)
         {
             if (value != null)
             {
@@ -1118,6 +1120,8 @@ namespace Core.Catalog.CatalogManagement
                 XmlNode topicIdNode;
                 XmlNode languageIdNode;
                 XmlNode valueNode;
+                XmlNode orderNode;
+
                 rowNode = metasXmlDoc.CreateElement("row");
                 topicIdNode = metasXmlDoc.CreateElement("topic_id");
                 topicIdNode.InnerText = topicId.ToString();
@@ -1128,6 +1132,9 @@ namespace Core.Catalog.CatalogManagement
                 valueNode = metasXmlDoc.CreateElement("value");
                 valueNode.InnerText = value;
                 rowNode.AppendChild(valueNode);
+                orderNode = metasXmlDoc.CreateElement("order");
+                orderNode.InnerText = order.ToString();
+                rowNode.AppendChild(orderNode);
                 rootNode.AppendChild(rowNode);
             }
         }
@@ -3185,6 +3192,12 @@ namespace Core.Catalog.CatalogManagement
                         if (assetToAdd is EpgAsset)
                         {
                             result = EpgAssetManager.AddEpgAsset(groupId, (assetToAdd as EpgAsset), userId, catalogGroupCache);
+                            if (!isFromIngest && result.HasObject())
+                            {
+                                var epgAssetEvent = result.Object.ToAssetEvent(groupId, userId);
+                                epgAssetEvent.Insert();
+
+                            }
                         }
                         break;
                     case eAssetTypes.NPVR:
@@ -3251,6 +3264,13 @@ namespace Core.Catalog.CatalogManagement
                         {
                             result = EpgAssetManager.UpdateEpgAsset
                                 (groupId, (assetToUpdate as EpgAsset), userId, (oldAsset.Object as EpgAsset), catalogGroupCache);
+
+                            if (!isFromIngest && result.HasObject())
+                            {
+                                var epgAssetEvent = result.Object.ToAssetEvent(groupId, userId);
+                                epgAssetEvent.Update();
+
+                            }
                         }
                         break;
                     case eAssetTypes.NPVR:
@@ -3314,7 +3334,7 @@ namespace Core.Catalog.CatalogManagement
                 if (!isFromIngest && result.IsOkStatusCode())
                 {
                     // invalidate asset
-                    InvalidateAsset(assetToUpdate.AssetType, id);
+                    InvalidateAsset(assetToUpdate.AssetType, groupId, id);
                 }
             }
             catch (Exception ex)
@@ -3343,6 +3363,11 @@ namespace Core.Catalog.CatalogManagement
                 {
                     case eAssetTypes.EPG:
                         result = EpgAssetManager.DeleteEpgAsset(groupId, id, userId);
+                        if (result.IsOkStatusCode())
+                        {
+                            var epgAssetEvent = assets[0].ToAssetEvent(groupId, userId);
+                            epgAssetEvent.Delete();
+                        }
                         break;
                     case eAssetTypes.NPVR:
                         break;
@@ -3357,7 +3382,7 @@ namespace Core.Catalog.CatalogManagement
                 if (result.IsOkStatusCode())
                 {
                     // invalidate asset
-                    InvalidateAsset(assetType, id);
+                    InvalidateAsset(assetType, groupId, id);
                 }
             }
             catch (Exception ex)
@@ -3376,7 +3401,7 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteMediaAsset(groupId, id, userId, true))
                 {
                     result = true;
-                    InvalidateAsset(assetType, id);
+                    InvalidateAsset(assetType, groupId, id);
                 }
                 else
                 {
@@ -3484,7 +3509,7 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         // invalidate asset
-                        InvalidateAsset(eAssetTypes.MEDIA, id);
+                        InvalidateAsset(eAssetTypes.MEDIA, groupId, id);
 
                         //Get updated Asset
                         var assetResponse = AssetManager.GetAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, true);

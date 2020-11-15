@@ -348,10 +348,9 @@ namespace APILogic.Api.Managers
             {
                 string key = LayeredCacheKeys.GetGroupFeaturesKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
-                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<string, Permission>>(key, ref result, BuildGroupFeatures,
+                if (!LayeredCache.Instance.Get<Dictionary<string, Permission>>(key, ref result, BuildGroupFeatures,
                                                                                                                 new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                                                                                 LayeredCacheConfigNames.GET_GROUP_FEATURES,
-                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
                                                                                                                 new List<string>() { invalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetGroupFeatures from LayeredCache, groupId: {0}, key: {1}", groupId, key);

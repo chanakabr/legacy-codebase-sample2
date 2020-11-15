@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj" />
     <ProjectReference Include="..\EventBus.Kafka\EventBus.Kafka.csproj" />
-    <ProjectReference Include="..\EventBus.Models\EventBus.Models.csproj" />
   </ItemGroup>
 
 </Project>

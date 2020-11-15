@@ -72,7 +72,7 @@ namespace Tvinci.Data.Loaders
                     cacheLock.EnterWriteLock();
                     try
                     {
-                        CachingManager.CachingManager.SetCachedData(string.Format("{0}_{1}", keyPrefix, obj.AssetId), obj, duration * 60, System.Runtime.Caching.CacheItemPriority.Default, 0, true);
+                        CachingManager.CachingManager.SetCachedData(string.Format("{0}_{1}", keyPrefix, obj.AssetId), obj, duration * 60, System.Runtime.Caching.CacheItemPriority.Default, 0, false);
                     }
                     finally
                     {
@@ -80,41 +80,6 @@ namespace Tvinci.Data.Loaders
                     }
                 }
             }
-        }
-
-        public BaseResponse GetFailOverResponse(string key)
-        {
-            BaseResponse response = null;
-
-            object cacheObj;
-            cacheLock.EnterReadLock();
-            try
-            {
-                cacheObj = CachingManager.CachingManager.GetCachedData(key);
-            }
-            finally
-            {
-                cacheLock.ExitReadLock();
-            }
-
-            if (cacheObj != null)
-            {
-                response = cacheObj as BaseResponse;
-            }
-            return response;
-        }
-
-        public void InsertFailOverResponse(BaseResponse response, string key)
-        {
-            cacheLock.EnterWriteLock();
-            try
-            {
-                CachingManager.CachingManager.SetCachedData(key, response, 86400, System.Runtime.Caching.CacheItemPriority.Default, 0, true);
-            }
-            finally
-            {
-                cacheLock.ExitWriteLock();
-            } 
         }
     }
 }

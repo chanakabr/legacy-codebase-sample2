@@ -234,19 +234,19 @@ namespace Core.Catalog.Handlers
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
                     foreach (var item in categoriesToRemove)
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(contextData.GroupId, item));
                     }
 
                     if (objectToUpdate.ChildrenIds?.Count > 0)
                     {
                         foreach (var item in objectToUpdate.ChildrenIds)
                         {
-                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item));
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(contextData.GroupId, item));
                         }
                     }
                 }
 
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(objectToUpdate.Id));
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(contextData.GroupId, objectToUpdate.Id));
 
                 response.Object = CategoriesManager.GetCategoryItem(contextData.GroupId, objectToUpdate.Id);
                 response.Status.Set(eResponseStatus.OK);
@@ -289,7 +289,7 @@ namespace Core.Catalog.Handlers
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
                 if (item.ParentId > 0)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(item.ParentId.Value));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(contextData.GroupId, item.ParentId.Value));
                 }
 
                 response.Set(eResponseStatus.OK);
@@ -524,7 +524,7 @@ namespace Core.Catalog.Handlers
                         response.SetStatus(eResponseStatus.Error);
                         return response;
                     }
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(root.ParentId.Value));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(groupId, root.ParentId.Value));
                 }
 
                 response = GetCategoryTree(groupId, newTreeMap[id]);
@@ -783,7 +783,7 @@ namespace Core.Catalog.Handlers
             }
 
             LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(groupId));
-            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(id));
+            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(groupId, id));
 
             return true;
         }
@@ -886,7 +886,7 @@ namespace Core.Catalog.Handlers
                             return status;
                         }
 
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(categoryId));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(groupId, categoryId));
 
                         status.Set(eResponseStatus.OK);
                     }

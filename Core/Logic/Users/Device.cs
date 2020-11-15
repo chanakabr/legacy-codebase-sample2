@@ -622,7 +622,7 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
             {
-                LayeredCacheKeys.GetDomainDeviceInvalidationKey(m_domainID, m_id)
+                LayeredCacheKeys.GetDomainDeviceInvalidationKey(m_groupID, m_domainID, m_id)
             };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);

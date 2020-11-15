@@ -956,27 +956,25 @@ namespace DAL
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spInsert.AddParameter("@recipients", recipients);
-            spInsert.AddParameter("@name", name);
-            spInsert.AddParameter("@message", message);
+            spInsert.AddParameter("@name", name, true);
+            spInsert.AddParameter("@message", message, true);
             spInsert.AddParameter("@start_time", startTime);
             spInsert.AddParameter("@timezone", timezone);
             spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@updater_id", updaterId);
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
-            spInsert.AddParameter("@result_message_id", resultMsgId);
+            spInsert.AddParameter("@result_message_id", resultMsgId, true);
             spInsert.AddParameter("@update_date", DateTime.UtcNow);
-            spInsert.AddParameter("@message_reference", messageReference);
-            spInsert.AddParameter("@image_url", imageUrl);
+            spInsert.AddParameter("@message_reference", messageReference, true);
+            spInsert.AddParameter("@image_url", imageUrl, true);
             if (announcement_id != 0)
                 spInsert.AddParameter("@announcement_id", announcement_id);
             spInsert.AddParameter("@includeMail", includeMail);
-            spInsert.AddParameter("@mailTemplate", mailTemplate);
-            spInsert.AddParameter("@mailSubject", mailSubject);
+            spInsert.AddParameter("@mailTemplate", mailTemplate, true);
+            spInsert.AddParameter("@mailSubject", mailSubject, true);
             spInsert.AddParameter("@includeSMS", includeSMS);
             if (includeIot)
-            {
                 spInsert.AddParameter("@includeIOT", includeIot);
-            }
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
@@ -996,17 +994,17 @@ namespace DAL
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spInsert.AddParameter("@ID", id);
             spInsert.AddParameter("@recipients", recipients);
-            spInsert.AddParameter("@name", name);
-            spInsert.AddParameter("@message", message);
+            spInsert.AddParameter("@name", name, true);
+            spInsert.AddParameter("@message", message, true);
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
             spInsert.AddParameter("@start_time", startTime);
             spInsert.AddParameter("@timezone", timezone);
             spInsert.AddParameter("@updater_id", updaterId);
-            spInsert.AddParameter("@result_message_id", resultMsgId);
-            spInsert.AddParameter("@image_url", imageUrl);
+            spInsert.AddParameter("@result_message_id", resultMsgId, true);
+            spInsert.AddParameter("@image_url", imageUrl, true);
             spInsert.AddParameter("@includeMail", includeMail);
-            spInsert.AddParameter("@mailTemplate", mailTemplate);
-            spInsert.AddParameter("@mailSubject", mailSubject);
+            spInsert.AddParameter("@mailTemplate", mailTemplate, true);
+            spInsert.AddParameter("@mailSubject", mailSubject, true);
             spInsert.AddParameter("@includeIot", includeIot);
             spInsert.AddParameter("@includeSms", includeSms);
 

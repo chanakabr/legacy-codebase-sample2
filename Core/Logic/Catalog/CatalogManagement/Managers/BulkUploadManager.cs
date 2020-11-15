@@ -40,7 +40,7 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<BulkUpload> response = new GenericResponse<BulkUpload>();
             try
             {
-                DataTable dt = CatalogDAL.GetBulkUpload(bulkUploadId);
+                DataTable dt = CatalogDAL.GetBulkUpload(bulkUploadId, groupId);
                 response.Object = CreateBulkUploadFromDataTable(dt, groupId, true);
                 if (response.Object == null)
                 {
@@ -324,6 +324,10 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 string msg = $"An Exception was occurred in ProcessBulkUpload. groupId:{groupId}, userId:{userId}, bulkUploadId:{bulkUpload.Id}.";
+                if (ex is OverlapException)
+                {
+                    msg += ex.Message;
+                }
                 bulkUploadResponse.Object.AddError(eResponseStatus.Error, msg);
                 bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Fatal);
                 log.Error(msg, ex);
@@ -510,7 +514,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 var originalStatus = bulkUploadToUpdate.Status;
                 response.Object = bulkUploadToUpdate;
-
+                response.Object.Status = newStatus;
                 BulkUploadJobStatus updatedStatus;
                 if (!CatalogDAL.SaveBulkUploadStatusAndErrorsCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 {
@@ -692,11 +696,12 @@ namespace Core.Catalog.CatalogManagement
                         log.Error($"UpdateBulkUploadInSqlAndInvalidateKeys > Failed to send notification to consumers, failed to detch updated bulkUpload object.");
                     }
 
-                    if (bulkUpload.JobData is BulkUploadIngestJobData ingestJobData)
-                    {
-                        var locker = new DistributedLock(bulkUpload.GroupId);
-                        locker.Unlock(ingestJobData.LockKeys);
-                    }
+                    // every day of ingest wil gradually unlock now .. so we dont want to unloc the keys if they were started already by another ingest
+                    //if (bulkUpload.JobData is BulkUploadIngestJobData ingestJobData)
+                    //{
+                    //    var locker = new DistributedLock(bulkUpload.GroupId);
+                    //    locker.Unlock(ingestJobData.LockKeys);
+                    //}
                 }
             }
         }

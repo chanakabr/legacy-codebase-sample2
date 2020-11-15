@@ -1,8 +1,10 @@
 ﻿using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.SSOAdapter;
+using AuthenticationGrpcClientWrapper;
 using ConfigurationManager;
 using CouchbaseManager;
+using Google.Protobuf.Collections;
 using KLogMonitor;
 using ODBCWrapper;
 using System;
@@ -10,6 +12,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Tvinci.Core.DAL;
 
 namespace DAL
@@ -553,12 +556,26 @@ namespace DAL
             return nAllowedLogins;
         }
 
-        public static bool UpdateFailCount(int nUserID, int nAdd, bool setLoginDate)
+        public static bool UpdateFailCount(int groupId, int nUserID, int nAdd, bool setLoginDate)
         {
             bool updateRes = false;
             ODBCWrapper.DirectQuery directQuery = null;
             try
             {
+                if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.UserLoginHistory.Value)
+                {
+                    var authClient = AuthenticationClient.GetClientFromTCM();
+                    var isSuccessfulLogin = nAdd == 0;
+                    if (isSuccessfulLogin)
+                    {
+                        return authClient.RecordUserSuccessfulLogin(groupId,nUserID);
+                    }
+                    else
+                    {
+                        return authClient.RecordUserFailedLogin(groupId,nUserID);
+                    }
+                }
+                
                 directQuery = new ODBCWrapper.DirectQuery();
                 directQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
@@ -751,6 +768,7 @@ namespace DAL
         public static int GetUserPasswordFailHistory(string username, int groupId, ref DateTime dNow, ref int failCount, ref DateTime lastFailDate, ref DateTime lastHitDate, ref DateTime passwordUpdateDate)
         {
             int userId = 0;
+
             var sp = new StoredProcedure("Get_LoginFailCount");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@username", username);
@@ -770,6 +788,21 @@ namespace DAL
                     lastFailDate = Utils.GetDateSafeVal(dt.Rows[0], "LAST_FAIL_DATE");
                     lastHitDate = Utils.GetDateSafeVal(dt.Rows[0], "LAST_HIT_DATE");
                     passwordUpdateDate = Utils.GetDateSafeVal(dt.Rows[0], "PASSWORD_UPDATE_DATE");
+                }
+            }
+
+            // in case we are connected to the authentication microservice
+            // we need to overwrite the fail count, last fail date and last hit date.
+            // we cannot remove te call to the origianl SPR because the password update date and userId are not owned by the authentication MS
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.UserLoginHistory.Value)
+            {
+                var authClient = AuthenticationClient.GetClientFromTCM();
+                var failHistory = authClient.GetUserLoginHistory(groupId, userId);
+                if (failHistory != null)
+                {
+                    failCount = failHistory.ConsecutiveFailedLoginCount;
+                    lastFailDate = DateTimeOffset.FromUnixTimeSeconds(failHistory.LastLoginFailureDate).UtcDateTime;
+                    lastHitDate = DateTimeOffset.FromUnixTimeSeconds(failHistory.LastLoginAttemptDate).UtcDateTime;
                 }
             }
 
@@ -1290,7 +1323,7 @@ namespace DAL
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     // in case sent userid doesnt exist
-                    if (ds.Tables.Count == 1)
+                    if (ds.Tables.Count == 1) // looks like, SP returns 2 tables always and this code is never executed
                     {
                         res = DALUserActivationState.UserDoesNotExist;
                     }
@@ -1298,7 +1331,13 @@ namespace DAL
                     {
                         DataTable userDetails = ds.Tables[0];
                         DataTable domainDetails = ds.Tables[1];
-                        if (userDetails != null && userDetails.Rows != null && userDetails.Rows.Count > 0)
+                        var userExist = userDetails != null 
+                            && userDetails.Rows != null 
+                            && userDetails.Rows.Count > 0
+                            // dirty-hack: stored procedure shouldn't return rows when no-user/deleted, but it does return.
+                            // USERNAME is not null column, that's why it's chosen as indicator of user's abscense.
+                            && userDetails.Rows[0]["USERNAME"] != DBNull.Value;
+                        if (userExist)
                         {
                             DataRow dr = userDetails.Rows[0];
                             if (nUserID <= 0)
@@ -1457,7 +1496,7 @@ namespace DAL
         }
 
 
-        public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted,
+        public static bool SaveBasicData(int groupId, int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted,
                                          string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity,
                                          int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
                                          DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount, bool updateUserPassword)
@@ -1506,7 +1545,16 @@ namespace DAL
 
                 if (resetFailCount)
                 {
-                    updateQuery += Parameter.NEW_PARAM("FAIL_COUNT", "=", 0);
+                    if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.UserLoginHistory.Value)
+                    {
+                        var authClient = AuthenticationClient.GetClientFromTCM();
+                        _ = authClient.ResetUserFailedLoginCount(groupId, nUserID);
+                    }
+                    else
+                    {
+                        updateQuery += Parameter.NEW_PARAM("FAIL_COUNT", "=", 0);
+                    }
+
                 }
 
                 if (updateUserPassword)
@@ -2333,6 +2381,27 @@ namespace DAL
 
         public static IEnumerable<SSOAdapter> GetSSOAdapters(int groupId)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                var authClient = AuthenticationClient.GetClientFromTCM();
+                var ssoAdapters = authClient.ListSSOAdapterProfiles(groupId);
+                if (ssoAdapters != null)
+                {
+                    var ssoAdaptersResponse = ssoAdapters.SSOAdapterProfiles.Select(s => new SSOAdapter
+                    {
+                        Id = (int)s.Id,
+                        ExternalIdentifier = s.ExternalId,
+                        AdapterUrl = s.AdapterUrl,
+                        GroupId = groupId,
+                        IsActive = s.IsActive ? 1 : 0,
+                        Name = s.Name,
+                        SharedSecret = s.SharedSecret,
+                        Settings = ConvertSSOConfigDictionaryToListOfSSOParams(s.Id, groupId, s.SSOConfiguration),
+                    });
+                    return ssoAdaptersResponse;
+                }
+            }
+
             var sp = new StoredProcedure("Get_GroupSSOAdapters");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
@@ -2350,6 +2419,20 @@ namespace DAL
                 });
 
             return adaptersList;
+        }
+
+        private static IList<SSOAdapterParam> ConvertSSOConfigDictionaryToListOfSSOParams(long adapterId, int groupId, IDictionary<string, string> ssoConfiguration)
+        {
+            if (ssoConfiguration == null) { return null; }
+            var response = ssoConfiguration.Select(kv => new SSOAdapterParam
+            {
+                AdapterId = (int)adapterId,
+                GroupId = groupId,
+                Key = kv.Key,
+                Value = kv.Value,
+
+            }).ToList();
+            return response;
         }
 
         public static SSOAdapter AddSSOAdapters(SSOAdapter adapterDetails, int updaterId)
@@ -2517,16 +2600,23 @@ namespace DAL
             return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleKey);
         }
 
+        #region Password History
         private static string GetPasswordsHistoryKey(long userId)
         {
             return string.Format("user_passwords_history_{0}", userId);
         }
 
+        private static string GetHashedPasswordHistoryKey(long userId)
+        {
+            return string.Format("user_passwords_history_V2_{0}", userId);
+        }
+
+        // TODO should be removed when all passwords history will be converted to hashed version(BEO-8869)
         public static HashSet<string> GetPasswordsHistory(long userId)
         {
             var key = GetPasswordsHistoryKey(userId);
             return UtilsDal.GetObjectFromCB<HashSet<string>>(eCouchbaseBucket.OTT_APPS, key);
-        }
+        }        
 
         public static bool SavePasswordsHistory(long userId, HashSet<string> passwordsHistory)
         {
@@ -2534,32 +2624,26 @@ namespace DAL
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, passwordsHistory);
         }
 
+        public static bool DeletePasswordsHistory(long userId)
+        {
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, GetPasswordsHistoryKey(userId));
+        }
+
+        public static PasswordHistory GetHashedPasswordHistory(long userId)
+        {
+            return UtilsDal.GetObjectFromCB<PasswordHistory>(eCouchbaseBucket.OTT_APPS, GetHashedPasswordHistoryKey(userId));
+        }
+
+        public static bool SaveHashedPasswordHistory(long userId, PasswordHistory passwordHistory)
+        {
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, GetHashedPasswordHistoryKey(userId), passwordHistory);
+        }
+        #endregion Password History
+
         public static bool DeleteUserRolesToPasswordPolicy(int groupId, Dictionary<long, HashSet<long>> policies)
         {
             var key = GetUserRolesToPasswordPolicyKey(groupId);
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, policies);
-        }
-
-        private static string GetUserLoginInfoKey(int groupId, long userId)
-        {
-            return $"user_login_info_{groupId}_{userId}";
-        }
-
-        public static UserLoginInfo GetUserLoginInfo(int groupId, long userId)
-        {
-            if (userId > 0)
-            {
-                string key = GetUserLoginInfoKey(groupId, userId);
-                return UtilsDal.GetObjectFromCB<UserLoginInfo>(eCouchbaseBucket.OTT_APPS, key);
-            }
-
-            return null;
-        }
-
-        public static bool SaveUserLoginInfo(int groupId, long userId, UserLoginInfo userLoginInfo)
-        {
-            string key = GetUserLoginInfoKey(groupId, userId);
-            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, userLoginInfo);
         }
 
         public static bool RevokePasswordToken(int userId)

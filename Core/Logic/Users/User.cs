@@ -666,7 +666,7 @@ namespace Core.Users
 
                 if (UsersDal.UpsertUserRoleIds(this.GroupId, this.userId, m_oBasicData.RoleIds))
                 {
-                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(this.m_sSiteGUID);
+                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(GroupId, this.m_sSiteGUID);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on DoInsert key = {0}", invalidationKey);
@@ -825,12 +825,7 @@ namespace Core.Users
 
         static protected bool UpdateFailCount(int groupId, int add, int userId, User user, bool setLoginDate = false)
         {
-            if (!UpdateUserPreviousLogin(groupId, userId, user))
-            {
-                log.Error($"Failed to save User {userId} PreviousLogin. group {groupId}");
-            }
-
-            bool updateRes = DAL.UsersDal.UpdateFailCount(userId, add, setLoginDate);
+            bool updateRes = DAL.UsersDal.UpdateFailCount(groupId, userId, add, setLoginDate);
             UsersCache usersCache = UsersCache.Instance();
             usersCache.RemoveUser(userId, groupId);
             return updateRes;
@@ -1114,17 +1109,7 @@ namespace Core.Users
                 if (isUserInitialized && initializedUser.m_oBasicData != null && initializedUser.m_oDynamicData != null && !string.IsNullOrEmpty(initializedUser.m_oBasicData.m_sPassword))
                 {
                     responseStatus = ResponseStatus.OK;
-
-                    bool isPasswordEqual = (password == initializedUser.m_oBasicData.m_sPassword);
-
-                    if (!isPasswordEqual)
-                    {
-                        BaseEncrypter encrypter = Utils.GetBaseImpl(groupId);
-                        if (encrypter != null)
-                        {
-                            isPasswordEqual = (initializedUser.m_oBasicData.m_sPassword == encrypter.Encrypt(password, initializedUser.m_oBasicData.m_sSalt));
-                        }
-                    }
+                    bool isPasswordEqual = IsPasswordEqual(password, initializedUser, groupId, userId);
 
                     GetMaxFailuresCountAndExpiration(defaultMaxFailCount, initializedUser.m_oBasicData.RoleIds, groupId, out int maxFailuresCount, out int maxExpiration);
 
@@ -1143,16 +1128,6 @@ namespace Core.Users
                             else
                             {
                                 UpdateFailCount(groupId, 0, userId, initializedUser, true);
-
-                                if (isSignIn)
-                                {
-                                    var userLoginInfo = UsersDal.GetUserLoginInfo(groupId, userId);
-                                    if (userLoginInfo != null)
-                                    {
-                                        initializedUser.m_oBasicData.FailedLoginCount = userLoginInfo.FailedLoginCount;
-                                        initializedUser.m_oBasicData.LastLoginDate = DateUtils.UtcUnixTimestampSecondsToDateTime(userLoginInfo.LastLoginDate);
-                                    }
-                                }
                             }
                         }
                         else if (maxExpiration > 0 && passwordUpdateDate.AddDays(maxExpiration) < dNow)
@@ -1162,16 +1137,6 @@ namespace Core.Users
                         else
                         {
                             UpdateFailCount(groupId, 0, userId, initializedUser, true);
-
-                            if (isSignIn)
-                            {
-                                var userLoginInfo = UsersDal.GetUserLoginInfo(groupId, userId);
-                                if (userLoginInfo != null)
-                                {
-                                    initializedUser.m_oBasicData.FailedLoginCount = userLoginInfo.FailedLoginCount;
-                                    initializedUser.m_oBasicData.LastLoginDate = DateUtils.UtcUnixTimestampSecondsToDateTime(userLoginInfo.LastLoginDate);
-                                }
-                            }
 
                             user = initializedUser;
                         }
@@ -1198,6 +1163,55 @@ namespace Core.Users
 
             userResponseObject.Initialize(responseStatus, user);
             return userResponseObject;
+        }
+
+        private static bool IsPasswordEqual(string password, User user, int groupId, int userId)
+        {
+            var passwordFromDb = user.m_oBasicData.m_sPassword;
+            var salt = user.m_oBasicData.m_sSalt;
+            BaseEncrypter encrypter = Utils.GetBaseImpl(groupId);
+
+            var encryptionEnabled = encrypter != null;
+            var passwordWasHashed = !salt.IsNullOrEmpty();
+
+            var passwordToCheck = encryptionEnabled && passwordWasHashed
+                ? encrypter.Encrypt(password, salt)
+                : password;
+
+            bool isPasswordEqual = passwordFromDb == passwordToCheck;
+
+            if (isPasswordEqual && encryptionEnabled)
+            {
+                if (!passwordWasHashed) MigratePassword(password, groupId, user);
+
+                MigratePasswordHistory(userId, encrypter);
+            }
+
+            return isPasswordEqual;
+        }
+
+        private static void MigratePassword(string password, int groupId, User initializedUser)
+        {
+            initializedUser.m_oBasicData.SetPassword(password, groupId); // generate salt and encrypt password
+
+            initializedUser.SaveForUpdate(groupId, false, false, true);            
+        }
+
+        private static void MigratePasswordHistory(int userId, BaseEncrypter encrypter)
+        {
+            var passwordsHistory = UsersDal.GetPasswordsHistory(userId);
+            if (passwordsHistory?.Count > 0)
+            {
+                var hashedPasswords = passwordsHistory.Select(p => {
+                    var salt = BaseEncrypter.GetRand64String();
+                    return new Password(encrypter.Encrypt(p, salt), salt);
+                }).ToList();
+                var hashedPasswordHistory = new PasswordHistory(hashedPasswords);
+                if (UsersDal.SaveHashedPasswordHistory(userId, hashedPasswordHistory))
+                {
+                    UsersDal.DeletePasswordsHistory(userId);
+                }
+            }
         }
 
         private static void GetMaxFailuresCountAndExpiration(int defaultMaxFailCount, List<long> roleIds, int groupId, out int maxFailuresCount, out int maxExpiration)
@@ -1285,46 +1299,6 @@ namespace Core.Users
             }
 
             return (resp.m_RespStatus == ResponseStatus.OK);
-        }
-
-        /// <summary>
-        /// Update previous login count and FailCount
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        private static bool UpdateUserPreviousLogin(int groupId, int userId, User user)
-        {
-            try
-            {
-                // 1. Get user data from CB
-                var userCbData = UsersDal.GetUserLoginInfo(groupId, userId);
-                if (userCbData == null)
-                {
-                    userCbData = new UserLoginInfo();
-                }
-
-                // 2. Get user previous login count and FailCount from DB
-                if (user?.m_oBasicData != null)
-                {
-                    userCbData.FailedLoginCount = user.m_oBasicData.FailedLoginCount;
-                    userCbData.LastLoginDate = DateUtils.ToUtcUnixTimestampSeconds(user.m_oBasicData.LastLoginDate);
-
-                    // 3. Save userCbData At CB                    
-                    if (!UsersDal.SaveUserLoginInfo(groupId, userId, userCbData))
-                    {
-                        log.Error($"Error while SaveUserCBData");
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                log.Error($"An Exception was occurred in UpdateUserPreviousLogin. ex: {ex}");
-                return false;
-            }
         }
 
         //backward compatibility - BEO-7137

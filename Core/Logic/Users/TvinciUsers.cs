@@ -542,7 +542,7 @@ namespace Core.Users
 
                         if (UsersDal.UpsertUserRoleIds(m_nGroupID, userId, newUser.m_oBasicData.RoleIds))
                         {
-                            string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
+                            string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, userId.ToString());
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on AddNewUser key = {0}", invalidationKey);
@@ -1127,8 +1127,11 @@ namespace Core.Users
                 response.Object.m_user = null;
                 return response;
             }
-            
-            var validationStatus = PasswordPolicyManager.Instance.ValidatePassword(sPass, nGroupID, long.Parse(userResponseObject.m_user.m_sSiteGUID), userResponseObject.m_user.m_oBasicData.RoleIds);
+
+            var userId = long.Parse(userResponseObject.m_user.m_sSiteGUID);
+            var salt = userResponseObject.m_user.m_oBasicData.m_sSalt;
+            var roleIds = userResponseObject.m_user.m_oBasicData.RoleIds;
+            var validationStatus = PasswordPolicyManager.Instance.ValidatePasswordAndUpdateHistory(sPass, salt, nGroupID, userId, roleIds);
             if (!validationStatus.IsOkStatusCode())
             {
                 response.SetStatus(validationStatus);
@@ -1159,7 +1162,7 @@ namespace Core.Users
                 return response;
             }
             
-            var validationResponse = PasswordPolicyManager.Instance.ValidatePassword(password, m_nGroupID, userId, user.m_oBasicData.RoleIds);
+            var validationResponse = PasswordPolicyManager.Instance.ValidatePasswordAndUpdateHistory(password, user.m_oBasicData.m_sSalt, m_nGroupID, userId, user.m_oBasicData.RoleIds);
             if (!validationResponse.IsOkStatusCode())
             {
                 response.Set(validationResponse);
@@ -1230,20 +1233,20 @@ namespace Core.Users
         {
             var response = new GenericResponse<UserResponseObject>() { Object = new UserResponseObject() };
 
-            var validationResponse = PasswordPolicyManager.Instance.ValidatePassword(password, m_nGroupID, userId, user.m_oBasicData.RoleIds);
-            if (!validationResponse.IsOkStatusCode())
-            {
-                response.SetStatus(validationResponse);
-                response.Object.m_RespStatus = ResponseStatus.PasswordPolicyViolation;
-                return response;
-            }
-
             if (!user.m_oBasicData.SetPassword(password, m_nGroupID))
             {
                 response.Object.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
                 response.Object.m_user = null;
                 return response;
             }
+
+            var validationResponse = PasswordPolicyManager.Instance.ValidatePasswordAndUpdateHistory(password, user.m_oBasicData.m_sSalt, m_nGroupID, userId, user.m_oBasicData.RoleIds);
+            if (!validationResponse.IsOkStatusCode())
+            {
+                response.SetStatus(validationResponse);
+                response.Object.m_RespStatus = ResponseStatus.PasswordPolicyViolation;
+                return response;
+            }            
 
             user.SaveForUpdate(m_nGroupID, false, true, true);
             response.Object.m_user = user;

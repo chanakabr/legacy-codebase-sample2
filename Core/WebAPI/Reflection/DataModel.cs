@@ -364,6 +364,20 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetEvent":
+                    switch(property.Name)
+                    {
+                        case "AssetId":
+                            return "assetId";
+                        case "ExternalId":
+                            return "externalId";
+                        case "Type":
+                            return "type";
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
                 case "KalturaAssetFieldGroupBy":
                     switch(property.Name)
                     {
@@ -1147,6 +1161,16 @@ namespace WebAPI.Reflection
                     break;
                     
                 case "KalturaBusinessModuleCondition":
+                    switch(property.Name)
+                    {
+                        case "BusinessModuleId":
+                            return "businessModuleId";
+                        case "BusinessModuleType":
+                            return "businessModuleType";
+                    }
+                    break;
+                    
+                case "KalturaBusinessModuleDetails":
                     switch(property.Name)
                     {
                         case "BusinessModuleId":
@@ -3987,6 +4011,8 @@ namespace WebAPI.Reflection
                             return "assetId";
                         case "BillingType":
                             return "billingType";
+                        case "BusinessModuleDetails":
+                            return "businessModuleDetails";
                         case "CatalogEndDate":
                             return "catalogEndDate";
                         case "CdnAdapaterProfileId":
@@ -5075,6 +5101,10 @@ namespace WebAPI.Reflection
                             return "adsParam";
                         case "AdsPolicy":
                             return "adsPolicy";
+                        case "BusinessModuleId":
+                            return "businessModuleId";
+                        case "BusinessModuleType":
+                            return "businessModuleType";
                         case "Drm":
                             return "drm";
                         case "Format":
@@ -5425,6 +5455,14 @@ namespace WebAPI.Reflection
                             return "enableStartOver";
                         case "TrickPlayEnabled":
                             return "enableTrickPlay";
+                    }
+                    break;
+                    
+                case "KalturaProgramAssetEvent":
+                    switch(property.Name)
+                    {
+                        case "LiveAssetId":
+                            return "liveAssetId";
                     }
                     break;
                     
