@@ -141,7 +141,8 @@ namespace Core.Catalog.Handlers
                         Type = ObjectVirtualAssetInfoType.Category,
                         Id = currentCategory.Id,
                         Name = objectToUpdate.Name,
-                        UserId = contextData.UserId.Value
+                        UserId = contextData.UserId.Value,
+                        withExtendedTypes = true
                     };
                 }
 
@@ -767,7 +768,8 @@ namespace Core.Catalog.Handlers
             {
                 Type = ObjectVirtualAssetInfoType.Category,
                 Id = id,
-                UserId = userId
+                UserId = userId,
+                withExtendedTypes = true
             };
 
             api.DeleteVirtualAsset(groupId, vai);
