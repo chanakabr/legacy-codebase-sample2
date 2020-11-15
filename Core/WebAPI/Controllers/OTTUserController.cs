@@ -398,6 +398,10 @@ namespace WebAPI.Controllers
         [OldStandardAction("resetPassword")]
         static public bool setPassword(int partnerId, string username, string password)
         {
+            //BEO-BEO-9095
+            throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
+
+            /*
             bool response = false;
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
@@ -425,6 +429,7 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
             return response;
+            */
         }
 
         /// <summary>
