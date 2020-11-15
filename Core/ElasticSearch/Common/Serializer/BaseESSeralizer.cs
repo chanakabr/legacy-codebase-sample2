@@ -1013,7 +1013,8 @@ namespace ElasticSearch.Common
 
             sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\"," +
                 " \"{13}\": \"{6}\", \"{14}\": \"{7}\", \"cache_date\": \"{8}\", \"create_date\": \"{9}\", \"update_date\": \"{10}\"," +
-                "\"search_end_date\": \"{11}\", \"crid\": \"{12}\", \"epg_identifier\" : \"{15}\", \"external_id\": \"{16}\", \"document_id\" : \"{17}\", \"is_auto_fill\" : {18},",
+                "\"search_end_date\": \"{11}\", \"crid\": \"{12}\", \"epg_identifier\" : \"{15}\", \"external_id\": \"{16}\", \"document_id\" : \"{17}\", \"is_auto_fill\" : {18}," +
+                "\"enable_cdvr\" : {19}, \"enable_catchup\" : {20},",
                 oEpg.EpgID, doesGroupUsesTemplates ? oEpg.ParentGroupID : oEpg.GroupID, oEpg.ChannelID, (oEpg.IsActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"),
                 oEpg.EndDate.ToString("yyyyMMddHHmmss"), Common.Utils.ReplaceDocumentReservedCharacters(name, shouldLowerCase),
                 Common.Utils.ReplaceDocumentReservedCharacters(description, shouldLowerCase), /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
@@ -1029,7 +1030,11 @@ namespace ElasticSearch.Common
                 // {17}
                 oEpg.DocumentId,
                 // {18}
-                oEpg.IsAutoFill? 1 : 0
+                oEpg.IsAutoFill? 1 : 0,
+                // {19}
+                oEpg.EnableCDVR,
+                // {20}
+                oEpg.EnableCatchUp
                 );
 
             // Add this field only if it has a value

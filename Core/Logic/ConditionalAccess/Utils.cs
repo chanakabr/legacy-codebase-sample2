@@ -6369,10 +6369,10 @@ namespace Core.ConditionalAccess
                 ksql.AppendFormat("(and {0} = '{1}' ", seriesIdName, seriesId);
 
                 if (seasonNumber > 0)
-                    ksql.AppendFormat("{0} = '{1}'", seasonNumberName, seasonNumber);
+                    ksql.AppendFormat("{0} = '{1}' ", seasonNumberName, seasonNumber);
 
-                ksql.AppendFormat("start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate));
-                ksql.AppendFormat("epg_channel_id = '{0}')", epgChannelId);
+                ksql.AppendFormat("start_date > '{0}' ", TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate));
+                ksql.AppendFormat("epg_channel_id = '{0}' enable_cdvr != '2')", epgChannelId);
 
                 ExtendedSearchRequest request = new ExtendedSearchRequest()
                 {

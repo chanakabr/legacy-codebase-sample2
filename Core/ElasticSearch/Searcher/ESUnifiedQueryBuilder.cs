@@ -32,6 +32,8 @@ namespace ElasticSearch.Searcher
         public const string ASSET_TYPE = "asset_type";
         public const string RECORDING_ID = "recording_id";
         public const string AUTO_FILL_FIELD = "auto_fill";
+        public const string ENABLE_CDVR = "enable_cdvr";
+        public const string ENABLE_CATCHUP = "enable_catchup";
 
         protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
         {

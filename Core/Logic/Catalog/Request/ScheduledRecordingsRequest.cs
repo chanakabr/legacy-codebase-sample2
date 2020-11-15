@@ -266,7 +266,7 @@ namespace Core.Catalog.Request
             UnifiedSearchResponse response = null;
 
             // build the filter query for the search
-            StringBuilder ksql = new StringBuilder("(and (or ");
+            StringBuilder ksql = new StringBuilder("(and enable_cdvr != '2' (or ");
 
             if (series?.Length > 0)
             {

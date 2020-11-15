@@ -135,7 +135,9 @@ namespace Core.Catalog
             "epg_id",
             STATUS,
             "linear_media_id",
-            ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID
+            ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID,
+            ESUnifiedQueryBuilder.ENABLE_CDVR,
+            ESUnifiedQueryBuilder.ENABLE_CATCHUP,
         };
 
         private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()

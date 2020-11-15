@@ -14661,7 +14661,7 @@ namespace Core.ConditionalAccess
                                     {
                                         // check if the epg is series by getting the fields mappings for the epg
                                         Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg);
-                                        if (epgFieldMappings != null && epgFieldMappings.Count > 0)
+                                        if (epgFieldMappings != null && epgFieldMappings.Count > 0 && epgFieldMappings.ContainsKey(Utils.SERIES_ID))
                                         {
                                             long channelId;
                                             if (!long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
@@ -16008,6 +16008,20 @@ namespace Core.ConditionalAccess
                     if (!long.TryParse(Utils.GetStringParamFromExtendedSearchResult(epg, "epg_channel_id"), out epgChannelId))
                     {
                         log.ErrorFormat("failed parsing epgChannelId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seasonNumber);
+                        continue;
+                    }
+
+                    //Get Program
+                    List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
+                    if (epgs == null || epgs.Count == 0)
+                    {
+                        log.Debug($"Failed Getting EPG from Catalog, EpgId: {epgId}");
+                        continue;
+                    }
+
+                    if (epgs[0].ENABLE_CDVR == 0)
+                    {
+                        log.Debug($"EPG not for recording, EpgId: {epgId}");
                         continue;
                     }
 
