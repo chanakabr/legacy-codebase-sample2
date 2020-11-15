@@ -43,6 +43,7 @@ RUN update-ca-certificates && \
     addgroup -g ${GROUP_ID} -S ott-users && \
     adduser -D -S -s /sbin/nologin -G ott-users kaltura -u ${USER_ID} && \
     mkdir -p ${API_LOG_DIR} && chown -R ${USER_ID}:${GROUP_ID} ${API_LOG_DIR} && \
+    apk add --no-cache icu-libs curl less libc6-compat && \
     apk add --no-cache icu-libs curl less && \
     apk add libgdiplus --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 
