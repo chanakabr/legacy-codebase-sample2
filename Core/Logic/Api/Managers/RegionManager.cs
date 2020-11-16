@@ -4,6 +4,7 @@ using CachingProvider.LayeredCache;
 using Core.Api;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
+using Core.GroupManagers;
 using DAL;
 using KLogMonitor;
 using System;
@@ -331,6 +332,15 @@ namespace ApiLogic.Api.Managers
             response.Object = region;
             response.SetStatus(eResponseStatus.OK);
             return response;
+        }
+
+        public static IReadOnlyDictionary<long, List<int>> GetLinearMediaToRegionsMapWhenEnabled(int groupId)
+        {
+            var linearChannelsRegionsMapping = CatalogManager.IsRegionalizationEnabled(groupId)
+                ? GetLinearMediaRegions(groupId)
+                : new Dictionary<long, List<int>>();
+
+            return linearChannelsRegionsMapping;
         }
 
         public static Dictionary<long, List<int>> GetLinearMediaRegions(int groupId)

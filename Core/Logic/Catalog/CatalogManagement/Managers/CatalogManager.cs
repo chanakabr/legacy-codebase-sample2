@@ -8,7 +8,9 @@ using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Catalog.Response;
+using Core.GroupManagers;
 using DAL;
+using GroupsCacheManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using QueueWrapper;
@@ -3124,6 +3126,15 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return new Tuple<Dictionary<long, List<int>>, bool>(result, res);
+        }
+
+        internal static bool IsRegionalizationEnabled(int groupId)
+        {
+            var regionalizationEnabled = GroupSettingsManager.IsOpc(groupId)
+                ? TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache) 
+                    && catalogGroupCache.IsRegionalizationEnabled
+                : GroupsCache.Instance().GetGroup(groupId)?.isRegionalizationEnabled ?? false;
+            return regionalizationEnabled;
         }
 
         internal static List<int> GetRegions(int groupId)

@@ -1,4 +1,5 @@
 ﻿using ApiLogic;
+using ApiLogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
@@ -45,6 +46,7 @@ namespace IngestHandler
         private EpgElasticUpdater _elasticSearchUpdater;
         private List<EpgProgramBulkUploadObject> _allRelevantPrograms;
         private Dictionary<string, EpgCB> _autoFillEpgsCb;
+        private Lazy<IReadOnlyDictionary<long, List<int>>> _linearChannelToRegionsMap;
 
         public BulkUploadIngestHandler()
         {
@@ -173,6 +175,9 @@ namespace IngestHandler
                 _logger.Error(message);
                 throw new Exception(message);
             }
+
+            _linearChannelToRegionsMap = new Lazy<IReadOnlyDictionary<long, List<int>>>(
+                () => RegionManager.GetLinearMediaToRegionsMapWhenEnabled(_eventData.GroupId));
         }
 
         private void ValidateServiceEvent()
@@ -305,6 +310,7 @@ namespace IngestHandler
 
             epgItem.Metas = parsedProg.ParseMetas(langCode, defaultLangCode, bulkUploadResultItem);
             epgItem.Tags = parsedProg.ParseTags(langCode, defaultLangCode, bulkUploadResultItem);
+            epgItem.regions = GetRegions(epgItem.LinearMediaId);
 
             PrepareEpgItemImages(parsedProg.icon, epgItem);
 
@@ -492,9 +498,17 @@ namespace IngestHandler
                 autofillDocs[doc.Key].EnableTrickPlay = 0;
                 autofillDocs[doc.Key].CreateDate = DateTime.UtcNow;
                 autofillDocs[doc.Key].UpdateDate = DateTime.UtcNow;
+                autofillDocs[doc.Key].regions = GetRegions(prog.LinearMediaId);
             }
 
             return autofillDocs;
+        }
+
+        private List<int> GetRegions(long linearMediaId)
+        {
+            return _linearChannelToRegionsMap.Value.TryGetValue(linearMediaId, out var regions)
+                ? regions
+                : null;
         }
     }
 }
