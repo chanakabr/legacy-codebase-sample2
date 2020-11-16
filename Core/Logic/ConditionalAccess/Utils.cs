@@ -1419,15 +1419,11 @@ namespace Core.ConditionalAccess
                         if (string.IsNullOrEmpty(couponCode))
                         {
                             Price lowestPrice = CopyPrice(fullPrice.OriginalPrice);
-                            var campaign = GetValidCampaign(groupId, domainId, fullPrice.OriginalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode);
+                            var recurringCampaignDetails = GetValidCampaign(groupId, domainId, fullPrice.OriginalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode);
 
-                            if (campaign != null)
+                            if (recurringCampaignDetails != null)
                             {
-                                fullPrice.CampaignDetails = new RecurringCampaignDetails()
-                                {
-                                    Id = campaign.Id,
-                                    LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0,
-                                };
+                                fullPrice.CampaignDetails = recurringCampaignDetails;
                             }
                         }
 
@@ -1443,16 +1439,12 @@ namespace Core.ConditionalAccess
                     if (string.IsNullOrEmpty(couponCode) && domainId > 0)
                     {
                         Price lowestPrice = CopyPrice(discountPrice) ?? CopyPrice(fullPrice.FinalPrice);
-                        var campaign = GetValidCampaign(groupId, domainId, fullPrice.FinalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode);
+                        var recurringCampaignDetails = GetValidCampaign(groupId, domainId, fullPrice.FinalPrice, ref lowestPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), countryCode);
 
-                        if (campaign != null)
+                        if (recurringCampaignDetails != null)
                         {
                             fullPrice.FinalPrice = lowestPrice;
-                            fullPrice.CampaignDetails = new RecurringCampaignDetails()
-                            {
-                                Id = campaign.Id,
-                                LeftRecurring = campaign.Promotion.NumberOfRecurring.HasValue ? campaign.Promotion.NumberOfRecurring.Value : 0,
-                            };
+                            fullPrice.CampaignDetails = recurringCampaignDetails;
 
                             CalcPriceAndCampaignRemainderByUnifiedBillingCycle(groupId, subscription, false, domainId, ref fullPrice);
 
@@ -1900,10 +1892,10 @@ namespace Core.ConditionalAccess
             return segmentIds;
         }
 
-        public static ApiObjects.Campaign GetValidCampaign(int groupId, int domainId, Price currentPrice, ref Price lowestPrice, eTransactionType transactionType,
+        public static RecurringCampaignDetails GetValidCampaign(int groupId, int domainId, Price currentPrice, ref Price lowestPrice, eTransactionType transactionType,
             string currencyCode, long businessModuleId, string countryCode)
         {
-            ApiObjects.Campaign campaign = null;
+            RecurringCampaignDetails recurringCampaignDetails = null;
 
             CampaignSearchFilter campaignFilter = new CampaignSearchFilter()
             {
@@ -1933,9 +1925,11 @@ namespace Core.ConditionalAccess
 
                 if (validCampaigns?.Count > 0)
                 {
+                    ApiObjects.Campaign campaign = null;
+
                     var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
                     long userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
-
+                    
                     List<string> allUserIdsInDomain = Domains.Module.GetDomainUserList(contextData.GroupId, (int)contextData.DomainId);
 
                     //get user map
@@ -1952,18 +1946,42 @@ namespace Core.ConditionalAccess
 
                     foreach (var promotedCampaign in validCampaigns)
                     {
+                        string triggerUdid = null;
+
                         var contains = userCampaigns != null && userCampaigns.Campaigns != null && userCampaigns.Campaigns.ContainsKey(promotedCampaign.Id);
 
-                        if (contains && userCampaigns.Campaigns[promotedCampaign.Id].SubscriptionUses.ContainsKey(businessModuleId))
+                        if (contains)
                         {
-                            //Don't allow campaign usage
-                            continue;
+                            if (userCampaigns.Campaigns[promotedCampaign.Id].SubscriptionUses.ContainsKey(businessModuleId)) //Don't allow campaign usage
+                            {
+                                continue;
+                            }
+
+                            if (promotedCampaign.CampaignType == eCampaignType.Trigger && userCampaigns.Campaigns[promotedCampaign.Id].Devices.Count > 0)
+                            {
+                                foreach (var udid in userCampaigns.Campaigns[promotedCampaign.Id].Devices)
+                                {
+                                    if (IsDeviceInDomain(domainResponse.Domain, udid))
+                                    {
+                                        var deviceTriggerCampainsUses = NotificationDal.GetDeviceTriggerCampainsUses(groupId, udid);
+                                        if (deviceTriggerCampainsUses == null || !deviceTriggerCampainsUses.Uses.ContainsKey(promotedCampaign.Id))
+                                        {
+                                            triggerUdid = udid;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (string.IsNullOrEmpty(triggerUdid)) //Don't allow campaign usage
+                                {
+                                    continue;
+                                }
+                            }
                         }
 
                         if (contains || 
                             (promotedCampaign.CampaignType == eCampaignType.Batch && promotedCampaign.EvaluateConditions(scope)))
                         {
-
                             var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(promotedCampaign.Promotion.DiscountModuleId), countryCode, currencyCode);
                             if (discountModule != null)
                             {
@@ -1971,25 +1989,35 @@ namespace Core.ConditionalAccess
 
                                 if (tempPrice != null)
                                 {
+                                    bool isLowest = false;
                                     if (tempPrice.m_dPrice < lowestPrice.m_dPrice)
                                     {
                                         lowestPrice = tempPrice;
-                                        campaign = promotedCampaign;
+                                        isLowest = true;
                                     }
                                     else if (tempPrice.m_dPrice == lowestPrice.m_dPrice)
                                     {
                                         int numberOfRecurring = campaign.Promotion.NumberOfRecurring ?? -1;
                                         int newNumberOfRecurring = promotedCampaign.Promotion.NumberOfRecurring ?? -1;
 
-                                        if (newNumberOfRecurring > numberOfRecurring)
-                                        {
-                                            campaign = promotedCampaign;
-                                        }
-                                        else if (newNumberOfRecurring == numberOfRecurring && promotedCampaign.EndDate > campaign.EndDate)
-                                        {
-                                            campaign = promotedCampaign;
-                                        }
+                                        isLowest = (newNumberOfRecurring > numberOfRecurring) ||
+                                            (newNumberOfRecurring == numberOfRecurring && promotedCampaign.EndDate > campaign.EndDate);
                                     }
+
+                                    if (isLowest)
+                                    {
+                                        campaign = promotedCampaign;
+
+                                        if (recurringCampaignDetails == null)
+                                        {
+                                            recurringCampaignDetails = new RecurringCampaignDetails();
+                                        }
+
+                                        recurringCampaignDetails.Id = campaign.Id;
+                                        recurringCampaignDetails.LeftRecurring = promotedCampaign.Promotion.NumberOfRecurring ?? 0;
+                                        recurringCampaignDetails.Udid = triggerUdid;
+                                    }
+
                                 }
                             }
                         }
@@ -1997,7 +2025,7 @@ namespace Core.ConditionalAccess
                 }
             }
 
-            return campaign;
+            return recurringCampaignDetails;
         }
 
         internal static void GetMultiSubscriptionUsageModule(List<RenewDetails> rsDetails, string userIp, Dictionary<long, Subscription> subscriptions, BaseConditionalAccess cas,

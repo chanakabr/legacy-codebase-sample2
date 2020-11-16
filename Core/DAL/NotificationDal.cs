@@ -1988,6 +1988,33 @@ namespace DAL
             return campaignInboxMessageMap ?? new CampaignInboxMessageMap();
         }
 
+        public static DeviceTriggerCampaignsUses GetDeviceTriggerCampainsUses(int groupId, string udid)
+        {
+            string key = $"device_campaign_uses_{groupId}_{udid}";
+            DeviceTriggerCampaignsUses deviceTriggerCampaignsUses = cbManager.Get<DeviceTriggerCampaignsUses>(key);
+
+            return deviceTriggerCampaignsUses;
+        }
+
+        public static bool SaveToDeviceTriggerCampaignsUses(int groupId, string udid, long campaignId, long utcNow)
+        {
+            string key = $"device_campaign_uses_{groupId}_{udid}";
+            var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<DeviceTriggerCampaignsUses>(60*24*365, eCouchbaseBucket.NOTIFICATION, key, mapping =>
+            {
+                if (string.IsNullOrEmpty(mapping.Udid))
+                {
+                    mapping.Udid = udid;
+                }
+
+                if (!mapping.Uses.ContainsKey(campaignId))
+                {
+                    mapping.Uses.Add(campaignId, utcNow);
+                }
+            }, true);
+
+            return isSaveSuccess;
+        }
+
         public static List<string> GetSystemInboxMessagesView(int groupId, long fromDate)
         {
             List<string> messageIds = null;

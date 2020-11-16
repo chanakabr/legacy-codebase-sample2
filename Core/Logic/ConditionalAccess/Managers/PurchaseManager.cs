@@ -1398,18 +1398,31 @@ namespace Core.ConditionalAccess
                                     if (fullPrice.CampaignDetails != null && fullPrice.CampaignDetails.Id > 0)
                                     {
                                         //Update campaign message details
-                                        int.TryParse(userId, out int _userId);
+                                        var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
+                                        long _userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
+
                                         var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, _userId);
 
                                         if (userCampaigns.Campaigns.ContainsKey(fullPrice.CampaignDetails.Id))
                                         {
                                             var campaignDetails = userCampaigns.Campaigns[fullPrice.CampaignDetails.Id];
-                                            campaignDetails.SubscriptionUses.Add(productId, DateUtils.GetUtcUnixTimestampNow());
+                                            long now = DateUtils.GetUtcUnixTimestampNow();
+                                            campaignDetails.SubscriptionUses.Add(productId, now);
                                             
                                             if (!DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(fullPrice.CampaignDetails.Id, contextData.GroupId, _userId, campaignDetails))
                                             {
                                                 log.Error($"Failed InsertCampaignUsage with campaign: {fullPrice.CampaignDetails.Id}, " +
                                                     $"hh: {householdId}, group: {contextData.GroupId}");
+                                            }
+
+                                            if (!string.IsNullOrEmpty(fullPrice.CampaignDetails.Udid))
+                                            {
+                                                //ANTI FRAUD BEO-8610
+                                                if (!DAL.NotificationDal.SaveToDeviceTriggerCampaignsUses(contextData.GroupId, fullPrice.CampaignDetails.Udid, fullPrice.CampaignDetails.Id, now))
+                                                {
+                                                    log.Error($"Failed SaveToDeviceTriggerCampaignsUses with campaign: {fullPrice.CampaignDetails.Id}, " +
+                                                        $"hh: {householdId}, group: {contextData.GroupId}, udid: {fullPrice.CampaignDetails.Udid}");
+                                                }
                                             }
                                         }
                                         else

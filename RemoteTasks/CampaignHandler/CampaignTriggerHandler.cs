@@ -6,6 +6,7 @@ using EventBus.Abstraction;
 using KLogMonitor;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -64,16 +65,44 @@ namespace CampaignHandler
 
                 foreach (var _triggerCampaign in triggerCampaigns.Objects)
                 {
-                    var isExists = existingCampaigns?.Campaigns?.ContainsKey(_triggerCampaign.Id);
+                    //BEO-8610
+                    var deviceTriggerCampaignsUses = DAL.NotificationDal.GetDeviceTriggerCampainsUses(serviceEvent.GroupId, serviceEvent.EventObject.Udid);
+                    var isExists = deviceTriggerCampaignsUses?.Uses?.ContainsKey(_triggerCampaign.Id);
                     if (isExists.HasValue && isExists.Value)
+                    {
                         continue;
+                    }
+
+                    isExists = existingCampaigns?.Campaigns?.ContainsKey(_triggerCampaign.Id);
+                    if (isExists.HasValue && isExists.Value)
+                    {
+                        if (!existingCampaigns.Campaigns[_triggerCampaign.Id].Devices.Contains(serviceEvent.EventObject.Udid))
+                        {
+                            var campaignDetails = existingCampaigns.Campaigns[_triggerCampaign.Id];
+
+                            if (campaignDetails.Devices == null)
+                            {
+                                campaignDetails.Devices = new List<string>();
+                            }
+
+                            campaignDetails.Devices.Add(serviceEvent.EventObject.Udid);
+
+                            if (!DAL.NotificationDal.SaveToCampaignInboxMessageMapCB(_triggerCampaign.Id, contextData.GroupId, master, campaignDetails))
+                            {
+                                _Logger.Error($"Failed SaveToCampaignInboxMessageMapCB with campaign: {_triggerCampaign.Id}, " +
+                                    $"hh: {serviceEvent.DomainId}, group: {contextData.GroupId}");
+                            }
+                        }
+
+                        continue;
+                    }   
 
                     Parallel.ForEach(domain.m_masterGUIDs, user =>
                     {
                         var _contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = user };
                         if (_triggerCampaign.EvaluateTriggerConditions(serviceEvent.EventObject, _contextData))
                         {
-                            Core.Notification.MessageInboxManger.AddCampaignMessage(_triggerCampaign, serviceEvent.GroupId, user);
+                            Core.Notification.MessageInboxManger.AddCampaignMessage(_triggerCampaign, serviceEvent.GroupId, user, serviceEvent.EventObject.Udid);
                         }
                     });
                 }

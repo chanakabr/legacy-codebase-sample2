@@ -297,12 +297,12 @@ namespace Core.Notification
             }
         }
 
-        public static void AddCampaignMessage(Campaign campaign, int groupId, long userId)
+        public static void AddCampaignMessage(Campaign campaign, int groupId, long userId, string udid = null)
         {
-            AddCampaignMessage(campaign.Id, campaign.CampaignType, campaign.Message, campaign.EndDate, groupId, userId);
+            AddCampaignMessage(campaign.Id, campaign.CampaignType, campaign.Message, campaign.EndDate, groupId, userId, null, udid);
         }
 
-        public static void AddCampaignMessage(long campaignId, eCampaignType campaignType, string message, long endDate, int groupId, long userId, long? productId = null)
+        public static void AddCampaignMessage(long campaignId, eCampaignType campaignType, string message, long endDate, int groupId, long userId, long? productId = null, string udid = null)
         {
             var ttl = DateUtils.UtcUnixTimestampSecondsToDateTime(endDate) - DateTime.UtcNow;
             var current = DateUtils.GetUtcUnixTimestampNow();
@@ -333,6 +333,11 @@ namespace Core.Notification
                     ExpiredAt = endDate,
                     Type = campaignType 
                 };
+
+                if (!string.IsNullOrEmpty(udid))
+                {
+                    campaignMessageDetails.Devices.Add(udid);
+                }
 
                 if (productId != null && productId.HasValue)
                 {
