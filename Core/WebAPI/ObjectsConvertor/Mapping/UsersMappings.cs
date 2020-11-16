@@ -362,6 +362,11 @@ namespace ObjectsConvertor.Mapping
             {
                 response.m_nObjecrtID = country.Id;
             }
+            else if (!countryId.HasValue)
+            {
+                return null;
+            }
+
             return response;
         }
 

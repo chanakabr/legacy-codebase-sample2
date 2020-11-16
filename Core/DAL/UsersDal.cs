@@ -1498,7 +1498,7 @@ namespace DAL
 
         public static bool SaveBasicData(int groupId, int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted,
                                          string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity,
-                                         int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
+                                         int? nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
                                          DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount, bool updateUserPassword)
         {
             try
@@ -1533,7 +1533,7 @@ namespace DAL
                     updateQuery += Parameter.NEW_PARAM("COGUID", "=", sCoGuid);
                 }
 
-                if (nCountryID >= 0)
+                if (nCountryID.HasValue && nCountryID >= 0)
                 {
                     updateQuery += Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
                 }
