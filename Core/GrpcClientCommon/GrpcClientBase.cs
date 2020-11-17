@@ -20,7 +20,7 @@ namespace GrpcClientCommon
             _logger.Debug($"initilizing GRPC client for address: [{address}], certFilePath:[{certFilePath}]");
             _certFilePath = certFilePath;
 
-            var useSSL = string.IsNullOrWhiteSpace(certFilePath);
+            var useSSL = !string.IsNullOrWhiteSpace(certFilePath);
             var creds = useSSL ? GetSSLCredentials() : ChannelCredentials.Insecure;
 
             _channel = new Channel(address, creds);

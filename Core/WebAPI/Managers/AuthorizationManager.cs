@@ -38,6 +38,11 @@ namespace WebAPI.Managers
 
         public static KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.RefreshToken.Value)
+            {
+                throw new Exception("This code should not be called, ownership flag of refresh token has been transfered to Authentication Service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.RefreshToken]");
+            }
+
             KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
 
@@ -147,11 +152,29 @@ namespace WebAPI.Managers
             if (group.IsRefreshTokenEnabled)
             {
                 // try store in CB, will return false if the same token already exists
-                if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)), true))
+                uint refreshTokenExpirationSeconds = (uint)(token.RefreshTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
+
+                if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.RefreshToken.Value)
                 {
-                    log.ErrorFormat("GenerateSession: Failed to store refreshed token");
-                    throw new InternalServerErrorException();
+                    var authClient = AuthenticationGrpcClientWrapper.AuthenticationClient.GetClientFromTCM();
+                    var refreshTokenFromAuthMs = authClient.GenerateRefreshToken(token.GroupID, token.KS, refreshTokenExpirationSeconds);
+                    if (refreshTokenFromAuthMs == null)
+                    {
+                        log.ErrorFormat("GenerateSession: Failed to generate refresh token using authentication microservice");
+                        throw new InternalServerErrorException();
+                    }
+
+                    token.RefreshToken = refreshTokenFromAuthMs;
                 }
+                else
+                {
+                    if (!cbManager.Add(tokenKey, token, refreshTokenExpirationSeconds, true))
+                    {
+                        log.ErrorFormat("GenerateSession: Failed to store refreshed token");
+                        throw new InternalServerErrorException();
+                    }
+                }
+
 
                 session.RefreshToken = token.RefreshToken;
             }

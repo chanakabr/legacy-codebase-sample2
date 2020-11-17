@@ -141,8 +141,7 @@ namespace AuthenticationGrpcClientWrapper
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(),
-                    "RecordDeviceFailedLogin"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "RecordDeviceFailedLogin"))
                 {
                     mon.Table = $"udid:{udid}";
                     _Client.RecordDeviceSuccessfulLogin(new RecordDeviceSuccessfulLoginRequest
@@ -158,6 +157,30 @@ namespace AuthenticationGrpcClientWrapper
             {
                 _Logger.Error("Error while calling RecordDeviceFailedLogin Auth GRPC service", e);
                 return false;
+            }
+        }
+
+        public string GenerateRefreshToken(int partnerId, string ks, long expirationSeconds)
+        {
+            try
+            {
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "GenerateRefreshToken"))
+                {
+                    mon.Table = $"ks:{ks}";
+                    var refreshTokenInfo = _Client.GenerateRefreshToken(new GenerateRefreshTokenRequest
+                    {
+                        PartnerId = partnerId,
+                        Ks = ks,
+                        ExpirationSeconds = expirationSeconds,
+                    });
+
+                    return refreshTokenInfo.RefreshToken;
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Error while calling GenerateRefreshToken Auth GRPC service", e);
+                return null;
             }
         }
 
