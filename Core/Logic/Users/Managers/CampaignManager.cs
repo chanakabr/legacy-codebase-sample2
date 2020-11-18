@@ -592,18 +592,38 @@ namespace ApiLogic.Users.Managers
 
         public void PublishTriggerCampaign(int groupId, int domainId, Core.Users.DomainDevice eventObject, ApiService apiService, ApiAction apiAction)
         {
-            var serviceEvent = new Core.Api.Modules.CampaignTriggerEvent()
+            try
             {
-                RequestId = KLogger.GetRequestId(),
-                GroupId = groupId,
-                EventObject = eventObject,
-                DomainId = domainId,
-                ApiAction = (int)apiAction,
-                ApiService = (int)apiService
-            };
+                var filter = new TriggerCampaignFilter()
+                {
+                    Action = apiAction,
+                    IsActiveNow = true,
+                    Service = apiService,
+                    StateEqual = CampaignState.ACTIVE
+                };
+                var contextData = new ContextData(groupId) { DomainId = domainId };
 
-            var publisher = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            publisher.Publish(serviceEvent);
+                var campaings = ListTriggerCampaigns(contextData, filter);
+                if (campaings.HasObjects())
+                {
+                    var serviceEvent = new Core.Api.Modules.CampaignTriggerEvent()
+                    {
+                        RequestId = KLogger.GetRequestId(),
+                        GroupId = groupId,
+                        EventObject = eventObject,
+                        DomainId = domainId,
+                        ApiAction = (int)apiAction,
+                        ApiService = (int)apiService
+                    };
+
+                    var publisher = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    publisher.Publish(serviceEvent);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }            
         }
 
         private List<T> ListCampaignsByType<T>(ContextData contextData, CampaignSearchFilter filter, eCampaignType campaignType) where T : Campaign, new()

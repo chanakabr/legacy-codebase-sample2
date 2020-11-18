@@ -2245,9 +2245,10 @@ namespace Core.Users
             return response;
         }
 
-        internal ApiObjects.Response.Status DeleteDevice(int groupId, string udid)
+        internal ApiObjects.Response.Status DeleteDevice(int groupId, string udid, out long domainId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            domainId = 0;
 
             int deviceId = Device.GetDeviceIDByUDID(udid, groupId);
             if (deviceId == 0)
@@ -2264,6 +2265,7 @@ namespace Core.Users
                 }
                 else
                 {
+                    domainId = deviceDomains[0].m_nDomainID;
                     DomainResponseStatus domainResponseStatus = deviceDomains[0].RemoveDeviceFromDomain(udid, true, deviceId);
                     response = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                     if (response.Code != (int)eResponseStatus.OK)

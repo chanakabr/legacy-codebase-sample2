@@ -42,6 +42,7 @@ namespace DAL
         private const string SP_GET_USER_TYPE = "Get_UserType";
         private const string SP_GET_DEFUALT_GROUP_OPERATOR = "Get_DefaultGroupOperator";
         private const string DELETE_USER = "Delete_User";
+        private const string SSO_ADAPTER_WONERSHIP_ERR_MSG = "This code should not be called, ownership flag of SSOAdapters has been transfered to Authentication Service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles]";
 
         #endregion
 
@@ -568,14 +569,14 @@ namespace DAL
                     var isSuccessfulLogin = nAdd == 0;
                     if (isSuccessfulLogin)
                     {
-                        return authClient.RecordUserSuccessfulLogin(groupId,nUserID);
+                        return authClient.RecordUserSuccessfulLogin(groupId, nUserID);
                     }
                     else
                     {
-                        return authClient.RecordUserFailedLogin(groupId,nUserID);
+                        return authClient.RecordUserFailedLogin(groupId, nUserID);
                     }
                 }
-                
+
                 directQuery = new ODBCWrapper.DirectQuery();
                 directQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
@@ -850,7 +851,7 @@ namespace DAL
 
             if (id == -1)
             {
-                response.SetStatus(ApiObjects.Response.eResponseStatus.AlreadyExist, 
+                response.SetStatus(ApiObjects.Response.eResponseStatus.AlreadyExist,
                     $"Device Reference already exist with name: {coreObject.Name}");
             }
             else if (id > 0)
@@ -1331,8 +1332,8 @@ namespace DAL
                     {
                         DataTable userDetails = ds.Tables[0];
                         DataTable domainDetails = ds.Tables[1];
-                        var userExist = userDetails != null 
-                            && userDetails.Rows != null 
+                        var userExist = userDetails != null
+                            && userDetails.Rows != null
                             && userDetails.Rows.Count > 0
                             // dirty-hack: stored procedure shouldn't return rows when no-user/deleted, but it does return.
                             // USERNAME is not null column, that's why it's chosen as indicator of user's abscense.
@@ -1498,7 +1499,7 @@ namespace DAL
 
         public static bool SaveBasicData(int groupId, int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted,
                                          string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity,
-                                         int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
+                                         int? nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
                                          DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount, bool updateUserPassword)
         {
             try
@@ -1533,7 +1534,7 @@ namespace DAL
                     updateQuery += Parameter.NEW_PARAM("COGUID", "=", sCoGuid);
                 }
 
-                if (nCountryID >= 0)
+                if (nCountryID.HasValue && nCountryID >= 0)
                 {
                     updateQuery += Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
                 }
@@ -2437,6 +2438,12 @@ namespace DAL
 
         public static SSOAdapter AddSSOAdapters(SSOAdapter adapterDetails, int updaterId)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+                throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+            }
+
             var sp = new StoredProcedure("Insert_SSOAdapter");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupId", adapterDetails.GroupId);
@@ -2458,6 +2465,13 @@ namespace DAL
 
         public static SSOAdapter UpdateSSOAdapter(SSOAdapter adapterDetails, int updaterId)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                var msg = "This code should not be called, ownership flag of SSOAdapters has been transfered to Authentication Service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles]";
+                log.Error(msg);
+                throw new Exception(msg);
+            }
+
             var updateAdapterSp = new StoredProcedure("Update_SSOAdapter");
             updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
             updateAdapterSp.AddParameter("@groupId", adapterDetails.GroupId);
@@ -2496,6 +2510,12 @@ namespace DAL
 
         public static bool DeleteSSOAdapter(int ssoAdapterId, int updaterId)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+                throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+            }
+
             var updateAdapterSp = new StoredProcedure("Delete_SSOAdapter");
             updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
             updateAdapterSp.AddParameter("@adapterId", ssoAdapterId);
@@ -2507,6 +2527,12 @@ namespace DAL
 
         public static SSOAdapter SetSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+                throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+            }
+
             var updateAdapterSp = new StoredProcedure("Set_SSOAdapterSecret");
             updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
             updateAdapterSp.AddParameter("@adapterId", ssoAdapterId);
@@ -2520,6 +2546,13 @@ namespace DAL
 
         public static SSOAdapter GetSSOAdapterByExternalId(string ssoAdapterExternalId)
         {
+            // this method is called suring Add\update adapater to verify unique external id
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+                throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+            }
+
             var updateAdapterSp = new StoredProcedure("Get_SSOAdapterByExternalId");
             updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
             updateAdapterSp.AddParameter("@externalId", ssoAdapterExternalId);
@@ -2533,7 +2566,6 @@ namespace DAL
         public static List<long> GetUserIdsByRoleIds(int groupId, HashSet<long> roleIds)
         {
             List<long> userIds = null;
-
             try
             {
                 StoredProcedure sp = new StoredProcedure("GetUserIdsByRoleIds");

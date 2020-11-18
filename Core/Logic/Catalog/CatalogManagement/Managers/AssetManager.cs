@@ -16,6 +16,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Xml;
 using Tvinci.Core.DAL;
 using TVinciShared;
@@ -2842,8 +2843,23 @@ namespace Core.Catalog.CatalogManagement
                 return asset;
             }
 
+            string assetTypeQuery = $"asset_type='{objectVirtualAssetInfo.AssetStructId}'";
+
+            if (virtualAssetInfo.withExtendedTypes && objectVirtualAssetInfo.ExtendedTypes.Count > 0)
+            {
+                StringBuilder assetType = new StringBuilder($"(or {assetTypeQuery}");
+                foreach (var item in objectVirtualAssetInfo.ExtendedTypes.Values)
+                {
+                    assetType.Append($" asset_type='{item}'");
+                }
+
+                assetType.Append(")");
+
+                assetTypeQuery = assetType.ToString();
+            }
+
             // build ElasticSearch filter
-            string filter = $"(and {catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId].SystemName}='{virtualAssetInfo.Id}' asset_type='{objectVirtualAssetInfo.AssetStructId}')";
+            string filter = $"(and {catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId].SystemName}='{virtualAssetInfo.Id}' {assetTypeQuery})";
 
             UnifiedSearchResult[] assets = Core.Catalog.Utils.SearchAssets(groupId, filter, 0, 0, false, false);
 

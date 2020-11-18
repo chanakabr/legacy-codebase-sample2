@@ -2167,9 +2167,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         result.DynamicOrderBy = new KalturaDynamicOrderBy() { OrderBy = metaOrderBy, Name = orderObj.m_sOrderValue };
                         break;
                     }
+                case OrderBy.LIKE_COUNTER:
+                    {
+                        result.orderBy = KalturaChannelOrderBy.LIKES_DESC;   
+                        break;
+                    }
                 case OrderBy.RECOMMENDATION:
                 case OrderBy.RANDOM:
-                case OrderBy.LIKE_COUNTER:
                 case OrderBy.NONE:
                 case OrderBy.ID:
                 default:

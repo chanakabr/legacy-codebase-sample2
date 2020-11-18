@@ -140,5 +140,9 @@ namespace WebAPI.Managers.Models
         /// </summary>
         [JsonProperty("languages")]
         public List<Language> Languages { get; set; }
+
+        [JsonProperty("apptoken_user_validation_disabled")]
+        public bool ApptokenUserValidationDisabled { get; set; }
+
     }
 }

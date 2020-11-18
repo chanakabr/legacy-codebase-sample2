@@ -80,6 +80,8 @@ namespace WebAPI.Managers
                             {
                                 foreach (KalturaPermission permission in role.Permissions)
                                 {
+                                    bool isExcluded = role.ExcludedPermissionNames.Contains(permission.Name);
+
                                     // if the permission is group permission, get the users group list to append later
                                     if (permission is KalturaGroupPermission)
                                     {
@@ -151,7 +153,7 @@ namespace WebAPI.Managers
 
                                         foreach (KeyValuePair<string, bool> pair in keyToExcludeMap)
                                         {
-                                            bool isExcluded = pair.Value;
+                                            isExcluded |= pair.Value;
 
                                             // if the dictionary already contains the action, try to append the role and /or the users group
                                             if (result.ContainsKey(pair.Key))

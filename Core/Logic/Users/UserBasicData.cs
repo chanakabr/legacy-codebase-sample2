@@ -368,46 +368,49 @@ namespace Core.Users
 
             if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sFirstName) && !this.m_sFirstName.Equals(other.m_sFirstName)))
             {
-                this.m_sFirstName = other.m_sFirstName;
+                this.m_sFirstName = other.m_sFirstName == null ? this.m_sFirstName : other.m_sFirstName;
                 isBasicChanged = true;
             }
 
             if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sLastName) && !this.m_sLastName.Equals(other.m_sLastName)))
             {
-                this.m_sLastName = other.m_sLastName;
+                this.m_sLastName = other.m_sLastName == null ? this.m_sLastName : other.m_sLastName;
                 isBasicChanged = true;
             }
 
             if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sCity) && !this.m_sCity.Equals(other.m_sCity)))
             {
-                this.m_sCity = other.m_sCity;
+                this.m_sCity = other.m_sCity == null ? this.m_sCity : other.m_sCity;
                 isBasicChanged = true;
             }
 
             if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sPhone) && !this.m_sPhone.Equals(other.m_sPhone)))
             {
-                this.m_sPhone = other.m_sPhone;
+                this.m_sPhone = other.m_sPhone == null ? this.m_sPhone : other.m_sPhone;
                 isBasicChanged = true;
             }
 
             if (!isSSOMCImplementation || (!string.IsNullOrEmpty(other.m_sZip) && !this.m_sZip.Equals(other.m_sZip)))
             {
-                this.m_sZip = other.m_sZip;
+                this.m_sZip = other.m_sZip == null ? this.m_sZip : other.m_sZip;
                 isBasicChanged = true;
             }
 
             if (!isSSOMCImplementation)
             {
-                this.m_sEmail = other.m_sEmail;
-                this.m_Country = other.m_Country;
-                this.m_sAddress = other.m_sAddress;
-                this.m_State = other.m_State;
-                this.m_sFacebookID = other.m_sFacebookID;
-                this.m_sFacebookImage = other.m_sFacebookImage;
+                this.m_sEmail = other.m_sEmail == null ? this.m_sEmail : other.m_sEmail;
+                this.m_Country = other.m_Country == null ? this.m_Country : other.m_Country;
+                this.m_sAddress = other.m_sAddress == null ? this.m_sAddress : other.m_sAddress;
+                this.m_State = other.m_State == null ? this.m_State : other.m_State;
+                this.m_sFacebookID = other.m_sFacebookID == null ? this.m_sFacebookID : other.m_sFacebookID;
+                this.m_sFacebookImage = other.m_sFacebookImage == null ? this.m_sFacebookImage : other.m_sFacebookImage;
                 this.m_bIsFacebookImagePermitted = other.m_bIsFacebookImagePermitted;
-                this.m_sFacebookToken = other.m_sFacebookToken;
-                this.m_UserType = other.m_UserType;
-                this.m_CoGuid = other.m_CoGuid;
+                this.m_sFacebookToken = other.m_sFacebookToken == null ? this.m_sFacebookToken : other.m_sFacebookToken;
+                this.m_UserType.Description = other.m_UserType.Description == null ? this.m_UserType.Description : other.m_UserType.Description;
+                this.m_CoGuid = other.m_CoGuid == null ? this.m_CoGuid : other.m_CoGuid;
+                this.m_sZip = other.m_sZip == null ? this.m_sZip : other.m_sZip;
+                this.m_sPhone = other.m_sPhone == null ? this.m_sPhone : other.m_sPhone;
+                this.m_sCity = other.m_sCity == null ? this.m_sCity : other.m_sCity;
             }
 
             if (other.RoleIds != null && other.RoleIds.Count > 0)

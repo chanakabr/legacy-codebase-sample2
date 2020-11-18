@@ -25,5 +25,6 @@ namespace ConfigurationManager.Types
         public BaseValue<bool> UserLoginHistory = new BaseValue<bool>("user_login_history", false);
         public BaseValue<bool> DeviceLoginHistory = new BaseValue<bool>("device_login_history", false);
         public BaseValue<bool> SSOAdapterProfiles = new BaseValue<bool>("sso_adapter_profiles", false);
+        public BaseValue<bool> RefreshToken = new BaseValue<bool>("refresh_token", false);
     }
 }

@@ -1283,14 +1283,15 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal bool DeleteDevice(int groupId, string udid)
+        internal bool DeleteDevice(int groupId, string udid, out long domainId)
         {
             ApiObjects.Response.Status response = null;
+            domainId = 0;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.DeleteDevice(groupId, udid);
+                    response = Core.Domains.Module.DeleteDevice(groupId, udid, out domainId);
                 }
             }
             catch (Exception ex)
