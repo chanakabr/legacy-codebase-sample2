@@ -78,7 +78,7 @@ pipeline {
 				bat "dotnet pack Core/TVinciShared/TVinciShared.csproj -o ${WORKSPACE}/nugets/"
 				bat "dotnet pack Core/HealthCheck/HealthCheck.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/RedisManager/RedisManager.csproj -o ${WORKSPACE}/nugets/"
-
+				bat "dotnet pack Core/SessionManager/SessionManager.csproj -o ${WORKSPACE}/nugets/"
             }        
         }
         stage("Publish Nugets"){
@@ -110,6 +110,7 @@ pipeline {
 					bat "nuget push TVinciShared*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
 					bat "nuget push HealthCheck*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
 					bat "nuget push RedisManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
+					bat "nuget push SessionManager*.nupkg -ApiKey Kaltura -Source http://${nuget_server} || exit 0"
                 }
             }
         }

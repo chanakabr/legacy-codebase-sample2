@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
-using ApiLogic.Authorization;
 using ApiLogic.Users.Services;
 using TVinciShared;
 using WebAPI.ClientManagers;
@@ -22,6 +21,8 @@ using WebAPI.Utils;
 using WebAPI.Clients;
 using ApiObjects.User;
 using ApiObjects.Response;
+using SessionManager;
+
 
 namespace WebAPI.Managers
 {
@@ -95,7 +96,7 @@ namespace WebAPI.Managers
 
             // update the sessions data
             var ksData = KSUtils.ExtractKSPayload(token.KsObject);
-            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
+            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, token.AccessTokenExpiration))
             {
                 log.ErrorFormat("RefreshSession: Failed to store updated users sessions, userId = {0}", userId);
                 throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
@@ -141,7 +142,7 @@ namespace WebAPI.Managers
 
             // update the sessions data
             var ksData = KSUtils.ExtractKSPayload(token.KsObject);
-            if (!UpdateUsersSessionsRevocationTime(group, token.UserId, token.Udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
+            if (!UpdateUsersSessionsRevocationTime(group, token.UserId, token.Udid, ksData.CreateDate, token.AccessTokenExpiration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", token.UserId);
                 throw new InternalServerErrorException();
@@ -414,7 +415,7 @@ namespace WebAPI.Managers
 
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
             var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
-            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)sessionDuration))
+            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, sessionDuration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
                 throw new InternalServerErrorException();
@@ -678,7 +679,7 @@ namespace WebAPI.Managers
         {
             Group group = GroupsManager.GetGroup(groupId);
 
-            if (!UpdateUsersSessionsRevocationTime(group, userId, string.Empty, (int)DateUtils.GetUtcUnixTimestampNow(), 0, true))
+            if (!UpdateUsersSessionsRevocationTime(group, userId, string.Empty, DateUtils.GetUtcUnixTimestampNow(), 0, true))
             {
                 log.ErrorFormat("RevokeKs: Failed to store users sessions");
                 throw new InternalServerErrorException();
@@ -777,13 +778,13 @@ namespace WebAPI.Managers
 
         private static string GetUserSessionsKeyFormat(Group group)
         {
-            return SessionManager.GetUserSessionsKeyFormat(group.UserSessionsKeyFormat);
+            return SessionManager.SessionManager.GetUserSessionsKeyFormat(group.UserSessionsKeyFormat);
         }
 
-        private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, int revocationTime, int expiration, bool revokeAll = false)
+        private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, long revocationTime, long expiration, bool revokeAll = false)
         {
 
-            return SessionManager.UpdateUsersSessionsRevocationTime(group.UserSessionsKeyFormat,
+            return SessionManager.SessionManager.UpdateUsersSessionsRevocationTime(group.UserSessionsKeyFormat,
                  group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds, userId, udid, revocationTime,
                  expiration, revokeAll);
 
@@ -846,7 +847,7 @@ namespace WebAPI.Managers
 
                 foreach (string userId in householdUserIds)
                 {
-                    if (!UpdateUsersSessionsRevocationTime(group, userId, udid, (int)utcNow, (int)maxSessionDuration, revokeAll))
+                    if (!UpdateUsersSessionsRevocationTime(group, userId, udid, utcNow, (int)maxSessionDuration, revokeAll))
                     {
                         log.ErrorFormat("RevokeDeviceSessions: Failed to revoke session for userId = {0}, UDID = {1}", userId, revokeAll ? "All" : udid);
                     }

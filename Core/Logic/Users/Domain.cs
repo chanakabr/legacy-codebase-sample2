@@ -20,11 +20,10 @@ using System.Net.Http;
 using System.Reflection;
 using System.Xml.Serialization;
 using ApiLogic.Api.Managers;
-using ApiLogic.Authorization;
 using ApiLogic.Users.Services;
 using Tvinci.Core.DAL;
 using TVinciShared;
-
+using SessionManager;
 
 namespace Core.Users
 {
@@ -2018,7 +2017,7 @@ namespace Core.Users
             if (tryRemoveHouseholdDevice != DomainResponseStatus.OK) return tryRemoveHouseholdDevice;
             foreach (var usersId in m_UsersIDs)
             {
-                SessionManager.UpdateUsersSessionsRevocationTime(string.Empty, 0, 0, usersId.ToString(), udid, (int) DateUtils.GetUtcUnixTimestampNow(), 0);
+                SessionManager.SessionManager.UpdateUsersSessionsRevocationTime(string.Empty, 0, 0, usersId.ToString(), udid, DateUtils.GetUtcUnixTimestampNow(), 0);
             }
 
             return tryRemoveHouseholdDevice;

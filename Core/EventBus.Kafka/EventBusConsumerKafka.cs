@@ -20,14 +20,16 @@ namespace EventBus.Kafka
         private List<string> _Topics = null;
         private Action<string, string> _OnConsume = null;
         private IConsumer<string, string> _ConsumerBuild = null;
+        private bool _ShouldAutoCommit = false;
 
         public EventBusConsumerKafka(string consumerGroupName, List<string> topics, Action<string, string> onConsume)
         {
             var kafkaConfig = new ConsumerConfig();
+            kafkaConfig.GroupId = consumerGroupName;
             kafkaConfig.BootstrapServers = ApplicationConfiguration.Current.KafkaClientConfiguration.BootstrapServers.Value;
             kafkaConfig.SocketTimeoutMs = ApplicationConfiguration.Current.KafkaClientConfiguration.SocketTimeoutMs.Value;
-
-            kafkaConfig.GroupId = consumerGroupName;
+            _ShouldAutoCommit = ApplicationConfiguration.Current.KafkaClientConfiguration.ConsumerAutoCommit.Value;
+            kafkaConfig.EnableAutoCommit = _ShouldAutoCommit;
 
             _Topics = topics;
             _OnConsume = onConsume;
@@ -55,11 +57,30 @@ namespace EventBus.Kafka
                     var topic = consumedMessage.Topic;
 
                     _Logger.Debug($"Consuming message. topic = {topic} partition = {partition} message = {messageValue} key = {messageKey}");
-                    _OnConsume.Invoke(messageKey, messageValue);
+
+                    try
+                    {
+                        _OnConsume.Invoke(messageKey, messageValue);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        _ConsumerBuild.Close();
+                        _Cancelled = true;
+                    }
+                    catch (Exception e)
+                    {
+                        _Logger.Error($"Error when invoking on consume method when consuming message from kafka. ex = {e}", e);
+                    }
+                    finally
+                    {
+                        if (!_Cancelled && !_ShouldAutoCommit)
+                        {
+                            _ConsumerBuild.Commit();
+                        }
+                    }
                 }
                 catch (OperationCanceledException)
                 {
-                    // Ensure the consumer leaves the group cleanly and final offsets are committed.
                     _ConsumerBuild.Close();
                     _Cancelled = true;
                 }

@@ -65,6 +65,7 @@
     <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj" />
     <ProjectReference Include="..\ServiceExtensions\ServiceExtensions.csproj" />
+    <ProjectReference Include="..\SessionManager\SessionManager.csproj" />
     <ProjectReference Include="..\StaticticsBL\StaticticsBL.csproj" />
     <ProjectReference Include="..\StreamingProvider\StreamingProvider.csproj" />
     <ProjectReference Include="..\Synchronizer\Synchronizer.csproj" />

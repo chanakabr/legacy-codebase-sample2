@@ -333,6 +333,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcClientCommon", "..\Core
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticationGrpcClientWrapper", "..\Core\AuthenticationGrpcClientWrapper\AuthenticationGrpcClientWrapper.csproj", "{FC26E5F4-7248-4102-ACEB-81FC8CB1518F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SessionManager", "..\Core\SessionManager\SessionManager.csproj", "{D018A018-A60C-49F8-BC8A-1C20BA5F3D86}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -962,6 +964,16 @@ Global
 		{FC26E5F4-7248-4102-ACEB-81FC8CB1518F}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{FC26E5F4-7248-4102-ACEB-81FC8CB1518F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC26E5F4-7248-4102-ACEB-81FC8CB1518F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D018A018-A60C-49F8-BC8A-1C20BA5F3D86}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{D018A018-A60C-49F8-BC8A-1C20BA5F3D86}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{D018A018-A60C-49F8-BC8A-1C20BA5F3D86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D018A018-A60C-49F8-BC8A-1C20BA5F3D86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D018A018-A60C-49F8-BC8A-1C20BA5F3D86}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{D018A018-A60C-49F8-BC8A-1C20BA5F3D86}.Local|Any CPU.Build.0 = Release|Any CPU
+		{D018A018-A60C-49F8-BC8A-1C20BA5F3D86}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{D018A018-A60C-49F8-BC8A-1C20BA5F3D86}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
+		{D018A018-A60C-49F8-BC8A-1C20BA5F3D86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D018A018-A60C-49F8-BC8A-1C20BA5F3D86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1031,6 +1043,7 @@ Global
 		{A5A1F3AD-2989-44B6-A361-67E8BEF2BC4E} = {6BFFB0D0-FC88-4A56-881B-345E07928B3F}
 		{D589EB4F-DE67-4AA0-A1BB-086882EDADB6} = {D4F0DEB9-8276-4C51-9AA1-335E8BE2E329}
 		{FC26E5F4-7248-4102-ACEB-81FC8CB1518F} = {D4F0DEB9-8276-4C51-9AA1-335E8BE2E329}
+		{D018A018-A60C-49F8-BC8A-1C20BA5F3D86} = {6BFFB0D0-FC88-4A56-881B-345E07928B3F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}

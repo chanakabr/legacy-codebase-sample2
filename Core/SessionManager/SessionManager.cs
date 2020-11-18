@@ -4,10 +4,8 @@ using System.Reflection;
 using System.Text;
 using ConfigurationManager;
 using KLogMonitor;
-using TVinciShared;
 
-
-namespace ApiLogic.Authorization
+namespace SessionManager
 {
     public class SessionManager
     {
@@ -20,19 +18,15 @@ namespace ApiLogic.Authorization
         private const string REVOKED_KS_KEY_FORMAT = "r_ks_{0}";
         private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
 
-
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
         
-
-       
-
         public static bool UpdateUsersSessionsRevocationTime(string groupUserSessionsKeyFormat,
             int groupAppTokenSessionMaxDurationSeconds,
             long groupKSExpirationSeconds,
             string userId, 
             string udid,
-            int revocationTime, 
-            int expiration,
+            long revocationTime, 
+            long expiration,
             bool revokeAll = false)
         {
             if (!string.IsNullOrEmpty(userId) && userId != "0")
@@ -61,9 +55,8 @@ namespace ApiLogic.Authorization
                 {
                     usersSessions.UserRevocation = revocationTime;
 
-                    long now = DateUtils.GetUtcUnixTimestampNow();
-                    usersSessions.expiration = Math.Max(Math.Max(usersSessions.expiration, (int)(now + groupKSExpirationSeconds)), 
-                        (int)now + groupAppTokenSessionMaxDurationSeconds);
+                    long now = Utils.GetUtcUnixTimestampNow();
+                    usersSessions.expiration = Math.Max(Math.Max(usersSessions.expiration, (now + groupKSExpirationSeconds)), now + groupAppTokenSessionMaxDurationSeconds);
                 }
                 else
                 {
@@ -81,7 +74,7 @@ namespace ApiLogic.Authorization
                 }
 
                 // store
-                if (!cbManager.SetWithVersion(userSessionsCbKey, usersSessions, version, (uint)(usersSessions.expiration - DateUtils.GetUtcUnixTimestampNow()), true))
+                if (!cbManager.SetWithVersionWithRetry<UserSessions>(userSessionsCbKey, usersSessions, version, 3, 100, (uint)(usersSessions.expiration - Utils.GetUtcUnixTimestampNow()), true))
                 {
                     log.ErrorFormat("LogOut: failed to set UserSessions in CB, key = {0}", userSessionsCbKey);
                     return false;
@@ -105,6 +98,5 @@ namespace ApiLogic.Authorization
 
             return userSessionsKeyFormat;
         }
-
     }
 }
