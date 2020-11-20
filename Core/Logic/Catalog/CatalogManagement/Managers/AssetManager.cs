@@ -2845,7 +2845,7 @@ namespace Core.Catalog.CatalogManagement
 
             string assetTypeQuery = $"asset_type='{objectVirtualAssetInfo.AssetStructId}'";
 
-            if (virtualAssetInfo.withExtendedTypes && objectVirtualAssetInfo.ExtendedTypes.Count > 0)
+            if (virtualAssetInfo.withExtendedTypes && objectVirtualAssetInfo.ExtendedTypes?.Count > 0)
             {
                 StringBuilder assetType = new StringBuilder($"(or {assetTypeQuery}");
                 foreach (var item in objectVirtualAssetInfo.ExtendedTypes.Values)
