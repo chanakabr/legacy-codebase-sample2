@@ -149,7 +149,7 @@ namespace Core.Users
 
             var userStatus = GetUserActivationState(ref userName, ref siteGuid, ref isGracePeriod);
             var responseStatus = Utils.MapToResponseStatus(userStatus);
-            if (responseStatus != ResponseStatus.OK)
+            if (responseStatus != ResponseStatus.OK && responseStatus != ResponseStatus.UserSuspended)
             {
                 userResponseObject.m_user = responseStatus == ResponseStatus.InternalError || responseStatus == ResponseStatus.UserDoesNotExist
                     ? null
