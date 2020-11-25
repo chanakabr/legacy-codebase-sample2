@@ -466,6 +466,24 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                // Add VirtualAssetInfo for new category 
+                var virtualAssetInfo = new VirtualAssetInfo()
+                {
+                    Type = ObjectVirtualAssetInfoType.Category,
+                    Id = id,
+                    Name = objectToAdd.Name,
+                    UserId = userId
+                };
+
+                var virtualAssetInfoResponse = api.AddVirtualAsset(groupId, virtualAssetInfo, objectToAdd.Type);
+
+                if (virtualAssetInfoResponse.Status == VirtualAssetInfoStatus.Error)
+                {
+                    log.Error($"Error while AddVirtualAsset - categoryId: {id} will delete ");
+                    DeleteCategoryItem(groupId, userId, id, true);
+                    return false;
+                }
+
                 // set child category's order
                 bool invalidateChilds = false;
                 if (objectToAdd.ChildrenIds?.Count > 0)
@@ -479,17 +497,6 @@ namespace Core.Catalog.CatalogManagement
                         invalidateChilds = true;
                     }
                 }
-
-                // Add VirtualAssetInfo for new category 
-                var virtualAssetInfo = new VirtualAssetInfo()
-                {
-                    Type = ObjectVirtualAssetInfoType.Category,
-                    Id = id,
-                    Name = objectToAdd.Name,
-                    UserId = userId
-                };
-
-                api.AddVirtualAsset(groupId, virtualAssetInfo, objectToAdd.Type);
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(groupId));
                 if (invalidateChilds)
@@ -510,6 +517,57 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+        
+        internal static bool DeleteCategoryItem(int groupId, long userId, long id, bool DBOnly = false)
+        {
+            if (!DBOnly)
+            {
+                // Due to atomic action delete virtual asset before category delete
+                // Delete the virtual asset
+                var vai = new VirtualAssetInfo()
+                {
+                    Type = ObjectVirtualAssetInfoType.Category,
+                    Id = id,
+                    UserId = userId
+                };
+
+                var response = api.DeleteVirtualAsset(groupId, vai);
+                if (response.Status == VirtualAssetInfoStatus.Error)
+                {
+                    log.Error($"Error while delete category virtual asset id {vai.ToString()}");
+                    return false;
+                }
+
+                //delete images
+                if (response.Status == VirtualAssetInfoStatus.OK)
+                {
+                    var images = Catalog.CatalogManagement.ImageManager.GetImagesByObject(groupId, id, eAssetImageType.Category);
+                    if (images.HasObjects())
+                    {
+                        foreach (var image in images.Objects)
+                        {
+                            Catalog.CatalogManagement.ImageManager.DeleteImage(groupId, image.Id, userId);
+                        }
+                    }
+                }
+            }
+
+            if (!CatalogDAL.DeleteCategory(groupId, userId, id))
+            {
+                log.Error($"Error while DeleteCategory. id: {id}");
+                return false;
+            }
+
+            if (DBOnly)
+            {
+                return true;
+            }
+            
+            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(groupId));
+            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCategoryIdInvalidationKey(groupId, id));
+
+            return true;
         }
 
         internal static Status HandleNamesInOtherLanguages(int groupId, List<LanguageContainer> namesInOtherLanguages, out List<KeyValuePair<long, string>> languageCodeToName)
