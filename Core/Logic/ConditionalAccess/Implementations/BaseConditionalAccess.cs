@@ -13451,7 +13451,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                //// in case adapterId is the group selected CDVR Adapter  - delete isn’t allowed
+                //// in case adapterId is the group selected CDVR Adapter  - delete isnï¿½t allowed
                 ////-------------------------------------------------------------------------------
                 //object defaultAdapter = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "OSS_ADAPTER", "GROUP_ID", "=", m_nGroupID, "billing_connection");
                 //int cdvrAdapterIdentifier = 0;
@@ -15686,7 +15686,7 @@ namespace Core.ConditionalAccess
             {
                 long epgId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "epg_id");
                 //Check user Entitled for the channel 
-                //Updated definitions for future/scheduled single recordings on channel entitlements revoke – to allow lazy removal
+                //Updated definitions for future/scheduled single recordings on channel entitlements revoke ï¿½ to allow lazy removal
                 List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
                 if (epgs == null || epgs.Count == 0)
                 {

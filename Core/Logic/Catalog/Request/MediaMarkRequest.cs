@@ -2,6 +2,7 @@
 using ApiObjects.Catalog;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
+using ApiObjects.Statistics;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Catalog.Response;
@@ -15,7 +16,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Core.Catalog.Request
 {
@@ -645,15 +648,20 @@ namespace Core.Catalog.Request
         {
             try
             {
-                //ApiDAL.Update_MediaViews(mediaID, mediaFileID);  // -https://kaltura.atlassian.net/browse/BEO-4390
-
                 int parentGroupID = Cache.CatalogCache.Instance().GetParentGroup(groupID);
 
-                if (!ElasticSearch.Utilities.ESStatisticsUtilities.InsertMediaView(parentGroupID, mediaID, mediaTypeID, CatalogLogic.STAT_ACTION_FIRST_PLAY, playTime, true))
+                if (ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseFirstPlayRateManager.Value)
+                {
+                    if (!IncrementFirstPlayInRedis(parentGroupID, mediaID, mediaTypeID))
+                    {
+                        log.Error($"Failed to write firstplay into redis. Req: {ToString()}.");
+                    }
+                }
+                else if (!ElasticSearch.Utilities.ESStatisticsUtilities.InsertMediaView(parentGroupID, mediaID, mediaTypeID, CatalogLogic.STAT_ACTION_FIRST_PLAY, playTime, true))
                 {
                     log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. Req: ", ToString()));
                 }
-
+                
                 int userId = 0;
                 if (int.TryParse(siteGuid, out userId) && userId > 0)
                 {
@@ -690,6 +698,29 @@ namespace Core.Catalog.Request
         private bool IsFirstPlay(int actionId)
         {
             return actionId == 4;
+        }
+
+        private bool IncrementFirstPlayInRedis(int groupId, int mediaId, int mediaTypeId)
+        {
+            TimeSpan tsHour = new TimeSpan(1, 0, 0);
+            var roundedDate = DateTime.UtcNow.Floor(tsHour);
+
+            var firstPlayData = new MediaView()
+            {
+                GroupID = groupId,
+                MediaID = mediaId,
+                MediaType = mediaTypeId.ToString(),
+                Date = roundedDate,
+                count = 1
+            };
+
+            var unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(roundedDate).ToString();
+            string key = $"firstPlayCount_{unixTimestamp}_{firstPlayData.MediaID}";
+            string field = "count";
+            
+            var result = RedisManager.RedisClientManager.Instance.IncrementHashSetField<MediaView>(key, field, firstPlayData, 0, 1);
+
+            return result;
         }
     }
 }
