@@ -1987,15 +1987,25 @@ namespace Core.Users
 
         public static ResponseStatus GetUserActivationState(int groupId, int userId)
         {
-            string notUsed = null;
-            bool notUsedBool = false;
+            ResponseStatus responseStatus = ResponseStatus.InternalError;
+            try
+            {
+                var kalturaUser = new KalturaUsers(groupId);
+                if (kalturaUser == null)
+                {
+                    return responseStatus;
+                }
+                string notUsed = null;
+                bool notUsedBool = false;
 
-            KalturaBaseUsers kalturaUser = null;
-            Utils.GetBaseImpl(ref kalturaUser, groupId);
-            if (kalturaUser == null) return ResponseStatus.InternalError;
+                var userActivationStatus = kalturaUser.GetUserActivationState(ref notUsed, ref userId, ref notUsedBool);
+                responseStatus = Utils.MapToResponseStatus(userActivationStatus);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserActivationState, groupId:{0}, userId:{1} ex:{2}", groupId, userId, ex);
+            }
 
-            var userActivationStatus = kalturaUser.GetUserActivationState(ref notUsed, ref userId, ref notUsedBool);
-            var responseStatus = Utils.MapToResponseStatus(userActivationStatus);
             return responseStatus;
         }
     }
