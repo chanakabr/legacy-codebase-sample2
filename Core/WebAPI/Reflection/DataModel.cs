@@ -9690,6 +9690,7 @@ namespace WebAPI.Reflection
                         case "resetpassword":
                             if(isOldVersion)
                             {
+                                RolesManager.ValidateActionPermitted("ottUser", "resetPassword", false);
                                 return OttUserController.setPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             }
                             return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
@@ -9702,6 +9703,7 @@ namespace WebAPI.Reflection
                             return OttUserController.setInitialPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "setpassword":
+                            RolesManager.ValidateActionPermitted("ottUser", "setPassword", false);
                             return OttUserController.setPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "update":
