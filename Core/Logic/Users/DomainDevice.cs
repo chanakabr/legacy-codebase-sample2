@@ -44,6 +44,8 @@ namespace Core.Users
         public long? ManufacturerId { get; set; }
 
         public string Model { get; set; }
+        
+        public long? LastActivityTime { get; set; }
 
         protected override bool DoInsert()
         {

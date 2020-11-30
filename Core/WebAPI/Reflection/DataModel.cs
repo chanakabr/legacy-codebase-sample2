@@ -3191,6 +3191,8 @@ namespace WebAPI.Reflection
                             return "externalId";
                         case "HouseholdId":
                             return "householdId";
+                        case "LastActivityTime":
+                            return "lastActivityTime";
                         case "MacAddress":
                             return "macAddress";
                         case "Manufacturer":

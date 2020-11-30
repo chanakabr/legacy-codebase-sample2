@@ -31311,6 +31311,16 @@ namespace WebAPI.Models.Domains
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute LastActivityTimeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaHouseholdDevice(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -31475,6 +31485,18 @@ namespace WebAPI.Models.Domains
                         ManufacturerIdSchemaProperty.Validate("manufacturerId", parameters["manufacturerId"]);
                     }
                     ManufacturerId = (Int64) Convert.ChangeType(parameters["manufacturerId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("lastActivityTime__null") && parameters["lastActivityTime__null"] != null)
+                {
+                    AddNullableProperty("lastActivityTime");
+                }
+                if (parameters.ContainsKey("lastActivityTime") && parameters["lastActivityTime"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        LastActivityTimeSchemaProperty.Validate("lastActivityTime", parameters["lastActivityTime"]);
+                    }
+                    LastActivityTime = (Int64) Convert.ChangeType(parameters["lastActivityTime"], typeof(Int64));
                 }
             }
         }

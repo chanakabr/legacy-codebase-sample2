@@ -20,6 +20,9 @@ namespace ApiLogic.Users.Services
     {
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        private static readonly Lazy<DeviceRemovalPolicyHandler> lazy = new Lazy<DeviceRemovalPolicyHandler>(() => new DeviceRemovalPolicyHandler());
+        public static DeviceRemovalPolicyHandler Instance { get { return lazy.Value; } }
+
         public string GetDeviceRemovalCandidate(int groupId, RollingDevicePolicy rollingDeviceRemovalPolicy,
             List<int> rollingDeviceRemovalFamilyIds,
             List<DeviceContainer> deviceFamilies)
@@ -123,28 +126,32 @@ namespace ApiLogic.Users.Services
         }
 
 
+        public long? GetUdidLastActivity(int groupId, string UDID, int userId)
+        {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
+            {
+                var authClient = AuthenticationClient.GetClientFromTCM();
+                var l = authClient.GetUserLoginHistory(groupId, userId);
+                return l?.LastLoginSuccessDate;
+            }
+            else
+            {
+                var key = GetDomainDeviceUsageDateKey(UDID);
+                var deviceLoginTime = UtilsDal.GetObjectFromCB<long?>(GetCouchbaseBucket(), key, true);
+                if (!deviceLoginTime.HasValue)
+                {
+                    _logger.Debug($"Could not fetch device ([{UDID}]) login record groupId:[{groupId}]]");
+                    return null;
+                }
+                return deviceLoginTime.Value;
+            }
+        }
+
         public void SaveDomainDeviceUsageDate(string UDID, int groupId)
         {
-            if (!PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId).HasObjects())
-                return;
-
-            var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId).Objects.FirstOrDefault();
-
-            if (generalPartnerConfig?.RollingDeviceRemovalData.RollingDeviceRemovalPolicy == null ||
-                generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds.Count <= 0)
-                return;
-
-            if (generalPartnerConfig?.RollingDeviceRemovalData.RollingDeviceRemovalPolicy != RollingDevicePolicy.ACTIVE_DEVICE_ASCENDING)
-                return;
-
-
-            var tryParse = Enum.TryParse(ApplicationConfiguration.Current.UdidUsageConfiguration.BucketName.Value,
-                true,
-                out eCouchbaseBucket couchbaseBucket);
-
-            if (!tryParse)
+            if (string.IsNullOrEmpty(UDID))
             {
-                couchbaseBucket = eCouchbaseBucket.OTT_APPS;
+                return;
             }
 
             if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
@@ -154,12 +161,38 @@ namespace ApiLogic.Users.Services
             }
             else
             {
-                UtilsDal.SaveObjectInCB<long>(couchbaseBucket,
+                UtilsDal.SaveObjectInCB<long>(GetCouchbaseBucket(),
                     GetDomainDeviceUsageDateKey(UDID),
                     DateUtils.GetUtcUnixTimestampNow(),
                     true,
                     ApplicationConfiguration.Current.UdidUsageConfiguration.TTL.Value);
             }
+        }
+
+        public void DeleteDomainDeviceUsageDate(string UDID, int groupId)
+        {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
+            {
+                _logger.Debug($"Not supported action [Delete] of udid: {UDID}, group: {groupId}");
+            }
+            else
+            {
+                UtilsDal.DeleteObjectFromCB(GetCouchbaseBucket(), GetDomainDeviceUsageDateKey(UDID));
+            }
+        }
+
+        private eCouchbaseBucket GetCouchbaseBucket()
+        {
+            var tryParse = Enum.TryParse(ApplicationConfiguration.Current.UdidUsageConfiguration.BucketName.Value,
+                true,
+                out eCouchbaseBucket couchbaseBucket);
+
+            if (!tryParse)
+            {
+                couchbaseBucket = eCouchbaseBucket.OTT_APPS;
+            }
+
+            return couchbaseBucket;
         }
 
         private static string GetDomainDeviceUsageDateKey(string udid)

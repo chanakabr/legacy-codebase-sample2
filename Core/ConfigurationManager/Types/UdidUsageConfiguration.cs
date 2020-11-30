@@ -9,10 +9,8 @@ namespace ConfigurationManager.Types
         public override string TcmKey => TcmObjectKeys.UdidUsageConfiguration;
         public override string[] TcmPath => new string[] { TcmKey };
 
-        public BaseValue<uint> TTL = new BaseValue<uint>("ttl_seconds", 2592000 /*30 days*/);
+        public BaseValue<uint> TTL = new BaseValue<uint>("ttl_seconds", 157680000 /*5 years*/);
 
         public BaseValue<string> BucketName = new BaseValue<string>("bucket_name", "OTT_Apps");
-
-        
     }
 }

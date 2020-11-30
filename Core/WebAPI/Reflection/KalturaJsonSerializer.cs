@@ -39049,6 +39049,10 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("householdId", "\"householdId\": " + HouseholdId);
             }
+            if(LastActivityTime.HasValue && (retrievedProperties == null || retrievedProperties.Contains("lastActivityTime")))
+            {
+                ret.Add("lastActivityTime", "\"lastActivityTime\": " + LastActivityTime);
+            }
             if(MacAddress != null && (retrievedProperties == null || retrievedProperties.Contains("macAddress")))
             {
                 ret.Add("macAddress", "\"macAddress\": " + "\"" + EscapeJson(MacAddress) + "\"");
@@ -39131,6 +39135,10 @@ namespace WebAPI.Models.Domains
             if((retrievedProperties == null || retrievedProperties.Contains("householdId")))
             {
                 ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
+            }
+            if(LastActivityTime.HasValue && (retrievedProperties == null || retrievedProperties.Contains("lastActivityTime")))
+            {
+                ret.Add("lastActivityTime", "<lastActivityTime>" + LastActivityTime + "</lastActivityTime>");
             }
             if(MacAddress != null && (retrievedProperties == null || retrievedProperties.Contains("macAddress")))
             {

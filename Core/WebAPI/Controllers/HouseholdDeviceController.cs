@@ -1,4 +1,5 @@
-﻿using ApiObjects.Base;
+﻿using ApiLogic.Users.Services;
+using ApiObjects.Base;
 using ApiObjects.Response;
 using System;
 using System.Linq;
@@ -50,6 +51,7 @@ namespace WebAPI.Controllers
                     res = ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)householdId, udid);
                 }
 
+                DeviceRemovalPolicyHandler.Instance.DeleteDomainDeviceUsageDate(udid, groupId);
                 AuthorizationManager.RevokeHouseholdSessions(groupId, udid, null, domainId);
             }
             catch (ClientException ex)

@@ -34,6 +34,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))
                 .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.m_deviceFamilyID))
+                .ForMember(dest => dest.LastActivityTime, opt => opt.MapFrom(src => src.LastActivityTime))
                 ;
 
             cfg.CreateMap<Device, KalturaDevice>()
@@ -126,6 +127,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Model, opt => opt.MapFrom(src => src.Model))
                 .ForMember(dest => dest.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))
                 .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
+                .ForMember(dest => dest.LastActivityTime, opt => opt.MapFrom(src => src.LastActivityTime))
             ;
 
             cfg.CreateMap<KalturaHouseholdDevice, DomainDevice>()
@@ -136,7 +138,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.ActivatedOn ?? 0)))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
-                .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress));
+                .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
+                .ForMember(dest => dest.LastActivityTime, opt => opt.MapFrom(src => src.LastActivityTime))
+                ;
 
             //CouponWallet, KalturaHouseholdCoupon
             cfg.CreateMap<ApiObjects.Pricing.CouponWallet, KalturaHouseholdCoupon>()

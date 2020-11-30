@@ -357,6 +357,7 @@ namespace WebAPI.Managers
                     }
                 }
             }
+
             UsersClient usersClient = ClientsManager.UsersClient();
 
             if (!group.ApptokenUserValidationDisabled)
@@ -427,7 +428,10 @@ namespace WebAPI.Managers
             //11. update last login date
             usersClient.UpdateLastLoginDate(groupId, userId);
 
-            // 12. build the response from the ks:
+            //12. update udid last activity
+            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid, groupId);
+
+            // 13. build the response from the ks:
             response = new KalturaSessionInfo(ks);
 
             return response;
@@ -783,11 +787,9 @@ namespace WebAPI.Managers
 
         private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, long revocationTime, long expiration, bool revokeAll = false)
         {
-
             return SessionManager.SessionManager.UpdateUsersSessionsRevocationTime(group.UserSessionsKeyFormat,
                  group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds, userId, udid, revocationTime,
                  expiration, revokeAll);
-
         }
 
         internal static void RemoveUserSessions(Group group, string userId)

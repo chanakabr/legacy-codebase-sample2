@@ -53,6 +53,8 @@ namespace Core.Users
         public string MacAddress;
 
         public string Model;
+        
+        public long? LastActivityTime;
 
         public string Manufacturer { get; set; }
 
