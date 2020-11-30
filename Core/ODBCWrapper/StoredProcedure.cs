@@ -61,7 +61,12 @@ namespace ODBCWrapper
             }
         }
 
-        public void AddParameter(string key, object value, bool isUnicode = false)
+        public void AddParameter(string key, object value)
+        {
+            AddParameter(key, value, false);
+        }
+
+        public void AddParameter(string key, object value, bool isUnicode)
         {
             if (value == null)
             {
