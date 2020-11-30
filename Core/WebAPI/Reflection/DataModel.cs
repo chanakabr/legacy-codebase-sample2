@@ -1993,6 +1993,8 @@ namespace WebAPI.Reflection
                     {
                         case "CouponCode":
                             return "couponCode";
+                        case "EndlessCoupon":
+                            return "endlessCoupon";
                     }
                     break;
                     

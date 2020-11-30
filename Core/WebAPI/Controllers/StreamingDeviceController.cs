@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Response;
+using KLogMonitor;
 using System;
 using System.Reflection;
 using WebAPI.Exceptions;
@@ -18,11 +19,11 @@ namespace WebAPI.Controllers
         /// Lists of devices that are streaming at that moment 
         /// </summary>
         /// <param name="filter">Segmentation type filter - basically empty</param>
-        /// <param name="pager">Simple pager</param>
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         static public KalturaStreamingDeviceListResponse List(KalturaStreamingDeviceFilter filter = null)
         {
             KalturaStreamingDeviceListResponse response = null;
@@ -30,12 +31,18 @@ namespace WebAPI.Controllers
             if (filter == null)
             {
                 filter = new KalturaStreamingDeviceFilter();
-            }            
+            }
 
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // check if the user performing the action is domain master
+                if (householdId == 0)
+                {
+                    throw new ClientException((int)eResponseStatus.UserWithNoDomain, "This user is not associated with any household.");
+                }
 
                 if (householdId > 0)
                 {
@@ -49,6 +56,6 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }        
+        }
     }
 }

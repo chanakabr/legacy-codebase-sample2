@@ -1647,6 +1647,10 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("couponCode", "\"couponCode\": " + "\"" + EscapeJson(CouponCode) + "\"");
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("endlessCoupon")))
+            {
+                ret.Add("endlessCoupon", "\"endlessCoupon\": " + EndlessCoupon.ToString().ToLower());
+            }
             return ret;
         }
         
@@ -1664,6 +1668,10 @@ namespace WebAPI.Models.ConditionalAccess
             if(CouponCode != null && (retrievedProperties == null || retrievedProperties.Contains("couponCode")))
             {
                 ret.Add("couponCode", "<couponCode>" + EscapeXml(CouponCode) + "</couponCode>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("endlessCoupon")))
+            {
+                ret.Add("endlessCoupon", "<endlessCoupon>" + EndlessCoupon.ToString().ToLower() + "</endlessCoupon>");
             }
             return ret;
         }
