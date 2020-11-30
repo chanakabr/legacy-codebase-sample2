@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using ConfigurationManager;
 using KLogMonitor;
+using System.Linq;
 
 namespace SessionManager
 {
@@ -32,6 +33,7 @@ namespace SessionManager
             if (!string.IsNullOrEmpty(userId) && userId != "0")
             {
                 string userSessionsKeyFormat = GetUserSessionsKeyFormat(groupUserSessionsKeyFormat);
+                long now = Utils.GetUtcUnixTimestampNow();
 
                 // get user sessions from CB
                 string userSessionsCbKey = string.Format(userSessionsKeyFormat, userId);
@@ -47,6 +49,13 @@ namespace SessionManager
                         UserId = userId,
                     };
                 }
+                else if (usersSessions.UserWithUdidRevocations.Count > 0)
+                {
+                    // cleanup expired udids   
+                    usersSessions.UserWithUdidRevocations = usersSessions.UserWithUdidRevocations
+                        .Where(udidRevocation => now < Math.Max(udidRevocation.Value + groupKSExpirationSeconds, udidRevocation.Value + groupAppTokenSessionMaxDurationSeconds))
+                        .ToDictionary(x => x.Key, x => x.Value);
+                }
 
                 // calculate new expiration
                 usersSessions.expiration = Math.Max(usersSessions.expiration, expiration);
@@ -54,8 +63,6 @@ namespace SessionManager
                 if (revokeAll)
                 {
                     usersSessions.UserRevocation = revocationTime;
-
-                    long now = Utils.GetUtcUnixTimestampNow();
                     usersSessions.expiration = Math.Max(Math.Max(usersSessions.expiration, (now + groupKSExpirationSeconds)), now + groupAppTokenSessionMaxDurationSeconds);
                 }
                 else
