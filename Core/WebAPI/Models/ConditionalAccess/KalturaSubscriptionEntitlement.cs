@@ -94,5 +94,14 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "isSuspended")]
         [SchemeProperty(ReadOnly = true)]
         public bool IsSuspended { get; set; }
+
+        /// <summary>
+        /// Price details
+        /// </summary>
+        [DataMember(Name = "priceDetails")]
+        [JsonProperty("priceDetails")]
+        [XmlElement(ElementName = "priceDetails")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaEntitlementPriceDetails PriceDetails { get; set; }
     }
 }

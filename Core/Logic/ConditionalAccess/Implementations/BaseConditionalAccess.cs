@@ -113,6 +113,8 @@ namespace Core.ConditionalAccess
         public const string RECURRING_NUMBER = "recurringnumber";
         public const string IS_ORIGINAL_BROADCAST_KEY = "isOriginalBroadcast";
         public const string IS_ORIGINAL_BROADCAST_VALUE = "true";
+        public const string CAMPAIGN_CODE = "campcode";
+        public const string COMPANSATION_CODE = "compensation"; 
 
         protected const int PAYMENT_GATEWAY = 1000;
 

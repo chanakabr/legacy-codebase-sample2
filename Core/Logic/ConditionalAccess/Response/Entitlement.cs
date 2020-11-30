@@ -62,7 +62,9 @@ namespace Core.ConditionalAccess.Response
 
         public long UnifiedPaymentId { get; set; } // subscription only
 
-        public bool IsPending { get; set; } 
+        public bool IsPending { get; set; }
+
+        public EntitlementPriceDetails PriceDetails  { get; set; } // subscription only
 
         public Entitlement(PermittedSubscriptionContainer item)
         {

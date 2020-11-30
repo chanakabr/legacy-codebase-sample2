@@ -174,5 +174,18 @@ namespace TVinciShared
                 return null;
             }
         }
+        
+        public static string GetElement(XmlDocument doc, string tagName)
+        {
+            var element = doc.GetElementsByTagName(tagName);
+
+            if (element?.Count == 1 && (element[0].Attributes?.Count > 0 || !string.IsNullOrEmpty(element[0].Value)))
+            {
+               return element[0].OuterXml;
+            }
+
+            return string.Empty;
+        }
+
     }
 }

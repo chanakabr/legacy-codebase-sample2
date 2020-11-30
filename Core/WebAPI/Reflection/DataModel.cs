@@ -1988,6 +1988,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCouponEntitlementDiscountDetails":
+                    switch(property.Name)
+                    {
+                        case "CouponCode":
+                            return "couponCode";
+                    }
+                    break;
+                    
                 case "KalturaCouponFilter":
                     switch(property.Name)
                     {
@@ -2610,6 +2618,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEntitlementDiscountDetails":
+                    switch(property.Name)
+                    {
+                        case "Amount":
+                            return "amount";
+                        case "EndDate":
+                            return "endDate";
+                        case "StartDate":
+                            return "startDate";
+                    }
+                    break;
+                    
+                case "KalturaEntitlementDiscountDetailsIdentifier":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                    }
+                    break;
+                    
                 case "KalturaEntitlementFilter":
                     switch(property.Name)
                     {
@@ -2629,6 +2657,16 @@ namespace WebAPI.Reflection
                     {
                         case "Entitlements":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaEntitlementPriceDetails":
+                    switch(property.Name)
+                    {
+                        case "DiscountDetails":
+                            return "discountDetails";
+                        case "FullPrice":
+                            return "fullPrice";
                     }
                     break;
                     
@@ -6703,6 +6741,8 @@ namespace WebAPI.Reflection
                             return "paymentGatewayId";
                         case "PaymentMethodId":
                             return "paymentMethodId";
+                        case "PriceDetails":
+                            return "priceDetails";
                         case "ScheduledSubscriptionId":
                             return "scheduledSubscriptionId";
                         case "UnifiedPaymentId":
