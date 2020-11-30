@@ -1312,6 +1312,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
+            cfg.CreateMap<KalturaAssetType, ePlayType>()
+            .ConvertUsing(type =>
+            {
+                switch (type)
+                {
+                    case KalturaAssetType.media:
+                        return ePlayType.MEDIA;
+                    case KalturaAssetType.recording:
+                        return ePlayType.NPVR;
+                    case KalturaAssetType.epg:
+                        return ePlayType.EPG;
+                    default:
+                        throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown Play Type: {type.ToString()}");
+                }
+            });
+
             cfg.CreateMap<KalturaAssetType?, eAssetTypes>()
                 .ConvertUsing(assetType =>
                 {
@@ -1381,6 +1397,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
+            cfg.CreateMap<ApiObjects.MediaMarks.DevicePlayData, KalturaStreamingDevice>()
+               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+               .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.UDID))
+               .ForMember(dest => dest.Asset, opt => opt.ResolveUsing(src => ResolveKalturaSlimAsset(src)))
+               ;
         }
 
         private static int? ConvertToNullableInt(bool? value)
@@ -2424,6 +2445,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
+        }
+
+        private static KalturaSlimAsset ResolveKalturaSlimAsset(ApiObjects.MediaMarks.DevicePlayData devicePlayData)
+        {
+            if (devicePlayData == null || devicePlayData.AssetId == 0)
+                return null;
+
+            var sa = new KalturaSlimAsset{Id = devicePlayData.AssetId.ToString()};
+            
+            if (Enum.TryParse<KalturaAssetType>(devicePlayData.playType, out KalturaAssetType _type))
+                sa.Type = _type;
+
+            return sa;
         }
 
         // KalturaWatchStatus to eWatchStatus

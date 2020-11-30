@@ -1890,6 +1890,15 @@ namespace WebAPI.Reflection
                 case "KalturaStartDateOffsetRuleAction":
                     return new KalturaStartDateOffsetRuleAction(parameters);
                     
+                case "KalturaStreamingDevice":
+                    return new KalturaStreamingDevice(parameters);
+                    
+                case "KalturaStreamingDeviceFilter":
+                    return new KalturaStreamingDeviceFilter(parameters);
+                    
+                case "KalturaStreamingDeviceListResponse":
+                    return new KalturaStreamingDeviceListResponse(parameters);
+                    
                 case "KalturaStringValue":
                     return new KalturaStringValue(parameters);
                     
@@ -16443,6 +16452,121 @@ namespace WebAPI.Models.Catalog
                     else if (parameters["objects"] is IList)
                     {
                         Objects = buildList(typeof(KalturaBaseAssetInfo), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaStreamingDevice
+    {
+        private static RuntimeSchemePropertyAttribute AssetSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaStreamingDevice")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaStreamingDevice")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UdidSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaStreamingDevice")
+        {
+            ReadOnly = false,
+            InsertOnly = true,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaStreamingDevice(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("asset") && parameters["asset"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AssetSchemaProperty.Validate("asset", parameters["asset"]);
+                    }
+                    if (parameters["asset"] is JObject)
+                    {
+                        Asset = (KalturaSlimAsset) Deserializer.deserialize(typeof(KalturaSlimAsset), ((JObject) parameters["asset"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["asset"] is IDictionary)
+                    {
+                        Asset = (KalturaSlimAsset) Deserializer.deserialize(typeof(KalturaSlimAsset), (Dictionary<string, object>) parameters["asset"]);
+                    }
+                }
+                if (parameters.ContainsKey("userId") && parameters["userId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
+                    }
+                    UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
+                }
+                if (parameters.ContainsKey("udid") && parameters["udid"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UdidSchemaProperty.Validate("udid", parameters["udid"]);
+                    }
+                    Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaStreamingDeviceFilter
+    {
+        public KalturaStreamingDeviceFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("assetTypeEqual") && parameters["assetTypeEqual"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["assetTypeEqual"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetTypeEqual");
+                    }
+
+                    AssetTypeEqual = (KalturaAssetType) Enum.Parse(typeof(KalturaAssetType), parameters["assetTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetType), AssetTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetTypeEqual, typeof(KalturaAssetType)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaStreamingDeviceListResponse
+    {
+        public KalturaStreamingDeviceListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaStreamingDevice>(typeof(KalturaStreamingDevice), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaStreamingDevice), parameters["objects"] as object[]);
                     }
                 }
             }

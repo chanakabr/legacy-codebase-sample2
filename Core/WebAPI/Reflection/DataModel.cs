@@ -6550,6 +6550,34 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaStreamingDevice":
+                    switch(property.Name)
+                    {
+                        case "Asset":
+                            return "asset";
+                        case "Udid":
+                            return "udid";
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
+                case "KalturaStreamingDeviceFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetTypeEqual":
+                            return "assetTypeEqual";
+                    }
+                    break;
+                    
+                case "KalturaStreamingDeviceListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaStringValueArray":
                     switch(property.Name)
                     {
@@ -10793,6 +10821,16 @@ namespace WebAPI.Reflection
                         case "update":
                             RolesManager.ValidateActionPermitted("ssoAdapterProfile", "update", false);
                             return SsoAdapterProfileController.Update((int) methodParams[0], (KalturaSSOAdapterProfile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "streamingdevice":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("streamingDevice", "list", false);
+                            return StreamingDeviceController.List((KalturaStreamingDeviceFilter) methodParams[0]);
                             
                     }
                     break;
@@ -18978,6 +19016,22 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSSOAdapterProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "streamingdevice":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaStreamingDeviceFilter),
                             });
                             return ret;
                             
