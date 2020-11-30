@@ -8188,15 +8188,25 @@ namespace Core.ConditionalAccess
                     {
                         if (hhQuota != null && hhQuota.Status.Code == (int)eResponseStatus.OK)
                         {
-                            int usedQuota = hhQuota.TotalQuota - hhQuota.AvailableQuota; // get used quota
+                            //TODO - Matan - Check functionality
+                            int usedQuota = hhQuota.Used;// hhQuota.TotalQuota - hhQuota.AvailableQuota; // get used quota
                             if (usedQuota > npvrObject.Quota * 60)
                             {
                                 // call the handel to delete all recordings
-                                QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota * 60), DomainRecordingStatus.DeletePending);
+                                var deleted = QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota * 60), DomainRecordingStatus.DeletePending);
+                                if (deleted?.Count > 0)
+                                {
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, householdId));
+                                }
                             }
                             else if (usedQuota > 0 && usedQuota < npvrObject.Quota * 60) // recover recording from auto-delete by grace period recovery
                             {
                                 status = QuotaManager.Instance.HandleDomainRecoveringRecording(groupId, householdId, (int)(npvrObject.Quota * 60 - usedQuota));
+                                
+                                if (status.IsOkStatusCode())
+                                {
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, householdId));
+                                }
                             }
                         }
                     }

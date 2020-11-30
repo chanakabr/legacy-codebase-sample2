@@ -541,7 +541,7 @@ namespace DAL
         }
 
         //this is the save to domain series table
-        public static DataTable FollowSeries(int groupId, string userId, long domainID, long epgId, long epgChannelId, string seriesId, int seasonNumber, int episodeNumber,int recordType)
+        public static DataTable FollowSeries(int groupId, string userId, long domainID, long epgId, long epgChannelId, string seriesId, int seasonNumber, int episodeNumber, int recordType)
         {
             ODBCWrapper.StoredProcedure spFollowSeries = new ODBCWrapper.StoredProcedure("FollowSeries");
             spFollowSeries.SetConnectionKey(RECORDING_CONNECTION);
@@ -741,10 +741,10 @@ namespace DAL
             sp.AddParameter("@EpgId", recording.EpgId);
             sp.AddParameter("@EpgChannelId", recording.ChannelId);
             sp.AddParameter("@ExternalRecordingId", recording.ExternalRecordingId);
-            sp.AddParameter("@ExternalDomainRecordingId", recording.ExternalDomainRecordingId);            
+            sp.AddParameter("@ExternalDomainRecordingId", recording.ExternalDomainRecordingId);
             sp.AddParameter("@RecordingType", recording.Type);
             sp.AddParameter("@StartDate", recording.EpgStartDate);
-            sp.AddParameter("@EndDate", recording.EpgEndDate);            
+            sp.AddParameter("@EndDate", recording.EpgEndDate);
             sp.AddParameter("@ViewableUntilDate", viewableUntilDate);
             sp.AddParameter("@ViewableUntilEpoch", recording.ViewableUntilDate);
             sp.AddParameter("@Crid", recording.Crid);
@@ -1044,20 +1044,20 @@ namespace DAL
                 int numOfRetries = 0;
                 while (numOfRetries < limitRetries)
                 {
-                    CouchbaseManager.eResultStatus cbResponse;                    
+                    CouchbaseManager.eResultStatus cbResponse;
                     domainId = cbClient.Get<long>(firstFollowerLockKey, out cbResponse);
                     if (cbResponse == CouchbaseManager.eResultStatus.ERROR)
-                    {                        
+                    {
                         log.ErrorFormat("Error while GetFirstFollowerLock. number of tries: {0}/{1}. groupId: {2}, seriesId: {3}, seasonNumber: {4}, channelId: {5}",
                                         numOfRetries, limitRetries, groupId, seriesId, seasonNumber, channelId);
                         System.Threading.Thread.Sleep(r.Next(50));
                     }
-                    else if(cbResponse == CouchbaseManager.eResultStatus.KEY_NOT_EXIST ||
+                    else if (cbResponse == CouchbaseManager.eResultStatus.KEY_NOT_EXIST ||
                         cbResponse == CouchbaseManager.eResultStatus.SUCCESS)
-                    {                         
-                        return domainId; 
+                    {
+                        return domainId;
                     }
-                    
+
                     numOfRetries++;
                 }
 
@@ -1288,6 +1288,7 @@ namespace DAL
             return result;
         }
 
+
         public static bool UpdateDomainUsedQuota(long domainId, int quota, int defaultQuota, bool shouldForceUpdate = true)
         {
             bool result = false;
@@ -1307,25 +1308,21 @@ namespace DAL
                 while (!result && numOfRetries < limitRetries)
                 {
                     ulong version;
-                    CouchbaseManager.eResultStatus status;
-                    DomainQuota domainQuota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out status); // get the domain quota from CB only for version issue
+
+                    // get the domain quota from CB only for version issue
+                    DomainQuota domainQuota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out CouchbaseManager.eResultStatus status);
                     log.DebugFormat("after GetWithVersion domainQuota: {0}, status:{1}", domainQuota != null ? domainQuota.ToString() : "null", status.ToString());
+
                     if (status == CouchbaseManager.eResultStatus.SUCCESS)
                     {
-                        int total = domainQuota.Total == 0 ? defaultQuota : domainQuota.Total;
-                        if (shouldForceUpdate || total - domainQuota.Used >= quota)
-                        {
-                            domainQuota.Used += quota;
-                            result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, version);
-                        }
+                        //document exists
+                        return true;
                     }
-                    else if (status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
+                    else if (status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST 
+                        && (shouldForceUpdate || defaultQuota >= quota))
                     {
-                        if (shouldForceUpdate || defaultQuota >= quota)
-                        {
-                            domainQuota = new DomainQuota(0, Math.Max(quota, 0), true);
-                            result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, 0);
-                        }
+                        domainQuota = new DomainQuota(0, Math.Max(quota, 0), true);
+                        result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, 0);
                     }
 
                     if (!result)
