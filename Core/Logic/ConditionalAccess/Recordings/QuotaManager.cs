@@ -194,9 +194,8 @@ namespace Core.Recordings
                 return response;
             }
 
-            response = allRecords.Select(dict => dict.Value)
-                .Select(record => GetRecordingDurationSeconds(record))
-                .Sum();
+
+            response = allRecords.Values.Where(x => x.isExternalRecording == false).Select(GetRecordingDurationSeconds).Sum();
 
             return response;
         }
