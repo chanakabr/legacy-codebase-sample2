@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Users.Security;
+using ApiObjects;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -112,7 +113,7 @@ namespace Core.Users
                 retVal.m_sSenderTo = sEmail;
                 retVal.m_sUsername = sNewUsername;
 
-                retVal.m_sToken = DAL.UsersDal.GetActivationToken(nGroupID, sNewUsername);
+                retVal.m_sToken = UserStorage.Instance().GetActivationToken(nGroupID, sNewUsername);
             }
 
             return retVal;

@@ -64,9 +64,11 @@ namespace ApiObjects.Response
             return Status != null && Status.IsOkStatusCode();
         }
 
+        public bool StatusIs(eResponseStatus expectedStatus) => Status?.Code == (int)expectedStatus;
+
         public bool HasObject()
         {
-            return IsOkStatusCode() && !Object.Equals(default(T));
+            return IsOkStatusCode() && !Object.Equals(default(T)); // TODO NullReferenceException when `Object` is null, ironic, use EqualityComparer instead
         }
 
         public string ToStringStatus()

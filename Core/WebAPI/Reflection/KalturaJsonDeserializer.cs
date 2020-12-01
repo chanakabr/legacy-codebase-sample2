@@ -675,6 +675,9 @@ namespace WebAPI.Reflection
                 case "KalturaCustomDrmPlaybackPluginData":
                     return new KalturaCustomDrmPlaybackPluginData(parameters);
                     
+                case "KalturaDataEncryption":
+                    return new KalturaDataEncryption(parameters);
+                    
                 case "KalturaDateCondition":
                     return new KalturaDateCondition(parameters);
                     
@@ -806,6 +809,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaEmailMessage":
                     return new KalturaEmailMessage(parameters);
+                    
+                case "KalturaEncryption":
+                    return new KalturaEncryption(parameters);
                     
                 case "KalturaEndDateOffsetRuleAction":
                     return new KalturaEndDateOffsetRuleAction(parameters);
@@ -1748,6 +1754,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSeasonsReminderFilter":
                     return new KalturaSeasonsReminderFilter(parameters);
+                    
+                case "KalturaSecurityPartnerConfig":
+                    return new KalturaSecurityPartnerConfig(parameters);
                     
                 case "KalturaSegmentAllValues":
                     return new KalturaSegmentAllValues(parameters);
@@ -27103,6 +27112,36 @@ namespace WebAPI.Models.Users
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute UsernameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBaseOTTUser")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = 256,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute FirstNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBaseOTTUser")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = 128,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute LastNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBaseOTTUser")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = 128,
+            MinLength = -1,
+        };
         public KalturaBaseOTTUser(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -27119,22 +27158,42 @@ namespace WebAPI.Models.Users
                 }
                 if (parameters.ContainsKey("username") && parameters["username"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        UsernameSchemaProperty.Validate("username", parameters["username"]);
+                    }
                     Username = (String) Convert.ChangeType(parameters["username"], typeof(String));
                 }
                 if (parameters.ContainsKey("firstName") && parameters["firstName"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        FirstNameSchemaProperty.Validate("firstName", parameters["firstName"]);
+                    }
                     FirstName = (String) Convert.ChangeType(parameters["firstName"], typeof(String));
                 }
                 if (parameters.ContainsKey("first_name") && parameters["first_name"] != null && isOldVersion)
                 {
+                    if(!isOldVersion)
+                    {
+                        FirstNameSchemaProperty.Validate("first_name", parameters["first_name"]);
+                    }
                     FirstName = (String) Convert.ChangeType(parameters["first_name"], typeof(String));
                 }
                 if (parameters.ContainsKey("lastName") && parameters["lastName"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        LastNameSchemaProperty.Validate("lastName", parameters["lastName"]);
+                    }
                     LastName = (String) Convert.ChangeType(parameters["lastName"], typeof(String));
                 }
                 if (parameters.ContainsKey("last_name") && parameters["last_name"] != null && isOldVersion)
                 {
+                    if(!isOldVersion)
+                    {
+                        LastNameSchemaProperty.Validate("last_name", parameters["last_name"]);
+                    }
                     LastName = (String) Convert.ChangeType(parameters["last_name"], typeof(String));
                 }
             }
@@ -28978,6 +29037,26 @@ namespace WebAPI.Models.Partner
             }
         }
     }
+    public partial class KalturaDataEncryption
+    {
+        public KalturaDataEncryption(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("username") && parameters["username"] != null)
+                {
+                    if (parameters["username"] is JObject)
+                    {
+                        Username = (KalturaEncryption) Deserializer.deserialize(typeof(KalturaEncryption), ((JObject) parameters["username"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["username"] is IDictionary)
+                    {
+                        Username = (KalturaEncryption) Deserializer.deserialize(typeof(KalturaEncryption), (Dictionary<string, object>) parameters["username"]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaDefaultPlaybackAdapters
     {
         private static RuntimeSchemePropertyAttribute MediaAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
@@ -29042,6 +29121,29 @@ namespace WebAPI.Models.Partner
                         RecordingAdapterIdSchemaProperty.Validate("recordingAdapterId", parameters["recordingAdapterId"]);
                     }
                     RecordingAdapterId = (Int64) Convert.ChangeType(parameters["recordingAdapterId"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaEncryption
+    {
+        public KalturaEncryption(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("encryptionType") && parameters["encryptionType"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["encryptionType"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "encryptionType");
+                    }
+
+                    EncryptionType = (KalturaEncryptionType) Enum.Parse(typeof(KalturaEncryptionType), parameters["encryptionType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEncryptionType), EncryptionType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EncryptionType, typeof(KalturaEncryptionType)));
+                    }
                 }
             }
         }
@@ -29349,6 +29451,26 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("rollingDeviceRemovalFamilyIds") && parameters["rollingDeviceRemovalFamilyIds"] != null)
                 {
                     RollingDeviceRemovalFamilyIds = (String) Convert.ChangeType(parameters["rollingDeviceRemovalFamilyIds"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaSecurityPartnerConfig
+    {
+        public KalturaSecurityPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("encryption") && parameters["encryption"] != null)
+                {
+                    if (parameters["encryption"] is JObject)
+                    {
+                        Encryption = (KalturaDataEncryption) Deserializer.deserialize(typeof(KalturaDataEncryption), ((JObject) parameters["encryption"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["encryption"] is IDictionary)
+                    {
+                        Encryption = (KalturaDataEncryption) Deserializer.deserialize(typeof(KalturaDataEncryption), (Dictionary<string, object>) parameters["encryption"]);
+                    }
                 }
             }
         }

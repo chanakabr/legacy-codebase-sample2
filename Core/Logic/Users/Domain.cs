@@ -24,6 +24,7 @@ using ApiLogic.Users.Services;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using SessionManager;
+using ApiLogic.Users.Security;
 
 namespace Core.Users
 {
@@ -2615,6 +2616,7 @@ namespace Core.Users
                         if (nCount > 0)
                         {
                             sNewUsername = dtUserBasicData.DefaultView[0].Row["USERNAME"].ToString();
+                            sNewUsername = UserDataEncryptor.Instance().DecryptUsername(nGroupID, sNewUsername);
                             sNewFirstName = dtUserBasicData.DefaultView[0].Row["FIRST_NAME"].ToString();
                             sNewEmail = dtUserBasicData.DefaultView[0].Row["EMAIL_ADD"].ToString();
                         }

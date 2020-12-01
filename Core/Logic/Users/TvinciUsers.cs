@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Users.Managers;
+using ApiLogic.Users.Security;
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Segmentation;
@@ -106,14 +107,12 @@ namespace Core.Users
                 return UserActivationState.Activated;
             }
 
-            UserActivationState activStatus = (UserActivationState)UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID, ref isGracePeriod);
-
-            return activStatus;
+            return GetUserStatus(ref sUserName, ref nUserID, ref isGracePeriod);
         }
 
         public UserActivationState GetUserStatus(ref string sUserName, ref Int32 nUserID, ref bool isGracePeriod)
         {
-            UserActivationState activStatus = (UserActivationState)UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID, ref isGracePeriod);
+            UserActivationState activStatus = UserStorage.Instance().GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID, ref isGracePeriod);
 
             return activStatus;
         }
@@ -306,7 +305,7 @@ namespace Core.Users
 
         protected Int32 GetUserIDByUserName(string sUserName)
         {
-            int userID = DAL.UsersDal.GetUserIDByUsername(sUserName, m_nGroupID);
+            int userID = UserStorage.Instance().GetUserIDByUsername(sUserName, m_nGroupID);
 
             return userID;
         }
@@ -812,6 +811,8 @@ namespace Core.Users
                         try
                         {
                             string sUserName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "USERNAME");
+                            sUserName = UserDataEncryptor.Instance().DecryptUsername(m_nGroupID, sUserName);
+
                             string sPass = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "PASSWORD");
                             string sSalt = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "SALT");
                             string sFirstName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FIRST_NAME");
@@ -1258,23 +1259,8 @@ namespace Core.Users
 
         private bool UserGenerateToken(string sUN, ref string sEmail, ref Int32 nID, ref string sFirstName, ref string sToken)
         {
-            DataTable dt = DAL.UsersDal.GenerateToken(sUN, m_nGroupID, m_nTokenValidityHours);
-
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                DataRow dr = dt.Rows[0];
-
-                sEmail = ODBCWrapper.Utils.GetSafeStr(dr["EMAIL_ADD"]);
-                nID = ODBCWrapper.Utils.GetIntSafeVal(dr["ID"]);
-                sFirstName = ODBCWrapper.Utils.GetSafeStr(dr["FIRST_NAME"]);
-                sToken = ODBCWrapper.Utils.GetSafeStr(dr["TOKEN"]);
-            }
-            else
-            {
-                return false;
-            }
-
-            return true;
+            bool response = UserStorage.Instance().GenerateToken(m_nGroupID, sUN, m_nTokenValidityHours, out nID, out sEmail, out sFirstName, out sToken);
+            return response;
         }
 
         public override UserResponseObject ForgotPassword(string sUN, string templateName)
@@ -1364,6 +1350,7 @@ namespace Core.Users
 
 
                         string sUn = selectQuery.Table("query").DefaultView[0].Row["username"].ToString();
+                        sUn = UserDataEncryptor.Instance().DecryptUsername(m_nGroupID, sUn);
                         string sEmail = selectQuery.Table("query").DefaultView[0].Row["email_add"].ToString();
                         //Create token
                         string changePinToken = System.Guid.NewGuid().ToString();
@@ -1521,7 +1508,7 @@ namespace Core.Users
 
             retVal.m_sPassword = (string.IsNullOrEmpty(sFacekookID)) ? sPassword : "Facebook Password";
             //TO DO merge it to one call. IRA?????
-            retVal.m_sToken = DAL.UsersDal.GetActivationToken(m_nGroupID, sUserName);
+            retVal.m_sToken = UserStorage.Instance().GetActivationToken(m_nGroupID, sUserName);
 
             return retVal;
         }

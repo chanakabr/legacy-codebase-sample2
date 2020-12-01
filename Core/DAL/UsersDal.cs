@@ -33,7 +33,6 @@ namespace DAL
         private const string SP_GET_USER_DOMAINS = "sp_GetUserDomains";
         private const string SP_INSERT_USER = "sp_InsertUser";
         private const string SP_GET_IS_ACTIVATION_NEEDED = "Get_IsActivationNeeded";
-        private const string SP_GET_ACTIVATION_TOKEN = "Get_ActivationToken";
         private const string SP_GET_GROUP_USERS = "Get_GroupUsers";
         private const string SP_GET_GROUP_USERS_SEARCH_FIELDS = "Get_GroupUsersSearchFields";
         private const string SP_GET_DEVICES_TO_USERS_NON_PUSH = "Get_DevicesToUsersNonPushAction";
@@ -272,7 +271,8 @@ namespace DAL
 
         public static int InsertUser(string sUserName, string sPassword, string sSalt, string sFirstName, string sLastName, string sFacebookID, string sFacebookImage, string sFacebookToken,
                                     int nIsFacebookImagePermitted, string sEmail, int nActivateStatus, string sActivationToken, string sCoGuid, string sExternalToken, int? nUserTypeID,
-                                    string sAddress, string sCity, int countryID, int stateID, string sZip, string sPhone, string sAffiliateCode, string sTwitterToken, string sTwitterTokenSecret, int nGroupID)
+                                    string sAddress, string sCity, int countryID, int stateID, string sZip, string sPhone, string sAffiliateCode, string sTwitterToken, string sTwitterTokenSecret, 
+                                    int nGroupID, bool usernameEncryptionEnabled)
         {
             int nInserted = 0;
 
@@ -306,6 +306,10 @@ namespace DAL
                 if (nUserTypeID != null)
                 {
                     spInsertUser.AddParameter("@userTypeID", nUserTypeID.Value);
+                }
+                if (usernameEncryptionEnabled)
+                {
+                    spInsertUser.AddParameter("@usernameEncryptionEnabled", 1);
                 }
 
                 spInsertUser.AddParameter("@address", sAddress);
@@ -363,6 +367,7 @@ namespace DAL
             return res;
         }
 
+        /// <summary>WARNING do not use directly. use UserStorage class instead</summary>
         public static int GetUserIDByUsername(string sUsername, int nGroupID)
         {
             int nUserID = 0;
@@ -766,6 +771,7 @@ namespace DAL
             return retVal;
         }
 
+        /// <summary>WARNING do not use directly. use UserStorage class instead</summary>
         public static int GetUserPasswordFailHistory(string username, int groupId, ref DateTime dNow, ref int failCount, ref DateTime lastFailDate, ref DateTime lastHitDate, ref DateTime passwordUpdateDate)
         {
             int userId = 0;
@@ -935,6 +941,7 @@ namespace DAL
             return response;
         }
 
+        /// <summary>WARNING do not use directly. use UserStorage class instead</summary>
         public static string GetActivationToken(int nGroupID, string sUserName)
         {
             string sActivationToken = string.Empty;
@@ -1291,6 +1298,7 @@ namespace DAL
         }
 
         /// <summary>
+        /// WARNING do not use directly. use UserStorage class instead.
         /// GetUserActivationState
         /// </summary>
         /// <param name="arrGroupIDs"></param>
@@ -1406,6 +1414,7 @@ namespace DAL
             return res;
         }
 
+        // TODO remove, not used
         public static bool IsUserActivated(int nGroupID, int nActivationMustHours, ref string sUserName, ref int nUserID)
         {
             bool bRet = false;
@@ -1500,7 +1509,7 @@ namespace DAL
         public static bool SaveBasicData(int groupId, int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted,
                                          string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity,
                                          int? nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
-                                         DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount, bool updateUserPassword)
+                                         DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount, bool updateUserPassword, bool usernameEncryptionEnabled)
         {
             try
             {
@@ -1564,6 +1573,11 @@ namespace DAL
                     updateQuery += Parameter.NEW_PARAM("PASSWORD_UPDATE_DATE", "=", updateDate);
                 }
 
+                if (usernameEncryptionEnabled)
+                {
+                    updateQuery += Parameter.NEW_PARAM("USERNAME_ENCRYPTION", "=", 1);
+                }
+
                 updateQuery += "WHERE";
                 updateQuery += Parameter.NEW_PARAM("ID", "=", nUserID);
 
@@ -1578,6 +1592,21 @@ namespace DAL
             }
 
             return false;
+        }
+
+        // WARNING Should be used in username-lazy-migration ONLY. remove after lazy migration finish
+        public static long? UpdateUsername(int groupId, string clearUsername, string encryptedUsername)
+        {
+            var sp = new StoredProcedure("Migrate_Username");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@currentUsername", clearUsername, true);
+            sp.AddParameter("@newUsername", encryptedUsername, true);
+            sp.AddParameter("@groupId", groupId);
+            var table = sp.Execute();
+            var userId = table?.Rows.Count > 0
+                ? Utils.GetNullableLong(table.Rows[0], "ID")
+                : null;
+            return userId;
         }
 
         private static void HandleException(Exception ex)
@@ -1757,6 +1786,7 @@ namespace DAL
             return res;
         }
 
+        // TODO remove. Cinepolis is not used
         public static string Get_UsernameBySiteGuid(long lSiteGuid, string sConnKey)
         {
             string res = string.Empty;
@@ -2648,7 +2678,7 @@ namespace DAL
         {
             var key = GetPasswordsHistoryKey(userId);
             return UtilsDal.GetObjectFromCB<HashSet<string>>(eCouchbaseBucket.OTT_APPS, key);
-        }        
+        }
 
         public static bool SavePasswordsHistory(long userId, HashSet<string> passwordsHistory)
         {
@@ -2714,6 +2744,48 @@ namespace DAL
             selectQuery.Finish();
             selectQuery = null;
             return nRet;
+        }
+
+        public static List<EncryptionKey> GetEncryptionKeys(int groupId)
+        {
+            var sp = new StoredProcedure("List_encryption_keys");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            var table = sp.ExecuteDataSet().Tables[0];
+
+            var list = new List<EncryptionKey>(table.Rows.Count);
+            foreach (DataRow row in table.Rows)
+            {
+                list.Add(new EncryptionKey(
+                    Utils.GetLongSafeVal(row, "ID"),
+                    Utils.GetIntSafeVal(row, "group_id"),
+                    Convert.FromBase64String(Utils.GetSafeStr(row, "value")),
+                    (EncryptionType)Utils.GetIntSafeVal(row, "encryption_type")
+                ));
+            }
+
+            return list;
+        }
+
+        public static int InsertEncryptionKey(EncryptionKey encryptionKey, long updaterId)
+        {
+            try
+            {
+                var keyAsString = Convert.ToBase64String(encryptionKey.Value);
+                var sp = new StoredProcedure("Insert_encryption_key");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@groupId", encryptionKey.GroupId);
+                sp.AddParameter("@type", (int)encryptionKey.Type);
+                sp.AddParameter("@value", keyAsString, true);
+                sp.AddParameter("@updaterId", updaterId);
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"InsertEncryptionKey in DB, groupId: {encryptionKey.GroupId}, ex:{ex.Message}", ex);
+                return 0;
+            }
         }
     }
 }

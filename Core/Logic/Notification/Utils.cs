@@ -25,7 +25,6 @@ namespace Core.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string USER_TOKEN_SECRET = "MyMailIsSecured";
-        private const int BLOCK_SIZE = 16;
 
         public static string ExtractDate(DateTime date, string format)
         {
@@ -570,7 +569,7 @@ namespace Core.Notification
                 byte[] input = new byte[userIdStr.Length];
                 Array.Copy(Encoding.ASCII.GetBytes(userIdStr), 0, input, 0, input.Length);
 
-                byte[] encrypted = TVinciShared.EncryptUtils.AesEncrypt(USER_TOKEN_SECRET, input, BLOCK_SIZE);
+                byte[] encrypted = TVinciShared.EncryptUtils.AesEncrypt(input, USER_TOKEN_SECRET);
 
                 token = System.Convert.ToBase64String(encrypted);
             }
@@ -590,7 +589,7 @@ namespace Core.Notification
             {
                 byte[] input = System.Convert.FromBase64String(token);
                
-                byte[] encrypted = TVinciShared.EncryptUtils.TrimRight(TVinciShared.EncryptUtils.AesDecrypt(USER_TOKEN_SECRET, input, BLOCK_SIZE));
+                byte[] encrypted = TVinciShared.EncryptUtils.AesDecrypt(input, USER_TOKEN_SECRET);
 
                 string userIdStr = Encoding.ASCII.GetString(encrypted);
 

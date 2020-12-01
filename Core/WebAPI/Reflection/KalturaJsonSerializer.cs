@@ -36170,6 +36170,46 @@ namespace WebAPI.Models.Partner
             return ret;
         }
     }
+    public partial class KalturaDataEncryption
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Username != null && (retrievedProperties == null || retrievedProperties.Contains("username")))
+            {
+                propertyValue = Username.ToJson(currentVersion, omitObsolete);
+                ret.Add("username", "\"username\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Username != null && (retrievedProperties == null || retrievedProperties.Contains("username")))
+            {
+                propertyValue = Username.ToXml(currentVersion, omitObsolete);
+                ret.Add("username", "<username>" + propertyValue + "</username>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaDefaultPlaybackAdapters
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -36220,6 +36260,44 @@ namespace WebAPI.Models.Partner
             if((retrievedProperties == null || retrievedProperties.Contains("recordingAdapterId")))
             {
                 ret.Add("recordingAdapterId", "<recordingAdapterId>" + RecordingAdapterId + "</recordingAdapterId>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaEncryption
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("encryptionType")))
+            {
+                ret.Add("encryptionType", "\"encryptionType\": " + "\"" + Enum.GetName(typeof(KalturaEncryptionType), EncryptionType) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("encryptionType")))
+            {
+                ret.Add("encryptionType", "<encryptionType>" + "" + Enum.GetName(typeof(KalturaEncryptionType), EncryptionType) + "" + "</encryptionType>");
             }
             return ret;
         }
@@ -36740,6 +36818,46 @@ namespace WebAPI.Models.Partner
             if(RollingDeviceRemovalPolicy.HasValue && (retrievedProperties == null || retrievedProperties.Contains("rollingDeviceRemovalPolicy")))
             {
                 ret.Add("rollingDeviceRemovalPolicy", "<rollingDeviceRemovalPolicy>" + "" + Enum.GetName(typeof(KalturaRollingDevicePolicy), RollingDeviceRemovalPolicy) + "" + "</rollingDeviceRemovalPolicy>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaSecurityPartnerConfig
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Encryption != null && (retrievedProperties == null || retrievedProperties.Contains("encryption")))
+            {
+                propertyValue = Encryption.ToJson(currentVersion, omitObsolete);
+                ret.Add("encryption", "\"encryption\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Encryption != null && (retrievedProperties == null || retrievedProperties.Contains("encryption")))
+            {
+                propertyValue = Encryption.ToXml(currentVersion, omitObsolete);
+                ret.Add("encryption", "<encryption>" + propertyValue + "</encryption>");
             }
             return ret;
         }

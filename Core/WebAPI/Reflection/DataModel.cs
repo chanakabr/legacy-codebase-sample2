@@ -2092,6 +2092,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDataEncryption":
+                    switch(property.Name)
+                    {
+                        case "Username":
+                            return "username";
+                    }
+                    break;
+                    
                 case "KalturaDateCondition":
                     switch(property.Name)
                     {
@@ -2471,6 +2479,14 @@ namespace WebAPI.Reflection
                             return "subject";
                         case "TemplateName":
                             return "templateName";
+                    }
+                    break;
+                    
+                case "KalturaEncryption":
+                    switch(property.Name)
+                    {
+                        case "EncryptionType":
+                            return "encryptionType";
                     }
                     break;
                     
@@ -6103,6 +6119,14 @@ namespace WebAPI.Reflection
                             return "seasonNumberIn";
                         case "SeriesIdEqual":
                             return "seriesIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaSecurityPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "Encryption":
+                            return "encryption";
                     }
                     break;
                     

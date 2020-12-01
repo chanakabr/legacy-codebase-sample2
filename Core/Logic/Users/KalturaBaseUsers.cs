@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiLogic.Users;
+using ApiLogic.Users.Security;
 using ApiObjects;
 using DAL;
 using KeyValuePair = ApiObjects.KeyValuePair;
@@ -178,7 +179,7 @@ namespace Core.Users
 
         public UserActivationState GetUserActivationState(ref string username, ref int userId, ref bool isGracePeriod)
         {
-            UserActivationState activationState = (UserActivationState)UsersDal.GetUserActivationState(GroupId, activationMustHours, ref username, ref userId, ref isGracePeriod);
+            UserActivationState activationState = UserStorage.Instance().GetUserActivationState(GroupId, activationMustHours, ref username, ref userId, ref isGracePeriod);
 
             return activationState;
         }

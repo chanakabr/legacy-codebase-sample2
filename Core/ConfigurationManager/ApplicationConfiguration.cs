@@ -119,6 +119,7 @@ namespace ConfigurationManager
         public NotificationCacheConfiguration NotificationCacheConfiguration = new NotificationCacheConfiguration();
         public GroupsCacheConfiguration GroupsCacheConfiguration = new GroupsCacheConfiguration();
         public LicensedLinksCacheConfiguration LicensedLinksCacheConfiguration = new LicensedLinksCacheConfiguration();
+        public UserEncryptionKeysCacheConfiguration UserEncryptionKeysCacheConfiguration = new UserEncryptionKeysCacheConfiguration();
         public CouchBaseDesigns CouchBaseDesigns = new CouchBaseDesigns();
         public CouchbaseSectionMapping CouchbaseSectionMapping = new CouchbaseSectionMapping();
         public CouchbaseClientConfiguration CouchbaseClientConfiguration = new CouchbaseClientConfiguration();

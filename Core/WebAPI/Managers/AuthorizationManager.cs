@@ -359,16 +359,20 @@ namespace WebAPI.Managers
             }
 
             UsersClient usersClient = ClientsManager.UsersClient();
-
+            var userStatus = ValidateUser(groupId, userId, usersClient);
             if (!group.ApptokenUserValidationDisabled)
             {
-                ValidateUser(groupId, userId, usersClient);
+                userStatus.ThrowOnError();
 
                 if (group.ShouldCheckDeviceInDomain && IsEndUser())
                 {
                     DomainsClient domainsClient = ClientsManager.DomainsClient();
                     ValidateDevice(groupId, userId, udid, domainId, domainsClient);
                 }
+            }
+            else if (userStatus == null || !userStatus.IsOkStatusCode())
+            {
+                log.Warn($"StartSessionWithAppToken InvalidUser groupId:{groupId}, userId:{userId}");
             }
 
             // 8. get the group secret by the session type
@@ -444,22 +448,22 @@ namespace WebAPI.Managers
 
         private static readonly HashSet<ResponseStatus> validUserStatus = new HashSet<ResponseStatus> { ResponseStatus.OK, ResponseStatus.UserWithNoDomain, ResponseStatus.UserNotIndDomain, ResponseStatus.UserNotMasterApproved };
         // TODO remove duplication with ValidateUser(int groupId, string userId)
-        private static void ValidateUser(int groupId, string userIdString, UsersClient usersClient)
+        private static Status ValidateUser(int groupId, string userIdString, UsersClient usersClient)
         {
             var userId = userIdString.ParseUserId(invalidValue: -1);
             if (userId == -1) throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "userId");
-            if (userId.IsAnonymous()) return;
+            if (userId.IsAnonymous()) return Status.Ok;
 
             var userStatus = usersClient.GetUserActivationState(groupId, userId);
 
-            if (validUserStatus.Contains(userStatus)) return;
+            if (validUserStatus.Contains(userStatus)) return Status.Ok;
 
             // ConvertResponseStatusToResponseObject use WrongPasswordOrUserName for ResponseStatus.UserDoesNotExist
             // but we want to return more meaningful status 
             var errorResponse = userStatus == ResponseStatus.UserDoesNotExist
                 ? new Status(eResponseStatus.InvalidUser)
                 : Core.Users.Utils.ConvertResponseStatusToResponseObject(userStatus);
-            errorResponse.ThrowOnError();
+            return errorResponse;
         }
 
         private static void ValidateDevice(int groupId, string userIdString, string udid, int domainId, DomainsClient domainsClient)

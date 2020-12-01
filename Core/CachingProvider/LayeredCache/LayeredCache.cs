@@ -1270,7 +1270,7 @@ namespace CachingProvider.LayeredCache
             return res;
         }
 
-        private bool TryGetInvalidationKeyLayeredCacheConfig(string configurationName, out List<LayeredCacheConfig> layeredCacheConfig)
+        public bool TryGetInvalidationKeyLayeredCacheConfig(string configurationName, out List<LayeredCacheConfig> layeredCacheConfig)
         {
             layeredCacheConfig = null;
             try

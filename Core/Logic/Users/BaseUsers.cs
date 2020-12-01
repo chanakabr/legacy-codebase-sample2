@@ -1,4 +1,5 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Users.Security;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Statistics;
@@ -471,9 +472,9 @@ namespace Core.Users
             ApiObjects.Response.Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             try
             {
-                bool isGracePeriod = false;
-                string userName = string.Empty;
-                UserActivationState userActivationState = GetUserActivationStatus(ref userName, ref userID, ref isGracePeriod);
+                bool notUsedBool = false;
+                string notUsed = string.Empty;
+                UserActivationState userActivationState = GetUserActivationStatus(ref notUsed, ref userID, ref notUsedBool);
 
                 switch (userActivationState)
                 {
@@ -1154,9 +1155,9 @@ namespace Core.Users
 
             if (parse)
             {
-                string userName = string.Empty;
-                bool isGracePeriod = false;
-                activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(groupID, 0, ref userName, ref userId, ref isGracePeriod);
+                string notUsed = string.Empty;
+                bool notUsedBool = false;
+                activStatus = UserStorage.Instance().GetUserActivationState(groupID, 0, ref notUsed, ref userId, ref notUsedBool);
             }
             if (userId <= 0)
             {

@@ -8,6 +8,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
 using WebAPI.Models.General;
+using static ApiObjects.SecurityPartnerConfig;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -159,6 +160,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<PlaybackPartnerConfig, KalturaPlaybackPartnerConfig>()
                .ForMember(dest => dest.DefaultAdapters, opt => opt.MapFrom(src => src.DefaultAdapters));
+
+
+            cfg.CreateMap<KalturaEncryptionType, EncryptionType>().ConvertUsing(value =>
+                {
+                    switch (value)
+                    {
+                        case KalturaEncryptionType.AES256: return EncryptionType.aes256;
+                        default: throw new ClientException((int)StatusCode.Error, "Unknown encryption type");
+                    }
+                });
+            cfg.CreateMap<EncryptionType, KalturaEncryptionType>().ConvertUsing(value =>
+            {
+                switch (value)
+                {
+                    case EncryptionType.aes256: return KalturaEncryptionType.AES256;
+                    default: throw new ClientException((int)StatusCode.Error, "Unknown encryption type");
+                }
+            });
+            cfg.CreateMap<KalturaSecurityPartnerConfig, SecurityPartnerConfig>();
+            cfg.CreateMap<SecurityPartnerConfig, KalturaSecurityPartnerConfig>();
+            cfg.CreateMap<KalturaDataEncryption, DataEncryption>();
+            cfg.CreateMap<DataEncryption, KalturaDataEncryption>();
+            cfg.CreateMap<KalturaEncryption, Encryption>();
+            cfg.CreateMap<Encryption, KalturaEncryption>();
 
             cfg.CreateMap<KalturaDefaultPlaybackAdapters, DefaultPlaybackAdapters>()
                .ForMember(dest => dest.EpgAdapterId, opt => opt.MapFrom(src => src.EpgAdapterId))
