@@ -1,7 +1,7 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine as builder
+FROM 870777418594.dkr.ecr.us-west-2.amazonaws.com/dotnet/sdk:bullseye as builder
 WORKDIR /src
 
-RUN apk add --no-cache git
+RUN apt-get install -y --no-install-recommends git
 
 COPY [".git", ".git"]
 COPY ["Core", "Core"]
@@ -19,7 +19,7 @@ RUN sh /src/Core/DllVersioning.Core.sh . && \
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
 # Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
+FROM 870777418594.dkr.ecr.us-west-2.amazonaws.com/dotnet/aspnet:bullseye
 ARG USER_ID=1200
 ARG GROUP_ID=1200
 WORKDIR /opt
@@ -43,14 +43,14 @@ ENV LANGUAGE=en_US.UTF-8
 ###### deploy root CA + add user######
 COPY consul-root-certificate.crt /usr/local/share/ca-certificates/consul-root-certificate.crt
 RUN update-ca-certificates && \
-    addgroup -g ${GROUP_ID} -S ott-users && \
-    adduser -D -S -s /sbin/nologin -G ott-users kaltura -u ${USER_ID} && \
+    addgroup --gid ${GROUP_ID} --system ott-users && \
+    adduser --disabled-password --system --shell /sbin/nologin --ingroup ott-users kaltura --uid ${USER_ID} && \
     mkdir -p ${API_LOG_DIR} && chown -R ${USER_ID}:${GROUP_ID} ${API_LOG_DIR} && \
-    apk add --no-cache icu-libs curl less libc6-compat
+    apt-get update && apt-get install -y --no-install-recommends curl less && \
+    apt-get clean autoclean
 
 USER kaltura
 ###### deploy root CA ######
-
 
 
 ENTRYPOINT [ "sh", "-c", "dotnet TVPApi.Api.dll --urls http://0.0.0.0:${PORT}" ]
