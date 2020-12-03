@@ -207,6 +207,18 @@ namespace Core.Catalog.Handlers
                     }
                 }
 
+                // Due to atomic action update virtual asset before category update
+                if (virtualAssetInfo != null)
+                {
+                    var virtualAssetInfoResponse = api.UpdateVirtualAsset(contextData.GroupId, virtualAssetInfo);
+                    if (virtualAssetInfoResponse.Status == VirtualAssetInfoStatus.Error)
+                    {
+                        log.Error($"Error while update category's virtualAsset. groupId: {contextData.GroupId}, CategoryId: {currentCategory.Id}, CategoryName: {currentCategory.Name} ");
+                        response.SetStatus(eResponseStatus.Error, "Error while updating category.");
+                        return response;
+                    }
+                }
+
                 if (!CatalogDAL.UpdateCategory(contextData.GroupId, contextData.UserId, objectToUpdate.Id, objectToUpdate.Name,
                     languageCodeToName, objectToUpdate.UnifiedChannels, objectToUpdate.DynamicData, objectToUpdate.IsActive, objectToUpdate.TimeSlot))
                 {
@@ -223,12 +235,7 @@ namespace Core.Catalog.Handlers
                         response.SetStatus(eResponseStatus.Error);
                         return response;
                     }
-                }
-
-                if (virtualAssetInfo != null)
-                {
-                    api.UpdateVirtualAsset(contextData.GroupId, virtualAssetInfo);
-                }
+                }               
 
                 if (updateChildCategories || categoriesToRemove.Count > 0)
                 {
@@ -274,8 +281,9 @@ namespace Core.Catalog.Handlers
                     return response;
                 }
 
-                if (!DeleteCategoryItem(contextData.GroupId, contextData.UserId.Value, id))
+                if (!CategoriesManager.DeleteCategoryItem(contextData.GroupId, contextData.UserId.Value, id))
                 {
+                    response.Set(eResponseStatus.Error, $"Failed to delete categoryItem {id}");
                     return response;
                 }
 
@@ -283,8 +291,7 @@ namespace Core.Catalog.Handlers
                 var successors = CategoriesManager.GetCategoryItemSuccessors(contextData.GroupId, id);
                 foreach (long successor in successors)
                 {
-                    DeleteCategoryItem(contextData.GroupId, contextData.UserId.Value, successor);
-
+                    CategoriesManager.DeleteCategoryItem(contextData.GroupId, contextData.UserId.Value, successor);
                 }
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(contextData.GroupId));
@@ -430,7 +437,6 @@ namespace Core.Catalog.Handlers
                 }
             }
 
-
             AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition()
             {
                 Filter = filter.Ksql,
@@ -503,7 +509,17 @@ namespace Core.Catalog.Handlers
 
                 Dictionary<long, long> newTreeMap = new Dictionary<long, long>();
 
-                DuplicateChildren(groupId, userId, copiedRoot, newTreeMap);
+                bool result = DuplicateChildren(groupId, userId, copiedRoot, newTreeMap);
+
+                if (!result)
+                {
+                    foreach (var newId in newTreeMap.Values)
+                    {
+                        CategoriesManager.DeleteCategoryItem(groupId, userId, newId);
+                    }
+
+                    return response;
+                }
 
                 // in case the duplicate category have parent, it should bw updated with his new child :)
                 if (root.ParentId.HasValue && root.ParentId.Value > 0)
@@ -538,8 +554,9 @@ namespace Core.Catalog.Handlers
             return response;
         }
 
-        private void DuplicateChildren(int groupId, long userId, CategoryItem parent, Dictionary<long, long> newTreeMap)
+        private bool DuplicateChildren(int groupId, long userId, CategoryItem parent, Dictionary<long, long> newTreeMap)
         {
+            bool result = false;
             List<long> children = new List<long>();
             if (parent.ChildrenIds?.Count > 0)
             {
@@ -547,7 +564,13 @@ namespace Core.Catalog.Handlers
                 foreach (var item in parent.ChildrenIds)
                 {
                     ci = CategoriesManager.GetCategoryItem(groupId, item);
-                    DuplicateChildren(groupId, userId, ci, newTreeMap);
+                    result = DuplicateChildren(groupId, userId, ci, newTreeMap);
+
+                    if (!result)
+                    {
+                        return result;
+                    }
+
                     if (newTreeMap.ContainsKey(item))
                     {
                         children.Add(newTreeMap[item]);
@@ -569,9 +592,11 @@ namespace Core.Catalog.Handlers
             if (CategoriesManager.Add(groupId, userId, newICategory))
             {
                 newTreeMap.Add(parent.Id, newICategory.Id);
-
                 DuplicateCategoryImages(groupId, userId, parent.Id, newICategory.Id);
+                result = true;
             }
+                
+            return result;
         }
 
         public GenericResponse<CategoryTree> GetCategoryTree(int groupId, long id, bool filter = false, bool onlyActive = false)

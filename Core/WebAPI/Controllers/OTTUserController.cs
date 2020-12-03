@@ -396,6 +396,7 @@ namespace WebAPI.Controllers
         [Obsolete("Please use setInitialPassword instead")]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [OldStandardAction("resetPassword")]
+        [ApiAuthorize]
         static public bool setPassword(int partnerId, string username, string password)
         {
             bool response = false;

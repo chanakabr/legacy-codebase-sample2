@@ -149,6 +149,15 @@ namespace WebAPI.Models.Domains
         [SchemeProperty(IsNullable = true, ReadOnly = true)]
         public long? ManufacturerId { get; set; }
 
+        /// <summary>
+        /// Last Activity Time, read only
+        /// </summary>
+        [DataMember(Name = "lastActivityTime")]
+        [JsonProperty("lastActivityTime")]
+        [XmlElement(ElementName = "lastActivityTime", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, ReadOnly = true)]
+        public long? LastActivityTime { get; set; }
+
         internal int getBrandId()
         {
             return BrandId.HasValue ? (int)BrandId : 0;

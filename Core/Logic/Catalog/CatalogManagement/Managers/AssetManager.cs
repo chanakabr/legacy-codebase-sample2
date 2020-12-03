@@ -128,15 +128,21 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        internal static void AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
+        internal static VirtualAssetInfoResponse AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
         {
+            VirtualAssetInfoResponse virtualAssetInfoResponse = new VirtualAssetInfoResponse()
+            {
+                Status = VirtualAssetInfoStatus.NotRelevant
+            };
+
             try
             {
                 ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo.Type);
 
                 if (objectVirtualAssetInfo == null)
                 {
-                    return;
+                    log.Debug($"objectVirtualAssetInfo  is null for groupId {groupId}, type {virtualAssetInfo.Type} ");
+                    return virtualAssetInfoResponse;
                 }                
 
                 MediaAsset virtualAsset = new MediaAsset()
@@ -155,6 +161,9 @@ namespace Core.Catalog.CatalogManagement
                     }
                 };
 
+                log.Debug($"objectVirtualAssetInfo for groupId {groupId}, type {virtualAssetInfo.Type} AssetStructId {objectVirtualAssetInfo.AssetStructId} meta: {objectVirtualAssetInfo.MetaId}");
+
+
                 if (!string.IsNullOrEmpty(type) && objectVirtualAssetInfo.ExtendedTypes?.Count > 0 && objectVirtualAssetInfo.ExtendedTypes.ContainsKey(type))
                 {
                     virtualAsset.MediaType.m_nTypeID = (int)objectVirtualAssetInfo.ExtendedTypes[type];
@@ -163,7 +172,8 @@ namespace Core.Catalog.CatalogManagement
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
                     log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
-                    return;
+                    virtualAssetInfoResponse.Status = VirtualAssetInfoStatus.Error;
+                    return virtualAssetInfoResponse;
                 }
 
                 if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
@@ -183,7 +193,13 @@ namespace Core.Catalog.CatalogManagement
                     var response = AssetManager.AddAsset(groupId, virtualAsset, virtualAssetInfo.UserId);
                     if (!response.IsOkStatusCode())
                     {
-                        log.Debug($"failed to AddVirtualAsset. groupId {groupId}, virtualAssetInfo {virtualAssetInfo.ToString()}");
+                        virtualAssetInfoResponse.Status = VirtualAssetInfoStatus.Error;
+                        log.Debug($"failed to AddVirtualAsset. groupId {groupId}, virtualAssetInfo {virtualAssetInfo.ToString()}, status:{response.ToStringStatus()}");
+                    }
+                    else
+                    {
+                        virtualAssetInfoResponse.Status = VirtualAssetInfoStatus.OK;
+                        virtualAssetInfoResponse.AssetId = response.Object.Id;
                     }
                 }
             }
@@ -191,44 +207,77 @@ namespace Core.Catalog.CatalogManagement
             {
                 log.Debug($"failed to AddVirtualAsset. groupId {groupId}, exc {exc}");
             }
+
+            log.Debug($"end to AddVirtualAsset. groupId {groupId} AssetId {virtualAssetInfoResponse.AssetId} Status {virtualAssetInfoResponse.Status}");
+
+            return virtualAssetInfoResponse;
         }
 
-        internal static void DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        internal static VirtualAssetInfoResponse DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
+            VirtualAssetInfoResponse response = new VirtualAssetInfoResponse() { Status = VirtualAssetInfoStatus.Error };
             try
             {
-                bool needToCreateVirtualAsset = false;
-                Asset virtualAsset = GetVirtualAsset(groupId, virtualAssetInfo, out needToCreateVirtualAsset);
+                response = GetVirtualAsset(groupId, virtualAssetInfo, out bool needToCreateVirtualAsset, out Asset virtualAsset);
+                if(response.Status == VirtualAssetInfoStatus.NotRelevant)
+                {
+                    return response;
+                }
+
                 if (virtualAsset != null)
                 {
                     Status status = AssetManager.DeleteAsset(groupId, virtualAsset.Id, eAssetTypes.MEDIA, virtualAssetInfo.UserId, true);
                     if (status == null || !status.IsOkStatusCode())
                     {
-                        log.Debug($"Failed delete virtual asset {virtualAsset.Id}. for virtualAssetInfo {virtualAssetInfo.ToString()}");
+                        log.Debug($"Failed delete virtual asset {virtualAsset.Id}. for virtualAssetInfo {virtualAssetInfo.ToString()}, status:{status.ToString()}");
+                        response.Status = VirtualAssetInfoStatus.Error;
+                        return response;
                     }
+
+                    response.Status = VirtualAssetInfoStatus.OK;
+                    return response;
                 }
             }
             catch (Exception exc)
             {
                 log.Debug($"failed to DeleteVirtualAsset. groupId {groupId}, exc {exc}");
+                response.Status = VirtualAssetInfoStatus.Error;
             }
+
+            return response;
+
         }
 
-        internal static void UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        internal static VirtualAssetInfoResponse UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
+            VirtualAssetInfoResponse response = new VirtualAssetInfoResponse()
+            {
+                Status = VirtualAssetInfoStatus.NotRelevant
+            };
+
             bool needToCreateVirtualAsset = false;
-            Asset virtualAsset = GetVirtualAsset(groupId, virtualAssetInfo, out needToCreateVirtualAsset);
+            response  = GetVirtualAsset(groupId, virtualAssetInfo, out needToCreateVirtualAsset, out Asset virtualAsset);
+
+            if(response.Status == VirtualAssetInfoStatus.NotRelevant)
+            {
+                return response;
+            }
 
             if (needToCreateVirtualAsset)
             {
-                AddVirtualAsset(groupId, virtualAssetInfo);
-                return;
+                response = AddVirtualAsset(groupId, virtualAssetInfo);
+                if (response.Status == VirtualAssetInfoStatus.Error)
+                {
+                    log.Error($"Failed while UpdateVirtualAsset. Error at AddVirtualAsset. groupId: {groupId}, assetName: {virtualAssetInfo.Name}");
+                    return response;
+                }
             }
 
             if (virtualAsset == null)
             {
                 log.Debug($"No virtualAsset for virtualAssetInfo {virtualAssetInfo.ToString()}");
-                return;
+                response.Status = VirtualAssetInfoStatus.Error;
+                return response;
             }
 
             virtualAsset.Name = virtualAssetInfo.Name;
@@ -238,10 +287,13 @@ namespace Core.Catalog.CatalogManagement
 
             if (!assetUpdateResponse.IsOkStatusCode())
             {
-                log.Debug($"Failed update virtualAssetInfo {virtualAsset.ToString()}, groupId {groupId}");
+                log.Debug($"Failed update virtualAssetInfo {virtualAsset.ToString()}, groupId {groupId}, status:{assetUpdateResponse.ToStringStatus()}");
+                response.Status = VirtualAssetInfoStatus.Error;
+                return response;
             }
 
-            return;
+            response.Status = VirtualAssetInfoStatus.OK;
+            return response;
         }
 
         #endregion
@@ -2827,20 +2879,23 @@ namespace Core.Catalog.CatalogManagement
             return objectVirtualAssetInfo;
         }
 
-        private static Asset GetVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, out bool needToCreateVirtualAsset)
+        private static VirtualAssetInfoResponse GetVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, out bool needToCreateVirtualAsset, out Asset asset)
         {
-            Asset asset = null;
+            VirtualAssetInfoResponse response = new VirtualAssetInfoResponse() { Status = VirtualAssetInfoStatus.NotRelevant };
+
+            asset = null;
             needToCreateVirtualAsset = false;
             if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
             {
                 log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
-                return asset;
+                response.Status = VirtualAssetInfoStatus.Error;
+                return response;
             }
 
             ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo.Type);
             if (objectVirtualAssetInfo == null)
             {
-                return asset;
+                return response;
             }
 
             string assetTypeQuery = $"asset_type='{objectVirtualAssetInfo.AssetStructId}'";
@@ -2867,7 +2922,8 @@ namespace Core.Catalog.CatalogManagement
             {
                 log.Debug($"GetVirtualAsset. Asset not found. groupId {groupId}, virtualAssetInfo {virtualAssetInfo.ToString()}");
                 needToCreateVirtualAsset = true;
-                return asset;
+                response.Status = VirtualAssetInfoStatus.OK;
+                return response;
             }
 
             GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
@@ -2875,10 +2931,13 @@ namespace Core.Catalog.CatalogManagement
             if (!assetResponse.HasObject())
             {
                 log.Debug($"GetVirtualAsset. virtual Asset not found. groupId {groupId}, virtualAssetInfo {virtualAssetInfo.ToString()}");
-                return asset;
+                response.Status = VirtualAssetInfoStatus.Error;
+                return response;
             }
 
-            return assetResponse.Object;
+            response.Status = VirtualAssetInfoStatus.OK;
+            asset = assetResponse.Object;
+            return response;
         }
 
         #endregion
@@ -3186,6 +3245,12 @@ namespace Core.Catalog.CatalogManagement
             {
                 log.Error(string.Format("Failed GetMediaForElasticSearchIndex for groupId: {0}", groupId), ex);
             }
+
+            if(result != null && result.Keys.Count > 0)
+            {
+                log.Debug($"GetMediaForElasticSearchIndex . groupId {groupId}, result.Keys.Count {result.Keys.Count}");
+            }
+
 
             return result;
         }

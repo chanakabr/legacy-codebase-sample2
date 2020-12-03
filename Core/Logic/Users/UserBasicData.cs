@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Users.Managers;
+using ApiLogic.Users.Security;
 using ApiObjects;
 using ApiObjects.Response;
 using AuthenticationGrpcClientWrapper;
@@ -91,6 +92,8 @@ namespace Core.Users
             DataRow drUserBasicData = dtUserBasicData.Rows[0];
 
             string sUserName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "USERNAME");
+            sUserName = UserDataEncryptor.Instance().DecryptUsername(nGroupID, sUserName);
+
             string sPass = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "PASSWORD");
             string sSalt = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "SALT");
             string sFirstName = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "FIRST_NAME");
@@ -196,6 +199,7 @@ namespace Core.Users
             return res;
         }
 
+        // TODO remove me - NOT USED
         public bool Initialize(string sXML, string userId, int groupId)
         {
             XmlDocument theDoc = new XmlDocument();
@@ -272,14 +276,18 @@ namespace Core.Users
 
             this.UpdateDate = DateTime.UtcNow;
 
-            bool saved = DAL.UsersDal.SaveBasicData(groupId, nUserID,
+            var userDataEncryptor = UserDataEncryptor.Instance();
+            var encryptionType = userDataEncryptor.GetUsernameEncryptionType(groupId);
+            var encryptedUsername = userDataEncryptor.EncryptUsername(groupId, encryptionType, m_sUserName);
+
+            bool saved = UsersDal.SaveBasicData(groupId, nUserID,
                                                     m_sPassword,
                                                     m_sSalt,
                                                     m_sFacebookID,
                                                     m_sFacebookImage,
                                                     m_bIsFacebookImagePermitted,
                                                     m_sFacebookToken,
-                                                    m_sUserName,
+                                                    encryptedUsername,
                                                     m_sFirstName,
                                                     m_sLastName,
                                                     m_sEmail,
@@ -292,11 +300,12 @@ namespace Core.Users
                                                     m_sAffiliateCode,
                                                     m_sTwitterToken,
                                                     m_sTwitterTokenSecret,
-                                                    this.UpdateDate,
+                                                    UpdateDate,
                                                     m_CoGuid,
                                                     m_ExternalToken,
                                                     resetFailCount,
-                                                    updateUserPassword);
+                                                    updateUserPassword,
+                                                    encryptionType.HasValue);
 
             if (UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds))
             {

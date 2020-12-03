@@ -1988,6 +1988,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCouponEntitlementDiscountDetails":
+                    switch(property.Name)
+                    {
+                        case "CouponCode":
+                            return "couponCode";
+                        case "EndlessCoupon":
+                            return "endlessCoupon";
+                    }
+                    break;
+                    
                 case "KalturaCouponFilter":
                     switch(property.Name)
                     {
@@ -2079,6 +2089,14 @@ namespace WebAPI.Reflection
                     {
                         case "Data":
                             return "data";
+                    }
+                    break;
+                    
+                case "KalturaDataEncryption":
+                    switch(property.Name)
+                    {
+                        case "Username":
+                            return "username";
                     }
                     break;
                     
@@ -2464,6 +2482,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEncryption":
+                    switch(property.Name)
+                    {
+                        case "EncryptionType":
+                            return "encryptionType";
+                    }
+                    break;
+                    
                 case "KalturaEngagement":
                     switch(property.Name)
                     {
@@ -2610,6 +2636,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEntitlementDiscountDetails":
+                    switch(property.Name)
+                    {
+                        case "Amount":
+                            return "amount";
+                        case "EndDate":
+                            return "endDate";
+                        case "StartDate":
+                            return "startDate";
+                    }
+                    break;
+                    
+                case "KalturaEntitlementDiscountDetailsIdentifier":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                    }
+                    break;
+                    
                 case "KalturaEntitlementFilter":
                     switch(property.Name)
                     {
@@ -2629,6 +2675,16 @@ namespace WebAPI.Reflection
                     {
                         case "Entitlements":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaEntitlementPriceDetails":
+                    switch(property.Name)
+                    {
+                        case "DiscountDetails":
+                            return "discountDetails";
+                        case "FullPrice":
+                            return "fullPrice";
                     }
                     break;
                     
@@ -3191,6 +3247,8 @@ namespace WebAPI.Reflection
                             return "externalId";
                         case "HouseholdId":
                             return "householdId";
+                        case "LastActivityTime":
+                            return "lastActivityTime";
                         case "MacAddress":
                             return "macAddress";
                         case "Manufacturer":
@@ -6064,6 +6122,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSecurityPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "Encryption":
+                            return "encryption";
+                    }
+                    break;
+                    
                 case "KalturaSegmentAllValues":
                     switch(property.Name)
                     {
@@ -6548,6 +6614,34 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaStreamingDevice":
+                    switch(property.Name)
+                    {
+                        case "Asset":
+                            return "asset";
+                        case "Udid":
+                            return "udid";
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
+                case "KalturaStreamingDeviceFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetTypeEqual":
+                            return "assetTypeEqual";
+                    }
+                    break;
+                    
+                case "KalturaStreamingDeviceListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaStringValueArray":
                     switch(property.Name)
                     {
@@ -6673,6 +6767,8 @@ namespace WebAPI.Reflection
                             return "paymentGatewayId";
                         case "PaymentMethodId":
                             return "paymentMethodId";
+                        case "PriceDetails":
+                            return "priceDetails";
                         case "ScheduledSubscriptionId":
                             return "scheduledSubscriptionId";
                         case "UnifiedPaymentId":
@@ -9690,6 +9786,7 @@ namespace WebAPI.Reflection
                         case "resetpassword":
                             if(isOldVersion)
                             {
+                                RolesManager.ValidateActionPermitted("ottUser", "resetPassword", false);
                                 return OttUserController.setPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             }
                             return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
@@ -9702,6 +9799,7 @@ namespace WebAPI.Reflection
                             return OttUserController.setInitialPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "setpassword":
+                            RolesManager.ValidateActionPermitted("ottUser", "setPassword", false);
                             return OttUserController.setPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "update":
@@ -10789,6 +10887,16 @@ namespace WebAPI.Reflection
                         case "update":
                             RolesManager.ValidateActionPermitted("ssoAdapterProfile", "update", false);
                             return SsoAdapterProfileController.Update((int) methodParams[0], (KalturaSSOAdapterProfile) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "streamingdevice":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("streamingDevice", "list", false);
+                            return StreamingDeviceController.List((KalturaStreamingDeviceFilter) methodParams[0]);
                             
                     }
                     break;
@@ -18974,6 +19082,22 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSSOAdapterProfile),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "streamingdevice":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaStreamingDeviceFilter),
                             });
                             return ret;
                             

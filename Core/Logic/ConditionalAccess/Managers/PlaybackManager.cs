@@ -386,22 +386,7 @@ namespace Core.ConditionalAccess
                                         // HandlePlayUses + DevicePlayData
                                         if (domainId > 0)
                                         {
-                                            if (Utils.IsItemPurchased(filePrice))
-                                            {
-                                                PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
-                                            }
-                                            // item must be free otherwise we wouldn't get this far
-                                            else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value 
-                                                && filePrice?.m_oItemPrices?.Length > 0) 
-                                            {
-                                                bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, (int)file.Id,
-                                                        new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false,
-                                                        eTransactionType.PPV, null, filePrice.m_oItemPrices[0].m_dtEndDate));
-                                            }
-
-                                            cas.InsertDevicePlayData(concurrencyResponse.Data, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
-
-                                            log.Debug("PlaybackManager.GetPlaybackContext - exec PlayUsesManager.HandlePlayUses and cas.InsertDevicePlayData methods");
+                                            HandlePlayUsesAndDevicePlayData(cas, userId, domainId, (int)file.Id, ip, udid, filePrice, concurrencyResponse != null ? concurrencyResponse.Data : null);
                                         }
                                     }
                                 }
@@ -442,6 +427,31 @@ namespace Core.ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return response;
+        }
+
+        private static void HandlePlayUsesAndDevicePlayData(BaseConditionalAccess cas, string userId, long domainId, int fileId, string ip, string udid, 
+            MediaFileItemPricesContainer filePrice, ApiObjects.MediaMarks.DevicePlayData devicePlayData)
+        {
+            
+            if (Utils.IsItemPurchased(filePrice))
+            {
+                PlayUsesManager.HandlePlayUses(cas, filePrice, userId, fileId, ip, string.Empty, string.Empty, udid, string.Empty, domainId, cas.m_nGroupID);
+            }
+            // item must be free otherwise we wouldn't get this far
+            else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value
+                && filePrice?.m_oItemPrices?.Length > 0)
+            {
+                bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, fileId,
+                        new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false,
+                        eTransactionType.PPV, null, filePrice.m_oItemPrices[0].m_dtEndDate));
+            }
+
+            if (devicePlayData != null)
+            {
+                cas.InsertDevicePlayData(devicePlayData, fileId, ip, ApiObjects.Catalog.eExpirationTTL.Long);
+            }
+
+            log.Debug("PlaybackManager.GetPlaybackContext - exec PlayUsesManager.HandlePlayUses and cas.InsertDevicePlayData methods");
         }
 
         private static PlaybackContextResponse HandleUserSuspended(int groupId, string userId, string assetId, eAssetTypes assetType, PlaybackContextResponse response, long domainId)
@@ -570,25 +580,7 @@ namespace Core.ConditionalAccess
                 if (response.Status.Code == (int)eResponseStatus.OK && domainId > 0)
                 {
                     // HandlePlayUses
-                    if (Utils.IsItemPurchased(price))
-                    {
-                        PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
-                    }
-                    // item must be free otherwise we wouldn't get this far
-                    else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value && price.m_oItemPrices?.Length > 0)
-
-                    {
-                        bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, (int)file.Id,
-                                new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false,
-                                eTransactionType.PPV, null, price.m_oItemPrices[0].m_dtEndDate));
-                    }
-
-                    if (playbackContextResponse.ConcurrencyData != null)
-                    {
-                        cas.InsertDevicePlayData(playbackContextResponse.ConcurrencyData, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
-                        log.DebugFormat("PlaybackManager.GetPlayManifest - exec cas.InsertDevicePlayData method udid:{0}", playbackContextResponse.ConcurrencyData.UDID);
-                    }
-
+                    HandlePlayUsesAndDevicePlayData(cas, userId, domainId, (int)file.Id, ip, udid, price, playbackContextResponse.ConcurrencyData);
                 }
             }
             catch (Exception ex)

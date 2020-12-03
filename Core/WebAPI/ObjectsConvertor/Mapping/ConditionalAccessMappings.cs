@@ -132,6 +132,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsSuspended, opt => opt.MapFrom(src => src.IsSuspended))
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
                .ForMember(dest => dest.UnifiedPaymentId, opt => opt.MapFrom(src => src.UnifiedPaymentId))
+               .ForMember(dest => dest.PriceDetails, opt => opt.MapFrom(src => src.PriceDetails))
                ;
 
             cfg.CreateMap<SubscriptionPurchase, KalturaSubscriptionEntitlement>()
@@ -298,6 +299,36 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //.ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
             //.ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
             //.ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.mediaID));
+
+            cfg.CreateMap<EntitlementPriceDetails, KalturaEntitlementPriceDetails>()
+              .ForMember(dest => dest.FullPrice, opt => opt.MapFrom(src => src.FullPrice))
+              .ForMember(dest => dest.DiscountDetails, opt => opt.MapFrom(src => src.DiscountDetails));
+
+            cfg.CreateMap<EntitlementDiscountDetails, KalturaEntitlementDiscountDetails>()
+              .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+              .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+              .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate));
+
+            cfg.CreateMap<CouponEntitlementDiscountDetails, KalturaCouponEntitlementDiscountDetails>()
+                .IncludeBase<EntitlementDiscountDetails, KalturaEntitlementDiscountDetails>()
+                .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.EndlessCoupon))
+                .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.CouponCode));
+
+            cfg.CreateMap<EntitlementDiscountDetailsIdentifier, KalturaEntitlementDiscountDetailsIdentifier>()
+                .IncludeBase<EntitlementDiscountDetails, KalturaEntitlementDiscountDetails>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+
+            cfg.CreateMap<CompensationEntitlementDiscountDetails, KalturaCompensationEntitlementDiscountDetails>()
+                .IncludeBase<EntitlementDiscountDetailsIdentifier, KalturaEntitlementDiscountDetailsIdentifier>();
+
+            cfg.CreateMap<CampaignEntitlementDiscountDetails, KalturaCampaignEntitlementDiscountDetails>()
+                .IncludeBase<EntitlementDiscountDetailsIdentifier, KalturaEntitlementDiscountDetailsIdentifier>();
+
+            cfg.CreateMap<DiscountEntitlementDiscountDetails, KalturaDiscountEntitlementDiscountDetails>()
+                .IncludeBase<EntitlementDiscountDetailsIdentifier, KalturaEntitlementDiscountDetailsIdentifier>();
+
+            cfg.CreateMap<TrailEntitlementDiscountDetails, KalturaTrailEntitlementDiscountDetails>()
+                .IncludeBase<EntitlementDiscountDetailsIdentifier, KalturaEntitlementDiscountDetailsIdentifier>();
 
             #endregion
 

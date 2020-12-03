@@ -1362,8 +1362,8 @@ namespace Core.ConditionalAccess
                 PriceReason theReason = fullPrice.PriceReason;
                 DiscountModule externalDiscount;
                 PriceCode priceCode = subscription.m_oSubscriptionPriceCode;
-                fullPrice.OriginalPrice = HandlePriceCodeAndExternalDiscount(blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION, ref theReason, groupId, ref currencyCode, ip, userId,
-                                                           ref countryCode, subscription.m_oExtDisountModule, out externalDiscount, ref priceCode);
+                fullPrice.OriginalPrice = HandlePriceCodeAndExternalDiscount(ref theReason, groupId, ref currencyCode, ref countryCode, subscription.m_oExtDisountModule, 
+                    out externalDiscount, ref priceCode, blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION, ip, userId);
 
                 fullPrice.FinalPrice = CopyPrice(fullPrice.OriginalPrice);
 
@@ -1711,8 +1711,9 @@ namespace Core.ConditionalAccess
         }
 
 
-        private static Price HandlePriceCodeAndExternalDiscount(bool isBlockEntitlementType, ref PriceReason theReason, int groupId, ref string currencyCode, string ip, string userId,
-                                                                ref string countryCode, DiscountModule externalDiscountModule, out DiscountModule externalDiscount, ref PriceCode priceCode)
+        public static Price HandlePriceCodeAndExternalDiscount(ref PriceReason theReason, int groupId, ref string currencyCode, ref string countryCode, 
+            DiscountModule externalDiscountModule, out DiscountModule externalDiscount, ref PriceCode priceCode, bool isBlockEntitlementType = false,
+            string ip = null, string userId = null)
         {
             Price price = null;
             externalDiscount = externalDiscountModule != null ? ObjectCopier.Clone(externalDiscountModule) : null;
@@ -2195,8 +2196,8 @@ namespace Core.ConditionalAccess
 
             DiscountModule externalDiscount;
             PriceCode priceCode = collection.m_oCollectionPriceCode;
-            Price price = HandlePriceCodeAndExternalDiscount(blockEntitlement == BlockEntitlementType.BLOCK_PPV, ref theReason, groupId, ref currencyCode, ip, sSiteGUID,
-                                                             ref countryCode, collection.m_oExtDisountModule, out externalDiscount, ref priceCode);
+            Price price = HandlePriceCodeAndExternalDiscount(ref theReason, groupId, ref currencyCode, ref countryCode, collection.m_oExtDisountModule, 
+                out externalDiscount, ref priceCode, blockEntitlement == BlockEntitlementType.BLOCK_PPV, ip, sSiteGUID);
             collection.m_oCollectionPriceCode = priceCode;
             if (theReason != PriceReason.ForPurchase)
             {
@@ -8187,15 +8188,25 @@ namespace Core.ConditionalAccess
                     {
                         if (hhQuota != null && hhQuota.Status.Code == (int)eResponseStatus.OK)
                         {
-                            int usedQuota = hhQuota.TotalQuota - hhQuota.AvailableQuota; // get used quota
+                            //TODO - Matan - Check functionality
+                            int usedQuota = hhQuota.Used;// hhQuota.TotalQuota - hhQuota.AvailableQuota; // get used quota
                             if (usedQuota > npvrObject.Quota * 60)
                             {
                                 // call the handel to delete all recordings
-                                QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota * 60), DomainRecordingStatus.DeletePending);
+                                var deleted = QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota * 60), DomainRecordingStatus.DeletePending);
+                                if (deleted?.Count > 0)
+                                {
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, householdId));
+                                }
                             }
                             else if (usedQuota > 0 && usedQuota < npvrObject.Quota * 60) // recover recording from auto-delete by grace period recovery
                             {
                                 status = QuotaManager.Instance.HandleDomainRecoveringRecording(groupId, householdId, (int)(npvrObject.Quota * 60 - usedQuota));
+                                
+                                if (status.IsOkStatusCode())
+                                {
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, householdId));
+                                }
                             }
                         }
                     }
@@ -8843,58 +8854,72 @@ namespace Core.ConditionalAccess
         /// </summary>
         internal static ePaymentMethod GetBillingTransMethod(int billingTransID, string billingGuid)
         {
-            ePaymentMethod retVal = ePaymentMethod.Unknown;
+            ePaymentMethod paymentMethod = ePaymentMethod.Unknown;
+            var data = GetBillingTransactionData(billingTransID, billingGuid);
 
-            if (billingTransID <= 0 && string.IsNullOrEmpty(billingGuid))
+            if (data != null)
             {
-                return retVal;
+                paymentMethod = data.Item1;
             }
 
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
-            try
+            return paymentMethod;
+        }
+
+        internal static Tuple<ePaymentMethod, string> GetBillingTransactionData(int billingTransID, string billingGuid)
+        {
+            ePaymentMethod paymentMethod = ePaymentMethod.Unknown;
+            string customdata = null;
+
+            if (billingTransID > 0 || !string.IsNullOrEmpty(billingGuid))
             {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                ODBCWrapper.DataSetSelectQuery selectQuery = null;
+                try
+                {
+                    selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-                selectQuery += " select BILLING_METHOD, billing_provider from billing_transactions with (nolock) where status=1  and ";
-                if (billingTransID > 0)
-                {
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", billingTransID);
-                }
-                else
-                {
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("billing_guid", "=", billingGuid);
-                }
-
-                DataTable dt = selectQuery.Execute("query", true);
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    int billingInt = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "BILLING_METHOD");
-                    int billingProvider = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "billing_provider");
-                    if (billingProvider == 1000)
+                    selectQuery += " select BILLING_METHOD, billing_provider, CUSTOMDATA from billing_transactions with (nolock) where status=1  and ";
+                    if (billingTransID > 0)
                     {
-                        retVal = ePaymentMethod.Unknown;
+                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", billingTransID);
                     }
-                    else if (billingInt > 0)
+                    else
                     {
-                        if (Enum.IsDefined(typeof(ePaymentMethod), ((ePaymentMethod)billingInt).ToString()))
-                            retVal = (ePaymentMethod)billingInt;
+                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("billing_guid", "=", billingGuid);
+                    }
+
+                    DataTable dt = selectQuery.Execute("query", true);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        customdata = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CUSTOMDATA");
+                        int billingInt = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "BILLING_METHOD");
+                        int billingProvider = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "billing_provider");
+                        if (billingProvider == 1000)
+                        {
+                            paymentMethod = ePaymentMethod.Unknown;
+                        }
+                        else if (billingInt > 0)
+                        {
+                            if (Enum.IsDefined(typeof(ePaymentMethod), ((ePaymentMethod)billingInt).ToString()))
+                                paymentMethod = (ePaymentMethod)billingInt;
+                        }
+                    }
+                    else
+                    {
+                        paymentMethod = ePaymentMethod.Gift;
                     }
                 }
-                else
+
+                finally
                 {
-                    retVal = ePaymentMethod.Gift;
+                    if (selectQuery != null)
+                    {
+                        selectQuery.Finish();
+                    }
                 }
             }
 
-            finally
-            {
-                if (selectQuery != null)
-                {
-                    selectQuery.Finish();
-                }
-            }
-            return retVal;
+            return new Tuple<ePaymentMethod, string>(paymentMethod, customdata); ;
         }
 
         internal static bool IsGroupIDContainedInConfig(long lGroupID, string rawStrFromConfig, char cSeperator)
@@ -9613,6 +9638,29 @@ namespace Core.ConditionalAccess
                 }
             }
             return res;
+        }
+
+        public static Price GetLowestPriceByCouponCode(int groupId, string couponCode, Subscription subscription, Price lowestPrice, long domainId)
+        {
+            long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
+            if (couponGroupId > 0)
+            {
+                // look if this coupon group id exists in coupon list 
+                CouponsGroup currCouponGroup = null;
+                if (subscription.m_oCouponsGroup != null && !string.IsNullOrEmpty(subscription.m_oCouponsGroup.m_sGroupCode) && subscription.m_oCouponsGroup.m_sGroupCode.Equals(couponGroupId.ToString()))
+                {
+                    currCouponGroup = ObjectCopier.Clone(subscription.m_oCouponsGroup);
+                }
+                else if (subscription.CouponsGroups != null)
+                {
+                    currCouponGroup = ObjectCopier.Clone<CouponsGroup>(subscription.CouponsGroups.FirstOrDefault
+                        (x => x.m_sGroupCode.Equals(couponGroupId.ToString()) && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)));
+                }
+
+                lowestPrice = CalculateCouponDiscount(ref lowestPrice, currCouponGroup, ref couponCode, groupId, domainId);
+            }
+
+            return lowestPrice;
         }
     }
 }

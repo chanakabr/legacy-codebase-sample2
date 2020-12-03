@@ -113,6 +113,8 @@ namespace Core.ConditionalAccess
         public const string RECURRING_NUMBER = "recurringnumber";
         public const string IS_ORIGINAL_BROADCAST_KEY = "isOriginalBroadcast";
         public const string IS_ORIGINAL_BROADCAST_VALUE = "true";
+        public const string CAMPAIGN_CODE = "campcode";
+        public const string COMPANSATION_CODE = "compensation"; 
 
         protected const int PAYMENT_GATEWAY = 1000;
 
@@ -2653,7 +2655,7 @@ namespace Core.ConditionalAccess
         }
 
         protected internal bool GetMultiSubscriptionUsageModule(RenewDetails renewDetails, string userIp, ref int recPeriods, ref bool isMPPRecurringInfinitely,
-                                                                Subscription subscription, ref SubscriptionCycle subscriptionCycle, int groupId = 0, 
+                                                                Subscription subscription, ref SubscriptionCycle subscriptionCycle, int groupId = 0,
                                                                 bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
         {
             bool isSuccess = false;
@@ -6433,7 +6435,7 @@ namespace Core.ConditionalAccess
                         string coupon = couponCode;
                         string subscriptionCode = subscriptions[i];
 
-                        
+
                         Subscription s = null;
 
                         var price = Utils.GetSubscriptionFullPrice(m_nGroupID, subscriptionCode, userId, coupon, ref s, string.Empty, languageCode, udid, ip,
@@ -10166,7 +10168,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // Check if within cancellation window
-                    bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid, true);                    
+                    bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid, true);
 
                     // Check if the user purchased the asset at all
                     if (userPurchasesTable == null || userPurchasesTable.Rows == null || userPurchasesTable.Rows.Count == 0)
@@ -13451,7 +13453,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                //// in case adapterId is the group selected CDVR Adapter  - delete isn’t allowed
+                //// in case adapterId is the group selected CDVR Adapter  - delete isnï¿½t allowed
                 ////-------------------------------------------------------------------------------
                 //object defaultAdapter = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "OSS_ADAPTER", "GROUP_ID", "=", m_nGroupID, "billing_connection");
                 //int cdvrAdapterIdentifier = 0;
@@ -13761,7 +13763,7 @@ namespace Core.ConditionalAccess
 
                     if (canRecord)
                     {
-                        int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                        var recordingDuration = QuotaManager.GetRecordingDurationSeconds(recording);
                         log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
                         if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
                         {
@@ -13818,7 +13820,7 @@ namespace Core.ConditionalAccess
         {
             try
             {
-                if (QuotaManager.Instance.IncreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
+                if (QuotaManager.Instance.SetDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
                 {
                     recording.Type = recordingType;
 
@@ -13828,12 +13830,6 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        // increase the quota back to the user                               
-                        if (!QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
-                        {
-                            log.ErrorFormat("Failed giving the quota back to the domain, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                        }
-
                         log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                         recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     }
@@ -13934,10 +13930,10 @@ namespace Core.ConditionalAccess
                     {
                         recording.Status = RecordingsManager.Instance.CacnelOrDeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, tstvRecordingStatus == TstvRecordingStatus.Deleted);
                     }
-                    else if (QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
+                    else
                     {
                         ContextData contextData = new ContextData();
-                        System.Threading.Tasks.Task async = Task.Run(() =>
+                        Task async = Task.Run(() =>
                         {
                             contextData.Load();
                             if (!CompleteDomainSeriesRecordings((long)domainId))
@@ -14053,10 +14049,11 @@ namespace Core.ConditionalAccess
                 // if the recording is of type Single then quota should be checked for each valid recording
                 if (isSingleRecording || shouldCheckQuota)
                 {
-                    int totalSeconds = QuotaManager.Instance.GetDomainAvailableQuota(this.m_nGroupID, domainID);
+                    int totalSeconds = QuotaManager.Instance.GetDomainAvailableQuota(this.m_nGroupID, domainID, out int usedQuota);
+
                     if (recording.RecordingStatus == TstvRecordingStatus.OK)
                     {
-                        int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                        int recordingDuration = QuotaManager.GetRecordingDurationSeconds(recording);
                         if (recordingDuration > totalSeconds)
                         {
                             recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
@@ -15518,7 +15515,7 @@ namespace Core.ConditionalAccess
                         domainRecordingStatus = DomainRecordingStatus.DeletedBySystem;
                     }
 
-                    int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                    int recordingDuration = QuotaManager.GetRecordingDurationSeconds(recording);
                     long maxDomainRecordingId = 0;
                     DataTable modifiedDomainRecordings = RecordingsDAL.UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch == 0 ? -1 : task.ScheduledExpirationEpoch,
                         status, domainRecordingStatus.Value, maxDomainRecordingId);
@@ -15530,7 +15527,7 @@ namespace Core.ConditionalAccess
                         maxDegreeOfParallelism = 5;
                     }
 
-                    System.Collections.Concurrent.ConcurrentBag<long> domainIds = new System.Collections.Concurrent.ConcurrentBag<long>();
+                    ConcurrentBag<long> domainIds = new ConcurrentBag<long>();
                     ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
                     while (modifiedDomainRecordings != null && modifiedDomainRecordings.Rows != null && modifiedDomainRecordings.Rows.Count > 0)
                     {
@@ -15542,26 +15539,17 @@ namespace Core.ConditionalAccess
                             if (dr != null)
                             {
                                 long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
-                                bool quotaSuccessfullyUpdated = false;
 
                                 // BEO - BEO-7188
                                 if (recordingDuration > 0)
                                 {
-                                    quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainUsedQuota(task.GroupId, domainId, recordingDuration);
-                                }
-
-                                if (quotaSuccessfullyUpdated)
-                                {
                                     domainIds.Add(domainId);
+
                                     if (!CompleteDomainSeriesRecordings(domainId))
                                     {
                                         log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", task.RecordingId, domainId);
                                     }
                                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
-                                }
-                                else
-                                {
-                                    log.ErrorFormat("Failed Updating domain {0} available quota", domainId);
                                 }
                             }
                             else
@@ -15652,19 +15640,10 @@ namespace Core.ConditionalAccess
                         long domainId = userDomainlist[i].DomainId;
                         if (domainId > 0)
                         {
-                            bool quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
-
-                            if (quotaSuccessfullyUpdated)
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
+                            if (!CompleteDomainSeriesRecordings(domainId))
                             {
-                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
-                                if (!CompleteDomainSeriesRecordings(domainId))
-                                {
-                                    log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", recording.Id, domainId);
-                                }
-                            }
-                            else
-                            {
-                                log.ErrorFormat("Failed Updating domain {0} available quota", domainId);
+                                log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", recording.Id, domainId);
                             }
                         }
                     });
@@ -15686,7 +15665,7 @@ namespace Core.ConditionalAccess
             {
                 long epgId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "epg_id");
                 //Check user Entitled for the channel 
-                //Updated definitions for future/scheduled single recordings on channel entitlements revoke – to allow lazy removal
+                //Updated definitions for future/scheduled single recordings on channel entitlements revoke ï¿½ to allow lazy removal
                 List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
                 if (epgs == null || epgs.Count == 0)
                 {
@@ -15779,7 +15758,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // get household quota - if no quota - nothing to do
-                int availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId);
+                int availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId, out int used);
 
                 // min quota threshold for skipping this process                
                 if (availibleQuota <= 60 && (!tstvSettings.QuotaOveragePolicy.HasValue ||
@@ -15896,7 +15875,7 @@ namespace Core.ConditionalAccess
                             {
                                 log.DebugFormat("successfully recorded episode for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, recording.Id);
 
-                                availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId);
+                                availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId, out int _used);
 
                                 if (!recordedCridsPerChannel.ContainsKey(epgChannelId))
                                 {

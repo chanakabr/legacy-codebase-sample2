@@ -696,6 +696,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("commerce_partner_config_{0}", groupId);
         }
 
+        public static string GetSecurityPartnerConfigKey(int groupId)
+        {
+            return $"security_partner_config_{groupId}";
+        }
         public static string GetGroupCategoriesKey(int groupId)
         {
             return $"groupCategoriesKey_groupId_{groupId}";
@@ -1267,6 +1271,11 @@ namespace CachingProvider.LayeredCache
         public static string GetCommercePartnerConfigInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyCommercePartnerConfig_groupId_{0}", groupId);
+        }
+
+        public static string GetSecurityPartnerConfigInvalidationKey(int groupId)
+        {
+            return $"invalidationKeySecurityPartnerConfig_groupId_{groupId}";
         }
 
         public static string GetPlaybackPartnerConfigInvalidationKey(int groupId)

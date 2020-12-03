@@ -1560,6 +1560,12 @@ namespace Core.ConditionalAccess
                         log.ErrorFormat("Failed to update subscription compensation use. compensationId = {0}, billingTransactionId = {1}, renewalNumber = {2}",
                                          renewDetails.RecurringData.Compensation.Id, transactionId, renewDetails.RecurringData.Compensation.Renewals);
                     }
+
+                    if (renewDetails.RecurringData.Compensation.TotalRenewals > 0 
+                        && renewDetails.RecurringData.Compensation.Renewals == renewDetails.RecurringData.Compensation.TotalRenewals)
+                    {
+                        renewDetails.RecurringData.Compensation = null;
+                    }
                 }
 
                 if (renewDetails.IsUseCouponRemainder ||
@@ -1573,6 +1579,7 @@ namespace Core.ConditionalAccess
                 }
 
                 renewDetails.RecurringData.TotalNumOfRenews++;
+
                 if (renewDetails.RecurringData.LeftCouponRecurring > 0)
                 {
                     renewDetails.RecurringData.LeftCouponRecurring--;

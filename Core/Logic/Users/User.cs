@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Users.Managers;
+using ApiLogic.Users.Security;
 using ApiObjects;
 using ApiObjects.Base;
 using CachingProvider.LayeredCache;
@@ -567,7 +568,7 @@ namespace Core.Users
 
         public int InitializeByUsername(string sUsername, Int32 nGroupID)
         {
-            Int32 nUserID = DAL.UsersDal.GetUserIDByUsername(sUsername, nGroupID);
+            Int32 nUserID = UserStorage.Instance().GetUserIDByUsername(sUsername, nGroupID);
             if (nUserID > 0)
             {
                 bool bInit = Initialize(nUserID, nGroupID);
@@ -655,10 +656,13 @@ namespace Core.Users
                 stateID = m_oBasicData.m_State.m_nObjecrtID;
             }
 
-            this.userId = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName, m_oBasicData.m_sPassword, m_oBasicData.m_sSalt, m_oBasicData.m_sFirstName, m_oBasicData.m_sLastName, m_oBasicData.m_sFacebookID,
+            var userDataEncryptor = UserDataEncryptor.Instance();
+            var encryptionType = userDataEncryptor.GetUsernameEncryptionType(GroupId);
+            var username = userDataEncryptor.EncryptUsername(GroupId, encryptionType, m_oBasicData.m_sUserName);
+            this.userId = UsersDal.InsertUser(username, m_oBasicData.m_sPassword, m_oBasicData.m_sSalt, m_oBasicData.m_sFirstName, m_oBasicData.m_sLastName, m_oBasicData.m_sFacebookID,
                                                   m_oBasicData.m_sFacebookImage, m_oBasicData.m_sFacebookToken, bIsFacebookImagePermitted, m_oBasicData.m_sEmail, (this.shouldSetUserActive ? 1 : 0), sActivationToken,
                                                   m_oBasicData.m_CoGuid, m_oBasicData.m_ExternalToken, m_oBasicData.m_UserType.ID, m_oBasicData.m_sAddress, m_oBasicData.m_sCity, countryID, stateID,
-                                                  m_oBasicData.m_sZip, m_oBasicData.m_sPhone, m_oBasicData.m_sAffiliateCode, m_oBasicData.m_sTwitterToken, m_oBasicData.m_sTwitterTokenSecret, this.GroupId);
+                                                  m_oBasicData.m_sZip, m_oBasicData.m_sPhone, m_oBasicData.m_sAffiliateCode, m_oBasicData.m_sTwitterToken, m_oBasicData.m_sTwitterTokenSecret, GroupId, encryptionType.HasValue);
 
             if (this.userId > 0)
             {
@@ -1096,7 +1100,7 @@ namespace Core.Users
                 DateTime dLastFailDate = new DateTime(2020, 1, 1);
                 DateTime dLastHitDate = new DateTime(2020, 1, 1);
 
-                var userId = UsersDal.GetUserPasswordFailHistory(username, groupId, ref dNow, ref nFailCount, ref dLastFailDate, ref dLastHitDate, ref passwordUpdateDate);
+                var userId = UserStorage.Instance().GetUserPasswordFailHistory(username, groupId, ref dNow, ref nFailCount, ref dLastFailDate, ref dLastHitDate, ref passwordUpdateDate);
                 if (userId <= 0)
                 {
                     userResponseObject.m_RespStatus = ResponseStatus.UserDoesNotExist;

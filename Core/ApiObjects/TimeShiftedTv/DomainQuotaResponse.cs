@@ -26,5 +26,18 @@ namespace ApiObjects.TimeShiftedTv
             get;
             set;
         }
+
+        private int _used;
+        public int Used
+        {
+            get
+            {
+                return _used;
+            }
+            set
+            {
+                _used = _used == default ? (int)Math.Ceiling((double)(this.TotalQuota - this.AvailableQuota)) : value;
+            }
+        }
     }
 }

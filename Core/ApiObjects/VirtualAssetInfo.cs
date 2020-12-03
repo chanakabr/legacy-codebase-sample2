@@ -25,4 +25,18 @@ namespace ApiObjects
             return $"VirtualAssetInfo: Id: {Id}, Type: {Type}, UserId: {UserId}";
         }
     }
+
+    public class VirtualAssetInfoResponse
+    {
+        public VirtualAssetInfoStatus Status { get; set; }
+        public long AssetId { get; set; }
+    }
+
+    public enum VirtualAssetInfoStatus
+    {
+        NotRelevant = 0,
+        OK = 1,
+        Error = 2,
+    }
+
 }

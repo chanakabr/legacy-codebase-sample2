@@ -3,6 +3,7 @@ using DAL;
 using System;
 using Newtonsoft.Json;
 using ApiObjects;
+using ApiLogic.Users.Security;
 
 namespace Core.Users
 {
@@ -34,7 +35,7 @@ namespace Core.Users
             retVal.m_sSenderName = m_sMailFromName;
             retVal.m_sSenderTo = sEmail;
             retVal.m_sUsername = sUserName;
-            sActivation = UsersDal.GetActivationToken(m_nGroupID, sUserName);
+            sActivation = UserStorage.Instance().GetActivationToken(m_nGroupID, sUserName);
             
             if (string.IsNullOrEmpty(sFacekookID))
             {

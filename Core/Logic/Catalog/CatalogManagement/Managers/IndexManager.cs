@@ -374,6 +374,9 @@ namespace Core.Catalog.CatalogManagement
                 log.Error("Error - " + string.Format("Upsert Media threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
             }
 
+            log.Debug($"Upsert Media result {result}");
+
+
             return result;
         }
 

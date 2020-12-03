@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Users;
+using ApiLogic.Users.Security;
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Segmentation;
@@ -149,7 +150,7 @@ namespace Core.Users
 
             var userStatus = GetUserActivationState(ref userName, ref siteGuid, ref isGracePeriod);
             var responseStatus = Utils.MapToResponseStatus(userStatus);
-            if (responseStatus != ResponseStatus.OK)
+            if (responseStatus != ResponseStatus.OK && responseStatus != ResponseStatus.UserSuspended)
             {
                 userResponseObject.m_user = responseStatus == ResponseStatus.InternalError || responseStatus == ResponseStatus.UserDoesNotExist
                     ? null
@@ -264,7 +265,7 @@ namespace Core.Users
 
         internal override void InitSendWelcomeMail(ref UserResponseObject userResponse, ref WelcomeMailRequest mailRequest, string firstName, string userName, string password, string email, string facebookId)
         {
-            mailRequest.m_sToken = DAL.UsersDal.GetActivationToken(GroupId, userName);
+            mailRequest.m_sToken = UserStorage.Instance().GetActivationToken(GroupId, userName);
             mailRequest.m_sTemplateName = WelcomeMailTemplate;
             mailRequest.m_eMailType = eMailTemplateType.Welcome;
             mailRequest.m_sFirstName = firstName;

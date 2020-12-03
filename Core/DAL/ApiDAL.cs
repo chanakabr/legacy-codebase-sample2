@@ -6195,16 +6195,38 @@ namespace DAL
             return $"commerce_partner_config_{groupId}";
         }
 
+        private static string GetSecurityPartnerConfigKey(int groupId)
+        {
+            return $"security_partner_config_{groupId}";
+        }
+
         public static CommercePartnerConfig GetCommercePartnerConfig(int groupId, out eResultStatus resultStatus)
         {
             string key = GetCommercePartnerConfigKey(groupId);
             return UtilsDal.GetObjectFromCB<CommercePartnerConfig>(eCouchbaseBucket.OTT_APPS, key, out resultStatus);
         }
 
+        public static SecurityPartnerConfig GetSecurityPartnerConfig(int groupId, out eResultStatus resultStatus)
+        {
+            string key = GetSecurityPartnerConfigKey(groupId);
+            return UtilsDal.GetObjectFromCB<SecurityPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, out resultStatus);
+        }
+
         public static bool SaveCommercePartnerConfig(int groupId, CommercePartnerConfig commercePartnerConfig)
         {
             string key = GetCommercePartnerConfigKey(groupId);
             return UtilsDal.SaveObjectInCB<CommercePartnerConfig>(eCouchbaseBucket.OTT_APPS, key, commercePartnerConfig);
+        }
+
+        public static bool SaveSecurityPartnerConfig(int groupId, SecurityPartnerConfig partnerConfig)
+        {
+            string key = GetSecurityPartnerConfigKey(groupId);
+            var success = UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, partnerConfig);
+            if (!success)
+            {
+                log.Error($"Error while save SecurityPartnerConfig. groupId: {groupId}.");
+            }            
+            return success;
         }
 
         private static string GetPlaybackPartnerConfigKey(int groupId)

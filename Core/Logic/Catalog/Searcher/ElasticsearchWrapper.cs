@@ -2182,6 +2182,14 @@ namespace Core.Catalog
                     Field = "media_id",
                     Type = eElasticAggregationType.terms
                 };
+
+                aggregations.SubAggrgations.Add(new ESBaseAggsItem()
+                {
+                    Name =  CatalogLogic.SUB_SUM_AGGREGATION_NAME,
+                    Type = eElasticAggregationType.sum,
+                    Field = CatalogLogic.STAT_ACTION_COUNT_VALUE_FIELD,
+                    Missing = 1
+                });
             }
 
             filteredQuery.Aggregations.Add(aggregations);
@@ -2244,7 +2252,7 @@ namespace Core.Catalog
                             if (countsAggregationsDictionary != null)
                             {
                                 // Parse string into dictionary
-                                var partialDictionary = ESAggregationsResult.DeserializeAggrgations<string>(aggregationsResults);
+                                var partialDictionary = ESAggregationsResult.DeserializeAggrgations<string>(aggregationsResults, CatalogLogic.SUB_SUM_AGGREGATION_NAME);
 
                                 // Run on partial dictionary and merge into main dictionary
                                 foreach (var mainPart in partialDictionary)

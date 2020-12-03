@@ -62,6 +62,8 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "buzzScore", IsNullable = true)]
         [OldStandardProperty("buzz_score")]
         public KalturaBuzzScore BuzzAvgScore { get; set; }
+
+        // TODO SHIR - add ForeverViews/totalviews in v2 of coding GEN-1088
     }
 
     /// <summary>

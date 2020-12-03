@@ -17,6 +17,7 @@ using ApiObjects.Response;
 using WebAPI.Models.General;
 using ApiLogic.Users.Managers;
 using ApiObjects.Base;
+using ApiLogic.Users.Services;
 
 namespace WebAPI.Clients
 {
@@ -1232,6 +1233,13 @@ namespace WebAPI.Clients
             var response = new KalturaHouseholdDeviceListResponse() { TotalCount = 0, Objects = new List<KalturaHouseholdDevice>() };
 
             bool checkExternal = !string.IsNullOrEmpty(externalId);
+            var userId = 0;
+            var _userId = household.MasterUsers?.FirstOrDefault()?.Id;
+
+            if (!string.IsNullOrEmpty(_userId))
+            {
+                int.TryParse(_userId, out userId);
+            }
 
             foreach (KalturaDeviceFamily family in household.DeviceFamilies)
             {
@@ -1240,6 +1248,7 @@ namespace WebAPI.Clients
                     List<KalturaDevice> familyDevices = family.Devices;
                     foreach (KalturaDevice device in familyDevices)
                     {
+                        device.LastActivityTime = GetLastActivityTime(groupId, device.Udid, userId);
                         KalturaHouseholdDevice householdDevice = (KalturaHouseholdDevice)device;
                         householdDevice.DeviceFamilyId = family.Id;
 
@@ -1281,6 +1290,11 @@ namespace WebAPI.Clients
             }
 
             return response;
+        }
+
+        private long? GetLastActivityTime(int groupId, string udid, int userId)
+        {
+            return new DeviceRemovalPolicyHandler().GetUdidLastActivity(groupId, udid, userId);
         }
 
         internal bool DeleteDevice(int groupId, string udid, out long domainId)

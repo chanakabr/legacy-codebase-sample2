@@ -17,7 +17,7 @@ namespace ElasticSearch.Searcher
 
         #region Parse Results
 
-        public static Dictionary<string, Dictionary<T, int>> DeserializeAggrgations<T>(string json)
+        public static Dictionary<string, Dictionary<T, int>> DeserializeAggrgations<T>(string json, string subAggregationName = null)
         {
             Dictionary<string, Dictionary<T, int>> result = new Dictionary<string, Dictionary<T, int>>();
 
@@ -47,7 +47,15 @@ namespace ElasticSearch.Searcher
                                     {
                                         var key = bucket["key"];
                                         var count = bucket["doc_count"];
-                                        currentDictionary[key.Value<T>()] = count.Value<int>();
+                                        var subSum = subAggregationName ?? bucket[subAggregationName];
+                                        if (subSum != null)
+                                        {
+                                            currentDictionary[key.Value<T>()] = subSum["value"].Value<int>();
+                                        }
+                                        else
+                                        {
+                                            currentDictionary[key.Value<T>()] = count.Value<int>();
+                                        }
                                     }
                                     catch (Exception ex)
                                     {

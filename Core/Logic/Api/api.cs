@@ -7904,6 +7904,7 @@ namespace Core.Api
 
                 if (response.ExternalChannels == null || response.ExternalChannels.Count == 0)
                 {
+                    //new comment
                     response.Status = new Status((int)eResponseStatus.OK, "no external channels related to group");
                 }
                 else
@@ -11974,19 +11975,19 @@ namespace Core.Api
             return response;
         }
 
-        internal static void AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
+        internal static VirtualAssetInfoResponse AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
         {
-            AssetManager.AddVirtualAsset(groupId, virtualAssetInfo, type);
+            return AssetManager.AddVirtualAsset(groupId, virtualAssetInfo, type);
         }
 
-        internal static void DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        internal static VirtualAssetInfoResponse DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
-            AssetManager.DeleteVirtualAsset(groupId, virtualAssetInfo);
+            return AssetManager.DeleteVirtualAsset(groupId, virtualAssetInfo);
         }
 
-        internal static void UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        internal static VirtualAssetInfoResponse UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
-            AssetManager.UpdateVirtualAsset(groupId, virtualAssetInfo);
+            return AssetManager.UpdateVirtualAsset(groupId, virtualAssetInfo);
         }
 
         internal static ObjectVirtualAssetFilter GetObjectVirtualAssetObjectIds(int groupId, AssetSearchDefinition assetSearchDefinition,

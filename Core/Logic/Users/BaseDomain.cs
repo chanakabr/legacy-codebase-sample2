@@ -15,6 +15,7 @@ using System.Text;
 using ApiLogic.Users.Services;
 using KeyValuePair = ApiObjects.KeyValuePair;
 using ApiObjects.Base;
+using ApiLogic.Users.Security;
 
 namespace Core.Users
 {
@@ -514,7 +515,7 @@ namespace Core.Users
             DomainResponseObject resp = new DomainResponseObject();
 
             // Check the Master User
-            int masterUserID = DAL.UsersDal.GetUserIDByUsername(sMasterUN, m_nGroupID);
+            int masterUserID = UserStorage.Instance().GetUserIDByUsername(sMasterUN, m_nGroupID);
 
             User masterUser = new User();
             bool bInit = masterUser.Initialize(masterUserID, m_nGroupID);

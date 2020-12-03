@@ -15,5 +15,6 @@ namespace ConfigurationManager
         {
             EnvironmentVariable = "KAFKA_CONSUMER_AUTO_COMMIT"
         };
+        public BaseValue<string> HealthCheckTopic = new BaseValue<string>("healthCheckTopic", "healthcheck-topic");
     }
 }

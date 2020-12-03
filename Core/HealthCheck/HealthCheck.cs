@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ConfigurationManager;
+using KLogMonitor;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
@@ -44,6 +45,9 @@ namespace HealthCheck
                     case HealthCheckType.Redis:
                         healthCheckBuilder = healthCheckBuilder.AddCheck<RedisHealthCheck>("redis");
                         break;
+                    case HealthCheckType.Kafka:
+                        healthCheckBuilder = healthCheckBuilder.AddCheck<KafkaHealthCheck>("kafka");
+                        break;
                     case HealthCheckType.ThirdParty:
                         if (definition.Args.Length > 1 && definition.Args[0] != null && definition.Args[1] != null)
                         {
@@ -77,11 +81,7 @@ namespace HealthCheck
 
         public static void AddKalturaHealthCheckService(this IServiceCollection services)
         {
-            var tcmHealthCheckDefinitions = ConfigurationManager.ApplicationConfiguration.Current.HealthCheckConfiguration.Value;
-            List<HealthCheckDefinition> healthCheckDefinitions = tcmHealthCheckDefinitions?.Select(defintion =>
-                new HealthCheckDefinition(defintion)).ToList();
-
-            services.AddHealthCheckService(healthCheckDefinitions);
+            services.AddHealthCheckService(ApplicationConfiguration.Current.HealthCheckConfiguration.Value);
         }
 
         private static Task WriteResponse(HttpContext context, HealthReport result)

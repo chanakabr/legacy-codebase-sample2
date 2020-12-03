@@ -22,7 +22,7 @@ namespace Core.Recordings
         private const int RETRY_LIMIT = 3;
 
         #region SingleTon
-        
+
         private static object locker = new object();
         private static QuotaManager instance;
 
@@ -52,7 +52,7 @@ namespace Core.Recordings
         #endregion
 
         #region Public Methods
-        
+
         public Status CheckQuotaByModel(int groupId, int quotaManagerModelId, long householdId, bool isAggregative,
             List<Recording> newRecordings, List<Recording> currentRecordings)
         {
@@ -81,15 +81,14 @@ namespace Core.Recordings
         {
             Status status = new Status((int)eResponseStatus.OK);
 
-            int SecondsLeft = availableSeconds;
+            int SecondsLeft = availableSeconds; //available Seconds
 
             // Now deduct the time of all the new/requested recordings
             foreach (var recording in newRecordings)
             {
                 int currentEpgSeconds = 0;
                 int initialSecondsLeft = SecondsLeft;
-                TimeSpan span = recording.EpgEndDate - recording.EpgStartDate;
-                currentEpgSeconds = (int)span.TotalSeconds;
+                currentEpgSeconds = GetRecordingDurationSeconds(recording);
                 int tempSeconds = SecondsLeft - currentEpgSeconds;
                 // Mark this, current-specific, recording as failed
                 if (tempSeconds < 0)
@@ -108,6 +107,11 @@ namespace Core.Recordings
             return status;
         }
 
+        public static int GetRecordingDurationSeconds(Recording recording)
+        {
+            return Math.Abs((int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
+        }
+
         public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuotaResponse(int groupId, long domainId)
         {
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse();
@@ -116,11 +120,13 @@ namespace Core.Recordings
             DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
             if (domainQuota != null)
             {
+                var used = GetDomainUsedQuota(groupId, domainId);
                 response = new DomainQuotaResponse()
                 {
                     Status = new Status((int)eResponseStatus.OK),
                     TotalQuota = domainQuota.Total,
-                    AvailableQuota = Math.Max(0, domainQuota.Total - domainQuota.Used)
+                    AvailableQuota = Math.Max(0, domainQuota.Total - used),
+                    Used = used
                 };
             }
             else
@@ -130,35 +136,38 @@ namespace Core.Recordings
 
             return response;
         }
-         
-        public int GetDomainAvailableQuota(int groupId, long domainId)
+
+        public int GetDomainAvailableQuota(int groupId, long domainId, out int used)
         {
             int defaultQuota = 0;
             DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
-            return domainQuota.Total - domainQuota.Used;
+            used = GetDomainUsedQuota(groupId, domainId);
+            return domainQuota.Total - used;
         }
 
+        [Obsolete("Not using cb document for used Quota")]
         public bool DecreaseDomainUsedQuota(int groupId, long domainId, int quotaToDecrease)
         {
             int defaultQuota = 0;
+            quotaToDecrease = Math.Abs(quotaToDecrease);
             DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
             if (domainQuota != null)
-             {
-                 return RecordingsDAL.UpdateDomainUsedQuota(domainId, (-1) * quotaToDecrease, defaultQuota);
+            {
+                return RecordingsDAL.UpdateDomainUsedQuota(domainId, (-1) * quotaToDecrease, defaultQuota);
             }
-            return false;            
+            return false;
         }
 
         /// <summary>
-        /// 
+        /// Set cb quota usage document for hh
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="domainId"></param>
         /// <param name="quotaToIncrease"></param>
         /// <param name="shouldForceIncrease">If true - decrease the quota to 0 if not enough quota</param>
         /// <returns></returns>
-        public bool IncreaseDomainUsedQuota(int groupId, long domainId, int quotaToIncrease, bool shouldForceIncrease = false)
-        { 
+        public bool SetDomainUsedQuota(int groupId, long domainId, int quotaToIncrease, bool shouldForceIncrease = false)
+        {
             int defaultQuota = 0;
             DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
             if (domainQuota != null)
@@ -166,6 +175,30 @@ namespace Core.Recordings
                 return RecordingsDAL.UpdateDomainUsedQuota(domainId, quotaToIncrease, defaultQuota, shouldForceIncrease);
             }
             return false;
+        }
+
+        public int GetDomainUsedQuota(int groupId, long domainId)
+        {
+            var response = 0;
+            var recordingStatuses = new List<TstvRecordingStatus>()
+            {
+                TstvRecordingStatus.OK,
+                TstvRecordingStatus.Recorded,
+                TstvRecordingStatus.Recording,
+                TstvRecordingStatus.Scheduled
+            };
+
+            var allRecords = Utils.GetDomainRecordingsByTstvRecordingStatuses(groupId, domainId, recordingStatuses);
+            if (allRecords == null || allRecords.Count == 0)
+            {
+                return response;
+            }
+
+            response = allRecords.Select(dict => dict.Value)
+                .Select(record => GetRecordingDurationSeconds(record))
+                .Sum();
+
+            return response;
         }
 
         internal Status CheckQuotaByTotalSeconds(int groupId, long householdId, int totalSeconds, bool isAggregative, List<Recording> newRecordings, List<Recording> currentRecordings)
@@ -228,7 +261,7 @@ namespace Core.Recordings
                 {
                     deletedRecordings = DeleteDomainOldestRecordings(groupId, domainId, recordingDuration, domainRecordingStatus);
                     if (deletedRecordings?.Count > 0)
-                    {                      
+                    {
                         break;
                     }
                     else
@@ -258,7 +291,7 @@ namespace Core.Recordings
             int recordingDuration = 0;
             int tempRecordingDuration = 0;
             try
-            {                
+            {
                 // get all deletePending recordings related to domain sort by epgStartDate
                 Dictionary<long, Recording> recordings = Utils.GetDomainRecordingsToRecover(groupId, domainId);
                 if (recordings != null && recordings.Count > 0)
@@ -281,10 +314,7 @@ namespace Core.Recordings
                         // update all these domain recording ids to status OK  and update used quota
                         if (RecordingsDAL.RecoverDomainRecordings(domainRecordingIds, DomainRecordingStatus.OK))
                         {
-                            if (QuotaManager.Instance.IncreaseDomainUsedQuota(groupId, domainId, tempRecordingDuration))
-                            {
-                                bRes = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                            }
+                            bRes = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         }
                     }
                 }
@@ -327,13 +357,12 @@ namespace Core.Recordings
                         foreach (KeyValuePair<long, Recording> recording in recordings)
                         {
                             // check if record is protected - ignore it 
-                            if (!recording.Value.ViewableUntilDate.HasValue || recording.Value.ViewableUntilDate.Value == 0 || 
+                            if (!recording.Value.ViewableUntilDate.HasValue || recording.Value.ViewableUntilDate.Value == 0 ||
                                 (recording.Value.ProtectedUntilDate.HasValue && recording.Value.ProtectedUntilDate.Value > currentUtcTime))
                             {
                                 continue;
                             }
 
-                            recordingDuration = (int)(recording.Value.EpgEndDate - recording.Value.EpgStartDate).TotalSeconds;
                             domainRecordingIds.Add(recording.Key);
                             if (deletedRecordings == null)
                             {
@@ -341,6 +370,8 @@ namespace Core.Recordings
                             }
 
                             deletedRecordings.Add(recording.Value);
+
+                            recordingDuration = GetRecordingDurationSeconds(recording.Value);
                             tempQuotaOverage += recordingDuration;
 
                             if (tempQuotaOverage >= recordingQuota)
@@ -352,17 +383,14 @@ namespace Core.Recordings
 
                     if (tempQuotaOverage >= recordingQuota)
                     {
-                        if (domainRecordingIds != null && domainRecordingIds.Count > 0) // delete all and DecreaseDomainUsedQuota
+                        // delete all and DecreaseDomainUsedQuota
+                        if (domainRecordingIds != null && domainRecordingIds.Count > 0)
                         {
-                            if (QuotaManager.Instance.DecreaseDomainUsedQuota(groupId, domainId, tempQuotaOverage))
+                            log.DebugFormat("try to deleted domainRecordingIds: {0}, QuotaOverageDuration : {1}", string.Join(",", domainRecordingIds), tempQuotaOverage);
+                            if (!RecordingsDAL.DeleteDomainRecording(domainRecordingIds, domainRecordingStatus))
                             {
-                                log.DebugFormat("try to deleted domainRecordingIds: {0}, QuotaOverageDuration : {1}", string.Join(",", domainRecordingIds), tempQuotaOverage);
-                                if (!RecordingsDAL.DeleteDomainRecording(domainRecordingIds, domainRecordingStatus))
-                                {
-                                    QuotaManager.Instance.IncreaseDomainUsedQuota(groupId, domainId, tempQuotaOverage);
-                                    deletedRecordings = null;
-                                    log.ErrorFormat("fail in DeleteDomainOldestRecordings to perform delete domainRecordingID = {0}", string.Join(",", domainRecordingIds));
-                                }
+                                deletedRecordings = null;
+                                log.ErrorFormat("fail in DeleteDomainOldestRecordings to perform delete domainRecordingID = {0}", string.Join(",", domainRecordingIds));
                             }
                         }
                     }
@@ -394,13 +422,7 @@ namespace Core.Recordings
                 // Deduct seconds of EPGs that domain already previously recorded
                 foreach (var recording in recordings)
                 {
-                    int currentEpgSeconds = 0;
-
-                    TimeSpan span = recording.EpgEndDate - recording.EpgStartDate;
-
-                    currentEpgSeconds = (int)span.TotalSeconds;
-
-                    secondsLeft -= currentEpgSeconds;
+                    secondsLeft -= GetRecordingDurationSeconds(recording);
 
                     // Mark the entire operation as failure, something here is completely wrong
                     if (secondsLeft < 0)
@@ -424,11 +446,11 @@ namespace Core.Recordings
             {
                 return new DomainQuota(defaultQuota, 0, true);
             }
-                   
+
             return domainQuota;
         }
         #endregion
 
-        
+
     }
 }
