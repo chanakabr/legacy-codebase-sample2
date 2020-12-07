@@ -43,6 +43,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using Status = ApiObjects.Response.Status;
 
 namespace Core.Catalog
 {
@@ -6624,19 +6625,30 @@ namespace Core.Catalog
 
         }
 
-        public static UnifiedSearchResponse ChannelUnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel)
+        private static UnifiedSearchResponse ChannelUnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel)
         {
-            UnifiedSearchResponse response = new UnifiedSearchResponse()
-            {
-                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+            if (searcher == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed getting instance of searcher") };
 
-            List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
-            int pageIndex = 0;
-            int pageSize = 0;
+            if (unifiedSearchDefinitions.groupBy?.Count == 1 // only one group by
+                && unifiedSearchDefinitions.groupBy.Single().Key == unifiedSearchDefinitions.distinctGroup.Key) // distinct is on
+            {
+                var parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
+                parentGroupId = parentGroupId == 0 ? groupId : parentGroupId;
+                var aggregation = searcher.UnifiedSearchForGroupBy(unifiedSearchDefinitions, parentGroupId);
+                
+                return new UnifiedSearchResponse
+                {
+                    aggregationResults = new List<AggregationsResult> { aggregation },
+                    m_nTotalItems = aggregation.totalItems,
+                    status = Status.Ok
+                };
+            }
 
             // If this is a manual channel, a sliding window or we have an additional filter - 
             // the initial search will not be paged. Paging will be done later on
+            int pageIndex = 0;
+            int pageSize = 0;
             if (channel.m_nChannelTypeID == (int)ChannelType.Manual || ChannelRequest.IsSlidingWindow(channel))
             {
                 pageIndex = unifiedSearchDefinitions.pageIndex;
@@ -6645,38 +6657,25 @@ namespace Core.Catalog
                 unifiedSearchDefinitions.pageIndex = 0;
             }
 
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-
-            if (searcher == null)
-            {
-                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
-                return response;
-            }
-
-            int to = 0;
-            int totalItems = 0;
-            List<AggregationsResult> aggregationsResult;
-
             // Perform initial search of channel
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult);
+            int notUsed = 0;
+            int totalItems = 0;
+            List<AggregationsResult> aggregationsResult;            
+            var searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notUsed, out aggregationsResult);
 
-            if (searchResults == null)
-            {
-                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
-                return response;
-            }
-
+            if (searchResults == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed performing channel search") };
             if (totalItems == 0)
             {
-                response.searchResults = searchResults;
-                response.m_nTotalItems = totalItems;
-                response.aggregationResults = aggregationsResult;
-                response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
-
-                return response;
+                return new UnifiedSearchResponse
+                {
+                    searchResults = searchResults,
+                    m_nTotalItems = totalItems,
+                    aggregationResults = aggregationsResult,
+                    status = Status.Ok
+                };
             }
 
-            List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
+            var assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
 
             #region Sliding Window
 
@@ -6778,20 +6777,15 @@ namespace Core.Catalog
 
             #endregion
 
-            if (assetIDs == null)
+            if (assetIDs == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed performing channel search") };
+
+            return new UnifiedSearchResponse
             {
-                searchResults = null;
-                totalItems = 0;
-                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
-                return response;
-            }
-
-            response.searchResults = searchResults;
-            response.m_nTotalItems = totalItems;
-            response.aggregationResults = aggregationsResult;
-            response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
-
-            return response;
+                searchResults = searchResults,
+                m_nTotalItems = totalItems,
+                aggregationResults = aggregationsResult,
+                status = Status.Ok
+            };
         }
 
         private static UnifiedSearchResponse GetUnifiedSearchChannelResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel, string cacheKey)
@@ -8191,7 +8185,20 @@ namespace Core.Catalog
             }
             else
             {
-                GetOrderValues(ref searcherOrderObj, channel.m_OrderObject);
+                // change default channel order to ID when we have groupBy + orderBy is not supported
+                // because we don't support all orderBy's with groupBy
+                var defaultChannelOrder = channel.m_OrderObject;
+                if (request.searchGroupBy?.groupBy?.Count == 1 
+                    && defaultChannelOrder != null
+                    && !ElasticsearchWrapper.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
+                {
+                    defaultChannelOrder = new OrderObj
+                    {
+                        m_eOrderBy = OrderBy.ID,
+                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                    };
+                }
+                GetOrderValues(ref searcherOrderObj, defaultChannelOrder);
             }
 
             definitions.order = searcherOrderObj;

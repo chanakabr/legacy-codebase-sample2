@@ -445,12 +445,15 @@ namespace WebAPI.Clients
             {
                 if (doesGroupUsesTemplates)
                 {
+                    // TODO this is duplciate. we have the same logic in 'else' inside CatalogUtils.GetAssets
+
                     List<BaseObject> assetsBaseDataList = new List<BaseObject>();
+                    
                     foreach (Catalog.Response.AggregationResult aggregationResult in searchResponse.aggregationResults[0].results)
                     {
                         if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
                         {
-                            assetsBaseDataList.Add(aggregationResult.topHits[0] as BaseObject);
+                            assetsBaseDataList.Add(aggregationResult.topHits[0]);
                         }
                     }
 
@@ -2725,14 +2728,6 @@ namespace WebAPI.Clients
             {
                 // Bad response received from WS
                 throw new ClientException(channelResponse.status);
-            }
-
-            //BEO-8762
-            if (pageSize.HasValue && channelResponse.aggregationResults?.FirstOrDefault() != null
-                && (order == null || (!ElasticsearchWrapper.PaginationDone(order.m_eOrderBy))))
-            {
-                channelResponse.aggregationResults[0].results = channelResponse.aggregationResults[0].results
-                    .Skip(pageIndex * pageSize.Value).Take(pageSize.Value).ToList();
             }
 
             result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, isAllowedToViewInactiveAssets, false, responseProfile);

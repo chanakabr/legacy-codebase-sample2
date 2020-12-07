@@ -7,6 +7,8 @@ using ApiObjects.SearchObjects;
 using ConfigurationManager;
 using Newtonsoft.Json.Linq;
 using KLogMonitor;
+using TVinciShared;
+using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
 namespace ElasticSearch.Searcher
 {
@@ -693,8 +695,8 @@ namespace ElasticSearch.Searcher
                 FilterCompositeType epgDatesFilter = new FilterCompositeType(CutWith.AND);
 
                 // Now +- days offset
-                string nowPlusOffsetDateString = DateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
-                string nowMinusOffsetDateString = DateTime.UtcNow.AddDays(-this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
+                string nowPlusOffsetDateString = SystemDateTime.UtcNow.AddDays(this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
+                string nowMinusOffsetDateString = SystemDateTime.UtcNow.AddDays(-this.SearchDefinitions.epgDaysOffest).ToString("yyyyMMddHHmmss");
 
                 if (this.SearchDefinitions.shouldUseStartDateForEpg)
                 {
@@ -729,7 +731,7 @@ namespace ElasticSearch.Searcher
                     {
                         Key = "search_end_date"
                     };
-                    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
+                    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, SystemDateTime.UtcNow.ToString("yyyyMMddHHmmss")));
                     epgDatesFilter.AddChild(epgSearchEndDateRange);
                 }
 
@@ -2708,19 +2710,11 @@ namespace ElasticSearch.Searcher
             if (order.m_eOrderBy == OrderBy.META)
             {
                 string metaFieldName = string.Empty;
-
-                if (!order.shouldPadString)
-                {
-                    metaFieldName = string.Format("metas.{0}", order.m_sOrderValue.ToLower());
-                }
-                else
-                {
-                    metaFieldName = string.Format("metas.padded_{0}", order.m_sOrderValue.ToLower());
-                }
+                metaFieldName = GetMetaSortField(order);
 
                 primaryOrderField = metaFieldName;
                 returnFields.Add(string.Format("\"{0}\"", metaFieldName));
-                
+
                 //else
                 //{
                 //    sortBuilder.AppendFormat("\"padded_{0}\": ", metaFieldName);
@@ -2791,6 +2785,14 @@ namespace ElasticSearch.Searcher
             }
 
             return string.Format("\"sort\" : {0}", sortArray.ToString(Newtonsoft.Json.Formatting.None));
+        }
+
+        public static string GetMetaSortField(OrderObj order)
+        {
+            if (order.m_eOrderBy != OrderBy.META) return null;
+            return order.shouldPadString
+                ? string.Format("metas.padded_{0}", order.m_sOrderValue.ToLower())
+                : string.Format("metas.{0}", order.m_sOrderValue.ToLower());
         }
 
         public static void GetAggregationsOrder(OrderObj orderObj, 
@@ -2887,7 +2889,7 @@ namespace ElasticSearch.Searcher
         {
             FilterCompositeType mediaDatesFilter = new FilterCompositeType(CutWith.AND);
 
-            DateTime now = DateTime.UtcNow;
+            DateTime now = SystemDateTime.UtcNow;
             now = now.AddSeconds(-now.Second);
             string nowDateString = now.ToString("yyyyMMddHHmmss");
             string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");

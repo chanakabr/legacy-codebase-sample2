@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Catalog.Searcher.GroupBy;
+using ApiObjects;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Catalog.Response;
@@ -18,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using TVinciShared;
 
 namespace Core.Catalog
@@ -40,11 +42,16 @@ namespace Core.Catalog
         protected const string ES_MEDIA_TYPE = "media";
         protected const string ES_EPG_TYPE = "epg";
         protected const string CHANNEL_ASSET_USER_RULE_ID = "asset_user_rule_id";
-        protected ElasticSearchApi m_oESApi;
+        protected IElasticSearchApi m_oESApi;
 
         public ElasticsearchWrapper()
         {
             m_oESApi = new ElasticSearchApi();
+        }
+
+        public ElasticsearchWrapper(IElasticSearchApi elasticSearchClient)
+        {
+            m_oESApi = elasticSearchClient;
         }
 
         public SearchResultsObj SearchMedias(int nGroupID, MediaSearchObj oSearch, int nLangID, bool bUseStartDate, int nIndex)
@@ -1164,11 +1171,9 @@ namespace Core.Catalog
         /// </summary>
         /// <param name="unifiedSearchDefinitions"></param>
         /// <returns></returns>
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int to)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int notUsed)
         {
-            List<AggregationsResult> aggregationsResults = null;
-
-            return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
+            return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notUsed, out _);
         }
 
         /// <summary>
@@ -1176,7 +1181,7 @@ namespace Core.Catalog
         /// </summary>
         /// <param name="unifiedSearchDefinitions"></param>
         /// <returns></returns>
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int to,
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int notUsed,
             out List<AggregationsResult> aggregationsResults)
         {
             aggregationsResults = null;
@@ -1250,7 +1255,7 @@ namespace Core.Catalog
                 }
             }
             // if there is group by
-            else if (!string.IsNullOrEmpty(distinctGroup.Key) && PaginationDone(orderBy))
+            else if (!string.IsNullOrEmpty(distinctGroup.Key) && OrderByString(orderBy))
             {
                 isOrderedByString = true;
 
@@ -1312,6 +1317,7 @@ namespace Core.Catalog
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
+            // WARNING has side effect - updates queryParser.Aggregations
             string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, unifiedSearchDefinitions.shouldAddIsActiveTerm);
 
             if (!string.IsNullOrEmpty(requestBody))
@@ -1464,7 +1470,7 @@ namespace Core.Catalog
 
                         if (esAggregationResult != null)
                         {
-                            aggregationsResults = new List<AggregationsResult>();
+                            aggregationsResults = new List<AggregationsResult>(); // TODO if we add one element always, why it's an array?
                             aggregationsResults.Add(ConvertAggregationsResponse(esAggregationResult,
                                 unifiedSearchDefinitions.groupBy.Select(g => g.Key).ToList(),
                                 topHitsMapping));
@@ -1482,6 +1488,72 @@ namespace Core.Catalog
             return (searchResultsList);
         }
 
+        public static bool GroupBySearchIsSupportedForOrder(OrderBy orderBy) => GetStrategy(orderBy) != null;
+
+        public AggregationsResult UnifiedSearchForGroupBy(UnifiedSearchDefinitions search, int parentGroupId)
+        {
+            var singleGroupByWithDistinct = search.groupBy?.Count == 1 && search.groupBy.Single().Key == search.distinctGroup.Key;
+            if (!singleGroupByWithDistinct) throw new NotSupportedException($"Method should be used for single group by");
+            var groupBySearch = GetStrategy(search.order.m_eOrderBy) ?? throw new NotSupportedException($"Not supported group by with {search.order.m_eOrderBy} order");
+
+            // save original page and size, will be mutated later :(
+            var pageSize = search.pageSize;
+            var fromIndex = search.from > 0 ? search.from : search.pageIndex * pageSize;
+
+            // prepare body and url
+            var queryBuilder = new ESUnifiedQueryBuilder(search);
+            groupBySearch.SetQueryPaging(search, queryBuilder);
+            if (search.entitlementSearchDefinitions?.subscriptionSearchObjects != null)
+            {
+                queryBuilder.SubscriptionsQuery = BuildMultipleSearchQuery(search.entitlementSearchDefinitions.subscriptionSearchObjects, parentGroupId, true);
+            }            
+            var requestBody = queryBuilder.BuildSearchQueryString(search.shouldIgnoreDeviceRuleID, search.shouldAddIsActiveTerm); // WARNING has side effect - updates queryBuilder.Aggregations, used later
+            var url = GetUrl(search, parentGroupId);
+
+            // send request
+            int httpStatus = 0;
+            var responseBody = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
+            if (httpStatus == STATUS_NOT_FOUND || httpStatus >= STATUS_INTERNAL_ERROR) throw new HttpException(httpStatus, responseBody);
+            if (httpStatus != STATUS_OK) throw new Exception("Elasticsearch responded with not OK status");
+
+            // handle response
+            var elasticAggregation = groupBySearch.HandleQueryResponse(search, pageSize, fromIndex, queryBuilder, responseBody);
+            var topHitsMapping = MapTopHits(elasticAggregation, search);
+            var aggregationsResult = ConvertAggregationsResponse(elasticAggregation, new List<string> { search.groupBy.Single().Key }, topHitsMapping);
+
+            return aggregationsResult;
+        }
+
+        private static IGroupBySearch GetStrategy(OrderBy orderBy)
+        {
+            switch (orderBy)
+            {
+                case OrderBy.NONE:
+                case OrderBy.ID:
+                case OrderBy.CREATE_DATE:
+                case OrderBy.START_DATE: return new GroupByWithOrderByNumericField();
+                case OrderBy.NAME:
+                case OrderBy.META: return new GroupByWithOrderByNonNumericField();
+                default: return null;
+            }
+        }
+
+        private static string GetUrl(UnifiedSearchDefinitions unifiedSearchDefinitions, int parentGroupId)
+        {
+            string indexes = ESUnifiedQueryBuilder.GetIndexes(unifiedSearchDefinitions, parentGroupId); // ES index is on parent group id
+            if (indexes.IsNullOrEmptyOrWhiteSpace()) throw new Exception("Empty Elasticsearch index");
+
+            string types = ESUnifiedQueryBuilder.GetTypes(unifiedSearchDefinitions);
+
+            string url = $"{ES_BASE_ADDRESS}/{indexes}/{types}/_search";
+            if (!unifiedSearchDefinitions.preference.IsNullOrEmptyOrWhiteSpace())
+            {
+                url = $"{url}?preference={unifiedSearchDefinitions.preference}";
+            }
+
+            return url;
+        }
+
         private Dictionary<ElasticSearchApi.ESAssetDocument, UnifiedSearchResult> MapTopHits(
             ESAggregationsResult aggregationResult, UnifiedSearchDefinitions definitions)
         {
@@ -1494,6 +1566,7 @@ namespace Core.Catalog
                 stack.Push(aggregation);
             }
 
+            // Breadth-first search by tree... or something similar
             while (stack.Count > 0)
             {
                 var aggregation = stack.Pop();
@@ -2291,8 +2364,10 @@ namespace Core.Catalog
             #endregion
         }
 
-        public static bool PaginationDone(OrderBy orderBy)
+        private static bool OrderByString(OrderBy? orderBy)
         {
+            if (!orderBy.HasValue) return false;
+
             return orderBy == OrderBy.META || orderBy == OrderBy.NAME;
         }
 
@@ -2876,9 +2951,9 @@ namespace Core.Catalog
                     }
                 }
 
-                if (bucket.Aggregations != null && bucket.Aggregations.ContainsKey("top_hits_assets"))
+                if (bucket.Aggregations != null && bucket.Aggregations.ContainsKey(ESTopHitsAggregation.DEFAULT_NAME))
                 {
-                    var topHitsAggregation = bucket.Aggregations["top_hits_assets"];
+                    var topHitsAggregation = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME];
 
                     if (topHitsAggregation.hits != null && topHitsAggregation.hits.hits != null)
                     {
@@ -2968,9 +3043,9 @@ namespace Core.Catalog
                     }
                 }
 
-                if (bucket.Aggregations != null && bucket.Aggregations.ContainsKey("top_hits_assets"))
+                if (bucket.Aggregations != null && bucket.Aggregations.ContainsKey(ESTopHitsAggregation.DEFAULT_NAME))
                 {
-                    var topHitsAggregation = bucket.Aggregations["top_hits_assets"];
+                    var topHitsAggregation = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME];
 
                     if (topHitsAggregation.hits != null && topHitsAggregation.hits.hits != null)
                     {
