@@ -6805,8 +6805,21 @@ namespace Core.ConditionalAccess
             switch (SearchSeriesRecordingsTimeOption)
             {
                 case SearchSeriesRecordingsTimeOptions.past:
-                    ksql.AppendFormat(") start_date < '0')");
-                    break;
+                    {
+                        string recordingLifetime = string.Empty;
+                        var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(groupID);
+
+                        if (tstvSettings.RecordingLifetimePeriod.HasValue)
+                        {
+                            DateTime dateTime = DateTime.UtcNow.AddDays(-1 * tstvSettings.RecordingLifetimePeriod.Value);
+                            long minDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(dateTime);
+                            recordingLifetime = $"end_date > '{minDate}'";
+                        }
+
+                        ksql.AppendFormat($") start_date < '0' {recordingLifetime})");
+
+                        break;
+                    }
                 case SearchSeriesRecordingsTimeOptions.future:
                     ksql.AppendFormat(") start_date > '0')");
                     break;
@@ -6815,7 +6828,6 @@ namespace Core.ConditionalAccess
                     ksql.AppendFormat("))");
                     break;
             }
-
 
             // get program ids
             try
