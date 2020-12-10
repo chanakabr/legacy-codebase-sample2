@@ -15,8 +15,9 @@ namespace ApiObjects.Response
         private int code;
         private List<KeyValuePair> args;
 
-        public static Status Ok => new Status((int)eResponseStatus.OK);
-        public static Status Error => new Status((int)eResponseStatus.Error);
+        public static Status Ok => new Status(eResponseStatus.OK);
+        public static Status Error => new Status(eResponseStatus.Error);
+        public static Status ErrorMessage(string message) => new Status(eResponseStatus.Error, message);
 
         [DataMember]
         [JsonProperty("Code")]

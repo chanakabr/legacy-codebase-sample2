@@ -1,4 +1,5 @@
 ﻿using ApiObjects.SearchObjects;
+using Catalog.Response;
 using Core.Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
@@ -10,6 +11,7 @@ using System.ServiceModel;
 namespace Core.Catalog
 {
 
+    // TODO TECH_BACKLOG not instantiated - remove me
     public class LuceneWrapper : ISearcher
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -309,6 +311,11 @@ namespace Core.Catalog
 
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, 
             out List<global::Catalog.Response.AggregationsResult> aggregationsResult)
+        {
+            throw new NotImplementedException();
+        }
+
+        public AggregationsResult UnifiedSearchForGroupBy(UnifiedSearchDefinitions unifiedSearchDefinitions, int parentGroupId)
         {
             throw new NotImplementedException();
         }

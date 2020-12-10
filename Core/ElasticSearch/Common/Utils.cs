@@ -309,7 +309,7 @@ namespace ElasticSearch.Common
         }
 
         public static List<ElasticSearchApi.ESAssetDocument> DecodeAssetSearchJsonObject(string sObj, ref int totalItems,
-            List<string> extraReturnFields = null, string prefix = "fields")
+            List<string> extraReturnFields = null)
         {
             List<ElasticSearchApi.ESAssetDocument> documents = null;
             try
@@ -326,7 +326,7 @@ namespace ElasticSearch.Common
 
                         foreach (var item in jsonObj.SelectToken("hits.hits"))
                         {
-                            var newDocument = DecodeSingleAssetJsonObject(item, prefix, extraReturnFields);
+                            var newDocument = DecodeSingleAssetJsonObject(item, "fields", extraReturnFields);
 
                             documents.Add(newDocument);
                         }
@@ -453,6 +453,11 @@ namespace ElasticSearch.Common
                             {
                                 fieldValue = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(specificFieldToken);
                             }
+                        }
+
+                        if (fieldValue == null)
+                        {
+                            fieldValue = ExtractValueFromToken<string>(item, AddPrefixToFieldName(fieldName, fieldNamePrefix));
                         }
                     }
                     else

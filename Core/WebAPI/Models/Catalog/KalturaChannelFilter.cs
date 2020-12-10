@@ -6,11 +6,27 @@ using WebAPI.Models.General;
 using ApiObjects.Base;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using System.Collections.Generic;
+using WebAPI.Managers.Models;
+using static WebAPI.Exceptions.ApiException;
+using Core.Catalog;
 
 namespace WebAPI.Models.Catalog
 {
     public partial class KalturaChannelFilter : KalturaBaseSearchAssetFilter
     {
+        /// <summary>
+        /// <seealso cref="ElasticsearchWrapper.GroupBySearchIsSupportedForOrder(ApiObjects.SearchObjects.OrderBy)"/>
+        /// </summary>
+        private static readonly HashSet<KalturaAssetOrderBy> supportedGroupByOrders = new HashSet<KalturaAssetOrderBy> {
+            KalturaAssetOrderBy.CREATE_DATE_ASC,
+            KalturaAssetOrderBy.CREATE_DATE_DESC,
+            KalturaAssetOrderBy.START_DATE_ASC,
+            KalturaAssetOrderBy.START_DATE_DESC,
+            KalturaAssetOrderBy.NAME_ASC,
+            KalturaAssetOrderBy.NAME_DESC
+        };
+
         private bool shouldUseChannelDefault = true;
 
         /// <summary>
@@ -81,10 +97,21 @@ namespace WebAPI.Models.Catalog
             }
             else
             {
+                var groupByList = getGroupByValue();
+                if (groupByList?.Count > 1)
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "groupBy");
+                }
+                if (groupByList?.Count == 1 && !shouldUseChannelDefault && !supportedGroupByOrders.Contains(OrderBy) && DynamicOrderBy?.OrderBy == null)
+                {
+                    var ex = new ApiExceptionType(StatusCode.EnumValueNotSupported, StatusCode.BadRequest, "Enumerator value [@value@] is not supported when using with groupBy", "value");
+                    throw new BadRequestException(ex, OrderBy);
+                }
+
                 var userId = contextData.UserId.ToString();
                 bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
                 response = ClientsManager.CatalogClient().GetChannelAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), 
-                    pager.PageSize, this.IdEqual, this.OrderBy, this.Ksql, this.GetShouldUseChannelDefault(), this.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets, this.getGroupByValue());
+                    pager.PageSize, this.IdEqual, this.OrderBy, this.Ksql, this.GetShouldUseChannelDefault(), this.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets, groupByList);
             }
 
             return response;
