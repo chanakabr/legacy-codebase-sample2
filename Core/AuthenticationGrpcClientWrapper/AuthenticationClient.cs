@@ -141,7 +141,7 @@ namespace AuthenticationGrpcClientWrapper
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "RecordDeviceFailedLogin"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "RecordDeviceSuccessfulLogin"))
                 {
                     mon.Table = $"udid:{udid}";
                     _Client.RecordDeviceSuccessfulLogin(new RecordDeviceSuccessfulLoginRequest
@@ -156,6 +156,28 @@ namespace AuthenticationGrpcClientWrapper
             catch (Exception e)
             {
                 _Logger.Error("Error while calling RecordDeviceFailedLogin Auth GRPC service", e);
+                return false;
+            }
+        }
+        public bool DeleteDomainDeviceUsageDate(int partnerId, string udid)
+        {
+            try
+            {
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "DeleteDomainDeviceUsageDate"))
+                {
+                    mon.Table = $"udid:{udid}";
+                    _Client.DeleteDeviceLoginHistory(new DeleteDeviceLoginHistoryRequest()
+                    {
+                        PartnerId = (long)partnerId,
+                        UDID = udid
+                    });
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Error while calling DeleteDomainDeviceUsageDate Auth GRPC service", e);
                 return false;
             }
         }
@@ -204,7 +226,6 @@ namespace AuthenticationGrpcClientWrapper
                 return Enumerable.Empty<DeviceLoginRecord>();
             }
         }
-
 
         public ListSSOAdapterProfilesResponse ListSSOAdapterProfiles(long partnerId)
         {
