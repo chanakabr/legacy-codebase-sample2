@@ -4381,6 +4381,10 @@ namespace WebAPI.Reflection
                             return "object";
                         case "SequenceId":
                             return "sequenceId";
+                        case "Udid":
+                            return "udid";
+                        case "UserId":
+                            return "userId";
                         case "UserIp":
                             return "userIp";
                     }

@@ -8364,6 +8364,26 @@ namespace WebAPI.Models.General
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UdidSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaNotification(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -8430,6 +8450,22 @@ namespace WebAPI.Models.General
                         IdSchemaProperty.Validate("Id", parameters["Id"]);
                     }
                     Id = (String) Convert.ChangeType(parameters["Id"], typeof(String));
+                }
+                if (parameters.ContainsKey("userId") && parameters["userId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
+                    }
+                    UserId = (Int64) Convert.ChangeType(parameters["userId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("udid") && parameters["udid"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UdidSchemaProperty.Validate("udid", parameters["udid"]);
+                    }
+                    Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
                 }
             }
         }

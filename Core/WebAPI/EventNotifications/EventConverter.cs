@@ -50,7 +50,29 @@ namespace WebAPI.EventNotifications
             }
 
             string systemName = objectEvent.GetSystemName();
-            var userIp = HttpContext.Current?.Items[RequestContextUtils.USER_IP]?.ToString();
+            long? userId = null;
+            string userIp = null;
+            string udid = null;
+
+            var contextData = WebAPI.Managers.Models.KS.GetContextData(true);
+            if (contextData != null)
+            {
+                userId = contextData.OriginalUserId > 0 ? contextData.OriginalUserId : contextData.UserId;
+                userIp = contextData.UserIp;
+                udid = !string.IsNullOrEmpty(contextData.Udid) ? contextData.Udid : null;
+            }
+            else
+            {
+                //try get from context
+                userIp = HttpContext.Current?.Items[RequestContextUtils.USER_IP]?.ToString();
+
+                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_USER_ID))
+                {
+                    userId = long.Parse(HttpContext.Current.Items[RequestContextUtils.REQUEST_USER_ID].ToString());
+                }
+
+                udid = HttpContext.Current?.Items[RequestContextUtils.REQUEST_UDID]?.ToString();
+            }
 
             KalturaNotification eventWrapper = new KalturaNotification()
             {
@@ -60,7 +82,9 @@ namespace WebAPI.EventNotifications
                 systemName = systemName,
                 partnerId = objectEvent.PartnerId,
                 UserIp = userIp,
-                SequenceId = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY]?.ToString()
+                SequenceId = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY]?.ToString(),
+                UserId = userId,
+                Udid = udid
             };
 
             return eventWrapper;

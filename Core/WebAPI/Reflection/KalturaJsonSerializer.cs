@@ -8360,6 +8360,14 @@ namespace WebAPI.Models.General
             {
                 ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(systemName) + "\"");
             }
+            if(Udid != null && (retrievedProperties == null || retrievedProperties.Contains("udid")))
+            {
+                ret.Add("udid", "\"udid\": " + "\"" + EscapeJson(Udid) + "\"");
+            }
+            if(UserId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("userId")))
+            {
+                ret.Add("userId", "\"userId\": " + UserId);
+            }
             if(UserIp != null && (retrievedProperties == null || retrievedProperties.Contains("userIp")))
             {
                 ret.Add("userIp", "\"userIp\": " + "\"" + EscapeJson(UserIp) + "\"");
@@ -8406,6 +8414,14 @@ namespace WebAPI.Models.General
             if(systemName != null && (retrievedProperties == null || retrievedProperties.Contains("systemName")))
             {
                 ret.Add("systemName", "<systemName>" + EscapeXml(systemName) + "</systemName>");
+            }
+            if(Udid != null && (retrievedProperties == null || retrievedProperties.Contains("udid")))
+            {
+                ret.Add("udid", "<udid>" + EscapeXml(Udid) + "</udid>");
+            }
+            if(UserId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("userId")))
+            {
+                ret.Add("userId", "<userId>" + UserId + "</userId>");
             }
             if(UserIp != null && (retrievedProperties == null || retrievedProperties.Contains("userIp")))
             {

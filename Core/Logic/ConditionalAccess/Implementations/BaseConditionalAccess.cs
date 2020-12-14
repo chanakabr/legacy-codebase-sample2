@@ -10227,6 +10227,25 @@ namespace Core.ConditionalAccess
                         {
                             bool dalResult = false;
 
+                            if (!HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_KS))
+                            {
+                                if (!string.IsNullOrEmpty(userId))
+                                {
+                                    if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_USER_ID))
+                                        HttpContext.Current.Items[RequestContextUtils.REQUEST_USER_ID] = userId;
+                                    else
+                                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_USER_ID, userId);
+                                }
+
+                                if (!string.IsNullOrEmpty(udid))
+                                {
+                                    if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_UDID))
+                                        HttpContext.Current.Items[RequestContextUtils.REQUEST_UDID] = udid;
+                                    else
+                                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_UDID, udid);
+                                }
+                            }
+
                             // Cancel NOW - according to type
                             switch (transactionType)
                             {

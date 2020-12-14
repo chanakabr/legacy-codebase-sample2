@@ -10,6 +10,7 @@ using System.Reflection;
 using KLogMonitor;
 using ConfigurationManager;
 using TVPApiModule.Manager;
+using TVinciShared;
 
 /// <summary>
 /// Summary description for ConnectionHelper
@@ -27,6 +28,14 @@ namespace TVPApi
         //Get group ID according to ws user name
         static public Int32 GetGroupID(string sWSName, string sModuleName, string sUN, string sPass, string sIP)
         {
+            if (!string.IsNullOrEmpty(sIP))
+            {
+                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.USER_IP))
+                    HttpContext.Current.Items[RequestContextUtils.USER_IP] = sIP;
+                else
+                    HttpContext.Current.Items.Add(RequestContextUtils.USER_IP, sIP);
+            }
+
             if (_groupsModulesIPs.ContainsKey(sUN + ":" + sPass))
             {
                 return GetValueFromDict(sWSName, sModuleName, sUN, sPass, sIP);
