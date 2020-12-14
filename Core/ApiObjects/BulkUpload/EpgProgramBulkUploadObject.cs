@@ -50,10 +50,9 @@ namespace ApiObjects.BulkUpload
         public bool EndsAfter(EpgProgramBulkUploadObject otherProg) => this.EndDate < otherProg.EndDate;
         public bool EndsAfterOrWith(EpgProgramBulkUploadObject otherProg) => this.EndDate <= otherProg.EndDate;
 
-        public bool IsInMiddle(EpgProgramBulkUploadObject otherProg) => (this.StartsAfter(otherProg) && this.EndsBefore(otherProg));
+        public bool IsInMiddle(EpgProgramBulkUploadObject otherProg) => StartsAfterOrWith(otherProg) && EndsBeforeOrWith(otherProg) && !IsSameTimeAs(otherProg);
 
-        public bool IsSameTimeAs(EpgProgramBulkUploadObject otherProg)
-            => this.StartDate == otherProg.StartDate && this.EndDate == otherProg.EndDate;
+        public bool IsSameTimeAs(EpgProgramBulkUploadObject otherProg) => StartDate == otherProg.StartDate && EndDate == otherProg.EndDate;
 
         public override bool Equals(object obj) => Equals(obj as EpgProgramBulkUploadObject);
 
