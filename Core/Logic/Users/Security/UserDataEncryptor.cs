@@ -70,7 +70,7 @@ namespace ApiLogic.Users.Security
         {
             switch (encryptionType)
             {
-                case EncryptionType.aes256: return AesEncrypt(username, key);
+                case EncryptionType.aes256: return AesEncrypt(username.ToLower(), key);
                 default: throw new NotSupportedException("Unknown encryption type");
             }
         }
